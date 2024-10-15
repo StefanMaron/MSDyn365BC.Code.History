@@ -18,9 +18,9 @@ codeunit 136308 "Job Order Tracking"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryJob: Codeunit "Library - Job";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryDimension: Codeunit "Library - Dimension";
         IsInitialized: Boolean;
         WrongDocumentError: Label '''Document No is incorrect in Order Tracking: %1 does not contain %2\''.';
         RollBack: Label 'ROLLBACK.';
@@ -666,7 +666,6 @@ codeunit 136308 "Job Order Tracking"
         Assert.AreEqual(JobTaskDimension."Dimension Code", DimensionSetEntry."Dimension Code", '');
         Assert.AreEqual(JobTaskDimension."Dimension Value Code", DimensionSetEntry."Dimension Value Code", '');
     end;
-
 
     [MessageHandler]
     [Scope('OnPrem')]

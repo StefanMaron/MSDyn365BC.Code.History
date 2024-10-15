@@ -1,3 +1,16 @@
+namespace System.Environment;
+
+using Microsoft.CRM.Outlook;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Setup;
+using System;
+using System.Integration;
+
 codeunit 1643 "Hyperlink Manifest"
 {
 

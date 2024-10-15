@@ -1,3 +1,25 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Resource;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Foundation.Period;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Foundation.UOM;
+using Microsoft.Utilities;
+
 permissionset 386 "Resources Journals - Edit"
 {
     Access = Public;

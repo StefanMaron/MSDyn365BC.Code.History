@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Reporting;
+
 enum 62 "Document Sending Profile Usage"
 {
     Extensible = true;

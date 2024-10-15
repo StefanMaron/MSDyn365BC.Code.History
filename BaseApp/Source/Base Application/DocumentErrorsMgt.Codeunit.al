@@ -1,3 +1,11 @@
+﻿namespace Microsoft.Utilities;
+
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Service.Document;
+using System.Environment.Configuration;
+using System.Utilities;
+
 codeunit 9070 "Document Errors Mgt."
 {
     SingleInstance = true;

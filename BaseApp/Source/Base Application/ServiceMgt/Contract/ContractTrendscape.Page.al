@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Foundation.Enums;
+
 page 6060 "Contract Trendscape"
 {
     Caption = 'Contract Trendscape';
@@ -27,9 +31,9 @@ page 6060 "Contract Trendscape"
                         ServContract.SetRange("Contract Type", ServContract."Contract Type"::Contract);
                         ServContract."Contract No." := ContractNo;
                         if PAGE.RunModal(0, ServContract) = ACTION::LookupOK then begin
-                            Get(ServContract."Contract Type"::Contract, ServContract."Contract No.");
-                            SetRange("Contract Type", "Contract Type"::Contract);
-                            SetRange("Contract No.", ServContract."Contract No.");
+                            Rec.Get(ServContract."Contract Type"::Contract, ServContract."Contract No.");
+                            Rec.SetRange("Contract Type", Rec."Contract Type"::Contract);
+                            Rec.SetRange("Contract No.", ServContract."Contract No.");
                             ContractNo := ServContract."Contract No.";
                             CurrPage.Update(false);
                         end;
@@ -41,9 +45,9 @@ page 6060 "Contract Trendscape"
                         ServContract.SetRange("Contract Type", ServContract."Contract Type"::Contract);
                         ServContract.SetRange("Contract No.", ContractNo);
                         if ServContract.FindFirst() then begin
-                            Get(ServContract."Contract Type"::Contract, ServContract."Contract No.");
-                            SetRange("Contract No.", ServContract."Contract No.");
-                            SetRange("Contract Type", "Contract Type"::Contract);
+                            Rec.Get(ServContract."Contract Type"::Contract, ServContract."Contract No.");
+                            Rec.SetRange("Contract No.", ServContract."Contract No.");
+                            Rec.SetRange("Contract Type", Rec."Contract Type"::Contract);
                             ContractNo := ServContract."Contract No.";
                         end;
                         ContractNoOnAfterValidate();
@@ -110,7 +114,7 @@ page 6060 "Contract Trendscape"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ContractNo := "Contract No.";
+        ContractNo := Rec."Contract No.";
         UpdateSubForm();
     end;
 

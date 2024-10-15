@@ -75,7 +75,7 @@ codeunit 144019 "G/L Register FI Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('NoSeries_GLEntry', GLEntry."No. Series");
             LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_GLEntry', GLEntry."Document No.")
         end else
-            Error(StrSubstNo(ReportErr, GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
+            Error(ReportErr, GLEntry.FieldCaption("Document No."), GLEntry."Document No.");
     end;
 
     local procedure EvaluateXmlDate(DateText: Text): Date

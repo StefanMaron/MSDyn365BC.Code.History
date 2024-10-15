@@ -1,3 +1,17 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Warehouse.Structure;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Dimension;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.FixedAssets.Posting;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Inventory.Location;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.Purchases.Vendor;
+
 permissionset 7052 "Fixed Assets - Read"
 {
     Access = Public;

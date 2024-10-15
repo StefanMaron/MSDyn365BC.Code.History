@@ -1266,9 +1266,6 @@ codeunit 134483 "ERM Change Global Dimensions"
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Dimension Value"), '349');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Cust. Ledg. Entry"), '379');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Vendor Ledg. Entry"), '380');
-#if not CLEAN20
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"XBRL G/L Map Line"), '397');
-#endif
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Employee Ledger Entry"), '5223');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Dimensions Field Map"), '8383');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"General Ledger Setup"), '98');

@@ -1,3 +1,15 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Entity;
+
+using Microsoft.Integration.Graph;
+using System.Environment;
+using System.IO;
+using System.Reflection;
+using Microsoft.API.Upgrade;
+
 page 5469 "API Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -6,8 +18,8 @@ page 5469 "API Setup"
     PageType = List;
     SaveValues = true;
     SourceTable = "Config. Tmpl. Selection Rules";
-    SourceTableView = SORTING(Order)
-                      ORDER(Ascending);
+    SourceTableView = sorting(Order)
+                      order(Ascending);
     UsageCategory = Administration;
 
     layout
@@ -16,9 +28,10 @@ page 5469 "API Setup"
         {
             repeater(Group)
             {
-                field("Order"; Order)
+                field("Order"; Rec.Order)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the order of the entry.';
                 }
                 field("Table ID"; Rec."Table ID")
                 {
@@ -28,14 +41,15 @@ page 5469 "API Setup"
                 field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = All;
-                    TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Page),
-                                                                         "Object Subtype" = CONST('API'));
+                    TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Page),
+                                                                         "Object Subtype" = const('API'));
                     ToolTip = 'Specifies the API web service page that the template applies to.';
                 }
                 field("Template Code"; Rec."Template Code")
                 {
                     ApplicationArea = All;
-                    TableRelation = "Config. Template Header".Code WHERE("Table ID" = FIELD("Table ID"));
+                    TableRelation = "Config. Template Header".Code where("Table ID" = field("Table ID"));
+                    ToolTip = 'Specifies the config template that should be applied';
                 }
                 field(Description; Rec.Description)
                 {
@@ -47,10 +61,11 @@ page 5469 "API Setup"
                     ApplicationArea = All;
                     Caption = 'Conditions';
                     Editable = false;
+                    ToolTip = 'Specifies the condition for when the config template should be applied.';
 
                     trigger OnAssistEdit()
                     begin
-                        SetSelectionCriteria();
+                        Rec.SetSelectionCriteria();
                         CurrPage.Update(false);
                     end;
                 }
@@ -62,6 +77,7 @@ page 5469 "API Setup"
     {
         area(processing)
         {
+#if not CLEAN23
             action(IntegrateAPIs)
             {
                 ApplicationArea = All;
@@ -79,7 +95,8 @@ page 5469 "API Setup"
                         CODEUNIT.Run(CODEUNIT::"Graph Mgt - General Tools");
                 end;
             }
-
+#endif
+#if not CLEAN23
             action(FixSalesAndPurchaseApiRecords)
             {
                 ApplicationArea = All;
@@ -102,7 +119,8 @@ page 5469 "API Setup"
                     Message(AllRecordsHaveBeenUpdatedMsg);
                 end;
             }
-
+#endif
+#if not CLEAN23
             action(FixSalesShipmentLine)
             {
                 ApplicationArea = All;
@@ -120,7 +138,8 @@ page 5469 "API Setup"
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Sales Shipment Line");
                 end;
             }
-
+#endif
+#if not CLEAN23
             action(FixPurchRcptLine)
             {
                 ApplicationArea = All;
@@ -138,7 +157,7 @@ page 5469 "API Setup"
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Purch Rcpt Line");
                 end;
             }
-
+#endif
             action(FixPurchOrder)
             {
                 ApplicationArea = All;
@@ -172,6 +191,7 @@ page 5469 "API Setup"
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Sales Cr. Memo");
                 end;
             }
+#if not CLEAN23
             action(FixSalesInvoiceShortcutDimension)
             {
                 ApplicationArea = All;
@@ -189,6 +209,7 @@ page 5469 "API Setup"
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Document Shortcut Dim.");
                 end;
             }
+#endif
             action(FixItemCategoryCode)
             {
                 ApplicationArea = All;
@@ -204,6 +225,7 @@ page 5469 "API Setup"
                 end;
             }
         }
+#if not CLEAN23
         area(Promoted)
         {
             group(Category_Process)
@@ -218,30 +240,33 @@ page 5469 "API Setup"
                 }
             }
         }
+#endif
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        ConditionsText := GetFiltersAsTextDisplay();
+        ConditionsText := Rec.GetFiltersAsTextDisplay();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        ConditionsText := GetFiltersAsTextDisplay();
+        ConditionsText := Rec.GetFiltersAsTextDisplay();
     end;
 
     trigger OnOpenPage()
     var
-        EnviromentInformation: Codeunit "Environment Information";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
-        SetAutoCalcFields("Selection Criteria");
-        SetupActionVisible := EnviromentInformation.IsOnPrem();
+        Rec.SetAutoCalcFields("Selection Criteria");
+        SetupActionVisible := EnvironmentInformation.IsOnPrem();
     end;
 
     var
         SetupActionVisible: Boolean;
         ConditionsText: Text;
+#if not CLEAN23
         ConfirmApiSetupQst: Label 'This action will populate the integration tables for all APIs and may take several minutes to complete. Do you want to continue?';
         AllRecordsHaveBeenUpdatedMsg: Label 'All records have been sucessfully updated.';
+#endif
 }
 

@@ -56,7 +56,7 @@ page 1307 "O365 Getting Started Device"
 
     trigger OnInit()
     begin
-        SetRange("User ID", UserId);
+        Rec.SetRange("User ID", UserId);
     end;
 
     trigger OnOpenPage()
@@ -66,10 +66,10 @@ page 1307 "O365 Getting Started Device"
 
         LoadRecords();
 
-        if not AlreadyShown() then begin
-            MarkAsShown();
-            "Tour Completed" := true;
-            Modify();
+        if not Rec.AlreadyShown() then begin
+            Rec.MarkAsShown();
+            Rec."Tour Completed" := true;
+            Rec.Modify();
         end;
     end;
 

@@ -1,3 +1,10 @@
+namespace System.Automation;
+
+using System;
+using System.Reflection;
+using System.Utilities;
+using System.Xml;
+
 codeunit 1530 "Request Page Parameters Helper"
 {
 
@@ -241,7 +248,7 @@ codeunit 1530 "Request Page Parameters Helper"
 
         foreach Table in TableList do
             if not TableFilterDictionary.ContainsKey(Table) then
-                TableFilterDictionary.Add(Table, FilterPageBuilder.GetView(GetTableCaption(Table), false));
+            TableFilterDictionary.Add(Table, FilterPageBuilder.GetView(GetTableCaption(Table), false));
 
         exit(ConvertFiltersToParameters(TableFilterDictionary));
     end;

@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using System.Security.User;
+
 page 71 "User Time Registers"
 {
     ApplicationArea = Basic, Suite;
@@ -19,12 +27,12 @@ page 71 "User Time Registers"
                     LookupPageID = "User Lookup";
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                 }
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date.';
                 }
-                field(Minutes; Minutes)
+                field(Minutes; Rec.Minutes)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many minutes an individual user works on the accounts.';

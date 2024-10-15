@@ -8,7 +8,7 @@ page 2108 "O365 Outstanding Customer List"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = Customer;
-    SourceTableView = SORTING(Name);
+    SourceTableView = sorting(Name);
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -36,7 +36,7 @@ page 2108 "O365 Outstanding Customer List"
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the customer''s telephone number.';
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
@@ -50,7 +50,7 @@ page 2108 "O365 Outstanding Customer List"
 
                     trigger OnDrillDown()
                     begin
-                        OpenCustomerLedgerEntries(false);
+                        Rec.OpenCustomerLedgerEntries(false);
                     end;
                 }
                 field("Balance Due (LCY)"; Rec."Balance Due (LCY)")
@@ -65,7 +65,7 @@ page 2108 "O365 Outstanding Customer List"
 
                     trigger OnDrillDown()
                     begin
-                        OpenCustomerLedgerEntries(true);
+                        Rec.OpenCustomerLedgerEntries(true);
                     end;
                 }
                 field("Sales (LCY)"; Rec."Sales (LCY)")
@@ -98,7 +98,7 @@ page 2108 "O365 Outstanding Customer List"
                 begin
                     O365SalesDocument.SetRange(Posted, true);
                     O365SalesDocument.SetFilter("Outstanding Amount", '>0');
-                    O365SalesDocument.SetFilter("Sell-to Customer No.", "No.");
+                    O365SalesDocument.SetFilter("Sell-to Customer No.", Rec."No.");
                     O365SalesDocument.SetSortByDocDate();
 
                     PAGE.Run(PAGE::"O365 Customer Sales Documents", O365SalesDocument);
@@ -119,7 +119,7 @@ page 2108 "O365 Outstanding Customer List"
                 begin
                     SalesHeader.Init();
                     SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
-                    SalesHeader.Validate("Sell-to Customer No.", "No.");
+                    SalesHeader.Validate("Sell-to Customer No.", Rec."No.");
                     SalesHeader.Insert(true);
                     Commit();
 
@@ -142,9 +142,9 @@ page 2108 "O365 Outstanding Customer List"
 
     trigger OnAfterGetRecord()
     begin
-        SetRange("Date Filter", 0D, WorkDate() - 1);
-        CalcFields("Balance Due (LCY)");
-        SetRange("Date Filter", 0D, WorkDate());
+        Rec.SetRange("Date Filter", 0D, WorkDate() - 1);
+        Rec.CalcFields("Balance Due (LCY)");
+        Rec.SetRange("Date Filter", 0D, WorkDate());
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -155,7 +155,7 @@ page 2108 "O365 Outstanding Customer List"
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", 0D, WorkDate());
+        Rec.SetRange("Date Filter", 0D, WorkDate());
         OverdueBalanceAutoFormatExpr := StrSubstNo(AutoFormatExprWithPrefixTxt, OverdueTxt);
     end;
 
@@ -168,8 +168,8 @@ page 2108 "O365 Outstanding Customer List"
     var
         CustContUpdate: Codeunit "CustCont-Update";
     begin
-        Blocked := Blocked::All;
-        Modify(true);
+        Rec.Blocked := Rec.Blocked::All;
+        Rec.Modify(true);
         CustContUpdate.DeleteCustomerContacts(Rec);
         CurrPage.Update();
     end;

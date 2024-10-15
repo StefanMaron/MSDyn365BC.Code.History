@@ -31,7 +31,7 @@ page 134124 "Mock Price Worksheet Line"
                 field("Variant Code"; "Variant Code")
                 {
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                 }
                 field("Starting Date"; "Starting Date")

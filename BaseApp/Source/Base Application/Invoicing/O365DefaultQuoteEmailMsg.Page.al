@@ -6,8 +6,8 @@ page 2171 "O365 Default Quote Email Msg"
     InsertAllowed = false;
     PageType = StandardDialog;
     SourceTable = "O365 Default Email Message";
-    SourceTableView = SORTING("Document Type")
-                      WHERE("Document Type" = FILTER(Quote));
+    SourceTableView = sorting("Document Type")
+                      where("Document Type" = filter(Quote));
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -32,7 +32,7 @@ page 2171 "O365 Default Quote Email Msg"
 
     trigger OnOpenPage()
     begin
-        EmailMessage := GetMessage("Document Type"::Quote);
+        EmailMessage := Rec.GetMessage(Rec."Document Type"::Quote);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -40,8 +40,8 @@ page 2171 "O365 Default Quote Email Msg"
         if CloseAction <> ACTION::OK then
             exit;
 
-        "Document Type" := "Document Type"::Quote;
-        SetMessage(EmailMessage);
+        Rec."Document Type" := Rec."Document Type"::Quote;
+        Rec.SetMessage(EmailMessage);
     end;
 
     var

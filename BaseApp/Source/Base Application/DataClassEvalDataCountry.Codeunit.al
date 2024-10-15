@@ -1,3 +1,23 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.HumanResources.Absence;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Sales.Archive;
+using System.Privacy;
+using Microsoft.Purchases.Payables;
+#if not CLEAN22
+using Microsoft.Finance.AutomaticAccounts;
+#endif
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.Bank.Setup;
+using Microsoft.Bank.Payment;
+
 codeunit 1752 "Data Class. Eval. Data Country"
 {
 
@@ -23,8 +43,8 @@ codeunit 1752 "Data Class. Eval. Data Country"
 #if not CLEAN22
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Line");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Intrastat - File Setup");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Depr. Diff. Posting Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reference File Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Ref. Payment - Imported");

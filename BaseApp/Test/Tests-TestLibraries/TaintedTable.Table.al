@@ -6,7 +6,7 @@ table 130011 "Tainted Table"
     {
         field(1; "Snapshot No."; Integer)
         {
-            TableRelation = Snapshot."Snapshot No." WHERE("Snapshot No." = FIELD("Snapshot No."));
+            TableRelation = Snapshot."Snapshot No." where("Snapshot No." = field("Snapshot No."));
         }
         field(2; "Table No."; Integer)
         {

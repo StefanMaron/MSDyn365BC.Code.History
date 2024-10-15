@@ -1,3 +1,12 @@
+namespace System.Security.AccessControl;
+
+using System.Environment;
+using System.Integration;
+using System.Azure.Identity;
+using System.Diagnostics;
+using Microsoft.CRM.Outlook;
+using System.Threading;
+
 permissionset 3285 "Outlook Sync - Admin"
 {
     Access = Public;

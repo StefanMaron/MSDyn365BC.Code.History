@@ -1,3 +1,13 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CostAccounting.Setup;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Enums;
+
 table 334 "Column Layout"
 {
     Caption = 'Column Layout';
@@ -30,11 +40,9 @@ table 334 "Column Layout"
         {
             Caption = 'Ledger Entry Type';
         }
-        field(7; "Amount Type"; Option)
+        field(7; "Amount Type"; Enum "Account Schedule Amount Type")
         {
             Caption = 'Amount Type';
-            OptionCaption = 'Net Amount,Debit Amount,Credit Amount';
-            OptionMembers = "Net Amount","Debit Amount","Credit Amount";
         }
         field(8; Formula; Code[80])
         {

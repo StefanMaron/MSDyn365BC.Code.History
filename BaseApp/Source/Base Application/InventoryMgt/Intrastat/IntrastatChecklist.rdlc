@@ -3820,12 +3820,6 @@ End Function
         <Field Name="TotalCaption">
           <DataField>TotalCaption</DataField>
         </Field>
-        <Field Name="CountryRegionofOriginCode">
-          <DataField>CountryRegionofOriginCode</DataField>
-        </Field>
-        <Field Name="PartnerVATID">
-          <DataField>PartnerVATID</DataField>
-        </Field>
         <Field Name="CountryRegionOfOriginIntrastatCode">
           <DataField>CountryRegionOfOriginIntrastatCode</DataField>
         </Field>
@@ -3834,6 +3828,12 @@ End Function
         </Field>
         <Field Name="CountryRegionOfOriginCodeCaption">
           <DataField>CountryRegionOfOriginCodeCaption</DataField>
+        </Field>
+        <Field Name="CountryRegionofOriginCode">
+          <DataField>CountryRegionofOriginCode</DataField>
+        </Field>
+        <Field Name="PartnerVATID">
+          <DataField>PartnerVATID</DataField>
         </Field>
       </Fields>
       <Query>

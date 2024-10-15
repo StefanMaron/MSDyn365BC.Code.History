@@ -1,3 +1,9 @@
+namespace Microsoft.CRM.Outlook;
+
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+
 page 1632 "Office Invoice Selection"
 {
     Caption = 'Invoice Exists';
@@ -45,7 +51,7 @@ page 1632 "Office Invoice Selection"
 
                     trigger OnDrillDown()
                     begin
-                        ShowInvoice();
+                        Rec.ShowInvoice();
                     end;
                 }
                 field("Sell-to Customer Name"; SellToCustomer)
@@ -54,7 +60,7 @@ page 1632 "Office Invoice Selection"
                     Caption = 'Sell-to Customer Name';
                     ToolTip = 'Specifies the name of the customer on the document.';
                 }
-                field(Posted; Posted)
+                field(Posted; Rec.Posted)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted';
@@ -85,14 +91,14 @@ page 1632 "Office Invoice Selection"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        if Posted then begin
-            SalesInvoiceHeader.Get("Document No.");
+        if Rec.Posted then begin
+            SalesInvoiceHeader.Get(Rec."Document No.");
             PostingDate := SalesInvoiceHeader."Posting Date";
             SalesInvoiceHeader.CalcFields(Amount);
             Amount := SalesInvoiceHeader.Amount;
             SellToCustomer := SalesInvoiceHeader."Sell-to Customer Name";
         end else begin
-            SalesHeader.Get(SalesHeader."Document Type"::Invoice, "Document No.");
+            SalesHeader.Get(SalesHeader."Document Type"::Invoice, Rec."Document No.");
             SalesHeader.CalcFields(Amount);
             Amount := SalesHeader.Amount;
             SellToCustomer := SalesHeader."Sell-to Customer Name";

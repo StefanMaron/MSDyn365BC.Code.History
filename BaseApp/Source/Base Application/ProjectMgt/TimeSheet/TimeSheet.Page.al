@@ -1,5 +1,14 @@
-﻿#pragma warning disable AS0106
-#if not CLEAN22
+﻿#if not CLEAN22
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Finance.Dimension;
+using System.Utilities;
+
+#pragma warning disable AS0106
 page 950 "Time Sheet"
 {
     AutoSplitKey = true;
@@ -120,10 +129,10 @@ page 950 "Time Sheet"
 
                     trigger OnAssistEdit()
                     begin
-                        if "Line No." = 0 then
+                        if Rec."Line No." = 0 then
                             exit;
 
-                        ShowLineDetails(false);
+                        Rec.ShowLineDetails(false);
                         CurrPage.Update(false);
                     end;
 
@@ -144,7 +153,7 @@ page 950 "Time Sheet"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field(Chargeable; Chargeable)
+                field(Chargeable; Rec.Chargeable)
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -330,8 +339,8 @@ page 950 "Time Sheet"
             {
                 ApplicationArea = Jobs;
                 Caption = 'Activity Details';
-                SubPageLink = "Time Sheet No." = FIELD("Time Sheet No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Time Sheet No." = field("Time Sheet No."),
+                              "Line No." = field("Line No.");
             }
         }
     }
@@ -395,7 +404,7 @@ page 950 "Time Sheet"
 
                     trigger OnAction()
                     begin
-                        ShowLineDetails(false);
+                        Rec.ShowLineDetails(false);
                     end;
                 }
                 action(Dimensions)
@@ -411,7 +420,7 @@ page 950 "Time Sheet"
                     var
                         DimMgt: Codeunit DimensionManagement;
                     begin
-                        "Dimension Set ID" := DimMgt.EditDimensionSet("Dimension Set ID", DimensionCaptionTok);
+                        Rec."Dimension Set ID" := DimMgt.EditDimensionSet(Rec."Dimension Set ID", DimensionCaptionTok);
                     end;
                 }
             }
@@ -425,8 +434,8 @@ page 950 "Time Sheet"
                     Caption = '&Time Sheet Comments';
                     Image = ViewComments;
                     RunObject = Page "Time Sheet Comment Sheet";
-                    RunPageLink = "No." = FIELD("Time Sheet No."),
-                                  "Time Sheet Line No." = CONST(0);
+                    RunPageLink = "No." = field("Time Sheet No."),
+                                  "Time Sheet Line No." = const(0);
                     ToolTip = 'View comments about the time sheet.';
                 }
                 action(LineComments)
@@ -435,8 +444,8 @@ page 950 "Time Sheet"
                     Caption = '&Line Comments';
                     Image = ViewComments;
                     RunObject = Page "Time Sheet Comment Sheet";
-                    RunPageLink = "No." = FIELD("Time Sheet No."),
-                                  "Time Sheet Line No." = FIELD("Line No.");
+                    RunPageLink = "No." = field("Time Sheet No."),
+                                  "Time Sheet Line No." = field("Line No.");
                     Scope = Repeater;
                     ToolTip = 'View or create comments.';
                 }
@@ -575,8 +584,8 @@ page 950 "Time Sheet"
 
     trigger OnOpenPage()
     begin
-        if "Time Sheet No." <> '' then
-            CurrTimeSheetNo := "Time Sheet No."
+        if Rec."Time Sheet No." <> '' then
+            CurrTimeSheetNo := Rec."Time Sheet No."
         else
             CurrTimeSheetNo := TimeSheetHeader.FindLastTimeSheetNo(TimeSheetHeader.FieldNo("Owner User ID"));
         OnOpenPageOnAfterSetCurrTimeSheetNo(TimeSheetHeader, Rec);
@@ -637,9 +646,9 @@ page 950 "Time Sheet"
         i := 0;
         while i < NoOfColumns do begin
             i := i + 1;
-            if ("Line No." <> 0) and TimeSheetDetail.Get(
-                 "Time Sheet No.",
-                 "Line No.",
+            if (Rec."Line No." <> 0) and TimeSheetDetail.Get(
+                 Rec."Time Sheet No.",
+                 Rec."Line No.",
                  ColumnRecords[i]."Period Start")
             then
                 CellData[i] := TimeSheetDetail.Quantity
@@ -647,17 +656,17 @@ page 950 "Time Sheet"
                 CellData[i] := 0;
         end;
         UpdateFactBoxes();
-        AllowEdit := Status in [Status::Open, Status::Rejected];
+        AllowEdit := Rec.Status in [Rec.Status::Open, Rec.Status::Rejected];
     end;
 
     local procedure ValidateQuantity(ColumnNo: Integer)
     begin
-        if (CellData[ColumnNo] <> 0) and (Type = Type::" ") then
+        if (CellData[ColumnNo] <> 0) and (Rec.Type = Rec.Type::" ") then
             Error(Text001);
 
         if TimeSheetDetail.Get(
-             "Time Sheet No.",
-             "Line No.",
+             Rec."Time Sheet No.",
+             Rec."Line No.",
              ColumnRecords[ColumnNo]."Period Start")
         then begin
             if CellData[ColumnNo] <> TimeSheetDetail.Quantity then
@@ -716,7 +725,7 @@ page 950 "Time Sheet"
     local procedure CellDataOnAfterValidate()
     begin
         UpdateFactBoxes();
-        CalcFields("Total Quantity");
+        Rec.CalcFields("Total Quantity");
     end;
 
     local procedure FindTimeSheet(Which: Option)
@@ -730,7 +739,7 @@ page 950 "Time Sheet"
     begin
         CurrPage.ActualSchedSummaryFactBox.PAGE.UpdateData(TimeSheetHeader);
         CurrPage.TimeSheetStatusFactBox.PAGE.UpdateData(TimeSheetHeader);
-        if "Line No." = 0 then
+        if Rec."Line No." = 0 then
             CurrPage.ActivityDetailsFactBox.PAGE.SetEmptyLine();
     end;
 
@@ -745,7 +754,7 @@ page 950 "Time Sheet"
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
-        TimeSheetLine.Get("Time Sheet No.", "Line No.");
+        TimeSheetLine.Get(Rec."Time Sheet No.", Rec."Line No.");
         TimeSheetLine.TestStatus();
     end;
 
@@ -792,9 +801,9 @@ page 950 "Time Sheet"
         TimeSheetAllocation: Page "Time Sheet Allocation";
         AllocatedQty: array[7] of Decimal;
     begin
-        TestField(Posted, true);
-        CalcFields("Total Quantity");
-        TimeSheetAllocation.InitParameters("Time Sheet No.", "Line No.", "Total Quantity");
+        Rec.TestField(Posted, true);
+        Rec.CalcFields("Total Quantity");
+        TimeSheetAllocation.InitParameters(Rec."Time Sheet No.", Rec."Line No.", Rec."Total Quantity");
         if TimeSheetAllocation.RunModal() = ACTION::OK then begin
             TimeSheetAllocation.GetAllocation(AllocatedQty);
             TimeSheetMgt.UpdateTimeAllocation(Rec, AllocatedQty);

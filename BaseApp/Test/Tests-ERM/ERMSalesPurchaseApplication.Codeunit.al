@@ -22,7 +22,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.';
         ApplyAmountErr: Label '%1 must be %2.';
-        BatchMsg: Label 'Edit - %1 - %2-%3';
+        BatchMsg: Label '%1 - %2-%3';
         ValidationErr: Label 'Journal Card Caption does not match.';
         WrongCustNoErr: Label 'Customer was not found.';
         WrongVendNoErr: Label 'Vendor was not found.';

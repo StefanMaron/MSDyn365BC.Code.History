@@ -389,7 +389,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
             Init();
             Validate("No.", NextNo);
             Validate("Vendor No.", VendorNo);
-            Validate(Description, LibraryUtility.GenerateRandomCode(FieldNo(Description), DATABASE::"Ref. Payment - Exported"));
+            Validate("Description 2", LibraryUtility.GenerateRandomCode(FieldNo("Description 2"), DATABASE::"Ref. Payment - Exported"));
             Validate("Payment Account", PaymentAccount);
             Validate("Due Date", AnyDate);
             Validate("Payment Date", PostingDate);

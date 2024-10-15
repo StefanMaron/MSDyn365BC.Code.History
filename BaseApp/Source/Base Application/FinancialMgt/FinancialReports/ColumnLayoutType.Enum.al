@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 enum 331 "Column Layout Type"
 {
     Extensible = true;

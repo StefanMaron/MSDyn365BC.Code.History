@@ -5189,12 +5189,21 @@
         PurchaseHeader: Record "Purchase Header";
         GLSetup: Record "General Ledger Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
         LibrarySetupStorage.Restore();
         LibraryRandom.SetSeed(1);  // Generate Random Seed using Random Number Generator.
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         GLSetup.Get();
         GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Enabled;
@@ -5557,8 +5566,8 @@
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(
-SalesHeader, DocumentType,
-LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+          SalesHeader, DocumentType,
+          LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         ModifySalesHeaderPricesInclVAT(SalesHeader, PricesInclVAT);
     end;
 
@@ -5587,9 +5596,7 @@ LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Post
         SalesLine.Modify();
     end;
 
-    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Sales Line Type"; No: Code[20];
-                                                                                                                                                                                    Quantity: Decimal;
-                                                                                                                                                                                    UnitPrice: Decimal)
+    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
@@ -5662,8 +5669,8 @@ LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Post
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryPurchase.CreatePurchHeader(
-PurchaseHeader, DocumentType,
-LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+          PurchaseHeader, DocumentType,
+          LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         ModifyPurchaseHeaderPricesInclVAT(PurchaseHeader, PricesInclVAT);
     end;
 
@@ -5692,9 +5699,7 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20];
-                                                                                                                                                                                                   Quantity: Decimal;
-                                                                                                                                                                                                   DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
@@ -6107,8 +6112,7 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         PurchaseLine.FindFirst();
     end;
 
-    local procedure RunCopySalesDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type From"; IncludeHeader: Boolean;
-                                                                                                                     RecalculateLines: Boolean)
+    local procedure RunCopySalesDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type From"; IncludeHeader: Boolean; RecalculateLines: Boolean)
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
@@ -6378,9 +6382,7 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
             Customer."VAT Bus. Posting Group", SalesHeader.TableCaption(), SalesHeader."No."));
     end;
 
-    local procedure VerifyVATDifference(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20];
-                                                          No: Code[20];
-                                                          VATDifference: Decimal)
+    local procedure VerifyVATDifference(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20]; VATDifference: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin

@@ -1,3 +1,5 @@
+namespace System.Environment.Configuration;
+
 enum 9197 "Creation Type"
 {
     Extensible = true;

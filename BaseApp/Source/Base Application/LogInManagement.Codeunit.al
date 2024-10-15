@@ -1,3 +1,24 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Environment;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Company;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using System.Azure.Identity;
+using System.Environment.Configuration;
+using System.Globalization;
+using System.Security.AccessControl;
+using System.Security.User;
+using System.Reflection;
+
 codeunit 40 LogInManagement
 {
     Permissions = TableData "Company Information" = r,
@@ -7,12 +28,16 @@ codeunit 40 LogInManagement
                   TableData Vendor = r,
                   TableData Item = r,
                   TableData User = r,
+                  TableData "User Personalization" = rm,
                   TableData "User Time Register" = rimd,
                   TableData "My Customer" = rimd,
                   TableData "My Vendor" = rimd,
                   TableData "My Item" = rimd,
-                  TableData "My Account" = rimd;
+                  TableData "My Account" = rimd,
+                  TableData "Windows Language" = r;
     SingleInstance = true;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin
@@ -37,10 +62,6 @@ codeunit 40 LogInManagement
     begin
         OnShowTermsAndConditions();
 
-#if not CLEAN20
-        OnBeforeCompanyOpen();
-#endif
-
         if GuiAllowed and (ClientTypeManagement.GetCurrentClientType() <> ClientType::Background) then
             LogInStart();
 
@@ -49,10 +70,6 @@ codeunit 40 LogInManagement
                 WorkDate := CurrentDate;
 
         AzureADPlan.CheckMixedPlans();
-
-#if not CLEAN20
-        OnAfterCompanyOpen();
-#endif
     end;
 
     procedure CompanyClose()
@@ -77,7 +94,7 @@ codeunit 40 LogInManagement
         Language."Language ID" := GlobalLanguage;
 
         if not Language.Find() then begin
-            Language."Language ID" := WindowsLanguage;
+            Language."Language ID" := WindowsLanguage();
             if not Language.Find() then
                 Language."Language ID" := LanguageManagement.GetDefaultApplicationLanguageId();
         end;
@@ -100,10 +117,6 @@ codeunit 40 LogInManagement
             User.SetRange("User Security ID");
         end;
 
-#if not CLEAN20
-        OnBeforeLogInStart();
-#endif
-
         UpdateUserPersonalization();
 
         LogInDate := Today;
@@ -113,10 +126,6 @@ codeunit 40 LogInManagement
         WorkDate := GetDefaultWorkDate();
 
         ApplicationAreaMgmtFacade.SetupApplicationArea();
-
-#if not CLEAN20
-        OnAfterLogInStart();
-#endif
     end;
 
     local procedure LogInEnd()
@@ -167,20 +176,7 @@ codeunit 40 LogInManagement
                 end;
             end;
         end;
-
-#if not CLEAN20
-        OnAfterLogInEnd();
-#endif
     end;
-
-#if not CLEAN20
-    [Obsolete('No longer used, Company-Initialize runs on System Initialize''s event OnAfterLogin', '20.0')]
-    procedure InitializeCompany()
-    begin
-        if not GLSetup.Get() then
-            CODEUNIT.Run(CODEUNIT::"Company-Initialize");
-    end;
-#endif
 
     local procedure GetGLSetup(): Boolean
     begin
@@ -207,10 +203,18 @@ codeunit 40 LogInManagement
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"UI Helper Triggers", 'GetSystemIndicator', '', false, false)]
+    local procedure OnGetSystemIndicator(var Text: Text[250]; var Style: Option Standard,Accent1,Accent2,Accent3,Accent4,Accent5,Accent6,Accent7,Accent8,Accent9)
+    begin
+        GetSystemIndicator(Text, Style);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Company Information", 'r')]
+    [InherentPermissions(PermissionObjectType::Table, Database::"Company Information", 'X')]
     local procedure GetSystemIndicator(var Text: Text[250]; var Style: Option Standard,Accent1,Accent2,Accent3,Accent4,Accent5,Accent6,Accent7,Accent8,Accent9)
     var
         CompanyInformation: Record "Company Information";
     begin
+        CompanyInformation.SetLoadFields("System Indicator", "System Indicator Style", "Custom System Indicator Text");
         if CompanyInformation.Get() then;
         CompanyInformation.GetSystemIndicator(Text, Style);
     end;
@@ -275,38 +279,6 @@ codeunit 40 LogInManagement
     begin
         CompanyClose();
     end;
-
-#if not CLEAN20
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
-    local procedure OnAfterLogInStart()
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
-    local procedure OnAfterLogInEnd()
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
-    local procedure OnBeforeLogInStart()
-    begin
-    end;
-
-    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCompanyOpen()
-    begin
-    end;
-
-    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCompanyOpen()
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCompanyClose()

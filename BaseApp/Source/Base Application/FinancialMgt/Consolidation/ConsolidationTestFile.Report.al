@@ -1,3 +1,11 @@
+﻿namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.IO;
+using System.Utilities;
+
 report 15 "Consolidation - Test File"
 {
     DefaultLayout = RDLC;
@@ -9,7 +17,7 @@ report 15 "Consolidation - Test File"
     {
         dataitem("Business Unit"; "Business Unit")
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             MaxIteration = 1;
 
             trigger OnPreDataItem()
@@ -19,7 +27,7 @@ report 15 "Consolidation - Test File"
         }
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.") WHERE("Account Type" = CONST(Posting));
+            DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
 
             trigger OnAfterGetRecord()
             begin
@@ -68,7 +76,7 @@ report 15 "Consolidation - Test File"
         }
         dataitem(Header; "Integer")
         {
-            DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+            DataItemTableView = sorting(Number) where(Number = const(1));
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
@@ -119,7 +127,7 @@ report 15 "Consolidation - Test File"
             }
             dataitem(BusUnitErrorLoop; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 column(ErrorText_Number_; ErrorText[Number])
                 {
                 }
@@ -139,7 +147,7 @@ report 15 "Consolidation - Test File"
             }
             dataitem(GLAccount; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 column(AccountType; Format("G/L Account"."Account Type", 0, 2))
                 {
                 }
@@ -175,7 +183,7 @@ report 15 "Consolidation - Test File"
                 }
                 dataitem(GLEntry; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
 
                     trigger OnAfterGetRecord()
                     begin
@@ -192,7 +200,7 @@ report 15 "Consolidation - Test File"
                 }
                 dataitem(ErrorLoop; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     PrintOnlyIfDetail = true;
                     column(ErrorText_Number__Control33; ErrorText[Number])
                     {

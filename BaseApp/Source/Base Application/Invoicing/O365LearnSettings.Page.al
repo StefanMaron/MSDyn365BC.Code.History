@@ -21,7 +21,7 @@ page 2131 "O365 Learn Settings"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(Title; Title)
+                field(Title; Rec.Title)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                 }
@@ -49,7 +49,7 @@ page 2131 "O365 Learn Settings"
 
                 trigger OnAction()
                 begin
-                    OpenLink();
+                    Rec.OpenLink();
                 end;
             }
         }
@@ -70,11 +70,11 @@ page 2131 "O365 Learn Settings"
 
     local procedure InsertMenuItems()
     begin
-        InsertHyperlinkMenuItem(
+        Rec.InsertHyperlinkMenuItem(
           'https://go.microsoft.com/fwlink/?linkid=831306', ThirdPartyNoticeTitleLbl, ThirdPartyNoticeDescriptionLbl);
-        InsertHyperlinkMenuItem(
+        Rec.InsertHyperlinkMenuItem(
           'https://go.microsoft.com/fwlink/?linkid=831304', SoftwareLicenseTitleLbl, SoftwareLicenseDescriptionLbl);
-        InsertHyperlinkMenuItem(
+        Rec.InsertHyperlinkMenuItem(
           'https://go.microsoft.com/fwlink/?linkid=831305', PrivacyTitleLbl, PrivacyDescriptionLbl);
     end;
 }

@@ -52,7 +52,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         DimensionSetEntry: Record "Dimension Set Entry";
         DimensionSetEntry2: Record "Dimension Set Entry";
     begin
-        // [SCENARIO] validate the LineDimensionLoop OnAfterGetRecord of the Posted Phys. Inventory Order Diff. Report for ELSE condition.
+        // [SCENARIO] validate the LineDimensionLoop OnAfterGetRecord of the Posted Phys. Inventory Order Diff. Report for else condition.
 
         // [GIVEN] Create Posted Phys. Inventory Order. Update Posted Phys. Inventory Order Line. Create and update Dimension Set Entry on Posted Phys. Inventory Line.
         CreatePostedPhysInventoryOrder(PstdPhysInvtOrderHdr, PstdPhysInvtOrderLine, CreateItem);

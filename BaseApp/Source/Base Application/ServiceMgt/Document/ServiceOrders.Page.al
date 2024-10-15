@@ -1,3 +1,19 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Email;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Posting;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Request;
+using System.Text;
+
 page 9318 "Service Orders"
 {
     ApplicationArea = Service;
@@ -7,7 +23,7 @@ page 9318 "Service Orders"
     Editable = false;
     PageType = List;
     SourceTable = "Service Header";
-    SourceTableView = WHERE("Document Type" = CONST(Order));
+    SourceTableView = where("Document Type" = const(Order));
     UsageCategory = Lists;
 
     layout
@@ -67,7 +83,7 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated time when work on the order starts, that is, when the service order status changes from Pending, to In Process.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order.';
@@ -191,15 +207,15 @@ page 9318 "Service Orders"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -229,7 +245,7 @@ page 9318 "Service Orders"
                     Caption = '&Customer Card';
                     Image = Customer;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Customer No.");
+                    RunPageLink = "No." = field("Customer No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View detailed information about the customer.';
                 }
@@ -244,7 +260,7 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action("Service Ledger E&ntries")
@@ -253,8 +269,8 @@ page 9318 "Service Orders"
                     Caption = 'Service Ledger E&ntries';
                     Image = ServiceLedger;
                     RunObject = Page "Service Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("No.");
-                    RunPageView = SORTING("Service Order No.", "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", "Posting Date", Open, Type);
+                    RunPageLink = "Service Order No." = field("No.");
+                    RunPageView = sorting("Service Order No.", "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", "Posting Date", Open, Type);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents.';
                 }
@@ -264,9 +280,9 @@ page 9318 "Service Orders"
                     Caption = 'Email &Queue';
                     Image = Email;
                     RunObject = Page "Service Email Queue";
-                    RunPageLink = "Document Type" = CONST("Service Order"),
-                                  "Document No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Document No.");
+                    RunPageLink = "Document Type" = const("Service Order"),
+                                  "Document No." = field("No.");
+                    RunPageView = sorting("Document Type", "Document No.");
                     ToolTip = 'View the list of emails that are waiting to be sent automatically to notify customers about their service item.';
                 }
                 action("Co&mments")
@@ -275,10 +291,10 @@ page 9318 "Service Orders"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
             }
@@ -296,7 +312,7 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     begin
-                        OpenOrderStatistics();
+                        Rec.OpenOrderStatistics();
                     end;
                 }
             }
@@ -310,8 +326,8 @@ page 9318 "Service Orders"
                     Caption = 'S&hipments';
                     Image = Shipment;
                     RunObject = Page "Posted Service Shipments";
-                    RunPageLink = "Order No." = FIELD("No.");
-                    RunPageView = SORTING("Order No.");
+                    RunPageLink = "Order No." = field("No.");
+                    RunPageView = sorting("Order No.");
                     ToolTip = 'View related posted service shipments.';
                 }
                 action(Invoices)
@@ -319,10 +335,16 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     Caption = 'Invoices';
                     Image = Invoice;
-                    RunObject = Page "Posted Service Invoices";
-                    RunPageLink = "Order No." = FIELD("No.");
-                    RunPageView = SORTING("Order No.");
                     ToolTip = 'View a list of ongoing sales invoices for the order.';
+
+                    trigger OnAction()
+                    var
+                        TempServiceInvoiceHeader: Record "Service Invoice Header" temporary;
+                        ServiceGetShipment: Codeunit "Service-Get Shipment";
+                    begin
+                        ServiceGetShipment.GetServiceOrderInvoices(TempServiceInvoiceHeader, Rec."No.");
+                        Page.Run(Page::"Posted Service Invoices", TempServiceInvoiceHeader);
+                    end;
                 }
             }
             group("W&arehouse")
@@ -335,12 +357,12 @@ page 9318 "Service Orders"
                     Caption = 'Warehouse Shipment Lines';
                     Image = ShipmentLines;
                     RunObject = Page "Whse. Shipment Lines";
-                    RunPageLink = "Source Type" = CONST(5902),
+                    RunPageLink = "Source Type" = const(5902),
 #pragma warning disable AL0603
-                                  "Source Subtype" = FIELD("Document Type"),
+                                  "Source Subtype" = field("Document Type"),
 #pragma warning restore
-                                  "Source No." = FIELD("No.");
-                    RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+                                  "Source No." = field("No.");
+                    RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse shipments for the document, in advanced warehouse configurations.';
                 }
                 action("Whse. Pick Lines")
@@ -378,8 +400,8 @@ page 9318 "Service Orders"
                     Caption = '&Warranty Ledger Entries';
                     Image = WarrantyLedger;
                     RunObject = Page "Warranty Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("No.");
-                    RunPageView = SORTING("Service Order No.", "Posting Date", "Document No.");
+                    RunPageLink = "Service Order No." = field("No.");
+                    RunPageView = sorting("Service Order No.", "Posting Date", "Document No.");
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents that contain warranty agreements.';
                 }
                 action("&Job Ledger Entries")
@@ -388,9 +410,9 @@ page 9318 "Service Orders"
                     Caption = '&Job Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("No.");
-                    RunPageView = SORTING("Service Order No.", "Posting Date")
-                                  WHERE("Entry Type" = CONST(Usage));
+                    RunPageLink = "Service Order No." = field("No.");
+                    RunPageView = sorting("Service Order No.", "Posting Date")
+                                  where("Entry Type" = const(Usage));
                     ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
                 }
             }
@@ -427,7 +449,7 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     begin
-                        SendToPost(Codeunit::"Service-Post (Yes/No)");
+                        Rec.SendToPost(Codeunit::"Service-Post (Yes/No)");
                     end;
                 }
                 action(Preview)
@@ -442,7 +464,7 @@ page 9318 "Service Orders"
                     var
                         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
-                        ServHeader.Get("Document Type", "No.");
+                        ServHeader.Get(Rec."Document Type", Rec."No.");
                         ServPostYesNo.PreviewDocument(ServHeader);
                     end;
                 }
@@ -457,7 +479,7 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     begin
-                        SendToPost(Codeunit::"Service-Post+Print");
+                        Rec.SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action(PostBatch)
@@ -548,8 +570,8 @@ page 9318 "Service Orders"
                     begin
                         Rec.PerformManualRelease();
                         GetSourceDocOutbound.CreateFromServiceOrder(Rec);
-                        if not Find('=><') then
-                            Init();
+                        if not Rec.Find('=><') then
+                            Rec.Init();
                     end;
                 }
             }
@@ -644,9 +666,9 @@ page 9318 "Service Orders"
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter();
+        Rec.SetSecurityFilterOnRespCenter();
 
-        CopyCustomerFilter();
+        Rec.CopyCustomerFilter();
     end;
 
     var

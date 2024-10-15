@@ -1,3 +1,23 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Utilities;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+
 codeunit 7204 "CDS Setup Defaults"
 {
 
@@ -52,6 +72,7 @@ codeunit 7204 "CDS Setup Defaults"
         CDSConnectionSetup.SetBaseCurrencyData();
 
         SetCustomIntegrationsTableMappings(CDSConnectionSetup);
+        AddExtraIntegrationFieldMappings();
     end;
 
     [Scope('OnPrem')]
@@ -60,7 +81,7 @@ codeunit 7204 "CDS Setup Defaults"
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
-        CDSSystemuser: Record "CRM Systemuser";
+        CRMSystemuser: Record "CRM Systemuser";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -71,22 +92,22 @@ codeunit 7204 "CDS Setup Defaults"
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser",
-          CDSSystemuser.FieldNo(SystemUserId), CDSSystemuser.FieldNo(ModifiedOn),
+          CRMSystemuser.FieldNo(SystemUserId), CRMSystemuser.FieldNo(ModifiedOn),
           '', '', true);
 
-        CDSSystemuser.Reset();
-        CDSSystemuser.SetRange(IsDisabled, false);
-        CDSSystemuser.SetRange(IsLicensed, true);
-        CDSSystemuser.SetRange(IsIntegrationUser, false);
+        CRMSystemuser.Reset();
+        CRMSystemuser.SetRange(IsDisabled, false);
+        CRMSystemuser.SetRange(IsLicensed, true);
+        CRMSystemuser.SetRange(IsIntegrationUser, false);
         IntegrationTableMapping.SetIntegrationTableFilter(
-          GetTableFilterFromView(DATABASE::"CRM Systemuser", CDSSystemuser.TableCaption(), CDSSystemuser.GetView()));
+          GetTableFilterFromView(DATABASE::"CRM Systemuser", CRMSystemuser.TableCaption(), CRMSystemuser.GetView()));
         IntegrationTableMapping.Modify();
 
         // Email > InternalEMailAddress
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
           SalespersonPurchaser.FieldNo("E-Mail"),
-          CDSSystemuser.FieldNo(InternalEMailAddress),
+          CRMSystemuser.FieldNo(InternalEMailAddress),
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
 
@@ -94,7 +115,7 @@ codeunit 7204 "CDS Setup Defaults"
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
           SalespersonPurchaser.FieldNo(Name),
-          CDSSystemuser.FieldNo(FullName),
+          CRMSystemuser.FieldNo(FullName),
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
 
@@ -102,7 +123,7 @@ codeunit 7204 "CDS Setup Defaults"
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
           SalespersonPurchaser.FieldNo("Phone No."),
-          CDSSystemuser.FieldNo(MobilePhone),
+          CRMSystemuser.FieldNo(MobilePhone),
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
 
@@ -1420,6 +1441,19 @@ codeunit 7204 "CDS Setup Defaults"
     procedure SetCustomIntegrationsTableMappings(CDSConnectionSetup: Record "CDS Connection Setup")
     begin
         OnAfterResetConfiguration(CDSConnectionSetup);
+    end;
+
+    internal procedure AddExtraIntegrationFieldMappings()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        if IntegrationTableMapping.FindSet() then
+            repeat
+                CRMIntegrationManagement.AddExtraFieldMappings(IntegrationTableMapping);
+            until IntegrationTableMapping.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

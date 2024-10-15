@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Maintenance;
+
 table 5919 "Resolution Code"
 {
     Caption = 'Resolution Code';

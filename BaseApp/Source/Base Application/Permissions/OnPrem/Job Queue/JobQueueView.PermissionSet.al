@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using System.Environment;
+using System.Threading;
+
 permissionset 1347 "Job Queue - View"
 {
     Access = Public;

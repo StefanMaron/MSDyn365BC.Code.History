@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using System.Security.User;
+
 page 6063 "Contract Change Log"
 {
     Caption = 'Contract Change Log';
@@ -5,8 +9,8 @@ page 6063 "Contract Change Log"
     Editable = false;
     PageType = List;
     SourceTable = "Contract Change Log";
-    SourceTableView = SORTING("Contract No.", "Change No.")
-                      ORDER(Descending);
+    SourceTableView = sorting("Contract No.", "Change No.")
+                      order(Descending);
 
     layout
     {
@@ -69,7 +73,7 @@ page 6063 "Contract Change Log"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
             }
@@ -97,10 +101,10 @@ page 6063 "Contract Change Log"
     var
         ServContract: Record "Service Contract Header";
     begin
-        if not ServContract.Get("Contract Type", "Contract No.") then
-            exit(StrSubstNo('%1', "Contract No."));
+        if not ServContract.Get(Rec."Contract Type", Rec."Contract No.") then
+            exit(StrSubstNo('%1', Rec."Contract No."));
 
-        exit(StrSubstNo('%1 %2', "Contract No.", ServContract.Description));
+        exit(StrSubstNo('%1 %2', Rec."Contract No.", ServContract.Description));
     end;
 }
 

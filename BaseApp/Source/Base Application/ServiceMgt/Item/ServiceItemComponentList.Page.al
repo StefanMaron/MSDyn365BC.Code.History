@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Item;
+
 page 5986 "Service Item Component List"
 {
     Caption = 'Service Item Component List';
@@ -25,7 +27,7 @@ page 5986 "Service Item Component List"
                     ToolTip = 'Specifies the number of the line.';
                     Visible = false;
                 }
-                field(Active; Active)
+                field(Active; Rec.Active)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the component is in use.';
@@ -58,7 +60,7 @@ page 5986 "Service Item Component List"
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEditSerialNo();
+                        Rec.AssistEditSerialNo();
                     end;
                 }
                 field("Date Installed"; Rec."Date Installed")
@@ -112,7 +114,7 @@ page 5986 "Service Item Component List"
 
                     trigger OnAction()
                     begin
-                        ServItem.Get("Parent Service Item No.");
+                        ServItem.Get(Rec."Parent Service Item No.");
                         CODEUNIT.Run(CODEUNIT::"ServComponent-Copy from BOM", ServItem);
                     end;
                 }
@@ -126,10 +128,10 @@ page 5986 "Service Item Component List"
                         Caption = 'This Line';
                         Image = Line;
                         RunObject = Page "Replaced Component List";
-                        RunPageLink = Active = CONST(false),
-                                      "Parent Service Item No." = FIELD("Parent Service Item No."),
-                                      "From Line No." = FIELD("Line No.");
-                        RunPageView = SORTING(Active, "Parent Service Item No.", "From Line No.");
+                        RunPageLink = Active = const(false),
+                                      "Parent Service Item No." = field("Parent Service Item No."),
+                                      "From Line No." = field("Line No.");
+                        RunPageView = sorting(Active, "Parent Service Item No.", "From Line No.");
                         ToolTip = 'View or edit the list of service item components that have been replaced for the selected service item component.';
                     }
                     action(AllLines)
@@ -138,9 +140,9 @@ page 5986 "Service Item Component List"
                         Caption = 'All Lines';
                         Image = AllLines;
                         RunObject = Page "Replaced Component List";
-                        RunPageLink = Active = CONST(false),
-                                      "Parent Service Item No." = FIELD("Parent Service Item No.");
-                        RunPageView = SORTING(Active, "Parent Service Item No.", "From Line No.");
+                        RunPageLink = Active = const(false),
+                                      "Parent Service Item No." = field("Parent Service Item No.");
+                        RunPageView = sorting(Active, "Parent Service Item No.", "From Line No.");
                         ToolTip = 'View or edit the list of all service item components that have been replaced.';
                     }
                 }
@@ -150,7 +152,7 @@ page 5986 "Service Item Component List"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "Line No." := SplitLineNo(xRec, BelowxRec);
+        Rec."Line No." := Rec.SplitLineNo(xRec, BelowxRec);
     end;
 
     var

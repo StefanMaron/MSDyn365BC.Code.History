@@ -1,3 +1,8 @@
+namespace Microsoft.Warehouse.Activity;
+
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Reports;
+
 page 5774 "Warehouse Activity List"
 {
     Caption = 'Warehouse Activity List';
@@ -181,10 +186,10 @@ page 5774 "Warehouse Activity List"
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee();
-        FilterGroup(2); // set group of filters user cannot change
-        SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
-        FilterGroup(0); // set filter group back to standard
+        Rec.ErrorIfUserIsNotWhseEmployee();
+        Rec.FilterGroup(2); // set group of filters user cannot change
+        Rec.SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
+        Rec.FilterGroup(0); // set filter group back to standard
     end;
 
     var
@@ -216,18 +221,18 @@ page 5774 "Warehouse Activity List"
 
     local procedure FormCaption(): Text[250]
     begin
-        case Type of
-            Type::"Put-away":
+        case Rec.Type of
+            Rec.Type::"Put-away":
                 exit(Text000);
-            Type::Pick:
+            Rec.Type::Pick:
                 exit(Text001);
-            Type::Movement:
+            Rec.Type::Movement:
                 exit(Text002);
-            Type::"Invt. Put-away":
+            Rec.Type::"Invt. Put-away":
                 exit(Text004);
-            Type::"Invt. Pick":
+            Rec.Type::"Invt. Pick":
                 exit(Text005);
-            Type::"Invt. Movement":
+            Rec.Type::"Invt. Movement":
                 exit(Text006);
             else
                 exit(Text003);

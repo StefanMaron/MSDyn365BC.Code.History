@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Journal;
+
+using Microsoft.Purchases.Vendor;
+
 report 8612 "Create Vendor Journal Lines"
 {
     ApplicationArea = Basic, Suite;
@@ -9,7 +17,7 @@ report 8612 "Create Vendor Journal Lines"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Currency Code", "Country/Region Code", "Vendor Posting Group", Blocked;
 
             trigger OnAfterGetRecord()

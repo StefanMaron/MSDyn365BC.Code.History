@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+
 codeunit 572 "Run Acc. Sched. Balance Sheet"
 {
 

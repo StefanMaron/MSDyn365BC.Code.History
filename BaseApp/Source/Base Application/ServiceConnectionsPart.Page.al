@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 page 1278 "Service Connections Part"
 {
     Caption = 'Service Connections Part';
@@ -62,12 +64,12 @@ page 1278 "Service Connections Part"
     trigger OnAfterGetCurrRecord()
     begin
         SetupActive :=
-          ("Page ID" <> 0);
+          (Rec."Page ID" <> 0);
     end;
 
     trigger OnOpenPage()
     begin
-        OnRegisterServiceConnection(Rec);
+        Rec.OnRegisterServiceConnection(Rec);
     end;
 
     var
@@ -81,15 +83,15 @@ page 1278 "Service Connections Part"
         if not SetupActive then
             exit;
 
-        if RecordRef.Get("Record ID") then begin
+        if RecordRef.Get(Rec."Record ID") then begin
             RecordRefVariant := RecordRef;
-            Page.RunModal("Page ID", RecordRefVariant);
+            Page.RunModal(Rec."Page ID", RecordRefVariant);
         end else
-            Page.RunModal("Page ID");
+            Page.RunModal(Rec."Page ID");
 
-        Delete();
-        OnRegisterServiceConnection(Rec);
-        if Get(xRec."No.") then;
+        Rec.Delete();
+        Rec.OnRegisterServiceConnection(Rec);
+        if Rec.Get(xRec."No.") then;
         CurrPage.Update(false);
     end;
 }

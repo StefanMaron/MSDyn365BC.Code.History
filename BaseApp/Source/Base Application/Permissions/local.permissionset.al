@@ -1,3 +1,10 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.Bank.Payment;
+using Microsoft.Finance.AutomaticAccounts;
+using Microsoft.Bank.Setup;
+
 permissionset 1001 "LOCAL"
 {
     Access = Public;
@@ -11,8 +18,8 @@ permissionset 1001 "LOCAL"
 #if not CLEAN22
                   tabledata "Automatic Acc. Header" = IMD,
                   tabledata "Automatic Acc. Line" = IMD,
-#endif
                   tabledata "Intrastat - File Setup" = IMD,
+#endif
                   tabledata "Ref. Payment - Exported" = IMD,
                   tabledata "Ref. Payment - Exported Buffer" = IMD,
                   tabledata "Ref. Payment - Imported" = IMD,

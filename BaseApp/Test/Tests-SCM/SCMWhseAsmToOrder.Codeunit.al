@@ -49,7 +49,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         ChildItemSN3: Label 'ChilSN3';
         MSG_WHSE_ACT_LINES_DELETED: Label 'All related Warehouse Activity Lines are deleted.';
         ERR_NO_WHSE_WKSH_LINES_CREATED: Label 'There are no Warehouse Worksheet Lines created.';
-        ERR_NOTHING_TO_HANDLE: Label 'There is nothing to handle.';
+        ERR_NOTHING_TO_HANDLE: Label 'There is nothing to handle, because the worksheet lines do not contain a value for quantity to handle.';
         ERR_BIN_CODE_NOT_EMPTY: Label 'Bin Code must have a value in Assembly Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.';
 
     [Normal]
@@ -1396,6 +1396,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockATOItem(Item, ChildItem);
         MockLocation(Location, true, true);
         Location.Validate("Require Shipment", true);
+        Location.Validate("Asm. Consump. Whse. Handling", Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         MockBin(ShptBin, Location.Code);
         Location.Validate("Shipment Bin Code", ShptBin.Code);
         MockBin(ToAsmBin, Location.Code);
@@ -1641,6 +1642,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         ChildItem.Modify();
         MockLocation(Location, true, true);
         Location.Validate("Require Shipment", true);
+        Location.Validate("Asm. Consump. Whse. Handling", Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         Location.Modify(true);
 
         // Put enough of child items on a new bin
@@ -1728,6 +1730,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
           BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ChildItem2."No.", 1, ChildItem2."Base Unit of Measure");
         MockLocation(Location, true, true);
         Location.Validate("Require Shipment", true);
+        Location.Validate("Asm. Consump. Whse. Handling", Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         MockBin(ShptBin, Location.Code);
         Location.Validate("Shipment Bin Code", ShptBin.Code);
         MockBin(ToAsmBin, Location.Code);
@@ -1820,6 +1823,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         ChildItem.Modify();
         MockLocation(Location, true, true);
         Location.Validate("Require Shipment", true);
+        Location.Validate("Asm. Consump. Whse. Handling", Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         MockBin(ToAsmBin, Location.Code);
         Location.Validate("To-Assembly Bin Code", ToAsmBin.Code);
         MockBin(ShptBin, Location.Code);
@@ -2465,6 +2469,18 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
             CallModify := true;
         end;
 
+        if Location."Require Pick" then begin
+            Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+            Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Inventory Movement";
+            Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Inventory Pick";
+            CallModify := true;
+        end else begin
+            Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            CallModify := true;
+        end;
+
         if CallModify then
             Location.Modify();
     end;
@@ -2530,6 +2546,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockATOItem(Item, ChildItem);
         MockLocation(Location, true, true);
         Location.Validate("Require Shipment", true);
+        Location.Validate("Asm. Consump. Whse. Handling", Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         MockBin(ShptBin, Location.Code);
         Location.Validate("Shipment Bin Code", ShptBin.Code);
         MockBin(ToAsmBin, Location.Code);

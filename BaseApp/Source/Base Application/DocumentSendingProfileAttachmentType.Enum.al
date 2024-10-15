@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Reporting;
+
 enum 63 "Document Sending Profile Attachment Type"
 {
     Extensible = true;

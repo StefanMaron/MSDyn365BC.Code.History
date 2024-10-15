@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.Integration.D365Sales;
+using System.Threading;
+
 page 5371 "CRM Synch. Job Status Part"
 {
     Caption = 'Microsoft Dynamics 365 Sales Synch. Job Status';
@@ -32,7 +41,7 @@ page 5371 "CRM Synch. Job Status Part"
                 Caption = 'Edit Job Queue Entries';
                 Image = ViewDetails;
                 RunObject = Page "Job Queue Entries";
-                RunPageView = WHERE("Object ID to Run" = CONST(5339));
+                RunPageView = where("Object ID to Run" = const(5339));
                 ToolTip = 'Change the settings for the job queue entry.';
             }
             action("<Page CRM Connection Setup>")

@@ -60,7 +60,7 @@ codeunit 134983 "ERM Purchase Reports"
         repeat
             LibraryReportDataset.SetRange('VATAmountLine__VAT_Identifier_', VATAmountLine."VAT Identifier");
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFoundErr, 'VATAmountLine__VAT_Identifier_', VATAmountLine."VAT Identifier"));
+                Error(RowNotFoundErr, 'VATAmountLine__VAT_Identifier_', VATAmountLine."VAT Identifier");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__VAT___', VATAmountLine."VAT %");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VATAmountLine__VAT_Base_', VATAmountLine."VAT Base");
@@ -121,7 +121,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Line_DimensionsCaption', LineDimensionsLbl);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Line_DimensionsCaption', LineDimensionsLbl));
+            Error(RowNotFoundErr, 'Line_DimensionsCaption', LineDimensionsLbl);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'DimText_Control165', StrSubstNo(DimensionTxt, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code"));
     end;
@@ -228,7 +228,7 @@ codeunit 134983 "ERM Purchase Reports"
         repeat
             LibraryReportDataset.SetRange('VATAmtLineVATIdentifier', VATAmountLine."VAT Identifier");
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFoundErr, 'VATAmtLineVATIdentifier', VATAmountLine."VAT Identifier"));
+                Error(RowNotFoundErr, 'VATAmtLineVATIdentifier', VATAmountLine."VAT Identifier");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmtLineVAT', VATAmountLine."VAT %");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VATAmtLineVATBase', VATAmountLine."VAT Base");
@@ -356,7 +356,7 @@ codeunit 134983 "ERM Purchase Reports"
         repeat
             LibraryReportDataset.SetRange('VATAmtLineVATIdentifier', VATAmountLine."VAT Identifier");
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFoundErr, 'VATAmtLineVATIdentifier', VATAmountLine."VAT Identifier"));
+                Error(RowNotFoundErr, 'VATAmtLineVATIdentifier', VATAmountLine."VAT Identifier");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmtLineVAT', VATAmountLine."VAT %");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VATAmtLineVATBase', VATAmountLine."VAT Base");
@@ -666,7 +666,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocumentNo_VatEntry', DocumentNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocumentNo_VatEntry', DocumentNo));
+            Error(RowNotFoundErr, 'DocumentNo_VatEntry', DocumentNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('VatDiff_VatEntry', PurchaseLine."VAT Difference");
     end;
 
@@ -694,7 +694,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Vendor__No__', PurchaseHeader."Buy-from Vendor No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Vendor__No__', PurchaseHeader."Buy-from Vendor No."));
+            Error(RowNotFoundErr, 'Vendor__No__', PurchaseHeader."Buy-from Vendor No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor__Vendor_Posting_Group_', PurchaseHeader."Vendor Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor__Vendor_Posting_Group_', PurchaseHeader."Vendor Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor__Invoice_Disc__Code_', PurchaseHeader."Buy-from Vendor No.");
@@ -833,7 +833,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Vendor__No__', PurchaseHeader."Buy-from Vendor No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Vendor__No__', PurchaseHeader."Buy-from Vendor No."));
+            Error(RowNotFoundErr, 'Vendor__No__', PurchaseHeader."Buy-from Vendor No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor__Balance__LCY__', -VendorLedgerEntry."Amount (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor__Purchases__LCY__', -VendorLedgerEntry."Purchase (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor__Purchases__LCY___Control23', -VendorLedgerEntry."Purchase (LCY)");
@@ -881,7 +881,7 @@ codeunit 134983 "ERM Purchase Reports"
         ValueEntry.FindFirst();
         LibraryReportDataset.SetRange('Value_Entry__Item_No__', PurchaseLine."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Value_Entry__Item_No__', PurchaseLine."No."));
+            Error(RowNotFoundErr, 'Value_Entry__Item_No__', PurchaseLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Value_Entry___Cost_Amount__Actual__', ValueEntry."Cost Amount (Actual)");
         LibraryReportDataset.AssertCurrentRowValueEquals('Value_Entry___Discount_Amount_', ValueEntry."Discount Amount");
         LibraryReportDataset.AssertCurrentRowValueEquals('Value_Entry__Invoiced_Quantity_', ValueEntry."Invoiced Quantity");
@@ -935,7 +935,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Verify: Verify Dimension and Dimension Value on Purchase Return Shipment Report.
         LibraryReportDataset.SetRange('LineDimensionsCaption', LineDimensionsLbl);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'LineDimensionsCaption', LineDimensionsLbl));
+            Error(RowNotFoundErr, 'LineDimensionsCaption', LineDimensionsLbl);
         LibraryReportDataset.AssertCurrentRowValueEquals('DimText_DimensionLoop2',
           StrSubstNo(DimensionTxt, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code"));
     end;
@@ -963,7 +963,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.SetRange('No_ReturnShipmentLine', ReturnShipmentLine."No.");
         LibraryReportDataset.GetNextRow;
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_ReturnShipmentLine', ReturnShipmentLine."No."));
+            Error(RowNotFoundErr, 'No_ReturnShipmentLine', ReturnShipmentLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_ReturnShipmentLine', ReturnShipmentLine.Quantity);
     end;
 
@@ -1790,7 +1790,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.SetRange('Vendor_Ledger_Entry__Posting_Date_', Format(WorkDate()));
 
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Vendor_Ledger_Entry__Posting_Date_', WorkDate()));
+            Error(RowNotFoundErr, 'Vendor_Ledger_Entry__Posting_Date_', WorkDate());
         LibraryReportDataset.AssertCurrentRowValueEquals('VendAmountLCY', -ExpectedValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor_Ledger_Entry__Due_Date_', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('VendCreditAmountLCY_Control64', ExpectedValue);
@@ -1952,7 +1952,7 @@ codeunit 134983 "ERM Purchase Reports"
         repeat
             LibraryReportDataset.SetRange('Purchase_Line__Type', Format(PurchaseLine.Type));
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFoundErr, 'Purchase_Line__Type', Format(PurchaseLine.Type)));
+                Error(RowNotFoundErr, 'Purchase_Line__Type', Format(PurchaseLine.Type));
             LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line___No__', PurchaseLine."No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line__Description', PurchaseLine.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line__Quantity', PurchaseLine.Quantity);
@@ -2021,7 +2021,7 @@ codeunit 134983 "ERM Purchase Reports"
         GetReturnShipmentLine(ReturnShipmentLine, DocumentNo);
         LibraryReportDataset.SetRange('No_ReturnShipmentLine', ReturnShipmentLine."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_ReturnShipmentLine', ReturnShipmentLine."No."));
+            Error(RowNotFoundErr, 'No_ReturnShipmentLine', ReturnShipmentLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('No_ReturnShipmentLine',
           CopyStr(ReturnShipmentLine."No.", 1,
             LibraryUtility.GetFieldLength(DATABASE::"Return Shipment Line", ReturnShipmentLine.FieldNo("No."))));
@@ -2039,7 +2039,7 @@ codeunit 134983 "ERM Purchase Reports"
         GeneralLedgerSetup.Get();
         LibraryReportDataset.SetRange('DocumentNo_VatEntry', DocumentNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocumentNo_VatEntry', DocumentNo));
+            Error(RowNotFoundErr, 'DocumentNo_VatEntry', DocumentNo);
         LibraryReportDataset.FindCurrentRowValue('Base_VatEntry', TotalAmountInDec);
         Assert.AreNearlyEqual(
           TotalAmount, TotalAmountInDec, GeneralLedgerSetup."Amount Rounding Precision",

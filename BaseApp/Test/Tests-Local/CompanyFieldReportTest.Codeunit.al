@@ -191,11 +191,14 @@ codeunit 144010 "Company Field Report Test"
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyInfoBusinessIDCode', CompanyInfoBusinessIdCode);
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyInfoRegHomeCity', CompanyInfoRegHomeCity);
                     end;
+#if not CLEAN23
                 5:
                     begin
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyRegistrationNumber', CompanyInfoBusinessIdCode);
+
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyLegalOffice', CompanyInfoRegHomeCity);
                     end;
+#endif
             end;
             Assert.AreEqual(CompanyInformation."Business Identity Code", CompanyInfoBusinessIdCode, 'Incorrect BusinessIdentityCode');
             Assert.AreEqual(CompanyInformation."Registered Home City", CompanyInfoRegHomeCity, 'Incorrect RegisteredHomeCity');
@@ -393,8 +396,10 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('Test is moved to FI Core', '23.0')]
     procedure SalesQuoteReportHandler(var SalesQuoteReport: TestRequestPage "Standard Sales - Quote")
     var
         DocumentNumber: Variant;
@@ -407,6 +412,7 @@ codeunit 144010 "Company Field Report Test"
 
     [Test]
     [HandlerFunctions('SalesQuoteReportHandler')]
+    [Obsolete('Test is moved to FI Core', '23.0')]
     [Scope('OnPrem')]
     procedure SalesQuoteReport()
     var
@@ -420,6 +426,7 @@ codeunit 144010 "Company Field Report Test"
         SalesQuoteReport.Run();
         TestBusinessIdentityandHomeCity(5);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -707,6 +714,7 @@ codeunit 144010 "Company Field Report Test"
     end;
 #endif
 
+#if not CLEAN22
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatFormReportHandler(var IntrastatFormReport: TestRequestPage "Intrastat - Form")
@@ -722,7 +730,9 @@ codeunit 144010 "Company Field Report Test"
         IntrastatFormReport."Intrastat Jnl. Line".SetFilter(Type, 'Receipt');
         IntrastatFormReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('IntrastatFormReportHandler')]
     [Scope('OnPrem')]
@@ -770,6 +780,7 @@ codeunit 144010 "Company Field Report Test"
         IntrastatFormReport.Run();
         TestBusinessIdentityandHomeCity(1);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

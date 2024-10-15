@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using Microsoft.Sales.FinanceCharge;
+
 table 3010590 "Fin. Charge Interest Rate"
 {
     Caption = 'Fin. Charge Interest Rate';
@@ -6,7 +14,7 @@ table 3010590 "Fin. Charge Interest Rate"
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
     ReplicateData = false;
-    
+
     fields
     {
         field(1; "Fin. Charge Terms Code"; Code[10])

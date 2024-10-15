@@ -30,7 +30,7 @@ page 2344 "BC O365 Payment Instr Settings"
                     Caption = 'Short name';
                     Width = 2;
                 }
-                field(GetPaymentInstructionsInCurrentLanguage; GetPaymentInstructionsInCurrentLanguage())
+                field(GetPaymentInstructionsInCurrentLanguage; Rec.GetPaymentInstructionsInCurrentLanguage())
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment instructions';
@@ -44,8 +44,8 @@ page 2344 "BC O365 Payment Instr Settings"
                     trigger OnDrillDown()
                     begin
                         if Confirm(DeleteConfirmQst) then
-                            if Find() then
-                                Delete(true);
+                            if Rec.Find() then
+                                Rec.Delete(true);
                     end;
                 }
             }
@@ -95,10 +95,10 @@ page 2344 "BC O365 Payment Instr Settings"
 
     trigger OnAfterGetRecord()
     begin
-        if Default then
-            NameText := StrSubstNo(DefaultTxt, GetNameInCurrentLanguage())
+        if Rec.Default then
+            NameText := StrSubstNo(DefaultTxt, Rec.GetNameInCurrentLanguage())
         else
-            NameText := GetNameInCurrentLanguage();
+            NameText := Rec.GetNameInCurrentLanguage();
     end;
 
     var

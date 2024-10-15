@@ -1,3 +1,7 @@
+namespace System.DataAdministration;
+using Microsoft.Sales.Archive;
+using Microsoft.Purchases.Archive;
+
 pageextension 3997 "Reten. Pol. Setup Lines Ext." extends "Retention Policy Setup Lines"
 {
     layout

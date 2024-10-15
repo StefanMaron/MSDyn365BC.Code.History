@@ -2471,4 +2471,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=XmlPort BCPT Log Entries - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";PermissionSet 1309067820 - Property 2879900210" ItemType=";PermissionSet - PermissionSet" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Businss Central Performance Toolkit]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=PermissionSet BC Perf. Toolkit - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

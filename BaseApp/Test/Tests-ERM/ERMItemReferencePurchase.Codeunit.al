@@ -1530,6 +1530,119 @@ codeunit 134464 "ERM Item Reference Purchase"
         Assert.AreEqual(PurchaseLine."Location Code", Location[2].Code, '');
     end;
 
+    [Test]
+    procedure ICRLookupPurchaseItemWhenBarCodeAndExpiredBarCodeShowDialogTrue()
+    var
+        ItemReference: array[2] of Record "Item Reference";
+        ReturnedItemReference: Record "Item Reference";
+        PurchaseLine: Record "Purchase Line";
+        ItemReferenceNo: Code[50];
+    begin
+        Initialize();
+
+        // [GIVEN] Barcode for multiple item references
+        ItemReferenceNo := LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), Database::"Item Reference");
+
+        // [GIVEN] Purchase Order with empty Line with Type = Item and with the item reference
+        CreatePurchaseInvoiceOneLineWithLineTypeItem(PurchaseLine, LibraryPurchase.CreateVendorNo());
+        PurchaseLine."Item Reference No." := ItemReferenceNo;
+        PurchaseLine.Modify();
+
+        // [GIVEN] Item References for Item X and Type = Bar Code
+        LibraryItemReference.CreateItemReferenceWithNoAndDates(ItemReference[1], ItemReferenceNo, LibraryInventory.CreateItemNo(),
+          ItemReference[1]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID(),
+           CalcDate('<-1M>', PurchaseLine.GetDateForCalculations()), CalcDate('<-1D>', PurchaseLine.GetDateForCalculations()));
+
+        // [GIVEN] Item References for Item Y and Type = Bar Code
+        LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemReferenceNo, LibraryInventory.CreateItemNo(),
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
+
+        // [WHEN] Ran ReferenceLookupPurchaseItem from codeunit Dist. Integration for the Purchase Line with ShowDialog = TRUE
+        ItemReferenceMgt.ReferenceLookupPurchaseItem(PurchaseLine, ReturnedItemReference, true);
+
+        // [THEN] Item Reference with Item No = X is ignored
+        // [THEN] ReferenceLookupPurchaseItem returns Item Reference with Item No = Y
+        ReturnedItemReference.TestField("Item No.", ItemReference[2]."Item No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemReferenceListModalPageHandler')]
+    procedure ICRLookupPurchaseItemWhenBarCodeAndBarCodeDateLimitedShowDialogTrue()
+    var
+        ItemReference: array[2] of Record "Item Reference";
+        ReturnedItemReference: Record "Item Reference";
+        PurchaseLine: Record "Purchase Line";
+        ItemReferenceNo: Code[50];
+    begin
+        Initialize();
+
+        // [GIVEN] Barcode for multiple item references
+        ItemReferenceNo := LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), Database::"Item Reference");
+        LibraryVariableStorage.Enqueue(ItemReferenceNo);
+
+        // [GIVEN] Purchase Order with empty Line with Type = Item and with the item reference
+        CreatePurchaseInvoiceOneLineWithLineTypeItem(PurchaseLine, LibraryPurchase.CreateVendorNo());
+        PurchaseLine."Item Reference No." := ItemReferenceNo;
+        PurchaseLine.Modify();
+
+        // [GIVEN] Item References for Item X and Type = Bar Code
+        LibraryItemReference.CreateItemReferenceWithNoAndDates(ItemReference[1], ItemReferenceNo, LibraryInventory.CreateItemNo(),
+          ItemReference[1]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID(),
+           CalcDate('<-1M>', PurchaseLine.GetDateForCalculations()), CalcDate('<+1M>', PurchaseLine.GetDateForCalculations()));
+        EnqueueItemReferenceFields(ItemReference[1]);
+
+        // [GIVEN] Item References for Item Y and Type = Bar Code
+        LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemReferenceNo, LibraryInventory.CreateItemNo(),
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
+        EnqueueItemReferenceFields(ItemReference[2]);
+
+        // [WHEN] Ran ReferenceLookupPurchaseItem from codeunit Dist. Integration for the Purchase Line with ShowDialog = TRUE
+        ItemReferenceMgt.ReferenceLookupPurchaseItem(PurchaseLine, ReturnedItemReference, true);
+
+        // [GIVEN] Page Item Reference List opened showing both Item References
+        // [GIVEN] User selected the second one
+        // Done in ItemReferenceListModalPageHandler
+
+        // [THEN] ReferenceLookupPurchaseItem returns Item Reference with Item No = Y
+        ReturnedItemReference.TestField("Item No.", ItemReference[2]."Item No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure ICRLookupPurchaseItemWhenTwoExpiredBarCodesShowDialogTrue()
+    var
+        ItemReference: array[2] of Record "Item Reference";
+        ReturnedItemReference: Record "Item Reference";
+        PurchaseLine: Record "Purchase Line";
+        ItemReferenceNo: Code[50];
+    begin
+        Initialize();
+
+        // [GIVEN] Barcode for multiple item references
+        ItemReferenceNo := LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), Database::"Item Reference");
+
+        // [GIVEN] Purchase Order with empty Line with Type = Item and with the item reference
+        CreatePurchaseInvoiceOneLineWithLineTypeItem(PurchaseLine, LibraryPurchase.CreateVendorNo());
+        PurchaseLine."Item Reference No." := ItemReferenceNo;
+        PurchaseLine.Modify();
+
+        // [GIVEN] Item References for Item X and Type = Bar Code
+        LibraryItemReference.CreateItemReferenceWithNoAndDates(ItemReference[1], ItemReferenceNo, LibraryInventory.CreateItemNo(),
+          ItemReference[1]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID(),
+           CalcDate('<-1M>', PurchaseLine.GetDateForCalculations()), CalcDate('<-1D>', PurchaseLine.GetDateForCalculations()));
+
+        // [GIVEN] Item References for Item Y and Type = Bar Code
+        LibraryItemReference.CreateItemReferenceWithNoAndDates(ItemReference[2], ItemReferenceNo, LibraryInventory.CreateItemNo(),
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID(),
+           CalcDate('<+1D>', PurchaseLine.GetDateForCalculations()), CalcDate('<+1M>', PurchaseLine.GetDateForCalculations()));
+
+        // [WHEN] Ran ReferenceLookupPurchaseItem from codeunit Dist. Integration for the Purchase Line with ShowDialog = TRUE
+        asserterror ItemReferenceMgt.ReferenceLookupPurchaseItem(PurchaseLine, ReturnedItemReference, true);
+
+        // [THEN] Error "There are no items with reference %1."
+        Assert.ExpectedError(StrSubstNo(ItemRefNotExistsErr, ItemReferenceNo));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Reference Purchase");

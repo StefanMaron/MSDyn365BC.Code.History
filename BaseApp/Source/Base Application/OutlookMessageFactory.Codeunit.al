@@ -1,3 +1,7 @@
+namespace Microsoft.CRM.Outlook;
+
+using System;
+
 codeunit 9530 "Outlook Message Factory"
 {
     SingleInstance = true;
