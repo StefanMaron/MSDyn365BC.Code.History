@@ -686,10 +686,21 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
     local procedure OnAddCommonCustomDimensions(var Sender: Codeunit "Telemetry Custom Dimensions")
     var
         PlanIds: Codeunit "Plan Ids";
+        UserAccountHelper: DotNet NavUserAccountHelper;
+        TenantInfo: DotNet TenantInfo;
         IsAdmin: Boolean;
     begin
+        if not UserAccountHelper.IsAzure() then
+            exit;
+
+        // Add IsAdmin
         IsAdmin := AzureADGraphUser.IsUserDelegatedAdmin() or AzureADPlan.IsPlanAssigned(PlanIds.GetInternalAdminPlanId());
         Sender.AddCommonCustomDimension('IsAdmin', Format(IsAdmin));
+
+        // Add CountryCode
+        AzureADGraph.GetTenantDetail(TenantInfo);
+        if not IsNull(TenantInfo) then
+            Sender.AddCommonCustomDimension('CountryCode', TenantInfo.CountryLetterCode());
     end;
 
     [InternalEvent(false)]

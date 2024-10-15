@@ -8,6 +8,8 @@
         PreviousDate: Date;
         i: Integer;
     begin
+        OnBeforeOnRun(Rec);
+
         BusUnit := Rec;
         if NormalDate(EndingDate) - NormalDate(StartingDate) + 1 > ArrayLen(RoundingResiduals) then
             ReportError(StrSubstNo(Text008, ArrayLen(RoundingResiduals)));
@@ -1447,6 +1449,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; ConsolidAmount: Decimal; CurrencyACY: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnRun(var BusinessUnit: Record "Business Unit")
     begin
     end;
 

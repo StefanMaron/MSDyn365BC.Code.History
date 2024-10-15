@@ -510,11 +510,10 @@ page 9807 "User Card"
         HideExternalUsers;
 
         OnPremAskFirstUserToCreateSuper;
-        if AllowChangeWebServiceAccessKey then begin
-            Usermanagement.BasicAuthDepricationNotificationDefault(true);
-            if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
-                UserManagement.BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification);
-        end;
+
+        Usermanagement.BasicAuthDepricationNotificationDefault(true);
+        if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
+            UserManagement.BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

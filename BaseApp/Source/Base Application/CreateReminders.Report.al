@@ -11,12 +11,20 @@ report 188 "Create Reminders"
             RequestFilterFields = "No.";
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;
+                Result: Boolean;
             begin
                 RecordNo := RecordNo + 1;
                 Clear(MakeReminder);
                 MakeReminder.Set(Customer, CustLedgEntry, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn);
                 if NoOfRecords = 1 then begin
-                    MakeReminder.Code;
+                    Result := false;
+                    IsHandled := false;
+                    OnAfterGetRecordCustomerOnBeforeMakeReminder(
+                        Customer, CustLedgEntry, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn, Result, IsHandled);
+                    if not IsHandled then
+                        MakeReminder.Code();
                     Mark := false;
                 end else begin
                     NewDateTime := CurrentDateTime;
@@ -28,7 +36,14 @@ report 188 "Create Reminders"
                         end;
                         OldDateTime := CurrentDateTime;
                     end;
-                    Mark := not MakeReminder.Code;
+                    Result := false;
+                    IsHandled := false;
+                    OnAfterGetRecordCustomerOnBeforeMakeReminder(
+                        Customer, CustLedgEntry, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn, Result, IsHandled);
+                    if IsHandled then
+                        Mark(Result)
+                    else
+                        Mark := not MakeReminder.Code();
                 end;
             end;
 
@@ -245,6 +260,11 @@ report 188 "Create Reminders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPostReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordCustomerOnBeforeMakeReminder(Customer: Record Customer; var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var CustLedgEntryLineFeeOn: Record "Cust. Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -794,6 +794,7 @@ codeunit 7204 "CDS Setup Defaults"
         PaymentTerms: Record "Payment Terms";
         CRMAccount: Record "CRM Account";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        FieldMappingDirection: Option;
         IsHandled: Boolean;
         OptionMappingEnabled: Boolean;
     begin
@@ -810,12 +811,17 @@ codeunit 7204 "CDS Setup Defaults"
           CRMAccount.FieldNo(PaymentTermsCodeEnum), 0,
           '', '', OptionMappingEnabled);
 
+        if CRMIntegrationManagement.IsOptionMappingEnabled() then
+            FieldMappingDirection := IntegrationFieldMapping.Direction::ToIntegrationTable
+        else
+            FieldMappingDirection := IntegrationFieldMapping.Direction::FromIntegrationTable;
+
         // Code > "CRM Account".PaymentTermsCode
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
           PaymentTerms.FieldNo(Code),
           CRMAccount.FieldNo(PaymentTermsCodeEnum),
-          IntegrationFieldMapping.Direction::FromIntegrationTable,
+          FieldMappingDirection,
           '', true, false);
 
         if not OptionMappingEnabled then
@@ -1113,8 +1119,12 @@ codeunit 7204 "CDS Setup Defaults"
                 exit(IntegrationTableMapping.Direction::ToIntegrationTable);
             DATABASE::"Payment Terms",
           DATABASE::"Shipment Method",
-          DATABASE::"Shipping Agent",
-          DATABASE::"Salesperson/Purchaser":
+          DATABASE::"Shipping Agent":
+                if CRMIntegrationManagement.IsOptionMappingEnabled() then
+                    exit(IntegrationTableMapping.Direction::ToIntegrationTable)
+                else
+                    exit(IntegrationTableMapping.Direction::FromIntegrationTable);
+            DATABASE::"Salesperson/Purchaser":
                 exit(IntegrationTableMapping.Direction::FromIntegrationTable);
         end;
     end;
@@ -1391,23 +1401,33 @@ codeunit 7204 "CDS Setup Defaults"
     procedure ResetOptionMappingConfiguration()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
         if IntegrationTableMapping.Get('PAYMENT TERMS') then begin
             IntegrationTableMapping."Synch. Only Coupled Records" := true;
             IntegrationTableMapping."Coupling Codeunit ID" := Codeunit::"CDS Int. Option Couple";
+            IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
             IntegrationTableMapping.Modify();
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+            IntegrationFieldMapping.ModifyAll(Direction, IntegrationFieldMapping.Direction::ToIntegrationTable);
             RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
         end;
         if IntegrationTableMapping.Get('SHIPMENT METHOD') then begin
             IntegrationTableMapping."Synch. Only Coupled Records" := true;
             IntegrationTableMapping."Coupling Codeunit ID" := Codeunit::"CDS Int. Option Couple";
+            IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
             IntegrationTableMapping.Modify();
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+            IntegrationFieldMapping.ModifyAll(Direction, IntegrationFieldMapping.Direction::ToIntegrationTable);
             RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
         end;
         if IntegrationTableMapping.Get('SHIPPING AGENT') then begin
             IntegrationTableMapping."Synch. Only Coupled Records" := true;
             IntegrationTableMapping."Coupling Codeunit ID" := Codeunit::"CDS Int. Option Couple";
+            IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
             IntegrationTableMapping.Modify();
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+            IntegrationFieldMapping.ModifyAll(Direction, IntegrationFieldMapping.Direction::ToIntegrationTable);
             RecreateOptionJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, true, 1440);
         end;
     end;

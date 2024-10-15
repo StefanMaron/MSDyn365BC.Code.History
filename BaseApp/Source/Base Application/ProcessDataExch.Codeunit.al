@@ -22,6 +22,7 @@ codeunit 1201 "Process Data Exch."
         DataExchLineNoFieldId: Integer;
         LineNoOffset: Integer;
         CurrLineNo: Integer;
+        IsHandled: Boolean;
     begin
         LastKeyFieldId := GetLastIntegerKeyField(RecRefTemplate);
         LineNoOffset := GetLastKeyValueInRange(RecRefTemplate, LastKeyFieldId);
@@ -79,7 +80,10 @@ codeunit 1201 "Process Data Exch."
 
                 NegateAmounts(RecRef, TempFieldIdsToNegate);
 
-                RecRef.Insert();
+                IsHandled := false;
+                OnProcessColumnMappingOnBeforeRecRefInsert(RecRef, DataExch, IsHandled);
+                if not IsHandled then
+                    RecRef.Insert();
             end;
         until DataExchFieldGroupByLineNo.Next() = 0;
 
@@ -338,6 +342,11 @@ codeunit 1201 "Process Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcessColumnMapping(var DataExch: Record "Data Exch.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessColumnMappingOnBeforeRecRefInsert(RecRef: RecordRef; DataExch: Record "Data Exch."; var IsHandled: Boolean)
     begin
     end;
 

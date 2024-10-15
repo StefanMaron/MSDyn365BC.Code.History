@@ -201,6 +201,8 @@ table 175 "Standard Vendor Purchase Code"
         PurchaseLine."Dimension Set ID" :=
           DimensionManagement.GetCombinedDimensionSetID(
             DimensionSetIDArr, PurchaseLine."Shortcut Dimension 1 Code", PurchaseLine."Shortcut Dimension 2 Code");
+
+        OnAfterCombineDimensions(PurchaseLine, StdPurchaseLine);
     end;
 
     procedure InsertExtendedText(PurchLine: Record "Purchase Line")
@@ -281,6 +283,11 @@ table 175 "Standard Vendor Purchase Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyStdCodesToPurchaseLines(var PurchLine: Record "Purchase Line"; StdPurchLine: Record "Standard Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCombineDimensions(var PurchaseLine: Record "Purchase Line"; StdPurchaseLine: Record "Standard Purchase Line")
     begin
     end;
 

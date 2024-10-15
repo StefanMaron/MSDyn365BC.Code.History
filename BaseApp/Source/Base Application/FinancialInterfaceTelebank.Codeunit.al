@@ -81,6 +81,7 @@ codeunit 11000001 "Financial Interface Telebank"
         GenJnlLine."Shortcut Dimension 1 Code" := PaymentHistLine."Global Dimension 1 Code";
         GenJnlLine."Shortcut Dimension 2 Code" := PaymentHistLine."Global Dimension 2 Code";
         GenJnlLine."Dimension Set ID" := PaymentHist."Dimension Set ID";
+        OnPostPaymReceivedOnBeforeProcessGLJL(GenJnlLine, PaymentHistLine);
         ProcessGLJL(GenJnlLine);
 
         PaymentHistLine."Document No." := "New Document No.";
@@ -145,6 +146,7 @@ codeunit 11000001 "Financial Interface Telebank"
         GenJnlLine."Shortcut Dimension 1 Code" := PaymentHistLine."Global Dimension 1 Code";
         GenJnlLine."Shortcut Dimension 2 Code" := PaymentHistLine."Global Dimension 2 Code";
         GenJnlLine."Dimension Set ID" := PaymentHist."Dimension Set ID";
+        OnReversePaymReceivedOnBeforeProcessGLJL(GenJnlLine, PaymentHistLine);
         ProcessGLJL(GenJnlLine);
 
         PaymentHistLine.Status := NewStatus;
@@ -253,6 +255,7 @@ codeunit 11000001 "Financial Interface Telebank"
     [Scope('OnPrem')]
     procedure "Initialize GJLine"(var GenJnlLine: Record "Gen. Journal Line")
     begin
+        OnBeforeInitializeGJLine(GenJnlLine, "Journal template");
         if GenJnlLine.Find('+') then
             GenJnlLine."Line No." := GenJnlLine."Line No." + 1
         else
@@ -262,7 +265,14 @@ codeunit 11000001 "Financial Interface Telebank"
 
     [Scope('OnPrem')]
     procedure ProcessGLJL(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProcessGLJL(GenJnlPostLine, GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine.Insert();
         // GenJnlPostLineCu.RUN(FDBR);
     end;
@@ -454,6 +464,26 @@ codeunit 11000001 "Financial Interface Telebank"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetApplyCVLedgerEntries(var PaymentHistoryLine: Record "Payment History Line"; var AppliesToID: Code[50]; var Post: Boolean; var Check: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitializeGJLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplate: Record "Gen. Journal Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessGLJL(var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPaymReceivedOnBeforeProcessGLJL(var GenJournalLine: Record "Gen. Journal Line"; PaymentHistoryLine: Record "Payment History Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReversePaymReceivedOnBeforeProcessGLJL(var GenJournalLine: Record "Gen. Journal Line"; PaymentHistoryLine: Record "Payment History Line")
     begin
     end;
 

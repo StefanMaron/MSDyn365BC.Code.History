@@ -79,28 +79,12 @@ table 11000003 "Detail Line"
                     "Account Type"::Vendor:
                         begin
                             GetVendorEntries;
+                            OnValidateSerialNoEntryOnOnAfterGetVendorEntries(Rec, VendLedgEntry, CurrFieldNo);
                             VendLedgEntry.TestField(Open, true);
                             VendLedgEntry.TestField("Vendor No.", "Account No.");
                             "Currency Code (Entry)" := VendLedgEntry."Currency Code";
                             Vend.Get(VendLedgEntry."Vendor No.");
-                            if Vend."Our Account No." <> '' then
-                                Description :=
-                                  CopyStr(
-                                    StrSubstNo(
-                                      Text1000002,
-                                      VendLedgEntry."Document Type",
-                                      VendLedgEntry."External Document No.",
-                                      Vend."Our Account No."), 1, MaxStrLen(Description))
-                            else begin
-                                CompanyInfo.Get();
-                                Description :=
-                                  CopyStr(
-                                    StrSubstNo(
-                                      '%1 %2 %3',
-                                      VendLedgEntry."Document Type",
-                                      VendLedgEntry."External Document No.",
-                                      CompanyInfo.Name), 1, MaxStrLen(Description));
-                            end;
+                            FillVendorDescription(CompanyInfo, Vend);
 
                             IsHandled := false;
                             OnValidateSerialNoEntryOnBeforeValidateAmountFromVendLedgEntry(Rec, TrMode, VendLedgEntry, IsHandled);
@@ -242,6 +226,7 @@ table 11000003 "Detail Line"
             var
                 Difference: Decimal;
                 "Remaining Amount": Decimal;
+                ShowExceedMessage: Boolean;
             begin
                 case "Account Type" of
                     "Account Type"::Customer:
@@ -277,9 +262,10 @@ table 11000003 "Detail Line"
                 end;
 
                 Difference := "Remaining Amount" - (CalculateTotalAmount("Currency Code (Entry)") + "Amount (Entry)");
-                if Abs(Difference) > Abs(CalculateVariation) then
-                    if IsDifferentSign("Remaining Amount", Difference) then
-                        Message(Text1000004, DelChr(Format(Abs(Difference)) + ' ' + "Currency Code (Entry)", '<>', ' '));
+                ShowExceedMessage := (Abs(Difference) > Abs(CalculateVariation)) and IsDifferentSign("Remaining Amount", Difference);
+                OnValidateAmountEntryOnAfterCalcShowExceedMessage(Rec, Difference, "Remaining Amount", ShowExceedMessage);
+                if ShowExceedMessage then
+                    Message(Text1000004, DelChr(Format(Abs(Difference)) + ' ' + "Currency Code (Entry)", '<>', ' '));
 
                 if not AmountValidate then begin
                     AmountValidate := true;
@@ -393,13 +379,15 @@ table 11000003 "Detail Line"
         OnCalculateBalanceOnBeforeConvertToCurrency(Rec, VendLedgEntry, CustLedgEntry, Balance);
         if UseCurrency <> "Currency Code (Entry)" then
             Balance := CurrencyExchangeRate.ExchangeAmtFCYToFCY(Date, "Currency Code (Entry)", UseCurrency, Balance);
+
+        OnAfterCalculateBalance(Rec, Balance);
     end;
 
     local procedure CalculateTotalAmount(UseCurrency: Code[10]) Total: Decimal
     var
         DetailLine: Record "Detail Line";
     begin
-        DetailLine.SetCurrentKey("Account Type", "Serial No. (Entry)");
+        SetKeyForCalculateTotalAmount(DetailLine);
         DetailLine.SetRange("Account Type", "Account Type");
         DetailLine.SetRange("Serial No. (Entry)", "Serial No. (Entry)");
         DetailLine.SetFilter(Status, '%1|%2', Status::Proposal, Status::"In process");
@@ -410,6 +398,41 @@ table 11000003 "Detail Line"
             Total := CurrencyExchangeRate.ExchangeAmtFCYToFCY(Date, "Currency Code (Entry)", UseCurrency, "Amount (Entry)")
         else
             Total := DetailLine."Amount (Entry)";
+    end;
+
+    local procedure FillVendorDescription(var CompanyInformation: Record "Company Information"; var Vendor: Record Vendor)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFillVendorDescription(Rec, Vendor, VendLedgEntry);
+        if IsHandled then
+            exit;
+
+        if Vendor."Our Account No." <> '' then
+            Description :=
+              CopyStr(
+                StrSubstNo(
+                  Text1000002,
+                  VendLedgEntry."Document Type",
+                  VendLedgEntry."External Document No.",
+                  Vendor."Our Account No."), 1, MaxStrLen(Description))
+        else begin
+            CompanyInformation.Get();
+            Description :=
+              CopyStr(
+                StrSubstNo(
+                  '%1 %2 %3',
+                  VendLedgEntry."Document Type",
+                  VendLedgEntry."External Document No.",
+                  CompanyInformation.Name), 1, MaxStrLen(Description));
+        end;
+    end;
+
+    local procedure SetKeyForCalculateTotalAmount(var DetailLine: Record "Detail Line")
+    begin
+        DetailLine.SetCurrentKey("Account Type", "Serial No. (Entry)");
+        OnAfterSetKeyForCalculateTotalAmount(DetailLine);
     end;
 
     procedure CalculatePartOfBalance() Percent: Decimal
@@ -424,6 +447,8 @@ table 11000003 "Detail Line"
                 Percent := "Amount (Entry)" / Totamount
             else
                 Percent := 0;
+
+        OnAfterCalculatePartOfBalance(Rec, Percent);
     end;
 
     local procedure GetCustomerEntries() OK: Boolean
@@ -536,6 +561,7 @@ table 11000003 "Detail Line"
         VenEntry: Page "Vendor Ledger Entries";
         EmployeeLedgerEntries2: Page "Employee Ledger Entries";
     begin
+        OnBeforeSerialnoPostingLookup(Rec);
         case "Account Type" of
             "Account Type"::Customer:
                 begin
@@ -550,6 +576,7 @@ table 11000003 "Detail Line"
                     CustEntry.LookupMode(true);
                     if CustEntry.RunModal = ACTION::LookupOK then begin
                         CustEntry.GetRecord(CustLedgEntry);
+                        OnSerialnoPostingLookupOnAfterCustEntryGetRecord(Rec, CustLedgEntry);
                         Validate("Serial No. (Entry)", CustLedgEntry."Entry No.");
                     end;
                     CustLedgEntry.Reset();
@@ -565,8 +592,10 @@ table 11000003 "Detail Line"
                     VenEntry.SetRecord(VendLedgEntry);
                     VenEntry.SetTableView(VendLedgEntry);
                     VenEntry.LookupMode(true);
+                    OnSerialnoPostingLookupOnBeforeVenEntryRunModal(VendLedgEntry);
                     if VenEntry.RunModal = ACTION::LookupOK then begin
                         VenEntry.GetRecord(VendLedgEntry);
+                        OnSerialnoPostingLookupOnAfterGetVendLedgEntry(Rec, VendLedgEntry);
                         Validate("Serial No. (Entry)", VendLedgEntry."Entry No.");
                     end;
                     VendLedgEntry.Reset();
@@ -597,12 +626,62 @@ table 11000003 "Detail Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePartOfBalance(DetailLineRec: Record "Detail Line"; var Percent: Decimal)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateBalance(DetailLine: Record "Detail Line"; var Balance: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetKeyForCalculateTotalAmount(var DetailLine: Record "Detail Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillVendorDescription(var DetailLine: Record "Detail Line"; Vendor: Record Vendor; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSerialnoPostingLookup(var DetailLine: Record "Detail Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateBalanceOnBeforeConvertToCurrency(var DetailLineRec: Record "Detail Line"; var VendLedgEntry: Record "Vendor Ledger Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var Balance: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateTotalAmountOnBeforeCalcSums(var DetailLineRec: Record "Detail Line"; var DetailLine: Record "Detail Line"; var VendLedgEntry: Record "Vendor Ledger Entry"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSerialnoPostingLookupOnAfterGetVendLedgEntry(var DetailLineRec: Record "Detail Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnSerialnoPostingLookupOnAfterCustEntryGetRecord(var DetailLine: Record "Detail Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSerialnoPostingLookupOnBeforeVenEntryRunModal(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAmountEntryOnAfterCalcShowExceedMessage(var DetailLine: Record "Detail Line"; Difference: Decimal; RemainingAmount: Decimal; var ShowExceedMessage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSerialNoEntryOnOnAfterGetVendorEntries(var DetailLine: Record "Detail Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CurrFieldNo: Integer)
     begin
     end;
 

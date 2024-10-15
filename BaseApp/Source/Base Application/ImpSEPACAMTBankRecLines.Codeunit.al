@@ -13,6 +13,7 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         RunPreProcess(Rec);
         ProcessDataExch.ProcessAllLinesColumnMapping(DataExch, RecRef);
         RunPostProcess(Rec);
+        OnAfterOnRun(Rec, RecRef);
     end;
 
     var
@@ -68,6 +69,11 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
           BankAccReconciliation.FieldNo("Statement Ending Balance"), 'CLBD', BalTypeTxt, ClosingBalTxt, CrdDbtIndTxt, 4);
         PrePostProcessXMLImport.PostProcessStatementDate(DataExch, RecRef, BankAccReconciliation.FieldNo("Statement Date"),
           StatementDateTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var RecRef: RecordRef)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

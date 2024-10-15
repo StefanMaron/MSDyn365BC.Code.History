@@ -108,6 +108,16 @@ table 5906 "Service Comment Line"
             DeleteAll();
     end;
 
+    procedure DeleteServiceInvoiceLinesRelatedComments(ServiceHeader: Record "Service Header")
+    begin
+        SetRange("Table Name", "Service Comment Table Name"::"Service Header");
+        SetRange("Table Subtype", ServiceHeader."Document Type");
+        SetRange("No.", ServiceHeader."No.");
+        SetRange(Type, "Service Comment Line Type"::General);
+        if not IsEmpty() then
+            DeleteAll();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var ServiceCommentLineRec: Record "Service Comment Line"; var ServiceCommentLineFilter: Record "Service Comment Line")
     begin

@@ -142,6 +142,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         ReservEntry2: Record "Reservation Entry";
         SurplusReservEntry: Record "Reservation Entry";
         DummyReservEntry: Record "Reservation Entry";
+        OriginalReservEntry2: Record "Reservation Entry";
         TotalQty: Decimal;
         AvailabilityDate: Date;
     begin
@@ -156,12 +157,13 @@ codeunit 99000831 "Reservation Engine Mgt."
         if ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Surplus then begin
             GetItem(ReservEntry."Item No.");
             ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
+            OriginalReservEntry2 := ReservEntry2;
             if (Item."Order Tracking Policy" = Item."Order Tracking Policy"::None) and
                (not TransferLineWithItemTracking(ReservEntry2)) and
                (((ReservEntry.Binding = ReservEntry.Binding::"Order-to-Order") and ReservEntry2.Positive) or
                 (ReservEntry2."Source Type" = DATABASE::"Item Ledger Entry") or not ReservEntry2.TrackingExists)
             then
-                ReservEntry2.Delete
+                ReservEntry2.Delete()
             else begin
                 ReservEntry2."Reservation Status" := ReservEntry2."Reservation Status"::Surplus;
 
@@ -178,12 +180,14 @@ codeunit 99000831 "Reservation Engine Mgt."
                   ReservMgt.MatchSurplus(ReservEntry2, SurplusReservEntry, ReservEntry2."Quantity (Base)", not ReservEntry2.Positive,
                     AvailabilityDate, Item."Order Tracking Policy");
                 if ReservEntry2."Quantity (Base)" = 0 then begin
+                    OnCloseReservEntryOnBeforeDeleteReservEntry2(ReservEntry2, OriginalReservEntry2);
                     ReservEntry2.Delete(true);
                 end else begin
                     ReservEntry2.Validate("Quantity (Base)");
                     ReservEntry2.Validate(Binding, ReservEntry2.Binding::" ");
                     if Item."Order Tracking Policy" <> Item."Order Tracking Policy"::None then
                         ReservEntry2."Untracked Surplus" := ReservEntry2.IsResidualSurplus;
+                    OnCloseReservEntryOnBeforeModifyReservEntry2(ReservEntry2, OriginalReservEntry2);
                     ReservEntry2.Modify();
 
                     if Item."Order Tracking Policy" = Item."Order Tracking Policy"::"Tracking & Action Msg." then begin
@@ -201,6 +205,8 @@ codeunit 99000831 "Reservation Engine Mgt."
             TotalQty := ReservMgt.SourceQuantity(ReservEntry, true);
             ReservMgt.AutoTrack(TotalQty);
         end;
+
+        OnAfterCloseReservEntry(ReservEntry);
     end;
 
     procedure CloseSurplusTrackingEntry(ReservEntry: Record "Reservation Entry")
@@ -1199,12 +1205,15 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     local procedure SetItemTracking2(TempReservEntry2: Record "Reservation Entry"; var TrackingSpecification2: Record "Tracking Specification")
+    var
+        ShouldRaiseError: Boolean;
     begin
         if TempReservEntry2.Binding = TempReservEntry2.Binding::"Order-to-Order" then begin
             // only supply can change IT and demand must respect it
-            if TempReservEntry2.Positive and
-               not TempReservEntry2.HasSameTrackingWithSpec(TrackingSpecification2)
-            then
+
+            ShouldRaiseError := TempReservEntry2.Positive and not TempReservEntry2.HasSameTrackingWithSpec(TrackingSpecification2);
+            OnSetItemTracking2OnBeforeShouldRaiseCannotStateItemTrackingError(TempReservEntry2, TrackingSpecification2, ShouldRaiseError);
+            if ShouldRaiseError then
                 Error(CannotStateItemTrackingErr, TempReservEntry2.FieldCaption(Binding), TempReservEntry2.Binding);
         end else
             // each record brings/holds own IT
@@ -1378,6 +1387,26 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyItemTrackingOnTempRecOnBeforeModifyReservEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCloseReservEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseReservEntryOnBeforeDeleteReservEntry2(var ReservEntry2: Record "Reservation Entry"; OriginalReservEntry2: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseReservEntryOnBeforeModifyReservEntry2(var ReservEntry2: Record "Reservation Entry"; OriginalReservEntry2: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetItemTracking2OnBeforeShouldRaiseCannotStateItemTrackingError(TempReservEntry2: Record "Reservation Entry"; var TrackingSpecification2: Record "Tracking Specification"; var ShouldRaiseError: Boolean)
     begin
     end;
 }

@@ -161,6 +161,7 @@
                 GenJnlTemplate.SetRange(Type, GenJnlBatch."Template Type");
             if GenJnlBatch.GetFilter("Journal Template Name") <> '' then
                 GenJnlTemplate.SetRange(Name, GenJnlBatch.GetFilter("Journal Template Name"));
+            OnOpenJnlBatchOnBeforeCheckGenJnlTemplateCount(GenJnlBatch, GenJnlTemplate);
             case GenJnlTemplate.Count of
                 1:
                     GenJnlTemplate.FindFirst();
@@ -215,6 +216,7 @@
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         GenJnlBatch.Get(GenJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
+        OnAfterCheckName(GenJnlBatch, CurrentJnlBatchName, GenJnlLine);
     end;
 
     [Scope('OnPrem')]
@@ -311,7 +313,7 @@
         GenJnlBatch.FilterGroup(2);
         GenJnlBatch.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlBatch.FilterGroup(0);
-        OnBeforeLookupName(GenJnlBatch);
+        OnBeforeLookupName(GenJnlBatch, GenJnlLine);
         if PAGE.RunModal(0, GenJnlBatch) = ACTION::LookupOK then begin
             CurrentJnlBatchName := GenJnlBatch.Name;
             SetName(CurrentJnlBatchName, GenJnlLine);
@@ -610,6 +612,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckName(GenJnlBatch: Record "Gen. Journal Batch"; CurrentJnlBatchName: Code[10]; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetName(var GenJournalLine: Record "Gen. Journal Line"; CurrentJnlBatchName: Code[10])
     begin
     end;
@@ -625,7 +632,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupName(var GenJnlBatch: Record "Gen. Journal Batch")
+    local procedure OnBeforeLookupName(var GenJnlBatch: Record "Gen. Journal Batch"; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -666,6 +673,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenJnlOnAfterCheckTemplateName(var GenJournalLine: Record "Gen. Journal Line"; var CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenJnlBatchOnBeforeCheckGenJnlTemplateCount(var GenJnlBatch: Record "Gen. Journal Batch"; var GenJnlTemplate: Record "Gen. Journal Template")
     begin
     end;
 }
