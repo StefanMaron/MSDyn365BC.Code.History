@@ -384,6 +384,50 @@ codeunit 134907 "ERM Invoice and Reminder"
         Assert.AreEqual(ReminderHeader."Reminder Level", 1, 'ReminderHeader."Reminder Level"');
     end;
 
+    [Test]
+    [HandlerFunctions('ReminderTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestReminderReportCalculateAmountCorrectly()
+    var
+        ReminderLine: array[2] of Record "Reminder Line";
+        SalesLine: Record "Sales Line";
+        ReminderHeader: Record "Reminder Header";
+        DocumentNo: Code[20];
+        RemainingAmount: Decimal;
+        AdditionalFee: Decimal;
+        InterestAmount: Decimal;
+    begin
+        // [SCENARIO 370031] Run report Reminder - Test for Reminder Header with additional fee
+        Initialize();
+
+        // [GIVEN] Created and posted Sales Invoice
+        DocumentNo := CreateAndPostSalesInvoice(SalesLine);
+        InterestAmount := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Created Reminder Header and Line.
+        CreateReminderHeader(ReminderHeader, SalesLine."Sell-to Customer No.");
+        LibraryERM.CreateReminderLine(ReminderLine[1], ReminderHeader."No.", ReminderLine[1].Type::"Customer Ledger Entry");
+        ReminderLine[1].Validate("Document No.", DocumentNo);
+        ReminderLine[1].Validate(Amount, InterestAmount);
+        ReminderLine[1].Modify(true);
+        RemainingAmount := ReminderLine[1]."Remaining Amount";
+
+        // [GIVEN] Created Reminder Line for additional fee
+        LibraryERM.CreateReminderLine(ReminderLine[2], ReminderHeader."No.", ReminderLine[2].Type::"G/L Account");
+        AdditionalFee := LibraryRandom.RandInt(10);
+        ReminderLine[2].Validate(Amount, AdditionalFee);
+        ReminderLine[2].Modify(true);
+        Commit();
+
+        // [WHEN] Run report 122 "Reminder - Test"
+        ReminderHeader.SetRecFilter();
+        ReminderHeader.PrintRecords();
+
+        // [THEN] Check Total is equal to sum of Remaining amount, Interest amount and additional fee
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('NNC_TotalLCY', RemainingAmount + InterestAmount + AdditionalFee);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -740,6 +784,13 @@ codeunit 134907 "ERM Invoice and Reminder"
     procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
     begin
         Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReminderTestRequestPageHandler(var ReminderTest: TestRequestPage "Reminder - Test")
+    begin
+        ReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 
