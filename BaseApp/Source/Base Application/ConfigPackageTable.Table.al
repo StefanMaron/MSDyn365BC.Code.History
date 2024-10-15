@@ -506,6 +506,7 @@ table 8613 "Config. Package Table"
         ConfigPackageRecord: Record "Config. Package Record";
         ConfigPackageRecords: Page "Config. Package Records";
         MatrixColumnCaptions: array[1000] of Text[100];
+        IsHandled: Boolean;
     begin
         ConfigPackageField.SetRange("Package Code", "Package Code");
         ConfigPackageField.SetRange("Table ID", "Table ID");
@@ -513,7 +514,6 @@ table 8613 "Config. Package Table"
         if not ShowDim then
             ConfigPackageField.SetRange(Dimension, false);
         FillMatrixColumnCaptions(MatrixColumnCaptions, ConfigPackageField);
-
 
         CalcFields("Table Caption");
         Clear(ConfigPackageRecords);
@@ -528,7 +528,11 @@ table 8613 "Config. Package Table"
         ConfigPackageRecords.SetTableView(ConfigPackageRecord);
         ConfigPackageRecords.LookupMode(true);
         ConfigPackageRecords.Load(MatrixColumnCaptions, "Table Caption", "Package Code", "Table ID", ShowDim);
-        ConfigPackageRecords.RunModal();
+
+        IsHandled := false;
+        OnShowPackageRecordsOnBeforeShowRecords(ConfigPackageRecords, IsHandled);
+        if not IsHandled then
+            ConfigPackageRecords.RunModal();
     end;
 
     local procedure FillMatrixColumnCaptions(var MatrixColumnCaptions: array[1000] of Text[100]; var ConfigPackageField: Record "Config. Package Field")
@@ -796,6 +800,11 @@ table 8613 "Config. Package Table"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitPackageFieldsOnAfterCalcShouldAddField(var ConfigPackageTable: Record "Config. Package Table"; "Field": Record "Field"; var ShouldAddField: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowPackageRecordsOnBeforeShowRecords(var ConfigPackageRecords: Page "Config. Package Records"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -766,12 +766,14 @@
                                 TempPaymentBuffer."Applies-to Ext. Doc. No." := '';
                                 if TempPaymentBuffer.Find then begin
                                     TempPaymentBuffer.Amount := TempPaymentBuffer.Amount + PayableVendLedgEntry.Amount;
+                                    OnMakeGenJnlLinesOnBeforeTempPaymentBufferModify(TempPaymentBuffer, VendLedgEntry);
                                     TempPaymentBuffer.Modify();
                                 end else begin
                                     TempPaymentBuffer."Document No." := NextDocNo;
                                     RunIncrementDocumentNo(true);
                                     TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
                                     Window2.Update(1, VendLedgEntry."Vendor No.");
+                                    OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsert(TempPaymentBuffer, VendLedgEntry);
                                     TempPaymentBuffer.Insert();
                                 end;
                                 VendLedgEntry."Applies-to ID" := TempPaymentBuffer."Document No.";
@@ -1287,6 +1289,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsertNonSummarize(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry"; var SummarizePerVend: Boolean; var NextDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsert(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeGenJnlLinesOnBeforeTempPaymentBufferModify(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

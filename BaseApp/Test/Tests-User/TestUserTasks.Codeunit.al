@@ -397,7 +397,7 @@ codeunit 134769 "Test User Tasks"
     end;
 
     [Scope('OnPrem')]
-    procedure VerifyWindowsSecurityIdEditability(IsSaaS: Boolean)
+    procedure VerifyWindowsSecurityIdEditability(IsSaaSInfrastructure: Boolean)
     var
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         User: Record User;
@@ -408,13 +408,13 @@ codeunit 134769 "Test User Tasks"
         User.FindFirst();
 
         // [GIVEN] A given system setup (SaaS or OnPrem)
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(IsSaaS);
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(IsSaaSInfrastructure);
 
         // [GIVEN] User tries to modify SID
         User."Windows Security ID" := 'SomeSID';
 
         // [THEN] Modification throws error when in SaaS environment or succeeds when in OnPrem environment
-        if IsSaaS then
+        if IsSaaSInfrastructure then
             asserterror User.Modify()
         else
             Assert.IsTrue(User.Modify(), 'Modifying the Windows user''s Windows Security ID should be possible in OnPrem environment');

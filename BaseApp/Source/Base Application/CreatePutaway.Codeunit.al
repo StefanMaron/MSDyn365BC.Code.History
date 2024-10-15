@@ -1103,7 +1103,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeMakeCrossDockPutAway(var Location: Record Location; var PutAwayItemUOM: Record "Item Unit of Measure"; var Bin: Record Bin; var LineNo: Integer; var CrossDockInfo: Option; var QtyToPutAwayBase: Decimal; var RemQtyToPutAwayBase: Decimal; var EverythingHandled: Boolean; var IsHandled: Boolean; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; CrossDock: Boolean)
     begin
     end;

@@ -82,6 +82,8 @@ report 1085 "Job Post WIP to G/L"
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
