@@ -73,7 +73,7 @@ table 5600 "Fixed Asset"
                 FASubclass: Record "FA Subclass";
             begin
                 if "FA Subclass Code" = '' then begin
-                    Validate("FA Posting Group", FASubclass."Default FA Posting Group");
+                    Validate("FA Posting Group", '');
                     exit;
                 end;
 
@@ -225,6 +225,17 @@ table 5600 "Fixed Asset"
         {
             Caption = 'FA Posting Group';
             TableRelation = "FA Posting Group";
+
+            trigger OnValidate()
+            var
+                FALedgerEntry: Record "FA Ledger Entry";
+            begin
+                if "FA Posting Group" <> xRec."FA Posting Group" then begin
+                    FALedgerEntry.SetRange("FA No.", "No.");
+                    if not FALedgerEntry.IsEmpty() then
+                        Error(FoundFALedgerEntriesErr);
+                end;
+            end;
         }
         field(30; Acquired; Boolean)
         {
@@ -361,6 +372,7 @@ table 5600 "Fixed Asset"
         SalesLine.RenameNo(SalesLine.Type::"Fixed Asset", xRec."No.", "No.");
         PurchaseLine.RenameNo(PurchaseLine.Type::"Fixed Asset", xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::"Fixed Asset", xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::"Fixed Asset", xRec."No.", "No.");
 
         "Last Date Modified" := Today;
     end;
@@ -383,6 +395,7 @@ table 5600 "Fixed Asset"
         NotificationDescriptionTxt: Label 'Notify when ready to acquire the fixed asset.';
         ReadyToAcquireMsg: Label 'You are ready to acquire the fixed asset.';
         AcquireActionTxt: Label 'Acquire';
+        FoundFALedgerEntriesErr: Label 'You cannot change the FA posting group because posted FA ledger entries use the existing posting group.';
 
     procedure AssistEdit(OldFA: Record "Fixed Asset"): Boolean
     begin

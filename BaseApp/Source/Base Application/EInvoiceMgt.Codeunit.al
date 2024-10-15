@@ -74,6 +74,7 @@ codeunit 10145 "E-Invoice Mgt."
         ProcessPaymentErr: Label 'Cannot process payment %2', Locked = true;
         SendPaymentMsg: Label 'Sending payment', Locked = true;
         SendPaymentSuccessMsg: Label 'Payment successfully sent', Locked = true;
+        SpecialCharsTxt: Label 'áéíñóúüÁÉÍÑÓÚÜ', Locked = true;
 
     procedure RequestStampDocument(var RecRef: RecordRef; Prepayment: Boolean)
     var
@@ -253,7 +254,8 @@ codeunit 10145 "E-Invoice Mgt."
 
                     DocumentHeaderRecordRef.SetTable(SalesCrMemoHeader);
                     CreateAbstractDocument(SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
-                    GetRelationDocumentsSalesCreditMemo(TempCFDIRelationDocument, SalesCrMemoHeader, TempDocumentHeader);
+                    GetRelationDocumentsCreditMemo(
+                      TempCFDIRelationDocument, TempDocumentHeader, SalesCrMemoHeader."No.", DATABASE::"Sales Cr.Memo Header");
                     CheckSalesDocument(
                       SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesCrMemoHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqSalesCr(SalesCrMemoHeader);
@@ -283,7 +285,8 @@ codeunit 10145 "E-Invoice Mgt."
 
                     DocumentHeaderRecordRef.SetTable(ServiceCrMemoHeader);
                     CreateAbstractDocument(ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
-                    GetRelationDocumentsServiceCreditMemo(TempCFDIRelationDocument, ServiceCrMemoHeader, TempDocumentHeader);
+                    GetRelationDocumentsCreditMemo(
+                      TempCFDIRelationDocument, TempDocumentHeader, ServiceCrMemoHeader."No.", DATABASE::"Service Cr.Memo Header");
                     CheckSalesDocument(
                       ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceCrMemoHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqServCr(ServiceCrMemoHeader);
@@ -2650,7 +2653,7 @@ codeunit 10145 "E-Invoice Mgt."
         Recipients.Add(SendToAddress);
 
         if EmailFeature.IsEnabled() then begin
-            Message.CreateMessage(Recipients, Subject, MessageBody, true);
+            Message.Create(Recipients, Subject, MessageBody, true);
             Message.AddAttachment(CopyStr(FilePathEDoc, 1, 250), 'Document', XMLInstream);
             if SendPDF then begin
                 PDFAttachmentFile.Open(FilePathEDoc);
@@ -2660,7 +2663,7 @@ codeunit 10145 "E-Invoice Mgt."
             end;
             EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount);
             ClearLastError();
-            SendOK := Email.Send(Message.GetId(), EmailAccount."Account Id", EmailAccount.Connector);
+            SendOK := Email.Send(Message, EmailAccount."Account Id", EmailAccount.Connector);
             if not SendOK then
                 ErrorText := GetLastErrorText();
         end else begin
@@ -3061,7 +3064,8 @@ codeunit 10145 "E-Invoice Mgt."
         Response := IWebServiceInvoker.InvokeMethodWithCertificate(PACWebServiceDetail.Address,
             PACWebServiceDetail."Method Name", CertificateManagement.GetCertAsBase64String(IsolatedCertificate), SecureStringPassword);
         Session.LogMessage('0000C7W', StrSubstNo(InvokeMethodSuccessMsg, MethodType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
-
+        if MethodType = MethodType::Cancel then
+            Response := DelChr(Response, '=', SpecialCharsTxt);
         exit(Response)
     end;
 
@@ -3821,7 +3825,7 @@ codeunit 10145 "E-Invoice Mgt."
             AddElementPago(XMLCurrNode, 'Pago', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'FechaPago', FormatAsDateTime("Posting Date", 0T, ''));
-            AddAttribute(XMLDoc, XMLCurrNode, 'FormaDePagoP', SATUtilities.GetSATPaymentMethod(TempCustomer."Payment Method Code"));
+            AddAttribute(XMLDoc, XMLCurrNode, 'FormaDePagoP', SATUtilities.GetSATPaymentMethod("Payment Method Code"));
             if TempCustomer."Currency Code" <> '' then begin
                 AddAttribute(XMLDoc, XMLCurrNode, 'MonedaP', TempCustomer."Currency Code");// *********NEW/CHANGED
                 if (TempCustomer."Currency Code" <> 'MXN') and (TempCustomer."Currency Code" <> 'XXX') then
@@ -3954,7 +3958,7 @@ codeunit 10145 "E-Invoice Mgt."
             WriteOutStr(OutStream, '1.0' + '|');// VersionForPagoHCto1.0
                                                 // Pagos->Pago
             WriteOutStr(OutStream, FormatAsDateTime("Posting Date", 0T, '') + '|');// FechaPagoSetToPD
-            WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod(TempCustomer."Payment Method Code") + '|');// FormaDePagoP
+            WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|');// FormaDePagoP
             if TempCustomer."Currency Code" <> '' then
                 WriteOutStr(OutStream, TempCustomer."Currency Code" + '|');// MonedaP
             if (TempCustomer."Currency Code" <> 'MXN') and (TempCustomer."Currency Code" <> 'XXX') then
@@ -4160,30 +4164,38 @@ codeunit 10145 "E-Invoice Mgt."
             until CFDIRelationDocumentFrom.Next = 0;
     end;
 
-    local procedure GetRelationDocumentsSalesCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocumentHeader: Record "Document Header")
+    local procedure GetRelationDocumentsCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; DocumentHeader: Record "Document Header"; DocumentNo: Code[20]; TableID: Integer)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        GetRelationDocumentsInvoice(CFDIRelationDocument, DocumentHeader, DATABASE::"Sales Cr.Memo Header");
-
-        if (SalesCrMemoHeader."Applies-to Doc. Type" = SalesCrMemoHeader."Applies-to Doc. Type"::Invoice) and
-           SalesInvoiceHeader.Get(SalesCrMemoHeader."Applies-to Doc. No.")
-        then
-            InsertAppliedRelationDocument(
-              CFDIRelationDocument, SalesCrMemoHeader."No.", SalesInvoiceHeader."No.", SalesInvoiceHeader."Fiscal Invoice Number PAC");
-    end;
-
-    local procedure GetRelationDocumentsServiceCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; ServiceCrMemoHeader: Record "Service Cr.Memo Header"; DocumentHeader: Record "Document Header")
-    var
         ServiceInvoiceHeader: Record "Service Invoice Header";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        GetRelationDocumentsInvoice(CFDIRelationDocument, DocumentHeader, DATABASE::"Service Cr.Memo Header");
+        GetRelationDocumentsInvoice(CFDIRelationDocument, DocumentHeader, TableID);
 
-        if (ServiceCrMemoHeader."Applies-to Doc. Type" = ServiceCrMemoHeader."Applies-to Doc. Type"::Invoice) and
-           ServiceInvoiceHeader.Get(ServiceCrMemoHeader."Applies-to Doc. No.")
-        then
-            InsertAppliedRelationDocument(
-              CFDIRelationDocument, ServiceCrMemoHeader."No.", ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Fiscal Invoice Number PAC");
+        DetailedCustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Posting Date");
+        DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::"Credit Memo");
+        DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.FindFirst();
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.SetRange("Applied Cust. Ledger Entry No.", DetailedCustLedgEntry."Cust. Ledger Entry No.");
+        DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Invoice);
+        DetailedCustLedgEntry.SetRange(Unapplied, false);
+        if DetailedCustLedgEntry.FindSet() then
+            repeat
+                CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
+                case TableID of
+                    DATABASE::"Sales Cr.Memo Header":
+                        if SalesInvoiceHeader.Get(CustLedgerEntry."Document No.") then
+                            InsertAppliedRelationDocument(
+                              CFDIRelationDocument, DocumentNo, SalesInvoiceHeader."No.", SalesInvoiceHeader."Fiscal Invoice Number PAC");
+                    DATABASE::"Service Cr.Memo Header":
+                        if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
+                            InsertAppliedRelationDocument(
+                              CFDIRelationDocument, DocumentNo, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Fiscal Invoice Number PAC");
+                end;
+            until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure InsertAppliedRelationDocument(var CFDIRelationDocument: Record "CFDI Relation Document"; DocumentNo: Code[20]; RelatedDocumentNo: Code[20]; FiscalInvoiceNumberPAC: Text[50])

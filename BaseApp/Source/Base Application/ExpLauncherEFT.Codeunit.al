@@ -54,6 +54,7 @@ codeunit 10320 "Exp. Launcher EFT"
         else
             BankExportImportSetup.SetRange(Code, BankAccount."Payment Export Format");
 
+        OnEFTPaymentProcessAfterBankExportImportSetupSetFilters(TempEFTExportWorkset, BankExportImportSetup);
         if BankExportImportSetup.FindFirst then begin
             DataExchDefCode := BankExportImportSetup."Data Exch. Def. Code";
             ACHFileName := BankAccount."Last E-Pay Export File Name";
@@ -355,6 +356,11 @@ codeunit 10320 "Exp. Launcher EFT"
                 DataExch.Insert();
             until DataExchLineDef.Next = 0;
         Commit();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEFTPaymentProcessAfterBankExportImportSetupSetFilters(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var BankExportImportSetup: Record "Bank Export/Import Setup")
+    begin
     end;
 }
 

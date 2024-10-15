@@ -32,24 +32,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Employee Reports - NamedType CountyTextErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3836724765 - NamedType 2146008245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Total Amount must be %1 in %2 table for %3 field : %4.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Apply Unapply Employee - NamedType TotalAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3836724765 - NamedType 1950519325" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Apply Unapply Employee - NamedType UnappliedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3836724765 - NamedType 806209717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Error Message must be same.]]></Val>
@@ -822,15 +804,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType LineCountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 1191952603" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field Unit of Measure Code of table Cause of Absence contains a value (%1) that cannot be found in the related table (Human Resource Unit of Measure)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectHRUnitOfMeasureTableRelationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1422905949 - NamedType 3328968785" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

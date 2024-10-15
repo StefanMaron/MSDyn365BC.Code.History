@@ -15,6 +15,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPurchase: Codeunit "Library - Purchase";
         CurrentSaveValuesId: Integer;
 
     [Test]
@@ -198,6 +199,61 @@ codeunit 133772 "Remittance Purch & Sales UT"
         LibraryReportDataset.AssertElementWithValueExists('VendorLedgerEntryVendorNo', VendorLedgerEntry."Vendor No.");
     end;
 
+    [Test]
+    [HandlerFunctions('RemittanceAdviceJournalRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure RemittanceAdviceJournalRemainingAndPaidAmount()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        InvoiceNo: array[2] of Code[20];
+        PaymentNo: Code[20];
+        VendorNo: Code[20];
+        InvoiceAmount: array[2] of Decimal;
+        PaidAmount: array[2] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 371660] Report "Remittance Advice - Entries" shows expected Remaining Amount and Paid Amount for Gen. Journal lines partially applied and having same Document No.
+        Initialize();
+
+        // [GIVEN] Posted invoice "Inv1" with Amount "IAmt1" = 100.
+        // [GIVEN] Posted invoice "Inv2" with Amount "IAmt2" = 200.
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        CreateGenJournalTemplateAndBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalBatch.Modify(true);
+
+        for i := 1 to 2 do begin
+            InvoiceAmount[i] := LibraryRandom.RandIntInRange(100, 200);
+            LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+              GenJournalLine."Account Type"::Vendor, VendorNo, -InvoiceAmount[i]);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+            InvoiceNo[i] := GenJournalLine."Document No.";
+            PaidAmount[i] := InvoiceAmount[i] - LibraryRandom.RandInt(50);
+        end;
+
+        // [GIVEN] Payment Gen. Journal Line applied to "Inv1" with Amount "PAmt1" = 90 and Document No. = "P1".
+        // [GIVEN] Payment Gen. Journal Line applied to "Inv2" with Amount "PAmt2" = 160 and Document No. = "P1".
+        CreatePaymentGenJnlLine(GenJournalLine, InvoiceNo[1], PaidAmount[1]);
+        PaymentNo := GenJournalLine."Document No.";
+        CreatePaymentGenJnlLine(GenJournalLine, InvoiceNo[2], PaidAmount[2]);
+        GenJournalLine.Validate("Document No.", PaymentNo);
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Run "Remittance Advice - Entries" report for mentioned payment lines.
+        Commit();
+        LibraryVariableStorage.Enqueue(VendorNo);
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        REPORT.Run(REPORT::"Remittance Advice - Journal");
+
+        // [THEN] Verify resulting dataset has Remaining Amounts 10 and 40, Paid Amounts 90 and 160.
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyRemittanceAdviceJournalRemainingAndPaidAmounts(InvoiceAmount[1], PaidAmount[1]);
+        VerifyRemittanceAdviceJournalRemainingAndPaidAmounts(InvoiceAmount[2], PaidAmount[2]);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -261,6 +317,18 @@ codeunit 133772 "Remittance Purch & Sales UT"
         GLEntry."Document No." := LibraryUTUtility.GetNewCode;
         GLEntry."Transaction No." := SelectGLEntryTransactionNo;
         GLEntry.Insert();
+    end;
+
+    local procedure CreatePaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PaymentAmount: Decimal)
+    begin
+        with GenJournalLine do begin
+            LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine, "Journal Template Name", "Journal Batch Name", "Document Type"::Payment,
+              "Account Type"::Vendor, "Account No.", PaymentAmount);
+            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
+            Validate("Applies-to Doc. No.", DocumentNo);
+            Modify(true);
+        end;
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -355,6 +423,12 @@ codeunit 133772 "Remittance Purch & Sales UT"
         LibraryReportDataset.AssertElementWithValueExists('AppliedVendLedgEntryTempRemainingAmt', 0);
         LibraryReportDataset.AssertElementWithValueExists('PaidAmount', PaidAmount);
         LibraryReportDataset.AssertElementWithValueExists('AppliedVendLedgEntryTempCurrCode', CurrencyCode);
+    end;
+
+    local procedure VerifyRemittanceAdviceJournalRemainingAndPaidAmounts(OriginalAmount: Decimal; PaidAmount: Decimal)
+    begin
+        LibraryReportDataset.AssertElementWithValueExists('AppliedVendLedgEntryTempRemainingAmt', OriginalAmount - PaidAmount);
+        LibraryReportDataset.AssertElementWithValueExists('PaidAmount', PaidAmount);
     end;
 
     [RequestPageHandler]

@@ -22,6 +22,7 @@ codeunit 137060 "SCM Inventory 7.0"
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -1534,6 +1535,85 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.AreEqual(ItemTranslationDescription, RequisitionLine.Description, DescriptionErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CrossReferenceClearedOnShippedSalesOrder()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemCrossReference: Record "Item Cross Reference";
+    begin
+        // [FEATURE] [Item Cross Reference] [Sales] [Order] [Ship]
+        // [SCENARIO 368233] Item Cross Reference revalidation on Sales Line allowed when "Qty. Shipped" is non-zero
+        Initialize(false);
+
+        // [GIVEN] Item with non-zero inventory created
+        CreateItemJournalLine(
+          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 0), 0);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Item Cross Reference "ICR" created for Item and Customer
+        LibrarySales.CreateCustomer(Customer);
+        CreateItemCrossReferenceWithType(
+          ItemCrossReference, ItemJournalLine."Item No.", '',
+          ItemCrossReference."Cross-Reference Type"::Customer, Customer."No.", '');
+
+        // [GIVEN] Sales Order created for Customer and Item, posted with "Ship"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemCrossReference."Item No.", ItemJournalLine.Quantity);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesLine.Find();
+
+        // [GIVEN] "Cross-Reference No." cleared on the Sales Line
+        SalesLine.Validate("Cross-Reference No.", '');
+        SalesLine.Modify(true);
+
+        // [WHEN] "Cross-Reference No." set to "ICR"
+        SalesLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
+
+        // [THEN] "Cross-Reference No." = "ICR"
+        SalesLine.TestField("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CrossReferenceClearedOnReceivedPurchOrder()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemCrossReference: Record "Item Cross Reference";
+    begin
+        // [FEATURE] [Item Cross Reference] [Purchase] [Order] [Receive]
+        // [SCENARIO 368233] Item Cross Reference revalidation on Purchase Line allowed when "Quantity Received" is non-zero
+        Initialize(false);
+
+        // [GIVEN] Item Cross Reference "ICR" created for Item and Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateItemCrossReferenceWithType(
+          ItemCrossReference, LibraryInventory.CreateItemNo(), '',
+          ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.", '');
+
+        // [GIVEN] Purchase Order created for Vendor and Item, posted with "Ship"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemCrossReference."Item No.", LibraryRandom.RandDec(10, 0));
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        PurchaseLine.Find();
+
+        // [GIVEN] "Cross-Reference No." cleared on the Purchase Line
+        PurchaseLine.Validate("Cross-Reference No.", '');
+        PurchaseLine.Modify(true);
+
+        // [WHEN] "Cross-Reference No." set to "ICR"
+        PurchaseLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
+
+        // [THEN] "Cross-Reference No." = "ICR"
+        PurchaseLine.TestField("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1649,11 +1729,16 @@ codeunit 137060 "SCM Inventory 7.0"
 
     local procedure CreateItemCrossReference(var ItemCrossRef: Record "Item Cross Reference"; ItemNo: Code[20]; UoMCode: Code[10]; VendorNo: Code[20]; VariantCode: Code[10])
     begin
+        CreateItemCrossReferenceWithType(ItemCrossRef, ItemNo, UoMCode, ItemCrossRef."Cross-Reference Type"::Vendor, VendorNo, VariantCode);
+    end;
+
+    local procedure CreateItemCrossReferenceWithType(var ItemCrossRef: Record "Item Cross Reference"; ItemNo: Code[20]; UoMCode: Code[10]; Type: Option; TypeNo: Code[20]; VariantCode: Code[10])
+    begin
         with ItemCrossRef do begin
             Validate("Item No.", ItemNo);
             Validate("Unit of Measure", UoMCode);
-            Validate("Cross-Reference Type", "Cross-Reference Type"::Vendor);
-            Validate("Cross-Reference Type No.", VendorNo);
+            Validate("Cross-Reference Type", Type);
+            Validate("Cross-Reference Type No.", TypeNo);
             Validate("Variant Code", VariantCode);
             Validate("Cross-Reference No.", LibraryUtility.GenerateGUID);
             Insert(true);

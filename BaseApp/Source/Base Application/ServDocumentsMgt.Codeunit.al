@@ -1,4 +1,4 @@
-codeunit 5988 "Serv-Documents Mgt."
+﻿codeunit 5988 "Serv-Documents Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "Service Header" = imd,
@@ -216,7 +216,7 @@ codeunit 5988 "Serv-Documents Mgt."
             if TaxOption = TaxOption::SalesTax then begin
                 IsHandled := false;
                 OnBeforeCalculateSalesTax(
-                  SalesTaxCalculationOverridden, ServHeader, TempServiceLineForSalesTax, TempSalesTaxAmtLine, IsHandled);
+                  SalesTaxCalculationOverridden, ServHeader, TempServiceLineForSalesTax, TempSalesTaxAmtLine, IsHandled, Ship, Consume, Invoice);
                 if not IsHandled then
                     if not SalesTaxCalculationOverridden then
                         if SalesTaxCountry <> SalesTaxCountry::NoTax then begin
@@ -962,6 +962,8 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     procedure Finalize(var PassedServHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeFinalize(PassedServHeader, CloseCondition);
 
@@ -974,23 +976,26 @@ codeunit 5988 "Serv-Documents Mgt."
         FinalizeCrMemoDocument();
         FinalizeWarrantyLedgerEntries(PassedServHeader, CloseCondition);
 
-        if ((ServHeader."Document Type" = ServHeader."Document Type"::Order) and CloseCondition) or
-           (ServHeader."Document Type" <> ServHeader."Document Type"::Order)
-        then begin
-            // Service Lines, Service Item Lines, Service Header
-            FinalizeDeleteLines();
-            FinalizeDeleteServOrdAllocat();
-            FinalizeDeleteItemLines();
-            FinalizeDeleteComments(PassedServHeader."Document Type");
-            OnFinalizeOnBeforeFinalizeDeleteHeader(PassedServHeader);
-            FinalizeDeleteHeader(PassedServHeader);
-        end else begin
-            // Service Lines, Service Item Lines, Service Header
-            FinalizeLines();
-            FinalizeItemLines();
-            OnFinalizeOnBeforeFinalizeHeader(PassedServHeader);
-            FinalizeHeader(PassedServHeader);
-        end;
+        IsHandled := false;
+        OnFinalizeOnBeforeFinalizeHeaderAndLines(PassedServHeader, IsHandled);
+        if not IsHandled then
+            if ((ServHeader."Document Type" = ServHeader."Document Type"::Order) and CloseCondition) or
+               (ServHeader."Document Type" <> ServHeader."Document Type"::Order)
+            then begin
+                // Service Lines, Service Item Lines, Service Header
+                FinalizeDeleteLines();
+                FinalizeDeleteServOrdAllocat();
+                FinalizeDeleteItemLines();
+                FinalizeDeleteComments(PassedServHeader."Document Type");
+                OnFinalizeOnBeforeFinalizeDeleteHeader(PassedServHeader);
+                FinalizeDeleteHeader(PassedServHeader);
+            end else begin
+                // Service Lines, Service Item Lines, Service Header
+                FinalizeLines();
+                FinalizeItemLines();
+                OnFinalizeOnBeforeFinalizeHeader(PassedServHeader);
+                FinalizeHeader(PassedServHeader);
+            end;
         if SalesTaxCalculationOverridden then
             OnFinalize(ServHeader, ServInvHeader, ServInvLine, ServCrMemoHeader, ServCrMemoLine, Invoice);
 
@@ -2224,7 +2229,7 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTax(var SalesTaxCalculationOverridden: Boolean; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCalculateSalesTax(var SalesTaxCalculationOverridden: Boolean; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary; var IsHandled: Boolean; Ship: Boolean; Consume: Boolean; Invoice: Boolean)
     begin
     end;
 
@@ -2579,6 +2584,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValuePosting(var ServiceLine2: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeOnBeforeFinalizeHeaderAndLines(var PassedServHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

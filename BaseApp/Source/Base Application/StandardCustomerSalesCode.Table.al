@@ -232,6 +232,7 @@ table 172 "Standard Customer Sales Code"
                 OnBeforeApplyStdCodesToSalesLines(SalesLine, StdSalesLine);
                 if StdSalesLine.InsertLine then begin
                     SalesLine."Line No." := GetNextLineNo(SalesLine);
+                    SalesLine.SetSalesHeader(SalesHeader);
                     SalesLine.Insert(true);
                     SalesLine.AutoAsmToOrder;
                     InsertExtendedText(SalesLine, SalesHeader);

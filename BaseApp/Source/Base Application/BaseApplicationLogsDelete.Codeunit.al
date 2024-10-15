@@ -20,10 +20,6 @@ codeunit 3995 "Base Application Logs Delete"
         if Handled then
             exit;
 
-        // if no filters have been set, something is wrong.
-        if (RecRef.GetFilters() = '') or (not RecRef.MarkedOnly()) then
-            RetentionPolicyLog.LogError(LogCategory(), StrSubstNo(NoFiltersErr, RecRef.Number, RecRef.Name));
-
         // check if we can handle the table
         if not (RecRef.Number in [Database::"Change Log Entry",
             Database::"Job Queue Log Entry",
@@ -34,8 +30,12 @@ codeunit 3995 "Base Application Logs Delete"
         then
             exit;
 
+        // if no filters have been set, something is wrong.
+        if (RecRef.GetFilters() = '') or (not RecRef.MarkedOnly()) then
+            RetentionPolicyLog.LogError(LogCategory(), StrSubstNo(NoFiltersErr, RecRef.Number, RecRef.Name));
+
         // delete all remaining records
-        RecRef.DeleteAll();
+        RecRef.DeleteAll(true);
 
         // set handled
         Handled := true;

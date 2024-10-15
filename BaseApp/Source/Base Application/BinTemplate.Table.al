@@ -116,7 +116,14 @@ table 7335 "Bin Template"
         Zone: Record Zone;
 
     procedure SetUpNewLine()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetUpNewLine(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation("Location Code");
         if Location."Directed Put-away and Pick" then begin
             GetZone("Location Code", "Zone Code");
@@ -144,6 +151,11 @@ table 7335 "Bin Template"
     begin
         if Location.Code <> LocationCode then
             Location.Get(LocationCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetUpNewLine(BinTemplate: Record "Bin Template"; var IsHandled: Boolean)
+    begin
     end;
 }
 

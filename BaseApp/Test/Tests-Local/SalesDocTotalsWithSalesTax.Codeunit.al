@@ -15,6 +15,8 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        Assert: Codeunit Assert;
         isInitialized: Boolean;
 
     [Test]
@@ -518,7 +520,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConformTrueHandler')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     procedure TaxAreaOnSalesOrderFromShipToAddress()
     var
         SalesHeader: Record "Sales Header";
@@ -544,7 +546,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConformTrueHandler')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     procedure TaxAreaOnSalesOrderFromSellToCustomer()
     var
         SalesHeader: Record "Sales Header";
@@ -570,7 +572,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConformTrueHandler')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     procedure TaxAreaOnSalesOrderFromBillToCustomer()
     var
         SalesHeader: Record "Sales Header";
@@ -592,6 +594,138 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
         // [THEN] Tax Area Code of Sales Order have to be the same as Tax Area Code of Bill-to Customer 
         SalesHeader.TestField("Tax Area Code", BillToCustomerTaxAreaCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ShipToAddressListModalPageHandler,ConfirmHandlerYes')]
+    procedure SalesTaxUpdatedInSalesInvoiceWhenShipToChanged()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetailCust: Record "Tax Detail";
+        TaxDetailAddr: Record "Tax Detail";
+        DocumentTotals: Codeunit "Document Totals";
+        SalesInvoice: TestPage "Sales Invoice";
+        CustomerNo: Code[20];
+        ShipToCode: Code[10];
+        TaxAreaCodeCust: Code[20];
+        TaxAreaCodeAddr: Code[20];
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+    begin
+        // [SCENARIO 371637] Change Ship-to Code in Sales Invoice in case Customer and Ship-to Address have different Tax Areas.
+        Initialize();
+        TaxAreaCodeCust := CreateTaxAreaWithLine(TaxDetailCust, LibraryRandom.RandIntInRange(5, 10));
+        TaxAreaCodeAddr := CreateTaxAreaWithLine(TaxDetailAddr, LibraryRandom.RandIntInRange(15, 20));
+        TaxDetailAddr.Rename(
+            TaxDetailAddr."Tax Jurisdiction Code", TaxDetailCust."Tax Group Code",
+            TaxDetailAddr."Tax Type", TaxDetailAddr."Effective Date");
+
+        // [GIVEN] Customer with Tax Area "CTA" with "Tax Below Maximum" = 5%.
+        // [GIVEN] Customer has Ship-to Address "SHA" with Tax Area "ATA" with "Tax Below Maximum" = 15%.
+        CustomerNo := CreateCustomer(TaxAreaCodeCust);
+        ShipToCode := CreateShipToAddressCode(CustomerNo, TaxAreaCodeAddr);
+        UpdateShipToCodeOnCustomer(CustomerNo, ShipToCode);
+        LibraryVariableStorage.Enqueue(ShipToCode);
+
+        // [GIVEN] Sales Invoice for Customer.
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CustomerNo,
+            CreateItem(TaxDetailCust."Tax Group Code"), LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
+        DocumentTotals.SalesRedistributeInvoiceDiscountAmountsOnDocument(SalesHeader);
+
+        // [GIVEN] Opened Sales Invoice card. Ship-to is "Alternate Shipping Address", Ship-to Code is "SHA".
+        SalesInvoice.OpenEdit();
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.ShippingOptions.AssertEquals(ShipToOptions::"Alternate Shipping Address");
+
+        // [WHEN] Change Ship-to to "Default (Sell-to Address)".
+        SalesInvoice.ShippingOptions.SetValue(ShipToOptions::"Default (Sell-to Address)");
+
+        // [THEN] Tax Area Code is changed to "CTA" (tax 5%). "Total VAT Amount" is changed to SalesLine.Amount * 0.05.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesInvoice."Tax Area Code".AssertEquals(TaxAreaCodeCust);
+        Assert.AreNearlyEqual(
+            SalesLine.Amount * TaxDetailCust."Tax Below Maximum" / 100,
+            SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision, '');
+
+        // [WHEN] Change Ship-to back to "Alternate Shipping Address". Select Ship-to Address "SHA" in the Ship-to Address list.
+        SalesInvoice.ShippingOptions.SetValue(ShipToOptions::"Alternate Shipping Address");
+
+        // [THEN] Tax Area Code is changed to "ATA" (tax 15%). "Total VAT Amount" is changed to SalesLine.Amount * 0.15.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesInvoice."Tax Area Code".AssertEquals(TaxAreaCodeAddr);
+        Assert.AreNearlyEqual(
+            SalesLine.Amount * TaxDetailAddr."Tax Below Maximum" / 100,
+            SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ShipToAddressListModalPageHandler,ConfirmHandlerYes')]
+    procedure SalesTaxUpdatedInSalesOrderWhenShipToChanged()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetailCust: Record "Tax Detail";
+        TaxDetailAddr: Record "Tax Detail";
+        DocumentTotals: Codeunit "Document Totals";
+        SalesOrder: TestPage "Sales Order";
+        CustomerNo: Code[20];
+        ShipToCode: Code[10];
+        TaxAreaCodeCust: Code[20];
+        TaxAreaCodeAddr: Code[20];
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+    begin
+        // [SCENARIO 371637] Change Ship-to Code in Sales Order in case Customer and Ship-to Address have different Tax Areas.
+        Initialize();
+        TaxAreaCodeCust := CreateTaxAreaWithLine(TaxDetailCust, LibraryRandom.RandIntInRange(5, 10));
+        TaxAreaCodeAddr := CreateTaxAreaWithLine(TaxDetailAddr, LibraryRandom.RandIntInRange(15, 20));
+        TaxDetailAddr.Rename(
+            TaxDetailAddr."Tax Jurisdiction Code", TaxDetailCust."Tax Group Code",
+            TaxDetailAddr."Tax Type", TaxDetailAddr."Effective Date");
+
+        // [GIVEN] Customer with Tax Area "CTA" with "Tax Below Maximum" = 5%.
+        // [GIVEN] Customer has Ship-to Address "SHA" with Tax Area "ATA" with "Tax Below Maximum" = 15%.
+        CustomerNo := CreateCustomer(TaxAreaCodeCust);
+        ShipToCode := CreateShipToAddressCode(CustomerNo, TaxAreaCodeAddr);
+        UpdateShipToCodeOnCustomer(CustomerNo, ShipToCode);
+        LibraryVariableStorage.Enqueue(ShipToCode);
+
+        // [GIVEN] Sales Order for Customer.
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo,
+            CreateItem(TaxDetailCust."Tax Group Code"), LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
+        DocumentTotals.SalesRedistributeInvoiceDiscountAmountsOnDocument(SalesHeader);
+
+        // [GIVEN] Opened Sales Order card. Ship-to is "Alternate Shipping Address", Ship-to Code is "SHA".
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.ShippingOptions.AssertEquals(ShipToOptions::"Alternate Shipping Address");
+
+        // [WHEN] Change Ship-to to "Default (Sell-to Address)".
+        SalesOrder.ShippingOptions.SetValue(ShipToOptions::"Default (Sell-to Address)");
+
+        // [THEN] Tax Area Code is changed to "CTA" (tax 5%). "Total VAT Amount" is changed to SalesLine.Amount * 0.05.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesOrder."Tax Area Code".AssertEquals(TaxAreaCodeCust);
+        Assert.AreNearlyEqual(
+            SalesLine.Amount * TaxDetailCust."Tax Below Maximum" / 100,
+            SalesOrder.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision, '');
+
+        // [WHEN] Change Ship-to back to "Alternate Shipping Address". Select Ship-to Address "SHA" in the Ship-to Address list.
+        SalesOrder.ShippingOptions.SetValue(ShipToOptions::"Alternate Shipping Address");
+
+        // [THEN] Tax Area Code is changed to "ATA" (tax 15%). "Total VAT Amount" is changed to SalesLine.Amount * 0.15.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesOrder."Tax Area Code".AssertEquals(TaxAreaCodeAddr);
+        Assert.AreNearlyEqual(
+            SalesLine.Amount * TaxDetailAddr."Tax Below Maximum" / 100,
+            SalesOrder.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision, '');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateCustomer(TaxAreaCode: Code[20]): Code[20]
@@ -647,7 +781,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", '');
-        Item.Validate("Unit Price", LibraryRandom.RandInt(10));  // Using RANDOM value for Unit Price.
+        Item.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
         Item.Validate("Tax Group Code", TaxGroupCode);
         Item.Modify(true);
         exit(Item."No.");
@@ -666,7 +800,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
         LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
-        TaxDetail.Validate("Tax Below Maximum", TaxPercentage);  // Using RANDOM value for Tax Below Maximum.
+        TaxDetail.Validate("Tax Below Maximum", TaxPercentage);
         TaxDetail.Modify(true);
     end;
 
@@ -685,7 +819,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(TaxJurisdiction.Code);
     end;
 
-    local procedure CreateTaxAreaLine(var TaxDetail: Record "Tax Detail"; TaxPercentage: Integer): Code[20]
+    local procedure CreateTaxAreaWithLine(var TaxDetail: Record "Tax Detail"; TaxPercentage: Integer): Code[20]
     var
         TaxArea: Record "Tax Area";
         TaxAreaLine: Record "Tax Area Line";
@@ -700,7 +834,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     var
         TaxDetail: Record "Tax Detail";
     begin
-        TaxAreaCode := CreateTaxAreaLine(TaxDetail, TaxPercentage);
+        TaxAreaCode := CreateTaxAreaWithLine(TaxDetail, TaxPercentage);
         TaxGroupCode := TaxDetail."Tax Group Code";
         exit(CreateSalesDocumentWithCertainTax(SalesLine, DocumentType, TaxDetail, TaxAreaCode, TaxGroupCode));
     end;
@@ -715,6 +849,17 @@ codeunit 142054 SalesDocTotalsWithSalesTax
           CreateItem(TaxGroupCode),
           LibraryRandom.RandInt(10));  // Using RANDOM value for Quantity.
         exit(TaxDetail."Tax Below Maximum");
+    end;
+
+    local procedure CreateShipToAddressCode(CustomerNo: Code[20]; TaxAreaCode: Code[20]): Code[10]
+    var
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
+        ShipToAddress.Validate("Tax Liable", true);
+        ShipToAddress.Validate("Tax Area Code", TaxAreaCode);
+        ShipToAddress.Modify(true);
+        exit(ShipToAddress.Code);
     end;
 
     local procedure GetRandomCode(FieldLength: Integer) RandomCode: Code[20]
@@ -770,6 +915,15 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         Amounts[FieldType::TaxAmount] := TaxAmount;
         Amounts[FieldType::TotalAmountIncTax] := TotalAmountIncTax;
         Amounts[FieldType::DiscountPercent] := CustDiscountPercent;
+    end;
+
+    local procedure UpdateShipToCodeOnCustomer(CustomerNo: Code[20]; ShipToCode: Code[10])
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        Customer.Validate("Ship-to Code", ShipToCode);
+        Customer.Modify(true);
     end;
 
     local procedure VerifyFieldValues(SalesHeader: Record "Sales Header"; PreAmounts: array[5] of Decimal; PostAmounts: array[5] of Decimal; TotalTax: Decimal; RoundingPrecision: Decimal)
@@ -862,8 +1016,15 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(TaxArea.Code);
     end;
 
+    [ModalPageHandler]
+    procedure ShipToAddressListModalPageHandler(var ShipToAddressList: TestPage "Ship-to Address List");
+    begin
+        ShipToAddressList.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        ShipToAddressList.OK().Invoke();
+    end;
+
     [ConfirmHandler]
-    procedure ConformTrueHandler(Question: Text; var Reply: Boolean)
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
     begin
         Reply := True;
     end;

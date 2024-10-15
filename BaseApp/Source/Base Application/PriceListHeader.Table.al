@@ -441,10 +441,29 @@ table 7000 "Price List Header"
         if PriceListLine.IsEmpty() then
             exit;
 
+        if Status = Status::Active then
+            if not ResolveDuplicatePrices() then
+                exit(false);
+
         if ConfirmManagement.GetResponse(StrSubstNo(StatusUpdateQst, Status), true) then
             PriceListLine.ModifyAll(Status, Status)
         else
             Updated := false
+    end;
+
+    local procedure ResolveDuplicatePrices(): Boolean
+    var
+        DuplicatePriceLine: Record "Duplicate Price Line";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        if PriceListManagement.FindDuplicatePrices(Rec, true, DuplicatePriceLine) then
+            if not PriceListManagement.ResolveDuplicatePrices(Rec, DuplicatePriceLine) then
+                exit(false);
+
+        if PriceListManagement.FindDuplicatePrices(Rec, false, DuplicatePriceLine) then
+            if not PriceListManagement.ResolveDuplicatePrices(Rec, DuplicatePriceLine) then
+                exit(false);
+        exit(true);
     end;
 
     [IntegrationEvent(true, false)]

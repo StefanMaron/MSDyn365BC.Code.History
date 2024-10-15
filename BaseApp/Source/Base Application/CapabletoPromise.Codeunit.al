@@ -21,13 +21,14 @@ codeunit 99000886 "Capable to Promise"
         OrderPromisingLineToSave: Integer;
         SourceLineNo: Integer;
 
-    local procedure ValidateCapableToPromise(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Option Day,Week,Month,Quarter,Year; var DueDateOfReqLine: Date): Boolean
+    local procedure ValidateCapableToPromise(var ReqLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Option Day,Week,Month,Quarter,Year; var DueDateOfReqLine: Date): Boolean
     var
-        ReqLine: Record "Requisition Line";
         CumulativeATP: Decimal;
         ReqQty: Decimal;
         Ok: Boolean;
     begin
+        Clear(ReqLine);
+
         CumulativeATP :=
           GetCumulativeATP(ItemNo, VariantCode, LocationCode, NeededDate, UnitOfMeasure, PeriodType);
 
@@ -52,6 +53,7 @@ codeunit 99000886 "Capable to Promise"
 
     procedure CalcCapableToPromise(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; var LocOrderPromisingID: Code[20]; LocSourceLineNo: Integer; var LastValidLine: Integer; PeriodType: Option Day,Week,Month,Quarter,Year; PeriodLengthFormula: DateFormula): Date
     var
+        RequisitionLine: Record "Requisition Line";
         CalculationDialog: Dialog;
         CalculationStartDate: Date;
         CapableToPromiseDate: Date;
@@ -71,7 +73,7 @@ codeunit 99000886 "Capable to Promise"
         OrderPromisingLineToSave := OrderPromisingLineNo;
         if not
            ValidateCapableToPromise(
-             ItemNo, VariantCode, LocationCode, CalculationStartDate,
+             RequisitionLine, ItemNo, VariantCode, LocationCode, CalculationStartDate,
              NeededQty, UnitOfMeasure, PeriodType, DueDateOfReqLine)
         then begin
             StopCalculation := false;
@@ -83,7 +85,8 @@ codeunit 99000886 "Capable to Promise"
                 CalculationDialog.Update(1, Format(CalculationStartDate));
                 RemoveReqLines(LocOrderPromisingID, LocSourceLineNo, OrderPromisingLineToSave, false);
                 IsValid :=
-                  ValidateCapableToPromise(ItemNo, VariantCode, LocationCode, CalculationStartDate,
+                  ValidateCapableToPromise(
+                    RequisitionLine, ItemNo, VariantCode, LocationCode, CalculationStartDate,
                     NeededQty, UnitOfMeasure, PeriodType, DueDateOfReqLine);
                 if IsValid then begin
                     CapableToPromiseDate := CalculationStartDate;
@@ -93,7 +96,8 @@ codeunit 99000886 "Capable to Promise"
             until StopCalculation;
             if not IsValid and (CapableToPromiseDate > 0D) then begin
                 RemoveReqLines(LocOrderPromisingID, LocSourceLineNo, OrderPromisingLineToSave, false);
-                ValidateCapableToPromise(ItemNo, VariantCode, LocationCode, CapableToPromiseDate,
+                ValidateCapableToPromise(
+                  RequisitionLine, ItemNo, VariantCode, LocationCode, CapableToPromiseDate,
                   NeededQty, UnitOfMeasure, PeriodType, DueDateOfReqLine);
             end;
             CalculationDialog.Close;
@@ -182,6 +186,8 @@ codeunit 99000886 "Capable to Promise"
     var
         PlanningComponent: Record "Planning Component";
         ReqLine2: Record "Requisition Line";
+        CompReqLine: Record "Requisition Line";
+        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         IsValidDate: Boolean;
         DueDateOfReqLine: Date;
     begin
@@ -192,11 +198,13 @@ codeunit 99000886 "Capable to Promise"
             if FindSet then
                 repeat
                     if ("Supplied-by Line No." = 0) and Critical then begin
-                        if not
-                           ValidateCapableToPromise(
-                             "Item No.", "Variant Code", "Location Code", "Due Date",
+                        if ValidateCapableToPromise(
+                             CompReqLine, "Item No.", "Variant Code", "Location Code", "Due Date",
                              "Expected Quantity", "Unit of Measure Code", PeriodType, DueDateOfReqLine)
-                        then begin
+                        then
+                            PlngComponentReserve.BindToRequisition(
+                              PlanningComponent, CompReqLine, "Expected Quantity", "Expected Quantity (Base)")
+                        else begin
                             OrderPromisingLineNo := OrderPromisingLineNo - 1;
                             exit(false);
                         end;
@@ -215,6 +223,7 @@ codeunit 99000886 "Capable to Promise"
     local procedure CheckTransferShptCTP(ReqLine: Record "Requisition Line"; PeriodType: Option Day,Week,Month,Quarter,Year): Boolean
     var
         Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
         DueDateOfReqLine: Date;
     begin
         with ReqLine do begin
@@ -223,7 +232,7 @@ codeunit 99000886 "Capable to Promise"
             if Item.Critical then
                 if not
                    ValidateCapableToPromise(
-                     "No.", "Variant Code", "Transfer-from Code", "Transfer Shipment Date",
+                     RequisitionLine, "No.", "Variant Code", "Transfer-from Code", "Transfer Shipment Date",
                      Quantity, "Unit of Measure Code", PeriodType, DueDateOfReqLine)
                 then begin
                     OrderPromisingLineNo := OrderPromisingLineNo - 1;

@@ -536,15 +536,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType DuplicateRelationErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2309980561 - NamedType 3610532944" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Rule missing for %1, expected %2 in regex %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit SMB Office Addin Mgmt Test - NamedType NoRuleFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2309980561 - NamedType 3730089975" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rule missing for %1, expected %2 to be missing from regex %3.]]></Val>

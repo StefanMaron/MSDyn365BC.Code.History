@@ -1,4 +1,4 @@
-table 7319 "Posted Whse. Receipt Line"
+﻿table 7319 "Posted Whse. Receipt Line"
 {
     Caption = 'Posted Whse. Receipt Line';
     LookupPageID = "Posted Whse. Receipt Lines";
@@ -306,7 +306,13 @@ table 7319 "Posted Whse. Receipt Line"
     var
         WhseSetup: Record "Warehouse Setup";
         CreatePutAwayFromWhseSource: Report "Whse.-Source - Create Document";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreatePutAwayDoc(PostedWhseRcptLine, AssignedID, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation(PostedWhseRcptLine."Location Code");
         if not Location."Require Put-away" then begin
             if Location.Code = '' then begin
@@ -396,6 +402,11 @@ table 7319 "Posted Whse. Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromRelation(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseItemEntryRelation: Record "Whse. Item Entry Relation");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePutAwayDoc(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; AssignedID: Code[50]; HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

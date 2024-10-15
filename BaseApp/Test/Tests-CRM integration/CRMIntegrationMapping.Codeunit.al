@@ -13,6 +13,7 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         LibraryERM: Codeunit "Library - ERM";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryUtility: Codeunit "Library - Utility";
         SyncStartedMsg: Label 'The synchronization has been scheduled.';
         ExpectedRecordNotFoundErr: Label 'Expected record not found.';
@@ -662,6 +663,22 @@ codeunit 139183 "CRM Integration Mapping"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    procedure PriceListHeaderMappedToCRMPricelevel()
+    var
+        CRMPricelevel: Record "CRM Pricelevel";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Price List]
+        Initialize(true);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Price List Header", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 5, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
     procedure SalesPriceMappedToCRMProductpricelevel()
     var
         CRMProductpricelevel: Record "CRM Productpricelevel";
@@ -673,6 +690,23 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel",
           CRMProductpricelevel.FieldNo(ProductPriceLevelId), 6, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PriceListLineMappedToCRMProductpricelevel()
+    var
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Price List]
+        Initialize(true);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel",
+          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 7, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
@@ -1398,8 +1432,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMContact.TestField(TransactionCurrencyId, CRMTransactioncurrency.TransactionCurrencyId);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure SyncContactCountyFromCRM()
     var
@@ -1463,8 +1496,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMContact.TestField(OwnerId);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure SyncCustomerCountyFromCRM()
     var
@@ -1520,9 +1552,8 @@ codeunit 139183 "CRM Integration Mapping"
         CRMAccount.TestField(Address1_StateOrProvince, Customer.County);
     end;
 
-    //[Test]
+    [Test]
     //[TransactionModel(TransactionModel::AutoRollback)]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure CRMAccountListIntergationTableFilter()
     var
@@ -1557,9 +1588,7 @@ codeunit 139183 "CRM Integration Mapping"
         Assert.IsFalse(CRMAccountList.GotoRecord(CRMAccount[2]), UnexpectedRecordFoundErr);
     end;
 
-    //[Test]
-    //[TransactionModel(TransactionModel::AutoRollback)]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure CRMContactListIntergationTableFilter()
     var
@@ -1916,13 +1945,157 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ResetIntegrationTableMappingConfigurationExtendedPrice()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        Customer: Record Customer;
+        CRMSystemUser: Record "CRM Systemuser";
+        CRMAccount: Record "CRM Account";
+        CRMContact: Record "CRM Contact";
+        Contact: Record Contact;
+        CRMTransactionCurrency: Record "CRM Transactioncurrency";
+        CRMProduct: Record "CRM Product";
+        Item: Record Item;
+        CRMOpportunity: Record "CRM Opportunity";
+        Opportunity: Record Opportunity;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Resource: Record Resource;
+        CRMInvoice: Record "CRM Invoice";
+        CRMInvoiceDetail: Record "CRM Invoicedetail";
+        CRMUomschedule: Record "CRM Uomschedule";
+        CRMPricelevel: Record "CRM Pricelevel";
+        CRMProductPricelevel: Record "CRM Productpricelevel";
+        IntegrationTableMappingList: TestPage "Integration Table Mapping List";
+        IntegrationTableMappingsNo: Integer;
+    begin
+        // [FEATURE] [Use CRM/CDS Setup Defaults per Integration Table Mapping record]
+        Initialize(true);
+
+        // [WHEN] Reset CRM Configuration
+        ResetCRMConfiguration;
+
+        // [GIVEN] The number of Integration Table Mappings 
+        IntegrationTableMappingsNo := IntegrationTableMapping.Count();
+
+        // [GIVEN] Open 'Integration Table Mapping List' page
+        IntegrationTableMappingList.OpenEdit();
+
+        // [GIVEN] All Integration Table Mappings are selected
+        IntegrationTableMapping.Mark();
+
+        // [WHEN] Custom configurations are done to the Integration Table Mappings
+        ModifyIntegrationTableMappingDirection(DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser");
+        ModifyIntegrationTableMappingDirection(DATABASE::Customer, DATABASE::"CRM Account");
+        ModifyIntegrationTableMappingDirection(DATABASE::Contact, DATABASE::"CRM Contact");
+        ModifyIntegrationTableMappingDirection(DATABASE::Currency, DATABASE::"CRM Transactioncurrency");
+        ModifyIntegrationTableMappingDirection(DATABASE::Item, DATABASE::"CRM Product");
+        ModifyIntegrationTableMappingDirection(DATABASE::Opportunity, DATABASE::"CRM Opportunity");
+        ModifyIntegrationTableMappingDirection(DATABASE::Resource, DATABASE::"CRM Product");
+        ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice");
+        ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail");
+        ModifyIntegrationTableMappingDirection(DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule");
+        ModifyIntegrationTableMappingDirection(DATABASE::"Price List Header", DATABASE::"CRM Pricelevel");
+        ModifyIntegrationTableMappingDirection(DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel");
+        ModifyIntegrationTableMappingDirection(DATABASE::"Shipping Agent", DATABASE::"CRM Account");
+        ModifyIntegrationTableMappingDirection(DATABASE::"Shipment Method", DATABASE::"CRM Account");
+        ModifyIntegrationTableMappingDirection(DATABASE::"Payment Terms", DATABASE::"CRM Account");
+
+        // [WHEN] Run action 'Reset Configuration'
+        IntegrationTableMappingList.ResetConfiguration.Invoke();
+
+        // [THEN] Number of Integration Table Mappings created is equal to the previous number of Integration Table Mappings
+        IntegrationTableMapping.Reset();
+        Assert.AreEqual(IntegrationTableMappingsNo, IntegrationTableMapping.Count(), 'The number of integration table mappings after reset is not equal to the initial integration table mappings number.');
+
+        // [THEN] All integration Table Mappings have been recreatd and the field mapping configuration resetted to default
+        VerifyMapping(
+              IntegrationTableMapping, DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser", CRMSystemuser.FieldNo(SystemUserId), 3, 2);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 20, 0);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+            IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact", CRMContact.FieldNo(ContactId), 20, 0);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+                  IntegrationTableMapping, DATABASE::Currency, DATABASE::"CRM Transactioncurrency",
+                  CRMTransactioncurrency.FieldNo(TransactionCurrencyId), 3, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::Item, DATABASE::"CRM Product",
+          CRMProduct.FieldNo(ProductId), 11, IntegrationTableMapping.Direction::Bidirectional);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+                  IntegrationTableMapping, DATABASE::Opportunity, DATABASE::"CRM Opportunity", CRMOpportunity.FieldNo(OpportunityId),
+                  6, IntegrationTableMapping.Direction::Bidirectional);
+        VerifyJobQueueEntry(IntegrationTableMapping, 0);
+
+        VerifyMapping(
+                  IntegrationTableMapping, DATABASE::Resource, DATABASE::"CRM Product",
+                  CRMProduct.FieldNo(ProductId), 7, IntegrationTableMapping.Direction::Bidirectional);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 25, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail",
+          CRMInvoicedetail.FieldNo(InvoiceDetailId), 6, 1);
+        VerifyNoJobQueueEntry(IntegrationTableMapping);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Price List Header", DATABASE::"CRM Pricelevel",
+          CRMPricelevel.FieldNo(PriceLevelId), 5, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel",
+          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 7, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+
+        VerifyMapping(
+                  IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
+                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2);
+        VerifyNoJobQueueEntry(IntegrationTableMapping);
+
+        VerifyMapping(
+                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2);
+        VerifyNoJobQueueEntry(IntegrationTableMapping);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2);
+        VerifyNoJobQueueEntry(IntegrationTableMapping);
+    end;
+
     local procedure Initialize()
+    begin
+        Initialize(false);
+    end;
+
+    local procedure Initialize(EnableExtendedPrice: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationTableMapping: Record "Integration Table Mapping";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Integration Mapping");
+
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        if EnableExtendedPrice then
+            LibraryPriceCalculation.EnableExtendedPriceCalculation();
 
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();

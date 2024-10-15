@@ -2,7 +2,7 @@ page 17 "G/L Account Card"
 {
     Caption = 'G/L Account Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Account,Balance';
+    PromotedActionCategories = 'New,Process,Report,Account,Balance,Prices & Discounts';
     RefreshOnActivate = true;
     SourceTable = "G/L Account";
 
@@ -575,6 +575,7 @@ page 17 "G/L Account Card"
                     Caption = 'Sales Prices';
                     Image = Price;
                     Promoted = true;
+                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit sales prices for the account.';
 
@@ -592,6 +593,7 @@ page 17 "G/L Account Card"
                     Caption = 'Purchase Prices';
                     Image = Costs;
                     Promoted = true;
+                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit purchase prices for the account.';
 

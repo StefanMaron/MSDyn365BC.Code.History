@@ -1,4 +1,4 @@
-page 6550 "Whse. Item Tracking Lines"
+﻿page 6550 "Whse. Item Tracking Lines"
 {
     // Function button Line exist in two overlayed versions to make dynamic show/hide/enable of
     // individual menu items possible.
@@ -137,7 +137,7 @@ page 6550 "Whse. Item Tracking Lines"
                         MaxQuantity: Decimal;
                     begin
                         if ColorOfQuantityArray[1] = 0 then
-                            MaxQuantity := UndefinedQtyArray[1] + ("Quantity (Base)" - "Quantity Handled (Base)");
+                            MaxQuantity := UndefinedQtyArray[1];
 
                         LookUpTrackingSummary(Rec, ItemTrackingType::"Serial No.", MaxQuantity, -1, true);
                         CurrPage.Update;
@@ -166,7 +166,7 @@ page 6550 "Whse. Item Tracking Lines"
                         MaxQuantity: Decimal;
                     begin
                         if ColorOfQuantityArray[1] = 0 then
-                            MaxQuantity := UndefinedQtyArray[1] + ("Quantity (Base)" - "Quantity Handled (Base)");
+                            MaxQuantity := UndefinedQtyArray[1];
 
                         LookUpTrackingSummary(Rec, ItemTrackingType::"Lot No.", MaxQuantity, -1, true);
                         CurrPage.Update;
@@ -635,7 +635,14 @@ page 6550 "Whse. Item Tracking Lines"
     end;
 
     local procedure UpdateExpDateColor()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateExpDateColor(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if BlockExpDate then;
     end;
 
@@ -901,6 +908,11 @@ page 6550 "Whse. Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSourceSpecification(var SourceSpecification: Record "Tracking Specification"; SourceWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateExpDateColor(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
     begin
     end;
 }

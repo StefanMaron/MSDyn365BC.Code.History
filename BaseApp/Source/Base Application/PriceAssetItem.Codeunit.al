@@ -7,27 +7,50 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
 
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::Item;
         if Item.GetBySystemId(PriceAsset."Asset ID") then begin
             PriceAsset."Asset No." := Item."No.";
+            PriceAsset."Variant Code" := '';
             FillAdditionalFields(PriceAsset);
         end else
-            PriceAsset.InitAsset();
+            if ItemVariant.GetBySystemId(PriceAsset."Asset ID") then begin
+                PriceAsset."Table Id" := Database::"Item Variant";
+                PriceAsset."Asset No." := ItemVariant."Item No.";
+                PriceAsset."Variant Code" := ItemVariant.Code;
+                FillAdditionalFields(PriceAsset);
+            end else
+                PriceAsset.InitAsset();
     end;
 
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
-        if Item.Get(PriceAsset."Asset No.") then begin
-            PriceAsset."Asset ID" := Item.SystemId;
-            FillAdditionalFields(PriceAsset);
+        PriceAsset."Table Id" := Database::Item;
+        if PriceAsset."Variant Code" = '' then begin
+            if Item.Get(PriceAsset."Asset No.") then begin
+                PriceAsset."Asset ID" := Item.SystemId;
+                FillAdditionalFields(PriceAsset);
+            end else
+                PriceAsset.InitAsset();
         end else
-            PriceAsset.InitAsset();
+            if Item.Get(PriceAsset."Asset No.") and
+                ItemVariant.Get(PriceAsset."Asset No.", PriceAsset."Variant Code")
+            then begin
+                PriceAsset."Table Id" := Database::"Item Variant";
+                PriceAsset."Asset ID" := ItemVariant.SystemId;
+                FillAdditionalFields(PriceAsset);
+            end else
+                PriceAsset.InitAsset();
     end;
 
     procedure IsLookupOK(var PriceAsset: Record "Price Asset"): Boolean
+    var
+        xPriceAsset: Record "Price Asset";
     begin
-        if Item.Get(PriceAsset."Asset No.") then;
+        xPriceAsset := PriceAsset;
+        if Item.Get(xPriceAsset."Asset No.") then;
         if Page.RunModal(Page::"Item List", Item) = ACTION::LookupOK then begin
-            PriceAsset.Validate("Asset No.", Item."No.");
+            xPriceAsset.Validate("Asset No.", Item."No.");
+            PriceAsset := xPriceAsset;
             exit(true);
         end;
     end;
@@ -80,7 +103,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
                     begin
                         PriceListLine."Price Includes VAT" := false;
                         CopyCostFromSKU(PriceCalculationBuffer, Item."Last Direct Cost");
-                        PriceListLine."Unit Cost" := Item."Last Direct Cost";
+                        PriceListLine."Direct Unit Cost" := Item."Last Direct Cost";
                     end;
             end;
         OnAfterFillBestLine(PriceCalculationBuffer, AmountType, PriceListLine);
@@ -115,19 +138,28 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     begin
         PriceAsset.NewEntry(PriceCalculationBuffer."Asset Type", PriceAsset.Level);
         PriceAsset.Validate("Asset No.", PriceCalculationBuffer."Asset No.");
-        PriceAsset."Variant Code" := PriceCalculationBuffer."Variant Code";
+        PriceAsset.Validate("Variant Code", PriceCalculationBuffer."Variant Code");
         PriceAsset."Unit of Measure Code" := PriceCalculationBuffer."Unit of Measure Code";
     end;
 
     local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
     begin
         PriceAsset."Unit of Measure Code" := GetUnitOfMeasure(PriceAsset."Price Type");
-        PriceAsset."Variant Code" := '';
-        PriceAsset.Description := Item.Description;
-        if PriceAsset."Price Type" <> PriceAsset."Price Type"::Purchase then begin
-            PriceAsset."Allow Invoice Disc." := Item."Allow Invoice Disc.";
-            PriceAsset."Price Includes VAT" := Item."Price Includes VAT";
-            PriceAsset."VAT Bus. Posting Gr. (Price)" := Item."VAT Bus. Posting Gr. (Price)";
+        if PriceAsset."Variant Code" = '' then
+            PriceAsset.Description := Item.Description
+        else
+            PriceAsset.Description := ItemVariant.Description;
+        case PriceAsset."Price Type" of
+            PriceAsset."Price Type"::Sale:
+                begin
+                    PriceAsset."Allow Invoice Disc." := Item."Allow Invoice Disc.";
+                    PriceAsset."Price Includes VAT" := Item."Price Includes VAT";
+                    PriceAsset."VAT Bus. Posting Gr. (Price)" := Item."VAT Bus. Posting Gr. (Price)";
+
+                    PriceAsset."Unit Price" := Item."Unit Price";
+                end;
+            PriceAsset."Price Type"::Purchase:
+                PriceAsset."Unit Price" := Item."Last Direct Cost";
         end;
     end;
 

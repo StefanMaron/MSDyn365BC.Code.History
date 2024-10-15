@@ -196,7 +196,7 @@ report 10108 "AP - Vendor Register"
         VendorName: Text[100];
         FilterString: Text;
         FilterString2: Text;
-        SourceCodeText: Text[25];
+        SourceCodeText: Text;
         VendorEntries: Integer;
         Vendor_Journal_RegisterCaptionLbl: Label 'Vendor Journal Register';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

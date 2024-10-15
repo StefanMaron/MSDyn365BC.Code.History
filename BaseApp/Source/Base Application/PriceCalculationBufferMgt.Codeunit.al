@@ -98,6 +98,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
             GeneralLedgerSetup.TestField("Unit-Amount Rounding Precision");
             UnitAmountRoundingPrecision := GeneralLedgerSetup."Unit-Amount Rounding Precision";
         end;
+        OnAfterCalcUnitAmountRoundingPrecision(PriceCalculationBuffer, UnitAmountRoundingPrecision);
     end;
 
     procedure RoundPrice(var Price: Decimal)
@@ -121,6 +122,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
             if AmountType <> AmountType::Discount then begin
                 ConvertAmount(PriceListLine, PriceListLine."Unit Price");
                 ConvertAmount(PriceListLine, PriceListLine."Unit Cost");
+                ConvertAmount(PriceListLine, PriceListLine."Direct Unit Cost");
             end;
     end;
 
@@ -203,8 +205,6 @@ codeunit 7008 "Price Calculation Buffer Mgt."
         PriceListLine.SetRange(Status, PriceListLine.Status::Active);
         PriceListLine.SetRange("Price Type", PriceCalculationBuffer."Price Type");
         PriceListLine.SetFilter("Amount Type", '%1|%2', AmountType, PriceListLine."Amount Type"::Any);
-        if PriceCalculationBuffer."Work Type Code" <> '' then
-            PriceListLine.SetRange("Work Type Code", PriceCalculationBuffer."Work Type Code");
 
         PriceListLine.SetFilter("Ending Date", '%1|>=%2', 0D, PriceCalculationBuffer."Document Date");
         if not ShowAll then begin
@@ -221,6 +221,11 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     begin
         PriceListLine.Reset();
         PriceListLine.CopyFilters(PriceListLineFiltered);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcUnitAmountRoundingPrecision(PriceCalculationBuffer: Record "Price Calculation Buffer"; var UnitAmountRoundingPrecision: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

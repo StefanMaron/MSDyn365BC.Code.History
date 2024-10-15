@@ -1,4 +1,4 @@
-table 7321 "Warehouse Shipment Line"
+﻿table 7321 "Warehouse Shipment Line"
 {
     Caption = 'Warehouse Shipment Line';
     DrillDownPageID = "Whse. Shipment Lines";
@@ -571,7 +571,7 @@ table 7321 "Warehouse Shipment Line"
     begin
         TestField("No.");
         GetWhseShptHeader("No.");
-        OnBeforeTestReleased(WhseShptHeader);
+        OnBeforeTestReleased(WhseShptHeader, StatusCheckSuspended);
         if not StatusCheckSuspended then
             WhseShptHeader.TestField(Status, WhseShptHeader.Status::Open);
     end;
@@ -580,7 +580,13 @@ table 7321 "Warehouse Shipment Line"
     var
         Bin: Record Bin;
         BinContent: Record "Bin Content";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBin(Rec, Bin, DeductCubage, DeductWeight, IgnoreErrors, ErrorOccured, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Bin Code" <> '' then begin
             GetLocation("Location Code");
             if not Location."Directed Put-away and Pick" then
@@ -620,11 +626,12 @@ table 7321 "Warehouse Shipment Line"
         QuantityBase: Decimal;
         IsHandled: Boolean;
     begin
-        if "Qty. (Base)" = 0 then
-            QuantityBase :=
-                UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure")
-        else
-            QuantityBase := "Qty. (Base)";
+        IsHandled := false;
+        OnBeforeCheckSourceDocLineQty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SetQuantityBase(QuantityBase);
 
         WhseShptLine.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
         WhseShptLine.CalcSums("Qty. Outstanding (Base)");
@@ -699,7 +706,13 @@ table 7321 "Warehouse Shipment Line"
     procedure AutofillQtyToHandle(var WhseShptLine: Record "Warehouse Shipment Line")
     var
         NotEnough: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAutofillQtyToHandle(WhseShptLine, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseShptLine do begin
             NotEnough := false;
             SetHideValidationDialog(true);
@@ -722,10 +735,18 @@ table 7321 "Warehouse Shipment Line"
             if NotEnough then
                 Message(Text005);
         end;
+        OnAfterAutofillQtyToHandle(WhseShptLine, HideValidationDialog);
     end;
 
     procedure DeleteQtyToHandle(var WhseShptLine: Record "Warehouse Shipment Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteQtyToHandle(WhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseShptLine do begin
             if Find('-') then
                 repeat
@@ -750,7 +771,14 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     procedure CreatePickDoc(var WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader2: Record "Warehouse Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnCreatePickDocOnBeforeCreatePickDoc(Rec, WhseShptLine, WhseShptHeader2, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseShptHeader2.TestField(Status, WhseShptHeader.Status::Released);
         WhseShptLine.SetFilter(Quantity, '>0');
         WhseShptLine.SetRange("Completely Picked", false);
@@ -987,6 +1015,27 @@ table 7321 "Warehouse Shipment Line"
         StatusCheckSuspended := Suspend;
     end;
 
+    local procedure SetQuantityBase(var QuantityBase: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetQuantityBase(Rec, QuantityBase, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Qty. (Base)" = 0 then
+            QuantityBase :=
+                UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure")
+        else
+            QuantityBase := "Qty. (Base)";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAutofillQtyToHandle(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var HideValidationDialog: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePickDoc(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
@@ -1008,7 +1057,22 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutofillQtyToHandle(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcStatusShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var NewStatus: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBin(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Bin: Record Bin; DeductCubage: Decimal; DeductWeight: Decimal; IgnoreErrors: Boolean; var ErrorOccured: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSourceDocLineQty(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1038,7 +1102,7 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestReleased(var WhseShptHeader: Record "Warehouse Shipment Header")
+    local procedure OnBeforeTestReleased(var WhseShptHeader: Record "Warehouse Shipment Header"; var StatusCheckSuspended: Boolean)
     begin
     end;
 
@@ -1059,6 +1123,21 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteQtyToHandleOnBeforeModify(var WhseShptLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePickDocOnBeforeCreatePickDoc(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WhseShptLine: Record "Warehouse Shipment Line"; var WhseShptHeader2: Record "Warehouse Shipment Header"; HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteQtyToHandle(var WhseShptLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetQuantityBase(var Rec: Record "Warehouse Shipment Line"; var QuantityBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
