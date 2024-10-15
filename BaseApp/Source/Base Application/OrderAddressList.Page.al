@@ -1,0 +1,118 @@
+page 369 "Order Address List"
+{
+    Caption = 'Order Address List';
+    CardPageID = "Order Address";
+    DataCaptionFields = "Vendor No.";
+    Editable = false;
+    PageType = List;
+    SourceTable = "Order Address";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field("Code"; Code)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies an order-from address code.';
+                }
+                field(Name; Name)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the company name for the order address.';
+                }
+                field(Address; Address)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the order address.';
+                    Visible = false;
+                }
+                field("Address 2"; "Address 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies additional address information.';
+                    Visible = false;
+                }
+                field("Post Code"; "Post Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the postal code.';
+                    Visible = false;
+                }
+                field(City; City)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the city of the order address.';
+                }
+                field("Country/Region Code"; "Country/Region Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the country/region of the address.';
+                    Visible = false;
+                }
+                field("Phone No."; "Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the telephone number that is associated with the order address.';
+                    Visible = false;
+                }
+                field("Fax No."; "Fax No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the fax number associated with the address.';
+                    Visible = false;
+                }
+                field(Contact; Contact)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the person you regularly contact when you do business with this vendor at this address.';
+                    Visible = false;
+                }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
+            }
+        }
+    }
+
+    actions
+    {
+        area(navigation)
+        {
+            group("&Address")
+            {
+                Caption = '&Address';
+                Image = Addresses;
+                separator(Action1102601001)
+                {
+                }
+                action("Online Map")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Online Map';
+                    Image = Map;
+                    ToolTip = 'View the address on an online map.';
+
+                    trigger OnAction()
+                    begin
+                        DisplayMap;
+                    end;
+                }
+            }
+        }
+    }
+}
+
