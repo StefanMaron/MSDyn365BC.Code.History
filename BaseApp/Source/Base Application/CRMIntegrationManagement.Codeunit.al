@@ -1228,6 +1228,8 @@ codeunit 5330 "CRM Integration Management"
         IntegrationUserRoleGUID: Guid;
         DefaultOwningTeamGUID: Guid;
         TempConnectionString: Text;
+        SolutionInstalled: Boolean;
+        SolutionOutdated: Boolean;
         ImportSolution: Boolean;
     begin
         CheckConnectRequiredFields(ServerAddress, IntegrationUserEmail);
@@ -1245,10 +1247,14 @@ codeunit 5330 "CRM Integration Management"
         if IsNullGuid(UserGUID) then
             Error(UserDoesNotExistCRMErr, IntegrationUserEmail, CRMProductName.SHORT);
 
+        SolutionInstalled := CRMHelper.CheckSolutionPresence(MicrosoftDynamicsNavIntegrationTxt);
+        if SolutionInstalled then
+            SolutionOutdated := IsSolutionOutdated(TempConnectionString);
+
         if ForceRedeploy then
-            ImportSolution := true
+            ImportSolution := (not SolutionInstalled) or SolutionOutdated
         else
-            ImportSolution := not CRMHelper.CheckSolutionPresence(MicrosoftDynamicsNavIntegrationTxt);
+            ImportSolution := not SolutionInstalled;
 
         if ImportSolution then
             if not ImportDefaultCRMSolution(CRMHelper) then
@@ -1287,6 +1293,30 @@ codeunit 5330 "CRM Integration Management"
                 Error(CannotAssignRoleToTeamErr, DefaultOwningTeamGUID, CDSIntegrationImpl.GetDefaultBusinessUnitName(), CRMRole.Name);
             end;
         end;
+    end;
+
+    [NonDebuggable]
+    local procedure IsSolutionOutdated(TempConnectionString: Text): Boolean
+    var
+        CDSSolution: Record "CDS Solution";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
+        Version: DotNet Version;
+        TempConnectionName: Text;
+        SolutionOutdated: Boolean;
+    begin
+        TempConnectionName := CDSIntegrationImpl.GetTempConnectionName();
+        if HasTableConnection(TableConnectionType::CRM, TempConnectionName) then
+            UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
+        RegisterTableConnection(TableConnectionType::CRM, TempConnectionName, TempConnectionString);
+        SetDefaultTableConnection(TableConnectionType::CRM, TempConnectionName, true);
+        SolutionOutdated := true;
+        CDSSolution.SetRange(UniqueName, MicrosoftDynamicsNavIntegrationTxt);
+        if CDSSolution.FindFirst() then
+            if Version.TryParse(CDSSolution.Version, Version) then
+                SolutionOutdated := Version.CompareTo(NavTenantSettingsHelper.GetPlatformVersion()) < 0;
+        UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
+        exit(SolutionOutdated);
     end;
 
     [TryFunction]

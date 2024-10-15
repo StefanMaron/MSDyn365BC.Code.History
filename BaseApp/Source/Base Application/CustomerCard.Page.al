@@ -312,6 +312,12 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer''s VAT registration number for customers in EU countries/regions.';
                 }
+                field("EORI Number"; "EORI Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
+                    Visible = false;
+                }
                 field(GLN; GLN)
                 {
                     ApplicationArea = Basic, Suite;

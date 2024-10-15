@@ -99,7 +99,7 @@ report 10117 "Vendor 1099 Nec"
                 end else begin   // not Test Printing
                     PrintThis := false;
                     // Check through all payments during calendar year
-                    ProcessVendorInvoices("No.", PeriodDate);
+                    IRS1099Management.ProcessVendorInvoices(Amounts, "No.", PeriodDate, Codes, LastLineNo, 'NEC*');
 
                     PrintThis := IRS1099Management.AnyCodeHasAmountExceedMinimum(Codes, Amounts, LastLineNo);
                     if not PrintThis then
@@ -196,7 +196,6 @@ report 10117 "Vendor 1099 Nec"
 
     var
         CompanyInfo: Record "Company Information";
-        TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         IRS1099Management: Codeunit "IRS 1099 Management";
         PeriodDate: array[2] of Date;
         CurrYear: Integer;
@@ -210,7 +209,6 @@ report 10117 "Vendor 1099 Nec"
         Codes: array[20] of Code[10];
         Amounts: array[20] of Decimal;
         LastLineNo: Integer;
-        Invoice1099Amount: Decimal;
         FormCounter: Integer;
         PageGroupNo: Integer;
         VendorNo: Integer;
@@ -218,7 +216,9 @@ report 10117 "Vendor 1099 Nec"
 
     procedure ProcessVendorInvoices(VendorNo: Code[20]; PeriodDate: array[2] of Date)
     var
+        TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         EntryApplicationManagement: Codeunit "Entry Application Management";
+        Invoice1099Amount: Decimal;
     begin
         EntryApplicationManagement.GetAppliedVendorEntries(
           TempVendorLedgerEntry, VendorNo, PeriodDate, true);

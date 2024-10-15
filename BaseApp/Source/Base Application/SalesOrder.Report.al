@@ -665,6 +665,7 @@ report 10075 "Sales Order"
 
         trigger OnOpenPage()
         begin
+            SalesSetup.Get();
             ArchiveDocument := SalesSetup."Archive Orders";
             LogInteraction := SegManagement.FindInteractTmplCode(3) <> '';
 
@@ -680,7 +681,6 @@ report 10075 "Sales Order"
     trigger OnPreReport()
     begin
         CompanyInformation.Get();
-        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
         if PrintCompany then

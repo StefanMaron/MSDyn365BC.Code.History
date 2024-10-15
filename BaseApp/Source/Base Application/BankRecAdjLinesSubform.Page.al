@@ -265,6 +265,11 @@ page 10123 "Bank Rec. Adj. Lines Subform"
         AfterGetCurrentRecord;
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        SetupTotals();
+    end;
+
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         SetUpNewLine(xRec, 0, BelowxRec);

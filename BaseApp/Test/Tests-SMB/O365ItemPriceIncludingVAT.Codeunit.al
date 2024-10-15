@@ -16,6 +16,8 @@ codeunit 138014 "O365 Item Price Including VAT"
         LibraryRandom: Codeunit "Library - Random";
         WrongUnitPriceExclVATErr: Label 'Wrong Unit Price Excl. VAT.';
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        VATBusPostingGrErr: Label 'VAT Bus. Posting Gr. (Price) must have a value in Sales & Receivables Setup: Primary Key=. It cannot be zero or empty.';
+        VATPostingSetupErr: Label 'The VAT Posting Setup does not exist. Identification fields and values: VAT Bus. Posting Group=''%1'',VAT Prod. Posting Group=''%2''', Comment = '%1 -  VAT Bus. Posting Group, %2 - VAT Prod. Posting Group';
 
     [Test]
     [Scope('OnPrem')]
@@ -483,6 +485,119 @@ codeunit 138014 "O365 Item Price Including VAT"
         Assert.AreEqual(ExpectedUnitPriceExclVAT, Item.CalcUnitPriceExclVAT, WrongUnitPriceExclVATErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PriceIncludingVATChangeWhenThereIsValueInSalesSetupVATBusPostGrPriceAndThereIsCombinationInVatPostingSetup()
+    var
+        Item: Record Item;
+        BusPostingGroupValSetup: Code[10];
+    begin
+        // [FEATURE] [Item] [Price Incl. VAT]
+        // [SCENARIO 376463] Change "Price Includes VAT" to True when the VAT Posting Setup and SalesSetup are created
+        Initialize();
+
+        // [GIVEN] Created Item
+        LibrarySmallBusiness.CreateItem(Item);
+
+        // [GIVEN] Created new VAT Posting Setup and SalesSetup with "VAT Bus. Post. Gr. Price"
+        BusPostingGroupValSetup := LibraryUtility.GenerateGUID;
+        CreateDefaultVATPostingSetup(BusPostingGroupValSetup, Item."VAT Prod. Posting Group");
+        CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
+
+        // [WHEN] Validate "Price Includes VAT" to True
+        Item.Validate("Price Includes VAT", true);
+        Item.Modify(true);
+
+        // [THEN] "Price Includes VAT" is equal to True. There is no errors
+        Item.TestField("Price Includes VAT", true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PriceIncludingVATChangeWhenThereIsNoValueInSalesSetupVATBusPostGrPriceAndThereIsCombinationInVatPostingSetup()
+    var
+        Item: Record Item;
+        BusPostingGroupValSetup: Code[10];
+    begin
+        // [FEATURE] [Item] [Price Incl. VAT]
+        // [SCENARIO 376463] Change "Price Includes VAT" to True when the VAT Posting Setup is created
+        Initialize();
+
+        // [GIVEN] Created Item
+        LibrarySmallBusiness.CreateItem(Item);
+
+        // [GIVEN] Created new VAT Posting Setup and SalesSetup with "VAT Bus. Post. Gr. Price" where "Vat Bus. Posting Group" is empty
+        BusPostingGroupValSetup := '';
+        CreateDefaultVATPostingSetup(BusPostingGroupValSetup, Item."VAT Prod. Posting Group");
+        CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
+
+        // [WHEN] Validate "Price Includes VAT" to True
+        asserterror Item.Validate("Price Includes VAT", true);
+
+        // [THEN] Error was shown
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(VATBusPostingGrErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PriceIncludingVATChangeWhenThereIsValueInSalesSetupVATBusPostGrPriceAndThereIsNoCombinationInVatPostingSetup()
+    var
+        Item: Record Item;
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        BusPostingGroupValSetup: Code[10];
+    begin
+        // [FEATURE] [Item] [Price Incl. VAT]
+        // [SCENARIO 376463] Change "Price Includes VAT" to True when the VAT Posting Setup and SalesSetup are created
+        Initialize();
+
+        // [GIVEN] Created Item
+        LibrarySmallBusiness.CreateItem(Item);
+
+        // [GIVEN] Created new VAT Posting Setup and SalesSetup with "VAT Bus. Post. Gr. Price" not related to VAT Posting Setup
+        BusPostingGroupValSetup := LibraryUtility.GenerateGUID;
+        CreateDefaultVATPostingSetup(BusPostingGroupValSetup, Item."VAT Prod. Posting Group");
+        CreateSalesSetupWithVATBusPostGrPrice(LibraryUtility.GenerateGUID);
+        SalesReceivablesSetup.Get;
+
+        // [WHEN] Validate "Price Includes VAT" to True
+        asserterror Item.Validate("Price Includes VAT", true);
+
+        // [THEN] Error was shown
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+        Assert.ExpectedError(StrSubstNo(
+            VATPostingSetupErr, SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)", Item."VAT Prod. Posting Group"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PriceIncludingVATChangeWhenThereIsNoValueInSalesSetupVATBusPostGrPriceAndThereIsNoCombinationInVatPostingSetup()
+    var
+        Item: Record Item;
+        BusPostingGroupValSetup: Code[10];
+        BusProdPostingGroupValSetup: Code[10];
+    begin
+        // [FEATURE] [Item]
+        // [SCENARIO 376463] Change "Price Includes VAT" to True when the VAT Posting Setup and SalesSetup are created
+        Initialize();
+
+        // [GIVEN] Created Item
+        LibrarySmallBusiness.CreateItem(Item);
+
+        // [GIVEN] Created SalesSetup with empty "VAT Bus. Post. Gr. Price" and new "VAT Prod. Posting Group" for Item
+        BusPostingGroupValSetup := '';
+        BusProdPostingGroupValSetup := LibraryUtility.GenerateGUID;
+        CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
+        Item."VAT Prod. Posting Group" := BusProdPostingGroupValSetup;
+
+        // [WHEN] Validate "Price Includes VAT" to True
+        asserterror Item.Validate("Price Includes VAT", true);
+
+        // [THEN] Error was shown
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(VATBusPostingGrErr);
+    end;
+
     local procedure CreateItem(var Item: Record Item; UOMCode: Code[10]; AllowInvDisc: Boolean; PriceInclVAT: Boolean; VATBusPostGrpPrice: Code[10])
     begin
         LibrarySmallBusiness.CreateItem(Item);
@@ -533,6 +648,8 @@ codeunit 138014 "O365 Item Price Including VAT"
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         with VATPostingSetup do begin
             Init;
@@ -542,6 +659,12 @@ codeunit 138014 "O365 Item Price Including VAT"
             "VAT %" := LibraryRandom.RandInt(25);
             Insert;
         end;
+
+        if VATProductPostingGroup.Get(VATPostingSetup."VAT Prod. Posting Group") then
+            VATProductPostingGroup.Delete();
+        VATProductPostingGroup.Init();
+        VATProductPostingGroup.Code := VATPostingSetup."VAT Prod. Posting Group";
+        VATProductPostingGroup.Insert();
     end;
 
     local procedure Initialize()

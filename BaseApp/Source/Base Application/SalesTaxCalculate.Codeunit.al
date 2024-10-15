@@ -1176,6 +1176,7 @@
                     TempTaxAmountDifference.SetRange("Expense/Capitalize", "Expense/Capitalize");
                     TempTaxAmountDifference.SetRange("Tax Type", "Tax Type");
                     TempTaxAmountDifference.SetRange("Use Tax", "Use Tax");
+                    TempTaxAmountDifference.SetRange(Positive, Positive);
                     if TempTaxAmountDifference.FindFirst then begin
                         "Tax Difference" := TempTaxAmountDifference."Tax Difference";
                         Modify;
@@ -1895,12 +1896,16 @@
                 TaxAmountDifference."Document No." := TempTaxAmountDifference."Document No.";
                 TaxAmountDifference."Tax Area Code" := TempSalesTaxLine."Tax Area Code for Key";
                 TaxAmountDifference."Tax Jurisdiction Code" := TempSalesTaxLine."Tax Jurisdiction Code";
-                TaxAmountDifference."Tax %" := TempSalesTaxLine."Tax %";
+                if TempSalesTaxLine.Positive then
+                    TaxAmountDifference."Tax %" := TempSalesTaxLine."Tax %"
+                else
+                    TaxAmountDifference."Tax %" := -TempSalesTaxLine."Tax %";
                 TaxAmountDifference."Tax Group Code" := TempSalesTaxLine."Tax Group Code";
                 TaxAmountDifference."Expense/Capitalize" := TempSalesTaxLine."Expense/Capitalize";
                 TaxAmountDifference."Tax Type" := TempSalesTaxLine."Tax Type";
                 TaxAmountDifference."Use Tax" := TempSalesTaxLine."Use Tax";
                 TaxAmountDifference."Tax Difference" := TempSalesTaxLine."Tax Difference";
+                TaxAmountDifference.Positive := TempSalesTaxLine.Positive;
                 TaxAmountDifference.Insert();
             until TempSalesTaxLine.Next = 0;
     end;
