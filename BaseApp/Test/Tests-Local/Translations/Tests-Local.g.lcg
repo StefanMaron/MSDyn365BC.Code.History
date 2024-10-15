@@ -214,7 +214,7 @@
   </Item>
   <Item ItemId=";Codeunit 2412038517 - NamedType 957449493" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[urn:iso:std:iso:20022:tech:xsd:pain.001.001.03]]></Val>
+      <Val><![CDATA[urn:iso:std:iso:20022:tech:xsd:pain.001.001.09]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -295,7 +295,7 @@
   </Item>
   <Item ItemId=";Codeunit 1303708527 - NamedType 957449493" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[urn:iso:std:iso:20022:tech:xsd:pain.001.001.03]]></Val>
+      <Val><![CDATA[urn:iso:std:iso:20022:tech:xsd:pain.001.001.09]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
