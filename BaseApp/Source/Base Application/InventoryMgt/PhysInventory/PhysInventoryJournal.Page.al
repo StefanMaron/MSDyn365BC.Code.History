@@ -158,6 +158,11 @@ page 392 "Phys. Inventory Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity on hand of the item as determined from a physical count.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field(Quantity; Rec.Quantity)
                 {
@@ -839,6 +844,8 @@ page 392 "Phys. Inventory Journal"
     var
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
+        OnBeforeDeleteRecord(Rec);
+
         Commit();
         if not ItemJnlLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
@@ -975,6 +982,11 @@ page 392 "Phys. Inventory Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetControlAppearanceFromBatch(ItemJournalBatch: Record "Item Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRecord(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

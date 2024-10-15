@@ -1916,7 +1916,7 @@ codeunit 22 "Item Jnl.-Post Line"
             end else
                 StartApplication := true;
 
-            OnApplyItemLedgEntryOnBeforeStartApplication(ItemLedgEntry, OldItemLedgEntry, StartApplication, AppliedQty);
+            OnApplyItemLedgEntryOnBeforeStartApplication(ItemLedgEntry, OldItemLedgEntry, StartApplication, AppliedQty, Item, ItemJnlLine);
 
             if StartApplication then begin
                 ItemLedgEntry.CalcReservedQuantity();
@@ -1976,7 +1976,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     if ItemApplnEntry.CheckIsCyclicalLoop(AppliesFromItemLedgEntry, OldItemLedgEntry) then
                         AppliedQty := 0;
                 end;
-                OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgEntry, ItemLedgEntry, AppliedQty);
+                OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgEntry, ItemLedgEntry, AppliedQty, ItemJnlLine);
             end;
 
             CheckIsCyclicalLoop(ItemLedgEntry, OldItemLedgEntry, PrevAppliedItemLedgEntry, AppliedQty);
@@ -2132,8 +2132,13 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     local procedure TestFirstApplyItemLedgEntry(var OldItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeTestFirstApplyItemLedgEntry(OldItemLedgEntry, ItemLedgEntry, ItemJnlLine);
+        IsHandled := false;
+        OnBeforeTestFirstApplyItemLedgEntry(OldItemLedgEntry, ItemLedgEntry, ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
 
         OldItemLedgEntry.TestField("Item No.", ItemLedgEntry."Item No.");
         OldItemLedgEntry.TestField("Variant Code", ItemLedgEntry."Variant Code");
@@ -2147,25 +2152,31 @@ codeunit 22 "Item Jnl.-Post Line"
 
         TestFirstApplyItemLedgerEntryTracking(ItemLedgEntry, OldItemLedgEntry, GlobalItemTrackingCode);
 
-        if not (OldItemLedgEntry.Open and
-                (Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") >=
-                 Abs(ItemLedgEntry."Remaining Quantity" - ItemLedgEntry."Reserved Quantity")))
-        then
-            if (Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") <=
-                Abs(ItemLedgEntry."Remaining Quantity" - ItemLedgEntry."Reserved Quantity"))
-            then begin
-                if not MoveApplication(ItemLedgEntry, OldItemLedgEntry) then
-                    OldItemLedgEntry.FieldError("Remaining Quantity", Text004);
-            end else
-                OldItemLedgEntry.TestField(Open, true);
+        IsHandled := false;
+        OnTestFirstApplyItemLedgEntryOnBeforeTestFields(OldItemLedgEntry, ItemLedgEntry, ItemJnlLine, IsHandled);
+        if not IsHandled then
+            if not (OldItemLedgEntry.Open and
+                    (Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") >=
+                     Abs(ItemLedgEntry."Remaining Quantity" - ItemLedgEntry."Reserved Quantity")))
+            then
+                if (Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") <=
+                    Abs(ItemLedgEntry."Remaining Quantity" - ItemLedgEntry."Reserved Quantity"))
+                then begin
+                    if not MoveApplication(ItemLedgEntry, OldItemLedgEntry) then
+                        OldItemLedgEntry.FieldError("Remaining Quantity", Text004);
+                end else
+                    OldItemLedgEntry.TestField(Open, true);
 
         OnTestFirstApplyItemLedgEntryOnAfterTestFields(ItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
 
         OldItemLedgEntry.CalcReservedQuantity();
         CheckApplication(ItemLedgEntry, OldItemLedgEntry);
 
-        if Abs(OldItemLedgEntry."Remaining Quantity") <= Abs(OldItemLedgEntry."Reserved Quantity") then
-            ReservationPreventsApplication(ItemLedgEntry."Applies-to Entry", ItemLedgEntry."Item No.", OldItemLedgEntry);
+        IsHandled := false;
+        OnTestFirstApplyItemLedgEntryOnBeforeReservationPreventsApplication(OldItemLedgEntry, ItemLedgEntry, IsHandled);
+        if not IsHandled then
+            if Abs(OldItemLedgEntry."Remaining Quantity") <= Abs(OldItemLedgEntry."Reserved Quantity") then
+                ReservationPreventsApplication(ItemLedgEntry."Applies-to Entry", ItemLedgEntry."Item No.", OldItemLedgEntry);
 
         if (OldItemLedgEntry."Order Type" = OldItemLedgEntry."Order Type"::Production) and
            (OldItemLedgEntry."Order No." <> '')
@@ -3504,6 +3515,8 @@ codeunit 22 "Item Jnl.-Post Line"
                     "Cost Amount (Actual) (ACY)" := "Valued Quantity" * "Cost per Unit (ACY)";
                 end;
             end;
+
+        OnAfterValuateAppliedAvgEntry(ValueEntry, ItemJnlLine)
     end;
 
     local procedure CalcAdjustedCost(PosItemLedgEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; var AdjustedCostLCY: Decimal; var AdjustedCostACY: Decimal; var DiscountAmount: Decimal)
@@ -4480,8 +4493,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
         if ItemJnlLine."Applies-to Entry" <> 0 then begin
             OldItemLedgEntry.Get(ItemJnlLine."Applies-to Entry");
-            if not OldItemLedgEntry.Positive then
-                ItemJnlLine."Applies-from Entry" := ItemJnlLine."Applies-to Entry";
+            IsHandled := false;
+            OnUndoQuantityPostingOnBeforeCheckPositive(ItemJnlLine, OldItemLedgEntry, IsHandled);
+            if not IsHandled then
+                if not OldItemLedgEntry.Positive then
+                    ItemJnlLine."Applies-from Entry" := ItemJnlLine."Applies-to Entry";
         end else
             OldItemLedgEntry.Get(ItemJnlLine."Applies-from Entry");
 
@@ -4540,6 +4556,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
         if not ItemJnlLine.IsATOCorrection() then begin
             ApplyItemLedgEntry(NewItemLedgEntry, OldItemLedgEntry2, NewValueEntry, false);
+            OnUndoQuantityPostingOnBeforeAutoTrack(NewItemLedgEntry);
             AutoTrack(NewItemLedgEntry, IsReserved);
             OnUndoQuantityPostingOnAfterAutoTrack(NewItemLedgEntry, NewValueEntry, ItemJnlLine, Item);
         end;
@@ -5286,6 +5303,11 @@ codeunit 22 "Item Jnl.-Post Line"
             SkipApplicationCheck := false;
             exit;
         end;
+
+        IsHandled := false;
+        OnCheckApplicationOnBeforeRemainingQtyError(OldItemLedgEntry, ItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         if Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") <
            Abs(ItemLedgEntry."Remaining Quantity" - ItemLedgEntry."Reserved Quantity")
@@ -6383,7 +6405,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestFirstApplyItemLedgEntry(var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeTestFirstApplyItemLedgEntry(var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6443,7 +6465,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyItemLedgEntryOnBeforeStartApplication(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var StartApplication: Boolean; var AppliedQty: Decimal)
+    local procedure OnApplyItemLedgEntryOnBeforeStartApplication(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var StartApplication: Boolean; var AppliedQty: Decimal; var Item: Record Item; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -6520,7 +6542,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal)
+    local procedure OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -7715,6 +7737,36 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindNegValueEntry(var NegValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestFirstApplyItemLedgEntryOnBeforeTestFields(var OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestFirstApplyItemLedgEntryOnBeforeReservationPreventsApplication(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValuateAppliedAvgEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoQuantityPostingOnBeforeCheckPositive(var ItemJournalLine: Record "Item Journal Line"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoQuantityPostingOnBeforeAutoTrack(var NewItemLedgerEntry: Record "Item Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckApplicationOnBeforeRemainingQtyError(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean);
     begin
     end;
 }

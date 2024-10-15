@@ -47,7 +47,8 @@ table 5805 "Item Charge Assignment (Purch)"
             trigger OnValidate()
             begin
                 PurchLine.Get("Document Type", "Document No.", "Document Line No.");
-                PurchLine.TestField("Qty. to Invoice");
+                if Rec."Qty. to Assign" <> xRec."Qty. to Assign" then
+                    PurchLine.TestField("Qty. to Invoice");
 
                 TestField("Applies-to Doc. Line No.");
                 if ("Qty. to Assign" <> 0) and ("Applies-to Doc. Type" = "Document Type") then

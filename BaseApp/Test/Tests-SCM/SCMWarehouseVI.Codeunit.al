@@ -3892,6 +3892,78 @@ codeunit 137408 "SCM Warehouse VI"
         // [THEN] Bin Contents List Modal Page is opened on "From Bin Code" field lookup.
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure PostInventoryPickWhileCreatingNewPickOne()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        SCMWarehouseVI: Codeunit "SCM Warehouse VI";
+    begin
+        // [FEATURE] [Inventory Pick]
+        // [SCENARIO 474505] "Create Invt Put-away/Pick/Mvmt" report does not fail when Warehouse Request is deleted after the record is retrieved by the report.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", 1, Location.Code);
+        SalesHeader.Validate("Shipping Advice", SalesHeader."Shipping Advice"::Complete);
+        SalesHeader.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        BindSubscription(SCMWarehouseVI);
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+        UnbindSubscription(SCMWarehouseVI);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure PostInventoryPickWhileCreatingNewPickTwo()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        SCMWarehouseVI: Codeunit "SCM Warehouse VI";
+    begin
+        // [FEATURE] [Inventory Pick]
+        // [SCENARIO 474505] "Create Inventory Pick/Movement" codeunit does not fail when Warehouse Request is deleted after the record is retrieved by the report.        
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", 1, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        BindSubscription(SCMWarehouseVI);
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+        UnbindSubscription(SCMWarehouseVI);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5911,6 +5983,36 @@ codeunit 137408 "SCM Warehouse VI"
     local procedure InvokeErrorOnRegisteringWarehousePick(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean)
     begin
         Error(RegisteringPickInterruptedErr);
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Create Invt Put-away/Pick/Mvmt", 'OnBeforeCheckWhseRequest', '', false, false)]
+    local procedure PostInventoryPickOnCheckWhseRequest(var WarehouseRequest: Record "Warehouse Request")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        if WarehouseRequest."Shipping Advice" = WarehouseRequest."Shipping Advice"::Complete then begin
+            WarehouseActivityHeader.SetRange("Location Code", WarehouseRequest."Location Code");
+            WarehouseActivityHeader.FindFirst();
+            LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Create Invt Put-away/Pick/Mvmt", 'OnAfterCheckWhseRequest', '', false, false)]
+    local procedure CheckRecordIsSkippedAfterCheckWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SkipRecord: Boolean)
+    begin
+        Assert.IsTrue((WarehouseRequest."Shipping Advice" = WarehouseRequest."Shipping Advice"::Complete) = SkipRecord, '');
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Inventory Pick/Movement", 'OnBeforeCheckSourceDoc', '', false, false)]
+    local procedure PostInventoryPickOnCheckSourceDoc(WarehouseRequest: Record "Warehouse Request")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        if WarehouseRequest."Shipping Advice" = WarehouseRequest."Shipping Advice"::Partial then begin
+            WarehouseActivityHeader.SetRange("Location Code", WarehouseRequest."Location Code");
+            WarehouseActivityHeader.FindFirst();
+            LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
+        end;
     end;
 
     [RequestPageHandler]

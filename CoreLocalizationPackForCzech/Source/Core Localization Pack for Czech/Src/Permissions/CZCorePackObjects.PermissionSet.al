@@ -307,6 +307,7 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   report "Open Cust. Entries to Date CZL" = X,
                   report "Open Vend. Entries to Date CZL" = X,
                   report "Phys. Inventory Document CZL" = X,
+                  report "Posted Direct Transfer CZL" = X,
                   report "Posted Inventory Document CZL" = X,
                   report "Posted Inventory Receipt CZL" = X,
                   report "Posted Inventory Shipment CZL" = X,

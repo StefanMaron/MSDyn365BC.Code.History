@@ -2970,3 +2970,4 @@ page 21 "Customer Card"
     end;
 }
 #endif
+

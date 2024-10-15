@@ -145,8 +145,14 @@ report 790 "Calculate Inventory"
             }
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeItemOnAfterGetRecord(Item);
+                IsHandled := false;
+                OnBeforeItemOnAfterGetRecord(Item, IsHandled);
+                if IsHandled then
+                    CurrReport.Skip();
+
                 if not HideValidationDialog then
                     Window.Update();
                 TempSKU.DeleteAll();
@@ -976,7 +982,7 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeItemOnAfterGetRecord(var Item: Record Item)
+    local procedure OnBeforeItemOnAfterGetRecord(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

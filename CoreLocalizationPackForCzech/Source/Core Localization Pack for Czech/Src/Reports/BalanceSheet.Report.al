@@ -655,6 +655,7 @@ report 11794 "Balance Sheet CZL"
             Dim3FilterEnable := true;
             Dim2FilterEnable := true;
             Dim1FilterEnable := true;
+            AccSchedNameEditable := true;
         end;
 
         trigger OnOpenPage()

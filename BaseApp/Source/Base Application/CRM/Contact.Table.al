@@ -1178,6 +1178,7 @@
         OldCont: Record Contact;
         Cont: Record Contact;
         IsDuplicateCheckNeeded: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeOnModify(Rec, ContactBeforeModify);
 
@@ -1230,68 +1231,76 @@
                         Cont."Language Code" := "Language Code";
                         ContChanged := true;
                     end;
-                    if RMSetup."Inherit Address Details" then
-                        if ContactBeforeModify.IdenticalAddress(Cont) then begin
-                            if ContactBeforeModify.Address <> Address then begin
-                                Cont.Address := Address;
+
+                    IsHandled := false;
+                    OnModifyOnBeforeInheritAddressDetails(Rec, xRec, RMSetup, Cont, ContChanged, IsHandled);
+                    if not IsHandled then
+                        if RMSetup."Inherit Address Details" then
+                            if ContactBeforeModify.IdenticalAddress(Cont) then begin
+                                if ContactBeforeModify.Address <> Address then begin
+                                    Cont.Address := Address;
+                                    ContChanged := true;
+                                end;
+                                if ContactBeforeModify."Address 2" <> "Address 2" then begin
+                                    Cont."Address 2" := "Address 2";
+                                    ContChanged := true;
+                                end;
+                                if ContactBeforeModify."Post Code" <> "Post Code" then begin
+                                    Cont."Post Code" := "Post Code";
+                                    ContChanged := true;
+                                end;
+                                if ContactBeforeModify.City <> City then begin
+                                    Cont.City := City;
+                                    ContChanged := true;
+                                end;
+                                if ContactBeforeModify.County <> County then begin
+                                    Cont.County := County;
+                                    ContChanged := true;
+                                end;
+                                OnAfterSyncAddress(Cont, Rec, ContChanged, ContactBeforeModify);
+                            end;
+
+                    IsHandled := false;
+                    OnModifyOnBeforeInheritCommunicationDetails(Rec, xRec, RMSetup, Cont, ContChanged, IsHandled);
+                    if not IsHandled then
+                        if RMSetup."Inherit Communication Details" then begin
+                            if (ContactBeforeModify."Phone No." <> "Phone No.") and (ContactBeforeModify."Phone No." = Cont."Phone No.") then begin
+                                Cont."Phone No." := "Phone No.";
                                 ContChanged := true;
                             end;
-                            if ContactBeforeModify."Address 2" <> "Address 2" then begin
-                                Cont."Address 2" := "Address 2";
+                            if (ContactBeforeModify."Telex No." <> "Telex No.") and (ContactBeforeModify."Telex No." = Cont."Telex No.") then begin
+                                Cont."Telex No." := "Telex No.";
                                 ContChanged := true;
                             end;
-                            if ContactBeforeModify."Post Code" <> "Post Code" then begin
-                                Cont."Post Code" := "Post Code";
+                            if (ContactBeforeModify."Fax No." <> "Fax No.") and (ContactBeforeModify."Fax No." = Cont."Fax No.") then begin
+                                Cont."Fax No." := "Fax No.";
                                 ContChanged := true;
                             end;
-                            if ContactBeforeModify.City <> City then begin
-                                Cont.City := City;
+                            if (ContactBeforeModify."Telex Answer Back" <> "Telex Answer Back") and (ContactBeforeModify."Telex Answer Back" = Cont."Telex Answer Back") then begin
+                                Cont."Telex Answer Back" := "Telex Answer Back";
                                 ContChanged := true;
                             end;
-                            if ContactBeforeModify.County <> County then begin
-                                Cont.County := County;
+                            if (ContactBeforeModify."E-Mail" <> "E-Mail") and (ContactBeforeModify."E-Mail" = Cont."E-Mail") then begin
+                                Cont.Validate("E-Mail", "E-Mail");
                                 ContChanged := true;
                             end;
-                            OnAfterSyncAddress(Cont, Rec, ContChanged, ContactBeforeModify);
+                            if (ContactBeforeModify."Home Page" <> "Home Page") and (ContactBeforeModify."Home Page" = Cont."Home Page") then begin
+                                Cont."Home Page" := "Home Page";
+                                ContChanged := true;
+                            end;
+                            if (ContactBeforeModify."Extension No." <> "Extension No.") and (ContactBeforeModify."Extension No." = Cont."Extension No.") then begin
+                                Cont."Extension No." := "Extension No.";
+                                ContChanged := true;
+                            end;
+                            if (ContactBeforeModify."Mobile Phone No." <> "Mobile Phone No.") and (ContactBeforeModify."Mobile Phone No." = Cont."Mobile Phone No.") then begin
+                                Cont."Mobile Phone No." := "Mobile Phone No.";
+                                ContChanged := true;
+                            end;
+                            if (ContactBeforeModify.Pager <> Pager) and (ContactBeforeModify.Pager = Cont.Pager) then begin
+                                Cont.Pager := Pager;
+                                ContChanged := true;
+                            end;
                         end;
-                    if RMSetup."Inherit Communication Details" then begin
-                        if (ContactBeforeModify."Phone No." <> "Phone No.") and (ContactBeforeModify."Phone No." = Cont."Phone No.") then begin
-                            Cont."Phone No." := "Phone No.";
-                            ContChanged := true;
-                        end;
-                        if (ContactBeforeModify."Telex No." <> "Telex No.") and (ContactBeforeModify."Telex No." = Cont."Telex No.") then begin
-                            Cont."Telex No." := "Telex No.";
-                            ContChanged := true;
-                        end;
-                        if (ContactBeforeModify."Fax No." <> "Fax No.") and (ContactBeforeModify."Fax No." = Cont."Fax No.") then begin
-                            Cont."Fax No." := "Fax No.";
-                            ContChanged := true;
-                        end;
-                        if (ContactBeforeModify."Telex Answer Back" <> "Telex Answer Back") and (ContactBeforeModify."Telex Answer Back" = Cont."Telex Answer Back") then begin
-                            Cont."Telex Answer Back" := "Telex Answer Back";
-                            ContChanged := true;
-                        end;
-                        if (ContactBeforeModify."E-Mail" <> "E-Mail") and (ContactBeforeModify."E-Mail" = Cont."E-Mail") then begin
-                            Cont.Validate("E-Mail", "E-Mail");
-                            ContChanged := true;
-                        end;
-                        if (ContactBeforeModify."Home Page" <> "Home Page") and (ContactBeforeModify."Home Page" = Cont."Home Page") then begin
-                            Cont."Home Page" := "Home Page";
-                            ContChanged := true;
-                        end;
-                        if (ContactBeforeModify."Extension No." <> "Extension No.") and (ContactBeforeModify."Extension No." = Cont."Extension No.") then begin
-                            Cont."Extension No." := "Extension No.";
-                            ContChanged := true;
-                        end;
-                        if (ContactBeforeModify."Mobile Phone No." <> "Mobile Phone No.") and (ContactBeforeModify."Mobile Phone No." = Cont."Mobile Phone No.") then begin
-                            Cont."Mobile Phone No." := "Mobile Phone No.";
-                            ContChanged := true;
-                        end;
-                        if (ContactBeforeModify.Pager <> Pager) and (ContactBeforeModify.Pager = Cont.Pager) then begin
-                            Cont.Pager := Pager;
-                            ContChanged := true;
-                        end;
-                    end;
 
                     OnBeforeApplyCompanyChangeToPerson(Cont, Rec, ContactBeforeModify, ContChanged, OldCont);
                     if ContChanged then begin
@@ -1511,9 +1520,10 @@
             CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustTemplate);
         OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(Cust, CustTemplate, Rec);
 
-        OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec);
-
-        UpdateQuotesFromTemplate(Cust, CustomerTemplateCode);
+        IsHandled := false;
+        OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec, IsHandled);
+        if not IsHandled then
+            UpdateQuotesFromTemplate(Cust, CustomerTemplateCode);
         CampaignMgt.ConverttoCustomer(Rec, Cust);
 
         ShowResultForCustomer(Cust);
@@ -3603,7 +3613,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateCustomerOnBeforeUpdateQuotes(var Customer: Record Customer; Contact: Record Contact)
+    local procedure OnCreateCustomerOnBeforeUpdateQuotes(var Customer: Record Customer; Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 
@@ -3744,6 +3754,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesQuoteFromContactOnAfterRunPage(Contact: Record Contact; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforeInheritAddressDetails(var RecContact: Record Contact; var xRecContact: Record Contact; MarketingSetup: Record "Marketing Setup"; Contact: Record Contact; var ContChanged: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforeInheritCommunicationDetails(var RecContact: Record Contact; var xRecContact: Record Contact; MarketingSetup: Record "Marketing Setup"; Contact: Record Contact; var ContChanged: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

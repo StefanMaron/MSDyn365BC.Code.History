@@ -610,8 +610,6 @@ table 31004 "Sales Adv. Letter Header CZZ"
 
             trigger OnValidate()
             var
-                ResponsibilityCenter: Record "Responsibility Center";
-                UserSetupManagement: Codeunit "User Setup Management";
                 IdentSetUpErr: Label 'Your identification is set up to process from %1 %2 only.', Comment = '%1 = Responsibility center table caption, %2 = Responsibility center filter';
             begin
                 TestStatusOpen();
@@ -791,6 +789,11 @@ table 31004 "Sales Adv. Letter Header CZZ"
         AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ";
         DocumentAttachment: Record "Document Attachment";
     begin
+        if not UserSetupManagement.CheckRespCenter(0, "Responsibility Center") then
+            Error(
+              DocumentDeleteErr,
+              ResponsibilityCenter.TableCaption(), UserSetupManagement.GetSalesFilter());
+
         SalesAdvLetterLineCZZ.SetRange("Document No.", "No.");
         if not SalesAdvLetterLineCZZ.IsEmpty() then
             SalesAdvLetterLineCZZ.DeleteAll(true);
@@ -820,6 +823,7 @@ table 31004 "Sales Adv. Letter Header CZZ"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Customer: Record Customer;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        ResponsibilityCenter: Record "Responsibility Center";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         DimensionManagement: Codeunit DimensionManagement;
         UserSetupManagement: Codeunit "User Setup Management";
@@ -834,6 +838,7 @@ table 31004 "Sales Adv. Letter Header CZZ"
         HasSalesSetup: Boolean;
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
         DocumentResetErr: Label 'You cannot reset %1 because the document still has one or more lines.', Comment = '%1 = a Field Caption like Bill-to Contact No.';
+        DocumentDeleteErr: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.', Comment = '%1 = table caption of responsibility center, %2 = code of responsibility center';
 
     procedure AssistEdit(): Boolean
     begin
@@ -1483,6 +1488,22 @@ table 31004 "Sales Adv. Letter Header CZZ"
             Modify();
     end;
 
+    procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupManagement.GetSalesFilter() <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserSetupManagement.GetSalesFilter());
+            FilterGroup(0);
+        end;
+    end;
+
     procedure TestStatusOpen()
     begin
         OnBeforeTestStatusOpen(Rec);
@@ -1842,6 +1863,11 @@ table 31004 "Sales Adv. Letter Header CZZ"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoPrintToDocumentAttachment(var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; var IsHandled: Boolean)
     begin
     end;
 }

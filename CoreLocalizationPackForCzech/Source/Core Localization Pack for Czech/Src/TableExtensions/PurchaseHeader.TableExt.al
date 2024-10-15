@@ -370,7 +370,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         if "Currency Code" = '' then
             exit;
         if not CurrencyExchangeRate.CurrencyExchangeRateExist("Currency Code", CurrencyDate) then
-            Error(CurrExchRateNotExistsErr)
+            Error(CurrExchRateNotExistsErr, CurrencyExchangeRate.TableCaption, "Currency Code", CurrencyDate);
     end;
 
     procedure UpdateVATCurrencyFactorCZLByCurrencyFactorCZL()

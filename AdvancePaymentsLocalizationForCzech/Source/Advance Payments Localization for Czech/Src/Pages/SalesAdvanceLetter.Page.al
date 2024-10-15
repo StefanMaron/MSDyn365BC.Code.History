@@ -159,19 +159,19 @@ page 31171 "Sales Advance Letter CZZ"
                     QuickEntry = false;
                     ToolTip = 'Specifies the name of the salesperson who is assigned to the customer.';
                 }
-                field("Responsibility Center"; Rec."Responsibility Center")
-                {
-                    AccessByPermission = tabledata "Responsibility Center" = R;
-                    ApplicationArea = Basic, Suite;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
-                }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     QuickEntry = false;
                     ToolTip = 'Specifies document status.';
+                }
+                field("Responsibility Center"; Rec."Responsibility Center")
+                {
+                    AccessByPermission = tabledata "Responsibility Center" = R;
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
                 field("Automatic Post VAT Document"; Rec."Automatic Post VAT Document")
                 {
@@ -856,6 +856,7 @@ page 31171 "Sales Advance Letter CZZ"
 
     trigger OnOpenPage()
     begin
+        Rec.SetSecurityFilterOnRespCenter();
         ActivateFields();
         SetDocNoVisible();
     end;
@@ -863,6 +864,7 @@ page 31171 "Sales Advance Letter CZZ"
     trigger OnNewRecord(BelowxRec: Boolean)
     var
         AdvanceLetterTemplate: Record "Advance Letter Template CZZ";
+        UserSetupManagement: Codeunit "User Setup Management";
     begin
         AdvanceLetterTemplate.SetRange("Sales/Purchase", AdvanceLetterTemplate."Sales/Purchase"::Sales);
         if Page.RunModal(0, AdvanceLetterTemplate) <> Action::LookupOK then
@@ -871,6 +873,7 @@ page 31171 "Sales Advance Letter CZZ"
         AdvanceLetterTemplate.TestField("Advance Letter Document Nos.");
         Rec."Advance Letter Code" := AdvanceLetterTemplate.Code;
         Rec."No. Series" := AdvanceLetterTemplate."Advance Letter Document Nos.";
+        Rec."Responsibility Center" := UserSetupManagement.GetSalesFilter();
     end;
 
     trigger OnAfterGetCurrRecord()

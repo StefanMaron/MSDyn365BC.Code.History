@@ -1252,12 +1252,12 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                                     UseAmount := TempAdvancePostingBufferCZZ2.Amount;
                                     UseBaseAmount := TempAdvancePostingBufferCZZ2."VAT Base Amount";
                                 end;
-                                if (UsedAmount < UseAmount) or
-                                   (TempAdvancePostingBufferCZZ1."VAT %" <> TempAdvancePostingBufferCZZ2."VAT %")
-                                then begin
+                                if Abs(UsedAmount) < Abs(UseAmount) then begin
                                     UseAmount := UsedAmount;
                                     UseBaseAmount := Round(TempAdvancePostingBufferCZZ2."VAT Base Amount" * UseAmount / TempAdvancePostingBufferCZZ2.Amount, CurrencyGlob."Amount Rounding Precision", CurrencyGlob.VATRoundingDirection());
                                 end;
+                                if TempAdvancePostingBufferCZZ1."VAT %" <> TempAdvancePostingBufferCZZ2."VAT %" then
+                                    UseBaseAmount := Round(TempAdvancePostingBufferCZZ2."VAT Base Amount" * UseAmount / TempAdvancePostingBufferCZZ2.Amount, CurrencyGlob."Amount Rounding Precision", CurrencyGlob.VATRoundingDirection());
 
                                 TempAdvancePostingBufferCZZ2.Amount -= UseAmount;
                                 TempAdvancePostingBufferCZZ2."VAT Base Amount" -= UseBaseAmount;
@@ -1380,7 +1380,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                 GenJnlPostLine.RunWithCheck(GenJournalLine);
 
             InitGenJnlLineFromAdvance(PurchAdvLetterHeaderCZZ, PurchAdvLetterEntryCZZ, DocumentNo, '', SourceCode, PostDescription, GenJournalLine);
-            GenJournalLine.Correction := Correction;
+            GenJournalLine.Correction := true;
             GenJournalLine.Validate("Posting Date", PostingDate);
             if ExchRateVATAmount < 0 then begin
                 CurrencyGlob.TestField("Realized Losses Acc.");

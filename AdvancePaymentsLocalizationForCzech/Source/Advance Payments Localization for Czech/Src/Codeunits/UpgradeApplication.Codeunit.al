@@ -117,16 +117,13 @@ codeunit 31088 "Upgrade Application CZZ"
     begin
         case AdvanceLetterType of
             AdvanceLetterType::Purchase:
-                begin
-                    PurchAdvLetterHeader.Get(AdvanceLetterNo);
+                if PurchAdvLetterHeader.Get(AdvanceLetterNo) then
                     exit(PurchAdvLetterHeader."Currency Factor");
-                end;
             AdvanceLetterType::Sales:
-                begin
-                    SalesAdvLetterHeader.Get(AdvanceLetterNo);
+                if SalesAdvLetterHeader.Get(AdvanceLetterNo) then
                     exit(SalesAdvLetterHeader."Currency Factor");
-                end;
         end;
+        exit(0);
     end;
 
     local procedure SetDatabaseUpgradeTags();

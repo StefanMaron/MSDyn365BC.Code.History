@@ -296,7 +296,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             Message(SkippedLineMsg);
 
         OnAfterProcessLines(TempGenJnlLine, GenJnlLine, SuppressCommit, PreviewMode);
-        
+
         if LastICTransactionNo > 0 then
             ICFeedback.ShowIntercompanyMessage(TempGenJnlLine, ICLastDocNo, ICProccessedLines);
     end;
@@ -1011,6 +1011,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         JnlLineTotalQty: Integer;
         RefPostingSubState: Option "Check account","Check bal. account","Update lines";
         LinesFound: Boolean;
+        GenJnlLineCount: Integer;
     begin
         JnlLineTotalQty := CountGenJournalLines(GenJnlLine4);
         LineCount := 0;
@@ -1032,13 +1033,14 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                     LinesFound := GenJnlLine6.FindSet();
                 end;
                 if LinesFound then begin
+                    GenJnlLineCount := GenJnlLine6.Count;
                     AccountType := GetPostingTypeFilter(GenJnlLine4, CheckBalAcount);
                     CheckAmount := 0;
                     repeat
                         if (GenJnlLine6."Account No." = '') <> (GenJnlLine6."Bal. Account No." = '') then begin
                             OnCheckAndCopyBalancingDataOnBeforeCheckGenPostingType(GenJnlLine4, GenJnlLine6, AccountType);
                             CheckGenPostingType(GenJnlLine6, AccountType);
-                            if GenJnlLine6."Bill-to/Pay-to No." = '' then begin
+                            if (GenJnlLineCount = 1) or FoundMatchingAmounts(GenJnlLine4, GenJnlLine6) then begin
                                 TempGenJnlLine := GenJnlLine6;
                                 CopyGenJnlLineBalancingData(TempGenJnlLine, GenJnlLine4);
                                 if TempGenJnlLine.Insert() then;
@@ -1829,6 +1831,17 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 GenJnlLine."VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date");
             GenJnlLine.Modify();
         end;
+    end;
+
+    local procedure FoundMatchingAmounts(GenJnlLine4: Record "Gen. Journal Line"; GenJnlLine6: Record "Gen. Journal Line"): Boolean
+    begin
+        if GenJnlLine6."Bill-to/Pay-to No." <> '' then
+            exit(false);
+
+        if (GenJnlLine4.Amount > 0) and ((GenJnlLine6.Amount >= -GenJnlLine4.Amount) and (GenJnlLine6.Amount < 0)) or
+           (GenJnlLine4.Amount < 0) and ((GenJnlLine6.Amount <= -GenJnlLine4.Amount) and (GenJnlLine6.Amount > 0))
+        then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]

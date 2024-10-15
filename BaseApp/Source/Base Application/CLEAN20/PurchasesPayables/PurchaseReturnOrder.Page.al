@@ -1555,8 +1555,12 @@ page 6640 "Purchase Return Order"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        ShowConfirmCloseUnposted: Boolean;
     begin
-        if not DocumentIsPosted then
+        ShowConfirmCloseUnposted := not DocumentIsPosted;
+        OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(Rec, ShowConfirmCloseUnposted);
+        if ShowConfirmCloseUnposted then
             exit(Rec.ConfirmCloseUnposted());
     end;
 
@@ -1789,6 +1793,11 @@ page 6640 "Purchase Return Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var ShowConfirmCloseUnposted: Boolean)
     begin
     end;
 }

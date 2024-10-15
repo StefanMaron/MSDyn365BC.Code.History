@@ -602,6 +602,7 @@ report 11795 "Income Statement CZL"
             Dim3FilterEnable := true;
             Dim2FilterEnable := true;
             Dim1FilterEnable := true;
+            AccSchedNameEditable := true;
         end;
 
         trigger OnOpenPage()
