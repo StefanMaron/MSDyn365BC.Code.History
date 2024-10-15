@@ -28,6 +28,7 @@ codeunit 137380 "SCM Performance Tests"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryCosting: Codeunit "Library - Costing";
         isInitialized: Boolean;
         NotLinearCCErr: Label 'Computational cost is not linear.';
         LogNPerformanceExpectedErr: Label 'Computational cost must be O(Log(N))';
@@ -975,8 +976,70 @@ codeunit 137380 "SCM Performance Tests"
         end;
 
         // [THEN] The number of updates does not depend on the number of lines in the put-away.
-        LibraryCalcComplexity.IsConstant(NoOfHits[1], NoOfHits[2]);
-        LibraryCalcComplexity.IsConstant(NoOfHits[3], NoOfHits[4]);
+        Assert.IsTrue(LibraryCalcComplexity.IsConstant(NoOfHits[1], NoOfHits[2]), NotConstantCalcErr);
+        Assert.IsTrue(LibraryCalcComplexity.IsConstant(NoOfHits[3], NoOfHits[4]), NotConstantCalcErr);
+    end;
+
+    [Test]
+    [Scope('Internal')]
+    procedure CostAdjustmentWhenManyPosEntriesAppliedToFewNegEntries()
+    var
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        NoOfEntries: array[3] of Integer;
+        NoOfHits: array[3] of Integer;
+        TryNo: Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Item Application]
+        // [SCENARIO 341830] Poor cost adjustment performance when many inbound item entries are applied to few outbound entries.
+        Initialize();
+
+        NoOfEntries[1] := 4;
+        NoOfEntries[2] := 40;
+        NoOfEntries[3] := 400;
+
+        for TryNo := 1 to ArrayLen(NoOfEntries) do begin
+            LibraryInventory.CreateItem(Item);
+
+            LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+            LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+
+            // [GIVEN] Try 1: Post 4 positive adjustment entries for item.
+            // [GIVEN] Try 2: Post 40 positive adjustment entries for item.
+            // [GIVEN] Try 3: Post 400 positive adjustment entries for item.
+            for i := 1 to NoOfEntries[TryNo] do begin
+                LibraryInventory.CreateItemJournalLine(
+                  ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
+                  ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1);
+                ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+                ItemJournalLine.Modify(true);
+            end;
+            LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+
+            // [GIVEN] Post 2 negative adjustment entries, each for half the item inventory.
+            LibraryInventory.CreateItemJournalLine(
+              ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
+              ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", NoOfEntries[TryNo] / 2);
+            LibraryInventory.CreateItemJournalLine(
+              ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
+              ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", NoOfEntries[TryNo] / 2);
+            LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+
+            // [WHEN] Turn on code coverage and run the cost adjustment.
+            CodeCoverageMgt.StartApplicationCoverage();
+            LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+            CodeCoverageMgt.StopApplicationCoverage();
+            NoOfHits[TryNo] :=
+              GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Inventory Adjustment", 'CalcNewAdjustedCost');
+        end;
+
+        // [THEN] The computational complexity of the outbound entries cost calculation linearly depends on the number of positive adjustments.
+        Assert.IsTrue(
+          LibraryCalcComplexity.IsLinear(NoOfEntries[1], NoOfEntries[2], NoOfEntries[3], NoOfHits[1], NoOfHits[2], NoOfHits[3]),
+          NotLinearCCErr);
     end;
 
     local procedure Initialize()

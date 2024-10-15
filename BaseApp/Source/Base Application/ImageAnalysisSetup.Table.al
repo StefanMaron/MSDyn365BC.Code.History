@@ -14,12 +14,14 @@ table 2020 "Image Analysis Setup"
             Caption = 'Period start date';
             ObsoleteReason = 'Use of Table 2003 to track usage instead.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(3; "Number of calls"; Integer)
         {
             Caption = 'Number of calls';
             ObsoleteReason = 'Use of Table 2003 to track usage instead.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(4; "Api Uri"; Text[250])
         {
@@ -40,6 +42,7 @@ table 2020 "Image Analysis Setup"
             Caption = 'Limit value';
             ObsoleteReason = 'Use of Table 2003 to track usage instead.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(7; "Limit type"; Option)
         {
@@ -48,6 +51,7 @@ table 2020 "Image Analysis Setup"
             ObsoleteState = Removed;
             OptionCaption = 'Year,Month,Day,Hour';
             OptionMembers = Year,Month,Day,Hour;
+            ObsoleteTag = '15.0';
         }
     }
 

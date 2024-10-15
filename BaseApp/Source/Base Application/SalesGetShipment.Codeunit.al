@@ -42,6 +42,7 @@ codeunit 64 "Sales-Get Shipment"
     begin
         with SalesShptLine2 do begin
             SetFilter("Qty. Shipped Not Invoiced", '<>0');
+            OnCreateInvLinesOnBeforeFind(SalesShptLine2);
             if FindSet then begin
                 SalesLine.LockTable;
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -297,6 +298,11 @@ codeunit 64 "Sales-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvLinesOnAfterSalesShptLineSetFilters(var SalesShipmentLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnBeforeFind(var SalesShipmentLine: Record "Sales Shipment Line")
     begin
     end;
 

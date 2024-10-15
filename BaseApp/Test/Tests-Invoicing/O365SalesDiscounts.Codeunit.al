@@ -19,6 +19,7 @@ codeunit 138920 "O365 Sales Discounts"
         Assert: Codeunit Assert;
         O365SalesDiscounts: Codeunit "O365 Sales Discounts";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         IsInitialized: Boolean;
@@ -34,7 +35,7 @@ codeunit 138920 "O365 Sales Discounts"
         TotalAmountIncludingVAT: Decimal;
     begin
         // [SCENARIO 203615] Invoice page shows zero discount if customer does not have discount set
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined
         LibrarySales.CreateCustomer(Customer);
@@ -60,7 +61,7 @@ codeunit 138920 "O365 Sales Discounts"
         InvoiceDiscountAmount: Decimal;
     begin
         // [SCENARIO 203615] Prices Including VAT = No. Invoice discount calculated after entering invoice discount amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = No
         // [GIVEN] Invoice, where Total amount = 200, Tax = 50.
@@ -95,7 +96,7 @@ codeunit 138920 "O365 Sales Discounts"
         InvoiceDiscountPct: Decimal;
     begin
         // [SCENARIO 203615] Prices Including VAT = No. Invoice discount calculated after entering invoice discount %
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = No
         // [GIVEN] Invoice, where Total amount =200, Tax = 50.
@@ -133,7 +134,7 @@ codeunit 138920 "O365 Sales Discounts"
         LineAmountInclVAT: Decimal;
     begin
         // [SCENARIO 203615] Prices Including VAT = No. Invoice discount calculated after entering new total amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = No
         // [GIVEN] Invoice, where Total amount =200, Tax = 50.
@@ -173,7 +174,7 @@ codeunit 138920 "O365 Sales Discounts"
         LineAmountInclVAT: Decimal;
     begin
         // [SCENARIO 203615] Prices Including VAT = Yes. Invoice discount calculated after entering invoice discount amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = Yes
         // [GIVEN] Invoice, where Total amount = 250, Tax = 50.
@@ -212,7 +213,7 @@ codeunit 138920 "O365 Sales Discounts"
         InvoiceDiscountPct: Decimal;
     begin
         // [SCENARIO 203615] Prices Including VAT = Yes. Invoice discount calculated after entering invoice discount %
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = No
         // [GIVEN] Invoice, where Total amount =200, Tax = 50.
@@ -248,7 +249,7 @@ codeunit 138920 "O365 Sales Discounts"
         InvoiceDiscountAmount: Decimal;
     begin
         // [SCENARIO 203615] Prices Including VAT = Yes. Invoice discount calculated after entering new total amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = No
         // [GIVEN] Invoice, where Total amount =200, Tax = 50.
@@ -285,7 +286,7 @@ codeunit 138920 "O365 Sales Discounts"
         PostedInvoiceNo: Code[20];
     begin
         // [SCENARIO 203621] Posted invoice page displays invoice discount
-        Initialize;
+        Initialize();
         ClearSMTPMailSetup;
 
         // [GIVEN] Create customer XXX
@@ -326,7 +327,7 @@ codeunit 138920 "O365 Sales Discounts"
         TotalAmountIncludingVAT: Decimal;
     begin
         // [SCENARIO 203615] Discount is not aplied to invoice if user press Cancel on Sales Invoice Discount page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = No
         CreateCustomer(Customer, false);
@@ -363,7 +364,7 @@ codeunit 138920 "O365 Sales Discounts"
         PostedInvoiceNo: Code[20];
     begin
         // [SCENARIO 203621] Posted invoice page displays line discount
-        Initialize;
+        Initialize();
         ClearSMTPMailSetup;
 
         // [GIVEN] Create customer XXX
@@ -406,7 +407,7 @@ codeunit 138920 "O365 Sales Discounts"
         QuoteNo: Code[20];
     begin
         // [SCENARIO 206981] Prices Including VAT = No. Invoice discount calculated after entering invoice discount amount in the Quote page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = No
         CreateCustomer(Customer, false);
@@ -445,7 +446,7 @@ codeunit 138920 "O365 Sales Discounts"
         QuoteNo: Code[20];
     begin
         // [SCENARIO 206981] Discount amount defined in the Quote page transferred to Invoice whet quote turned to invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer 'X', that has no invoice discount defined, Prices Including VAT = No
         CreateCustomer(Customer, false);
@@ -491,7 +492,7 @@ codeunit 138920 "O365 Sales Discounts"
         LineAmountExclVAT: Decimal;
     begin
         // [SCENARIO 208536] Posted invoice page displays subtotal amount
-        Initialize;
+        Initialize();
         ClearSMTPMailSetup;
 
         // [GIVEN] Create customer XXX
@@ -531,21 +532,22 @@ codeunit 138920 "O365 Sales Discounts"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Library - Test Initialize");
+
         BindActiveDirectoryMockEvents;
-
-        EventSubscriberInvoicingApp.Clear;
-
-        LibrarySetupStorage.Restore;
-
+        EventSubscriberInvoicingApp.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Sales Discounts");
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
 
-        DisableStockoutWarning;
-        DisableSendMails;
-        EnableCalcInvDiscount;
+        DisableStockoutWarning();
+        DisableSendMails();
+        EnableCalcInvDiscount();
 
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -554,7 +556,9 @@ codeunit 138920 "O365 Sales Discounts"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Sales Discounts");
     end;
 
     local procedure CalcExpectedAmountsFromInvoiceDiscountAmount(InvoiceNo: Code[20]; InvoiceDiscountAmount: Decimal; var TotalAmount: Decimal; var TotalAmountIncludingVAT: Decimal)

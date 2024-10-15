@@ -4,6 +4,7 @@ table 3010590 "Fin. Charge Interest Rate"
     DataCaptionFields = "Fin. Charge Terms Code", "Start Date";
     ObsoleteReason = 'Merged to W1 table 572';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

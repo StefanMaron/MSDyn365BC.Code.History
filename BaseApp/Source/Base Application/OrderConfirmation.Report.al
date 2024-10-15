@@ -6,6 +6,7 @@ report 205 "Order Confirmation"
     PreviewMode = PrintLayout;
     ObsoleteReason = 'Replaced with report 1305 Standard Sales - Order Conf.';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.2';
 
     dataset
     {

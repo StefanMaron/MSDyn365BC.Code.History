@@ -36,11 +36,7 @@ codeunit 951 "Time Sheet Approval Management"
             CalcFields("Total Quantity");
             if "Total Quantity" = 0 then
                 Error(
-                  Text001,
-                  FieldCaption("Time Sheet No."),
-                  "Time Sheet No.",
-                  FieldCaption("Line No."),
-                  "Line No.");
+                  Text001, FieldCaption("Time Sheet No."), "Time Sheet No.", FieldCaption("Line No."), "Line No.");
             case Type of
                 Type::Job:
                     begin
@@ -54,6 +50,7 @@ codeunit 951 "Time Sheet Approval Management"
             end;
             UpdateApproverID;
             Status := Status::Submitted;
+            OnSubmitOnBeforeTimeSheetLineModify(TimeSheetLine);
             Modify(true);
             OnAfterSubmit(TimeSheetLine);
         end;
@@ -67,6 +64,8 @@ codeunit 951 "Time Sheet Approval Management"
             TestField(Status, Status::Submitted);
             Status := Status::Open;
             Modify(true);
+            OnReopenSubmittedOnAfterModify(TimeSheetLine);
+
             OnAfterReopenSubmitted(TimeSheetLine);
         end;
     end;
@@ -82,7 +81,9 @@ codeunit 951 "Time Sheet Approval Management"
             CheckLinkedServiceDoc(TimeSheetLine);
             UpdateApproverID;
             Status := Status::Submitted;
+            OnReopenApprovedOnBeforeTimeSheetLineModify(TimeSheetLine);
             Modify(true);
+
             OnAfterReopenApproved(TimeSheetLine);
         end;
     end;
@@ -95,9 +96,11 @@ codeunit 951 "Time Sheet Approval Management"
             TestField(Status, Status::Submitted);
             CheckApproverPermissions(TimeSheetLine);
             Status := Status::Rejected;
+            OnRejectOnBeforeTimeSheetLineModify(TimeSheetLine);
             Modify(true);
-            OnAfterReject(TimeSheetLine);
         end;
+
+        OnAfterReject(TimeSheetLine);
     end;
 
     procedure Approve(var TimeSheetLine: Record "Time Sheet Line")
@@ -117,6 +120,7 @@ codeunit 951 "Time Sheet Approval Management"
             Status := Status::Approved;
             "Approved By" := UserId;
             "Approval Date" := Today;
+            OnApproveOnBeforeTimeSheetLineModify(TimeSheetLine);
             Modify(true);
             case Type of
                 Type::Absence:
@@ -124,8 +128,9 @@ codeunit 951 "Time Sheet Approval Management"
                 Type::Service:
                     AfterApproveServiceOrderTmeSheetEntries(TimeSheetLine);
             end;
-            OnAfterApprove(TimeSheetLine);
         end;
+
+        OnAfterApprove(TimeSheetLine);
     end;
 
     local procedure PostAbsence(var TimeSheetLine: Record "Time Sheet Line")
@@ -292,6 +297,30 @@ codeunit 951 "Time Sheet Approval Management"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnApproveOnBeforeTimeSheetLineModify(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRejectOnBeforeTimeSheetLineModify(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReopenApprovedOnBeforeTimeSheetLineModify(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReopenSubmittedOnAfterModify(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSubmitOnBeforeTimeSheetLineModify(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApprove(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)

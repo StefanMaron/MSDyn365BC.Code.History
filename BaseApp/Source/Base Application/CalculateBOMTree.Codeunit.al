@@ -325,6 +325,8 @@ codeunit 5870 "Calculate BOM Tree"
                                         ParentItem."Production BOM No." := "No.";
                                         GenerateProdCompSubTree(ParentItem, BOMBuffer);
                                         ParentItem := CopyOfParentItem;
+
+                                        OnAfterGenerateProdCompSubTree(ParentItem, BOMBuffer);
                                     end;
                             end;
                 until Next = 0;
@@ -958,6 +960,11 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGenerateProdCompSubTree(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromProdItem(var BOMBuffer: Record "BOM Buffer"; ProdBOMLine: Record "Production BOM Line")
     begin
     end;
@@ -988,12 +995,12 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferFromProdBOM(var BOMBuffer: Record "BOM Buffer"; ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost)
+    local procedure OnBeforeTransferFromProdBOM(var BOMBuffer: Record "BOM Buffer"; var ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferProdBOMLine(var BOMBuffer: Record "BOM Buffer"; ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost; var IsHandled: Boolean)
+    local procedure OnBeforeTransferProdBOMLine(var BOMBuffer: Record "BOM Buffer"; var ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost; var IsHandled: Boolean)
     begin
     end;
 

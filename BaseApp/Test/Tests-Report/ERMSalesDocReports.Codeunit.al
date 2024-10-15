@@ -570,6 +570,189 @@ codeunit 134390 "ERM Sales Doc. Reports"
             LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATAmt', VATAmount[i]);
     end;
 
+    [Test]
+    [HandlerFunctions('ReportHandlerCustomerBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure CustomerBalanceToDateMultipleCurrenciesWithTheSameAmount()
+    var
+        SalesHeaderCrMemo: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
+        CustLedgerEntryCrMemo: Record "Cust. Ledger Entry";
+        InvoiceDocumentNo: Code[20];
+        CrMemoDocumentNo: Code[20];
+        Amount: Decimal;
+        ItemsCount: Integer;
+    begin
+        // [SCENARIO 341358] Check Customer Balance To Date with two lines with the same Amount in different Currency
+
+        Initialize;
+        ItemsCount := LibraryRandom.RandInt(10);
+        Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
+
+        // [GIVEN] Created Sales Credit Memo with Currency for Customer
+        CreateSalesDocumentWithAmount(
+          SalesHeaderCrMemo,
+          SalesHeaderCrMemo."Document Type"::"Credit Memo",
+          CreateCurrencyAndExchangeRate,
+          LibraryInventory.CreateItemNo,
+          LibrarySales.CreateCustomerNo,
+          Amount,
+          ItemsCount);
+        CrMemoDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderCrMemo, true, true);
+
+        // [GIVEN] Created Sales Invoice for Customer
+        CreateSalesDocumentWithAmount(
+          SalesHeaderInvoice,
+          SalesHeaderInvoice."Document Type"::Invoice,
+          '',
+          LibraryInventory.CreateItemNo,
+          SalesHeaderCrMemo."Sell-to Customer No.",
+          Amount,
+          ItemsCount);
+        InvoiceDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+
+        // [GIVEN] Found Customer Ledger Entries for created Documents
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryCrMemo, CustLedgerEntryCrMemo."Document Type"::"Credit Memo", CrMemoDocumentNo);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryInvoice, CustLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
+        CustLedgerEntryCrMemo.CalcFields("Original Amount");
+        CustLedgerEntryInvoice.CalcFields("Original Amount");
+
+        // [WHEN]  Save Report "Customer Balance to Date".
+        SaveCustomerBalanceToDate(SalesHeaderCrMemo, false, false, false);
+
+        // [THEN] Report was created
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Original Amount was filled correctly
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryCrMemo."Original Amount");
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryInvoice."Original Amount");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReportHandlerCustomerBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure CustomerBalanceToDateMultipleCurrenciesWithTheSameAmountWithShowEntriesWithZeroBalance()
+    var
+        SalesHeaderCrMemo: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
+        CustLedgerEntryCrMemo: Record "Cust. Ledger Entry";
+        InvoiceDocumentNo: Code[20];
+        CrMemoDocumentNo: Code[20];
+        Amount: Decimal;
+        ItemsCount: Integer;
+    begin
+        // [SCENARIO 341358] Check Customer Balance To Date with two lines with the same Amount in different Currency
+
+        Initialize;
+        ItemsCount := LibraryRandom.RandInt(10);
+        Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
+
+        // [GIVEN] Created Sales Credit Memo with Currency for Customer
+        CreateSalesDocumentWithAmount(
+          SalesHeaderCrMemo,
+          SalesHeaderCrMemo."Document Type"::"Credit Memo",
+          CreateCurrencyAndExchangeRate,
+          LibraryInventory.CreateItemNo,
+          LibrarySales.CreateCustomerNo,
+          Amount,
+          ItemsCount);
+        CrMemoDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderCrMemo, true, true);
+
+        // [GIVEN] Created Sales Invoice for Customer
+        CreateSalesDocumentWithAmount(
+          SalesHeaderInvoice,
+          SalesHeaderInvoice."Document Type"::Invoice,
+          '',
+          LibraryInventory.CreateItemNo,
+          SalesHeaderCrMemo."Sell-to Customer No.",
+          Amount,
+          ItemsCount);
+        InvoiceDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+
+        // [GIVEN] Found Customer Ledger Entries for created Documents
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryCrMemo, CustLedgerEntryCrMemo."Document Type"::"Credit Memo", CrMemoDocumentNo);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryInvoice, CustLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
+        CustLedgerEntryCrMemo.CalcFields("Original Amount");
+        CustLedgerEntryInvoice.CalcFields("Original Amount");
+
+        // [WHEN] Run Report "Customer Balance to Date" with Show Entries with Zero Balance = 'No'
+        SaveCustomerBalanceToDate(SalesHeaderCrMemo, false, false, true);
+
+        // [THEN] Report was created
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Original Amount was filled correctly
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryCrMemo."Original Amount");
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryInvoice."Original Amount");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReportHandlerCustomerBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure CustomerBalanceToDateWithTheSameAmountSkipReport()
+    var
+        SalesHeaderCrMemo: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
+        CustLedgerEntryCrMemo: Record "Cust. Ledger Entry";
+        InvoiceDocumentNo: Code[20];
+        CrMemoDocumentNo: Code[20];
+        Amount: Decimal;
+        ItemsCount: Integer;
+    begin
+        // [SCENARIO 341358] Check Customer Balance To Date skip with two lines with the same Amount
+
+        Initialize;
+        ItemsCount := LibraryRandom.RandInt(10);
+        Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
+
+        // [GIVEN] Created Sales Credit Memo for Customer
+        CreateSalesDocumentWithAmount(
+          SalesHeaderCrMemo,
+          SalesHeaderCrMemo."Document Type"::"Credit Memo",
+          '',
+          LibraryInventory.CreateItemNo,
+          LibrarySales.CreateCustomerNo,
+          Amount,
+          ItemsCount);
+        CrMemoDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderCrMemo, true, true);
+
+        // [GIVEN] Created Sales Invoice for Customer
+        CreateSalesDocumentWithAmount(
+          SalesHeaderInvoice,
+          SalesHeaderInvoice."Document Type"::Invoice,
+          '',
+          LibraryInventory.CreateItemNo,
+          SalesHeaderCrMemo."Sell-to Customer No.",
+          Amount,
+          ItemsCount);
+        InvoiceDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+
+        // [GIVEN] Found Customer Ledger Entries for created Documents
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryCrMemo, CustLedgerEntryCrMemo."Document Type"::"Credit Memo", CrMemoDocumentNo);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryInvoice, CustLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
+        CustLedgerEntryCrMemo.CalcFields("Original Amount");
+        CustLedgerEntryInvoice.CalcFields("Original Amount");
+
+        // [WHEN]  Save Report "Customer Balance to Date".
+        SaveCustomerBalanceToDate(SalesHeaderCrMemo, false, false, false);
+
+        // [THEN] Report was created
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Documents are not exported
+        LibraryReportDataset.AssertElementWithValueNotExist('DocNo_CustLedgEntry', CustLedgerEntryCrMemo."Document No.");
+        LibraryReportDataset.AssertElementWithValueNotExist('DocNo_CustLedgEntry', CustLedgerEntryInvoice."Document No.");
+    end;
+
     local procedure FindDetailedCustomerLedgerEntry(CustomerNo: Code[20]): Decimal
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -672,12 +855,35 @@ codeunit 134390 "ERM Sales Doc. Reports"
         GenJournalLine.Modify(true);
     end;
 
+    local procedure CreateCurrencyAndExchangeRate(): Code[10]
+    var
+        Currency: Record Currency;
+        LibraryERM: Codeunit "Library - ERM";
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        exit(Currency.Code);
+    end;
+
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesDocumentWithNormalVAT(VATPostingSetup, SalesHeader, SalesLine, DocumentType, '');
+    end;
+
+    local procedure CreateSalesDocumentWithAmount(var SalesHeader: Record "Sales Header"; DocumentType: Option; CurrencyCode: Code[10]; ItemNo: Code[20]; CustomerNo: Code[20]; DirectUnitCost: Decimal; ItemQuantity: Integer)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, ItemQuantity);
+        SalesLine.Validate("Unit Price", DirectUnitCost);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesDocumentWithNormalVAT(var VATPostingSetup: Record "VAT Posting Setup"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CurrencyCode: Code[10]): Code[10]
@@ -917,6 +1123,25 @@ codeunit 134390 "ERM Sales Doc. Reports"
         PurchaseCreditMemo.Run;
     end;
 
+    local procedure SaveCustomerBalanceToDate(SalesHeader: Record "Sales Header"; AmountLCY: Boolean; Unapplied: Boolean; ShowEntriesWithZeroBalance: Boolean)
+    var
+        Customer: Record Customer;
+        CustomerBalanceToDate: Report "Customer - Balance to Date";
+    begin
+        LibraryVariableStorage.Enqueue(AmountLCY);
+        LibraryVariableStorage.Enqueue(Unapplied);
+        LibraryVariableStorage.Enqueue(ShowEntriesWithZeroBalance);
+
+        // Exercise.
+        Commit; // Required to run report with request page.
+        Clear(CustomerBalanceToDate);
+        Customer.SetRange("No.", SalesHeader."Bill-to Customer No.");
+        Customer.SetRange("Date Filter", SalesHeader."Posting Date");
+        CustomerBalanceToDate.SetTableView(Customer);
+        CustomerBalanceToDate.InitializeRequest(AmountLCY, false, Unapplied, WorkDate);
+        CustomerBalanceToDate.Run;
+    end;
+
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         // Select General Journal Batch and clear General Journal Lines to make sure that no line exist before creating
@@ -1103,6 +1328,21 @@ codeunit 134390 "ERM Sales Doc. Reports"
     procedure ReportHandlerPurchCreditMemo(var PurchaseCreditMemo: TestRequestPage "Purchase - Credit Memo")
     begin
         PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReportHandlerCustomerBalanceToDate(var CustomerBalancetoDate: TestRequestPage "Customer - Balance to Date")
+    var
+        AmountLCY: Variant;
+        Unapplied: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(AmountLCY);
+        LibraryVariableStorage.Dequeue(Unapplied);
+        CustomerBalancetoDate.PrintAmountInLCY.SetValue(AmountLCY);
+        CustomerBalancetoDate.PrintUnappliedEntries.SetValue(Unapplied);
+        CustomerBalancetoDate.ShowEntriesWithZeroBalance.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CustomerBalancetoDate.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

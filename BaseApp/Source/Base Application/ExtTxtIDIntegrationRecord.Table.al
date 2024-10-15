@@ -3,6 +3,7 @@ table 5377 "Ext Txt ID Integration Record"
     Caption = 'Ext Txt ID Integration Record';
     ObsoleteState = Pending;
     ObsoleteReason = 'This functionality will be replaced by the systemID field';
+    ObsoleteTag = '15.0';
     
     fields
     {

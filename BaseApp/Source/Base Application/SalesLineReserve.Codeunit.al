@@ -691,11 +691,14 @@ codeunit 99000832 "Sales Line-Reserve"
             HasError := true;
         end;
 
-        if NewSalesLine."Variant Code" <> OldSalesLine."Variant Code" then begin
-            if ThrowError then
-                NewSalesLine.FieldError("Variant Code", ValueChangedErr);
-            HasError := true;
-        end;
+        IsHandled := false;
+        OnTestSalesLineModificationOnBeforeTestVariantCode(NewSalesLine, OldSalesLine, IsHandled);
+        if not IsHandled then
+            if NewSalesLine."Variant Code" <> OldSalesLine."Variant Code" then begin
+                if ThrowError then
+                    NewSalesLine.FieldError("Variant Code", ValueChangedErr);
+                HasError := true;
+            end;
 
         if NewSalesLine."Location Code" <> OldSalesLine."Location Code" then begin
             if ThrowError then
@@ -703,18 +706,21 @@ codeunit 99000832 "Sales Line-Reserve"
             HasError := true;
         end;
 
-        if (OldSalesLine.Type = OldSalesLine.Type::Item) and (NewSalesLine.Type = NewSalesLine.Type::Item) then
-            if (NewSalesLine."Bin Code" <> OldSalesLine."Bin Code") and
-               (not ReservMgt.CalcIsAvailTrackedQtyInBin(
-                  NewSalesLine."No.", NewSalesLine."Bin Code",
-                  NewSalesLine."Location Code", NewSalesLine."Variant Code",
-                  DATABASE::"Sales Line", NewSalesLine."Document Type",
-                  NewSalesLine."Document No.", '', 0, NewSalesLine."Line No."))
-            then begin
-                if ThrowError then
-                    NewSalesLine.FieldError("Bin Code", ValueChangedErr);
-                HasError := true;
-            end;
+        IsHandled := false;
+        OnTestSalesLineModificationOnBeforeTestBinCode(NewSalesLine, OldSalesLine, IsHandled);
+        if not IsHandled then
+            if (OldSalesLine.Type = OldSalesLine.Type::Item) and (NewSalesLine.Type = NewSalesLine.Type::Item) then
+                if (NewSalesLine."Bin Code" <> OldSalesLine."Bin Code") and
+                (not ReservMgt.CalcIsAvailTrackedQtyInBin(
+                    NewSalesLine."No.", NewSalesLine."Bin Code",
+                    NewSalesLine."Location Code", NewSalesLine."Variant Code",
+                    DATABASE::"Sales Line", NewSalesLine."Document Type",
+                    NewSalesLine."Document No.", '', 0, NewSalesLine."Line No."))
+                then begin
+                    if ThrowError then
+                        NewSalesLine.FieldError("Bin Code", ValueChangedErr);
+                    HasError := true;
+                end;
 
         if NewSalesLine."Line No." <> OldSalesLine."Line No." then
             HasError := true;
@@ -772,7 +778,17 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnTestSalesLineModificationOnBeforeTestBinCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTestSalesLineModificationOnBeforeTestJobNo(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestSalesLineModificationOnBeforeTestVariantCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

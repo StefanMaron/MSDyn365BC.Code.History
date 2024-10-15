@@ -638,6 +638,7 @@ table 98 "General Ledger Setup"
             Caption = 'VAT Reg. No. Validation URL';
             ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
 
             trigger OnValidate()
             begin
