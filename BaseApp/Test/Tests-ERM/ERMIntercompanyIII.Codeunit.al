@@ -25,6 +25,7 @@ codeunit 134154 "ERM Intercompany III"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         Assert: Codeunit Assert;
         SalesDocType: Enum "Sales Document Type";
@@ -2797,6 +2798,73 @@ codeunit 134154 "ERM Intercompany III"
         VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[3]."Line No.", ICPartnerRefType::" ", '', Description[3]);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyICReferenceDocNoOnSalesHeader()
+    var
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Location: Record Location;
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        // [SCENARIO 450015] Verify no Error message "The length of the string is X, but it must be less than or equal to 20 characters." when posting Warehouse Shipment from an IC Sales Order
+        Initialize();
+
+        // [GIVEN] Create Loctaion with require shipment will be true.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        UpdateNoSeries();
+
+        // [GIVEN] Create customer with Location Code
+        CreateCustomerWithICPartner(Customer);
+        Customer.Validate("Location Code", Location.Code);
+        Customer.Modify();
+
+        // [GIVEN] Create Mock record in IC Inbox SalesHedaer Table.
+        MockICInboxSalesHeader(ICInboxSalesHeader, Customer."No.");
+        MockICInboxSalesLine(ICInboxSalesHeader, ICPartnerRefType::Item, LibraryInventory.CreateItemNo());
+
+        // [THEN] Create Sales Order from Inbox SalesHeader table.
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
+
+        // Update External document no to maxlength for checking length error.
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+        SalesHeader.Validate("External Document No.",
+        CopyStr(
+            LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("External Document No."), DATABASE::"Sales Header"),
+            1,
+            LibraryUtility.GetFieldLength(DATABASE::"Sales Header", SalesHeader.FieldNo("External Document No."))));
+        SalesHeader.Modify();
+
+        // [VERIFY] Verify document no wiil be same as IC Inbox document no.
+        Assert.AreEqual(ICInboxSalesHeader."No.", SalesHeader."IC Reference Document No.", '');
+
+        // [WHEN] Getting Sales Line to create warehouse Shipmentg
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+
+        // [THEN] Create some inventory to post the warehouse shipment.
+        CreateItemJournalLinePositiveAdjustment(SalesLine."No.", LibraryRandom.RandIntInRange(10, 20), Location.Code);
+
+        // [THEN] Create and post the warehouse shipment
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        CreateAndRegisterPick(SalesLine."No.", Customer."Location Code");
+        PostWarehouseShipmentLine(SalesHeader."No.", SalesLine."Line No.");
+
+        // [GIVEN] Getting the Sales Shipment document which is posted from Warehosue shipment
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesShipmentHeader.FindFirst();
+
+        // [VERIFY] The document will be posted successfully and have the External documentg no.
+        Assert.AreEqual(SalesHeader."External Document No.", SalesShipmentHeader."External Document No.", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3759,6 +3827,68 @@ codeunit 134154 "ERM Intercompany III"
         ICOutboxSalesLine.TestField("IC Partner Ref. Type", ExpICPartnerRefType);
         ICOutboxSalesLine.TestField("IC Partner Reference", ExpICPartnerReference);
         ICOutboxSalesLine.TestField(Description, ExpDescription);
+    end;
+
+    local procedure CreateItemJournalLinePositiveAdjustment(ItemNo: Code[20]; Quantity: Integer; LocationCode: Code[10])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        with LibraryInventory do begin
+            SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+            SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+            CreateItemJournalLine(
+              ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+              ItemNo, Quantity);
+            ItemJournalLine.Validate("Location Code", LocationCode);
+            ItemJournalLine.Modify(true);
+            PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+        end;
+    end;
+
+    local procedure CreateAndRegisterPick(ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
+        WarehouseShipmentHeader.FindFirst();
+        WarehouseShipmentHeader."Shipping No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseShipmentHeader.Modify(true);
+
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        LibraryWarehouse.AutofillQtyToShipWhseShipment(WarehouseShipmentHeader);
+
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindFirst();
+
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseActivityHeader.Modify(true);
+
+        CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
+    end;
+
+    local procedure PostWarehouseShipmentLine(SalesHeaderNo: Code[20]; SalesLineLineNo: Integer)
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeaderNo);
+        WarehouseShipmentLine.SetRange("Source Line No.", SalesLineLineNo);
+        WarehouseShipmentLine.FindFirst();
+        CODEUNIT.Run(CODEUNIT::"Whse.-Post Shipment", WarehouseShipmentLine);
+    end;
+
+    local procedure UpdateNoSeries()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        WarehouseSetup.Get();
+        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseSetup."Whse. Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseSetup.Modify(true);
     end;
 
     [ConfirmHandler]

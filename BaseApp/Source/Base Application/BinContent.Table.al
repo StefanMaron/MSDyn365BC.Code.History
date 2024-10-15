@@ -619,7 +619,7 @@ table 7302 "Bin Content"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcQtyWithBlockedItemTracking(Rec, QtyWithBlockedItemTracking);
+        OnBeforeCalcQtyWithBlockedItemTracking(Rec, QtyWithBlockedItemTracking, IsHandled);
         if IsHandled then
             exit(QtyWithBlockedItemTracking);
 
@@ -1495,7 +1495,7 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcQtyWithBlockedItemTracking(BinContent: Record "Bin Content"; var QtyWithBlockedItemTracking: Decimal)
+    local procedure OnBeforeCalcQtyWithBlockedItemTracking(BinContent: Record "Bin Content"; var QtyWithBlockedItemTracking: Decimal; var IsHandled: Boolean)
     begin
     end;
 

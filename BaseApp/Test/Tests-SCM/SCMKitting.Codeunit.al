@@ -2412,6 +2412,42 @@ codeunit 137101 "SCM Kitting"
         AsmItem.TestField("Last Direct Cost", AsmItem."Standard Cost");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemCardReplenishmentSystemFieldDoesNotChange_AfterAssemblyBOMPageOpenAndClose()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+        AssemblyBOM: TestPage "Assembly BOM";
+    begin
+        // [FEATURE] [Item Card] [Assembly BOM]
+        // [SCENARIO 449833] Check that "Replenishment System" and "Assembly BOM" values in "Item Card" are not changed after opening "Assembly BOM" page without insering BOM Component.
+        Initialize();
+
+        // [GIVEN] Create Item with "Replenishment System" = Purchase
+        LibraryInventory.CreateItem(Item);
+        Item."Replenishment System" := Item."Replenishment System"::Purchase;
+        Item.Modify();
+        Commit();
+
+        // [GIVEN] Open "Item Card"
+        ItemCard.OpenView();
+        ItemCard.GoToKey(Item."No.");
+
+        // [GIVEN] Open "Assembly BOM" page
+        AssemblyBOM.Trap();
+        ItemCard."Assembly BOM".Invoke();
+
+        // [WHEN] Move to "No." field to try to insert record and close "Assembly BOM" page
+        AssemblyBOM."No.".Activate();
+        AssemblyBOM.Description.SetValue('');
+        AssemblyBOM.Close();
+
+        // [THEN] Verify that "Replenishment System" and "Assembly BOM" values are not changed
+        ItemCard."Replenishment System".AssertEquals(Item."Replenishment System"::Purchase);
+        ItemCard.AssemblyBOM.AssertEquals(false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

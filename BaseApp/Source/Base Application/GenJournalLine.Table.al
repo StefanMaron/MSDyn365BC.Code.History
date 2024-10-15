@@ -602,7 +602,7 @@
         field(26; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -3517,6 +3517,7 @@
             SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Bal. Account No.");
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
+            SetRange("Check Printed", false);
             LastGenJnlLine.Init();
             First := true;
             if FindSet() then begin

@@ -1,4 +1,4 @@
-﻿table 39 "Purchase Line"
+table 39 "Purchase Line"
 {
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
@@ -6714,7 +6714,7 @@
                                       Round(
                                         PrevVatAmountLine."VAT Amount" +
                                         "VAT Base" * "VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100),
-                                        Currency."Amount Rounding Precision");
+                                        Currency."Amount Rounding Precision",Currency.VATRoundingDirection());
                                     "VAT Base (ACY)" :=
                                       Round(
                                         "Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100),
@@ -7569,7 +7569,7 @@
             ShowAllLinesEnabled := true;
         end;
     end;
-    
+
     procedure ClearQtyIfBlank()
     var
         IsHandled: Boolean;
@@ -8664,6 +8664,10 @@
     var
         IsHandled: Boolean;
     begin
+        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) then
+            if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then
+                exit;
+
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then
@@ -8694,6 +8698,10 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceCharge() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));
             if "Direct Unit Cost" < 0 then
@@ -8959,7 +8967,7 @@
         exit(UOMMgt.CalcBaseQty(
             "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
-    
+
     procedure UpdateACYAmounts(PurchHeaderToCalc: Record "Purchase Header")
     begin
         GetGLSetup();

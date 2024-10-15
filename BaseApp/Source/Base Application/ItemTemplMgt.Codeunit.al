@@ -6,7 +6,7 @@
 
     var
         VATPostingSetupErr: Label 'VAT Posting Setup does not exist. "VAT Bus. Posting Group" = %1, "VAT Prod. Posting Group" = %2.', Comment = '%1 - vat bus. posting group code; %2 - vat prod. posting group code';
-        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records in fields that do not already contain data. Do you want to continue?';
         OpenBlankCardQst: Label 'Do you want to open the blank item card?';
 
     procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean) Result: Boolean
@@ -147,7 +147,12 @@
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
                 if not DestDefaultDimension.Get(DestDefaultDimension."Table ID", DestDefaultDimension."No.", DestDefaultDimension."Dimension Code") then
-                    DestDefaultDimension.Insert(true);
+                    DestDefaultDimension.Insert(true)
+                else
+                    if DestDefaultDimension."Value Posting" = DestDefaultDimension."Value Posting"::" " then begin
+                        DestDefaultDimension."Value Posting" := SourceDefaultDimension."Value Posting";
+                        DestDefaultDimension.Modify(true);
+                    end;
             until SourceDefaultDimension.Next() = 0;
     end;
 

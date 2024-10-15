@@ -1208,6 +1208,74 @@ codeunit 141027 "ERM GST On Prepayments II"
         VATEntry.TestField(Base, PurchaseLine."Direct Unit Cost");
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyInvoiceRoundingOnAfterReleaseOrStats()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Currency: Record Currency;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        CurrencyCode: Code[10];
+        DirectUnitCost: Decimal;
+    begin
+        // [SCENARIO 447990]  The Rounding down function is not working after clicking 'Statistics' or 'Release' in PO, because the amount will be rounded up after clicking 'Statics' or 'Release' .
+        Initialize();
+
+        // [GIVEN] Save direct unit cost 
+        DirectUnitCost := 3082888;
+
+        // [GIVEN] Update Gen ledger setup
+        UpdateGenLedgerSetup();
+
+        // [GIVEN] Create currency code and update Rounding type to down
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(
+            DMY2Date(1, 1, 2000), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+        Currency.Get(CurrencyCode);
+        UpdateCurrency(Currency);
+
+        // [THEN] Find vat posting setup and update percentage as 11
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup."VAT %" := 11;
+        VATPostingSetup.Modify();
+
+        // [GIVEN] Create vendor and upate VAT Bus posting group.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify();
+
+        // [GIVEN] Create item and update VATProd posting group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Validate("VAT Bus. Posting Gr. (Price)", VATPostingSetup."VAT Bus. Posting Group");
+        Item.Modify();
+
+        // [GIVEN] Create Purchase Header and update currency code
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Currency Code", Currency.Code);
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create purchase line and update direct unit cost.
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify();
+
+        // [THEN] Open purchase order and enqueue Value 
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal);
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal);
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal);
+        PurchaseOrder.Statistics.Invoke;
+
+        // [VERIFY] Verify VAT Amount and all other value on Purchase Order Statistics handler page.
+    end;
+
     local procedure Initialize()
     begin
         Clear(NoSeriesManagement);
@@ -1690,6 +1758,24 @@ codeunit 141027 "ERM GST On Prepayments II"
         FindAndVerifyGSTSalesEntry(DocumentNo, DocumentLineDescription, GSTSalesEntry."Document Line Type"::Item, GSTAmount, GSTBase);
     end;
 
+    local procedure UpdateGenLedgerSetup()
+    var
+        GenLedgerSetup: Record "General Ledger Setup";
+    begin
+        GenLedgerSetup.Get();
+        // GenLedgerSetup.Validate("Amount Rounding Precision", 0.01);
+        GenLedgerSetup.Validate("VAT Rounding Type", GenLedgerSetup."VAT Rounding Type"::Down);
+        GenLedgerSetup.Modify(true);
+    end;
+
+    local procedure UpdateCurrency(var Currency: Record Currency)
+    begin
+        Currency.Validate("Amount Rounding Precision", 1);
+        Currency.Validate("VAT Rounding Type", Currency."VAT Rounding Type"::Down);
+        Currency.Validate("Invoice Rounding Type", Currency."Invoice Rounding Type"::Down);
+        Currency.Modify();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -1734,5 +1820,26 @@ codeunit 141027 "ERM GST On Prepayments II"
         VATAmountLines."VAT Amount".SetValue(VATAmount);
         VATAmountLines.OK.Invoke;
     end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsModalHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    var
+        VATApplied: Variant;
+        TotalAmountInclVAT: Variant;
+        InvDiscAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(InvDiscAmount);
+        LibraryVariableStorage.Dequeue(TotalAmountInclVAT);
+        LibraryVariableStorage.Dequeue(VATApplied);
+
+        Assert.AreEqual(InvDiscAmount, PurchaseOrderStatistics.InvDiscountAmount_General.AsDEcimal,
+          'Invoice Discount Amount is not correct');
+        Assert.AreEqual(TotalAmountInclVAT, PurchaseOrderStatistics.TotalInclVAT_General.AsDEcimal,
+          'Total Amount Incl. VAT is not correct');
+        Assert.AreEqual(VATApplied, PurchaseOrderStatistics."VATAmount[1]".AsDEcimal,
+          'VAT Amount is not correct');
+    end;
+
 }
 

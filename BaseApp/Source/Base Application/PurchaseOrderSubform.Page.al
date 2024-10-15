@@ -204,6 +204,7 @@
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
                 }
@@ -1634,6 +1635,7 @@
 
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         CheckSendLineInvoiceDiscountResetNotification();
+        CurrPage.Update();
     end;
 
     procedure ForceTotalsCalculation()
