@@ -9077,6 +9077,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit New Document from CustomerCard - NamedType RecurringSalesLineNotProposedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 678155582 - NamedType 3456775289" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. %1 already exists. It is not possible to calculate new deferrals for a Document No. that already exists.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Document No.]D;]A;(LookupHint=Codeunit No Acc. Periods: Posting - NamedType DuplicateRecordErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2240216850 - NamedType 3770914415" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The fiscal year does not exist.]]></Val>

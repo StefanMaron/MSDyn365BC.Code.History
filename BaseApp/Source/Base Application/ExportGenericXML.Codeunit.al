@@ -35,7 +35,7 @@ codeunit 1283 "Export Generic XML"
                     DataExch.Insert(true);
 
                     OnBeforeProcessDataExc(DataExch, IsHandled);
-                    If not IsHandled then begin
+                    if not IsHandled then begin
                         if DataExchMapping."Pre-Mapping Codeunit" > 0 then
                             Codeunit.Run(DataExchMapping."Pre-Mapping Codeunit", DataExch);
 
@@ -145,10 +145,12 @@ codeunit 1283 "Export Generic XML"
                 xmlElemRoot.Add(xmlElemSubRoot);
             end else begin
                 xmlDoc := xmlDocument.Create();
+
                 IsHandled := false;
-                OnBeforeCreateXMLDeclaration(xmlDec, IsHandled);
+                OnBeforeCreateXMLDeclaration(DataExchDef, xmlDec, IsHandled);
                 if not IsHandled then
                     xmlDec := xmlDeclaration.Create('1.0', 'utf-8', 'yes');
+
                 xmlDoc.SetDeclaration(xmlDec);
 
                 xmlPath := DataExchColumnDef.Path;
@@ -161,7 +163,7 @@ codeunit 1283 "Export Generic XML"
                 xmlNamespaceManager.AddNamespace(DefNameSpacePrefixLbl, DefaultNameSpace);
 
                 IsHandled := false;
-                OnBeforeCreateRootElement(xmlElem, nName, nVal, DefaultNameSpace, xmlNamespaceManager, IsHandled);
+                OnBeforeCreateRootElement(DataExchDef, xmlElem, nName, nVal, DefaultNameSpace, xmlNamespaceManager, IsHandled);
                 if not IsHandled then
                     xmlElem := xmlElement.Create(nName, DefaultNameSpace, nVal);
 
@@ -317,12 +319,12 @@ codeunit 1283 "Export Generic XML"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateXMLDeclaration(var xmlDec: XmlDeclaration; var IsHandled: Boolean)
+    local procedure OnBeforeCreateXMLDeclaration(DataExchDef: Record "Data Exch. Def"; var xmlDec: XmlDeclaration; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateRootElement(var xmlElem: XmlElement; var nName: Text; var nVal: Text; DefaultNameSpace: Text; var xmlNamespaceManager: XmlNamespaceManager; var IsHandled: Boolean)
+    local procedure OnBeforeCreateRootElement(DataExchDef: Record "Data Exch. Def"; var xmlElem: XmlElement; var nName: Text; var nVal: Text; DefaultNameSpace: Text; var xmlNamespaceManager: XmlNamespaceManager; var IsHandled: Boolean)
     begin
     end;
 }

@@ -39,8 +39,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         Text010: Label '%1 %2 and %3 %4 is not allowed.';
         Text011: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text012: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
-        DuplicateRecordErr: Label 'The record in table %1 already exists. Identification fields and values: Deferral Doc. Type=%2,Gen. Jnl. Document No.=%3,Account No.=%4,Document Type=%5,Document No.=%6,Line No.=%7',
-                        Comment = '%1=Posted Deferral Header; %2= Deferral Doc. Type; %3 =Document No.; %4=Account No.; %5=Document Type; %6=Document No.;%7=Line No.';
+        DuplicateRecordErr: Label 'Document No. %1 already exists. It is not possible to calculate new deferrals for a Document No. that already exists.', Comment = '%1=Document No.';
         SpecifyGenPostingTypeErr: Label 'Posting to Account %1 must either be of type Purchase or Sale (see %2), because there are specified values in one of the following fields: %3, %4 , %5, or %6', comment = '%1 an G/L Account number;%2 = Gen. Posting Type; %3 = Gen. Bus. Posting Group; %4 = Gen. Prod. Posting Group; %5 = VAT Bus. Posting Group, %6 = VAT Prod. Posting Group';
         SalesDocAlreadyExistsErr: Label 'Sales %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
         PurchDocAlreadyExistsErr: Label 'Purchase %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
@@ -321,6 +320,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         DateCheckDone: Boolean;
         IsHandled: Boolean;
+        IsDateErr: Boolean;
     begin
         with GenJnlLine do begin
             TestField("Posting Date", ErrorInfo.Create());
@@ -341,8 +341,17 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 TestField("Journal Template Name", ErrorInfo.Create());
             OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
             if not DateCheckDone then
-                if DateNotAllowed("Posting Date", "Journal Template Name") then
-                    FieldError("Posting Date", ErrorInfo.Create(Text001, true));
+#if not CLEAN23
+                if HasAutoAccGroupExist(GenJnlLine) then begin
+                    if DeferralPostingDateNotAllowed("Posting Date") then
+                        IsDateErr := true;
+                end else
+#endif
+                    if DateNotAllowed("Posting Date", "Journal Template Name") then
+                        IsDateErr := true;
+
+            if IsDateErr then
+                FieldError("Posting Date", ErrorInfo.Create(Text001, true));
 
             if "Document Date" <> 0D then
                 if ("Document Date" <> NormalDate("Document Date")) and
@@ -994,16 +1003,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             '',
             GenJnlLine."Line No.")
         then begin
-            ErrorTxt := StrSubstNo(
-                DuplicateRecordErr,
-                PostedDeferralHeader.TableCaption,
-                DeferralHeader."Deferral Doc. Type"::"G/L",
-                GenJnlLine."Document No.",
-                AccountNo,
-                0,
-                '',
-                GenJnlLine."Line No.");
-
+            ErrorTxt := StrSubstNo(DuplicateRecordErr, GenJnlLine."Document No.");
             Error(ErrorInfo.Create(ErrorTxt, true, GenJnlLine, GenJnlLine.FieldNo("Deferral Code")));
         end;
     end;
@@ -1062,6 +1062,13 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
         exit(Account);
     end;
+
+ #if not CLEAN23
+    local procedure HasAutoAccGroupExist(var GenJnlLine: Record "Gen. Journal Line"): Boolean
+    begin
+        exit((GenJnlLine."Auto. Acc. Group" <> '') and (GenJnlLine."Deferral Code" = ''));
+    end;
+#endif
 
     internal procedure HasVAT(var GenJnlLine: Record "Gen. Journal Line"): Boolean
     begin

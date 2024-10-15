@@ -6783,7 +6783,7 @@
                         GenJnlLine2.Validate(
                           "Source Currency Amount", Round(SourceCurrBaseAmount * AutoAccLine."Allocation %" / 100, GLSetup."Amount Rounding Precision"));
                     end;
-                    GenJnlLine2.Validate("Auto. Acc. Group", '');
+                    GenJnlLine2.Validate("Auto. Acc. Group", GenJnlLine."Auto. Acc. Group");
                     GenJnlLine2."Dimension Set ID" := "Dimension Set ID";
                     GenJnlLine2."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
                     GenJnlLine2."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
@@ -6794,6 +6794,7 @@
                         GenJnlLine2.Validate(Amount, GenJnlLine2.Amount - TotalAmount);
 
                     GenJnlCheckLine.RunCheck(GenJnlLine2);
+                    GenJnlLine2.Validate("Auto. Acc. Group", '');
 
                     InitGLEntry(GenJnlLine2, GLEntry,
                       GenJnlLine2."Account No.", GenJnlLine2."Amount (LCY)",

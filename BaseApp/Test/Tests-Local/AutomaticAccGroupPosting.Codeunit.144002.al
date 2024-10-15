@@ -19,6 +19,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         IsInitialized: Boolean;
         CopyFromOption: Option AccGroup,GenJournal,AccGroupAndGenJnl;
         DimensionDoesNotExistsErr: Label 'Dimension value %1 %2 does not exists for G/L Entry No. %3.';
@@ -793,6 +794,68 @@ codeunit 144002 "Automatic Acc. Group Posting"
         VerifyGLEntriesBalance(AutomaticAccLine."G/L Account No.", ExpectedAmount, DeferralTemplate."No. of Periods" + 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoPostingDateErrorWhenPostSalesInvoiceWithDeferralsAndAutoAccGroup()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        UserSetup: Record "User Setup";
+        AutoGroupGLAccountNo: Code[20];
+        AutoAccGroupNo: Code[10];
+    begin
+        // [SCENARIO 472786] "Posting Date outside range" error message appears if Deferrals and Auto Acc. Group are used in a sales document
+        Initialize();
+
+        // [GIVEN] Automatic Account Group "AAG" with 2 lines where "Account No." = "GL-AG" and balancing line with blank Account No.
+        CreateUserSetupWithAllowedPostingPeriod(UserSetup, WorkDate(), CalcDate('<CM+2M>', WorkDate()), true);
+
+        // [GIVEN] Update "Allow Deferral Posting To" to next 2 year.
+        UserSetup.Validate("Allow Deferral Posting To", CalcDate('<CM+2Y>', WorkDate()));
+        UserSetup.Modify();
+
+        // [GIVEN] Create Auto Acc. Group GL Account.
+        AutoGroupGLAccountNo := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Create Auto Acc. Group wuth 2 lines. 
+        AutoAccGroupNo := CreateAutomaticAccGroupWithTwoLines(AutoGroupGLAccountNo);
+
+        // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral Account" = "GL-D"
+        CreateDeferralCode(
+            DeferralTemplate,
+            "Deferral Calculation Method"::"Straight-Line",
+            "Deferral Calculation Start Date"::"Posting Date",
+            3);
+
+        // [GIVEN] Sales invoice for "G/L Account" = "GL-PI" with Amount = 100, "Auto. Acc. Group" = "AAG" and "Deferral Code" = "D"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate()));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create Sales Line 
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+
+        // [GIVEN] Update "Unit Price", "Auto. Acc. Group" and "Deferral Code"
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Validate("Auto. Acc. Group", AutoAccGroupNo);
+        SalesLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        SalesLine.Modify(true);
+
+        // [WHEN] Post sales invoice
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] The balance of G/L entries for "GL-D" = 0
+        // [THEN] The number of G/L entries for "GL-D" = "D"."No. of Periods" + 1 = 4
+        // [THEN] The balance of G/L entries for "GL-AG" = 100
+        // [THEN] The number of G/L entries for "GL-AG" = "D"."No. of Periods" * <No. of lines in accounting group> = 3 * 2 = 6
+        // [THEN] The balance of G/L entries for "GL-PI" = 0
+        // [THEN] The number of G/L entries for "GL-PI" = "D"."No. of Periods" * 2 (posted deferral line + blank AAG line) = 3 * 2 = 6
+        VerifyPostedDeferralsWithAccGroup(-SalesLine.Amount, DeferralTemplate, AutoGroupGLAccountNo, 2);
+        VerifyGLEntriesBalance(SalesLine."No.", 0, DeferralTemplate."No. of Periods" * 2 + 2); // "+2":initial deferral pair
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1440,6 +1503,15 @@ codeunit 144002 "Automatic Acc. Group Posting"
             GLEntry.SetRange(Amount, AllocationAmount[i]);
             Assert.RecordIsNotEmpty(GLEntry);
         end;
+    end;
+
+    local procedure CreateUserSetupWithAllowedPostingPeriod(var UserSetup: Record "User Setup"; AllowedPostingFrom: Date; AllowedPostingTo: Date; IsAdministrator: Boolean)
+    begin
+        LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
+        UserSetup.Validate("Allow Posting From", AllowedPostingFrom);
+        UserSetup.Validate("Allow Posting To", AllowedPostingTo);
+        UserSetup.Validate("Approval Administrator", IsAdministrator);
+        UserSetup.Modify(true)
     end;
 }
 
