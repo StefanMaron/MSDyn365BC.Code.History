@@ -56,11 +56,32 @@ report 12120 "VAT Register - Print"
             column(CompanyInformation_5_Caption; CompanyInformation_5_CaptionLbl)
             {
             }
+            column(StartingDate; Format(StartingDate))
+            {
+            }
+            column(EndingDate; Format(EndingDate))
+            {
+            }
+            column(IsSales; IsSales)
+            {
+            }
+            column(StartingDateCaption; StartingDateCaptionLbl)
+            {
+            }
+            column(StartingDate_Control1130062Caption; StartingDate_Control1130062CaptionLbl)
+            {
+            }
+            column(Purchase_VAT_RegisterCaption; Purchase_VAT_RegisterCaptionLbl)
+            {
+            }
+            column(Sales_VAT_RegisterCaption; Sales_VAT_RegisterCaptionLbl)
+            {
+            }
 
-            trigger OnAfterGetRecord()
+            trigger OnPostDataItem()
             begin
                 if not PrintCompanyInformations then
-                    CurrReport.Skip();
+                    CurrReport.NewPage();
             end;
 
             trigger OnPreDataItem()
@@ -75,12 +96,6 @@ report 12120 "VAT Register - Print"
         {
             DataItemTableView = SORTING(Code) ORDER(Ascending);
             PrintOnlyIfDetail = true;
-            column(StartingDate; Format(StartingDate))
-            {
-            }
-            column(EndingDate; Format(EndingDate))
-            {
-            }
             column(VAT_Register_Code; Code)
             {
             }
@@ -103,9 +118,6 @@ report 12120 "VAT Register - Print"
             {
             }
             column(RegisterTypePurchase; RegisterTypePurchase)
-            {
-            }
-            column(StartingDateCaption; StartingDateCaptionLbl)
             {
             }
             column(DocumentTotalCaption; DocumentTotalCaptionLbl)
@@ -147,9 +159,6 @@ report 12120 "VAT Register - Print"
             column(VAT_Book_Entry__Posting_Date_Caption; VAT_Book_Entry__Posting_Date_CaptionLbl)
             {
             }
-            column(Sales_VAT_RegisterCaption; Sales_VAT_RegisterCaptionLbl)
-            {
-            }
             column(VATReg_Control1130066Caption; VATReg_Control1130066CaptionLbl)
             {
             }
@@ -181,12 +190,6 @@ report 12120 "VAT Register - Print"
             {
             }
             column(VAT_Book_Entry__Posting_Date__Control1130081Caption; VAT_Book_Entry__Posting_Date__Control1130081CaptionLbl)
-            {
-            }
-            column(StartingDate_Control1130062Caption; StartingDate_Control1130062CaptionLbl)
-            {
-            }
-            column(Purchase_VAT_RegisterCaption; Purchase_VAT_RegisterCaptionLbl)
             {
             }
             dataitem("No. Series"; "No. Series")
@@ -1161,6 +1164,8 @@ report 12120 "VAT Register - Print"
         if VATRegister.Code = '' then
             Error(Text1130008, VATRegister.FieldCaption(Code));
 
+        VATRegister.Get(VATRegister.Code);
+
         if PrintingType = PrintingType::Final then begin
             VATBookEntry.Reset();
             VATBookEntry.SetFilter("Posting Date", '<%1', StartingDate);
@@ -1186,8 +1191,6 @@ report 12120 "VAT Register - Print"
             if not ControlPeriod then
                 Error(Text1130034);
 
-            VATRegister.Get(VATRegister.Code);
-
             if VATRegister."Last Printing Date" <> 0D then
                 if Date2DMY(VATRegister."Last Printing Date", 3) <> Date2DMY(StartingDate, 3) then
                     VATRegister."Last Printed VAT Register Page" := 0;
@@ -1205,6 +1208,8 @@ report 12120 "VAT Register - Print"
             ReprintInfo.Get(ReprintInfo.Report::"VAT Register - Print", StartingDate, EndingDate, VATRegister.Code);
             VATRegisterLastPrintedPageNo := GetPageNo(ReprintInfo."First Page Number" - 1, PrintCompanyInformations);
         end;
+
+        IsSales := VATRegister.Type = VATRegister.Type::Sale;
 
         HasBeenMarked := false;
 
@@ -1343,6 +1348,7 @@ report 12120 "VAT Register - Print"
         TotalCaptionLbl: Label 'Total';
         TotalCaption_Control1130147Lbl: Label 'Total';
         I_O____Intrac__OperationCaptionLbl: Label 'I.O. = Intrac. Operation';
+        IsSales: Boolean;
 
     [Scope('OnPrem')]
     procedure DocumentTotalCalculation(TransactionNo: Integer; DocNo: Code[20]; UnrVatEntryNo: Integer): Decimal

@@ -870,6 +870,7 @@ codeunit 144139 "ERM VAT"
     begin
         // [FEATURE] [Report] [Sales]
         // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option set on three posted Sales Invoices with different VAT Posting Setup of "Normal VAT" calculation type.
+        // [SCENARIO 411666] Run Calc. and Post VAT Settlement report with Post option set on posted Sales Invoice with VAT Posting Setup with VAT% = 0 and "Normal VAT" calculation type.
         Initialize();
         UpdateLastSettlementDateOnGLSetup();
 
@@ -887,13 +888,13 @@ codeunit 144139 "ERM VAT"
         UpdatePeriodicSettlementVATEntry();
 
         // [THEN] Two VAT Entries with Entry No. 904, 905 and with Type "Settlement" were created.
-        // [THEN] VAT Entries 901 and 903 were closed. Closed by Entry No. for 901 is 904, for 902 is 0, for 903 is 905.
+        // [THEN] VAT Entries 901, 902, 903 were closed. Closed by Entry No. for 901 is 904, for 902 is 0, for 903 is 905.
         // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 0, 905.
         FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
         GetSettlementVATEntryNo(SettlementVATEntryNo[1], VATPostingSetup[1], VATSettlementDocNo);
         GetSettlementVATEntryNo(SettlementVATEntryNo[3], VATPostingSetup[3], VATSettlementDocNo);
         VATEntry[1].TestField(Closed, true);
-        VATEntry[2].TestField(Closed, false);
+        VATEntry[2].TestField(Closed, true);
         VATEntry[3].TestField(Closed, true);
         VerifyVATEntryClosedByEntryNo(VATEntry, SettlementVATEntryNo);
         VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
@@ -958,6 +959,7 @@ codeunit 144139 "ERM VAT"
     begin
         // [FEATURE] [Report] [Purchase]
         // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option set on three posted Purchase Invoices with different VAT Posting Setup of "Reverse Charge VAT" calculation type.
+        // [SCENARIO 411666] Run Calc. and Post VAT Settlement report with Post option set on posted Purchase Invoice with VAT Posting Setup with VAT% = 0 and "Reverse Charge VAT" calculation type.
         Initialize();
         UpdateLastSettlementDateOnGLSetup();
 
@@ -978,22 +980,22 @@ codeunit 144139 "ERM VAT"
         UpdatePeriodicSettlementVATEntry();
 
         // [THEN] Two VAT Entries with Entry No. 907, 909 and with Type "Settlement" were created.
-        // [THEN] VAT Entries (Purchase) 901 and 905 were closed. Closed by Entry No. for 901 is 907, for 903 is 0, for 905 is 909.
+        // [THEN] VAT Entries (Purchase) 901, 903, 905 were closed. Closed by Entry No. for 901 is 907, for 903 is 0, for 905 is 909.
         FindVATEntries(PurchaseVATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Purchase);
         GetNegativeAmountSettlementVATEntryNo(PurchaseSettlementVATEntryNo[1], VATPostingSetup[1], VATSettlementDocNo);
         GetNegativeAmountSettlementVATEntryNo(PurchaseSettlementVATEntryNo[3], VATPostingSetup[3], VATSettlementDocNo);
         PurchaseVATEntry[1].TestField(Closed, true);
-        PurchaseVATEntry[2].TestField(Closed, false);
+        PurchaseVATEntry[2].TestField(Closed, true);
         PurchaseVATEntry[3].TestField(Closed, true);
         VerifyVATEntryClosedByEntryNo(PurchaseVATEntry, PurchaseSettlementVATEntryNo);
 
         // [THEN] Two VAT Entries with Entry No. 908, 910 and with Type "Settlement" were created.
-        // [THEN] VAT Entries 902 and 906 (Sale) were closed. Closed by Entry No. for 902 is 908, for 904 is 0, for 906 is 910.
+        // [THEN] VAT Entries 902, 904, 906 (Sale) were closed. Closed by Entry No. for 902 is 908, for 904 is 0, for 906 is 910.
         FindVATEntries(SaleVATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
         GetPositiveAmountSettlementVATEntryNo(SaleSettlementVATEntryNo[1], VATPostingSetup[1], VATSettlementDocNo);
         GetPositiveAmountSettlementVATEntryNo(SaleSettlementVATEntryNo[3], VATPostingSetup[3], VATSettlementDocNo);
         SaleVATEntry[1].TestField(Closed, true);
-        SaleVATEntry[2].TestField(Closed, false);
+        SaleVATEntry[2].TestField(Closed, true);
         SaleVATEntry[3].TestField(Closed, true);
         VerifyVATEntryClosedByEntryNo(SaleVATEntry, SaleSettlementVATEntryNo);
 
@@ -1326,6 +1328,7 @@ codeunit 144139 "ERM VAT"
     begin
         // [FEATURE] [Report] [Sales]
         // [SCENARIO 405806] VAT Period for Settlement VAT Entries when run Calc. and Post VAT Settlement report with Post option set on posted Sales Invoices.
+        // [SCENARIO 411666] VAT Period for VAT Entries with Amount = 0 when run Calc. and Post VAT Settlement report with Post option set on posted Sales Invoices.
         Initialize();
         UpdateLastSettlementDateOnGLSetup();
 
@@ -1347,10 +1350,10 @@ codeunit 144139 "ERM VAT"
         VerifyVATEntryVATPeriod(SettlementVATEntryNo[1], VATPeriod);
         VerifyVATEntryVATPeriod(SettlementVATEntryNo[3], VATPeriod);
 
-        // [THEN] VAT Period was set to '2021/08' for VAT Entries 901 and 903.
+        // [THEN] VAT Period was set to '2021/08' for VAT Entries 901, 902, 903.
         FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
         VerifyVATEntryVATPeriod(VATEntry[1]."Entry No.", VATPeriod);
-        VerifyVATEntryVATPeriod(VATEntry[2]."Entry No.", '');
+        VerifyVATEntryVATPeriod(VATEntry[2]."Entry No.", VATPeriod);
         VerifyVATEntryVATPeriod(VATEntry[3]."Entry No.", VATPeriod);
 
         // tear down

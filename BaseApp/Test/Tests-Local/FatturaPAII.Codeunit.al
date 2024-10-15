@@ -53,7 +53,7 @@
         CreateAndPostSalesOrder(CustomerNo, 2, true, false);
 
         // [GIVEN] Posted sales Invoice with three shipments, one from shipment "A" and two from shipment "B"
-        PostedInvNo := CreateSalesInvFromShipment(CustomerNo);
+        PostedInvNo := CreateSalesInvFromShipment(CustomerNo, '');
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
@@ -86,7 +86,7 @@
         CreateAndPostServOrder(CustomerNo, 2, true, false);
 
         // [GIVEN] Posted Service Invoice with three shipments, one from shipment "A" and two from shipment "B"
-        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo);
+        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo, '');
 
         // [WHEN] The document is exported to FatturaPA.
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
@@ -401,7 +401,7 @@
         CreateAndPostSalesOrder(CustomerNo, 1, true, false);
 
         // [GIVEN] Sales invoice with shipment lines from sales order and "Customer Purchase Order No." = "X"
-        PostedInvNo := CreateSalesInvFromShipment(CustomerNo);
+        PostedInvNo := CreateSalesInvFromShipment(CustomerNo, '');
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -432,7 +432,7 @@
         CreateAndPostServOrder(CustomerNo, 1, true, false);
 
         // [GIVEN] Service invoice with shipment lines from service order and "Customer Purchase Order No." = "X"
-        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo);
+        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo, '');
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
 
         // [WHEN] The document is exported to FatturaPA
@@ -1595,7 +1595,7 @@
         CreateAndPostSalesOrder(CustomerNo, 1, true, false);
 
         // [GIVEN] Posted sales Invoice with shipment
-        PostedInvNo := CreateSalesInvFromShipment(CustomerNo);
+        PostedInvNo := CreateSalesInvFromShipment(CustomerNo, '');
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
@@ -1626,7 +1626,7 @@
         CreateAndPostServOrder(CustomerNo, 1, true, false);
 
         // [GIVEN] Posted service Invoice with shipment"
-        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo);
+        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo, '');
 
         // [WHEN] The document is exported to FatturaPA.
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
@@ -1659,8 +1659,10 @@
         ElectronicDocumentFormat.SendElectronically(ServerFileName,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        // [THEN] DatiOrdineAcquisto node has two child nodes with values "X" and "Y"
-        VerifyDatiOrdineAcquistoWithFatturaCodes(ServerFileName, SalesHeader."Fattura Project Code", SalesHeader."Fattura Tender Code");
+        // [THEN] DatiOrdineAcquisto node has three child nodes with values "X" and "Y"
+        // TFS ID 412546: DatiOrdineAcquisto only generates when "Customer Purchase Order" is specified
+        VerifyDatiOrdineAcquistoWithFatturaCodes(
+          ServerFileName, SalesHeader."Customer Purchase Order No.", SalesHeader."Fattura Project Code", SalesHeader."Fattura Tender Code");
     end;
 
     [Test]
@@ -1698,7 +1700,7 @@
         end;
 
         // [GIVEN] Posted sales invoice combines from order shipments
-        PostedInvNo := CreateSalesInvFromShipment(CustomerNo);
+        PostedInvNo := CreateSalesInvFromShipment(CustomerNo, LibraryUtility.GenerateGUID());
 
         // [WHEN] The document is exported to FatturaPA
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
@@ -1735,6 +1737,8 @@
         // [GIVEN] Second shipped service order with "Customer Purchase Order" = "Y1", "Fattura Project Code" = "Y2", "Fattura Tender Code" = "Y3"
         for i := 1 to ArrayLen(ServiceHeader) do begin
             CreateServiceHeader(ServiceHeader[i], ServiceHeader[i]."Document Type"::Order, CustomerNo);
+            ServiceHeader[i].Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
+            ServiceHeader[i].Modify(true);
             ServiceHeader[i].Validate("Fattura Project Code", LibraryITLocalization.CreateFatturaProjectCode());
             ServiceHeader[i].Validate("Fattura Tender Code", LibraryITLocalization.CreateFatturaTenderCode());
             ServiceHeader[i].Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
@@ -1746,7 +1750,7 @@
         end;
 
         // [GIVEN] Posted service invoice combines from order shipments
-        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo);
+        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo, LibraryUtility.GenerateGUID());
 
         // [WHEN] The document is exported to FatturaPA.
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
@@ -2185,26 +2189,30 @@
         exit(PmtTermsCode);
     end;
 
-    local procedure CreateSalesInvFromShipment(CustomerNo: Code[20]): Code[20]
+    local procedure CreateSalesInvFromShipment(CustomerNo: Code[20]; CustomerPurchaseOrder: Text[35]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesShipmentLine: Record "Sales Shipment Line";
         SalesGetShipment: Codeunit "Sales-Get Shipment";
     begin
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Customer Purchase Order No.", CustomerPurchaseOrder);
+        SalesHeader.Modify(true);
         SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesGetShipment.SetSalesHeader(SalesHeader);
         SalesGetShipment.CreateInvLines(SalesShipmentLine);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
-    local procedure CreateServInvFromShipment(var ServiceInvoiceHeader: Record "Service Invoice Header"; CustomerNo: Code[20])
+    local procedure CreateServInvFromShipment(var ServiceInvoiceHeader: Record "Service Invoice Header"; CustomerNo: Code[20]; CustomerPurchaseOrder: Text[35])
     var
         ServiceHeader: Record "Service Header";
         ServiceShipmentLine: Record "Service Shipment Line";
         ServiceGetShipment: Codeunit "Service-Get Shipment";
     begin
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
+        ServiceHeader.Validate("Customer Purchase Order No.", CustomerPurchaseOrder);
+        ServiceHeader.Modify(true);
         ServiceShipmentLine.SetRange("Customer No.", CustomerNo);
         ServiceGetShipment.SetServiceHeader(ServiceHeader);
         ServiceGetShipment.CreateInvLines(ServiceShipmentLine);
@@ -2338,6 +2346,8 @@
         SalesHeader: Record "Sales Header";
     begin
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
+        SalesHeader.Modify(true);
         CreateSalesLineWithQtyToShip(SalesHeader, 1, 0);
         CreateSalesLineWithQtyToShip(SalesHeader, 1, 1);
         CreateSalesLineWithQtyToShip(SalesHeader, 1, 0);
@@ -2411,6 +2421,7 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
         SalesHeader.Validate("Fattura Project Code", LibraryITLocalization.CreateFatturaProjectCode);
         SalesHeader.Validate("Fattura Tender Code", LibraryITLocalization.CreateFatturaTenderCode);
         SalesHeader.Modify(true);
@@ -2712,7 +2723,7 @@
         DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiOrdineAcquistoWithFatturaCodes(ServerFileName: Text[250]; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
+    local procedure VerifyDatiOrdineAcquistoWithFatturaCodes(ServerFileName: Text[250]; CustomerPurchaseOrder: Text[35]; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         TempResultElementXMLBuffer: Record "XML Buffer" temporary;
@@ -2720,7 +2731,9 @@
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         TempXMLBuffer.FindChildElements(TempResultElementXMLBuffer);
-        Assert.RecordCount(TempResultElementXMLBuffer, 2);
+        Assert.RecordCount(TempResultElementXMLBuffer, 3);
+        AssertCurrentElementValue(TempResultElementXMLBuffer, CustomerPurchaseOrder);
+        FindNextElement(TempResultElementXMLBuffer);
         AssertCurrentElementValue(TempResultElementXMLBuffer, FatturaProjectCode);
         FindNextElement(TempResultElementXMLBuffer);
         AssertCurrentElementValue(TempResultElementXMLBuffer, FatturaTenderCode);

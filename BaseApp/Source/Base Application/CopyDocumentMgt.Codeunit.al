@@ -5925,6 +5925,12 @@
         ToSalesLine."Special Order Purchase No." := '';
         ToSalesLine."Special Order Purch. Line No." := 0;
 
+        ToSalesLine.Area := ToSalesHeader.Area;
+        ToSalesLine."Exit Point" := ToSalesHeader."Exit Point";
+        ToSalesLine."Transaction Specification" := ToSalesHeader."Transaction Specification";
+        ToSalesLine."Transaction Type" := ToSalesHeader."Transaction Type";
+        ToSalesLine."Transport Method" := ToSalesHeader."Transport Method";
+
         OnAfterSetDefaultValuesToSalesLine(ToSalesLine, ToSalesHeader, CreateToHeader);
     end;
 
@@ -5968,6 +5974,12 @@
         ToPurchLine."Sales Order Line No." := 0;
         ToPurchLine."Special Order Sales No." := '';
         ToPurchLine."Special Order Sales Line No." := 0;
+
+        ToPurchLine.Area := ToPurchHeader.Area;
+        ToPurchLine."Entry Point" := ToPurchHeader."Entry Point";
+        ToPurchLine."Transaction Specification" := ToPurchHeader."Transaction Specification";
+        ToPurchLine."Transaction Type" := ToPurchHeader."Transaction Type";
+        ToPurchLine."Transport Method" := ToPurchHeader."Transport Method";
 
         OnAfterSetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, CreateToHeader);
     end;

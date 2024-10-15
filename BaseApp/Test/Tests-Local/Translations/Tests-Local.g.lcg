@@ -2768,15 +2768,6 @@
       <Cmt Name="Dev"><![CDATA[%1=Entry number,%2=Amount.]D;]A;(LookupHint=Codeunit IT - CU 2015 Unit Test - NamedType BaseExcludedAmountTotalErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2709192724 - NamedType 3134231156" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must specify an exceptional event.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - CU 2015 Unit Test - NamedType BlankedExceptionalEventErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 558127152 - NamedType 3287569589" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Applied Amount (LCY)]]></Val>

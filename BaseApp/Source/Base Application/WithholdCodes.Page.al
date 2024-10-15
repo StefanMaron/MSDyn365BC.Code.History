@@ -1,7 +1,7 @@
 page 12104 "Withhold Codes"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Code';
+    Caption = 'Withholding Tax Codes';
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Withhold Code";

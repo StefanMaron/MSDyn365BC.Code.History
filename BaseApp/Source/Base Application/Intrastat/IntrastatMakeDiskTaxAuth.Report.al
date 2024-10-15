@@ -165,7 +165,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     RoundAmount := Format(Abs(Amount));
                     RoundStatValue := Format(Abs("Statistical Value"));
                     RoundCurrAmount := Format(Abs(Round("Source Currency Amount", 1)));
-                    RoundTotalWeight := Format(Abs(Round("Total Weight", 1)));
+                    RoundTotalWeight := Format(Abs(IntraJnlManagement.RoundTotalWeight("Total Weight")));
                     if "Supplementary Units" then
                         RoundQty := Format(Abs(Round(Quantity, 1)))
                     else

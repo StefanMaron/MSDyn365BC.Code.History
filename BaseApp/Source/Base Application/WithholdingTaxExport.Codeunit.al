@@ -23,7 +23,6 @@ codeunit 12132 "Withholding Tax Export"
         BaseExcludedAmountTotalErr: Label 'Base - Excluded Amount total on lines for Withholding Tax Entry No. = %1 must be equal to Base - Excluded Amount on the Withholding Tax card for that entry (%2).', Comment = '%1=Entry number,%2=Amount.';
         ReportingYear: Integer;
         ExceptionalEvent: Code[10];
-        BlankedExceptionalEventErr: Label 'You must specify an exceptional event.';
         RecordDCount: Integer;
         CURTxt: Label 'CUR%1', Locked = true, Comment = '%1 - year';
 
@@ -42,9 +41,6 @@ codeunit 12132 "Withholding Tax Export"
 
         if not SigningCompanyOfficials.Get(SigningCompanyOfficialNo) then
             Error(NoSigningCompanyOfficialErr);
-
-        if ExceptionalEvent = '' then
-            Error(BlankedExceptionalEventErr);
 
         CalculateWithholdingTaxPerVendor(TempWithholdingTax, TempContributions, Year, Year);
 

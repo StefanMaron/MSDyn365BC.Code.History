@@ -337,5 +337,21 @@ codeunit 350 IntraJnlManagement
         Commit();
         Error(AdvChecklistErr);
     end;
+
+    procedure RoundTotalWeight(TotalWeight: Decimal): Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeRoundTotalWeight(IsHandled, TotalWeight);
+        if IsHandled then
+            exit(TotalWeight);
+
+        exit(Round(TotalWeight, 1));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundTotalWeight(var IsHandled: Boolean; var TotalWeight: Decimal)
+    begin
+    end;
 }
 
