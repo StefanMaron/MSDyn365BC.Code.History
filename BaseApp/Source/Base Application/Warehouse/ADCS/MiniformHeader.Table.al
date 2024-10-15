@@ -8,6 +8,7 @@ table 7700 "Miniform Header"
 {
     Caption = 'Miniform Header';
     LookupPageID = Miniforms;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1,8 +1,12 @@
 #if not CLEAN22
+#pragma warning disable AS0072
 codeunit 139401 "User Group Transition Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     var
         Assert: Codeunit Assert;

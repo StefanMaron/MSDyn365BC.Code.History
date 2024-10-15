@@ -99,7 +99,6 @@ codeunit 134299 "Test Partner Integration Event"
         OnBeforePurchCrMemoLineInsertTxt: Label 'OnBeforePurchCrMemoLineInsert';
         OnBeforeReturnShptHeaderInsertTxt: Label 'OnBeforeReturnShptHeaderInsert';
         OnBeforeReturnShptLineInsertTxt: Label 'OnBeforeReturnShptLineInsert';
-        OnAfterCopyGenJnlLineFromInvPostBufferTxt: Label 'OnAfterCopyGenJnlLineFromInvPostBuffer';
         OnAfterCopyGenJnlLineFromPrepmtInvBufferTxt: Label 'OnAfterCopyGenJnlLineFromPrepmtInvBuffer';
         OnAfterCopyGenJnlLineFromPurchHeaderTxt: Label 'OnAfterCopyGenJnlLineFromPurchHeader';
         OnAfterCopyGenJnlLineFromSalesHeaderTxt: Label 'OnAfterCopyGenJnlLineFromSalesHeader';
@@ -148,7 +147,7 @@ codeunit 134299 "Test Partner Integration Event"
             exit;
 
         LibraryERM.CreateBankAccount(BankAccount);
-        LibraryERMCountryData.InitializeCountry;
+        LibraryERMCountryData.InitializeCountry();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
@@ -170,7 +169,7 @@ codeunit 134299 "Test Partner Integration Event"
             if FindSet() then
                 repeat
                     InactiveSubscribers += StrSubstNo(' %1.%2', "Subscriber Codeunit ID", "Subscriber Function");
-                until Next = 0;
+                until Next() = 0;
             if InactiveEventsCounter > 0 then
                 Error(InactiveEventSuscriptionErr, InactiveEventsCounter, InactiveSubscribers);
         end;
@@ -191,7 +190,7 @@ codeunit 134299 "Test Partner Integration Event"
             if FindSet() then
                 repeat
                     SubscribersWithError += StrSubstNo(' %1.%2="%3"', "Subscriber Codeunit ID", "Subscriber Function", "Error Information");
-                until Next = 0;
+                until Next() = 0;
             if ErrorEventsCounter > 0 then
                 Error(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError);
         end;
@@ -290,22 +289,22 @@ codeunit 134299 "Test Partner Integration Event"
 
         // G/L Account
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         VerifyDataTypeBuffer(OnAfterAccountNoOnValidateGetGLBalAccountTxt);
 
         // Bank Account
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
         VerifyDataTypeBuffer(OnAfterAccountNoOnValidateGetBankBalAccountTxt);
 
         // Customer
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Customer);
-        GenJournalLine.Validate("Bal. Account No.", LibrarySales.CreateCustomerNo);
+        GenJournalLine.Validate("Bal. Account No.", LibrarySales.CreateCustomerNo());
         VerifyDataTypeBuffer(OnAfterAccountNoOnValidateGetCustomerBalAccountTxt);
 
         // Vendor
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
-        GenJournalLine.Validate("Bal. Account No.", LibraryPurchase.CreateVendorNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryPurchase.CreateVendorNo());
         VerifyDataTypeBuffer(OnAfterAccountNoOnValidateGetVendorBalAccountTxt);
 
         // Fixed Asset
@@ -1089,16 +1088,16 @@ codeunit 134299 "Test Partner Integration Event"
         SalesLine.Validate(Type, SalesLine.Type::" ");
         SalesLine.Validate("No.", LibrarySales.CreateStandardText(StandardText));
         SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
-        SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup());
         SalesLine.Validate(Type, SalesLine.Type::Item);
-        SalesLine.Validate("No.", LibraryInventory.CreateItemNo);
+        SalesLine.Validate("No.", LibraryInventory.CreateItemNo());
         SalesLine.Validate(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.Validate("No.", LibraryInventory.CreateItemChargeNo);
+        SalesLine.Validate("No.", LibraryInventory.CreateItemChargeNo());
         SalesLine.Validate(Type, SalesLine.Type::"Fixed Asset");
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         SalesLine.Validate("No.", FixedAsset."No.");
         SalesLine.Validate(Type, SalesLine.Type::Resource);
-        SalesLine.Validate("No.", LibraryResource.CreateResourceNo);
+        SalesLine.Validate("No.", LibraryResource.CreateResourceNo());
 
         // Verify
         VerifyDataTypeBuffer(OnAfterAssignHeaderValuesTxt);
@@ -1384,11 +1383,11 @@ codeunit 134299 "Test Partner Integration Event"
         PurchaseLine.Validate(Type, PurchaseLine.Type::" ");
         PurchaseLine.Validate("No.", LibrarySales.CreateStandardText(StandardText));
         PurchaseLine.Validate(Type, PurchaseLine.Type::"G/L Account");
-        PurchaseLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        PurchaseLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup());
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
-        PurchaseLine.Validate("No.", LibraryInventory.CreateItemNo);
+        PurchaseLine.Validate("No.", LibraryInventory.CreateItemNo());
         PurchaseLine.Validate(Type, PurchaseLine.Type::"Charge (Item)");
-        PurchaseLine.Validate("No.", LibraryInventory.CreateItemChargeNo);
+        PurchaseLine.Validate("No.", LibraryInventory.CreateItemChargeNo());
         PurchaseLine.Validate(Type, PurchaseLine.Type::"Fixed Asset");
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         PurchaseLine.Validate("No.", FixedAsset."No.");
@@ -1754,11 +1753,11 @@ codeunit 134299 "Test Partner Integration Event"
         BindSubscription(TestPartnerIntegrationEvent);
 
         // Exercise
-        Navigate.OpenEdit;
+        Navigate.OpenEdit();
         Navigate.FindByDocument.Invoke();
         Navigate.DocNoFilter.SetValue(GLEntry."Document No.");
         Navigate.PostingDateFilter.SetValue(Format(GLEntry."Posting Date"));
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
 
         // Verify
         VerifyDataTypeBuffer(OnAfterNavigateFindRecordsTxt);
@@ -1782,13 +1781,13 @@ codeunit 134299 "Test Partner Integration Event"
         BindSubscription(TestPartnerIntegrationEvent);
 
         // Exercise
-        Navigate.OpenEdit;
+        Navigate.OpenEdit();
         Navigate.DocNoFilter.SetValue(GLEntry."Document No.");
         Navigate.PostingDateFilter.SetValue(Format(GLEntry."Posting Date"));
-        Navigate.Find.Invoke;
-        Navigate.First;
-        GeneralLedgerEntries.Trap;
-        Navigate.Show.Invoke;
+        Navigate.Find.Invoke();
+        Navigate.First();
+        GeneralLedgerEntries.Trap();
+        Navigate.Show.Invoke();
         GeneralLedgerEntries.Close();
 
         // Verify
@@ -1830,7 +1829,7 @@ codeunit 134299 "Test Partner Integration Event"
 
         // [GIVEN] Item Journal line. Quantity = "Q", Unit Amount = "X".
         LibraryInventory.CreateItemJournalLineInItemTemplate(
-          ItemJournalLine, LibraryInventory.CreateItemNo, '', '', LibraryRandom.RandInt(10));
+          ItemJournalLine, LibraryInventory.CreateItemNo(), '', '', LibraryRandom.RandInt(10));
         ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDec(10, 2));
         ItemJournalLine.Modify(true);
 
@@ -1855,7 +1854,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO 298582] Integration event OnSetBookingItemInvoiced in codeunit "Booking Manager" is not executed in case of temporary Sales Header
 
         Initialize();
-        SetBookingMgrSetup;
+        SetBookingMgrSetup();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // [GIVEN] Temporary Sales Invoice "SI01"
@@ -1883,7 +1882,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO 298582] Integration event OnSetBookingItemInvoiced in codeunit "Booking Manager" is not executed in case of temporary Sales Line
 
         Initialize();
-        SetBookingMgrSetup;
+        SetBookingMgrSetup();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // [GIVEN] Sales Invoice "SI01"
@@ -1913,7 +1912,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO 298582] Integration event OnSetBookingItemInvoiced in codeunit "Booking Manager" is executed in case of non-temporary Sales Invoice
 
         Initialize();
-        SetBookingMgrSetup;
+        SetBookingMgrSetup();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // [GIVEN] Sales Invoice "SI01"
@@ -1941,7 +1940,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO 298582] Integration event OnSetBookingItemInvoiced in codeunit "Booking Manager" is executed in case of non-temporary Sales Invoice Line
 
         Initialize();
-        SetBookingMgrSetup;
+        SetBookingMgrSetup();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // [GIVEN] Sales Invoice "SI01"
@@ -2247,7 +2246,7 @@ codeunit 134299 "Test Partner Integration Event"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterUpdatePostingNos', '', false, false)]
-    local procedure OnAfterUpdatePostingNosSalesDoc(var SalesHeader: Record "Sales Header"; var NoSeriesMgt: Codeunit NoSeriesManagement)
+    local procedure OnAfterUpdatePostingNosSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
@@ -2356,7 +2355,7 @@ codeunit 134299 "Test Partner Integration Event"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterUpdatePostingNos', '', false, false)]
-    local procedure OnAfterUpdatePostingNosPurchDoc(var PurchaseHeader: Record "Purchase Header"; var NoSeriesMgt: Codeunit NoSeriesManagement)
+    local procedure OnAfterUpdatePostingNosPurchDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
@@ -2795,7 +2794,7 @@ codeunit 134299 "Test Partner Integration Event"
     local procedure CreateGenJournalLineForGLAcc(var GenJournalLine: Record "Gen. Journal Line")
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure CreateGenJournalLineForBank(var GenJournalLine: Record "Gen. Journal Line")
@@ -2807,13 +2806,13 @@ codeunit 134299 "Test Partner Integration Event"
     local procedure CreateGenJournalLineForCustomer(var GenJournalLine: Record "Gen. Journal Line")
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure CreateGenJournalLineForVendor(var GenJournalLine: Record "Gen. Journal Line")
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure CreateGenJournalLineForFA(var GenJournalLine: Record "Gen. Journal Line")

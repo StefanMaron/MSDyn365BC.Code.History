@@ -260,7 +260,7 @@ report 10001 Budget
 
             trigger OnAfterGetRecord()
             begin
-                AccountTypeNo := "Account Type";
+                AccountTypeNo := "Account Type".AsInteger();
                 PageGroupNo := NextPageGroupNo;
                 if "New Page" then
                     NextPageGroupNo := PageGroupNo + 1;
@@ -280,7 +280,7 @@ report 10001 Budget
 
                 // if PrintAllBalance is true then skip printing posting accounts
                 // that do not have any budget amounts.
-                if NoDataFound and PrintAllBalance and ("Account Type" = 0) then
+                if NoDataFound and PrintAllBalance and ("Account Type" = "Account Type"::Posting) then
                     CurrReport.Skip();
 
                 RowNumber += 1;

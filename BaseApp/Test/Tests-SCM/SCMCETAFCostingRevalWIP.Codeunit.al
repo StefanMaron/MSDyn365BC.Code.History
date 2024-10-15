@@ -19,8 +19,6 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         TXTIncorrectRevalCost: Label 'Incorrect Cost Amount in inbound ILE No. %1 after revaluation.';
         AnyQst: Label 'Any?';
         AnyMsg: Label 'Any.';
@@ -32,7 +30,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, false, "Inventory Value Calc. Per"::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -42,7 +40,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, false, false, "Inventory Value Calc. Per"::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -52,7 +50,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), false, false, false, "Inventory Value Calc. Per"::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -62,7 +60,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), false, false, false, "Inventory Value Calc. Per"::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -72,7 +70,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), false, false, false, "Inventory Value Calc. Per"::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -82,7 +80,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), true, false, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -92,7 +90,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), true, false, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -102,7 +100,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), true, false, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -112,7 +110,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), true, false, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -122,7 +120,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), true, false, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -132,7 +130,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), true, false, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -142,7 +140,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), true, false, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -152,7 +150,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, true, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -162,7 +160,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -172,7 +170,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), false, true, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -182,7 +180,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), false, true, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -192,7 +190,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), false, true, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -202,7 +200,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -212,7 +210,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), false, true, false, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -222,7 +220,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, true, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, true, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -232,7 +230,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, true, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, true, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -242,7 +240,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::FIFO, WorkDate(), false, false, true, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::FIFO, WorkDate(), false, false, true, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -252,7 +250,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::FIFO, WorkDate(), false, false, true, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::FIFO, WorkDate(), false, false, true, "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -262,7 +260,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), "Inventory Value Calc. Per"::Item);
     end;
 
     [Test]
@@ -272,7 +270,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), "Inventory Value Calc. Per"::Item);
     end;
 
     [Test]
@@ -282,7 +280,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), "Inventory Value Calc. Per"::Item);
     end;
 
     [Test]
@@ -292,7 +290,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), "Inventory Value Calc. Per"::Item);
     end;
 
     [Test]
@@ -302,7 +300,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), "Inventory Value Calc. Per"::Item);
     end;
 
     [Test]
@@ -312,7 +310,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), "Inventory Value Calc. Per"::Item);
     end;
 
     [Test]
@@ -322,7 +320,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), "Inventory Value Calc. Per"::Item);
     end;
 
     [Test]
@@ -333,7 +331,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
     begin
         Initialize();
         TestProdOrder(
-          Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, true, false, CalculatePer::"Item Ledger Entry", 1.5);
+          Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, true, false, "Inventory Value Calc. Per"::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -344,7 +342,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
     begin
         Initialize();
         TestProdOrder(
-          Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::"Item Ledger Entry", 1.5);
+          Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, "Inventory Value Calc. Per"::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -404,7 +402,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -414,7 +412,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -424,7 +422,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -434,7 +432,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -444,7 +442,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -454,7 +452,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -464,7 +462,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), "Inventory Value Calc. Per"::Item, 1.5);
     end;
 
     [Test]
@@ -597,7 +595,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         TestProdOrderAvgCompwithReval(Item."Costing Method"::Standard, WorkDate());
     end;
 
-    local procedure TestProdOrder(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; RevalueBeforeProdOrder1: Boolean; RevalueBeforeProdOrder2: Boolean; RevalueAfterProdOrder2: Boolean; CalcPer: Option "Item Ledger Entry",Item; RevaluationFactor: Decimal)
+    local procedure TestProdOrder(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; RevalueBeforeProdOrder1: Boolean; RevalueBeforeProdOrder2: Boolean; RevalueAfterProdOrder2: Boolean; CalcPer: Enum "Inventory Value Calc. Per"; RevaluationFactor: Decimal)
     var
         ComponentItem: Record Item;
         ProducedItem1: Record Item;
@@ -656,7 +654,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         // Revalue
         if RevalueBeforeProdOrder1 then begin
             // Perform revaluation before consumption of order 1 was posted
-            ExecuteRevalueExistingInventory(ComponentItem, ItemJnlBatch, StartDate + 1, CalcPer, false, false, false, CalculationBase::" ", '', '');
+            ExecuteRevalueExistingInventory(ComponentItem, ItemJnlBatch, StartDate + 1, CalcPer, false, false, false, "Inventory Value Calc. Base"::" ", '', '');
             LibraryPatterns.ModifyPostRevaluation(ItemJnlBatch, RevaluationFactor);
             LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', ComponentItem."No.", ProducedItem1."No.", ProducedItem2."No."), '');
             // Verify
@@ -666,7 +664,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         if RevalueBeforeProdOrder2 then begin
             // Perform revaluation after Order1 was finished, but before consumption of order 2 was posted
             ExecuteRevalueExistingInventory(
-              ComponentItem, ItemJnlBatch, StartDate + 15, CalcPer, false, false, false, CalculationBase::" ", '', '');
+              ComponentItem, ItemJnlBatch, StartDate + 15, CalcPer, false, false, false, "Inventory Value Calc. Base"::" ", '', '');
             LibraryPatterns.ModifyPostRevaluation(ItemJnlBatch, RevaluationFactor);
             LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', ComponentItem."No.", ProducedItem1."No.", ProducedItem2."No."), '');
             // Verify
@@ -676,7 +674,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         if RevalueAfterProdOrder2 then begin
             // Perform revaluation after Order2 was finished
             ExecuteRevalueExistingInventory(
-              ComponentItem, ItemJnlBatch, StartDate + 27, CalcPer, false, false, false, CalculationBase::" ", '', '');
+              ComponentItem, ItemJnlBatch, StartDate + 27, CalcPer, false, false, false, "Inventory Value Calc. Base"::" ", '', '');
             LibraryPatterns.ModifyPostRevaluation(ItemJnlBatch, RevaluationFactor);
             LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', ComponentItem."No.", ProducedItem1."No.", ProducedItem2."No."), '');
             // Verify
@@ -684,7 +682,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         end;
     end;
 
-    local procedure TestProdOrder_ZeroInv(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; CalcPer: Option "Item Ledger Entry",Item)
+    local procedure TestProdOrder_ZeroInv(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; CalcPer: Enum "Inventory Value Calc. Per")
     var
         ComponentItem: Record Item;
         ProducedItem1: Record Item;
@@ -737,7 +735,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         VerifyCost(ComponentItem, ProducedItem1, ProducedItem2, ProductionOrder1, ProductionOrder2, VerifyVariance);
 
         // Perform revaluation before consumption of order 1 was posted
-        ExecuteRevalueExistingInventory(ComponentItem, ItemJnlBatch, StartDate + 1, CalcPer, false, false, false, CalculationBase::" ", '', '');
+        ExecuteRevalueExistingInventory(ComponentItem, ItemJnlBatch, StartDate + 1, CalcPer, false, false, false, "Inventory Value Calc. Base"::" ", '', '');
         LibraryPatterns.ModifyPostRevaluation(ItemJnlBatch, 0);
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', ComponentItem."No.", ProducedItem1."No.", ProducedItem2."No."), '');
 
@@ -804,10 +802,10 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         // Perform revaluation after Order1 was finished, but before consumption of order 2 was posted
         ExecuteRevalueExistingInventory(
-          ComponentItem, ItemJnlBatch, StartDate + 15, CalculatePer::"Item Ledger Entry", false, false, false, CalculationBase::" ", '', '');
-        ModifyRevaluationLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name, 10000, 0.66, LibraryERM.GetAmountRoundingPrecision);
-        ModifyRevaluationLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name, 20000, 0.66, LibraryERM.GetAmountRoundingPrecision);
-        ModifyRevaluationLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name, 40000, 0.66, LibraryERM.GetAmountRoundingPrecision);
+          ComponentItem, ItemJnlBatch, StartDate + 15, "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false, "Inventory Value Calc. Base"::" ", '', '');
+        ModifyRevaluationLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name, 10000, 0.66, LibraryERM.GetAmountRoundingPrecision());
+        ModifyRevaluationLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name, 20000, 0.66, LibraryERM.GetAmountRoundingPrecision());
+        ModifyRevaluationLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name, 40000, 0.66, LibraryERM.GetAmountRoundingPrecision());
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', ComponentItem."No.", ProducedItem1."No.", ProducedItem2."No."), '');
@@ -815,7 +813,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         VerifyCost(ComponentItem, ProducedItem1, ProducedItem2, ProductionOrder1, ProductionOrder2, VerifyVariance);
     end;
 
-    local procedure TestProdOrder_NegConsumption(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; CalcPer: Option "Item Ledger Entry",Item; RevaluationFactor: Decimal)
+    local procedure TestProdOrder_NegConsumption(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; CalcPer: Enum "Inventory Value Calc. Per"; RevaluationFactor: Decimal)
     var
         ComponentItem: Record Item;
         ProducedItem: Record Item;
@@ -889,7 +887,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         NegConsmpCostbeforeReval := ItemLedgerEntry."Cost Amount (Actual)";
 
-        ExecuteRevalueExistingInventory(ComponentItem, ItemJnlBatch, StartDate + 1, CalcPer, false, false, false, CalculationBase::" ", '', '');
+        ExecuteRevalueExistingInventory(ComponentItem, ItemJnlBatch, StartDate + 1, CalcPer, false, false, false, "Inventory Value Calc. Base"::" ", '', '');
         LibraryPatterns.ModifyPostRevaluation(ItemJnlBatch, RevaluationFactor);
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', ComponentItem."No.", ProducedItem."No."), '');
 
@@ -899,7 +897,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         // Test Revaluation Cost Flow to the negative consumption item
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         NegConsmpCostafterReval := ItemLedgerEntry."Cost Amount (Actual)";
-        RefNegConsmpCostafterReval := Round(NegConsmpCostbeforeReval * RevaluationFactor, LibraryERM.GetAmountRoundingPrecision);
+        RefNegConsmpCostafterReval := Round(NegConsmpCostbeforeReval * RevaluationFactor, LibraryERM.GetAmountRoundingPrecision());
         Assert.AreEqual(
           RefNegConsmpCostafterReval, NegConsmpCostafterReval, StrSubstNo(TXTIncorrectRevalCost, ItemLedgerEntry."Entry No."));
     end;
@@ -961,7 +959,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         // Execute Revaluation after consumption 1, but before consumption 2
         ExecuteRevalueExistingInventory(
-          ComponentItem, ItemJnlBatch, StartDate + 5, CalculatePer::"Item Ledger Entry", false, false, false, CalculationBase::" ", '', '');
+          ComponentItem, ItemJnlBatch, StartDate + 5, "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false, "Inventory Value Calc. Base"::" ", '', '');
         LibraryPatterns.ModifyPostRevaluation(ItemJnlBatch, RevaluationFactor);
 
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', ComponentItem."No.", ProducedItem."No."), '');
@@ -1044,8 +1042,6 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         CompItem: Record Item;
         Qty: Decimal;
         QtyPer: Decimal;
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         Initialize();
         Qty := LibraryRandom.RandInt(20);
@@ -1073,7 +1069,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         // Revalue component.
         LibraryPatterns.CalculateInventoryValueRun(
-          ItemJournalBatch, CompItem, StartDate + 7, CalculatePer::Item, false, false, false, CalculationBase::" ", false, '', '');
+          ItemJournalBatch, CompItem, StartDate + 7, "Inventory Value Calc. Per"::Item, false, false, false, "Inventory Value Calc. Base"::" ", false, '', '');
         LibraryPatterns.ModifyPostRevaluation(ItemJournalBatch, LibraryRandom.RandDecInRange(1, 3, 2));
 
         // Post output.
@@ -1085,7 +1081,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         // Revalue component again.
         LibraryPatterns.CalculateInventoryValueRun(
-          ItemJournalBatch, CompItem, StartDate + 7, CalculatePer::Item, false, false, false, CalculationBase::" ", false, '', '');
+          ItemJournalBatch, CompItem, StartDate + 7, "Inventory Value Calc. Per"::Item, false, false, false, "Inventory Value Calc. Base"::" ", false, '', '');
         LibraryPatterns.ModifyPostRevaluation(ItemJournalBatch, LibraryRandom.RandDecInRange(1, 3, 2));
 
         // Finish prod. order.
@@ -1155,7 +1151,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Costing Reval. WIP");
@@ -1445,7 +1441,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrder2Qty, PostingDate, ProducedItem2."Unit Cost");
     end;
 
-    local procedure ExecuteRevalueExistingInventory(var Item: Record Item; var ItemJnlBatch: Record "Item Journal Batch"; PostingDate: Date; CalculatePer: Option; ByLocation: Boolean; ByVariant: Boolean; UpdStdCost: Boolean; CalcBase: Option; LocationFilter: Code[20]; VariantFilter: Code[20])
+    local procedure ExecuteRevalueExistingInventory(var Item: Record Item; var ItemJnlBatch: Record "Item Journal Batch"; PostingDate: Date; CalculatePer: Enum "Inventory Value Calc. Per"; ByLocation: Boolean; ByVariant: Boolean; UpdStdCost: Boolean; CalcBase: Enum "Inventory Value Calc. Base"; LocationFilter: Code[20]; VariantFilter: Code[20])
     begin
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         LibraryCosting.CheckAdjustment(Item);
@@ -1541,7 +1537,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         if InventorySetup."Average Cost Period" <> NewAvgCostPeriod then begin
             InventorySetup.Validate("Average Cost Period", NewAvgCostPeriod);
-            InventorySetup.Modify
+            InventorySetup.Modify();
         end else begin
             // For message handler if no change for Average Cost Period
             if Confirm(AnyQst) then

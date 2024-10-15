@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +11,9 @@ using Microsoft.Purchases.Payables;
 
 codeunit 10085 "A/P Magnetic Media Management"
 {
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -163,8 +167,7 @@ codeunit 10085 "A/P Magnetic Media Management"
 
     procedure EditCompanyInfo(var CompInfo: Record "Company Information")
     begin
-        with CompInfo do
-            "Federal ID No." := StripNonNumerics("Federal ID No.");
+        CompInfo."Federal ID No." := StripNonNumerics(CompInfo."Federal ID No.");
     end;
 
     procedure SwitchZipCodeParts(var ZIP: Code[20])
@@ -177,26 +180,22 @@ codeunit 10085 "A/P Magnetic Media Management"
 
     procedure FormatCompanyAddress(var CompanyInfo: Record "Company Information"; var CompanyAddress: array[8] of Text[30])
     begin
-        with CompanyInfo do begin
-            Get();
-            FormatAddress.Company(CompanyAddress, CompanyInfo);
-        end;
+        CompanyInfo.Get();
+        FormatAddress.Company(CompanyAddress, CompanyInfo);
     end;
 
     procedure BuildAddressLine(CompanyInfo: Record "Company Information"): Text[40]
     var
         "Address 3": Text[40];
     begin
-        with CompanyInfo do begin
-            // Format City/State/Zip address line
-            if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen("Address 3") then
-                "Address 3" := City
+        // Format City/State/Zip address line
+        if StrLen(CompanyInfo.City + ', ' + CompanyInfo.County + '  ' + CompanyInfo."Post Code") > MaxStrLen("Address 3") then
+            "Address 3" := CompanyInfo.City
+        else
+            if (CompanyInfo.City <> '') and (CompanyInfo.County <> '') then
+                "Address 3" := CompanyInfo.City + ', ' + CompanyInfo.County + '  ' + CompanyInfo."Post Code"
             else
-                if (City <> '') and (County <> '') then
-                    "Address 3" := City + ', ' + County + '  ' + "Post Code"
-                else
-                    "Address 3" := DelChr(City + ' ' + County + ' ' + "Post Code", '<>');
-        end;
+                "Address 3" := DelChr(CompanyInfo.City + ' ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code", '<>');
         exit("Address 3");
     end;
 
@@ -356,3 +355,4 @@ codeunit 10085 "A/P Magnetic Media Management"
     end;
 }
 
+#endif

@@ -20,7 +20,6 @@ codeunit 139164 "Library - CRM Integration"
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         LibraryERM: Codeunit "Library - ERM";
         DefaultUoMNameTxt: Label 'BOX';
         TempMappingNotFoundErr: Label 'Temp Table Mapping is not found.';
@@ -92,15 +91,13 @@ codeunit 139164 "Library - CRM Integration"
     [Scope('OnPrem')]
     procedure AddCRMTransactionCurrency(var CRMTransactioncurrency: Record "CRM Transactioncurrency"; ISOName: Text[5])
     begin
-        with CRMTransactioncurrency do begin
-            Init();
-            TransactionCurrencyId := CreateGuid();
-            ISOCurrencyCode := ISOName;
-            CurrencyPrecision := 2;
-            CurrencyName := ISOName;
-            ExchangeRate := 1;
-            Insert();
-        end
+        CRMTransactioncurrency.Init();
+        CRMTransactioncurrency.TransactionCurrencyId := CreateGuid();
+        CRMTransactioncurrency.ISOCurrencyCode := ISOName;
+        CRMTransactioncurrency.CurrencyPrecision := 2;
+        CRMTransactioncurrency.CurrencyName := ISOName;
+        CRMTransactioncurrency.ExchangeRate := 1;
+        CRMTransactioncurrency.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -114,13 +111,13 @@ codeunit 139164 "Library - CRM Integration"
                 begin
                     OpenAndFilterCustomerCard(CustomerCard, CustomerNo);
                     Assert.AreEqual(
-                      IsCRMStatisticsFactBoxVisible, CustomerCard.Control39.Opportunities.Visible, 'Incorrect visibility');
+                      IsCRMStatisticsFactBoxVisible, CustomerCard.Control39.Opportunities.Visible(), 'Incorrect visibility');
                 end;
             HostPageName::CustomerList:
                 begin
                     OpenAndFilterCustomerList(CustomerList, CustomerNo);
                     Assert.AreEqual(
-                      IsCRMStatisticsFactBoxVisible, CustomerList.Control99.Opportunities.Visible, 'Incorrect visibility');
+                      IsCRMStatisticsFactBoxVisible, CustomerList.Control99.Opportunities.Visible(), 'Incorrect visibility');
                 end;
         end;
     end;
@@ -150,7 +147,7 @@ codeunit 139164 "Library - CRM Integration"
     procedure CreateCoupledCurrencyAndTransactionCurrency(var Currency: Record Currency; var CRMTransactioncurrency: Record "CRM Transactioncurrency")
     begin
         CreateCurrency(Currency);
-        CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(LibraryERM.GetLCYCode, 1, 5));
+        CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(LibraryERM.GetLCYCode(), 1, 5));
         CoupleRecordIdToCRMId(Currency.RecordId, CRMTransactioncurrency.TransactionCurrencyId);
         Currency.Find();
     end;
@@ -301,7 +298,7 @@ codeunit 139164 "Library - CRM Integration"
         CustomerPriceGroup.Find();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Scope('OnPrem')]
     procedure CreateCoupledSalesPriceAndPricelistLine(CustomerPriceGroup: Record "Customer Price Group"; var SalesPrice: Record "Sales Price"; var CRMProductpricelevel: Record "CRM Productpricelevel")
     var
@@ -507,7 +504,7 @@ codeunit 139164 "Library - CRM Integration"
     procedure CreateCoupledOpportunityAndOpportunity(var Opportunity: Record Opportunity; var CRMOpportunity: Record "CRM Opportunity")
     begin
         // Create the NAV Opportunity
-        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreatePersonContactNo);
+        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreatePersonContactNo());
 
         // Create the CRM Opportunity
         CreateCRMOpportunity(CRMOpportunity);
@@ -563,7 +560,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMSystemuserId: Guid;
     begin
         if IsNullGuid(CRMAccount.OwnerId) then
-            CRMSystemuserId := EnsureCRMSystemUser
+            CRMSystemuserId := EnsureCRMSystemUser()
         else
             CRMSystemuserId := CRMAccount.OwnerId;
 
@@ -577,7 +574,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMAccount.ModifiedOn := CRMAccount.CreatedOn;
         CRMAccount.OwnerId := CRMSystemuserId;
         CRMAccount.OwnerIdType := CRMAccount.OwnerIdType::systemuser;
-        CRMAccount.TransactionCurrencyId := GetGLSetupCRMTransactionCurrencyID;
+        CRMAccount.TransactionCurrencyId := GetGLSetupCRMTransactionCurrencyID();
         CRMAccount.Insert();
     end;
 
@@ -598,7 +595,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMSystemuserId: Guid;
     begin
         if IsNullGuid(CRMContact.OwnerId) then
-            CRMSystemuserId := EnsureCRMSystemUser
+            CRMSystemuserId := EnsureCRMSystemUser()
         else
             CRMSystemuserId := CRMContact.OwnerId;
 
@@ -643,17 +640,16 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        with CRMConnectionSetup do begin
-            if Get(PrimaryKey) then
-                Delete();
-            Init();
-            "Primary Key" := PrimaryKey;
-            "Server Address" := CopyStr(HostName, 1, MaxStrLen("Server Address"));
-            "Is Enabled" := IsEnabledVar;
-            "Authentication Type" := "Authentication Type"::Office365;
-            Validate("User Name", 'UserName@asEmail.net'); // Empty username triggers username/password dialog
-            Insert(true);
-        end;
+        if CRMConnectionSetup.Get(PrimaryKey) then
+            CRMConnectionSetup.Delete();
+        CRMConnectionSetup.Init();
+        CRMConnectionSetup."Primary Key" := PrimaryKey;
+        CRMConnectionSetup."Server Address" := CopyStr(HostName, 1, MaxStrLen(CRMConnectionSetup."Server Address"));
+        CRMConnectionSetup."Is Enabled" := IsEnabledVar;
+        CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
+        CRMConnectionSetup.Validate("User Name", 'UserName@asEmail.net');
+        // Empty username triggers username/password dialog
+        CRMConnectionSetup.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -668,7 +664,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMOrganization: Record "CRM Organization";
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
     begin
-        CreateCRMTransactionCurrency(CRMTransactioncurrency, GetBaseCRMTestCurrencySymbol);
+        CreateCRMTransactionCurrency(CRMTransactioncurrency, GetBaseCRMTestCurrencySymbol());
         CRMOrganization.Init();
         CRMOrganization.CurrencyDecimalPrecision := CurrencyPrecision;
         CRMOrganization.BaseCurrencyPrecision := CurrencyPrecision;
@@ -683,7 +679,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMSystemuser: Record "CRM Systemuser";
     begin
-        EnsureCRMSystemUser;
+        EnsureCRMSystemUser();
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
         CRMSystemuser.FindFirst();
 
@@ -711,7 +707,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMSystemuser: Record "CRM Systemuser";
     begin
-        EnsureCRMSystemUser;
+        EnsureCRMSystemUser();
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
         CRMSystemuser.FindFirst();
 
@@ -732,7 +728,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMSystemuser: Record "CRM Systemuser";
     begin
-        EnsureCRMSystemUser;
+        EnsureCRMSystemUser();
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
         CRMSystemuser.FindFirst();
 
@@ -754,7 +750,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMSystemuser: Record "CRM Systemuser";
     begin
-        EnsureCRMSystemUser;
+        EnsureCRMSystemUser();
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
         CRMSystemuser.FindFirst();
 
@@ -813,7 +809,6 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMProduct: Record "CRM Product";
         Item: Record Item;
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
         CreateCoupledItemAndProduct(Item, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
@@ -826,7 +821,6 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMProduct: Record "CRM Product";
         Resource: Record Resource;
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
         CreateCoupledResourceAndProduct(Resource, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
@@ -838,22 +832,21 @@ codeunit 139164 "Library - CRM Integration"
     [Scope('OnPrem')]
     procedure PrepareCRMSalesOrderLine(var CRMSalesorder: Record "CRM Salesorder"; var CRMSalesorderdetail: Record "CRM Salesorderdetail"; CRMProductId: Guid)
     begin
-        with CRMSalesorderdetail do begin
-            Init();
-            SalesOrderId := CRMSalesorder.SalesOrderId;
-            LineItemNumber := 1;
-            ExchangeRate := 1; // LCY
-            CreatedBy := CRMSalesorder.CreatedBy;
-            CreatedOn := CRMSalesorder.CreatedOn;
-            Insert();
+        CRMSalesorderdetail.Init();
+        CRMSalesorderdetail.SalesOrderId := CRMSalesorder.SalesOrderId;
+        CRMSalesorderdetail.LineItemNumber := 1;
+        CRMSalesorderdetail.ExchangeRate := 1;
+        // LCY
+        CRMSalesorderdetail.CreatedBy := CRMSalesorder.CreatedBy;
+        CRMSalesorderdetail.CreatedOn := CRMSalesorder.CreatedOn;
+        CRMSalesorderdetail.Insert();
 
-            ProductId := CRMProductId;
-            Quantity := LibraryRandom.RandIntInRange(10, 20);
-            PricePerUnit := LibraryRandom.RandDecInRange(100, 200, 2);
-            ModifiedBy := CRMSalesorder.ModifiedBy;
-            ModifiedOn := CRMSalesorder.ModifiedOn;
-            Modify(); // handled by subscriber COD139184.ValidateSalesOrderDetailOnAfterModify
-        end;
+        CRMSalesorderdetail.ProductId := CRMProductId;
+        CRMSalesorderdetail.Quantity := LibraryRandom.RandIntInRange(10, 20);
+        CRMSalesorderdetail.PricePerUnit := LibraryRandom.RandDecInRange(100, 200, 2);
+        CRMSalesorderdetail.ModifiedBy := CRMSalesorder.ModifiedBy;
+        CRMSalesorderdetail.ModifiedOn := CRMSalesorder.ModifiedOn;
+        CRMSalesorderdetail.Modify(); // handled by subscriber COD139184.ValidateSalesOrderDetailOnAfterModify
     end;
 
     [Scope('OnPrem')]
@@ -944,7 +937,7 @@ codeunit 139164 "Library - CRM Integration"
         CDSConnectionSetup.Modify(true);
         CreateCRMTeam(CRMTeam, StrSubstNo('BCI - %1', CRMBusinessunit.Name), CRMBusinessunit.BusinessUnitId);
         CDSCompany.ExternalId := GetCompanyExternalId();
-        CDSCompany.Name := CompanyName();
+        CDSCompany.Name := CopyStr(CompanyName(), 1, MaxStrLen(CDSCompany.Name));
         CDSCompany.OwningBusinessUnit := CRMBusinessunit.BusinessUnitId;
         CDSCompany.OwnerIdType := CDSCompany.OwnerIdType::team;
         CDSCompany.OwnerId := CRMTeam.TeamId;
@@ -1014,7 +1007,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMSystemuser: Record "CRM Systemuser";
     begin
-        EnsureCRMSystemUser;
+        EnsureCRMSystemUser();
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
         CRMSystemuser.FindFirst();
 
@@ -1061,7 +1054,7 @@ codeunit 139164 "Library - CRM Integration"
 
         Clear(CRMUom);
         CRMUom.Init();
-        CRMUom.Name := CRMUomName;
+        CRMUom.Name := CopyStr(CRMUomName, 1, MaxStrLen(CRMUom.Name));
         CRMUom.UoMScheduleId := CRMUomschedule.UoMScheduleId;
         CRMUom.CreatedBy := CRMSystemuser.SystemUserId;
         CRMUom.ModifiedBy := CRMSystemuser.SystemUserId;
@@ -1076,7 +1069,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMSystemuser: Record "CRM Systemuser";
         CRMUomName: Text[100];
     begin
-        EnsureCRMSystemUser;
+        EnsureCRMSystemUser();
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
         CRMSystemuser.FindFirst();
 
@@ -1122,8 +1115,6 @@ codeunit 139164 "Library - CRM Integration"
 
     [Scope('OnPrem')]
     procedure CreateCurrency(var Currency: Record Currency)
-    var
-        CurrencyRecordRef: RecordRef;
     begin
         Currency.Init();
         Currency.Validate(Code, LibraryUtility.GenerateRandomCodeWithLength(Currency.FieldNo(Code), DATABASE::Currency, 5));
@@ -1135,7 +1126,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMSystemuser: Record "CRM Systemuser";
     begin
-        EnsureCRMSystemUser;
+        EnsureCRMSystemUser();
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
         CRMSystemuser.FindFirst();
 
@@ -1169,7 +1160,6 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMProduct: Record "CRM Product";
         Item: Record Item;
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
         CreateCoupledItemAndProduct(Item, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
@@ -1182,7 +1172,6 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMProduct: Record "CRM Product";
         Resource: Record Resource;
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
         CreateCoupledResourceAndProduct(Resource, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
@@ -1194,22 +1183,21 @@ codeunit 139164 "Library - CRM Integration"
     [Scope('OnPrem')]
     procedure PrepareCRMQuoteLine(var CRMQuote: Record "CRM Quote"; var CRMQuotedetail: Record "CRM Quotedetail"; CRMProductId: Guid)
     begin
-        with CRMQuotedetail do begin
-            Init();
-            QuoteId := CRMQuote.QuoteId;
-            LineItemNumber := 1;
-            ExchangeRate := 1; // LCY
-            CreatedBy := CRMQuote.CreatedBy;
-            CreatedOn := CRMQuote.CreatedOn;
-            Insert();
+        CRMQuotedetail.Init();
+        CRMQuotedetail.QuoteId := CRMQuote.QuoteId;
+        CRMQuotedetail.LineItemNumber := 1;
+        CRMQuotedetail.ExchangeRate := 1;
+        // LCY
+        CRMQuotedetail.CreatedBy := CRMQuote.CreatedBy;
+        CRMQuotedetail.CreatedOn := CRMQuote.CreatedOn;
+        CRMQuotedetail.Insert();
 
-            ProductId := CRMProductId;
-            Quantity := LibraryRandom.RandIntInRange(10, 20);
-            PricePerUnit := LibraryRandom.RandDecInRange(100, 200, 2);
-            ModifiedBy := CRMQuote.ModifiedBy;
-            ModifiedOn := CRMQuote.ModifiedOn;
-            Modify(); // handled by subscriber COD139184.ValidateSalesOrderDetailOnAfterModify
-        end;
+        CRMQuotedetail.ProductId := CRMProductId;
+        CRMQuotedetail.Quantity := LibraryRandom.RandIntInRange(10, 20);
+        CRMQuotedetail.PricePerUnit := LibraryRandom.RandDecInRange(100, 200, 2);
+        CRMQuotedetail.ModifiedBy := CRMQuote.ModifiedBy;
+        CRMQuotedetail.ModifiedOn := CRMQuote.ModifiedOn;
+        CRMQuotedetail.Modify(); // handled by subscriber COD139184.ValidateSalesOrderDetailOnAfterModify
     end;
 
     [Scope('OnPrem')]
@@ -1222,29 +1210,25 @@ codeunit 139164 "Library - CRM Integration"
     begin
         CRMIntegrationRecord.SetRange("Table ID", DATABASE::"Unit of Measure");
         CRMIntegrationRecord.DeleteAll();
-        with UnitOfMeasure do begin
-            DeleteAll();
+        UnitOfMeasure.DeleteAll();
 
-            for Counter := 1 to UnitOfMeasureRecordCount do begin
-                Init();
-                Code := 'MEAS' + Format(Counter);
-                Description := 'Desc ' + Format(Counter);
-                "International Standard Code" := 'MEAS' + Format(100 + Counter);
-                Insert();
-            end;
+        for Counter := 1 to UnitOfMeasureRecordCount do begin
+            UnitOfMeasure.Init();
+            UnitOfMeasure.Code := 'MEAS' + Format(Counter);
+            UnitOfMeasure.Description := 'Desc ' + Format(Counter);
+            UnitOfMeasure."International Standard Code" := 'MEAS' + Format(100 + Counter);
+            UnitOfMeasure.Insert();
         end;
 
-        with TestIntegrationTable do begin
-            DeleteAll();
+        TestIntegrationTable.DeleteAll();
 
-            for Counter := 1 to IntegrationTableRecordCount do begin
-                Init();
-                "Integration Uid" := CreateGuid();
-                "Integration Field Value" := 'FMEAS' + Format(Counter);
-                "Integration Modified Field" := CurrentDateTime;
-                "Integration Slave Field Value" := '';
-                Insert();
-            end;
+        for Counter := 1 to IntegrationTableRecordCount do begin
+            TestIntegrationTable.Init();
+            TestIntegrationTable."Integration Uid" := CreateGuid();
+            TestIntegrationTable."Integration Field Value" := 'FMEAS' + Format(Counter);
+            TestIntegrationTable."Integration Modified Field" := CurrentDateTime;
+            TestIntegrationTable."Integration Slave Field Value" := '';
+            TestIntegrationTable.Insert();
         end;
     end;
 
@@ -1254,38 +1238,39 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
         // Integration Table Mapping definition
-        with IntegrationTableMapping do begin
-            DeleteAll();
+        IntegrationTableMapping.DeleteAll();
 
-            Init();
-            Name := 'TEST';
-            "Table ID" := DATABASE::"Unit of Measure";
-            "Integration Table ID" := DATABASE::"Test Integration Table";
-            "Integration Table UID Fld. No." := 10;         // Integration Table Uid
-            "Int. Tbl. Modified On Fld. No." := 11; // Integration Table Last Modified Field
-            "Synch. Only Coupled Records" := false;
-            Insert();
-        end;
-
+        IntegrationTableMapping.Init();
+        IntegrationTableMapping.Name := 'TEST';
+        IntegrationTableMapping."Table ID" := DATABASE::"Unit of Measure";
+        IntegrationTableMapping."Integration Table ID" := DATABASE::"Test Integration Table";
+        IntegrationTableMapping."Integration Table UID Fld. No." := 10;
+        // Integration Table Uid
+        IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := 11;
+        // Integration Table Last Modified Field
+        IntegrationTableMapping."Synch. Only Coupled Records" := false;
+        IntegrationTableMapping.Insert();
         // Map columns. Bidirectional, ToIntegrationTable, FromIntegrationTable
-        with IntegrationFieldMapping do begin
-            DeleteAll();
-            Init();
-            "No." := 0;
-            "Integration Table Mapping Name" := 'TEST';
-            "Field No." := 2;       // Description
-            "Integration Table Field No." := 2;   // Integration Table Field No
-            Direction := Direction::Bidirectional;
-            Insert(true);
+        IntegrationFieldMapping.DeleteAll();
+        IntegrationFieldMapping.Init();
+        IntegrationFieldMapping."No." := 0;
+        IntegrationFieldMapping."Integration Table Mapping Name" := 'TEST';
+        IntegrationFieldMapping."Field No." := 2;
+        // Description
+        IntegrationFieldMapping."Integration Table Field No." := 2;
+        // Integration Table Field No
+        IntegrationFieldMapping.Direction := IntegrationFieldMapping.Direction::Bidirectional;
+        IntegrationFieldMapping.Insert(true);
 
-            Init();
-            "No." := 0;
-            "Integration Table Mapping Name" := 'TEST';
-            "Field No." := 3;       // International Standard Code
-            "Integration Table Field No." := 3;   // Integration Table Slave Field Value
-            Direction := Direction::ToIntegrationTable;
-            Insert(true);
-        end;
+        IntegrationFieldMapping.Init();
+        IntegrationFieldMapping."No." := 0;
+        IntegrationFieldMapping."Integration Table Mapping Name" := 'TEST';
+        IntegrationFieldMapping."Field No." := 3;
+        // International Standard Code
+        IntegrationFieldMapping."Integration Table Field No." := 3;
+        // Integration Table Slave Field Value
+        IntegrationFieldMapping.Direction := IntegrationFieldMapping.Direction::ToIntegrationTable;
+        IntegrationFieldMapping.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -1297,29 +1282,26 @@ codeunit 139164 "Library - CRM Integration"
         CRMProduct: Record "CRM Product";
     begin
         // Integration Table Mapping definition
-        with IntegrationTableMapping do begin
-            DeleteAll();
-            Init();
-            Name := 'TEST RESOURCE-PROD';
-            "Table ID" := DATABASE::Resource;
-            "Integration Table ID" := DATABASE::"CRM Product";
-            "Integration Table UID Fld. No." := 1;         // Integration Table Uid
-            "Int. Tbl. Modified On Fld. No." := 24; // Integration Table Last Modified Field
-            "Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
-            Insert();
-        end;
-
+        IntegrationTableMapping.DeleteAll();
+        IntegrationTableMapping.Init();
+        IntegrationTableMapping.Name := 'TEST RESOURCE-PROD';
+        IntegrationTableMapping."Table ID" := DATABASE::Resource;
+        IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Product";
+        IntegrationTableMapping."Integration Table UID Fld. No." := 1;
+        // Integration Table Uid
+        IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := 24;
+        // Integration Table Last Modified Field
+        IntegrationTableMapping."Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
+        IntegrationTableMapping.Insert();
         // Map columns, "No." -> ProductNumber
-        with IntegrationFieldMapping do begin
-            DeleteAll();
-            Init();
-            "No." := 0;
-            "Integration Table Mapping Name" := 'TEST RESOURCE-PROD';
-            "Field No." := Resource.FieldNo("No.");
-            "Integration Table Field No." := CRMProduct.FieldNo(ProductNumber);
-            Direction := Direction::ToIntegrationTable;
-            Insert(true);
-        end;
+        IntegrationFieldMapping.DeleteAll();
+        IntegrationFieldMapping.Init();
+        IntegrationFieldMapping."No." := 0;
+        IntegrationFieldMapping."Integration Table Mapping Name" := 'TEST RESOURCE-PROD';
+        IntegrationFieldMapping."Field No." := Resource.FieldNo("No.");
+        IntegrationFieldMapping."Integration Table Field No." := CRMProduct.FieldNo(ProductNumber);
+        IntegrationFieldMapping.Direction := IntegrationFieldMapping.Direction::ToIntegrationTable;
+        IntegrationFieldMapping.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -1329,35 +1311,58 @@ codeunit 139164 "Library - CRM Integration"
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
     begin
-        with IntegrationTableMapping do begin
-            DeleteAll();
-            Init();
-            Name := LibraryUtility.GenerateGUID();
-            "Table ID" := DATABASE::Customer;
-            "Integration Table ID" := DATABASE::"CRM Account";
-            "Integration Table UID Fld. No." := CRMAccount.FieldNo(AccountId);
-            "Int. Tbl. Modified On Fld. No." := CRMAccount.FieldNo(ModifiedOn);
-            "Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
-            Insert();
-        end;
+        IntegrationTableMapping.DeleteAll();
+        IntegrationTableMapping.Init();
+        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
+        IntegrationTableMapping."Table ID" := DATABASE::Customer;
+        IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
+        IntegrationTableMapping."Integration Table UID Fld. No." := CRMAccount.FieldNo(AccountId);
+        IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := CRMAccount.FieldNo(ModifiedOn);
+        IntegrationTableMapping."Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
+        IntegrationTableMapping.Insert();
 
-        with IntegrationFieldMapping do begin
-            DeleteAll();
-            Init();
-            "No." := 0;
-            "Integration Table Mapping Name" := IntegrationTableMapping.Name;
-            "Field No." := Customer.FieldNo("No.");
-            "Integration Table Field No." := CRMAccount.FieldNo(AccountNumber);
-            Direction := Direction::ToIntegrationTable;
-            Insert(true);
-        end;
+        IntegrationFieldMapping.DeleteAll();
+        IntegrationFieldMapping.Init();
+        IntegrationFieldMapping."No." := 0;
+        IntegrationFieldMapping."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+        IntegrationFieldMapping."Field No." := Customer.FieldNo("No.");
+        IntegrationFieldMapping."Integration Table Field No." := CRMAccount.FieldNo(AccountNumber);
+        IntegrationFieldMapping.Direction := IntegrationFieldMapping.Direction::ToIntegrationTable;
+        IntegrationFieldMapping.Insert(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateIntegrationTableMappingCurrency(var IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        Currency: Record Currency;
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+    begin
+        IntegrationTableMapping.DeleteAll();
+        IntegrationTableMapping.Init();
+        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
+        IntegrationTableMapping."Table ID" := DATABASE::Currency;
+        IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Transactioncurrency";
+        IntegrationTableMapping."Integration Table UID Fld. No." := CRMTransactioncurrency.FieldNo(TransactionCurrencyId);
+        IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := CRMTransactioncurrency.FieldNo(ModifiedOn);
+        IntegrationTableMapping."Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
+        IntegrationTableMapping.Insert();
+
+        IntegrationFieldMapping.DeleteAll();
+        IntegrationFieldMapping.Init();
+        IntegrationFieldMapping."No." := 0;
+        IntegrationFieldMapping."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+        IntegrationFieldMapping."Field No." := Currency.FieldNo(Code);
+        IntegrationFieldMapping."Integration Table Field No." := CRMTransactioncurrency.FieldNo(ISOCurrencyCode);
+        IntegrationFieldMapping.Direction := IntegrationFieldMapping.Direction::ToIntegrationTable;
+        IntegrationFieldMapping.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure ConfigureCRM()
     begin
-        RegisterTestTableConnection;
-        EnsureCRMSystemUser;
+        RegisterTestTableConnection();
+        EnsureCRMSystemUser();
     end;
 
     local procedure CoupleRecordIdToCRMId(RecordID: RecordID; CRMID: Guid)
@@ -1431,25 +1436,23 @@ codeunit 139164 "Library - CRM Integration"
 
     local procedure FindIntegrationSystemUser(CDSConnectionSetup: Record "CDS Connection Setup"; var CRMSystemuser: Record "CRM Systemuser"): Boolean
     begin
-        with CDSConnectionSetup do
-            case "Authentication Type" of
-                "Authentication Type"::Office365, "Authentication Type"::OAuth:
-                    CRMSystemuser.SetRange(InternalEMailAddress, "User Name");
-                "Authentication Type"::AD, "Authentication Type"::IFD:
-                    CRMSystemuser.SetRange(DomainName, "User Name");
-            end;
+        case CDSConnectionSetup."Authentication Type" of
+            CDSConnectionSetup."Authentication Type"::Office365, CDSConnectionSetup."Authentication Type"::OAuth:
+                CRMSystemuser.SetRange(InternalEMailAddress, CDSConnectionSetup."User Name");
+            CDSConnectionSetup."Authentication Type"::AD, CDSConnectionSetup."Authentication Type"::IFD:
+                CRMSystemuser.SetRange(DomainName, CDSConnectionSetup."User Name");
+        end;
         exit(CRMSystemuser.FindFirst());
     end;
 
     local procedure FindIntegrationSystemUser(CRMConnectionSetup: Record "CRM Connection Setup"; var CRMSystemuser: Record "CRM Systemuser"): Boolean
     begin
-        with CRMConnectionSetup do
-            case "Authentication Type" of
-                "Authentication Type"::Office365, "Authentication Type"::OAuth:
-                    CRMSystemuser.SetRange(InternalEMailAddress, "User Name");
-                "Authentication Type"::AD, "Authentication Type"::IFD:
-                    CRMSystemuser.SetRange(DomainName, "User Name");
-            end;
+        case CRMConnectionSetup."Authentication Type" of
+            CRMConnectionSetup."Authentication Type"::Office365, CRMConnectionSetup."Authentication Type"::OAuth:
+                CRMSystemuser.SetRange(InternalEMailAddress, CRMConnectionSetup."User Name");
+            CRMConnectionSetup."Authentication Type"::AD, CRMConnectionSetup."Authentication Type"::IFD:
+                CRMSystemuser.SetRange(DomainName, CRMConnectionSetup."User Name");
+        end;
         exit(CRMSystemuser.FindFirst())
     end;
 
@@ -1488,7 +1491,7 @@ codeunit 139164 "Library - CRM Integration"
                 exit;
 
         CRMPricelevel.Init();
-        CRMPricelevel.Name := CRMSynchHelper.GetDefaultPriceListName;
+        CRMPricelevel.Name := CRMSynchHelper.GetDefaultPriceListName();
         CRMPriceLevel.TransactionCurrencyId := GetGLSetupCRMTransactionCurrencyID();
         CRMPricelevel.Insert();
 
@@ -1603,25 +1606,25 @@ codeunit 139164 "Library - CRM Integration"
 
     local procedure OpenAndFilterCustomerCard(var CustomerCard: TestPage "Customer Card"; CustomerNo: Code[20])
     begin
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.FILTER.SetFilter("No.", CustomerNo);
     end;
 
     local procedure OpenAndFilterCustomerList(var CustomerList: TestPage "Customer List"; CustomerNo: Code[20])
     begin
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.FILTER.SetFilter("No.", CustomerNo);
     end;
 
     local procedure OpenAndFilterCurrencyCard(var CurrencyCard: TestPage "Currency Card"; CurrencyCode: Code[10])
     begin
-        CurrencyCard.OpenView;
+        CurrencyCard.OpenView();
         CurrencyCard.FILTER.SetFilter(Code, CurrencyCode);
     end;
 
     local procedure OpenAndFilterCurrencyList(var Currencies: TestPage Currencies; CurrencyCode: Code[10])
     begin
-        Currencies.OpenView;
+        Currencies.OpenView();
         Currencies.FILTER.SetFilter(Code, CurrencyCode);
     end;
 
@@ -1635,12 +1638,12 @@ codeunit 139164 "Library - CRM Integration"
             HostPageName::CustomerCard:
                 begin
                     OpenAndFilterCustomerCard(CustomerCard, CustomerNo);
-                    CustomerCard.CRMGotoAccount.Invoke;
+                    CustomerCard.CRMGotoAccount.Invoke();
                 end;
             HostPageName::CustomerList:
                 begin
                     OpenAndFilterCustomerList(CustomerList, CustomerNo);
-                    CustomerList.CRMGotoAccount.Invoke;
+                    CustomerList.CRMGotoAccount.Invoke();
                 end;
         end;
     end;
@@ -1655,12 +1658,12 @@ codeunit 139164 "Library - CRM Integration"
             HostPageName::CurrencyCard:
                 begin
                     OpenAndFilterCurrencyCard(CurrencyCard, CurrencyCode);
-                    CurrencyCard.CRMGotoTransactionCurrency.Invoke;
+                    CurrencyCard.CRMGotoTransactionCurrency.Invoke();
                 end;
             HostPageName::CurrencyList:
                 begin
                     OpenAndFilterCurrencyList(Currencies, CurrencyCode);
-                    Currencies.CRMGotoTransactionCurrency.Invoke;
+                    Currencies.CRMGotoTransactionCurrency.Invoke();
                 end;
         end;
     end;
@@ -1669,11 +1672,11 @@ codeunit 139164 "Library - CRM Integration"
     begin
         case LinkedPageName of
             LinkedPageName::Cases:
-                CustomerCard.Control39.Cases.DrillDown;
+                CustomerCard.Control39.Cases.DrillDown();
             LinkedPageName::Opportunities:
-                CustomerCard.Control39.Opportunities.DrillDown;
+                CustomerCard.Control39.Opportunities.DrillDown();
             LinkedPageName::Quotes:
-                CustomerCard.Control39.Quotes.DrillDown;
+                CustomerCard.Control39.Quotes.DrillDown();
         end;
     end;
 
@@ -1681,11 +1684,11 @@ codeunit 139164 "Library - CRM Integration"
     begin
         case LinkedPageName of
             LinkedPageName::Cases:
-                CustomerList.Control99.Cases.DrillDown;
+                CustomerList.Control99.Cases.DrillDown();
             LinkedPageName::Opportunities:
-                CustomerList.Control99.Opportunities.DrillDown;
+                CustomerList.Control99.Opportunities.DrillDown();
             LinkedPageName::Quotes:
-                CustomerList.Control99.Quotes.DrillDown;
+                CustomerList.Control99.Quotes.DrillDown();
         end;
     end;
 
@@ -1749,15 +1752,15 @@ codeunit 139164 "Library - CRM Integration"
     [Scope('OnPrem')]
     procedure MockConnection()
     begin
-        LibraryMockCRMConnection.MockConnection;
+        LibraryMockCRMConnection.MockConnection();
     end;
 
     [Scope('OnPrem')]
     procedure RegisterTestTableConnection()
     begin
-        LibraryMockCRMConnection.MockConnection;
+        LibraryMockCRMConnection.MockConnection();
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, 'TEST');
-        LibraryMockCRMConnection.RegisterTestConnection;
+        LibraryMockCRMConnection.RegisterTestConnection();
         CreateCRMConnectionSetup('', '@@test@@', true);
     end;
 
@@ -1769,6 +1772,8 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
+        ManIntegrationFieldMapping: Record "Man. Integration Field Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         IntTableSynchSubscriber: Codeunit "Int. Table Synch. Subscriber";
     begin
@@ -1777,6 +1782,8 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationSynchJob.DeleteAll();
         IntegrationSynchJobErrors.DeleteAll();
         IntegrationTableMapping.DeleteAll(true);
+        ManIntegrationFieldMapping.DeleteAll();
+        ManIntegrationTableMapping.DeleteAll();
 
         IntTableSynchSubscriber.Reset();
         CRMIntegrationManagement.ClearState();
@@ -1786,8 +1793,8 @@ codeunit 139164 "Library - CRM Integration"
         Clear(CRMBusLogicSimulator);
         Assert.IsTrue(BindSubscription(CRMBusLogicSimulator), 'CRMBusLogicSimulator should be bind.');
         Clear(LibraryMockCRMConnection);
-        LibraryMockCRMConnection.SkipRead;
-        LibraryMockCRMConnection.MockConnection;
+        LibraryMockCRMConnection.SkipRead();
+        LibraryMockCRMConnection.MockConnection();
         Assert.IsTrue(BindSubscription(LibraryMockCRMConnection), 'LibraryMockCRMConnection should be bind.')
     end;
 
@@ -1808,7 +1815,7 @@ codeunit 139164 "Library - CRM Integration"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Freight G/L Acc. No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        SalesReceivablesSetup.Validate("Freight G/L Acc. No.", LibraryERM.CreateGLAccountWithSalesSetup());
         SalesReceivablesSetup.Modify(true);
         exit(SalesReceivablesSetup."Freight G/L Acc. No.");
     end;
@@ -1851,13 +1858,13 @@ codeunit 139164 "Library - CRM Integration"
     [Scope('OnPrem')]
     procedure EnableReadingCRMData()
     begin
-        LibraryMockCRMConnection.EnableRead;
+        LibraryMockCRMConnection.EnableRead();
     end;
 
     [Scope('OnPrem')]
     procedure SkipReadingCRMData()
     begin
-        LibraryMockCRMConnection.SkipRead;
+        LibraryMockCRMConnection.SkipRead();
     end;
 
     [Scope('OnPrem')]
@@ -1875,8 +1882,6 @@ codeunit 139164 "Library - CRM Integration"
 
     [Scope('OnPrem')]
     procedure RunJobQueueEntryForIntTabMapping(IntegrationTableMapping: Record "Integration Table Mapping") JobQueueEntryID: Guid
-    var
-        JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntryID := RunJobQueueEntryForIntTabMapping(IntegrationTableMapping, false);
     end;
@@ -1886,7 +1891,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
+        JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
         JobQueueEntry.FindFirst();
         JobQueueEntryID := JobQueueEntry.ID;
@@ -1913,7 +1918,7 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationTableMapping.SetRange("Integration Table ID", TableID);
         IntegrationTableMapping.FindSet();
         repeat
-            if View = IntegrationTableMapping.GetIntegrationTableFilter then
+            if View = IntegrationTableMapping.GetIntegrationTableFilter() then
                 exit(IntegrationTableMapping.Name);
         until IntegrationTableMapping.Next() = 0;
         Error(TempMappingNotFoundErr);
@@ -1924,7 +1929,7 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationTableMapping.SetRange("Table ID", TableID);
         IntegrationTableMapping.FindSet();
         repeat
-            if View = IntegrationTableMapping.GetTableFilter then
+            if View = IntegrationTableMapping.GetTableFilter() then
                 exit(IntegrationTableMapping.Name);
         until IntegrationTableMapping.Next() = 0;
         Error(TempMappingNotFoundErr);
@@ -1941,7 +1946,7 @@ codeunit 139164 "Library - CRM Integration"
         JobQueueLogEntry.FindLast();
         IntegrationSynchJob.SetRange("Job Queue Log Entry No.", JobQueueLogEntry."Entry No.");
         IntegrationSynchJob.SetRange("Synch. Direction", IntegrationTableMapping.Direction);
-        Assert.IsTrue(IntegrationSynchJob.FindLast, 'IntegrationSynchJob should be found');
+        Assert.IsTrue(IntegrationSynchJob.FindLast(), 'IntegrationSynchJob should be found');
         IntegrationSynchJob.TestField("Integration Table Mapping Name", IntegrationTableMapping."Parent Name");
         Assert.IsFalse(IntegrationTableMapping.Get(IntegrationTableMapping.Name), 'Temp mapping record should be deleted.');
     end;

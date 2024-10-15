@@ -1,6 +1,6 @@
 namespace System.Environment;
 
-using System;
+using System.Integration;
 using System.Visualization;
 
 page 1392 "Help And Chart Wrapper"
@@ -23,17 +23,17 @@ page 1392 "Help And Chart Wrapper"
                 StyleExpr = true;
                 ToolTip = 'Specifies the status of the resource, such as Completed.';
             }
-            usercontrol(BusinessChart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
+            usercontrol(BusinessChart; BusinessChart)
             {
                 ApplicationArea = Invoicing, Basic, Suite;
 
-                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointClicked(Point: JsonObject)
                 begin
-                    BusinessChartBuffer.SetDrillDownIndexes(point);
+                    BusinessChartBuffer.SetDrillDownIndexes(Point);
                     ChartManagement.DataPointClicked(BusinessChartBuffer, SelectedChartDefinition);
                 end;
 
-                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointDoubleClicked(Point: JsonObject)
                 begin
                 end;
 
@@ -177,7 +177,7 @@ page 1392 "Help And Chart Wrapper"
                 trigger OnAction()
                 begin
                     ChartManagement.UpdateChart(SelectedChartDefinition, BusinessChartBuffer, Period::Previous);
-                    BusinessChartBuffer.Update(CurrPage.BusinessChart);
+                    BusinessChartBuffer.UpdateChart(CurrPage.BusinessChart);
                 end;
             }
             action(NextPeriod)
@@ -191,7 +191,7 @@ page 1392 "Help And Chart Wrapper"
                 trigger OnAction()
                 begin
                     ChartManagement.UpdateChart(SelectedChartDefinition, BusinessChartBuffer, Period::Next);
-                    BusinessChartBuffer.Update(CurrPage.BusinessChart);
+                    BusinessChartBuffer.UpdateChart(CurrPage.BusinessChart);
                 end;
             }
             action(ChartInformation)
@@ -266,7 +266,7 @@ page 1392 "Help And Chart Wrapper"
     begin
         if not IsChartAddInReady then
             exit;
-        BusinessChartBuffer.Update(CurrPage.BusinessChart);
+        BusinessChartBuffer.UpdateChart(CurrPage.BusinessChart);
     end;
 
     [IntegrationEvent(false, false)]

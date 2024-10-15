@@ -8,8 +8,19 @@ using Microsoft.Purchases.Vendor;
 
 table 10016 "IRS 1099 Adjustment"
 {
+#if not CLEAN25
     DrillDownPageID = "IRS 1099 Adjustments";
     LookupPageID = "IRS 1099 Adjustments";
+#endif
+    DataClassification = CustomerContent;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#endif
 
     fields
     {
@@ -41,4 +52,3 @@ table 10016 "IRS 1099 Adjustment"
     {
     }
 }
-

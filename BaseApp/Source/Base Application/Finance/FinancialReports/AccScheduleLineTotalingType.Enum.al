@@ -1,6 +1,8 @@
 namespace Microsoft.Finance.FinancialReports;
 
+#pragma warning disable AL0659
 enum 85 "Acc. Schedule Line Totaling Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

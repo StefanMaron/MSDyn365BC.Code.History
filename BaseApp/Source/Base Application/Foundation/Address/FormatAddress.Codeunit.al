@@ -332,10 +332,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with CompanyInfo do
-            FormatAddr(
-              AddrArray, Name, "Name 2", '', Address, "Address 2",
-              City, "Post Code", County, '');
+        FormatAddr(
+            AddrArray, CompanyInfo.Name, CompanyInfo."Name 2", '', CompanyInfo.Address, CompanyInfo."Address 2",
+            CompanyInfo.City, CompanyInfo."Post Code", CompanyInfo.County, '');
     end;
 
     procedure Customer(var AddrArray: array[8] of Text[100]; var Cust: Record Customer)
@@ -346,10 +345,9 @@ codeunit 365 "Format Address"
         if Handled then
             exit;
 
-        with Cust do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, Cust.Name, Cust."Name 2", Cust.Contact, Cust.Address, Cust."Address 2",
+            Cust.City, Cust."Post Code", Cust.County, Cust."Country/Region Code");
     end;
 
     procedure Vendor(var AddrArray: array[8] of Text[100]; var Vend: Record Vendor)
@@ -360,10 +358,9 @@ codeunit 365 "Format Address"
         if Handled then
             exit;
 
-        with Vend do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, Vend.Name, Vend."Name 2", Vend.Contact, Vend.Address, Vend."Address 2",
+            Vend.City, Vend."Post Code", Vend.County, Vend."Country/Region Code");
     end;
 
     procedure BankAcc(var AddrArray: array[8] of Text[100]; var BankAcc: Record "Bank Account")
@@ -375,10 +372,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with BankAcc do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+              AddrArray, BankAcc.Name, BankAcc."Name 2", BankAcc.Contact, BankAcc.Address, BankAcc."Address 2",
+              BankAcc.City, BankAcc."Post Code", BankAcc.County, BankAcc."Country/Region Code");
     end;
 
 
@@ -391,10 +387,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with Location do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, Location.Name, Location."Name 2", Location.Contact, Location.Address, Location."Address 2",
+            Location.City, Location."Post Code", Location.County, Location."Country/Region Code");
     end;
 
     procedure SalesHeaderSellTo(var AddrArray: array[8] of Text[100]; var SalesHeader: Record "Sales Header")
@@ -405,10 +400,9 @@ codeunit 365 "Format Address"
         if Handled then
             exit;
 
-        with SalesHeader do
-            FormatAddr(
-              AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-              "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesHeader."Sell-to Customer Name", SalesHeader."Sell-to Customer Name 2", SalesHeader."Sell-to Contact", SalesHeader."Sell-to Address", SalesHeader."Sell-to Address 2",
+            SalesHeader."Sell-to City", SalesHeader."Sell-to Post Code", SalesHeader."Sell-to County", SalesHeader."Sell-to Country/Region Code");
     end;
 
     procedure SalesHeaderBillTo(var AddrArray: array[8] of Text[100]; var SalesHeader: Record "Sales Header")
@@ -419,10 +413,9 @@ codeunit 365 "Format Address"
         if Handled then
             exit;
 
-        with SalesHeader do
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesHeader."Bill-to Name", SalesHeader."Bill-to Name 2", SalesHeader."Bill-to Contact", SalesHeader."Bill-to Address", SalesHeader."Bill-to Address 2",
+            SalesHeader."Bill-to City", SalesHeader."Bill-to Post Code", SalesHeader."Bill-to County", SalesHeader."Bill-to Country/Region Code");
     end;
 
     procedure SalesHeaderShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesHeader: Record "Sales Header") Result: Boolean
@@ -435,18 +428,16 @@ codeunit 365 "Format Address"
         if Handled then
             exit(Result);
 
-        with SalesHeader do begin
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            if CountryRegion.Get("Sell-to Country/Region Code") then
-                SellToCountry := CountryRegion.GetTranslatedName(LanguageCode);
-            if "Sell-to Customer No." <> "Bill-to Customer No." then
+        FormatAddr(
+            AddrArray, SalesHeader."Ship-to Name", SalesHeader."Ship-to Name 2", SalesHeader."Ship-to Contact", SalesHeader."Ship-to Address", SalesHeader."Ship-to Address 2",
+            SalesHeader."Ship-to City", SalesHeader."Ship-to Post Code", SalesHeader."Ship-to County", SalesHeader."Ship-to Country/Region Code");
+        if CountryRegion.Get(SalesHeader."Sell-to Country/Region Code") then
+            SellToCountry := CountryRegion.GetTranslatedName(LanguageCode);
+        if SalesHeader."Sell-to Customer No." <> SalesHeader."Bill-to Customer No." then
+            exit(true);
+        for i := 1 to ArrayLen(AddrArray) do
+            if (AddrArray[i] <> CustAddr[i]) and (AddrArray[i] <> '') and (AddrArray[i] <> SellToCountry) then
                 exit(true);
-            for i := 1 to ArrayLen(AddrArray) do
-                if (AddrArray[i] <> CustAddr[i]) and (AddrArray[i] <> '') and (AddrArray[i] <> SellToCountry) then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -459,10 +450,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchHeader do
-            FormatAddr(
-              AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-              "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchHeader."Buy-from Vendor Name", PurchHeader."Buy-from Vendor Name 2", PurchHeader."Buy-from Contact", PurchHeader."Buy-from Address", PurchHeader."Buy-from Address 2",
+            PurchHeader."Buy-from City", PurchHeader."Buy-from Post Code", PurchHeader."Buy-from County", PurchHeader."Buy-from Country/Region Code");
     end;
 
     procedure PurchHeaderPayTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header")
@@ -474,10 +464,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchHeader do
-            FormatAddr(
-              AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-              "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchHeader."Pay-to Name", PurchHeader."Pay-to Name 2", PurchHeader."Pay-to Contact", PurchHeader."Pay-to Address", PurchHeader."Pay-to Address 2",
+            PurchHeader."Pay-to City", PurchHeader."Pay-to Post Code", PurchHeader."Pay-to County", PurchHeader."Pay-to Country/Region Code");
     end;
 
     procedure PurchHeaderShipTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header")
@@ -489,10 +478,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchHeader."Ship-to Name", PurchHeader."Ship-to Name 2", PurchHeader."Ship-to Contact", PurchHeader."Ship-to Address", PurchHeader."Ship-to Address 2",
+            PurchHeader."Ship-to City", PurchHeader."Ship-to Post Code", PurchHeader."Ship-to County", PurchHeader."Ship-to Country/Region Code");
     end;
 
 #if not CLEAN22
@@ -547,10 +535,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with SalesShptHeader do
-            FormatAddr(
-              AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-              "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesShptHeader."Sell-to Customer Name", SalesShptHeader."Sell-to Customer Name 2", SalesShptHeader."Sell-to Contact", SalesShptHeader."Sell-to Address", SalesShptHeader."Sell-to Address 2",
+            SalesShptHeader."Sell-to City", SalesShptHeader."Sell-to Post Code", SalesShptHeader."Sell-to County", SalesShptHeader."Sell-to Country/Region Code");
     end;
 
     procedure SalesShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header") Result: Boolean
@@ -562,16 +549,14 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit(Result);
 
-        with SalesShptHeader do begin
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            if "Bill-to Customer No." <> "Sell-to Customer No." then
+        FormatAddr(
+            AddrArray, SalesShptHeader."Bill-to Name", SalesShptHeader."Bill-to Name 2", SalesShptHeader."Bill-to Contact", SalesShptHeader."Bill-to Address", SalesShptHeader."Bill-to Address 2",
+            SalesShptHeader."Bill-to City", SalesShptHeader."Bill-to Post Code", SalesShptHeader."Bill-to County", SalesShptHeader."Bill-to Country/Region Code");
+        if SalesShptHeader."Bill-to Customer No." <> SalesShptHeader."Sell-to Customer No." then
+            exit(true);
+        for i := 1 to ArrayLen(AddrArray) do
+            if ShipToAddr[i] <> AddrArray[i] then
                 exit(true);
-            for i := 1 to ArrayLen(AddrArray) do
-                if ShipToAddr[i] <> AddrArray[i] then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -583,10 +568,9 @@ codeunit 365 "Format Address"
         if Handled then
             exit;
 
-        with SalesShptHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesShptHeader."Ship-to Name", SalesShptHeader."Ship-to Name 2", SalesShptHeader."Ship-to Contact", SalesShptHeader."Ship-to Address", SalesShptHeader."Ship-to Address 2",
+            SalesShptHeader."Ship-to City", SalesShptHeader."Ship-to Post Code", SalesShptHeader."Ship-to County", SalesShptHeader."Ship-to Country/Region Code");
     end;
 
     procedure SalesInvSellTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header")
@@ -598,10 +582,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with SalesInvHeader do
-            FormatAddr(
-              AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-              "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesInvHeader."Sell-to Customer Name", SalesInvHeader."Sell-to Customer Name 2", SalesInvHeader."Sell-to Contact", SalesInvHeader."Sell-to Address", SalesInvHeader."Sell-to Address 2",
+            SalesInvHeader."Sell-to City", SalesInvHeader."Sell-to Post Code", SalesInvHeader."Sell-to County", SalesInvHeader."Sell-to Country/Region Code");
     end;
 
     procedure SalesInvBillTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header")
@@ -612,10 +595,9 @@ codeunit 365 "Format Address"
         if Handled then
             exit;
 
-        with SalesInvHeader do
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesInvHeader."Bill-to Name", SalesInvHeader."Bill-to Name 2", SalesInvHeader."Bill-to Contact", SalesInvHeader."Bill-to Address", SalesInvHeader."Bill-to Address 2",
+            SalesInvHeader."Bill-to City", SalesInvHeader."Bill-to Post Code", SalesInvHeader."Bill-to County", SalesInvHeader."Bill-to Country/Region Code");
     end;
 
     procedure SalesInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header") Result: Boolean
@@ -626,16 +608,14 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit(Result);
 
-        with SalesInvHeader do begin
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            if "Sell-to Customer No." <> "Bill-to Customer No." then
+        FormatAddr(
+            AddrArray, SalesInvHeader."Ship-to Name", SalesInvHeader."Ship-to Name 2", SalesInvHeader."Ship-to Contact", SalesInvHeader."Ship-to Address", SalesInvHeader."Ship-to Address 2",
+            SalesInvHeader."Ship-to City", SalesInvHeader."Ship-to Post Code", SalesInvHeader."Ship-to County", SalesInvHeader."Ship-to Country/Region Code");
+        if SalesInvHeader."Sell-to Customer No." <> SalesInvHeader."Bill-to Customer No." then
+            exit(true);
+        for i := 1 to ArrayLen(AddrArray) do
+            if AddrArray[i] <> CustAddr[i] then
                 exit(true);
-            for i := 1 to ArrayLen(AddrArray) do
-                if AddrArray[i] <> CustAddr[i] then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -648,10 +628,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with SalesCrMemoHeader do
-            FormatAddr(
-              AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-              "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesCrMemoHeader."Sell-to Customer Name", SalesCrMemoHeader."Sell-to Customer Name 2", SalesCrMemoHeader."Sell-to Contact", SalesCrMemoHeader."Sell-to Address", SalesCrMemoHeader."Sell-to Address 2",
+            SalesCrMemoHeader."Sell-to City", SalesCrMemoHeader."Sell-to Post Code", SalesCrMemoHeader."Sell-to County", SalesCrMemoHeader."Sell-to Country/Region Code");
     end;
 
     procedure SalesCrMemoBillTo(var AddrArray: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -663,10 +642,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with SalesCrMemoHeader do
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesCrMemoHeader."Bill-to Name", SalesCrMemoHeader."Bill-to Name 2", SalesCrMemoHeader."Bill-to Contact", SalesCrMemoHeader."Bill-to Address", SalesCrMemoHeader."Bill-to Address 2",
+            SalesCrMemoHeader."Bill-to City", SalesCrMemoHeader."Bill-to Post Code", SalesCrMemoHeader."Bill-to County", SalesCrMemoHeader."Bill-to Country/Region Code");
     end;
 
     procedure SalesCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header") Result: Boolean
@@ -678,16 +656,14 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit(Result);
 
-        with SalesCrMemoHeader do begin
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            if "Sell-to Customer No." <> "Bill-to Customer No." then
+        FormatAddr(
+            AddrArray, SalesCrMemoHeader."Ship-to Name", SalesCrMemoHeader."Ship-to Name 2", SalesCrMemoHeader."Ship-to Contact", SalesCrMemoHeader."Ship-to Address", SalesCrMemoHeader."Ship-to Address 2",
+            SalesCrMemoHeader."Ship-to City", SalesCrMemoHeader."Ship-to Post Code", SalesCrMemoHeader."Ship-to County", SalesCrMemoHeader."Ship-to Country/Region Code");
+        if SalesCrMemoHeader."Sell-to Customer No." <> SalesCrMemoHeader."Bill-to Customer No." then
+            exit(true);
+        for i := 1 to ArrayLen(AddrArray) do
+            if AddrArray[i] <> CustAddr[i] then
                 exit(true);
-            for i := 1 to ArrayLen(AddrArray) do
-                if AddrArray[i] <> CustAddr[i] then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -700,10 +676,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ReturnRcptHeader do
-            FormatAddr(
-              AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-              "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ReturnRcptHeader."Sell-to Customer Name", ReturnRcptHeader."Sell-to Customer Name 2", ReturnRcptHeader."Sell-to Contact", ReturnRcptHeader."Sell-to Address", ReturnRcptHeader."Sell-to Address 2",
+            ReturnRcptHeader."Sell-to City", ReturnRcptHeader."Sell-to Post Code", ReturnRcptHeader."Sell-to County", ReturnRcptHeader."Sell-to Country/Region Code");
     end;
 
     procedure SalesRcptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header") Result: Boolean
@@ -715,16 +690,14 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit(Result);
 
-        with ReturnRcptHeader do begin
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            if "Bill-to Customer No." <> "Sell-to Customer No." then
+        FormatAddr(
+            AddrArray, ReturnRcptHeader."Bill-to Name", ReturnRcptHeader."Bill-to Name 2", ReturnRcptHeader."Bill-to Contact", ReturnRcptHeader."Bill-to Address", ReturnRcptHeader."Bill-to Address 2",
+            ReturnRcptHeader."Bill-to City", ReturnRcptHeader."Bill-to Post Code", ReturnRcptHeader."Bill-to County", ReturnRcptHeader."Bill-to Country/Region Code");
+        if ReturnRcptHeader."Bill-to Customer No." <> ReturnRcptHeader."Sell-to Customer No." then
+            exit(true);
+        for i := 1 to ArrayLen(AddrArray) do
+            if AddrArray[i] <> ShipToAddr[i] then
                 exit(true);
-            for i := 1 to ArrayLen(AddrArray) do
-                if AddrArray[i] <> ShipToAddr[i] then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -737,10 +710,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ReturnRcptHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ReturnRcptHeader."Ship-to Name", ReturnRcptHeader."Ship-to Name 2", ReturnRcptHeader."Ship-to Contact", ReturnRcptHeader."Ship-to Address", ReturnRcptHeader."Ship-to Address 2",
+            ReturnRcptHeader."Ship-to City", ReturnRcptHeader."Ship-to Post Code", ReturnRcptHeader."Ship-to County", ReturnRcptHeader."Ship-to Country/Region Code");
     end;
 
     procedure PurchRcptBuyFrom(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header")
@@ -752,10 +724,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchRcptHeader do
-            FormatAddr(
-              AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-              "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchRcptHeader."Buy-from Vendor Name", PurchRcptHeader."Buy-from Vendor Name 2", PurchRcptHeader."Buy-from Contact", PurchRcptHeader."Buy-from Address", PurchRcptHeader."Buy-from Address 2",
+            PurchRcptHeader."Buy-from City", PurchRcptHeader."Buy-from Post Code", PurchRcptHeader."Buy-from County", PurchRcptHeader."Buy-from Country/Region Code");
     end;
 
     procedure PurchRcptPayTo(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header")
@@ -767,10 +738,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchRcptHeader do
-            FormatAddr(
-              AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-              "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchRcptHeader."Pay-to Name", PurchRcptHeader."Pay-to Name 2", PurchRcptHeader."Pay-to Contact", PurchRcptHeader."Pay-to Address", PurchRcptHeader."Pay-to Address 2",
+            PurchRcptHeader."Pay-to City", PurchRcptHeader."Pay-to Post Code", PurchRcptHeader."Pay-to County", PurchRcptHeader."Pay-to Country/Region Code");
     end;
 
     procedure PurchRcptShipTo(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header")
@@ -782,10 +752,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchRcptHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchRcptHeader."Ship-to Name", PurchRcptHeader."Ship-to Name 2", PurchRcptHeader."Ship-to Contact", PurchRcptHeader."Ship-to Address", PurchRcptHeader."Ship-to Address 2",
+            PurchRcptHeader."Ship-to City", PurchRcptHeader."Ship-to Post Code", PurchRcptHeader."Ship-to County", PurchRcptHeader."Ship-to Country/Region Code");
     end;
 
     procedure PurchInvBuyFrom(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header")
@@ -797,10 +766,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchInvHeader do
-            FormatAddr(
-              AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-              "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchInvHeader."Buy-from Vendor Name", PurchInvHeader."Buy-from Vendor Name 2", PurchInvHeader."Buy-from Contact", PurchInvHeader."Buy-from Address", PurchInvHeader."Buy-from Address 2",
+            PurchInvHeader."Buy-from City", PurchInvHeader."Buy-from Post Code", PurchInvHeader."Buy-from County", PurchInvHeader."Buy-from Country/Region Code");
     end;
 
     procedure PurchInvPayTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header")
@@ -812,10 +780,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchInvHeader do
-            FormatAddr(
-              AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-              "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchInvHeader."Pay-to Name", PurchInvHeader."Pay-to Name 2", PurchInvHeader."Pay-to Contact", PurchInvHeader."Pay-to Address", PurchInvHeader."Pay-to Address 2",
+            PurchInvHeader."Pay-to City", PurchInvHeader."Pay-to Post Code", PurchInvHeader."Pay-to County", PurchInvHeader."Pay-to Country/Region Code");
     end;
 
     procedure PurchInvShipTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header")
@@ -827,10 +794,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchInvHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchInvHeader."Ship-to Name", PurchInvHeader."Ship-to Name 2", PurchInvHeader."Ship-to Contact", PurchInvHeader."Ship-to Address", PurchInvHeader."Ship-to Address 2",
+            PurchInvHeader."Ship-to City", PurchInvHeader."Ship-to Post Code", PurchInvHeader."Ship-to County", PurchInvHeader."Ship-to Country/Region Code");
     end;
 
 #if not CLEAN22
@@ -885,10 +851,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchCrMemoHeader do
-            FormatAddr(
-              AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-              "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchCrMemoHeader."Buy-from Vendor Name", PurchCrMemoHeader."Buy-from Vendor Name 2", PurchCrMemoHeader."Buy-from Contact", PurchCrMemoHeader."Buy-from Address", PurchCrMemoHeader."Buy-from Address 2",
+            PurchCrMemoHeader."Buy-from City", PurchCrMemoHeader."Buy-from Post Code", PurchCrMemoHeader."Buy-from County", PurchCrMemoHeader."Buy-from Country/Region Code");
     end;
 
     procedure PurchCrMemoPayTo(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
@@ -900,10 +865,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchCrMemoHeader do
-            FormatAddr(
-              AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-              "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchCrMemoHeader."Pay-to Name", PurchCrMemoHeader."Pay-to Name 2", PurchCrMemoHeader."Pay-to Contact", PurchCrMemoHeader."Pay-to Address", PurchCrMemoHeader."Pay-to Address 2",
+            PurchCrMemoHeader."Pay-to City", PurchCrMemoHeader."Pay-to Post Code", PurchCrMemoHeader."Pay-to County", PurchCrMemoHeader."Pay-to Country/Region Code");
     end;
 
     procedure PurchCrMemoShipTo(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
@@ -915,10 +879,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchCrMemoHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchCrMemoHeader."Ship-to Name", PurchCrMemoHeader."Ship-to Name 2", PurchCrMemoHeader."Ship-to Contact", PurchCrMemoHeader."Ship-to Address", PurchCrMemoHeader."Ship-to Address 2",
+            PurchCrMemoHeader."Ship-to City", PurchCrMemoHeader."Ship-to Post Code", PurchCrMemoHeader."Ship-to County", PurchCrMemoHeader."Ship-to Country/Region Code");
     end;
 
     procedure PurchShptBuyFrom(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header")
@@ -930,10 +893,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ReturnShptHeader do
-            FormatAddr(
-              AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-              "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
+        FormatAddr(
+            AddrArray, ReturnShptHeader."Buy-from Vendor Name", ReturnShptHeader."Buy-from Vendor Name 2", ReturnShptHeader."Buy-from Contact", ReturnShptHeader."Buy-from Address", ReturnShptHeader."Buy-from Address 2",
+            ReturnShptHeader."Buy-from City", ReturnShptHeader."Buy-from Post Code", ReturnShptHeader."Buy-from County", ReturnShptHeader."Buy-from Country/Region Code");
     end;
 
     procedure PurchShptPayTo(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header")
@@ -945,10 +907,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ReturnShptHeader do
-            FormatAddr(
-              AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-              "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ReturnShptHeader."Pay-to Name", ReturnShptHeader."Pay-to Name 2", ReturnShptHeader."Pay-to Contact", ReturnShptHeader."Pay-to Address", ReturnShptHeader."Pay-to Address 2",
+            ReturnShptHeader."Pay-to City", ReturnShptHeader."Pay-to Post Code", ReturnShptHeader."Pay-to County", ReturnShptHeader."Pay-to Country/Region Code");
     end;
 
     procedure PurchShptShipTo(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header")
@@ -960,10 +921,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ReturnShptHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ReturnShptHeader."Ship-to Name", ReturnShptHeader."Ship-to Name 2", ReturnShptHeader."Ship-to Contact", ReturnShptHeader."Ship-to Address", ReturnShptHeader."Ship-to Address 2",
+            ReturnShptHeader."Ship-to City", ReturnShptHeader."Ship-to Post Code", ReturnShptHeader."Ship-to County", ReturnShptHeader."Ship-to Country/Region Code");
     end;
 
     procedure AltAddr(var AddrArray: array[8] of Text[100]; var Employee: Record Employee; var AlternativeAddr: Record "Alternative Address")
@@ -975,10 +935,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with AlternativeAddr do
-            FormatAddr(
-              AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', Address,
-              "Address 2", City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', AlternativeAddr.Address,
+            AlternativeAddr."Address 2", AlternativeAddr.City, AlternativeAddr."Post Code", AlternativeAddr.County, AlternativeAddr."Country/Region Code");
     end;
 
     procedure Employee(var AddrArray: array[8] of Text[100]; var Employee: Record Employee)
@@ -990,10 +949,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with Employee do
-            FormatAddr(
-              AddrArray, CopyStr(FullName(), 1, 50), '', '', Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', Employee.Address, Employee."Address 2",
+            Employee.City, Employee."Post Code", Employee.County, Employee."Country/Region Code");
     end;
 
     procedure EmployeeAltAddr(var AddrArray: array[8] of Text[100]; var Employee: Record Employee)
@@ -1001,10 +959,9 @@ codeunit 365 "Format Address"
         AlternativeAddr: Record "Alternative Address";
     begin
         AlternativeAddr.Get(Employee."No.", Employee."Alt. Address Code");
-        with AlternativeAddr do
-            FormatAddr(
-              AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', Address,
-              "Address 2", City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', AlternativeAddr.Address,
+            AlternativeAddr."Address 2", AlternativeAddr.City, AlternativeAddr."Post Code", AlternativeAddr.County, AlternativeAddr."Country/Region Code");
     end;
 
     procedure VendBankAcc(var AddrArray: array[8] of Text[100]; var VendBankAcc: Record "Vendor Bank Account")
@@ -1016,10 +973,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with VendBankAcc do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, VendBankAcc.Name, VendBankAcc."Name 2", VendBankAcc.Contact, VendBankAcc.Address, VendBankAcc."Address 2",
+            VendBankAcc.City, VendBankAcc."Post Code", VendBankAcc.County, VendBankAcc."Country/Region Code");
     end;
 
     procedure CustBankAcc(var AddrArray: array[8] of Text[100]; var CustBankAcc: Record "Customer Bank Account")
@@ -1031,10 +987,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with CustBankAcc do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, CustBankAcc.Name, CustBankAcc."Name 2", CustBankAcc.Contact, CustBankAcc.Address, CustBankAcc."Address 2",
+            CustBankAcc.City, CustBankAcc."Post Code", CustBankAcc.County, CustBankAcc."Country/Region Code");
     end;
 
     procedure RespCenter(var AddrArray: array[8] of Text[100]; var RespCenter: Record "Responsibility Center")
@@ -1046,10 +1001,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with RespCenter do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, RespCenter.Name, RespCenter."Name 2", RespCenter.Contact, RespCenter.Address, RespCenter."Address 2",
+            RespCenter.City, RespCenter."Post Code", RespCenter.County, RespCenter."Country/Region Code");
     end;
 
     procedure TransferShptTransferFrom(var AddrArray: array[8] of Text[100]; var TransShptHeader: Record "Transfer Shipment Header")
@@ -1061,11 +1015,10 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with TransShptHeader do
-            FormatAddr(
-              AddrArray,
-              "Transfer-from Name", "Transfer-from Name 2", "Transfer-from Contact", "Transfer-from Address", "Transfer-from Address 2",
-              "Transfer-from City", "Transfer-from Post Code", "Transfer-from County", "Trsf.-from Country/Region Code");
+        FormatAddr(
+            AddrArray,
+            TransShptHeader."Transfer-from Name", TransShptHeader."Transfer-from Name 2", TransShptHeader."Transfer-from Contact", TransShptHeader."Transfer-from Address", TransShptHeader."Transfer-from Address 2",
+            TransShptHeader."Transfer-from City", TransShptHeader."Transfer-from Post Code", TransShptHeader."Transfer-from County", TransShptHeader."Trsf.-from Country/Region Code");
     end;
 
     procedure TransferShptTransferTo(var AddrArray: array[8] of Text[100]; var TransShptHeader: Record "Transfer Shipment Header")
@@ -1077,10 +1030,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with TransShptHeader do
-            FormatAddr(
-              AddrArray, "Transfer-to Name", "Transfer-to Name 2", "Transfer-to Contact", "Transfer-to Address", "Transfer-to Address 2",
-              "Transfer-to City", "Transfer-to Post Code", "Transfer-to County", "Trsf.-to Country/Region Code");
+        FormatAddr(
+            AddrArray, TransShptHeader."Transfer-to Name", TransShptHeader."Transfer-to Name 2", TransShptHeader."Transfer-to Contact", TransShptHeader."Transfer-to Address", TransShptHeader."Transfer-to Address 2",
+            TransShptHeader."Transfer-to City", TransShptHeader."Transfer-to Post Code", TransShptHeader."Transfer-to County", TransShptHeader."Trsf.-to Country/Region Code");
     end;
 
     procedure TransferRcptTransferFrom(var AddrArray: array[8] of Text[100]; var TransRcptHeader: Record "Transfer Receipt Header")
@@ -1092,11 +1044,10 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with TransRcptHeader do
-            FormatAddr(
-              AddrArray,
-              "Transfer-from Name", "Transfer-from Name 2", "Transfer-from Contact", "Transfer-from Address", "Transfer-from Address 2",
-              "Transfer-from City", "Transfer-from Post Code", "Transfer-from County", "Trsf.-from Country/Region Code");
+        FormatAddr(
+            AddrArray,
+            TransRcptHeader."Transfer-from Name", TransRcptHeader."Transfer-from Name 2", TransRcptHeader."Transfer-from Contact", TransRcptHeader."Transfer-from Address", TransRcptHeader."Transfer-from Address 2",
+            TransRcptHeader."Transfer-from City", TransRcptHeader."Transfer-from Post Code", TransRcptHeader."Transfer-from County", TransRcptHeader."Trsf.-from Country/Region Code");
     end;
 
     procedure TransferRcptTransferTo(var AddrArray: array[8] of Text[100]; var TransRcptHeader: Record "Transfer Receipt Header")
@@ -1108,10 +1059,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with TransRcptHeader do
-            FormatAddr(
-              AddrArray, "Transfer-to Name", "Transfer-to Name 2", "Transfer-to Contact", "Transfer-to Address", "Transfer-to Address 2",
-              "Transfer-to City", "Transfer-to Post Code", "Transfer-to County", "Trsf.-to Country/Region Code");
+        FormatAddr(
+            AddrArray, TransRcptHeader."Transfer-to Name", TransRcptHeader."Transfer-to Name 2", TransRcptHeader."Transfer-to Contact", TransRcptHeader."Transfer-to Address", TransRcptHeader."Transfer-to Address 2",
+            TransRcptHeader."Transfer-to City", TransRcptHeader."Transfer-to Post Code", TransRcptHeader."Transfer-to County", TransRcptHeader."Trsf.-to Country/Region Code");
     end;
 
     procedure TransferHeaderTransferFrom(var AddrArray: array[8] of Text[100]; var TransHeader: Record "Transfer Header")
@@ -1123,11 +1073,10 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with TransHeader do
-            FormatAddr(
-              AddrArray,
-              "Transfer-from Name", "Transfer-from Name 2", "Transfer-from Contact", "Transfer-from Address", "Transfer-from Address 2",
-              "Transfer-from City", "Transfer-from Post Code", "Transfer-from County", "Trsf.-from Country/Region Code");
+        FormatAddr(
+            AddrArray,
+            TransHeader."Transfer-from Name", TransHeader."Transfer-from Name 2", TransHeader."Transfer-from Contact", TransHeader."Transfer-from Address", TransHeader."Transfer-from Address 2",
+            TransHeader."Transfer-from City", TransHeader."Transfer-from Post Code", TransHeader."Transfer-from County", TransHeader."Trsf.-from Country/Region Code");
     end;
 
     procedure TransferHeaderTransferTo(var AddrArray: array[8] of Text[100]; var TransHeader: Record "Transfer Header")
@@ -1139,10 +1088,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with TransHeader do
-            FormatAddr(
-              AddrArray, "Transfer-to Name", "Transfer-to Name 2", "Transfer-to Contact", "Transfer-to Address", "Transfer-to Address 2",
-              "Transfer-to City", "Transfer-to Post Code", "Transfer-to County", "Trsf.-to Country/Region Code");
+        FormatAddr(
+            AddrArray, TransHeader."Transfer-to Name", TransHeader."Transfer-to Name 2", TransHeader."Transfer-to Contact", TransHeader."Transfer-to Address", TransHeader."Transfer-to Address 2",
+            TransHeader."Transfer-to City", TransHeader."Transfer-to Post Code", TransHeader."Transfer-to County", TransHeader."Trsf.-to Country/Region Code");
     end;
 
     procedure ContactAddr(var AddrArray: array[8] of Text[100]; var Cont: Record Contact)
@@ -1173,22 +1121,22 @@ codeunit 365 "Format Address"
 
         case true of
             AltAddressCode <> '':
-                with ContAltAddr do begin
-                    Get(Cont."No.", AltAddressCode);
+                begin
+                    ContAltAddr.Get(Cont."No.", AltAddressCode);
                     FormatAddr(
-                      AddrArray, "Company Name", "Company Name 2", Cont.Name, Address, "Address 2",
-                      City, "Post Code", County, "Country/Region Code");
+                      AddrArray, ContAltAddr."Company Name", ContAltAddr."Company Name 2", Cont.Name, ContAltAddr.Address, ContAltAddr."Address 2",
+                      ContAltAddr.City, ContAltAddr."Post Code", ContAltAddr.County, ContAltAddr."Country/Region Code");
                 end;
             (Cont.Type = Cont.Type::Person) and
           (Cont."Company No." <> '') and
           (CompanyAltAddressCode <> '') and
           RMSetup."Inherit Address Details" and
           ContIdenticalAddress:
-                with ContAltAddr do begin
-                    Get(Cont."Company No.", CompanyAltAddressCode);
+                begin
+                    ContAltAddr.Get(Cont."Company No.", CompanyAltAddressCode);
                     FormatAddr(
-                      AddrArray, "Company Name", "Company Name 2", Cont.Name, Address, "Address 2",
-                      City, "Post Code", County, "Country/Region Code");
+                      AddrArray, ContAltAddr."Company Name", ContAltAddr."Company Name 2", Cont.Name, ContAltAddr.Address, ContAltAddr."Address 2",
+                      ContAltAddr.City, ContAltAddr."Post Code", ContAltAddr.County, ContAltAddr."Country/Region Code");
                 end;
             (Cont.Type = Cont.Type::Person) and
           (Cont."Company No." <> ''):
@@ -1235,10 +1183,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServHeader do
-            FormatAddr(
-              AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, ServHeader.Name, ServHeader."Name 2", ServHeader."Contact Name", ServHeader.Address, ServHeader."Address 2",
+            ServHeader.City, ServHeader."Post Code", ServHeader.County, ServHeader."Country/Region Code");
     end;
 
     procedure ServiceOrderShipto(var AddrArray: array[8] of Text[100]; ServHeader: Record "Service Header")
@@ -1250,10 +1197,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ServHeader."Ship-to Name", ServHeader."Ship-to Name 2", ServHeader."Ship-to Contact", ServHeader."Ship-to Address", ServHeader."Ship-to Address 2",
+            ServHeader."Ship-to City", ServHeader."Ship-to Post Code", ServHeader."Ship-to County", ServHeader."Ship-to Country/Region Code");
     end;
 
     procedure ServContractSellto(var AddrArray: array[8] of Text[100]; ServContract: Record "Service Contract Header")
@@ -1265,32 +1211,28 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServContract do begin
-            CalcFields(Name, "Name 2", Address, "Address 2", "Post Code", City, County, "Country/Region Code");
-            FormatAddr(
-              AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
-        end;
+        ServContract.CalcFields(Name, "Name 2", Address, "Address 2", "Post Code", City, County, "Country/Region Code");
+        FormatAddr(
+          AddrArray, ServContract.Name, ServContract."Name 2", ServContract."Contact Name", ServContract.Address, ServContract."Address 2",
+          ServContract.City, ServContract."Post Code", ServContract.County, ServContract."Country/Region Code");
     end;
 
     procedure ServContractShipto(var AddrArray: array[8] of Text[100]; ServiceContractHeader: Record "Service Contract Header")
     var
         IsHandled: Boolean;
     begin
-        with ServiceContractHeader do begin
-            CalcFields(
-              "Ship-to Name", "Ship-to Name 2", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code");
+        ServiceContractHeader.CalcFields(
+            "Ship-to Name", "Ship-to Name 2", "Ship-to Address", "Ship-to Address 2",
+            "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code");
 
-            IsHandled := false;
-            OnBeforeServContractShipTo(AddrArray, ServiceContractHeader, IsHandled);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnBeforeServContractShipTo(AddrArray, ServiceContractHeader, IsHandled);
+        if IsHandled then
+            exit;
 
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Contact Name", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-        end;
+        FormatAddr(
+          AddrArray, ServiceContractHeader."Ship-to Name", ServiceContractHeader."Ship-to Name 2", ServiceContractHeader."Contact Name", ServiceContractHeader."Ship-to Address", ServiceContractHeader."Ship-to Address 2",
+          ServiceContractHeader."Ship-to City", ServiceContractHeader."Ship-to Post Code", ServiceContractHeader."Ship-to County", ServiceContractHeader."Ship-to Country/Region Code");
     end;
 
     procedure ServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header")
@@ -1302,10 +1244,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServiceInvHeader do
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ServiceInvHeader."Bill-to Name", ServiceInvHeader."Bill-to Name 2", ServiceInvHeader."Bill-to Contact", ServiceInvHeader."Bill-to Address", ServiceInvHeader."Bill-to Address 2",
+            ServiceInvHeader."Bill-to City", ServiceInvHeader."Bill-to Post Code", ServiceInvHeader."Bill-to County", ServiceInvHeader."Bill-to Country/Region Code");
     end;
 
     procedure ServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header") Result: Boolean
@@ -1317,16 +1258,14 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit(Result);
 
-        with ServiceInvHeader do begin
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            if "Customer No." <> "Bill-to Customer No." then
+        FormatAddr(
+            AddrArray, ServiceInvHeader."Ship-to Name", ServiceInvHeader."Ship-to Name 2", ServiceInvHeader."Ship-to Contact", ServiceInvHeader."Ship-to Address", ServiceInvHeader."Ship-to Address 2",
+            ServiceInvHeader."Ship-to City", ServiceInvHeader."Ship-to Post Code", ServiceInvHeader."Ship-to County", ServiceInvHeader."Ship-to Country/Region Code");
+        if ServiceInvHeader."Customer No." <> ServiceInvHeader."Bill-to Customer No." then
+            exit(true);
+        for i := 1 to ArrayLen(AddrArray) do
+            if AddrArray[i] <> CustAddr[i] then
                 exit(true);
-            for i := 1 to ArrayLen(AddrArray) do
-                if AddrArray[i] <> CustAddr[i] then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -1339,10 +1278,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServiceShptHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ServiceShptHeader."Ship-to Name", ServiceShptHeader."Ship-to Name 2", ServiceShptHeader."Ship-to Contact", ServiceShptHeader."Ship-to Address", ServiceShptHeader."Ship-to Address 2",
+            ServiceShptHeader."Ship-to City", ServiceShptHeader."Ship-to Post Code", ServiceShptHeader."Ship-to County", ServiceShptHeader."Ship-to Country/Region Code");
     end;
 
     procedure ServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
@@ -1354,10 +1292,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServiceShptHeader do
-            FormatAddr(
-              AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, ServiceShptHeader.Name, ServiceShptHeader."Name 2", ServiceShptHeader."Contact Name", ServiceShptHeader.Address, ServiceShptHeader."Address 2",
+            ServiceShptHeader.City, ServiceShptHeader."Post Code", ServiceShptHeader.County, ServiceShptHeader."Country/Region Code");
     end;
 
     procedure ServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header") Result: Boolean
@@ -1369,16 +1306,14 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit(Result);
 
-        with ServiceShptHeader do begin
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            if "Bill-to Customer No." <> "Customer No." then
+        FormatAddr(
+            AddrArray, ServiceShptHeader."Bill-to Name", ServiceShptHeader."Bill-to Name 2", ServiceShptHeader."Bill-to Contact", ServiceShptHeader."Bill-to Address", ServiceShptHeader."Bill-to Address 2",
+            ServiceShptHeader."Bill-to City", ServiceShptHeader."Bill-to Post Code", ServiceShptHeader."Bill-to County", ServiceShptHeader."Bill-to Country/Region Code");
+        if ServiceShptHeader."Bill-to Customer No." <> ServiceShptHeader."Customer No." then
+            exit(true);
+        for i := 1 to ArrayLen(AddrArray) do
+            if ShipToAddr[i] <> AddrArray[i] then
                 exit(true);
-            for i := 1 to ArrayLen(AddrArray) do
-                if ShipToAddr[i] <> AddrArray[i] then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -1391,10 +1326,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServiceCrMemoHeader do
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ServiceCrMemoHeader."Bill-to Name", ServiceCrMemoHeader."Bill-to Name 2", ServiceCrMemoHeader."Bill-to Contact", ServiceCrMemoHeader."Bill-to Address", ServiceCrMemoHeader."Bill-to Address 2",
+            ServiceCrMemoHeader."Bill-to City", ServiceCrMemoHeader."Bill-to Post Code", ServiceCrMemoHeader."Bill-to County", ServiceCrMemoHeader."Bill-to Country/Region Code");
     end;
 
     procedure ServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header") Result: Boolean
@@ -1406,16 +1340,14 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit(Result);
 
-        with ServiceCrMemoHeader do begin
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            if "Customer No." <> "Bill-to Customer No." then
+        FormatAddr(
+            AddrArray, ServiceCrMemoHeader."Ship-to Name", ServiceCrMemoHeader."Ship-to Name 2", ServiceCrMemoHeader."Ship-to Contact", ServiceCrMemoHeader."Ship-to Address", ServiceCrMemoHeader."Ship-to Address 2",
+            ServiceCrMemoHeader."Ship-to City", ServiceCrMemoHeader."Ship-to Post Code", ServiceCrMemoHeader."Ship-to County", ServiceCrMemoHeader."Ship-to Country/Region Code");
+        if ServiceCrMemoHeader."Customer No." <> ServiceCrMemoHeader."Bill-to Customer No." then
+            exit(true);
+        for i := 1 to ArrayLen(AddrArray) do
+            if AddrArray[i] <> CustAddr[i] then
                 exit(true);
-            for i := 1 to ArrayLen(AddrArray) do
-                if AddrArray[i] <> CustAddr[i] then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -1428,10 +1360,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServiceHeader do
-            FormatAddr(
-              AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, ServiceHeader.Name, ServiceHeader."Name 2", ServiceHeader."Contact Name", ServiceHeader.Address, ServiceHeader."Address 2",
+            ServiceHeader.City, ServiceHeader."Post Code", ServiceHeader.County, ServiceHeader."Country/Region Code");
     end;
 
     procedure ServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
@@ -1443,10 +1374,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServiceHeader do
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ServiceHeader."Bill-to Name", ServiceHeader."Bill-to Name 2", ServiceHeader."Bill-to Contact", ServiceHeader."Bill-to Address", ServiceHeader."Bill-to Address 2",
+            ServiceHeader."Bill-to City", ServiceHeader."Bill-to Post Code", ServiceHeader."Bill-to County", ServiceHeader."Bill-to Country/Region Code");
     end;
 
     procedure ServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
@@ -1458,10 +1388,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ServiceHeader do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, ServiceHeader."Ship-to Name", ServiceHeader."Ship-to Name 2", ServiceHeader."Ship-to Contact", ServiceHeader."Ship-to Address", ServiceHeader."Ship-to Address 2",
+            ServiceHeader."Ship-to City", ServiceHeader."Ship-to Post Code", ServiceHeader."Ship-to County", ServiceHeader."Ship-to Country/Region Code");
     end;
 
     procedure PostalBarCode(AddressType: Option): Text[100]
@@ -1480,10 +1409,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with SalesHeaderArch do
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+        FormatAddr(
+            AddrArray, SalesHeaderArch."Bill-to Name", SalesHeaderArch."Bill-to Name 2", SalesHeaderArch."Bill-to Contact", SalesHeaderArch."Bill-to Address", SalesHeaderArch."Bill-to Address 2",
+            SalesHeaderArch."Bill-to City", SalesHeaderArch."Bill-to Post Code", SalesHeaderArch."Bill-to County", SalesHeaderArch."Bill-to Country/Region Code");
     end;
 
     procedure SalesHeaderArchShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesHeaderArch: Record "Sales Header Archive") Result: Boolean
@@ -1497,18 +1425,16 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit(Result);
 
-        with SalesHeaderArch do begin
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            if "Sell-to Customer No." <> "Bill-to Customer No." then
+        FormatAddr(
+            AddrArray, SalesHeaderArch."Ship-to Name", SalesHeaderArch."Ship-to Name 2", SalesHeaderArch."Ship-to Contact", SalesHeaderArch."Ship-to Address", SalesHeaderArch."Ship-to Address 2",
+            SalesHeaderArch."Ship-to City", SalesHeaderArch."Ship-to Post Code", SalesHeaderArch."Ship-to County", SalesHeaderArch."Ship-to Country/Region Code");
+        if SalesHeaderArch."Sell-to Customer No." <> SalesHeaderArch."Bill-to Customer No." then
+            exit(true);
+        if CountryRegion.Get(SalesHeaderArch."Sell-to Country/Region Code") then
+            SellToCountry := CountryRegion.GetTranslatedName(LanguageCode);
+        for i := 1 to ArrayLen(AddrArray) do
+            if (AddrArray[i] <> CustAddr[i]) and (AddrArray[i] <> '') and (AddrArray[i] <> SellToCountry) then
                 exit(true);
-            if CountryRegion.Get("Sell-to Country/Region Code") then
-                SellToCountry := CountryRegion.GetTranslatedName(LanguageCode);
-            for i := 1 to ArrayLen(AddrArray) do
-                if (AddrArray[i] <> CustAddr[i]) and (AddrArray[i] <> '') and (AddrArray[i] <> SellToCountry) then
-                    exit(true);
-        end;
         exit(false);
     end;
 
@@ -1521,10 +1447,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchHeaderArch do
-            FormatAddr(
-              AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-              "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchHeaderArch."Buy-from Vendor Name", PurchHeaderArch."Buy-from Vendor Name 2", PurchHeaderArch."Buy-from Contact", PurchHeaderArch."Buy-from Address", PurchHeaderArch."Buy-from Address 2",
+            PurchHeaderArch."Buy-from City", PurchHeaderArch."Buy-from Post Code", PurchHeaderArch."Buy-from County", PurchHeaderArch."Buy-from Country/Region Code");
     end;
 
     procedure PurchHeaderPayToArch(var AddrArray: array[8] of Text[100]; var PurchHeaderArch: Record "Purchase Header Archive")
@@ -1536,10 +1461,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchHeaderArch do
-            FormatAddr(
-              AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-              "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchHeaderArch."Pay-to Name", PurchHeaderArch."Pay-to Name 2", PurchHeaderArch."Pay-to Contact", PurchHeaderArch."Pay-to Address", PurchHeaderArch."Pay-to Address 2",
+            PurchHeaderArch."Pay-to City", PurchHeaderArch."Pay-to Post Code", PurchHeaderArch."Pay-to County", PurchHeaderArch."Pay-to Country/Region Code");
     end;
 
     procedure PurchHeaderShipToArch(var AddrArray: array[8] of Text[100]; var PurchHeaderArch: Record "Purchase Header Archive")
@@ -1551,10 +1475,9 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with PurchHeaderArch do
-            FormatAddr(
-              AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+        FormatAddr(
+            AddrArray, PurchHeaderArch."Ship-to Name", PurchHeaderArch."Ship-to Name 2", PurchHeaderArch."Ship-to Contact", PurchHeaderArch."Ship-to Address", PurchHeaderArch."Ship-to Address 2",
+            PurchHeaderArch."Ship-to City", PurchHeaderArch."Ship-to Post Code", PurchHeaderArch."Ship-to County", PurchHeaderArch."Ship-to Country/Region Code");
     end;
 
     procedure Reminder(var AddrArray: array[8] of Text[100]; var ReminderHeader: Record "Reminder Header")
@@ -1566,9 +1489,8 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with ReminderHeader do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, ReminderHeader.Name, ReminderHeader."Name 2", ReminderHeader.Contact, ReminderHeader.Address, ReminderHeader."Address 2", ReminderHeader.City, ReminderHeader."Post Code", ReminderHeader.County, ReminderHeader."Country/Region Code");
     end;
 
     procedure IssuedReminder(var AddrArray: array[8] of Text[100]; var IssuedReminderHeader: Record "Issued Reminder Header")
@@ -1580,9 +1502,8 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with IssuedReminderHeader do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, IssuedReminderHeader.Name, IssuedReminderHeader."Name 2", IssuedReminderHeader.Contact, IssuedReminderHeader.Address, IssuedReminderHeader."Address 2", IssuedReminderHeader.City, IssuedReminderHeader."Post Code", IssuedReminderHeader.County, IssuedReminderHeader."Country/Region Code");
     end;
 
     procedure FinanceChargeMemo(var AddrArray: array[8] of Text[100]; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
@@ -1594,9 +1515,8 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with FinanceChargeMemoHeader do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, FinanceChargeMemoHeader.Name, FinanceChargeMemoHeader."Name 2", FinanceChargeMemoHeader.Contact, FinanceChargeMemoHeader.Address, FinanceChargeMemoHeader."Address 2", FinanceChargeMemoHeader.City, FinanceChargeMemoHeader."Post Code", FinanceChargeMemoHeader.County, FinanceChargeMemoHeader."Country/Region Code");
     end;
 
     procedure IssuedFinanceChargeMemo(var AddrArray: array[8] of Text[100]; var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
@@ -1608,9 +1528,8 @@ codeunit 365 "Format Address"
         if IsHandled then
             exit;
 
-        with IssuedFinChargeMemoHeader do
-            FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+        FormatAddr(
+            AddrArray, IssuedFinChargeMemoHeader.Name, IssuedFinChargeMemoHeader."Name 2", IssuedFinChargeMemoHeader.Contact, IssuedFinChargeMemoHeader.Address, IssuedFinChargeMemoHeader."Address 2", IssuedFinChargeMemoHeader.City, IssuedFinChargeMemoHeader."Post Code", IssuedFinChargeMemoHeader.County, IssuedFinChargeMemoHeader."Country/Region Code");
     end;
 
     procedure JobBillTo(var AddrArray: array[8] of Text[100]; var Job: Record Job)
@@ -1621,10 +1540,9 @@ codeunit 365 "Format Address"
         if Handled then
             exit;
 
-        with Job do
-            FormatAddr(
-              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+        FormatAddr(
+            AddrArray, Job."Bill-to Name", Job."Bill-to Name 2", Job."Bill-to Contact", Job."Bill-to Address", Job."Bill-to Address 2",
+            Job."Bill-to City", Job."Bill-to Post Code", Job."Bill-to County", Job."Bill-to Country/Region Code");
     end;
 
 #if not CLEAN22
@@ -1635,10 +1553,16 @@ codeunit 365 "Format Address"
     end;
 #endif
 
-    internal procedure VendorRemitToAddress(var RemitAddress: Record "Remit Address"; var ArrayAddress: array[8] of Text[100])
+    procedure VendorRemitToAddress(var RemitAddress: Record "Remit Address"; var ArrayAddress: array[8] of Text[100])
     var
         RemitAddressBuffer: Record "Remit Address Buffer";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVendorRemitToAddress(ArrayAddress, RemitAddress, IsHandled);
+        if IsHandled then
+            exit;
+
         VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
 
         FormatAddr(
@@ -2195,6 +2119,11 @@ codeunit 365 "Format Address"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVendBankAcc(var AddrArray: array[8] of Text[100]; var VendorBankAccount: Record "Vendor Bank Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVendorRemitToAddress(var AddrArray: array[8] of Text[100]; RemitAddress: Record "Remit Address"; var IsHandled: Boolean)
     begin
     end;
 

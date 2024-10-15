@@ -595,17 +595,6 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
         TotalGainLoss := ContractGainLossEntry.Amount;
     end;
 
-#if not CLEAN
-    [Obsolete('Replaced by LoadMatrix().', '19.0')]
-    procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Contract Group"; CurrentNoOfMatrixColumns: Integer; AmountTypeLocal: Option "Net Change","Balance at Date"; PeriodTypeLocal: Option Day,Week,Month,Quarter,Year; GroupFilterLocal: Text[250]; PeriodStartLocal: Date)
-    begin
-        LoadMatrix(
-            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns,
-            "Analysis Amount Type".FromInteger(AmountTypeLocal), "Analysis Period Type".FromInteger(PeriodTypeLocal),
-            GroupFilterLocal, PeriodStartLocal);
-    end;
-#endif
-
     procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record "Contract Group"; NewCurrentNoOfMatrixColumns: Integer; NewAmountType: Enum "Analysis Amount Type"; NewPeriodType: Enum "Analysis Period Type"; NewGroupFilter: Text[250]; NewPeriodStart: Date)
     begin
         CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);

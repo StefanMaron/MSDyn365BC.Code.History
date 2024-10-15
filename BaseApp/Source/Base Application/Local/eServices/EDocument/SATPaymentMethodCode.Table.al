@@ -9,6 +9,7 @@ table 27001 "SAT Payment Method Code"
     Caption = 'SAT Payment Method Code';
     DrillDownPageID = "SAT Payment Method Codes";
     LookupPageID = "SAT Payment Method Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -11,6 +11,6 @@
     begin
         TempBlob.CreateOutStream(ContentOutStream);
         ContentOutStream.WriteText(LibraryUtility.GenerateGUID());
-        VATReportArchive.ArchiveSubmissionMessage("VAT Report Config. Code", Rec."No.", TempBlob);
+        VATReportArchive.ArchiveSubmissionMessage("VAT Report Config. Code".AsInteger(), Rec."No.", TempBlob);
     end;
 }

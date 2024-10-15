@@ -10,7 +10,7 @@ page 6063 "Contract Change Log"
     PageType = List;
     SourceTable = "Contract Change Log";
     SourceTableView = sorting("Contract No.", "Change No.")
-                      order(Descending);
+                      order(descending);
 
     layout
     {

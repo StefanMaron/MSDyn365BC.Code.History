@@ -229,7 +229,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Top __ Inventory Items");
 
         // Verify: Verify Inventory Item on Top Inventory Items Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(Format(IntegerNumber), IntegerNumberCap, TopNoCap, ItemJournalLine."Item No.");
     end;
 
@@ -275,7 +275,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Top __ Inventory Items");
 
         // Verify: Verify Sales of Item on Top Inventory Items Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(Format(IntegerNumber), IntegerNumberCap, TopNoCap, SalesLine."No.");
     end;
 
@@ -322,7 +322,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Top __ Inventory Items");
 
         // Verify: Verify Inventory Value of Item on Top Inventory Items Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(Format(IntegerNumber), IntegerNumberCap, TopNoCap, Item."No.");
     end;
 
@@ -343,7 +343,7 @@ codeunit 142061 "ERM Misc. Report II"
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, LibraryRandom.RandDec(100, 2), CreateCustomer(''),
-          CreateItem, LibraryRandom.RandDec(100, 2));  // Using Random Value for Quantity and Unit Price.
+          CreateItem(), LibraryRandom.RandDec(100, 2));  // Using Random Value for Quantity and Unit Price.
         ModifySalesHeader(SalesHeader, SalesLine, SalespersonPurchaser.Code);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryVariableStorage.Enqueue(SalespersonPurchaser.Code);
@@ -358,7 +358,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Item Status by Salesperson");
 
         // Verify: Verify Filters on Item Status by Salesperson Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(FilterStringValue, FilterStringCap, FilterStringCap2, FilterStringValue2);
         VerifyValuesOnReport(SalesLine."No.", ItemDescriptionCap, InvoicedQuantityCap, SalesLine."Qty. to Invoice");
     end;
@@ -386,7 +386,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Ship-To Address Listing");
 
         // Verify: Verify Ship to Address code and Tax Area code on Ship to Address Listing Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(
           ShiptoAddress."Customer No.", CustomerNoCaption, ShiptoAddressTaxAreaCodeCaption, ShiptoAddress."Tax Area Code");
         VerifyValuesOnReport(ShiptoAddress."Customer No.", CustomerNoCaption, ShiptoAddressCodeCaption, ShiptoAddress.Code);
@@ -403,7 +403,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Customer Account Detail Report With Print Amount In Customer Currency True.
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Taken random Amount.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CustomerAccountDetailReport(CurrencyCode, false, Amount, LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate()));
     end;
 
@@ -417,7 +417,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Customer Account Detail Report With Print Amount In Customer Currency False.
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Taken random Amount.
-        CustomerAccountDetailReport(CreateCurrency, true, Amount, Amount);
+        CustomerAccountDetailReport(CreateCurrency(), true, Amount, Amount);
     end;
 
     local procedure CustomerAccountDetailReport(CurrencyCode: Code[10]; PrintAmtInCustCurrency: Boolean; Amount: Decimal; AmountToPrint: Decimal)
@@ -433,7 +433,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Customer Account Detail");
 
         // Verify: Verify Amount and Amount to print on Customer Account Detail Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(GenJournalLine."Account No.", CustomerNoCaption, CustLedgerEntryAmountCaption, -Amount);
         VerifyValuesOnReport(GenJournalLine."Account No.", CustomerNoCaption, AmountToPrintCaption, -AmountToPrint);
     end;
@@ -473,7 +473,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Customer Account Detail");
 
         // Verify: Verify Customer No. on Customer Account Detail Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(GenJournalLine."Account No.", CustomerNoCaption, NewPagePerGroupNoCaption, NewPagePerGroupValue);
         VerifyValuesOnReport(GenJournalLine2."Account No.", CustomerNoCaption, NewPagePerGroupNoCaption, NewPagePerGroupValue2);
     end;
@@ -494,7 +494,7 @@ codeunit 142061 "ERM Misc. Report II"
 
         // Verify: Verify Customer No. with no balance does not exist on Customer Account Detail Report.
         LibraryReportDataset.SetRange(CustomerNoCaption, CustomerNo);
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, RowMustNotExistErr);
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), RowMustNotExistErr);
     end;
 
     [Test]
@@ -529,7 +529,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Customer Account Detail");
 
         // Verify: Verify Customer No. exists on Customer Account Detail Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CustomerNoCaption, GenJournalLine."Account No.");
         LibraryReportDataset.AssertElementWithValueExists(BalanceTotalLbl, GenJournalLine.Amount);
     end;
@@ -569,12 +569,12 @@ codeunit 142061 "ERM Misc. Report II"
 
         // Setup & Exercise.
         Initialize();
-        VendorNo := CreateVendorWithCurrency(CreateCurrency);
+        VendorNo := CreateVendorWithCurrency(CreateCurrency());
         CreateAndPostInvoiceAndRunReportVendorListing(VendorLedgerEntry, VendorNo, true, false);
 
         // Verify: Verify Vendor Listing report.
         VendorLedgerEntry.CalcFields(Amount);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(VendorLedgerEntry."Vendor No.", VendorNoCap, VendBalanceCap, Abs(VendorLedgerEntry.Amount));
         VerifyValuesOnReport(VendorNo, VendorNoCap, VendBalanceCap, 0);  // Use 0 for balance.
     end;
@@ -591,15 +591,15 @@ codeunit 142061 "ERM Misc. Report II"
 
         // Setup & Exercise.
         Initialize();
-        VendorNo := CreateVendorWithCurrency(CreateCurrency);
+        VendorNo := CreateVendorWithCurrency(CreateCurrency());
         CreateAndPostInvoiceAndRunReportVendorListing(VendorLedgerEntry, VendorNo, false, true);
 
         // Verify: Verify Vendor Listing report.
         VendorLedgerEntry.CalcFields("Amount (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(VendorLedgerEntry."Vendor No.", VendorNoCap, VendBalanceCap, Abs(VendorLedgerEntry."Amount (LCY)"));
         LibraryReportDataset.SetRange(VendorNoCap, VendorNo);
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, RowMustNotExistErr);
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), RowMustNotExistErr);
     end;
 
     [Test]
@@ -616,7 +616,7 @@ codeunit 142061 "ERM Misc. Report II"
         CreateAndPostInvoiceAndRunReportCashReqtByDueDate(VendorLedgerEntry, false);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCashRequirementByDueDate(VendorLedgerEntry, VendorLedgerEntry."Document No.", false);
     end;
 
@@ -638,7 +638,7 @@ codeunit 142061 "ERM Misc. Report II"
 
         // [THEN] Report contains value of "External Document No."
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCashRequirementByDueDate(VendorLedgerEntry, VendorLedgerEntry."External Document No.", true);
     end;
 
@@ -697,7 +697,7 @@ codeunit 142061 "ERM Misc. Report II"
         SalesDocumentTestReport(SalesLine."Document Type"::"Blanket Order");
     end;
 
-    local procedure SalesDocumentTestReport(DocumentType: Option)
+    local procedure SalesDocumentTestReport(DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -717,7 +717,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Sales Document - Test");
 
         // Verify: Verify Sell To Customer No., Quantity, Line Amount and VAT Amount on Sales Document Test Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(
           SalesLine."Document No.", SalesHeaderNoCaption, SalesHeaderSelltoCustomerNoCaption, SalesLine."Sell-to Customer No.");
         VerifyValuesOnReport(SalesLine."No.", SalesLineNoCaption, SalesLineQuantityCaption, SalesLine.Quantity);
@@ -749,7 +749,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Customer/Item Statistics");
 
         // Verify: Verify Invoiced Quantity and Line Amount on Customer Item Statistics Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(SalesLine."Sell-to Customer No.", CustomerNoCaption, InvoicedQuantityCaption, SalesLine.Quantity);
         VerifyValuesOnReport(
           SalesLine."Sell-to Customer No.", CustomerNoCaption, ValueEntrySalesAmountActualCaption, SalesLine."Line Amount");
@@ -774,7 +774,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Cust./Item Stat. by Salespers.");
 
         // Verify: Verify Sales Person String, Amount, Item No. on Customer Item Statistics By Sales Person Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(
           Customer."Salesperson Code", SalespersonPurchaserCodeCaption, ValueEntrySalesAmountActualCaption, SalesLine."Line Amount");
         VerifyValuesOnReport(Customer."Salesperson Code", SalespersonPurchaserCodeCaption, ValueEntryItemNoCaption, SalesLine."No.");
@@ -822,7 +822,7 @@ codeunit 142061 "ERM Misc. Report II"
         RunDailyInvoicingReport(true, true, StrSubstNo(CustomerFilter, SalesLine."Sell-to Customer No.", SalesLine2."Sell-to Customer No."));
 
         // Verify: Verify Bill To Customer No and Amount on Daily Invoicing Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(
           PostedSalesInvoiceNo, SalesInvoiceHeaderNoCaption, SalesInvoiceHeaderBilltoCustomerNoCaption, SalesLine."Sell-to Customer No.");
         VerifyValuesOnReport(PostedSalesInvoiceNo, SalesInvoiceHeaderNoCaption, SalesInvoiceHeaderAmountCaption, SalesLine."Line Amount");
@@ -841,7 +841,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         // Verify Outstanding Sales Order Aging Report With Print Amount in Customer Currency TRUE.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Taken random for Unit Price.
         OutStandingSalesOrderAgingReport(CurrencyCode, UnitPrice, false, LibraryERM.ConvertCurrency(UnitPrice, CurrencyCode, '', WorkDate()));
     end;
@@ -856,7 +856,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Outstanding Sales Order Aging Report With Print Amount in Customer Currency FALSE.
         Initialize();
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Taken random for Unit Price.
-        OutStandingSalesOrderAgingReport(CreateCurrency, UnitPrice, true, UnitPrice);
+        OutStandingSalesOrderAgingReport(CreateCurrency(), UnitPrice, true, UnitPrice);
     end;
 
     local procedure OutStandingSalesOrderAgingReport(CurrencyCode: Code[10]; UnitPrice: Decimal; PrintAmountInCustCurrency: Boolean; Amount: Decimal)
@@ -870,12 +870,12 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Outstanding Sales Order Aging");
 
         // Verify: Verify Customer No., Item No., Amount on Outstanding Sales Order Aging Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(SalesLine."Document No.", LastDocNoCaption, CustomerNoCaption, SalesLine."Sell-to Customer No.");
         VerifyValuesOnReport(SalesLine."Document No.", LastDocNoCaption, SalesLineNoCap, SalesLine."No.");
         VerifyValuesOnReport(
           SalesLine."Document No.", LastDocNoCaption, TotalOutstandingCaption, Round(
-            Amount * SalesLine.Quantity, LibraryERM.GetAmountRoundingPrecision, RoundingDirection));
+            Amount * SalesLine.Quantity, LibraryERM.GetAmountRoundingPrecision(), RoundingDirection));
     end;
 
     [Test]
@@ -888,7 +888,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         // Verify Outstanding Sales Order Status Report With Print Amount in Customer Currency TRUE.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Taken random for Unit Price.
         OutStandingSalesOrderStatusReport(CurrencyCode, UnitPrice, false, LibraryERM.ConvertCurrency(UnitPrice, CurrencyCode, '', WorkDate()));
     end;
@@ -903,7 +903,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Verify Outstanding Sales Order Status Report With Print Amount in Customer Currency FALSE.
         Initialize();
         UnitPrice := LibraryRandom.RandDec(10, 2);
-        OutStandingSalesOrderStatusReport(CreateCurrency, UnitPrice, true, UnitPrice);
+        OutStandingSalesOrderStatusReport(CreateCurrency(), UnitPrice, true, UnitPrice);
     end;
 
     local procedure OutStandingSalesOrderStatusReport(CurrencyCode: Code[10]; UnitPrice: Decimal; PrintAmountInCustCurrency: Boolean; Amount: Decimal)
@@ -917,12 +917,12 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Outstanding Sales Order Status");
 
         // Verify: Verify Customer No., Item No., Amount on Outstanding Sales Order Status Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(SalesLine."Document No.", SalesHeaderNoCap, CustomerNoCaption, SalesLine."Sell-to Customer No.");
         VerifyValuesOnReport(SalesLine."Document No.", SalesHeaderNoCap, SalesLineNoCap, SalesLine."No.");
         VerifyValuesOnReport(
           SalesLine."Document No.", SalesHeaderNoCap, OutstandingExclTax2Caption, Round(
-            Amount * SalesLine.Quantity, LibraryERM.GetAmountRoundingPrecision, RoundingDirection));
+            Amount * SalesLine.Quantity, LibraryERM.GetAmountRoundingPrecision(), RoundingDirection));
     end;
 
     [Test]
@@ -946,7 +946,7 @@ codeunit 142061 "ERM Misc. Report II"
 
         // Verify: Verify Document No., Sales Amount and Remaining Amount on Sales person Statistics By Invoice Report.
         FindCustLedgerEntry(CustLedgerEntry, Customer."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(
           Customer."Salesperson Code", SalespersonPurchaserCodeCaption, CustLedgerEntryDocumentNoCaption, CustLedgerEntry."Document No.");
         VerifyValuesOnReport(
@@ -978,7 +978,7 @@ codeunit 142061 "ERM Misc. Report II"
 
         // Verify: Verify Sales Amount, Sales Commission, Profit Commission on Sales Commission Report.
         FindCustLedgerEntry(CustLedgerEntry, Customer."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(
           Customer."Salesperson Code", SalespersonPurchaserCodeCaption, SalespersonPurchaserCommissionCaption, CommissionPct);
         VerifyValuesOnReport(
@@ -1031,7 +1031,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         // Setup: Create and post Sales Order.
         CreateAndPostSalesDocument(
-          SalesLine, SalesLine."Document Type"::Order, CreateCustomer(CreateCurrency), LibraryRandom.RandDec(10, 2),
+          SalesLine, SalesLine."Document Type"::Order, CreateCustomer(CreateCurrency()), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity and Unit Price.
         LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");
         LibraryVariableStorage.Enqueue(PrintTotalInCustomerCurrency);  // Enqueue for SalespersonCommissionRequestPageHandler.
@@ -1041,7 +1041,7 @@ codeunit 142061 "ERM Misc. Report II"
 
         // Verify: Verify Document No. on Projected Cash Receipt Report
         FindCustLedgerEntry(CustLedgerEntry, SalesLine."Sell-to Customer No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(
           SalesLine."Sell-to Customer No.", CustomerNoCaption, CustLedgerEntryDocumentNoCaption, CustLedgerEntry."Document No.");
     end;
@@ -1061,7 +1061,7 @@ codeunit 142061 "ERM Misc. Report II"
         Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, LibraryRandom.RandDec(10, 2), CreateCustomer(''),
-          CreateItem, LibraryRandom.RandDec(10, 2));  // Taken random for Unit Price and Quantity.
+          CreateItem(), LibraryRandom.RandDec(10, 2));  // Taken random for Unit Price and Quantity.
         SalesLine.Validate("Drop Shipment", true);
         SalesLine.Modify(true);
         LibraryPurchase.CreateVendor(Vendor);
@@ -1072,7 +1072,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Drop Shipment Status");
 
         // Verify: Verify Quantity, Purchase Order No. and Vendor No. on Drop Shipment Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(SalesLine."Document No.", SalesLineDocumentNoCaption, SalesLineQuantityCap, SalesLine.Quantity);
         VerifyValuesOnReport(SalesLine."Document No.", SalesLineDocumentNoCaption, PurchaseLineDocumentNoCaption, PurchaseOrderNo);
         VerifyValuesOnReport(SalesLine."Document No.", SalesLineDocumentNoCaption, PurchaseLineBuyfromVendorNoCaption, Vendor."No.");
@@ -1100,7 +1100,7 @@ codeunit 142061 "ERM Misc. Report II"
 
         // Verify: Verify Job No., Document No., and Amount on Open Sales Invoice By Job Report.
         FindCustLedgerEntry(CustLedgerEntry, Job."Bill-to Customer No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(Job."No.", JobNoCaption, SalesInvoiceLineDocumentNoCaption, DocumentNo);
         VerifyValuesOnReport(Job."No.", JobNoCaption, CustLedgerEntryAmountLCY, CustLedgerEntry.Amount);
     end;
@@ -1123,7 +1123,7 @@ codeunit 142061 "ERM Misc. Report II"
         Initialize();
 
         LibraryERM.SetAmountRoundingPrecision(0.01);
-        ApplyTo := LibraryUTUtility.GetNewCode;
+        ApplyTo := LibraryUTUtility.GetNewCode();
         InvoiceAmount := LibraryRandom.RandDecInDecimalRange(10, 50, 2) * 2;
         CreditMemoAmount := LibraryRandom.RandDecInRange(50, 100, 2) * 2; // credit memo amount should be more then invoice's
 
@@ -1144,7 +1144,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::Check);
 
         // [THEN] Verify that Credit Memo amount = "Y" is shown on the Stub
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('LineAmt', CreditMemoAmount);
         LibraryReportDataset.AssertElementWithValueExists('LineAmt', -InvoiceAmount);
     end;
@@ -1166,7 +1166,7 @@ codeunit 142061 "ERM Misc. Report II"
         Initialize();
 
         LibraryERM.SetAmountRoundingPrecision(0.01);
-        ApplyTo := LibraryUTUtility.GetNewCode;
+        ApplyTo := LibraryUTUtility.GetNewCode();
         InvoiceAmount := LibraryRandom.RandDecInDecimalRange(50, 100, 2) * 2;
         CreditMemoAmount := LibraryRandom.RandDecInDecimalRange(10, 50, 2) * 2; // credit memo amount should be less then invoice's
 
@@ -1187,7 +1187,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::Check);
 
         // [THEN] Verify that Credit Memo amount = "Y" is shown on the Stub
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('LineAmt', -CreditMemoAmount);
         LibraryReportDataset.AssertElementWithValueExists('LineAmt', InvoiceAmount);
     end;
@@ -1216,7 +1216,7 @@ codeunit 142061 "ERM Misc. Report II"
         SalesLine.Modify(true);
 
         // [GIVEN] Drop Shipment Purchase Order created
-        GetSalesOrderAndCarryoutActionMessage(SalesLine, LibraryPurchase.CreateVendorNo);
+        GetSalesOrderAndCarryoutActionMessage(SalesLine, LibraryPurchase.CreateVendorNo());
         LibraryVariableStorage.Enqueue(SalesLine."Document No.");  // Enqueue for DropShipmentStatusRequestPageHandler.
 
         // [WHEN] Run "Drop Shipment Status" Report
@@ -1314,7 +1314,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         // Use Random values for Quantity and Unit Cost because values are not important.
         LibraryResource.CreateResourceNew(Resource);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", Resource."No.");
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity because value is not important.
         JobPlanningLine.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Cost because value is not important.
@@ -1340,7 +1340,7 @@ codeunit 142061 "ERM Misc. Report II"
         exit(Currency.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; Quantity: Decimal; CustomerNo: Code[20]; ItemNo: Code[20]; UnitPrice: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Quantity: Decimal; CustomerNo: Code[20]; ItemNo: Code[20]; UnitPrice: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1350,16 +1350,16 @@ codeunit 142061 "ERM Misc. Report II"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
-        CreateSalesDocument(SalesLine, DocumentType, Quantity, CustomerNo, CreateItem, UnitPrice);
+        CreateSalesDocument(SalesLine, DocumentType, Quantity, CustomerNo, CreateItem(), UnitPrice);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateAndPostPurchaseDocument(ItemNo: Code[20]; CurrencyCode: Code[10]; ToInvoice: Boolean; DocumentType: Option; Quantity: Decimal): Code[20]
+    local procedure CreateAndPostPurchaseDocument(ItemNo: Code[20]; CurrencyCode: Code[10]; ToInvoice: Boolean; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1367,7 +1367,7 @@ codeunit 142061 "ERM Misc. Report II"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, ToInvoice));
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Quantity: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1401,7 +1401,7 @@ codeunit 142061 "ERM Misc. Report II"
         // Setup: Create and post Invoice with Currency.
         DocumentNo := CreateAndPostPurchaseDocument(
             LibraryInventory.CreateItem(Item),
-            CreateCurrency, true, PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(100, 2));  // Use random value for Quantity.
+            CreateCurrency(), true, PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(100, 2));  // Use random value for Quantity.
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentNo);
         EnqueueValuesForVendorListingReport(
           StrSubstNo(Filter, VendorNo, VendorLedgerEntry."Vendor No."), PrintAmountsInVendorCurrency, VendWithBalancesOnly);
@@ -1426,7 +1426,7 @@ codeunit 142061 "ERM Misc. Report II"
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentNo);
         EnqueueValuesForCashReqtByDueDate(
           PurchaseHeader."Buy-from Vendor No.",
-          PurchaseHeader."Purchaser Code", true, UseExternalDocNo, PurchaseHeader."Document Type", PurchaseHeader."Due Date");
+          PurchaseHeader."Purchaser Code", true, UseExternalDocNo, PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."Due Date");
 
         // Exercise: Run report Cash Requirement By Due Date.
         REPORT.Run(REPORT::"Cash Requirements by Due Date");
@@ -1444,7 +1444,7 @@ codeunit 142061 "ERM Misc. Report II"
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account")
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.Validate("Bank Acc. Posting Group", FindBankAccPostingGroup);
+        BankAccount.Validate("Bank Acc. Posting Group", FindBankAccPostingGroup());
         BankAccount.Modify(true);
     end;
 
@@ -1474,7 +1474,7 @@ codeunit 142061 "ERM Misc. Report II"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateComputerCheckPayment(var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account"; AccountType: Option; AccountNo: Code[20]; PaymentAmount: Decimal; ApplyTo: Code[20])
+    local procedure CreateComputerCheckPayment(var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PaymentAmount: Decimal; ApplyTo: Code[20])
     begin
         CreateGenJournal(GenJournalLine, GenJournalLine."Document Type"::Payment,
           AccountType, AccountNo,
@@ -1488,7 +1488,7 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateGenJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1631,7 +1631,7 @@ codeunit 142061 "ERM Misc. Report II"
         GenJournalLine.Modify();
     end;
 
-    local procedure UpdateGenJournalLineWithBankAccount(var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account"; BankPaymentType: Option)
+    local procedure UpdateGenJournalLineWithBankAccount(var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account"; BankPaymentType: Enum "Bank Payment Type")
     begin
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
         GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
@@ -1755,7 +1755,7 @@ codeunit 142061 "ERM Misc. Report II"
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionWkshName: Record "Requisition Wksh. Name";
         RequisitionLine: Record "Requisition Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         RetrieveDimensionsFrom: Option Item,"Sales Line";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
@@ -1766,8 +1766,8 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::Item);
         FindAndModifyRequisitionLine(RequisitionLine, RequisitionWkshName.Name, VendorNo);
         PurchasesPayablesSetup.Get();
-        OrderNo := NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate(), false);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        OrderNo := NoSeries.PeekNextNo(PurchasesPayablesSetup."Order Nos.");
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure ModifySalesHeader(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalespersonCode: Code[20])
@@ -1806,7 +1806,7 @@ codeunit 142061 "ERM Misc. Report II"
         REPORT.Run(REPORT::"Return Shipment");
 
         // Verify: Verify Return Shipment report with Print Company and Log Interaction.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CompanyNameCap, NameOfCompany);
         LibraryReportDataset.AssertElementWithValueExists(ItemNumberToPrintCap, ItemLedgerEntry."Item No.");
         LibraryReportDataset.AssertElementWithValueExists(QtyReturnShipmentLineCap, Abs(ItemLedgerEntry.Quantity));
@@ -1853,7 +1853,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, LibraryRandom.RandDec(10, 2),
-          CreateCustomer(CurrencyCode), CreateItem, UnitPrice);
+          CreateCustomer(CurrencyCode), CreateItem(), UnitPrice);
         LibraryVariableStorage.Enqueue(PrintAmountInCustCurrency);
         LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");  // Enqueue for various Request Page Handler.
         Commit();  // COMMIT required to run the Report.
@@ -1862,7 +1862,7 @@ codeunit 142061 "ERM Misc. Report II"
     local procedure VerifyValuesOnReport(RowValue: Variant; RowCaption: Text[50]; ValueCaption: Text[50]; Value: Variant)
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(ValueCaption, Value);
     end;
 
@@ -1902,7 +1902,7 @@ codeunit 142061 "ERM Misc. Report II"
         CustomerAccountDetail.AllHavingBalance.SetValue(AccWithBalanceOnly);  // Setting value for AccWithBalanceOnly.
         CustomerAccountDetail.Customer.SetFilter("No.", No);
         CustomerAccountDetail.Customer.SetFilter("Date Filter", Format(WorkDate()));
-        CustomerAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1928,7 +1928,7 @@ codeunit 142061 "ERM Misc. Report II"
         CashRequiremByDueDate."Vendor Ledger Entry".SetFilter("Due Date", Format(DueDate));
         CashRequiremByDueDate."Vendor Ledger Entry".SetFilter("Document Type", Format(DocumentType));
         CashRequiremByDueDate."Vendor Ledger Entry".SetFilter("Purchaser Code", PurchaserCode);
-        CashRequiremByDueDate.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CashRequiremByDueDate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1939,7 +1939,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerItemStatistics.Customer.SetFilter("No.", No);
-        CustomerItemStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerItemStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1952,7 +1952,7 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryVariableStorage.Dequeue(Code);
         CustItemStatBySalespers.SalespersonToUse.SetValue(SalespersonToUse::"Assigned To Customer");
         CustItemStatBySalespers."Salesperson/Purchaser".SetFilter(Code, Code);
-        CustItemStatBySalespers.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustItemStatBySalespers.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1969,7 +1969,7 @@ codeunit 142061 "ERM Misc. Report II"
         DailyInvoicingReport.IncludeInvoices.SetValue(IncludeInvoice);
         DailyInvoicingReport.IncludeCreditMemos.SetValue(IncludeCreditMemo);
         DailyInvoicingReport."Sales Invoice Header".SetFilter("Sell-to Customer No.", SellToCustomerNo);
-        DailyInvoicingReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DailyInvoicingReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1980,7 +1980,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         DropShipmentStatus."Sales Line".SetFilter("Document No.", DocumentNo);
-        DropShipmentStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DropShipmentStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1998,14 +1998,14 @@ codeunit 142061 "ERM Misc. Report II"
         ItemStatusBySalesperson."Value Entry".SetFilter("Item No.", ItemNo);
         ItemStatusBySalesperson."Value Entry".SetFilter("Posting Date", Format(PostingDate));
         ItemStatusBySalesperson."Salesperson/Purchaser".SetFilter(Code, Code);
-        ItemStatusBySalesperson.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemStatusBySalesperson.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobCreateSalesInvoiceHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
     begin
-        JobCreateSalesInvoice.OK.Invoke;
+        JobCreateSalesInvoice.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2019,7 +2019,7 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryVariableStorage.Dequeue(No);
         OutstandingSalesOrderAging.PrintAmountsInCustCurrency.SetValue(PrintAmountInCustCurrency);
         OutstandingSalesOrderAging.Customer.SetFilter("No.", No);
-        OutstandingSalesOrderAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OutstandingSalesOrderAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2033,7 +2033,7 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryVariableStorage.Dequeue(No);
         OutstandingSalesOrderStatus.PrintAmountsInCustCurrency.SetValue(PrintAmountInCustCurrency);
         OutstandingSalesOrderStatus.Customer.SetFilter("No.", No);
-        OutstandingSalesOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OutstandingSalesOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2044,7 +2044,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         LibraryVariableStorage.Dequeue(No);
         OpenSalesInvoicesbyJob.Job.SetFilter("No.", No);
-        OpenSalesInvoicesbyJob.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OpenSalesInvoicesbyJob.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2059,7 +2059,7 @@ codeunit 142061 "ERM Misc. Report II"
         ProjectedCashReceipts.PrintTotalsInCustomersCurrency.SetValue(PrintTotalInCustomerCurrency);
         ProjectedCashReceipts.PrintDetail.SetValue(true);
         ProjectedCashReceipts.Customer.SetFilter("No.", No);
-        ProjectedCashReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProjectedCashReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2076,7 +2076,7 @@ codeunit 142061 "ERM Misc. Report II"
         ReturnShipment.PrintCompanyAddress.SetValue(PrintCompanyAddress);
         ReturnShipment.LogInteraction.SetValue(LogInteraction);
         ReturnShipment."Return Shipment Header".SetFilter("No.", No);
-        ReturnShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2088,7 +2088,7 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryVariableStorage.Dequeue(Code);
         SalespersonCommissions.NewPagePerSalesperson.SetValue(false);
         SalespersonCommissions."Salesperson/Purchaser".SetFilter(Code, Code);
-        SalespersonCommissions.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalespersonCommissions.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2100,7 +2100,7 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryVariableStorage.Dequeue(Code);
         SalespersonStatisticsByInv.PrintDetail.SetValue(false);
         SalespersonStatisticsByInv."Salesperson/Purchaser".SetFilter(Code, Code);
-        SalespersonStatisticsByInv.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalespersonStatisticsByInv.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2116,7 +2116,7 @@ codeunit 142061 "ERM Misc. Report II"
         DocumentType2 := DocumentType;
         SalesDocumentTest."Sales Header".SetFilter("Document Type", Format(DocumentType2));
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2127,7 +2127,7 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         LibraryVariableStorage.Dequeue(No);
         ShipToAddressListing.Customer.SetFilter("No.", No);
-        ShipToAddressListing.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ShipToAddressListing.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2162,7 +2162,7 @@ codeunit 142061 "ERM Misc. Report II"
                 TopInventoryItems.TopType.SetValue(TopTypeString::"Inventory Value");
         end;
         TopInventoryItems.Item.SetFilter("No.", ItemFilter);
-        TopInventoryItems.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TopInventoryItems.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2179,7 +2179,7 @@ codeunit 142061 "ERM Misc. Report II"
         VendorListing.PrintAmountsinVendorsCurrency.SetValue(PrintAmountsInVendorCurrency);
         VendorListing.VendwithBalancesOnly.SetValue(VendWithBalancesOnly);
         VendorListing.Vendor.SetFilter("No.", VendorNo);
-        VendorListing.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorListing.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]
@@ -2193,7 +2193,7 @@ codeunit 142061 "ERM Misc. Report II"
     procedure CheckRequestPageHandler(var Check: TestRequestPage Check)
     begin
         FilterOnReportCheckRequestPage(Check, false, false);  // Reprint Checks - FALSE, One Check Per Vendor Per Document No - FALSE.
-        Check.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Check.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

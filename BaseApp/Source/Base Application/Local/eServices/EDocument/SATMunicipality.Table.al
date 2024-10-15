@@ -9,6 +9,7 @@ table 27027 "SAT Municipality"
     DataPerCompany = false;
     DrillDownPageID = "SAT Municipalities";
     LookupPageID = "SAT Municipalities";
+    DataClassification = CustomerContent;
 
     fields
     {

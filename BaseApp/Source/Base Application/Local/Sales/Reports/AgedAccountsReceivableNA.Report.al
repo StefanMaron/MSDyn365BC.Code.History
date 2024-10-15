@@ -772,18 +772,16 @@ report 10040 "Aged Accounts Receivable NA"
 
     local procedure InsertTemp(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        with TempCustLedgEntry do begin
-            if Get(CustLedgEntry."Entry No.") then
-                exit;
-            TempCustLedgEntry := CustLedgEntry;
-            case AgingMethod of
-                AgingMethod::"Due Date":
-                    "Posting Date" := "Due Date";
-                AgingMethod::"Document Date":
-                    "Posting Date" := "Document Date";
-            end;
-            Insert();
+        if TempCustLedgEntry.Get(CustLedgEntry."Entry No.") then
+            exit;
+        TempCustLedgEntry := CustLedgEntry;
+        case AgingMethod of
+            AgingMethod::"Due Date":
+                TempCustLedgEntry."Posting Date" := TempCustLedgEntry."Due Date";
+            AgingMethod::"Document Date":
+                TempCustLedgEntry."Posting Date" := TempCustLedgEntry."Document Date";
         end;
+        TempCustLedgEntry.Insert();
     end;
 
     procedure CalcPercents(Total: Decimal; Amounts: array[4] of Decimal)

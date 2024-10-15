@@ -412,7 +412,8 @@ page 459 "Sales & Receivables Setup"
                 field("Notify On Success"; Rec."Notify On Success")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if a notification is sent when posting and printing is successfully completed.';
+                    ToolTip = 'Specifies a setting that has no effect. Legacy field.';
+                    Visible = false;
                 }
                 field("Report Output Type"; Rec."Report Output Type")
                 {

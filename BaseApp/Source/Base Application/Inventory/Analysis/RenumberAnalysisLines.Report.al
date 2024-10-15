@@ -45,13 +45,12 @@ report 7110 "Renumber Analysis Lines"
 
     trigger OnPreReport()
     begin
-        with AnalysisLine do
-            if Find('-') then
-                repeat
-                    Validate("Row Ref. No.", RowRefNo);
-                    Modify();
-                    RowRefNo := IncStr(RowRefNo);
-                until Next() = 0;
+        if AnalysisLine.Find('-') then
+            repeat
+                AnalysisLine.Validate("Row Ref. No.", RowRefNo);
+                AnalysisLine.Modify();
+                RowRefNo := IncStr(RowRefNo);
+            until AnalysisLine.Next() = 0;
     end;
 
     var

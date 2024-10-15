@@ -18,8 +18,6 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryLoweredPermissions: Codeunit "Library - Lower Permissions";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryErm: Codeunit "Library - ERM";
         IsInitialized: Boolean;
         ErrFieldMustNotBeChanged: Label '%1 must not be changed when a %2 for this %3 exists';
         ErrStatusMustBeOpen: Label 'Status must be equal to ''Open''  in %1';
@@ -40,14 +38,14 @@ codeunit 137221 "SalesOrder Whse Validate Line"
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        DisableWarnings;
+        DisableWarnings();
 
         WarehouseSetup.Get();
-        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         WarehouseSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         SalesReceivablesSetup.Modify(true);
 
         IsInitialized := true;

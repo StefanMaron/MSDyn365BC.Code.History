@@ -10,11 +10,12 @@ using System.Security.Encryption;
 codeunit 10146 "EInvoice Communication"
 {
     var
-        EInvoiceCommunication: Interface "EInvoice Communication";
+        EInvoiceCommunication: Interface "EInvoice Communication V2";
         LastUsedCertificateSN: Text;
         LastUsedCert: Text;
         Initialized: Boolean;
 
+#if not CLEAN24
     /// <summary>
     /// Sends request to PAC service with a specific method.
     /// </summary>
@@ -24,8 +25,8 @@ codeunit 10146 "EInvoice Communication"
     /// <param name="CertPassword">Certificate password</param>
     /// <returns>Response as a string.</returns>
     [NonDebuggable]
+    [Obsolete('Replaced by InvokeMethodWithCertificate with SecretText datatype for CertPassword parameter.', '24.0')]
     procedure InvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: Text): Text
-    var
     begin
         Init();
         exit(EInvoiceCommunication.InvokeMethodWithCertificate(Uri, MethodName, CertBase64, CertPassword));
@@ -39,7 +40,47 @@ codeunit 10146 "EInvoice Communication"
     /// <param name="CertPassword">Certificate password</param>
     /// <returns>Signed data as a string.</returns>
     [NonDebuggable]
+    [Obsolete('Replaced by InvokeMethodWithCertificate with SecretText datatype for CertPassword parameter.', '24.0')]
     procedure SignDataWithCertificate(OriginalString: Text; CertBase64: Text; CertPassword: Text): Text
+    var
+        X509Certificate2: Codeunit X509Certificate2;
+        TempCert: Text;
+    begin
+        Init();
+        X509Certificate2.GetCertificateSerialNumberAsASCII(CertBase64, CertPassword, LastUsedCertificateSN);
+
+        TempCert := CertBase64;
+        if X509Certificate2.VerifyCertificate(TempCert, CertPassword, Enum::"X509 Content Type"::Cert) then
+            LastUsedCert := TempCert;
+
+        exit(EInvoiceCommunication.SignDataWithCertificate(OriginalString, CertBase64, CertPassword));
+    end;
+#endif
+
+    /// <summary>
+    /// Sends request to PAC service with a specific method.
+    /// </summary>
+    /// <param name="Uri">Uri of the service</param>
+    /// <param name="MethodName">Method name</param>
+    /// <param name="CertBase64">PAC certificate as base64</param>
+    /// <param name="CertPassword">Certificate password</param>
+    /// <returns>Response as a string.</returns>
+    [NonDebuggable]
+    procedure InvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: SecretText): Text
+    begin
+        Init();
+        exit(EInvoiceCommunication.InvokeMethodWithCertificate(Uri, MethodName, CertBase64, CertPassword));
+    end;
+
+    /// <summary>
+    /// Signs data before sending it to PAC service.
+    /// </summary>
+    /// <param name="OriginalString">String to sign</param>
+    /// <param name="CertBase64">SAT certificate as base64</param>
+    /// <param name="CertPassword">Certificate password</param>
+    /// <returns>Signed data as a string.</returns>
+    [NonDebuggable]
+    procedure SignDataWithCertificate(OriginalString: Text; CertBase64: Text; CertPassword: SecretText): Text
     var
         X509Certificate2: Codeunit X509Certificate2;
         TempCert: Text;

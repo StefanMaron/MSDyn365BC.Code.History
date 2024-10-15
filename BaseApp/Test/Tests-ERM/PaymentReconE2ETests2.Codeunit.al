@@ -27,7 +27,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ClosedBankLedgerEntriesErr: Label 'All bank account ledger entries should be open after posting the payment reconciliation journal.';
         ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
         ListEmptyMsg: Label 'No bank transaction lines exist. Choose the Import Bank Transactions action to fill in the lines from a file, or enter lines manually.';
-        LinesForReviewNotificationMsg: Label 'One or more lines must be reviewed before posting, because they were matched automatically with rules that require review.', Comment = '%1 number of lines for review';
         SEPA_CAMT_Txt: Label 'SEPA CAMT';
         OpenBankStatementPageQst: Label 'Do you want to open the bank account statement?';
 
@@ -51,18 +50,18 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreateBankAcc(BankStmtFormat, BankAcc, '');
 
         // Exercise
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         OnePurchOnePmt1(BankAccRecon1, BankAcc, TempBlobUTF8);
         OnePurchOnePmt1(BankAccRecon2, BankAcc, TempBlobUTF8);
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon1);
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon2);
 
         OpenPmtReconJnl(BankAccRecon1, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
         VerifyNoLinesImported(BankAccRecon2);
 
         OpenPmtReconJnl(BankAccRecon2, PmtReconJnl);
-        asserterror PmtReconJnl.Post.Invoke; // It should not be possible to post
+        asserterror PmtReconJnl.Post.Invoke(); // It should not be possible to post
         PmtReconJnl.Close();
         BankAccRecon2.Find();
         BankAccRecon2.Delete(true); // It should be possible to delete the payment reconcilation journal
@@ -77,7 +76,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         LibraryERM.CreateBankAccReconciliation(BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
         SetupSourceMock(BankAcc."Bank Statement Import Format", TempBlobUTF8);
-        BankAccRecon.ImportBankStatement;
+        BankAccRecon.ImportBankStatement();
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
 
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -102,12 +101,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtEntries(VendLedgEntry, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -134,7 +133,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -187,7 +186,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -231,7 +230,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -261,7 +260,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.PostPaymentsOnly.Invoke;
+        PmtReconJnl.PostPaymentsOnly.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -295,7 +294,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -331,7 +330,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -364,7 +363,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ApplyAutomatically(PmtReconJnl);
         HandlePmtEntries(VendLedgEntry, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -435,7 +434,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -469,7 +468,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         HandlePmtDiscDate(VendLedgEntry, PmtReconJnl);
         HandlePmtDiscDate(VendLedgEntry2, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -501,7 +500,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscDate(VendLedgEntry, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -533,7 +532,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscDate(VendLedgEntry, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -566,7 +565,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscDate(VendLedgEntry, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -598,7 +597,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscAmt(VendLedgEntry, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -632,7 +631,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyBankLedgEntryAmount(BankAcc."No.", -BankAccRecon."Total Transaction Amount");
@@ -673,7 +672,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all customers | gls | banks go to zero
         VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
@@ -708,7 +707,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all customers | gls | banks go to zero
         VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
@@ -741,12 +740,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
 
         LibraryVariableStorage.Enqueue(GLAcc."No.");
-        PmtReconJnl.AddMappingRule.Invoke;
+        PmtReconJnl.AddMappingRule.Invoke();
 
         ApplyAutomatically(PmtReconJnl);
         HandleRecurringInterestAmt(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
@@ -779,12 +778,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
 
         LibraryVariableStorage.Enqueue(GLAcc."No.");
-        PmtReconJnl.AddMappingRule.Invoke;
+        PmtReconJnl.AddMappingRule.Invoke();
 
         ApplyAutomatically(PmtReconJnl);
         HandleRecurringRentAmt(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
@@ -817,7 +816,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ApplyAutomatically(PmtReconJnl);
         ApplyManually(PmtReconJnl, VendLedgEntry);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         for i := 1 to 14 do
@@ -851,12 +850,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
 
-        PmtReconJnl.SortForReviewAscending.Invoke;
+        PmtReconJnl.SortForReviewAscending.Invoke();
 
-        PmtReconJnl.First;
-        AccountNo1 := PmtReconJnl."Account No.".Value;
-        AccountType1 := PmtReconJnl."Account Type".Value;
-        MatchConfidence1 := PmtReconJnl."Match Confidence".Value;
+        PmtReconJnl.First();
+        AccountNo1 := PmtReconJnl."Account No.".Value();
+        AccountType1 := PmtReconJnl."Account Type".Value();
+        MatchConfidence1 := PmtReconJnl."Match Confidence".Value();
 
         PmtReconJnl.Next();
         Assert.AreEqual(
@@ -892,24 +891,24 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
 
-        PmtReconJnl.SortForReviewAscending.Invoke;
+        PmtReconJnl.SortForReviewAscending.Invoke();
 
-        PmtReconJnl.First;
-        AccountNo1 := PmtReconJnl."Account No.".Value;
-        AccountType1 := PmtReconJnl."Account Type".Value;
-        AppliedAmount := PmtReconJnl."Applied Amount".AsDEcimal;
-
-        PmtReconJnl.Next();
-        if (AccountNo1 = Format(PmtReconJnl."Account No.".Value)) and
-           (AccountType1 = Format(PmtReconJnl."Account Type".Value))
-        then
-            AppliedAmount += PmtReconJnl."Applied Amount".AsDEcimal;
+        PmtReconJnl.First();
+        AccountNo1 := PmtReconJnl."Account No.".Value();
+        AccountType1 := PmtReconJnl."Account Type".Value();
+        AppliedAmount := PmtReconJnl."Applied Amount".AsDecimal();
 
         PmtReconJnl.Next();
         if (AccountNo1 = Format(PmtReconJnl."Account No.".Value)) and
            (AccountType1 = Format(PmtReconJnl."Account Type".Value))
         then
-            AppliedAmount += PmtReconJnl."Applied Amount".AsDEcimal;
+            AppliedAmount += PmtReconJnl."Applied Amount".AsDecimal();
+
+        PmtReconJnl.Next();
+        if (AccountNo1 = Format(PmtReconJnl."Account No.".Value)) and
+           (AccountType1 = Format(PmtReconJnl."Account Type".Value))
+        then
+            AppliedAmount += PmtReconJnl."Applied Amount".AsDecimal();
 
         Assert.AreEqual(
           VendLedgEntry."Remaining Amount", AppliedAmount, 'Entries not applied correctly. Missmatch for total applied amount.');
@@ -939,10 +938,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         Vendor.Get(VendLedgEntry."Vendor No.");
         BankAccReconciliationLine.LinesExist(BankAccRecon);
         repeat
-            Assert.AreEqual(Vendor.Name, BankAccReconciliationLine.GetAppliedToName, '');
+            Assert.AreEqual(Vendor.Name, BankAccReconciliationLine.GetAppliedToName(), '');
         until BankAccReconciliationLine.Next() = 0;
 
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -974,9 +973,9 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
-        PmtReconJnl.Accept.Invoke;
+        PmtReconJnl.Accept.Invoke();
         HandlePmtEntries(VendLedgEntry, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntryExcessiveAmount(VendLedgEntry."Vendor No.", ExcessiveAmount);
@@ -1010,7 +1009,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
-        asserterror PmtReconJnl.Accept.Invoke;
+        asserterror PmtReconJnl.Accept.Invoke();
         Assert.ExpectedError(StrSubstNo(ExcessiveAmountErr, Format(-ExcessiveAmount)));
     end;
 
@@ -1042,8 +1041,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ApplyAutomatically(PmtReconJnl);
         LibraryVariableStorage.Enqueue(DummyGenJournalLine."Account Type"::Vendor);
         LibraryVariableStorage.Enqueue(VendLedgEntry."Vendor No.");
-        PmtReconJnl.TransferDiffToAccount.Invoke;
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.TransferDiffToAccount.Invoke();
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntryExcessiveAmount(VendLedgEntry."Vendor No.", ExcessiveAmount);
@@ -1102,7 +1101,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // verify that you can drill down to correct vendor from the first applied entry
         AppliedPmtEntry.Find('-');
         Assert.AreEqual(Vend.Name, BankAccReconLine.GetAppliedEntryAccountName(AppliedPmtEntry."Applies-to Entry No."), '');
-        VendorCard.Trap;
+        VendorCard.Trap();
         BankAccReconLine.AppliedEntryAccountDrillDown(AppliedPmtEntry."Applies-to Entry No.");
         Assert.AreEqual(Vend."No.", VendorCard."No.".Value, '');
         VendorCard.Close();
@@ -1110,7 +1109,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // verify that you can drill down to correct vendor from the second applied entry
         AppliedPmtEntry.Next();
         Assert.AreEqual(Vend2.Name, BankAccReconLine.GetAppliedEntryAccountName(AppliedPmtEntry."Applies-to Entry No."), '');
-        VendorCard.Trap;
+        VendorCard.Trap();
         BankAccReconLine.AppliedEntryAccountDrillDown(AppliedPmtEntry."Applies-to Entry No.");
         Assert.AreEqual(Vend2."No.", VendorCard."No.".Value, '');
         VendorCard.Close();
@@ -1125,7 +1124,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         VendLedgEntry: Record "Vendor Ledger Entry";
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
         VendLedgerAmount: Decimal;
-        NoOfOutstandingBankTrxEntries: Integer;
     begin
         // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
         // [SCENARIO 166797] Annie can view one outstanding check transactions and Verify that all Vendors | gls | banks go to zero
@@ -1138,7 +1136,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // [WHEN] Manually match one and post the Payment Reconcilation Journal
         HandlePmtEntries(VendLedgEntry, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // [THEN] Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -1163,7 +1161,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         Initialize();
 
         // [GIVEN] Vendor "V" with two posted purchase invoices:
-        VendorNo := LibraryPurch.CreateVendorNo;
+        VendorNo := LibraryPurch.CreateVendorNo();
         // [GIVEN] "PI1" with Amount Including VAT = 1000 (vendor ledger entry no. = "VLE_INV1")
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         InvoiceNo[1] := CreateAndPostPurchaseInvoiceWithAmount(VendorNo, Amount);
@@ -1173,7 +1171,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         FindVendorLedgerEntry(InvVendLedgerEntry[2], VendorNo, InvVendLedgerEntry[2]."Document Type"::Invoice, InvoiceNo[2]);
 
         // [GIVEN] Payment Reconciliation Journal ("Statement No." = "X") with two lines:
-        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, LibraryERM.CreateBankAccountNo,
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, LibraryERM.CreateBankAccountNo(),
           BankAccReconciliation."Statement Type"::"Payment Application");
         // [GIVEN] Line1: "Statement Line No." = 10000, "Account Type" = "Vendor", "Account No." = "V", "Transaction Text" = "PI2", "Transaction Amount" = -1000
         CreateBankAccReconciliationLine(
@@ -1188,12 +1186,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [GIVEN] Vendor ledger entry "VLE_INV1" has "Applies-To ID" = "X-20000"
         InvVendLedgerEntry[1].Find();
         Assert.AreEqual(
-          BankAccReconciliationLine[2].GetAppliesToID,
+          BankAccReconciliationLine[2].GetAppliesToID(),
           InvVendLedgerEntry[1]."Applies-to ID", InvVendLedgerEntry[1].FieldCaption("Applies-to ID"));
         // [GIVEN] Vendor ledger entry "VLE_INV2" has "Applies-To ID" = "X-10000"
         InvVendLedgerEntry[2].Find();
         Assert.AreEqual(
-          BankAccReconciliationLine[1].GetAppliesToID,
+          BankAccReconciliationLine[1].GetAppliesToID(),
           InvVendLedgerEntry[2]."Applies-to ID", InvVendLedgerEntry[2].FieldCaption("Applies-to ID"));
 
         // [WHEN] Post the journal
@@ -1397,12 +1395,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         Initialize();
 
-        PmtReconciliationJournals.OpenEdit;
-        Assert.IsFalse(PmtReconciliationJournals."Bank Account No.".Editable, 'Bank Account No.');
-        Assert.IsFalse(PmtReconciliationJournals."Statement No.".Editable, 'Statement No.');
-        Assert.IsFalse(PmtReconciliationJournals."Total Transaction Amount".Editable, 'Total Transaction Amount');
-        Assert.IsFalse(PmtReconciliationJournals."Total Difference".Editable, 'Total Difference');
-        Assert.IsTrue(PmtReconciliationJournals."Copy VAT Setup to Jnl. Line".Editable, 'Copy VAT Setup to Jnl. Line');
+        PmtReconciliationJournals.OpenEdit();
+        Assert.IsFalse(PmtReconciliationJournals."Bank Account No.".Editable(), 'Bank Account No.');
+        Assert.IsFalse(PmtReconciliationJournals."Statement No.".Editable(), 'Statement No.');
+        Assert.IsFalse(PmtReconciliationJournals."Total Transaction Amount".Editable(), 'Total Transaction Amount');
+        Assert.IsFalse(PmtReconciliationJournals."Total Difference".Editable(), 'Total Difference');
+        Assert.IsTrue(PmtReconciliationJournals."Copy VAT Setup to Jnl. Line".Editable(), 'Copy VAT Setup to Jnl. Line');
     end;
 
     [Test]
@@ -1426,7 +1424,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         GenJournalLine.Insert(true);
 
         GenJournalLine.TestField("Gen. Bus. Posting Group", '');
@@ -1450,7 +1448,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GenJournalLine.Validate("Line No.", LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No.")));
         GenJournalLine.Validate("Copy VAT Setup to Jnl. Lines", false);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         GenJournalLine.Insert(); // insert without trigger to avoid error on GenJournalBatch.GET
 
         GenJournalLine.TestField("Gen. Bus. Posting Group", '');
@@ -1481,7 +1479,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [WHEN] Import bank statement
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
-        BankAccReconciliation.ImportBankStatement;
+        BankAccReconciliation.ImportBankStatement();
 
         // [THEN] The file has been imported and a line has been created
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
@@ -1669,7 +1667,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         BankAccReconciliationList.OpenView();
         BankAccReconciliationList.GoToRecord(BankAccReconciliation);
         BankAccReconciliationTestPage.Trap();
-        BankAccReconciliationList.EditRec.Invoke();
+        BankAccReconciliationList.Edit().Invoke();
         BankAccReconciliationTestPage."&Test Report".Invoke();
         // [THEN] The control PrintOutstdTransac should not be visible (in VerifyTestReportRequestPage)
         ClearBankAccReconciliations();
@@ -1858,7 +1856,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         UpdateVendPostingGrp();
-        if CompanyInformation.IsCanada then begin
+        if CompanyInformation.IsCanada() then begin
             CompanyInformation."Tax Area Code" := '';
             CompanyInformation.Modify();
         end;
@@ -1992,7 +1990,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         LibraryERM.CreateBankAccReconciliation(BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
         SetupSourceMock(SEPA_CAMT_Txt, TempBlobUTF8);
-        BankAccRecon.ImportBankStatement;
+        BankAccRecon.ImportBankStatement();
 
         BankAccRecon.CalcFields("Total Transaction Amount");
     end;
@@ -2031,7 +2029,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PurchaseHeader.Validate("Prices Including VAT", true);
         PurchaseHeader.Modify(true);
         LibraryPurch.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         PurchaseLine.Validate("Direct Unit Cost", Amount);
         PurchaseLine.Modify(true);
         exit(LibraryPurch.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -2053,7 +2051,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
     local procedure CreateBankAccReconSetCopyVATSetupInJnlLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; CopyVATSetupToJnlLine: Boolean)
     begin
-        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, LibraryERM.CreateBankAccountNo,
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, LibraryERM.CreateBankAccountNo(),
           BankAccReconciliation."Statement Type"::"Payment Application");
         BankAccReconciliation.Validate("Copy VAT Setup to Jnl. Line", CopyVATSetupToJnlLine);
         BankAccReconciliation.Modify(true);
@@ -2077,7 +2075,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
               LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
             Validate("Account No.", GLAccNo);
             Modify(true);
-            TransferRemainingAmountToAccount;
+            TransferRemainingAmountToAccount();
         end;
     end;
 
@@ -2112,10 +2110,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     var
         PmtReconciliationJournals: TestPage "Pmt. Reconciliation Journals";
     begin
-        PmtReconciliationJournals.OpenView;
+        PmtReconciliationJournals.OpenView();
         PmtReconciliationJournals.GotoRecord(BankAccRecon);
-        PmtReconJnl.Trap;
-        PmtReconciliationJournals.EditJournal.Invoke;
+        PmtReconJnl.Trap();
+        PmtReconciliationJournals.EditJournal.Invoke();
     end;
 
     local procedure FilterPmtVATEntry(var VATEntry: Record "VAT Entry"; DocNo: Code[20]; TransactionNo: Integer)
@@ -2127,20 +2125,20 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
     local procedure AddTextMapperRules(var PmtReconJnl: TestPage "Payment Reconciliation Journal"; InterestGLAcc: Record "G/L Account"; RentGLAcc: Record "G/L Account")
     begin
-        PmtReconJnl.Last;
+        PmtReconJnl.Last();
         LibraryVariableStorage.Enqueue(InterestGLAcc."No.");
-        PmtReconJnl.AddMappingRule.Invoke;
+        PmtReconJnl.AddMappingRule.Invoke();
 
-        PmtReconJnl.Previous;
+        PmtReconJnl.Previous();
         LibraryVariableStorage.Enqueue(RentGLAcc."No.");
-        PmtReconJnl.AddMappingRule.Invoke;
+        PmtReconJnl.AddMappingRule.Invoke();
     end;
 
     local procedure ApplyAutomatically(var PmtReconJnl: TestPage "Payment Reconciliation Journal")
     begin
-        PmtReconJnl.ApplyAutomatically.Invoke;
+        PmtReconJnl.ApplyAutomatically.Invoke();
         Commit();
-        PmtReconJnl.First;
+        PmtReconJnl.First();
     end;
 
     local procedure ApplyManually(var PmtReconJnl: TestPage "Payment Reconciliation Journal"; var VendLedgEntry: array[20] of Record "Vendor Ledger Entry")
@@ -2148,7 +2146,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // Without Pmt Disc
 
         // OnePurchOnePmt
-        PmtReconJnl.First;
+        PmtReconJnl.First();
         HandlePmtEntries(VendLedgEntry[1], PmtReconJnl);
         // OnePurchTwoPmt
         PmtReconJnl.Next();
@@ -2482,38 +2480,38 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         EnqueueValuesForPmtApplnHandler(
           VendLedgEntry."Vendor No.", VendLedgEntry."Entry No.", VendLedgEntry."Remaining Amt. (LCY)",
-          PmtReconJnl."Transaction Date".AsDate, PmtReconJnl."Statement Amount".AsDEcimal, false, false, false, false);
-        PmtReconJnl.ApplyEntries.Invoke;
+          PmtReconJnl."Transaction Date".AsDate(), PmtReconJnl."Statement Amount".AsDecimal(), false, false, false, false);
+        PmtReconJnl.ApplyEntries.Invoke();
     end;
 
     local procedure HandlePmtDiscDate(VendLedgEntry: Record "Vendor Ledger Entry"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")
     begin
         EnqueueValuesForPmtApplnHandler(
           VendLedgEntry."Vendor No.", VendLedgEntry."Entry No.", VendLedgEntry."Remaining Amt. (LCY)",
-          PmtReconJnl."Transaction Date".AsDate, PmtReconJnl."Statement Amount".AsDEcimal, false, true, false, false);
-        PmtReconJnl.ApplyEntries.Invoke;
+          PmtReconJnl."Transaction Date".AsDate(), PmtReconJnl."Statement Amount".AsDecimal(), false, true, false, false);
+        PmtReconJnl.ApplyEntries.Invoke();
     end;
 
     local procedure HandlePmtDiscAmt(VendLedgEntry: Record "Vendor Ledger Entry"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")
     begin
         EnqueueValuesForPmtApplnHandler(
           VendLedgEntry."Vendor No.", VendLedgEntry."Entry No.", VendLedgEntry."Remaining Amt. (LCY)",
-          PmtReconJnl."Transaction Date".AsDate, PmtReconJnl."Statement Amount".AsDEcimal, true, false, false, false);
-        PmtReconJnl.ApplyEntries.Invoke;
+          PmtReconJnl."Transaction Date".AsDate(), PmtReconJnl."Statement Amount".AsDecimal(), true, false, false, false);
+        PmtReconJnl.ApplyEntries.Invoke();
     end;
 
     local procedure HandleRecurringInterestAmt(var PmtReconJnl: TestPage "Payment Reconciliation Journal")
     begin
         EnqueueValuesForPmtApplnHandler(
-          '', 0, 0, PmtReconJnl."Transaction Date".AsDate, PmtReconJnl."Statement Amount".AsDEcimal, false, false, true, false);
-        PmtReconJnl.ApplyEntries.Invoke;
+          '', 0, 0, PmtReconJnl."Transaction Date".AsDate(), PmtReconJnl."Statement Amount".AsDecimal(), false, false, true, false);
+        PmtReconJnl.ApplyEntries.Invoke();
     end;
 
     local procedure HandleRecurringRentAmt(var PmtReconJnl: TestPage "Payment Reconciliation Journal")
     begin
         EnqueueValuesForPmtApplnHandler(
-          '', 0, 0, PmtReconJnl."Transaction Date".AsDate, PmtReconJnl."Statement Amount".AsDEcimal, false, false, false, true);
-        PmtReconJnl.ApplyEntries.Invoke;
+          '', 0, 0, PmtReconJnl."Transaction Date".AsDate(), PmtReconJnl."Statement Amount".AsDecimal(), false, false, false, true);
+        PmtReconJnl.ApplyEntries.Invoke();
     end;
 
     local procedure EnqueueValuesForPmtApplnHandler(VendorNo: Code[20]; VLEEntryNo: Integer; VLERemAmtLCY: Decimal; TransactionDate: Date; StatementAmount: Decimal; AdjustDiscountAmount: Boolean; AdjustDiscountDate: Boolean; IsRecurringInterest: Boolean; IsRecurringRent: Boolean)
@@ -2647,10 +2645,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         AppliedPmtEntry: Record "Applied Payment Entry";
         TotalLinesAmount: Decimal;
     begin
-        PmtReconJnl.First;
+        PmtReconJnl.First();
         repeat
             PmtReconJnl.Difference.AssertEquals(0);
-            PmtReconJnl."Applied Amount".AssertEquals(PmtReconJnl."Statement Amount".AsDEcimal);
+            PmtReconJnl."Applied Amount".AssertEquals(PmtReconJnl."Statement Amount".AsDecimal());
         until not PmtReconJnl.Next();
 
         BankAccReconLine.LinesExist(BankAccRecon);
@@ -2738,18 +2736,17 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GLAcc: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAcc);
-        with VendPostingGroup do
-            if FindSet() then
-                repeat
-                    if "Payment Disc. Debit Acc." = '' then begin
-                        Validate("Payment Disc. Debit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                    if "Payment Disc. Credit Acc." = '' then begin
-                        Validate("Payment Disc. Credit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                until Next = 0;
+        if VendPostingGroup.FindSet() then
+            repeat
+                if VendPostingGroup."Payment Disc. Debit Acc." = '' then begin
+                    VendPostingGroup.Validate("Payment Disc. Debit Acc.", GLAcc."No.");
+                    VendPostingGroup.Modify(true);
+                end;
+                if VendPostingGroup."Payment Disc. Credit Acc." = '' then begin
+                    VendPostingGroup.Validate("Payment Disc. Credit Acc.", GLAcc."No.");
+                    VendPostingGroup.Modify(true);
+                end;
+            until VendPostingGroup.Next() = 0;
     end;
 
     [MessageHandler]
@@ -2782,15 +2779,15 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         IsRecurringInterest: Boolean;
         IsRecurringRent: Boolean;
     begin
-        VendorNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(VendorNo));
-        VLEEntryNo := LibraryVariableStorage.DequeueInteger;
-        VLERemAmtLCY := LibraryVariableStorage.DequeueDecimal;
-        PmtReconJnlTransactionDate := LibraryVariableStorage.DequeueDate;
-        PmtReconJnlStatementAmount := LibraryVariableStorage.DequeueDecimal;
-        AdjustDiscountAmount := LibraryVariableStorage.DequeueBoolean;
-        AdjustDiscountDate := LibraryVariableStorage.DequeueBoolean;
-        IsRecurringInterest := LibraryVariableStorage.DequeueBoolean;
-        IsRecurringRent := LibraryVariableStorage.DequeueBoolean;
+        VendorNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(VendorNo));
+        VLEEntryNo := LibraryVariableStorage.DequeueInteger();
+        VLERemAmtLCY := LibraryVariableStorage.DequeueDecimal();
+        PmtReconJnlTransactionDate := LibraryVariableStorage.DequeueDate();
+        PmtReconJnlStatementAmount := LibraryVariableStorage.DequeueDecimal();
+        AdjustDiscountAmount := LibraryVariableStorage.DequeueBoolean();
+        AdjustDiscountDate := LibraryVariableStorage.DequeueBoolean();
+        IsRecurringInterest := LibraryVariableStorage.DequeueBoolean();
+        IsRecurringRent := LibraryVariableStorage.DequeueBoolean();
 
         with PmtAppln do begin
             if IsRecurringRent or IsRecurringInterest then begin
@@ -2799,42 +2796,42 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
             end;
 
             // Remove Entry is not the same Vendor
-            if AppliedAmount.AsDEcimal <> 0 then
+            if AppliedAmount.AsDecimal() <> 0 then
                 if "Account No.".Value <> VendorNo then begin
                     Applied.SetValue(false);
-                    Next;
+                    Next();
                 end;
 
             // Go to the first and check that it is the Vendor and scroll down to find the entry
-            if Applied.AsBoolean then begin
-                RelatedPartyOpenEntries.Invoke;
-                while "Applies-to Entry No.".AsInteger <> VLEEntryNo do begin
+            if Applied.AsBoolean() then begin
+                RelatedPartyOpenEntries.Invoke();
+                while "Applies-to Entry No.".AsInteger() <> VLEEntryNo do begin
                     "Account No.".AssertEquals(VendorNo);
-                    Next;
+                    Next();
                 end;
             end;
 
             // check that it is the Vendor ledger entry and apply
-            if RemainingAmountAfterPosting.AsDEcimal <> 0 then
-                if AppliedAmount.AsDEcimal = 0 then begin
+            if RemainingAmountAfterPosting.AsDecimal() <> 0 then
+                if AppliedAmount.AsDecimal() = 0 then begin
                     Applied.SetValue(true);
                     RemainingAmountAfterPosting.AssertEquals(0);
                 end;
             if AdjustDiscountAmount then
                 // Introduce payment discount
-                if RemainingAmountAfterPosting.AsDEcimal <> 0 then begin
+                if RemainingAmountAfterPosting.AsDecimal() <> 0 then begin
                     "Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
                     "Remaining Pmt. Disc. Possible".SetValue(
                       VLERemAmtLCY - PmtReconJnlStatementAmount);
                     RemainingAmountAfterPosting.AssertEquals(0);
                 end;
             if AdjustDiscountDate then
-                if PmtReconJnlTransactionDate > "Pmt. Disc. Due Date".AsDate then begin
+                if PmtReconJnlTransactionDate > "Pmt. Disc. Due Date".AsDate() then begin
                     "Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
                     RemainingAmountAfterPosting.AssertEquals(0);
                 end;
 
-            OK.Invoke;
+            OK().Invoke();
         end;
     end;
 
@@ -2844,10 +2841,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     var
         GLAccountNo: Code[20];
     begin
-        GLAccountNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(GLAccountNo));
+        GLAccountNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(GLAccountNo));
         TextToAccMapping."Debit Acc. No.".SetValue(GLAccountNo);
         TextToAccMapping."Credit Acc. No.".SetValue(GLAccountNo);
-        TextToAccMapping.OK.Invoke;
+        TextToAccMapping.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2859,11 +2856,9 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         LibraryVariableStorage.Dequeue(AccountTypeVar);
         LibraryVariableStorage.Dequeue(AccountNoVar);
-        with TransferDifferenceToAccount do begin
-            "Account Type".SetValue(AccountTypeVar);
-            "Account No.".SetValue(AccountNoVar);
-            OK.Invoke;
-        end;
+        TransferDifferenceToAccount."Account Type".SetValue(AccountTypeVar);
+        TransferDifferenceToAccount."Account No.".SetValue(AccountNoVar);
+        TransferDifferenceToAccount.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2872,36 +2867,32 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     var
         VendorNo: Code[20];
     begin
-        VendorNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(VendorNo));
+        VendorNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(VendorNo));
         // dummy dequeues
-        LibraryVariableStorage.DequeueInteger;
-        LibraryVariableStorage.DequeueDecimal;
-        LibraryVariableStorage.DequeueDate;
-        LibraryVariableStorage.DequeueDecimal;
-        LibraryVariableStorage.DequeueBoolean;
-        LibraryVariableStorage.DequeueBoolean;
-        LibraryVariableStorage.DequeueBoolean;
-        LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.DequeueInteger();
+        LibraryVariableStorage.DequeueDecimal();
+        LibraryVariableStorage.DequeueDate();
+        LibraryVariableStorage.DequeueDecimal();
+        LibraryVariableStorage.DequeueBoolean();
+        LibraryVariableStorage.DequeueBoolean();
+        LibraryVariableStorage.DequeueBoolean();
+        LibraryVariableStorage.DequeueBoolean();
+        // Remove Entry is not the same customer
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> VendorNo then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
+            end;
 
-        with PmtAppln do begin
-            // Remove Entry is not the same customer
-            if AppliedAmount.AsDEcimal <> 0 then
-                if "Account No.".Value <> VendorNo then begin
-                    Applied.SetValue(false);
-                    Next;
-                end;
+        PmtAppln.AllOpenPayments.Invoke();
+        // check that it is the customer ledger entry and apply
+        if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then
+            if PmtAppln.AppliedAmount.AsDecimal() = 0 then begin
+                PmtAppln.Applied.SetValue(true);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
 
-            AllOpenPayments.Invoke;
-
-            // check that it is the customer ledger entry and apply
-            if RemainingAmountAfterPosting.AsDEcimal <> 0 then
-                if AppliedAmount.AsDEcimal = 0 then begin
-                    Applied.SetValue(true);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
-
-            OK.Invoke;
-        end;
+        PmtAppln.OK().Invoke();
     end;
 
     [Scope('OnPrem')]
@@ -2940,7 +2931,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PmtReconJnl.Next();
         HandlePmtEntries(VendLedgEntry2, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
@@ -3050,7 +3041,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
-        PostPmtsAndRecBankAcc.OK.Invoke();
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 
     [ConfirmHandler]

@@ -145,7 +145,7 @@ report 780 "Certificate of Supply"
                 }
                 dataitem("<Integer2>"; "Integer")
                 {
-                    DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = filter(1 ..));
+                    DataItemTableView = sorting(Number) order(ascending) where(Number = filter(1 ..));
                     column(Item_No_Caption; TempServiceShipmentLine.FieldCaption("No."))
                     {
                     }

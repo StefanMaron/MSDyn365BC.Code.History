@@ -948,7 +948,11 @@ report 1304 "Standard Sales - Quote"
                         SalesSetup."Archive Quotes"::Always:
                             ArchiveManagement.ArchSalesDocumentNoConfirm(Header);
                         SalesSetup."Archive Quotes"::Question:
-                            ArchiveManagement.ArchiveSalesDocument(Header);
+                            begin
+                                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault(LanguageMgt.GetUserLanguageCode());
+                                ArchiveManagement.ArchiveSalesDocument(Header);
+                                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                            end;
                     end;
 
                 TotalSubTotal := 0;
@@ -1112,7 +1116,7 @@ report 1304 "Standard Sales - Quote"
         CompanyBankAccount: Record "Bank Account";
         DummyCompanyInfo: Record "Company Information";
         Cust: Record Customer;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
@@ -1258,15 +1262,13 @@ report 1304 "Standard Sales - Quote"
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            FormatDocument.SetTotalLabels(GetCurrencySymbol(), TotalText, TotalInclVATText, TotalExclVATText);
-            FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
+        FormatDocument.SetTotalLabels(SalesHeader.GetCurrencySymbol(), TotalText, TotalInclVATText, TotalExclVATText);
+        FormatDocument.SetSalesPerson(SalespersonPurchaser, SalesHeader."Salesperson Code", SalesPersonText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, SalesHeader."Payment Terms Code", SalesHeader."Language Code");
+        FormatDocument.SetPaymentMethod(PaymentMethod, SalesHeader."Payment Method Code", SalesHeader."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, SalesHeader."Shipment Method Code", SalesHeader."Language Code");
 
-            OnAfterFormatDocumentFields(SalesHeader);
-        end;
+        OnAfterFormatDocumentFields(SalesHeader);
     end;
 
     local procedure CreateReportTotalLines()
@@ -1341,13 +1343,13 @@ report 1304 "Standard Sales - Quote"
 
     local procedure SetFormatRegion(FormatRegion: Text[80])
     begin
-        CurrReport.FormatRegion := Language.GetFormatRegionOrDefault(FormatRegion);
+        CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault(FormatRegion);
         OnAfterSetFormatRegion();
     end;
 
     local procedure SetLanguage(LanguageCode: Code[10])
     begin
-        CurrReport.Language := Language.GetLanguageIdOrDefault(LanguageCode);
+        CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault(LanguageCode);
 
         OnAfterSetLanguage();
     end;

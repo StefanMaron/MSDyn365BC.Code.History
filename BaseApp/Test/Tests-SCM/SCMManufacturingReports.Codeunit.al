@@ -82,7 +82,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderCompAndRoutingReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ProdOrderCompAndRoutingReport(ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
@@ -153,7 +153,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderJobCardReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ProdOrderJobCardReport(ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
@@ -224,7 +224,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderPrecalcTimeReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ProdOrderPrecalcTimeReport(ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
@@ -295,7 +295,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderMatRequisitionReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ProdOrderMatRequisitionReport(ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
@@ -366,9 +366,9 @@ codeunit 137304 "SCM Manufacturing Reports"
         // Verify: Check the value of Production Order No, Production Item and Component in the report.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
         ProductionOrder.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ProdOrderComponent."Item No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('RmngQty_ProdOrderComp', ProdOrderComponent."Remaining Quantity");
         LibraryReportDataset.AssertCurrentRowValueEquals('ProdOrdNo_ProdOrderComp', ProductionOrder."No.");
     end;
@@ -425,7 +425,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderDetailedCalcReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ProdOrderDetailedCalcReport(ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
@@ -496,7 +496,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderShortageListReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ProdOrderShortageListReport(ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
@@ -510,7 +510,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         // Verify: Check the value of Production Order No, Production Item and Component in the report.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
         ProductionOrder.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_ProdOrder', ProductionOrder."No.");
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status, 'ItemNo_ProdOrderComp');
     end;
@@ -567,7 +567,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderStatisticsReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ProdOrderStatisticsReport(ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
@@ -594,9 +594,9 @@ codeunit 137304 "SCM Manufacturing Reports"
         CostCalculationManagement.CalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost,
           ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_ProdOrder', ProductionOrder."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ExpCost1', ExpMatCost);
         LibraryReportDataset.AssertCurrentRowValueEquals('ExpCost6', ExpMatCost + ExpCapDirCost + ExpSubDirCost +
           ExpCapOvhdCost + ExpMfgOvhdCost);
@@ -625,9 +625,9 @@ codeunit 137304 "SCM Manufacturing Reports"
         REPORT.Run(REPORT::"Demand Forecast", true, false, ProductionForecastEntry);
 
         // Verify: Check that Item No exists in the Production Forecast report and verify Forecast Quantity.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo_ForecastEntry', ProductionForecastEntry."Item No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ForecastQty_ForecastEntry', ProductionForecastEntry."Forecast Quantity");
     end;
 
@@ -914,7 +914,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         REPORT.Run(REPORT::"Routing Sheet", true, false, Item);
 
         // Verify: Check Routing details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyRoutingLine(Item."Routing No.", 'No_RtngLine');
     end;
 
@@ -947,7 +947,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         REPORT.Run(REPORT::"Machine Center Load", true, false, WorkCenter);
 
         // Verify: Check Routinf details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyLoadReport(ProductionOrder."Routing No.", 'No_MachineCenter', RoutingLine.Type::"Machine Center");
     end;
 
@@ -981,7 +981,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         REPORT.Run(REPORT::"Work Center Load", true, false, WorkCenterGroup);
 
         // Verify: Check Work Center Group details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyLoadReport(ProductionOrder."Routing No.", 'No_WorkCntr', RoutingLine.Type::"Work Center");
     end;
 
@@ -1193,7 +1193,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -1235,8 +1235,8 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         // Create Child Items.
         ClearJournal(ItemJournalBatch);
-        ChildItemNo := CreateChildItemWithInventory;
-        ChildItemNo2 := CreateChildItemWithInventory;
+        ChildItemNo := CreateChildItemWithInventory();
+        ChildItemNo2 := CreateChildItemWithInventory();
 
         // Create Production BOM.
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo2, 100);  // Quantity per Value important.
@@ -1250,7 +1250,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     local procedure CreateProdBOMVersion(var ProductionBOMVersion: Record "Production BOM Version"; Item: Record Item; Status: enum "BOM Status"; QtyPer: Decimal)
     begin
         LibraryManufacturing.CreateProductionBOMVersion(
-          ProductionBOMVersion, Item."Production BOM No.", LibraryUtility.GenerateGUID, Item."Base Unit of Measure");
+          ProductionBOMVersion, Item."Production BOM No.", LibraryUtility.GenerateGUID(), Item."Base Unit of Measure");
         UpdateProdBOMVersionLine(Item."Production BOM No.", ProductionBOMVersion."Version Code", QtyPer);
         ProductionBOMVersion.Validate(Status, Status);
         ProductionBOMVersion.Modify(true);
@@ -1370,7 +1370,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         LibraryPatterns.MAKESalesOrder(
           SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandDec(1000, 2),
-          WorkDate, LibraryRandom.RandDec(1000, 2));
+          WorkDate(), LibraryRandom.RandDec(1000, 2));
         SalesLine.Validate("Shipment Date", CalcDate('<-1D>', WorkDate()));
         SalesLine.Modify();
     end;
@@ -1484,7 +1484,7 @@ codeunit 137304 "SCM Manufacturing Reports"
             repeat
                 Validate("Quantity per", QtyPer);
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1505,15 +1505,15 @@ codeunit 137304 "SCM Manufacturing Reports"
 
     local procedure VerifyComponentsOnGeneratedReport(ParentItemNo: Code[20]; ChildItemNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('BomCompLevelNo', ChildItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Item', ParentItemNo);
     end;
 
     local procedure VerifyProductionOrder(ProductionOrder: Record "Production Order"; ProdOrderNoElementName: Text; ProdOrderSourceNoElementName: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ProdOrderNoElementName, ProductionOrder."No.");
         LibraryReportDataset.AssertElementWithValueExists(ProdOrderSourceNoElementName, ProductionOrder."Source No.");
     end;
@@ -1526,7 +1526,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, ProdOrderComponent."Item No.");
-            Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + ProdOrderComponent."Item No.");
+            Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Element not found for ' + ProdOrderComponent."Item No.");
         until ProdOrderComponent.Next() = 0;
     end;
 
@@ -1538,7 +1538,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
-            Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + RoutingLine."No.");
+            Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Element not found for ' + RoutingLine."No.");
         until RoutingLine.Next() = 0;
     end;
 
@@ -1552,7 +1552,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
-            Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + RoutingLine."No.");
+            Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Element not found for ' + RoutingLine."No.");
         until RoutingLine.Next() = 0;
 
         RoutingLine.SetFilter(Type, '<>%1', RoutingLineType);
@@ -1560,7 +1560,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
-            Assert.IsFalse(LibraryReportDataset.GetNextRow, 'Element found for ' + RoutingLine."No.");
+            Assert.IsFalse(LibraryReportDataset.GetNextRow(), 'Element found for ' + RoutingLine."No.");
         until RoutingLine.Next() = 0;
     end;
 
@@ -1583,17 +1583,17 @@ codeunit 137304 "SCM Manufacturing Reports"
 
     local procedure VerifyBOMItem(ItemNo: Code[20]; ItemElementNo: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(ItemElementNo, ItemNo);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Item not found in report.');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Item not found in report.');
     end;
 
     local procedure VerifyProdBOMComponents(var ProductionBOMLine: Record "Production BOM Line"; QtyPer: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         repeat
             LibraryReportDataset.SetRange('BomCompLevelNo', ProductionBOMLine."No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('BomCompLevelQty', QtyPer);
         until ProductionBOMLine.Next() = 0;
     end;
@@ -1602,16 +1602,15 @@ codeunit 137304 "SCM Manufacturing Reports"
     local procedure VerifyCapacityTaskList(ProductionOrder: Record "Production Order"; RoutingLineType: Enum "Capacity Type")
     var
         RoutingLine: Record "Routing Line";
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
         RoutingLine.SetRange(Type, RoutingLineType);
         RoutingLine.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('OPNo_ProdOrderRtngLine', RoutingLine."Operation No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('PONo_ProdOrderRtngLine', ProductionOrder."No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('RtngNo_ProdOrderRtngLine', ProductionOrder."Routing No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('No_ProdOrderRtngLine', RoutingLine."No.");
@@ -1622,7 +1621,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := true;
     end;
 
@@ -1630,112 +1629,112 @@ codeunit 137304 "SCM Manufacturing Reports"
     [Scope('OnPrem')]
     procedure QuantityExplosionOfBOMRequestPageHandler(var QuantityExplosionOfBOM: TestRequestPage "Quantity Explosion of BOM")
     begin
-        QuantityExplosionOfBOM.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        QuantityExplosionOfBOM.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderCompAndRoutingRequestPageHandler(var ProdOrderCompAndRouting: TestRequestPage "Prod. Order Comp. and Routing")
     begin
-        ProdOrderCompAndRouting.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProdOrderCompAndRouting.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderJobCardRequestPageHandler(var ProdOrderJobCard: TestRequestPage "Prod. Order - Job Card")
     begin
-        ProdOrderJobCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProdOrderJobCard.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderPrecalcTimeRequestPageHandler(var ProdOrderPrecalcTime: TestRequestPage "Prod. Order - Precalc. Time")
     begin
-        ProdOrderPrecalcTime.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProdOrderPrecalcTime.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderShortageListRequestPageHandler(var ProdOrderShortageList: TestRequestPage "Prod. Order - Shortage List")
     begin
-        ProdOrderShortageList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProdOrderShortageList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderMatRequisitionRequestPageHandler(var ProdOrderMatRequisition: TestRequestPage "Prod. Order - Mat. Requisition")
     begin
-        ProdOrderMatRequisition.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProdOrderMatRequisition.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderPickingListRequestPageHandler(var ProdOrderPickingList: TestRequestPage "Prod. Order - Picking List")
     begin
-        ProdOrderPickingList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProdOrderPickingList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderDetailedCalcRequestPageHandler(var ProdOrderDetailedCalc: TestRequestPage "Prod. Order - Detailed Calc.")
     begin
-        ProdOrderDetailedCalc.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProdOrderDetailedCalc.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderStatisticsRequestPageHandler(var ProdOrderStatistics: TestRequestPage "Production Order Statistics")
     begin
-        ProdOrderStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProdOrderStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProductionForecastRequestPageHandler(var ProductionForecast: TestRequestPage "Demand Forecast")
     begin
-        ProductionForecast.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProductionForecast.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AssemblyBOMsRequestPageHandler(var AssemblyBOMs: TestRequestPage "Assembly BOMs")
     begin
-        AssemblyBOMs.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssemblyBOMs.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedListRequestPageHandler(var WhereUsedList: TestRequestPage "Where-Used List")
     begin
-        WhereUsedList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WhereUsedList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AssemblyBOMRawMaterialsRequestPageHandler(var AssemblyBOMRawMaterials: TestRequestPage "Assembly BOM - Raw Materials")
     begin
-        AssemblyBOMRawMaterials.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssemblyBOMRawMaterials.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AssemblyBOMEndItemsRequestPageHandler(var AssemblyBOMEndItems: TestRequestPage "Assembly BOM - End Items")
     begin
-        AssemblyBOMEndItems.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssemblyBOMEndItems.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AssemblyBOMSubassembliesRequestPageHandler(var AssemblyBOMSubassemblies: TestRequestPage "Assembly BOM - Subassemblies")
     begin
-        AssemblyBOMSubassemblies.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssemblyBOMSubassemblies.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RoutingSheetRequestPageHandler(var RoutingSheet: TestRequestPage "Routing Sheet")
     begin
-        RoutingSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RoutingSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1756,7 +1755,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         MachineCenterLoad.NoOfPeriods.SetValue(NoOfPeriods);
         MachineCenterLoad.PeriodLength.SetValue(PeriodLength);
         MachineCenterLoad.MinCapEfficToPrint.SetValue(MinCapEfficToPrint);
-        MachineCenterLoad.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        MachineCenterLoad.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1777,14 +1776,14 @@ codeunit 137304 "SCM Manufacturing Reports"
         WorkCenterLoad.NoOfPeriods.SetValue(NoOfPeriods);
         WorkCenterLoad.PeriodLength.SetValue(PeriodLength);
         WorkCenterLoad.MinCapEfficToPrint.SetValue(MinCapEfficToPrint);
-        WorkCenterLoad.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WorkCenterLoad.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CapacityTaskListRequestPageHandler(var CapacityTaskList: TestRequestPage "Capacity Task List")
     begin
-        CapacityTaskList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CapacityTaskList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

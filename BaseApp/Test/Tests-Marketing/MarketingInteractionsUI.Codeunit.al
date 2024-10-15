@@ -44,20 +44,20 @@ codeunit 136215 "Marketing Interactions UI"
         InteractionLogEntry.Insert();
 
         // [WHEN] Open "Interaction Log Entries" page
-        InteractionLogEntriesPage.OpenView;
+        InteractionLogEntriesPage.OpenView();
 
         // [THEN] Action "Create Opportunity" is enabled for "A", disabled for "B" and "C"
-        InteractionLogEntriesPage.First;
+        InteractionLogEntriesPage.First();
         Assert.IsTrue(
-          InteractionLogEntriesPage.CreateOpportunity.Enabled,
+          InteractionLogEntriesPage.CreateOpportunity.Enabled(),
           'Should be enabled for blank Opportunity No.');
         InteractionLogEntriesPage.Next();
         Assert.IsFalse(
-          InteractionLogEntriesPage.CreateOpportunity.Enabled,
+          InteractionLogEntriesPage.CreateOpportunity.Enabled(),
           'Should be disabled for cancelled entry');
         InteractionLogEntriesPage.Next();
         Assert.IsFalse(
-          InteractionLogEntriesPage.CreateOpportunity.Enabled,
+          InteractionLogEntriesPage.CreateOpportunity.Enabled(),
           'Should be disabled for filled Opportunity No.');
     end;
 
@@ -81,9 +81,9 @@ codeunit 136215 "Marketing Interactions UI"
         InteractionLogEntry."Contact No." := Contact."No.";
         InteractionLogEntry."Salesperson Code" := Contact."Salesperson Code";
         InteractionLogEntry.Insert();
-        InteractionLogEntriesPage.OpenView;
+        InteractionLogEntriesPage.OpenView();
         // [WHEN] Create opportunity for the entry
-        InteractionLogEntriesPage.CreateOpportunity.Invoke;
+        InteractionLogEntriesPage.CreateOpportunity.Invoke();
 
         // [THEN] Interaction Log Entry, where "Opportunity No." is defined
         InteractionLogEntry.Find();
@@ -112,11 +112,11 @@ codeunit 136215 "Marketing Interactions UI"
 
         // [WHEN] Enter "Contact" as 'bob'
         LibraryVariableStorage.Enqueue(LowerCase(PersonContact[1].Name));
-        SalespersonPurchaser.CreateInteraction;
+        SalespersonPurchaser.CreateInteraction();
         // handled by ModalHandlerGetContactNameFromCreateInteraction
 
         // [THEN] "Contact" becomes 'Bob', as Contact "B" is found
-        Assert.AreEqual(PersonContact[1].Name, LibraryVariableStorage.DequeueText, 'Should be an existing Contact name');
+        Assert.AreEqual(PersonContact[1].Name, LibraryVariableStorage.DequeueText(), 'Should be an existing Contact name');
     end;
 
     [Test]
@@ -139,11 +139,11 @@ codeunit 136215 "Marketing Interactions UI"
 
         // [WHEN] Enter "Contact" as 'Eve'
         LibraryVariableStorage.Enqueue(LowerCase('X' + PersonContact[1].Name));
-        SalespersonPurchaser.CreateInteraction;
+        SalespersonPurchaser.CreateInteraction();
         // handled by ModalHandlerGetContactNameFromCreateInteraction
 
         // [THEN] "Contact" becomes '', as Contact Name 'Eve' is not found
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'Should be empty Contact name');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'Should be empty Contact name');
     end;
 
     [Test]
@@ -162,10 +162,10 @@ codeunit 136215 "Marketing Interactions UI"
 
         // [WHEN] Open "Create Interaction" page from Person Contact "A"
         // by ModalHandlerGetContactNameEditableFromCreateInteraction
-        PersonContact.CreateInteraction;
+        PersonContact.CreateInteraction();
 
         // [THEN] "Contact" control is NOT editable
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Contact name should not be editable.');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Contact name should not be editable.');
     end;
 
     [Test]
@@ -188,16 +188,16 @@ codeunit 136215 "Marketing Interactions UI"
 
         // [GIVEN] Open "Create Interaction" page from Person Contact "A" and set <blank> Salesperson
         LibraryVariableStorage.Enqueue('');
-        PersonContact[1].CreateInteraction;
+        PersonContact[1].CreateInteraction();
 
         // [WHEN] Assist edit on "Opportunity" control
         // by ModalHandlerCreateInteractionFromContact and ModalHandlerOpportunityList
 
         // [THEN] Opportunities List page will shows 2 records, where "Contact No." = "A" for "RL" and "B" for "AH"
-        Assert.AreEqual(2, LibraryVariableStorage.Length, 'No of opportunities is wrong');
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, CompanyContact[1]);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), 'No of opportunities is wrong');
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), CompanyContact[1]);
         PersonContact[1]."Salesperson Code" := PersonContact[2]."Salesperson Code";
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, PersonContact[1]);
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), PersonContact[1]);
     end;
 
     [Test]
@@ -220,15 +220,15 @@ codeunit 136215 "Marketing Interactions UI"
         // [GIVEN] Open "Create Interaction" page from Salesperson "AH" and set Company Contact "B"
         LibraryVariableStorage.Enqueue(CompanyContact[1].Name);
         SalespersonPurchaser.Get(CompanyContact[1]."Salesperson Code");
-        SalespersonPurchaser.CreateInteraction;
+        SalespersonPurchaser.CreateInteraction();
 
         // [WHEN] Assist edit on "Opportunity" control
         // by ModalHandlerCreateInteractionFromSalesperson and ModalHandlerOpportunityList
 
         // [THEN] Opportunities List page will shows 2 records, where "Contact No." = "A" or "B" and Salesperson = "AH"
-        Assert.AreEqual(2, LibraryVariableStorage.Length, 'No of opportunities is wrong');
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, PersonContact[1]);
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, CompanyContact[1]);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), 'No of opportunities is wrong');
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), PersonContact[1]);
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), CompanyContact[1]);
     end;
 
     [Test]
@@ -249,15 +249,15 @@ codeunit 136215 "Marketing Interactions UI"
 
         // [GIVEN] Open "Create Interaction" page from Person Contact "A" and set Salesperson "AH"
         LibraryVariableStorage.Enqueue(CompanyContact[1]."Salesperson Code");
-        PersonContact[1].CreateInteraction;
+        PersonContact[1].CreateInteraction();
 
         // [WHEN] Assist edit on "Opportunity" control
         // by ModalHandlerCreateInteractionFromContact and ModalHandlerOpportunityList
 
         // [THEN] Opportunities List page will shows 2 records, where "Contact No." = "A" or "B" and Salesperson = "AH"
-        Assert.AreEqual(2, LibraryVariableStorage.Length, 'No of opportunities is wrong');
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, PersonContact[1]);
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, CompanyContact[1]);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), 'No of opportunities is wrong');
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), PersonContact[1]);
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), CompanyContact[1]);
     end;
 
     [Test]
@@ -278,7 +278,7 @@ codeunit 136215 "Marketing Interactions UI"
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         LibraryVariableStorage.Enqueue(InteractionTemplate.Code);
         LibraryVariableStorage.Enqueue(CompanyContact."Salesperson Code");
-        PersonContact.CreateInteraction;
+        PersonContact.CreateInteraction();
         // [GIVEN] Push OK on "Create Interaction" page, where Opportunity is <blank>
         // by ModalHandlerCreateInteractionBlankOpportunity
         // [WHEN] Confirm received notification "Do you want to create an opportunity?"
@@ -305,7 +305,7 @@ codeunit 136215 "Marketing Interactions UI"
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         LibraryVariableStorage.Enqueue(InteractionTemplate.Code);
         LibraryVariableStorage.Enqueue(CompanyContact."Salesperson Code");
-        PersonContact.CreateInteraction;
+        PersonContact.CreateInteraction();
         // [GIVEN] Push OK on "Create Interaction" page, where Opportunity is <blank>
         // by ModalHandlerCreateInteractionBlankOpportunity
         // [WHEN] Do not confirm the notification "Do you want to create an opportunity?"
@@ -336,9 +336,9 @@ codeunit 136215 "Marketing Interactions UI"
         // by ModalHandlerMakePhoneCall and ModalHandlerOpportunityList
 
         // [THEN] Opportunities List page will shows 2 records, where "Contact No." = "A", "B" and Salesperson = "AH"
-        Assert.AreEqual(2, LibraryVariableStorage.Length, 'No of opportunities is wrong');
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, PersonContact[1]);
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, CompanyContact[1]);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), 'No of opportunities is wrong');
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), PersonContact[1]);
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), CompanyContact[1]);
     end;
 
     [Test]
@@ -364,11 +364,11 @@ codeunit 136215 "Marketing Interactions UI"
         // by ModalHandlerMakePhoneCall and ModalHandlerOpportunityList
 
         // [THEN] Opportunities List page will shows 3 records, where "Contact No." = "A", "B" for "AH", and "A" for "RL"
-        Assert.AreEqual(3, LibraryVariableStorage.Length, 'No of opportunities is wrong');
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, PersonContact[1]);
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, CompanyContact[1]);
+        Assert.AreEqual(3, LibraryVariableStorage.Length(), 'No of opportunities is wrong');
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), PersonContact[1]);
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), CompanyContact[1]);
         PersonContact[1]."Salesperson Code" := PersonContact[2]."Salesperson Code";
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, PersonContact[1]);
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), PersonContact[1]);
     end;
 
     [Test]
@@ -394,9 +394,9 @@ codeunit 136215 "Marketing Interactions UI"
         // by ModalHandlerMakePhoneCall and ModalHandlerOpportunityList
 
         // [THEN] Opportunities List page will shows 2 records, where "Contact No." = "A", "B" and Salesperson = "AH"
-        Assert.AreEqual(2, LibraryVariableStorage.Length, 'No of opportunities is wrong');
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, PersonContact[1]);
-        VerifyOpportunityContact(LibraryVariableStorage.DequeueText, CompanyContact[1]);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), 'No of opportunities is wrong');
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), PersonContact[1]);
+        VerifyOpportunityContact(LibraryVariableStorage.DequeueText(), CompanyContact[1]);
     end;
 
     [Test]
@@ -478,8 +478,8 @@ codeunit 136215 "Marketing Interactions UI"
         // by ModalHandlerMakePhoneCallGetPhoneNo and ModalHandlerPhoneNoListPickLast
 
         // [THEN] "Contact Phone No." becomes '9876'
-        Assert.AreEqual(PersonContact."Phone No.", LibraryVariableStorage.DequeueText, 'Phone No. before is wrong');
-        Assert.AreEqual(PersonContact."Mobile Phone No.", LibraryVariableStorage.DequeueText, 'Phone No. after is wrong');
+        Assert.AreEqual(PersonContact."Phone No.", LibraryVariableStorage.DequeueText(), 'Phone No. before is wrong');
+        Assert.AreEqual(PersonContact."Mobile Phone No.", LibraryVariableStorage.DequeueText(), 'Phone No. after is wrong');
     end;
 
     [Test]
@@ -511,8 +511,8 @@ codeunit 136215 "Marketing Interactions UI"
         // by ModalHandlerMakePhoneCallGetPhoneNo and ModalHandlerPhoneNoListPickFirst
 
         // [THEN] "Contact Phone No." becomes '1234'
-        Assert.AreEqual(PersonContact."Mobile Phone No.", LibraryVariableStorage.DequeueText, 'Phone No. before is wrong');
-        Assert.AreEqual(PersonContact."Phone No.", LibraryVariableStorage.DequeueText, 'Phone No. after is wrong');
+        Assert.AreEqual(PersonContact."Mobile Phone No.", LibraryVariableStorage.DequeueText(), 'Phone No. before is wrong');
+        Assert.AreEqual(PersonContact."Phone No.", LibraryVariableStorage.DequeueText(), 'Phone No. after is wrong');
     end;
 
     [Test]
@@ -585,11 +585,11 @@ codeunit 136215 "Marketing Interactions UI"
 
         // [WHEN] Start "Create Interaction" for a Contact
         LibraryMarketing.CreatePersonContact(Contact);
-        Contact.CreateInteraction;
+        Contact.CreateInteraction();
 
         // [THEN] "Time of Interaction" = '12:34:00'
         // by ModalHandlerGetTimeFromCreateInteraction
-        Assert.AreEqual(ExpectedTimeAsText, LibraryVariableStorage.DequeueText, 'Wrong Time of Interaction');
+        Assert.AreEqual(ExpectedTimeAsText, LibraryVariableStorage.DequeueText(), 'Wrong Time of Interaction');
     end;
 
     [Test]
@@ -626,17 +626,17 @@ codeunit 136215 "Marketing Interactions UI"
 
         // [THEN] Page "Contact Through" 5145 is showing all nubmers:
         // [THEN] The first number = "123456789"
-        Assert.AreEqual(PersonContact."Phone No.", LibraryVariableStorage.DequeueText, 'Wrong Phone No. of Person Contact');
+        Assert.AreEqual(PersonContact."Phone No.", LibraryVariableStorage.DequeueText(), 'Wrong Phone No. of Person Contact');
 
         // [THEN] The second number = "987654321"
-        Assert.AreEqual(PersonContact."Mobile Phone No.", LibraryVariableStorage.DequeueText, 'Wrong Mobile Phone No. of Person Contact');
+        Assert.AreEqual(PersonContact."Mobile Phone No.", LibraryVariableStorage.DequeueText(), 'Wrong Mobile Phone No. of Person Contact');
 
         // [THEN] The third number = "789654123"
-        Assert.AreEqual(CompanyContact."Phone No.", LibraryVariableStorage.DequeueText, 'Wrong Phone No. of Company Contact');
+        Assert.AreEqual(CompanyContact."Phone No.", LibraryVariableStorage.DequeueText(), 'Wrong Phone No. of Company Contact');
 
         // [THEN] The fourth number = "987456321"
         Assert.AreEqual(
-          CompanyContact."Mobile Phone No.", LibraryVariableStorage.DequeueText, 'Wrong Mobile Phone No. of Company Contact');
+          CompanyContact."Mobile Phone No.", LibraryVariableStorage.DequeueText(), 'Wrong Mobile Phone No. of Company Contact');
     end;
 
     [Test]
@@ -798,9 +798,9 @@ codeunit 136215 "Marketing Interactions UI"
     var
         ContactListPage: TestPage "Contact List";
     begin
-        ContactListPage.OpenView;
+        ContactListPage.OpenView();
         ContactListPage.GotoRecord(Contact);
-        ContactListPage.MakePhoneCall.Invoke;
+        ContactListPage.MakePhoneCall.Invoke();
         ContactListPage.Close();
     end;
 
@@ -859,8 +859,8 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerCreateInteractionBlankOpportunity(var CreateInteractionPage: TestPage "Create Interaction")
     begin
-        CreateInteractionPage."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText);
-        CreateInteractionPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText);
+        CreateInteractionPage."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText());
+        CreateInteractionPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText());
         CreateInteractionPage."Opportunity Description".AssertEquals('');
         CreateInteractionPage.NextInteraction.Invoke();
         CreateInteractionPage.NextInteraction.Invoke();
@@ -871,8 +871,8 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerCreateInteractionFromContact(var CreateInteractionPage: TestPage "Create Interaction")
     begin
-        CreateInteractionPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText);
-        CreateInteractionPage."Opportunity Description".AssistEdit;
+        CreateInteractionPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText());
+        CreateInteractionPage."Opportunity Description".AssistEdit();
         // handled by ModalHandlerOpportunityList
     end;
 
@@ -880,8 +880,8 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerCreateInteractionFromSalesPerson(var CreateInteractionPage: TestPage "Create Interaction")
     begin
-        CreateInteractionPage."Wizard Contact Name".SetValue(LibraryVariableStorage.DequeueText);
-        CreateInteractionPage."Opportunity Description".AssistEdit;
+        CreateInteractionPage."Wizard Contact Name".SetValue(LibraryVariableStorage.DequeueText());
+        CreateInteractionPage."Opportunity Description".AssistEdit();
         // handled by ModalHandlerOpportunityList
     end;
 
@@ -889,7 +889,7 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerGetContactNameFromCreateInteraction(var CreateInteractionPage: TestPage "Create Interaction")
     begin
-        CreateInteractionPage."Wizard Contact Name".SetValue(LibraryVariableStorage.DequeueText);
+        CreateInteractionPage."Wizard Contact Name".SetValue(LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.Enqueue(Format(CreateInteractionPage."Wizard Contact Name".Value));
     end;
 
@@ -897,14 +897,14 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerGetContactNameEditableFromCreateInteraction(var CreateInteractionPage: TestPage "Create Interaction")
     begin
-        LibraryVariableStorage.Enqueue(CreateInteractionPage."Wizard Contact Name".Editable);
+        LibraryVariableStorage.Enqueue(CreateInteractionPage."Wizard Contact Name".Editable());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ModalHandlerGetTimeFromCreateInteraction(var CreateInteractionPage: TestPage "Create Interaction")
     begin
-        LibraryVariableStorage.Enqueue(Format(CreateInteractionPage."Time of Interaction".AsTime, 0, 9));
+        LibraryVariableStorage.Enqueue(Format(CreateInteractionPage."Time of Interaction".AsTime(), 0, 9));
     end;
 
     [ModalPageHandler]
@@ -930,8 +930,8 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerMakePhoneCall(var MakePhoneCallPage: TestPage "Make Phone Call")
     begin
-        MakePhoneCallPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText);
-        MakePhoneCallPage."Opportunity Description".AssistEdit;
+        MakePhoneCallPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText());
+        MakePhoneCallPage."Opportunity Description".AssistEdit();
         // handled by ModalHandlerOpportunityList
     end;
 
@@ -939,7 +939,7 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerMakePhoneCallBlankOpportunity(var MakePhoneCallPage: TestPage "Make Phone Call")
     begin
-        MakePhoneCallPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText);
+        MakePhoneCallPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText());
         MakePhoneCallPage."Opportunity Description".AssertEquals('');
         MakePhoneCallPage.Finish.Invoke();
     end;
@@ -949,7 +949,7 @@ codeunit 136215 "Marketing Interactions UI"
     procedure ModalHandlerMakePhoneCallGetPhoneNo(var MakePhoneCallPage: TestPage "Make Phone Call")
     begin
         LibraryVariableStorage.Enqueue(MakePhoneCallPage."Contact Via".Value); // Phone No. before
-        MakePhoneCallPage."Contact Via".AssistEdit;
+        MakePhoneCallPage."Contact Via".AssistEdit();
         // handled by ModalHandlerPhoneNoList
         LibraryVariableStorage.Enqueue(MakePhoneCallPage."Contact Via".Value); // Phone No. after
     end;
@@ -958,16 +958,16 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerPhoneNoListPickFirst(var ContactThroughPage: TestPage "Contact Through")
     begin
-        ContactThroughPage.First;
-        ContactThroughPage.OK.Invoke;
+        ContactThroughPage.First();
+        ContactThroughPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ModalHandlerPhoneNoListPickLast(var ContactThroughPage: TestPage "Contact Through")
     begin
-        ContactThroughPage.Last;
-        ContactThroughPage.OK.Invoke;
+        ContactThroughPage.Last();
+        ContactThroughPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -975,7 +975,7 @@ codeunit 136215 "Marketing Interactions UI"
     procedure ModalHandlerOpportunityList(var OpportunityListPage: TestPage "Opportunity List")
     begin
         LibraryVariableStorage.Clear();
-        if OpportunityListPage.First then
+        if OpportunityListPage.First() then
             repeat
                 LibraryVariableStorage.Enqueue(OpportunityListPage."No.".Value);
             until not OpportunityListPage.Next();
@@ -1037,7 +1037,7 @@ codeunit 136215 "Marketing Interactions UI"
         LibraryVariableStorage.Enqueue(ContactThrough.Number.Value);
         ContactThrough.Next();
         LibraryVariableStorage.Enqueue(ContactThrough.Number.Value);
-        ContactThrough.OK.Invoke;
+        ContactThrough.OK().Invoke();
     end;
 }
 

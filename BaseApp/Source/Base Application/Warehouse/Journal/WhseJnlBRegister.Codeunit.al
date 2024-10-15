@@ -25,43 +25,41 @@ codeunit 7305 "Whse. Jnl.-B.Register"
 
     local procedure "Code"()
     begin
-        with WhseJnlBatch do begin
-            WhseJnlTemplate.Get("Journal Template Name");
-            WhseJnlTemplate.TestField("Force Registering Report", false);
+        WhseJnlTemplate.Get(WhseJnlBatch."Journal Template Name");
+        WhseJnlTemplate.TestField("Force Registering Report", false);
 
-            if not Confirm(Text000, false) then
-                exit;
+        if not Confirm(Text000, false) then
+            exit;
 
-            Find('-');
-            repeat
-                WhseJnlLine."Journal Template Name" := "Journal Template Name";
-                WhseJnlLine."Journal Batch Name" := Name;
-                WhseJnlLine."Location Code" := "Location Code";
-                WhseJnlLine."Line No." := 10000;
-                Clear(WhseJnlRegisterBatch);
-                if WhseJnlRegisterBatch.Run(WhseJnlLine) then
-                    Mark(false)
-                else begin
-                    Mark(true);
-                    JnlWithErrors := true;
-                end;
-            until Next() = 0;
-
-            if not JnlWithErrors then
-                Message(Text001)
-            else
-                Message(
-                  Text002 +
-                  Text003);
-
-            if not Find('=><') then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Location Code", "Location Code");
-                FilterGroup(0);
-                Name := '';
+        WhseJnlBatch.Find('-');
+        repeat
+            WhseJnlLine."Journal Template Name" := WhseJnlBatch."Journal Template Name";
+            WhseJnlLine."Journal Batch Name" := WhseJnlBatch.Name;
+            WhseJnlLine."Location Code" := WhseJnlBatch."Location Code";
+            WhseJnlLine."Line No." := 10000;
+            Clear(WhseJnlRegisterBatch);
+            if WhseJnlRegisterBatch.Run(WhseJnlLine) then
+                WhseJnlBatch.Mark(false)
+            else begin
+                WhseJnlBatch.Mark(true);
+                JnlWithErrors := true;
             end;
+        until WhseJnlBatch.Next() = 0;
+
+        if not JnlWithErrors then
+            Message(Text001)
+        else
+            Message(
+              Text002 +
+              Text003);
+
+        if not WhseJnlBatch.Find('=><') then begin
+            WhseJnlBatch.Reset();
+            WhseJnlBatch.FilterGroup(2);
+            WhseJnlBatch.SetRange("Journal Template Name", WhseJnlBatch."Journal Template Name");
+            WhseJnlBatch.SetRange("Location Code", WhseJnlBatch."Location Code");
+            WhseJnlBatch.FilterGroup(0);
+            WhseJnlBatch.Name := '';
         end;
     end;
 }

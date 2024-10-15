@@ -8,6 +8,7 @@ table 27004 "CFDI Export Code"
 {
     DrillDownPageID = "CFDI Export Codes";
     LookupPageID = "CFDI Export Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

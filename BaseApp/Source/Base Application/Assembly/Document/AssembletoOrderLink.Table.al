@@ -19,10 +19,13 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
 using System.Utilities;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Job;
 
 table 904 "Assemble-to-Order Link"
 {
     Caption = 'Assemble-to-Order Link';
+    DataClassification = CustomerContent;
     Permissions = TableData "Assembly Header" = rimd,
                   TableData "Assemble-to-Order Link" = rimd;
 
@@ -54,6 +57,10 @@ table 904 "Assemble-to-Order Link"
             Caption = 'Document No.';
             TableRelation = if (Type = const(Sale)) "Sales Line"."Document No." where("Document Type" = field("Document Type"),
                                                                                      "Document No." = field("Document No."),
+                                                                                     "Line No." = field("Document Line No."))
+            else
+            if (Type = const(Job)) "Job Planning Line"."Document No." where("Job No." = field("Job No."),
+                                                                                     "Job Task No." = field("Job Task No."),
                                                                                      "Line No." = field("Document Line No."));
         }
         field(14; "Document Line No."; Integer)
@@ -65,6 +72,16 @@ table 904 "Assemble-to-Order Link"
             Caption = 'Assembled Quantity';
             DecimalPlaces = 0 : 5;
         }
+        field(40; "Job No."; Code[20])
+        {
+            Caption = 'Project No.';
+            TableRelation = Job;
+        }
+        field(41; "Job Task No."; Code[20])
+        {
+            Caption = 'Project Task No.';
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
+        }
     }
 
     keys
@@ -74,6 +91,9 @@ table 904 "Assemble-to-Order Link"
             Clustered = true;
         }
         key(Key2; Type, "Document Type", "Document No.", "Document Line No.")
+        {
+        }
+        key(Key3; Type, "Job No.", "Job Task No.", "Document Line No.")
         {
         }
     }
@@ -96,6 +116,9 @@ table 904 "Assemble-to-Order Link"
         Text006: Label 'The status of the linked assembly order will be changed to %1. Do you want to continue?';
         Text007: Label 'A %1 exists for the %2. \\If you want to record and post a different %3, then you must do this in the %4 field on the related %1.';
         Text008: Label '%1 %2', Comment = 'Key Value, say: %1=Line No. %2=10000';
+        ItemTrackingQtyDiffErr: Label 'The item tracking defined on Assembly Header with Document Type %1, No. %2 exceeds %3 on Project Planning Line with Job No. %4, Job Task No. %5, Line No. %6.\\ You must adjust the existing item tracking before you can reenter the new quantity.', Comment = '%1 = Document Type, %2 = No., %3 = Qty. to Assemble (Base), %4 = Job No., %5 = Job Task No., %6 = Line No.';
+        CreateAsmForJobErr: Label 'It is not possible to create an assembly order for a job task that is completed.';
+        AssebmlyOrderExistsForJobErr: Label 'One or more assembly orders exists for the project %1.\\You must delete the assembly order before you can change the job status.', Comment = '%1 = Job No.';
 
     procedure UpdateAsmFromSalesLine(var NewSalesLine: Record "Sales Line")
     begin
@@ -167,6 +190,48 @@ table 904 "Assemble-to-Order Link"
             AsmHeader.Modify(true);
         end;
         OnAfterUpdateAsm(AsmHeader, Rec, NewSalesLine, AsmExists);
+    end;
+
+    procedure UpdateAsmFromJobPlanningLine(var NewJobPlanningLine: Record "Job Planning Line")
+    begin
+        UpdateAsmFromJobPlanningLine(NewJobPlanningLine, AsmExistsForJobPlanningLine(NewJobPlanningLine));
+    end;
+
+    local procedure UpdateAsmFromJobPlanningLine(var NewJobPlanningLine: Record "Job Planning Line"; AsmExists: Boolean)
+    var
+        Job: Record Job;
+    begin
+        if AsmExists then begin
+            if not NewJobPlanningLine.IsAsmToOrderAllowed() then begin
+                DeleteAsmFromJobPlanningLine(NewJobPlanningLine);
+                exit;
+            end;
+            if NewJobPlanningLine."Qty. to Assemble" = 0 then begin
+                DeleteAsmFromJobPlanningLine(NewJobPlanningLine);
+                NewJobPlanningLine."Assemble to Order" := false;
+                InsertAssembeToOrderLinkIfInvtAdjmtEntryOrderExist();
+                exit;
+            end;
+            if not DeleteAssembleToOrderLink(NewJobPlanningLine) then
+                exit;
+        end else begin
+            if JobPlanningLineIsNotCorrect(NewJobPlanningLine) then
+                exit;
+
+            if not NewJobPlanningLine.IsAsmToOrderAllowed() then begin
+                NewJobPlanningLine."Qty. to Assemble" := 0;
+                NewJobPlanningLine."Qty. to Assemble (Base)" := 0;
+                exit;
+            end;
+
+            Job.Get(NewJobPlanningLine."Job No.");
+            CheckJobStatus(Job);
+            AssignAssembleToOrderData(NewJobPlanningLine, Job);
+            NewJobPlanningLine."Assemble to Order" := true;
+        end;
+        SynchronizeAsmFromJobPlanningLine(NewJobPlanningLine, "Document Type" = "Document Type"::Order);
+        Insert();
+        AssignGlobalDimensionsFromJobTask(NewJobPlanningLine);
     end;
 
     procedure UpdateAsmDimFromSalesLine(SalesLine: Record "Sales Line")
@@ -289,6 +354,18 @@ table 904 "Assemble-to-Order Link"
             end;
     end;
 
+    internal procedure UpdateAsmBinCodeFromJobPlanningLine(JobPlanningLine: Record "Job Planning Line")
+    var
+        Window: Dialog;
+    begin
+        if AsmExistsForJobPlanningLine(JobPlanningLine) then
+            if GetAsmHeader() and GuiAllowed() then begin
+                Window.Open(GetWindowOpenTextJob(JobPlanningLine));
+                UpdateAsmBinCode(JobPlanningLine."Bin Code");
+                Window.Close();
+            end;
+    end;
+
     local procedure UpdateAsmBinCode(NewBinCode: Code[20])
     begin
         AsmHeader.SuspendStatusCheck(true);
@@ -300,6 +377,20 @@ table 904 "Assemble-to-Order Link"
     procedure DeleteAsmFromSalesLine(SalesLine: Record "Sales Line")
     begin
         if AsmExistsForSalesLine(SalesLine) then begin
+            Delete();
+            if "Document Type" = "Document Type"::Order then
+                UnreserveAsm();
+
+            if GetAsmHeader() then begin
+                AsmHeader.Delete(true);
+                AsmHeader.Init();
+            end;
+        end;
+    end;
+
+    procedure DeleteAsmFromJobPlanningLine(JobPlanningLine: Record "Job Planning Line")
+    begin
+        if AsmExistsForJobPlanningLine(JobPlanningLine) then begin
             Delete();
             if "Document Type" = "Document Type"::Order then
                 UnreserveAsm();
@@ -384,6 +475,58 @@ table 904 "Assemble-to-Order Link"
         AsmHeader.ShowDueDateBeforeWorkDateMsg();
     end;
 
+    local procedure SynchronizeAsmFromJobPlanningLine(var NewJobPlanningLine: Record "Job Planning Line"; ReserveLine: Boolean)
+    var
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        Window: Dialog;
+        QtyTracked: Decimal;
+        QtyTrackedBase: Decimal;
+    begin
+        GetAsmHeader();
+
+        Window.Open(GetWindowOpenTextJob(NewJobPlanningLine));
+
+        CaptureItemTracking(TempTrackingSpecification, QtyTracked, QtyTrackedBase);
+
+        if NewJobPlanningLine."Qty. to Assemble (Base)" < QtyTrackedBase then
+            Error(ItemTrackingQtyDiffErr,
+              AsmHeader."Document Type",
+              AsmHeader."No.",
+              NewJobPlanningLine.FieldCaption("Qty. to Assemble"),
+              NewJobPlanningLine."Job No.",
+              NewJobPlanningLine."Job Task No.",
+              NewJobPlanningLine."Line No.");
+
+        UnreserveAsm();
+        ChangeAsmHeaderFromJobPLanningLine(NewJobPlanningLine);
+
+        if ReserveLine then
+            ReserveAsmToJob(NewJobPlanningLine,
+              AsmHeader."Remaining Quantity" - QtyTracked,
+              AsmHeader."Remaining Quantity (Base)" - QtyTrackedBase);
+        RestoreItemTracking(TempTrackingSpecification, NewJobPlanningLine);
+
+        NewJobPlanningLine.CheckAsmToOrder(AsmHeader);
+        Window.Close();
+
+        AsmHeader.SetWarningsOn();
+        AsmHeader.ShowDueDateBeforeWorkDateMsg();
+    end;
+
+    local procedure ChangeAsmHeaderFromJobPLanningLine(var NewJobPlanningLine: Record "Job Planning Line")
+    begin
+        AsmHeader.SetWarningsOff();
+        ChangeItem(NewJobPlanningLine."No.");
+        ChangeLocation(NewJobPlanningLine."Location Code");
+        ChangeVariant(NewJobPlanningLine."Variant Code");
+        ChangeBinCode(NewJobPlanningLine."Bin Code");
+        ChangeUOM(NewJobPlanningLine."Unit of Measure Code");
+        ChangePostingDate(NewJobPlanningLine."Planning Date");
+        ChangePlanningFlexibility();
+        ChangeQty(NewJobPlanningLine."Qty. to Assemble");
+        AsmHeader.Modify(true);
+    end;
+
     procedure MakeAsmOrderLinkedToSalesOrderLine(FromSalesLine: Record "Sales Line"; ToSalesOrderLine: Record "Sales Line")
     var
         ToAsmOrderHeader: Record "Assembly Header";
@@ -414,6 +557,56 @@ table 904 "Assemble-to-Order Link"
         end;
     end;
 
+    procedure CheckIfAssembleToOrderLinkExist(Job: Record Job)
+    begin
+        if Job.Status in [Job.Status::Completed, Job.Status::Open] then
+            exit;
+        SetRange(Type, Type::Job);
+        SetRange("Job No.", Job."No.");
+        SetRange("Document Type", "Document Type"::Order);
+        if not IsEmpty() then
+            Error(AssebmlyOrderExistsForJobErr, Job."No.");
+    end;
+
+    procedure MakeAsmOrderLinkedToJobPlanningOrderLine(var JobPlanningLine: Record "Job Planning Line")
+    var
+        ToAsmOrderHeader: Record "Assembly Header";
+    begin
+        if not JobPlanningLine."Assemble to Order" then
+            exit;
+
+        if JobPlanningLine.Status = JobPlanningLine.Status::Order then
+            exit;
+
+        if JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::Billable then
+            exit;
+
+        if not AsmExistsForJobPlanningLine(JobPlanningLine) then
+            exit;
+
+        JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
+        if GetAsmHeader() then begin
+            ToAsmOrderHeader.Init();
+            CopyAsmToNewAsmOrder(AsmHeader, ToAsmOrderHeader, true);
+
+            Init();
+            "Assembly Document Type" := ToAsmOrderHeader."Document Type";
+            "Assembly Document No." := ToAsmOrderHeader."No.";
+            Type := Type::Job;
+            "Document No." := JobPlanningLine."Document No.";
+            "Document Type" := "Document Type"::Order;
+            "Document Line No." := JobPlanningLine."Line No.";
+            "Job No." := JobPlanningLine."Job No.";
+            "Job Task No." := JobPlanningLine."Job Task No.";
+
+            SynchronizeAsmFromJobPlanningLine(JobPlanningLine, true);
+            RecalcAutoReserve(ToAsmOrderHeader);
+            Insert();
+        end;
+        if JobPlanningLine.Status <> JobPlanningLine.Status::Order then
+            DeleteAsmFromJobPlanningLine(JobPlanningLine);
+    end;
+
     local procedure NeedsSynchronization(SalesLine: Record "Sales Line") Result: Boolean
     var
         IsHandled: Boolean;
@@ -436,6 +629,21 @@ table 904 "Assemble-to-Order Link"
           (AsmHeader."Planning Flexibility" <> AsmHeader."Planning Flexibility"::None) or
           ((SalesLine."Document Type" = SalesLine."Document Type"::Order) and
            (AsmHeader."Remaining Quantity (Base)" <> AsmHeader."Reserved Qty. (Base)")));
+    end;
+
+    local procedure NeedsSynchronization(JobPlanningLine: Record "Job Planning Line"): Boolean
+    begin
+        GetAsmHeader();
+        AsmHeader.CalcFields("Reserved Qty. (Base)");
+        exit(
+          (JobPlanningLine."No." <> AsmHeader."Item No.") or
+          (JobPlanningLine."Location Code" <> AsmHeader."Location Code") or
+          (JobPlanningLine."Variant Code" <> AsmHeader."Variant Code") or
+          (JobPlanningLine."Bin Code" <> AsmHeader."Bin Code") or
+          (JobPlanningLine."Qty. to Assemble (Base)" <> AsmHeader."Quantity (Base)") or
+          (JobPlanningLine."Unit of Measure Code" <> AsmHeader."Unit of Measure Code") or
+          (AsmHeader."Planning Flexibility" <> AsmHeader."Planning Flexibility"::None) or
+          (AsmHeader."Remaining Quantity (Base)" <> AsmHeader."Reserved Qty. (Base)"));
     end;
 
     local procedure ChangeItem(NewItemNo: Code[20])
@@ -576,6 +784,28 @@ table 904 "Assemble-to-Order Link"
         end;
     end;
 
+    procedure ReserveAsmToJob(var JobPlanningLine: Record "Job Planning Line"; QtyToReserve: Decimal; QtyToReserveBase: Decimal)
+    var
+        ReservEntry: Record "Reservation Entry";
+        TrackingSpecification: Record "Tracking Specification";
+        AsmHeaderReserve: Codeunit "Assembly Header-Reserve";
+    begin
+        if Type <> Type::Job then
+            exit;
+
+        GetAsmHeader();
+        AsmHeaderReserve.SetBinding(ReservEntry.Binding::"Order-to-Order");
+        AsmHeaderReserve.SetDisallowCancellation(true);
+        TrackingSpecification.InitTrackingSpecification(
+            Database::"Job Planning Line", 2, JobPlanningLine."Job No.", '', 0, JobPlanningLine."Job Contract Entry No.",
+            AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader."Qty. per Unit of Measure");
+        AsmHeaderReserve.CreateReservationSetFrom(TrackingSpecification);
+        AsmHeaderReserve.CreateReservation(AsmHeader, AsmHeader.Description, AsmHeader."Due Date", QtyToReserve, QtyToReserveBase);
+
+        if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then
+            JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
+    end;
+
     local procedure UnreserveAsm()
     var
         ReservEntry: Record "Reservation Entry";
@@ -671,6 +901,40 @@ table 904 "Assemble-to-Order Link"
                     AsmHeader."Item No.", AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader.Description,
                     AsmHeader."Due Date", AsmHeader."Due Date", 0, "Reservation Status"::Reservation);
             until TrackingSpecification.Next() = 0;
+        TrackingSpecification.DeleteAll();
+    end;
+
+    local procedure RestoreItemTracking(var TrackingSpecification: Record "Tracking Specification"; JobPlanningLine: Record "Job Planning Line")
+    var
+        ReservEntry: Record "Reservation Entry";
+        FromTrackingSpecification: Record "Tracking Specification";
+        CreateReservEntry: Codeunit "Create Reserv. Entry";
+    begin
+        if not TrackingSpecification.Find('-') then
+            exit;
+
+        GetAsmHeader();
+        repeat
+            CreateReservEntry.SetDates(TrackingSpecification."Warranty Date", TrackingSpecification."Expiration Date");
+            CreateReservEntry.SetApplyFromEntryNo(TrackingSpecification."Appl.-from Item Entry");
+            CreateReservEntry.SetDisallowCancellation(true);
+            CreateReservEntry.SetBinding(ReservEntry.Binding::"Order-to-Order");
+            CreateReservEntry.SetQtyToHandleAndInvoice(
+              TrackingSpecification."Qty. to Handle (Base)", TrackingSpecification."Qty. to Invoice (Base)");
+
+            ReservEntry.CopyTrackingFromSpec(TrackingSpecification);
+            CreateReservEntry.CreateReservEntryFor(
+              DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
+              AsmHeader."Qty. per Unit of Measure", 0, TrackingSpecification."Quantity (Base)", ReservEntry);
+
+            FromTrackingSpecification.InitFromJobPlanningLine(JobPlanningLine);
+            FromTrackingSpecification."Qty. per Unit of Measure" := AsmHeader."Qty. per Unit of Measure";
+            FromTrackingSpecification.CopyTrackingFromTrackingSpec(TrackingSpecification);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+            CreateReservEntry.CreateEntry(
+                AsmHeader."Item No.", AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader.Description,
+                AsmHeader."Due Date", AsmHeader."Due Date", 0, "Reservation Status"::Reservation);
+        until TrackingSpecification.Next() = 0;
         TrackingSpecification.DeleteAll();
     end;
 
@@ -861,6 +1125,39 @@ table 904 "Assemble-to-Order Link"
         end;
     end;
 
+    local procedure ShowAsm(JobPlanningLine: Record "Job Planning Line")
+    begin
+        JobPlanningLine.TestField("Qty. to Assemble (Base)");
+        if AsmExistsForJobPlanningLine(JobPlanningLine) then begin
+            GetAsmHeader();
+            case AsmHeader."Document Type" of
+                AsmHeader."Document Type"::Quote:
+                    Page.RunModal(Page::"Assembly Quote", AsmHeader);
+                AsmHeader."Document Type"::Order:
+                    Page.RunModal(Page::"Assembly Order", AsmHeader);
+            end;
+        end;
+    end;
+
+    procedure ShowAsmDocument()
+    var
+        SalesLine: Record "Sales Line";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        case Rec.Type of
+            Rec.Type::Sale:
+                begin
+                    SalesLine.Get(Rec."Document Type", Rec."Document No.", Rec."Document Line No.");
+                    ShowAsm(SalesLine);
+                end;
+            Rec.Type::Job:
+                begin
+                    JobPlanningLine.Get(Rec."Job No.", Rec."Job Task No.", Rec."Document Line No.");
+                    ShowAsm(JobPlanningLine);
+                end;
+        end;
+    end;
+
     procedure ShowAsmToOrderLines(SalesLine: Record "Sales Line")
     var
         AsmLine: Record "Assembly Line";
@@ -873,6 +1170,20 @@ table 904 "Assemble-to-Order Link"
 
         SalesLine.TestField("Qty. to Asm. to Order (Base)");
         if AsmExistsForSalesLine(SalesLine) then begin
+            AsmLine.FilterGroup := 2;
+            AsmLine.SetRange("Document Type", "Assembly Document Type");
+            AsmLine.SetRange("Document No.", "Assembly Document No.");
+            AsmLine.FilterGroup := 0;
+            PAGE.RunModal(PAGE::"Assemble-to-Order Lines", AsmLine);
+        end;
+    end;
+
+    procedure ShowAsmToJobPlanningLines(JobPlanningLine: Record "Job Planning Line")
+    var
+        AsmLine: Record "Assembly Line";
+    begin
+        JobPlanningLine.TestField("Qty. to Assemble (Base)");
+        if AsmExistsForJobPlanningLine(JobPlanningLine) then begin
             AsmLine.FilterGroup := 2;
             AsmLine.SetRange("Document Type", "Assembly Document Type");
             AsmLine.SetRange("Document No.", "Assembly Document No.");
@@ -902,6 +1213,16 @@ table 904 "Assemble-to-Order Link"
                     PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
             end;
         end;
+    end;
+
+    procedure ShowJobPlanningLines()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        JobPlanningLine.SetRange("Job No.", Rec."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", Rec."Job Task No.");
+        JobPlanningLine.SetRange("Line No.", Rec."Document Line No.");
+        Page.RunModal(Page::"Job Planning Lines", JobPlanningLine);
     end;
 
     procedure SalesLineCheckAvailShowWarning(SalesLine: Record "Sales Line"; var TempAsmHeader: Record "Assembly Header" temporary; var TempAsmLine: Record "Assembly Line" temporary): Boolean
@@ -1119,6 +1440,21 @@ table 904 "Assemble-to-Order Link"
         exit(FindFirst());
     end;
 
+    procedure AsmExistsForJobPlanningLine(JobPlanningLine: Record "Job Planning Line"): Boolean
+    begin
+        Reset();
+        SetCurrentKey(Type, "Job No.", "Job Task No.", "Document Line No.");
+        SetRange(Type, Type::Job);
+        SetRange("Job No.", JobPlanningLine."Job No.");
+        SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        SetRange("Document Line No.", JobPlanningLine."Line No.");
+        if JobPlanningLine.Status = JobPlanningLine.Status::Order then
+            SetRange("Document Type", "Document Type"::Order)
+        else
+            SetRange("Document Type", "Document Type"::Quote);
+        exit(FindFirst());
+    end;
+
     procedure AsmExistsForWhseShptLine(WhseShptLine: Record "Warehouse Shipment Line"): Boolean
     var
         SalesLine: Record "Sales Line";
@@ -1171,7 +1507,7 @@ table 904 "Assemble-to-Order Link"
         OnBeforeGetATOLink(Rec, AssemblyHeader, LinkFound, IsHandled);
         if IsHandled then
             exit(LinkFound);
-        LinkFound := Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
+        LinkFound := Get(AssemblyHeader."Document Type", AssemblyHeader."No.") and (Type <> Type::Job);
         if LinkFound then
             TestField(Type, Type::Sale);
     end;
@@ -1253,6 +1589,7 @@ table 904 "Assemble-to-Order Link"
     procedure InitQtyToAsm(AssemblyHeader: Record "Assembly Header"; var QtyToAsm: Decimal; var QtyToAsmBase: Decimal)
     var
         SalesLine: Record "Sales Line";
+        JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1264,6 +1601,12 @@ table 904 "Assemble-to-Order Link"
             SalesLine.Get("Document Type", "Document No.", "Document Line No.");
             QtyToAsm := MaxQtyToAsm(SalesLine, AssemblyHeader);
             QtyToAsmBase := MaxQtyToAsmBase(SalesLine, AssemblyHeader);
+        end else begin
+            if ("Job No." = '') or ("Job Task No." = '') then
+                exit;
+            JobPlanningLine.Get("Job No.", "Job Task No.", "Document Line No.");
+            QtyToAsm := AssemblyHeader."Remaining Quantity";
+            QtyToAsmBase := AssemblyHeader."Remaining Quantity (Base)";
         end;
     end;
 
@@ -1285,6 +1628,15 @@ table 904 "Assemble-to-Order Link"
         exit(StrSubstNo(Text000,
             SalesLine.TableCaption(),
             ConstructKeyTextSalesLine(SalesLine),
+            AsmHeader.TableCaption(),
+            ConstructKeyTextAsmHeader()));
+    end;
+
+    local procedure GetWindowOpenTextJob(JobPlanningLine: Record "Job Planning Line"): Text
+    begin
+        exit(StrSubstNo(Text000,
+            JobPlanningLine.TableCaption(),
+            ConstructKeyTextJobPlanningLine(JobPlanningLine),
             AsmHeader.TableCaption(),
             ConstructKeyTextAsmHeader()));
     end;
@@ -1329,6 +1681,16 @@ table 904 "Assemble-to-Order Link"
         exit(StrSubstNo(Text008, StrSubstNo(Text008, DocTypeText, DocNoText), LineNoText));
     end;
 
+    local procedure ConstructKeyTextJobPlanningLine(JobPlanningLine: Record "Job Planning Line"): Text
+    var
+        JobTaskNoText, JobNoText, LineNoText : Text;
+    begin
+        JobNoText := StrSubstNo(Text008, JobPlanningLine.FieldCaption("Job No."), JobPlanningLine."Job No.");
+        JobTaskNoText := StrSubstNo(Text008, JobPlanningLine.FieldCaption("Job Task No."), JobPlanningLine."Job Task No.");
+        LineNoText := StrSubstNo(Text008, JobPlanningLine.FieldCaption("Line No."), JobPlanningLine."Line No.");
+        exit(StrSubstNo(Text008, StrSubstNo(Text008, JobNoText, JobTaskNoText), LineNoText));
+    end;
+
     local procedure ConstructKeyTextWhseShptLine(WhseShptLine: Record "Warehouse Shipment Line"): Text
     var
         NoText: Text;
@@ -1359,20 +1721,45 @@ table 904 "Assemble-to-Order Link"
         TempAssemblyHeader: Record "Assembly Header" temporary;
     begin
         TempAssemblyHeader.DeleteAll();
-        with AssembleToOrderLink do begin
-            SetCurrentKey(Type, "Document Type", "Document No.", "Document Line No.");
-            SetRange(Type, Type::Sale);
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            if FindSet() then
-                repeat
-                    if not TempAssemblyHeader.Get("Assembly Document Type", "Assembly Document No.") then
-                        if AssemblyHeader.Get("Assembly Document Type", "Assembly Document No.") then begin
-                            TempAssemblyHeader := AssemblyHeader;
-                            TempAssemblyHeader.Insert();
-                        end;
-                until Next() = 0;
-        end;
+
+        AssembleToOrderLink.SetCurrentKey(Type, "Document Type", "Document No.", "Document Line No.");
+        AssembleToOrderLink.SetRange(Type, AssembleToOrderLink.Type::Sale);
+        AssembleToOrderLink.SetRange("Document Type", SalesHeader."Document Type");
+        AssembleToOrderLink.SetRange("Document No.", SalesHeader."No.");
+        if AssembleToOrderLink.FindSet() then
+            repeat
+                if not TempAssemblyHeader.Get(AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.") then
+                    if AssemblyHeader.Get(AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.") then begin
+                        TempAssemblyHeader := AssemblyHeader;
+                        TempAssemblyHeader.Insert();
+                    end;
+            until AssembleToOrderLink.Next() = 0;
+
+        PAGE.Run(PAGE::"Assembly Orders", TempAssemblyHeader);
+    end;
+
+    procedure ShowAsmOrders(Job: Record Job; JobTaskNo: Code[20])
+    var
+        AssembleToOrderLink: Record "Assemble-to-Order Link";
+        AssemblyHeader: Record "Assembly Header";
+        TempAssemblyHeader: Record "Assembly Header" temporary;
+    begin
+        TempAssemblyHeader.DeleteAll();
+
+        AssembleToOrderLink.SetCurrentKey(Type, "Job No.", "Job Task No.", "Document Line No.");
+        AssembleToOrderLink.SetRange(Type, AssembleToOrderLink.Type::Job);
+        AssembleToOrderLink.SetRange("Job No.", Job."No.");
+        if JobTaskNo <> '' then
+            AssembleToOrderLink.SetRange("Job Task No.", JobTaskNo);
+        if AssembleToOrderLink.FindSet() then
+            repeat
+                if not TempAssemblyHeader.Get(AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.") then
+                    if AssemblyHeader.Get(AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.") then begin
+                        TempAssemblyHeader := AssemblyHeader;
+                        TempAssemblyHeader.Insert();
+                    end;
+            until AssembleToOrderLink.Next() = 0;
+
         PAGE.Run(PAGE::"Assembly Orders", TempAssemblyHeader);
     end;
 
@@ -1391,6 +1778,76 @@ table 904 "Assemble-to-Order Link"
     procedure SetHideConfirm(NewHideConfirm: Boolean)
     begin
         HideConfirm := NewHideConfirm;
+    end;
+
+    local procedure JobPlanningLineIsNotCorrect(var NewJobPlanningLine: Record "Job Planning Line"): Boolean
+    var
+        NewJobPlanningLine2: Record "Job Planning Line";
+    begin
+        if NewJobPlanningLine."Qty. to Assemble" = 0 then
+            exit(true);
+        if not NewJobPlanningLine2.Get(NewJobPlanningLine."Job No.", NewJobPlanningLine."Job Task No.", NewJobPlanningLine."Line No.") then
+            exit(true);
+    end;
+
+    local procedure CheckJobStatus(Job: Record Job)
+    begin
+        if Job.Status = Job.Status::Completed then
+            Error(CreateAsmForJobErr);
+    end;
+
+    local procedure AssignAssembleToOrderData(var NewJobPlanningLine: Record "Job Planning Line"; Job: Record Job)
+    begin
+        if Job.Status = Job.Status::Open then begin
+            InsertAsmHeader(AsmHeader, "Assembly Document Type"::Order, '');
+            "Document Type" := "Document Type"::Order;
+        end else
+            if Job.Status in [Job.Status::Quote, Job.Status::Planning] then begin
+                InsertAsmHeader(AsmHeader, "Assembly Document Type"::Quote, '');
+                "Document Type" := "Document Type"::Quote;
+            end;
+        "Assembly Document Type" := AsmHeader."Document Type";
+        "Assembly Document No." := AsmHeader."No.";
+        Type := Type::Job;
+        "Document No." := NewJobPlanningLine."Document No.";
+        "Job No." := NewJobPlanningLine."Job No.";
+        "Job Task No." := NewJobPlanningLine."Job Task No.";
+        "Document Line No." := NewJobPlanningLine."Line No.";
+    end;
+
+    local procedure AssignGlobalDimensionsFromJobTask(var NewJobPlanningLine: Record "Job Planning Line")
+    var
+        JobTask: Record "Job Task";
+    begin
+        if not JobTask.Get(NewJobPlanningLine."Job No.", NewJobPlanningLine."Job Task No.") then
+            exit;
+        AsmHeader."Shortcut Dimension 1 Code" := JobTask."Global Dimension 1 Code";
+        AsmHeader."Shortcut Dimension 2 Code" := JobTask."Global Dimension 2 Code";
+        AsmHeader.Modify(true);
+    end;
+
+    local procedure DeleteAssembleToOrderLink(var NewJobPlanningLine: Record "Job Planning Line"): Boolean
+    begin
+        if not GetAsmHeader() then begin
+            Delete();
+            InsertAsmHeader(AsmHeader, "Assembly Document Type", "Assembly Document No.");
+        end else begin
+            if not NeedsSynchronization(NewJobPlanningLine) then
+                exit(false);
+            AsmReopenIfReleased();
+            Delete();
+        end;
+        exit(true);
+    end;
+
+    local procedure InsertAssembeToOrderLinkIfInvtAdjmtEntryOrderExist()
+    var
+        InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+    begin
+        InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
+        InvtAdjmtEntryOrder.SetRange("Order No.", "Assembly Document No.");
+        if ("Assembly Document Type" = "Assembly Document Type"::Order) and not InvtAdjmtEntryOrder.IsEmpty() then
+            Insert();
     end;
 
     [IntegrationEvent(false, false)]

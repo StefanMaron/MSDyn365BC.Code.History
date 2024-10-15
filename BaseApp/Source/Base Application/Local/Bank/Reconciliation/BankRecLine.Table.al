@@ -25,6 +25,7 @@ table 10121 "Bank Rec. Line"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -99,7 +100,7 @@ table 10121 "Bank Rec. Line"
                     "Account Type"::"G/L Account":
                         begin
                             GLAcc.Get("Account No.");
-                            CheckGLAcc;
+                            CheckGLAcc();
                             ReplaceInfo := "Bal. Account No." = '';
                             if ReplaceInfo then
                                 Description := GLAcc.Name;
@@ -496,7 +497,6 @@ table 10121 "Bank Rec. Line"
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         DimMgt: Codeunit DimensionManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         Text002: Label 'cannot be specified without %1';
         Text003: Label 'You cannot rename a %1.';
         Text014: Label 'The %1 %2 has a %3 %4.\Do you still want to use %1 %2 in this journal line?';
@@ -506,6 +506,7 @@ table 10121 "Bank Rec. Line"
 
     procedure SetUpNewLine(LastBankRecLine: Record "Bank Rec. Line"; Balance: Decimal; BottomLine: Boolean)
     var
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -524,10 +525,8 @@ table 10121 "Bank Rec. Line"
             "Account Type" := LastBankRecLine."Account Type";
         end else begin
             "Posting Date" := WorkDate();
-            if GLSetup."Bank Rec. Adj. Doc. Nos." <> '' then begin
-                Clear(NoSeriesMgt);
-                "Document No." := NoSeriesMgt.TryGetNextNo(GLSetup."Bank Rec. Adj. Doc. Nos.", "Posting Date");
-            end;
+            if GLSetup."Bank Rec. Adj. Doc. Nos." <> '' then
+                "Document No." := NoSeries.PeekNextNo(GLSetup."Bank Rec. Adj. Doc. Nos.", "Posting Date");
             "Account Type" := "Account Type"::"Bank Account";
             Validate("Account No.", "Bank Account No.");
         end;
@@ -548,12 +547,13 @@ table 10121 "Bank Rec. Line"
     end;
 
     local procedure GenerateDocNo()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate();
         GLSetup.Get();
-        Clear(NoSeriesMgt);
-        "Document No." := NoSeriesMgt.TryGetNextNo(GLSetup."Bank Rec. Adj. Doc. Nos.", "Posting Date");
+        "Document No." := NoSeries.PeekNextNo(GLSetup."Bank Rec. Adj. Doc. Nos.", "Posting Date");
         OnAfterGenerateDocNo(Rec);
     end;
 
@@ -725,54 +725,52 @@ table 10121 "Bank Rec. Line"
         if IsHandled then
             exit;
 
-        with DepositBankRecLine do begin
-            if ("Record Type" <> "Record Type"::Deposit) or
-               ("Collapse Status" <> "Collapse Status"::"Collapsed Deposit") or
-               ("External Document No." = '')
-            then
-                exit;
-            Delete();
+        if (DepositBankRecLine."Record Type" <> DepositBankRecLine."Record Type"::Deposit) or
+            (DepositBankRecLine."Collapse Status" <> DepositBankRecLine."Collapse Status"::"Collapsed Deposit") or
+            (DepositBankRecLine."External Document No." = '')
+        then
+            exit;
+        DepositBankRecLine.Delete();
 
-            BankRecLine.SetCurrentKey("Bank Account No.", "Statement No.", "Record Type", "Line No.");
-            BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
-            BankRecLine.SetRange("Statement No.", "Statement No.");
-            BankRecLine.SetRange("Record Type", "Record Type");
-            BankRecLine.LockTable();
-            if BankRecLine.FindLast() then
-                NextBankRecLineNo := BankRecLine."Line No." + 10000
-            else
-                NextBankRecLineNo := 10000;
-            BankRecLine.Reset();
+        BankRecLine.SetCurrentKey("Bank Account No.", "Statement No.", "Record Type", "Line No.");
+        BankRecLine.SetRange("Bank Account No.", DepositBankRecLine."Bank Account No.");
+        BankRecLine.SetRange("Statement No.", DepositBankRecLine."Statement No.");
+        BankRecLine.SetRange("Record Type", DepositBankRecLine."Record Type");
+        BankRecLine.LockTable();
+        if BankRecLine.FindLast() then
+            NextBankRecLineNo := BankRecLine."Line No." + 10000
+        else
+            NextBankRecLineNo := 10000;
+        BankRecLine.Reset();
 
-            BankRecSubLine.SetRange("Bank Account No.", "Bank Account No.");
-            BankRecSubLine.SetRange("Statement No.", "Statement No.");
-            BankRecSubLine.SetRange("Bank Rec. Line No.", "Line No.");
-            BankRecSubLine.Find('-');
-            repeat
-                BankRecLine.Init();
-                BankRecLine."Bank Account No." := "Bank Account No.";
-                BankRecLine."Statement No." := "Statement No.";
-                BankRecLine."Record Type" := "Record Type"::Deposit;
-                BankRecLine."Line No." := NextBankRecLineNo;
-                BankRecLine."Posting Date" := BankRecSubLine."Posting Date";
-                BankRecLine."Document Type" := BankRecSubLine."Document Type";
-                BankRecLine."Document No." := BankRecSubLine."Document No.";
-                BankRecLine.Description := BankRecSubLine.Description;
-                BankRecLine.Amount := BankRecSubLine.Amount;
-                BankRecLine.Validate("Currency Code", BankRecSubLine."Currency Code");
-                BankRecLine."External Document No." := BankRecSubLine."External Document No.";
-                BankRecLine."Bank Ledger Entry No." := BankRecSubLine."Bank Ledger Entry No.";
-                BankRecLine."Collapse Status" := "Collapse Status"::"Expanded Deposit Line";
-                BankLedgerEntry.Get(BankRecLine."Bank Ledger Entry No.");
-                BankRecLine."Shortcut Dimension 1 Code" := BankLedgerEntry."Global Dimension 1 Code";
-                BankRecLine."Shortcut Dimension 2 Code" := BankLedgerEntry."Global Dimension 2 Code";
-                BankRecLine."Dimension Set ID" := BankLedgerEntry."Dimension Set ID";
-                BankRecLine.Validate(Cleared, Cleared);
-                BankRecLine.Insert(true);
-                BankRecSubLine.Delete();
-                NextBankRecLineNo := NextBankRecLineNo + 10000;
-            until BankRecSubLine.Next() = 0;
-        end;
+        BankRecSubLine.SetRange("Bank Account No.", DepositBankRecLine."Bank Account No.");
+        BankRecSubLine.SetRange("Statement No.", DepositBankRecLine."Statement No.");
+        BankRecSubLine.SetRange("Bank Rec. Line No.", DepositBankRecLine."Line No.");
+        BankRecSubLine.Find('-');
+        repeat
+            BankRecLine.Init();
+            BankRecLine."Bank Account No." := DepositBankRecLine."Bank Account No.";
+            BankRecLine."Statement No." := DepositBankRecLine."Statement No.";
+            BankRecLine."Record Type" := DepositBankRecLine."Record Type"::Deposit;
+            BankRecLine."Line No." := NextBankRecLineNo;
+            BankRecLine."Posting Date" := BankRecSubLine."Posting Date";
+            BankRecLine."Document Type" := BankRecSubLine."Document Type";
+            BankRecLine."Document No." := BankRecSubLine."Document No.";
+            BankRecLine.Description := BankRecSubLine.Description;
+            BankRecLine.Amount := BankRecSubLine.Amount;
+            BankRecLine.Validate("Currency Code", BankRecSubLine."Currency Code");
+            BankRecLine."External Document No." := BankRecSubLine."External Document No.";
+            BankRecLine."Bank Ledger Entry No." := BankRecSubLine."Bank Ledger Entry No.";
+            BankRecLine."Collapse Status" := DepositBankRecLine."Collapse Status"::"Expanded Deposit Line";
+            BankLedgerEntry.Get(BankRecLine."Bank Ledger Entry No.");
+            BankRecLine."Shortcut Dimension 1 Code" := BankLedgerEntry."Global Dimension 1 Code";
+            BankRecLine."Shortcut Dimension 2 Code" := BankLedgerEntry."Global Dimension 2 Code";
+            BankRecLine."Dimension Set ID" := BankLedgerEntry."Dimension Set ID";
+            BankRecLine.Validate(Cleared, DepositBankRecLine.Cleared);
+            BankRecLine.Insert(true);
+            BankRecSubLine.Delete();
+            NextBankRecLineNo := NextBankRecLineNo + 10000;
+        until BankRecSubLine.Next() = 0;
         DepositBankRecLine := BankRecLine;
     end;
 
@@ -785,73 +783,71 @@ table 10121 "Bank Rec. Line"
         NextSubLineNo: Integer;
         CollapsedCleared: Boolean;
     begin
-        with DepositBankRecLine do begin
-            if ("Record Type" <> "Record Type"::Deposit) or
-               ("Collapse Status" <> "Collapse Status"::"Expanded Deposit Line") or
-               ("External Document No." = '')
-            then
-                exit;
+        if (DepositBankRecLine."Record Type" <> DepositBankRecLine."Record Type"::Deposit) or
+            (DepositBankRecLine."Collapse Status" <> DepositBankRecLine."Collapse Status"::"Expanded Deposit Line") or
+            (DepositBankRecLine."External Document No." = '')
+        then
+            exit;
 
-            BankRecLine.SetCurrentKey("Bank Account No.", "Statement No.", "Record Type", "External Document No.");
-            BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
-            BankRecLine.SetRange("Statement No.", "Statement No.");
-            BankRecLine.SetRange("Record Type", "Record Type");
-            BankRecLine.SetRange("External Document No.", "External Document No.");
-            if BankRecLine.Count > 1 then begin
-                BankRecSubLine.SetRange("Bank Account No.", "Bank Account No.");
-                BankRecSubLine.SetRange("Statement No.", "Statement No.");
+        BankRecLine.SetCurrentKey("Bank Account No.", "Statement No.", "Record Type", "External Document No.");
+        BankRecLine.SetRange("Bank Account No.", DepositBankRecLine."Bank Account No.");
+        BankRecLine.SetRange("Statement No.", DepositBankRecLine."Statement No.");
+        BankRecLine.SetRange("Record Type", DepositBankRecLine."Record Type");
+        BankRecLine.SetRange("External Document No.", DepositBankRecLine."External Document No.");
+        if BankRecLine.Count > 1 then begin
+            BankRecSubLine.SetRange("Bank Account No.", DepositBankRecLine."Bank Account No.");
+            BankRecSubLine.SetRange("Statement No.", DepositBankRecLine."Statement No.");
 
-                TotalDepositAmount := 0;
-                CollapsedCleared := true;
-                NextSubLineNo := 1;
-                BankRecLine.FindSet();
-                repeat
-                    BankRecSubLine.SetRange("Bank Rec. Line No.", BankRecLine."Line No.");
-                    if not BankRecSubLine.FindSet() then begin
-                        BankRecSubLine.Init();
-                        BankRecSubLine.TransferFields(BankRecLine, false);
-                        BankRecSubLine."Bank Account No." := "Bank Account No.";
-                        BankRecSubLine."Statement No." := "Statement No.";
-                        BankRecSubLine."Bank Rec. Line No." := "Line No.";
-                        BankRecSubLine."Line No." := NextSubLineNo;
-                        BankRecSubLine.Insert();
-                        NextSubLineNo += 1;
+            TotalDepositAmount := 0;
+            CollapsedCleared := true;
+            NextSubLineNo := 1;
+            BankRecLine.FindSet();
+            repeat
+                BankRecSubLine.SetRange("Bank Rec. Line No.", BankRecLine."Line No.");
+                if not BankRecSubLine.FindSet() then begin
+                    BankRecSubLine.Init();
+                    BankRecSubLine.TransferFields(BankRecLine, false);
+                    BankRecSubLine."Bank Account No." := DepositBankRecLine."Bank Account No.";
+                    BankRecSubLine."Statement No." := DepositBankRecLine."Statement No.";
+                    BankRecSubLine."Bank Rec. Line No." := DepositBankRecLine."Line No.";
+                    BankRecSubLine."Line No." := NextSubLineNo;
+                    BankRecSubLine.Insert();
+                    NextSubLineNo += 1;
+                    CopyBankRecSubLineToTemp(TempBankRecSubLine, BankRecSubLine);
+                    BankRecSubLine.Delete();
+                end else
+                    repeat
                         CopyBankRecSubLineToTemp(TempBankRecSubLine, BankRecSubLine);
-                        BankRecSubLine.Delete();
-                    end else
-                        repeat
-                            CopyBankRecSubLineToTemp(TempBankRecSubLine, BankRecSubLine);
-                        until BankRecSubLine.Next() = 0;
-                    BankRecSubLine.DeleteAll();
-                    if not BankRecLine.Cleared then
-                        CollapsedCleared := false;
-                    TotalDepositAmount := TotalDepositAmount + BankRecLine.Amount;
-                    BankRecLine.Delete();
-                until BankRecLine.Next() = 0;
-                CopyBankRecSubLineFromTemp(TempBankRecSubLine, "Line No.");
+                    until BankRecSubLine.Next() = 0;
+                BankRecSubLine.DeleteAll();
+                if not BankRecLine.Cleared then
+                    CollapsedCleared := false;
+                TotalDepositAmount := TotalDepositAmount + BankRecLine.Amount;
+                BankRecLine.Delete();
+            until BankRecLine.Next() = 0;
+            CopyBankRecSubLineFromTemp(TempBankRecSubLine, DepositBankRecLine."Line No.");
 
-                UpdateLedgers();
-                "Document Type" := "Document Type"::" ";
-                "Document No." := '';
-                Amount := TotalDepositAmount;
-                Cleared := CollapsedCleared;
-                if Cleared then
-                    "Cleared Amount" := Amount
-                else
-                    "Cleared Amount" := 0;
-                OnCollapseLinesOnAfterAssignClearedAmount(Rec, DepositBankRecLine);
+            UpdateLedgers();
+            DepositBankRecLine."Document Type" := DepositBankRecLine."Document Type"::" ";
+            DepositBankRecLine."Document No." := '';
+            DepositBankRecLine.Amount := TotalDepositAmount;
+            DepositBankRecLine.Cleared := CollapsedCleared;
+            if DepositBankRecLine.Cleared then
+                DepositBankRecLine."Cleared Amount" := DepositBankRecLine.Amount
+            else
+                DepositBankRecLine."Cleared Amount" := 0;
+            OnCollapseLinesOnAfterAssignClearedAmount(Rec, DepositBankRecLine);
 
-                "Bank Ledger Entry No." := 0;
-                "Check Ledger Entry No." := 0;
-                "Shortcut Dimension 1 Code" := '';
-                "Shortcut Dimension 2 Code" := '';
-                "Collapse Status" := "Collapse Status"::"Collapsed Deposit";
+            DepositBankRecLine."Bank Ledger Entry No." := 0;
+            DepositBankRecLine."Check Ledger Entry No." := 0;
+            DepositBankRecLine."Shortcut Dimension 1 Code" := '';
+            DepositBankRecLine."Shortcut Dimension 2 Code" := '';
+            DepositBankRecLine."Collapse Status" := DepositBankRecLine."Collapse Status"::"Collapsed Deposit";
 
-                Insert();
-            end else begin
-                "Collapse Status" := 0;
-                Modify();
-            end;
+            DepositBankRecLine.Insert();
+        end else begin
+            DepositBankRecLine."Collapse Status" := 0;
+            DepositBankRecLine.Modify();
         end;
     end;
 

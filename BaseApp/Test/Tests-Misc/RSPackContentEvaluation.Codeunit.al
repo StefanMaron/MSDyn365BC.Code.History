@@ -25,7 +25,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
         SalesReturnReceiptTok: Label 'S-RCPT';
         ZEROTaxTok: Label 'ZERO';
         NONTAXABLETok: Label 'NonTAXABLE';
-        xBANKTxt: Label 'BANK';
         XSALESTok: Label 'SALES';
         XPURCHASESTok: Label 'PURCHASES';
         IsInitialized: Boolean;
@@ -87,7 +86,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
     procedure GenPostingSetupAccounts()
     begin
         // [SCENARIO] Inventory accounts filled for all groups, Sales/Purchase - for not blank Bus. Group.
-        LibraryDemoData.VerifyGenPostingSetupAccounts;
+        LibraryDemoData.VerifyGenPostingSetupAccounts();
     end;
 
     [Test]
@@ -304,7 +303,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 // [THEN] Cust. Ledger Entries are created
                 CustLedgEntry.FindLast();
                 CustLedgEntry.TestField("Document No.", PostedInvoiceNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -406,7 +405,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 // [THEN] Vendor Ledger Entries are created
                 VendLedgEntry.FindLast();
                 VendLedgEntry.TestField("Document No.", PostedInvoiceNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -433,7 +432,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 // [THEN] Vendor Ledger Entries are created
                 VendLedgEntry.FindLast();
                 VendLedgEntry.TestField("Document No.", PostedOrderNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -772,7 +771,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO 171440] Opportunity Chart shows opportunities "In Progress" for two sales persons
         OpportunityChartMgt.SetDefaultPeriod(Period);
         OpportunityChartMgt.SetDefaultOppStatus(Opportunity);
-        OpportunityChartMgt.UpdateData(BusinessChartBuffer, Period, Opportunity.Status);
+        OpportunityChartMgt.UpdateData(BusinessChartBuffer, Period, Opportunity.Status.AsInteger());
         for I := 0 to 1 do begin
             BusinessChartBuffer.GetXValue(I, SalesPersonName);
             SalespersonPurchaser.SetRange(Name, SalesPersonName);
@@ -803,7 +802,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             repeat
                 TestField("Country/Region Code", 'CA');
                 VerifyPostCodeRegionCountry("Post Code", 'CA');
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

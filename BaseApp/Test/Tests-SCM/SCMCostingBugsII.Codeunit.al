@@ -79,22 +79,22 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // Remove application between positive and negative adjustment.
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(TempItemLedgerEntry."Entry Type"::"Positive Adjmt."));
-        if ApplicationWorksheet.First then
-            ApplicationWorksheet.AppliedEntries.Invoke;
+        if ApplicationWorksheet.First() then
+            ApplicationWorksheet.AppliedEntries.Invoke();
 
         // Remove application is executed in the page handler.
 
         // Reapply from the Unapplied Entries page.
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(TempItemLedgerEntry."Entry Type"::"Negative Adjmt."));
-        if ApplicationWorksheet.First then
-            ApplicationWorksheet.UnappliedEntries.Invoke;
+        if ApplicationWorksheet.First() then
+            ApplicationWorksheet.UnappliedEntries.Invoke();
 
         // On page exit, reapplication of entries is confirmed.
-        ApplicationWorksheet.OK.Invoke;
+        ApplicationWorksheet.OK().Invoke();
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -153,18 +153,18 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // Remove application between positive and negative adjustment.
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(TempItemLedgerEntry."Entry Type"::"Negative Adjmt."));
-        if ApplicationWorksheet.First then
-            ApplicationWorksheet.AppliedEntries.Invoke;
+        if ApplicationWorksheet.First() then
+            ApplicationWorksheet.AppliedEntries.Invoke();
         if ApplicationWorksheet.Next() then
-            ApplicationWorksheet.AppliedEntries.Invoke;
+            ApplicationWorksheet.AppliedEntries.Invoke();
 
         // Remove application is executed in the page handler.
 
         // On page exit, reapplication of entries is confirmed.
-        ApplicationWorksheet.OK.Invoke;
+        ApplicationWorksheet.OK().Invoke();
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -210,7 +210,7 @@ codeunit 137621 "SCM Costing Bugs II"
         // [GIVEN] BOM and Routing.
         // [GIVEN] Purchase Component Item.
         // [GIVEN] Released Production Order.
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -232,12 +232,12 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // [GIVEN] Apply Consumption to Negative Consumption from the Unapplied Entries page.
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", CompItem."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(TempItemLedgerEntry."Entry Type"::Consumption));
         ApplicationWorksheet.FILTER.SetFilter(Positive, Format(true));
-        if ApplicationWorksheet.First then
-            ApplicationWorksheet.UnappliedEntries.Invoke;
+        if ApplicationWorksheet.First() then
+            ApplicationWorksheet.UnappliedEntries.Invoke();
 
         // [THEN] Verify Adjustment.
         LibraryCosting.CheckAdjustment(CompItem);
@@ -334,17 +334,17 @@ codeunit 137621 "SCM Costing Bugs II"
         AdjustCostAndVerify(Item."No.", 1100);
 
         // Reapply the negative adjustment to the 2nd purchase
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(3)); // Negative Adjustment
-        if ApplicationWorksheet.First then
-            ApplicationWorksheet.AppliedEntries.Invoke; // Remove application is executed in the page handler.
+        if ApplicationWorksheet.First() then
+            ApplicationWorksheet.AppliedEntries.Invoke(); // Remove application is executed in the page handler.
 
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(3)); // Negative Adjustment
-        if ApplicationWorksheet.First then
-            ApplicationWorksheet.UnappliedEntries.Invoke;
-        ApplicationWorksheet.OK.Invoke;
+        if ApplicationWorksheet.First() then
+            ApplicationWorksheet.UnappliedEntries.Invoke();
+        ApplicationWorksheet.OK().Invoke();
 
         AdjustCostAndVerify(Item."No.", 3400 / 3);
 
@@ -382,13 +382,13 @@ codeunit 137621 "SCM Costing Bugs II"
         AdjustCostAndVerify(Item."No.", 1100);
 
         // Reapply the negative adjustment by closing worksheet
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(3)); // Negative Adjustment
-        if ApplicationWorksheet.First then
-            ApplicationWorksheet.AppliedEntries.Invoke; // Remove application is executed in the page handler.
+        if ApplicationWorksheet.First() then
+            ApplicationWorksheet.AppliedEntries.Invoke(); // Remove application is executed in the page handler.
 
-        ApplicationWorksheet.OK.Invoke;
+        ApplicationWorksheet.OK().Invoke();
 
         AdjustCostAndVerify(Item."No.", 1100);
 
@@ -492,28 +492,28 @@ codeunit 137621 "SCM Costing Bugs II"
         Initialize();
 
         // [GIVEN] Set Automatic Cost Adjustment = Always
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
 
         // [GIVEN] Create Item and update Inventory
         CreateItemAndUpdateInventory(Item);
 
         // [GIVEN] Remove application between positive and negative adjustment.
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         FindApplicationWorksheetLine(ApplicationWorksheet, Item."No.", Format(TempItemLedgerEntry."Entry Type"::"Negative Adjmt."));
-        ApplicationWorksheet.AppliedEntries.Invoke;
+        ApplicationWorksheet.AppliedEntries.Invoke();
 
         // Remove application is executed in the ViewAppliedEntriesHandler.
 
         // [GIVEN] Click Unapplied Entries button on the Application Worksheet page.
         FindApplicationWorksheetLine(ApplicationWorksheet, Item."No.", Format(TempItemLedgerEntry."Entry Type"::"Negative Adjmt."));
-        ApplicationWorksheet.UnappliedEntries.Invoke;
+        ApplicationWorksheet.UnappliedEntries.Invoke();
 
         // [GIVEN] Select 2nd entry, click OK to Reapply.
         // Executed in the ViewUnapplEntrSelectNextModalHandler.
 
         // [GIVEN] Click OK button on the Application Worksheet page.
-        ApplicationWorksheet.OK.Invoke;
+        ApplicationWorksheet.OK().Invoke();
 
         // [WHEN] Click Yes to confirm reapplication message.
         // Executed in the ReapplyOpenEntriesConfirmHandler.
@@ -673,7 +673,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         Initialize();
 
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
@@ -730,12 +730,12 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPatterns.POSTPositiveAdjustment(Item, Location[1].Code, '', '', 2, WorkDate(), Amount[2]);
         LibraryPatterns.POSTNegativeAdjustment(Item, Location[1].Code, '', '', 2, WorkDate(), Amount[1]);
 
-        // [GIVEN] 2 pcs of item "I" are moved from location "L1" to "L2", Posting Date = WORKDATE + 1 day
+        // [GIVEN] 2 pcs of item "I" are moved from location "L1" to "L2", Posting Date = WorkDate() + 1 day
         PostItemJournalTransfer(Item, Location[1].Code, Location[2].Code, 2, CalcDate('<1D>', WorkDate()));
-        // [GIVEN] 2 pcs of item "I" are moved from location "L2" to "L1", Posting Date = WORKDATE + 1 day
+        // [GIVEN] 2 pcs of item "I" are moved from location "L2" to "L1", Posting Date = WorkDate() + 1 day
         PostItemJournalTransfer(Item, Location[2].Code, Location[1].Code, 2, CalcDate('<1D>', WorkDate()));
 
-        // [GIVEN] Post purchase return of 2 pcs of item "I" and apply to the transfer entry, Posting Date = WORKDATE + 2 days
+        // [GIVEN] Post purchase return of 2 pcs of item "I" and apply to the transfer entry, Posting Date = WorkDate() + 2 days
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Transfer);
         ItemLedgEntry.FindLast();
@@ -746,7 +746,7 @@ codeunit 137621 "SCM Costing Bugs II"
         // [WHEN] Adjust Cost - Item Entries
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
-        // [THEN] Average cost amount on WORKDATE is equal to average cost amount on WORKDATE + 2 days
+        // [THEN] Average cost amount on WORKDATE is equal to average cost amount on WorkDate() + 2 days
         with ItemLedgEntry do begin
             SetRange("Item No.", Item."No.");
             SetRange("Entry Type", "Entry Type"::"Negative Adjmt.");
@@ -788,12 +788,12 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, Location1.Code, '', 3, WorkDate(), Item."Unit Cost", true, false);
         // [GIVEN] Move 3 pcs of item "I" from location "L1" to location "L2"
         LibraryPatterns.POSTReclassificationJournalLine(Item, WorkDate(), Location1.Code, Location2.Code, '', '', '', 3);
-        // [GIVEN] Sell 1 item, posting date = WORKDATE + 1
+        // [GIVEN] Sell 1 item, posting date = WorkDate() + 1
         LibraryPatterns.POSTNegativeAdjustment(Item, Location2.Code, '', '', 1, CalcDate('<1D>', WorkDate()), StandardCost * 2);
 
-        // [GIVEN] Remaining 2 pcs of item "I" are revalued on WORKDATE + 2, revalued unit cost = "X" * 1.1
+        // [GIVEN] Remaining 2 pcs of item "I" are revalued on WorkDate() + 2, revalued unit cost = "X" * 1.1
         PostRevaluationJournalLine(Item, CalcDate('<2D>', WorkDate()), StandardCost * 1.1);
-        // [GIVEN] 1 item is sold on WORKDATE + 3
+        // [GIVEN] 1 item is sold on WorkDate() + 3
         LibraryPatterns.POSTNegativeAdjustment(Item, Location2.Code, '', '', 1, CalcDate('<3D>', WorkDate()), StandardCost * 2);
 
         // [GIVEN] Purchase order is invoiced, cost adjusted
@@ -946,7 +946,7 @@ codeunit 137621 "SCM Costing Bugs II"
         CreateConsumptionJournalLine(ItemJournalLine, ProductionOrder[2]."No.", Item."No.", 1);
 
         // [WHEN] Post consumption journal
-        asserterror LibraryManufacturing.PostConsumptionJournal;
+        asserterror LibraryManufacturing.PostConsumptionJournal();
 
         // [THEN] Error is raised: "You have insufficient quantity of Item I on inventory"
         Assert.ExpectedError(StrSubstNo(InsufficientQtyErr, Item."No."));
@@ -970,7 +970,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Initialize();
 
         // [GIVEN] Released Prod Order
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -1016,7 +1016,7 @@ codeunit 137621 "SCM Costing Bugs II"
         BlockItemWithApplWorksheet(Item);
 
         // [WHEN] Open Application Worksheet.
-        ApplicationWorksheet.OpenView;
+        ApplicationWorksheet.OpenView();
 
         // [THEN] Item Ledger Entries are applied back.
         PositiveItemLedgerEntry.Find();
@@ -1049,7 +1049,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Initialize();
 
         // [GIVEN] Automatic Cost Adjustment = Always in Inventory Setup.
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
 
         // [GIVEN] Posted two pairs of positive and negative Item Ledger Entries ("E1+", "E1-"), ("E2+", "E2-").
         LibraryInventory.CreateItem(Item);
@@ -1069,7 +1069,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJnlPostLine.ReApply(PosItemLedgerEntry[2], NegItemLedgerEntry[1]."Entry No.");
 
         // [WHEN] Open Application Worksheet.
-        ApplicationWorksheet.OpenView;
+        ApplicationWorksheet.OpenView();
 
         // [THEN] Cost of negative entries "E1-" and "E2-" is adjusted.
         VerifyItemLedgerEntriesCostEquality(PosItemLedgerEntry[1], NegItemLedgerEntry[2]);
@@ -1100,7 +1100,7 @@ codeunit 137621 "SCM Costing Bugs II"
           Item, LibraryRandom.RandInt(20), PositiveItemLedgerEntry, NegativeItemLedgerEntry, false);
 
         // [WHEN] Open Application Worksheet.
-        ApplicationWorksheet.OpenView;
+        ApplicationWorksheet.OpenView();
 
         // [THEN] Item Ledger Entries are not applied.
         with PositiveItemLedgerEntry do begin
@@ -1138,14 +1138,14 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [GIVEN] Item Ledger Entries are unapplied by Application Worksheet.
         // Remove application is done in the page handler.
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(PositiveItemLedgerEntry."Entry Type"));
-        if ApplicationWorksheet.First then
-            ApplicationWorksheet.AppliedEntries.Invoke;
+        if ApplicationWorksheet.First() then
+            ApplicationWorksheet.AppliedEntries.Invoke();
 
         // [WHEN] Close the Application Worksheet.
-        ApplicationWorksheet.OK.Invoke;
+        ApplicationWorksheet.OK().Invoke();
 
         // [THEN] Item Application Entry History is cleared off.
         VeriryItemApplicationEntryHistory(PositiveItemLedgerEntry);
@@ -1172,12 +1172,12 @@ codeunit 137621 "SCM Costing Bugs II"
           Item, LibraryRandom.RandInt(10), PositiveItemLedgerEntry, NegativeItemLedgerEntry, false);
 
         // [WHEN] Open Application Worksheet on the positive entry -> "Applied Entries" -> "Remove Application", despite nothing to unapply.
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(PositiveItemLedgerEntry."Entry Type"));
-        ApplicationWorksheet.First;
-        ApplicationWorksheet.AppliedEntries.Invoke;
-        ApplicationWorksheet.OK.Invoke;
+        ApplicationWorksheet.First();
+        ApplicationWorksheet.AppliedEntries.Invoke();
+        ApplicationWorksheet.OK().Invoke();
 
         // [THEN] Item is not blocked by application worksheet.
         Item.Find();
@@ -1258,7 +1258,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount", PurchaseLine.Quantity, PurchaseLine."Line Amount");
 
         // [THEN] STRMENU occurs
-        StrMenuCalled := LibraryVariableStorage.DequeueBoolean; // STRMENU called flag
+        StrMenuCalled := LibraryVariableStorage.DequeueBoolean(); // STRMENU called flag
         Assert.IsFalse(StrMenuCalled, STRMENUWasNotCalledTxt);
     end;
 
@@ -1303,8 +1303,8 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount", PurchaseLine.Quantity, PurchaseLine."Line Amount");
 
         // [THEN] STRMENU shows with 3 choices: "Equally", "By Weight", "By Volume"
-        Assert.AreEqual(ListOf3SuggestAssignmentStrMenuTxt, LibraryVariableStorage.DequeueText, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(ListOf3SuggestAssignmentStrMenuTxt, LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1451,21 +1451,21 @@ codeunit 137621 "SCM Costing Bugs II"
         PostPositiveAndNegativeEntries(Item, LibraryRandom.RandDec(100, 2), PositiveItemLedgerEntry, NegativeItemLedgerEntry);
 
         // [GIVEN] Application Worksheet is focused on the positive entry.
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", Item."No.");
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", Format(PositiveItemLedgerEntry."Entry Type"));
         ApplicationWorksheet.FILTER.SetFilter("Document No.", PositiveItemLedgerEntry."Document No.");
-        ApplicationWorksheet.First;
+        ApplicationWorksheet.First();
 
         // [GIVEN] Entries unapplied in ViewAppliedEntriesHandler.
-        ApplicationWorksheet.AppliedEntries.Invoke;
+        ApplicationWorksheet.AppliedEntries.Invoke();
 
         // [GIVEN] Entries applied in ViewUnappliedEntriesModalHandler.
-        ApplicationWorksheet.UnappliedEntries.Invoke;
+        ApplicationWorksheet.UnappliedEntries.Invoke();
 
         // [WHEN] Reapply is invoked and Application Worksheet is closed without confirmation dialogue.
-        ApplicationWorksheet.Reapply.Invoke;
-        ApplicationWorksheet.OK.Invoke;
+        ApplicationWorksheet.Reapply.Invoke();
+        ApplicationWorksheet.OK().Invoke();
 
         // [THEN] Item is not blocked by Application Worksheet.
         Item.Find();
@@ -1648,7 +1648,7 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [GIVEN] Transfer 3 pcs from location "From" to location "To", posting date = 22/01.
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
-        TransferHeader.Validate("Posting Date", WorkDate - 3);
+        TransferHeader.Validate("Posting Date", WorkDate() - 3);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
         LibraryInventory.PostTransferHeader(TransferHeader, true, true);
 
@@ -1748,7 +1748,7 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [THEN] STRMENU occurs
         // [THEN] STRMENU shows with 4 choices: "Equally", "By Amount", "By Weight", "By Volume"
-        Assert.AreEqual(ListOf4SuggestAssignmentStrMenuTxt, LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(ListOf4SuggestAssignmentStrMenuTxt, LibraryVariableStorage.DequeueText(), '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -2241,7 +2241,6 @@ codeunit 137621 "SCM Costing Bugs II"
         PurchaseLine: Record "Purchase Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        ValueEntry: Record "Value Entry";
     begin
         // [FEATURE] [Adjust Cost Item Entries] [Average Costing Method]
         // [SCENARIO 429386] Remaining cost must be zero when remaining inventory is zero.
@@ -2468,7 +2467,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalLine.Validate("Posting Date", WorkDate() + 20);
         ItemJournalLine.Validate("Location Code", LocationFrom.Code);
         ItemJournalLine.Modify(true);
-        LibraryManufacturing.PostConsumptionJournal;
+        LibraryManufacturing.PostConsumptionJournal();
 
         // [THEN] "Valuation Date" on all posted value entries for item "P" is updated to Jan. 20.
         ValueEntry.SetRange("Item No.", ProdItem."No.");
@@ -2490,7 +2489,7 @@ codeunit 137621 "SCM Costing Bugs II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Bugs II");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -2517,7 +2516,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateConsumptionJournalLine(ItemJournalLine, ProdOrderNo, ItemNo, Quantity);
-        LibraryManufacturing.PostConsumptionJournal;
+        LibraryManufacturing.PostConsumptionJournal();
     end;
 
     local procedure CreatePurchaseLineForItemCharge(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; DirectUnitCost: Decimal)
@@ -2555,7 +2554,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateOutputJournalLine(ItemJournalLine, ItemNo, ProdOrderNo, Quantity);
-        LibraryManufacturing.PostOutputJournal;
+        LibraryManufacturing.PostOutputJournal();
     end;
 
     local procedure CreateAndPostItemJournalLineWithPostingDate(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; PostingDate: Date)
@@ -2638,7 +2637,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
         LibraryInventory.CreateItemChargeAssignPurchase(
@@ -2798,7 +2797,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPatterns.POSTPurchaseOrder(
           PurchaseHeader, Item, FromLocation.Code, '', Qty, WorkDate(), LibraryRandom.RandDec(100, 2), true, true);
         LibraryPatterns.POSTTransferOrder(
-          TransferHeader, Item, FromLocation, ToLocation, TransitLocation, '', Qty, WorkDate(), WorkDate, true, true);
+          TransferHeader, Item, FromLocation, ToLocation, TransitLocation, '', Qty, WorkDate(), WorkDate(), true, true);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         TransferReceiptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
     end;
@@ -2891,7 +2890,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         ApplicationWorksheet.FILTER.SetFilter("Item No.", ItemNo);
         ApplicationWorksheet.FILTER.SetFilter("Entry Type", EntryType);
-        ApplicationWorksheet.First;
+        ApplicationWorksheet.First();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; LocationCode: Code[10]; IsPositive: Boolean)
@@ -2982,16 +2981,16 @@ codeunit 137621 "SCM Costing Bugs II"
         Qty: Decimal;
     begin
         Qty := 100000;
-        ItemStandardCost := Round(0.00755, LibraryERM.GetUnitAmountRoundingPrecision);
-        InitialComponentCost := Round(0.00855, LibraryERM.GetUnitAmountRoundingPrecision);
-        NewComponentCost := Round(0.00875, LibraryERM.GetUnitAmountRoundingPrecision);
+        ItemStandardCost := Round(0.00755, LibraryERM.GetUnitAmountRoundingPrecision());
+        InitialComponentCost := Round(0.00855, LibraryERM.GetUnitAmountRoundingPrecision());
+        NewComponentCost := Round(0.00875, LibraryERM.GetUnitAmountRoundingPrecision());
 
         CreateItem(
           ComponentItem, ComponentItem."Costing Method"::FIFO, 0, ComponentItem."Replenishment System"::Purchase,
-          LibraryERM.GetUnitAmountRoundingPrecision);
+          LibraryERM.GetUnitAmountRoundingPrecision());
         CreateItem(
           Item, Item."Costing Method"::Standard, ItemStandardCost, Item."Replenishment System"::"Prod. Order",
-          LibraryERM.GetUnitAmountRoundingPrecision);
+          LibraryERM.GetUnitAmountRoundingPrecision());
         LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, Item, ComponentItem, 1, '');
 
         LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, ComponentItem, '', '', Qty, WorkDate(), InitialComponentCost);
@@ -3190,7 +3189,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
         Item.Get(ItemNo);
-        Assert.AreNearlyEqual(ExpectedUnitCost, Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision, '');
+        Assert.AreNearlyEqual(ExpectedUnitCost, Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision(), '');
     end;
 
     local procedure PostItemConsumptionAndOutput(var ProductionOrder: Record "Production Order"; ProdItem: Record Item; ComponentItem: Record Item; QtyToProduce: Decimal; QtyToConsume: Decimal)
@@ -3303,10 +3302,9 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
-        CalculatePer: Option "Item Ledger Entry",Item;
     begin
         MakeItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
-        LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, PostingDate, CalculatePer::Item, false, false, true, 0);
+        LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, PostingDate, "Inventory Value Calc. Per"::Item, false, false, true, "Inventory Value Calc. Base"::" ");
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -3322,10 +3320,9 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
-        CalculatePer: Option "Item Ledger Entry",Item;
     begin
         MakeItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
-        LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, PostingDate, CalculatePer::Item, false, false, true, 0);
+        LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, PostingDate, "Inventory Value Calc. Per"::Item, false, false, true, "Inventory Value Calc. Base"::" ");
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -3382,25 +3379,25 @@ codeunit 137621 "SCM Costing Bugs II"
     [Scope('OnPrem')]
     procedure ViewAppliedEntriesHandler(var ViewAppliedEntries: TestPage "View Applied Entries")
     begin
-        ViewAppliedEntries.RemoveAppButton.Invoke;
-        ViewAppliedEntries.OK.Invoke;
+        ViewAppliedEntries.RemoveAppButton.Invoke();
+        ViewAppliedEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ViewUnappliedEntriesModalHandler(var ViewAppliedEntries: TestPage "View Applied Entries")
     begin
-        ViewAppliedEntries.First;
-        ViewAppliedEntries.OK.Invoke;
+        ViewAppliedEntries.First();
+        ViewAppliedEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ViewUnapplEntrSelectNextModalHandler(var ViewAppliedEntries: TestPage "View Applied Entries")
     begin
-        ViewAppliedEntries.First;
+        ViewAppliedEntries.First();
         ViewAppliedEntries.Next();
-        ViewAppliedEntries.OK.Invoke;
+        ViewAppliedEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]

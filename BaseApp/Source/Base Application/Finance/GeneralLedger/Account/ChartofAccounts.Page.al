@@ -1,7 +1,10 @@
-namespace Microsoft.Finance.GeneralLedger.Account;
+﻿namespace Microsoft.Finance.GeneralLedger.Account;
 
+using Microsoft.Bank.Payment;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -10,9 +13,10 @@ using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.ExtendedText;
-using Microsoft.Bank.Payment;
 using Microsoft.Purchases.Reports;
-using Microsoft.Finance.Consolidation;
+#if not CLEAN24
+using System.Environment.Configuration;
+#endif
 
 page 16 "Chart of Accounts"
 {
@@ -200,6 +204,36 @@ page 16 "Chart of Accounts"
                     ToolTip = 'Specifies if amounts without any payment tolerance amount from the customer and vendor ledger entries are used.';
                     Visible = false;
                 }
+                field("Source Currency Posting"; Rec."Source Currency Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how amounts in foreign currencies should be posted to this account.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
+                field("Source Currency Code"; Rec."Source Currency Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the allowed source currency code if Source Currency Posting value is Same Currency.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
+                field("Source Currency Balance"; Rec."Source Currency Balance")
+                {
+                    ApplicationArea = Basic, Suite;
+                    BlankZero = true;
+                    ToolTip = 'Specifies the foreign currency balance on the G/L account.';
+                    Visible = false;
+                }
+                field("Source Curr. Balance at Date"; Rec."Source Curr. Balance at Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    BlankZero = true;
+                    ToolTip = 'Specifies the G/L account foreign currency balance on the last date included in the Date Filter field.';
+                    Visible = false;
+                }
                 field("Cost Type No."; Rec."Cost Type No.")
                 {
                     ApplicationArea = CostAccounting;
@@ -239,6 +273,17 @@ page 16 "Chart of Accounts"
                 SubPageLink = "Table ID" = const(15),
                               "No." = field("No.");
                 Visible = false;
+            }
+            part(Control1905532108; "G/L Account Currency FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "G/L Account No." = field("No."),
+                              "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                              "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
+                              "Date Filter" = field("Date Filter");
+#if not CLEAN24
+                Visible = SourceCurrencyVisible;
+#endif
             }
             systempart(Control1900383207; Links)
             {
@@ -469,6 +514,17 @@ page 16 "Chart of Accounts"
                     RunObject = Page "General Journal";
                     ToolTip = 'Open the general journal, for example, to record or post a payment that has no related document.';
                 }
+                action("G/L Currency Revaluation")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'G/L Currency Revaluation';
+                    Image = CurrencyExchangeRates;
+                    RunObject = Report "G/L Currency Revaluation";
+                    ToolTip = 'Create general journal lines with currency revaluation for G/L accounts with posting in source currency.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
                 action("Close Income Statement")
                 {
                     ApplicationArea = Basic, Suite;
@@ -636,6 +692,9 @@ page 16 "Chart of Accounts"
                 actionref(IndentChartOfAccounts_Promoted; IndentChartOfAccounts)
                 {
                 }
+                actionref("G/L Currency Revaluation_Promoted"; "G/L Currency Revaluation")
+                {
+                }
                 actionref("Close Income Statement_Promoted"; "Close Income Statement")
                 {
                 }
@@ -765,14 +824,23 @@ page 16 "Chart of Accounts"
         NameIndent: Integer;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
+#if not CLEAN24
+        SourceCurrencyVisible: Boolean;
+#endif
 
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";
+#if not CLEAN24
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
     begin
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
+#if not CLEAN24
+        SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
+#endif
     end;
 }
 

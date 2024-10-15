@@ -24,8 +24,10 @@ page 1826 "Company Consolidation Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT FinalStepVisible;
+                Visible = TopBannerVisible and not FinalStepVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -36,8 +38,10 @@ page 1826 "Company Consolidation Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND FinalStepVisible;
+                Visible = TopBannerVisible and FinalStepVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -842,31 +846,29 @@ page 1826 "Company Consolidation Wizard"
         Window.Open(CreatingBusinessUnitsMsg);
 
         BusinessUnit.ChangeCompany(ConsolidatedCompany);
-        with BusinessUnitInformation do begin
-            Reset();
-            if Find('-') then
-                repeat
-                    BusinessUnit.Init();
-                    BusinessUnit.Code := Code;
-                    BusinessUnit.Name := Name;
-                    BusinessUnit."Company Name" := "Company Name";
-                    BusinessUnit."Currency Code" := "Currency Code";
-                    BusinessUnit."Currency Exchange Rate Table" := "Currency Exchange Rate Table";
-                    BusinessUnit."Starting Date" := "Starting Date";
-                    BusinessUnit."Ending Date" := "Ending Date";
-                    BusinessUnit."Exch. Rate Gains Acc." := "Exch. Rate Gains Acc.";
-                    BusinessUnit."Exch. Rate Losses Acc." := "Exch. Rate Losses Acc.";
-                    BusinessUnit."Comp. Exch. Rate Gains Acc." := "Comp. Exch. Rate Gains Acc.";
-                    BusinessUnit."Comp. Exch. Rate Losses Acc." := "Comp. Exch. Rate Losses Acc.";
-                    BusinessUnit."Equity Exch. Rate Gains Acc." := "Equity Exch. Rate Gains Acc.";
-                    BusinessUnit."Equity Exch. Rate Losses Acc." := "Equity Exch. Rate Losses Acc.";
-                    BusinessUnit."Residual Account" := "Residual Account";
-                    BusinessUnit."Minority Exch. Rate Gains Acc." := "Minority Exch. Rate Gains Acc.";
-                    BusinessUnit."Minority Exch. Rate Losses Acc" := "Minority Exch. Rate Losses Acc";
+        BusinessUnitInformation.Reset();
+        if BusinessUnitInformation.Find('-') then
+            repeat
+                BusinessUnit.Init();
+                BusinessUnit.Code := BusinessUnitInformation.Code;
+                BusinessUnit.Name := BusinessUnitInformation.Name;
+                BusinessUnit."Company Name" := BusinessUnitInformation."Company Name";
+                BusinessUnit."Currency Code" := BusinessUnitInformation."Currency Code";
+                BusinessUnit."Currency Exchange Rate Table" := BusinessUnitInformation."Currency Exchange Rate Table";
+                BusinessUnit."Starting Date" := BusinessUnitInformation."Starting Date";
+                BusinessUnit."Ending Date" := BusinessUnitInformation."Ending Date";
+                BusinessUnit."Exch. Rate Gains Acc." := BusinessUnitInformation."Exch. Rate Gains Acc.";
+                BusinessUnit."Exch. Rate Losses Acc." := BusinessUnitInformation."Exch. Rate Losses Acc.";
+                BusinessUnit."Comp. Exch. Rate Gains Acc." := BusinessUnitInformation."Comp. Exch. Rate Gains Acc.";
+                BusinessUnit."Comp. Exch. Rate Losses Acc." := BusinessUnitInformation."Comp. Exch. Rate Losses Acc.";
+                BusinessUnit."Equity Exch. Rate Gains Acc." := BusinessUnitInformation."Equity Exch. Rate Gains Acc.";
+                BusinessUnit."Equity Exch. Rate Losses Acc." := BusinessUnitInformation."Equity Exch. Rate Losses Acc.";
+                BusinessUnit."Residual Account" := BusinessUnitInformation."Residual Account";
+                BusinessUnit."Minority Exch. Rate Gains Acc." := BusinessUnitInformation."Minority Exch. Rate Gains Acc.";
+                BusinessUnit."Minority Exch. Rate Losses Acc" := BusinessUnitInformation."Minority Exch. Rate Losses Acc";
 
-                    BusinessUnit.Insert();
-                until Next() = 0;
-        end;
+                BusinessUnit.Insert();
+            until BusinessUnitInformation.Next() = 0;
 
         Commit();
 

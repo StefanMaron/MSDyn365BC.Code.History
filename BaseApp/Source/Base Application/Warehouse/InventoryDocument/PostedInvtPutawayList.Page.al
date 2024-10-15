@@ -15,7 +15,7 @@ page 7394 "Posted Invt. Put-away List"
     PageType = List;
     SourceTable = "Posted Invt. Put-away Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout

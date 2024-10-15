@@ -9,7 +9,7 @@ page 1367 "Monitored Field Log Entries"
     UsageCategory = Administration;
     SourceTable = "Change Log Entry";
     SourceTableView = sorting("Entry No.")
-                      ORDER(Descending)
+                      order(descending)
                       where("Field Log Entry Feature" = filter("Monitor Sensitive Fields" | All));
     Editable = false;
     Extensible = false;
@@ -124,7 +124,7 @@ page 1367 "Monitored Field Log Entries"
                 Tooltip = 'View or edit the retention policy.';
                 Image = Delete;
                 RunObject = Page "Retention Policy Setup Card";
-                RunPageLink = "Table Id" = Filter(405); // Database::"Change Log Entry";
+                RunPageLink = "Table Id" = filter(405); // Database::"Change Log Entry";
                 AccessByPermission = tabledata "Retention Policy Setup" = R;
                 RunPageMode = View;
                 Ellipsis = true;

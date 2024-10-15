@@ -1,6 +1,7 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Posting;
@@ -115,6 +116,14 @@ page 9320 "Service Credit Memos"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -220,7 +229,9 @@ page 9320 "Service Credit Memos"
                     Image = Allocations;
                     RunObject = Page "CFDI Relation Documents";
                     RunPageLink = "Document Table ID" = const(5900),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No."),
                                   "Customer No." = field("Bill-to Customer No.");
                     ToolTip = 'View or add CFDI relation documents for the record.';
@@ -256,8 +267,11 @@ page 9320 "Service Credit Memos"
 
                     trigger OnAction()
                     var
+                        SelectedServiceHeader: Record "Service Header";
                         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
+                        CurrPage.SetSelectionFilter(SelectedServiceHeader);
+                        ServPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedServiceHeader, Rec."No.");
                         ServPostYesNo.PreviewDocument(Rec);
                     end;
                 }

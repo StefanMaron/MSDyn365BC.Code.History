@@ -496,30 +496,27 @@ report 10098 "Projected Cash Payments"
             begin
                 if Currency.ReadPermission then begin
                     TempCurrency.DeleteAll();
-                    with VendLedgEntry2 do begin
-                        SetCurrentKey("Vendor No.", Open, Positive, "Due Date", "Currency Code");
-                        SetRange("Vendor No.", Vendor."No.");
-                        SetRange(Open, true);
-                        SetFilter("On Hold", '');
-                        SetFilter("Currency Code", '=%1', '');
-                        if FindFirst() then begin
-                            TempCurrency.Init();
-                            TempCurrency.Code := '';
-                            TempCurrency.Description := GLSetup."LCY Code";
-                            TempCurrency.Insert();
-                        end;
+                    VendLedgEntry2.SetCurrentKey("Vendor No.", Open, Positive, "Due Date", "Currency Code");
+                    VendLedgEntry2.SetRange("Vendor No.", Vendor."No.");
+                    VendLedgEntry2.SetRange(Open, true);
+                    VendLedgEntry2.SetFilter("On Hold", '');
+                    VendLedgEntry2.SetFilter("Currency Code", '=%1', '');
+                    if VendLedgEntry2.FindFirst() then begin
+                        TempCurrency.Init();
+                        TempCurrency.Code := '';
+                        TempCurrency.Description := GLSetup."LCY Code";
+                        TempCurrency.Insert();
                     end;
-                    with Currency do
-                        if Find('-') then
-                            repeat
-                                VendLedgEntry2.SetRange("Currency Code", Code);
-                                if VendLedgEntry2.FindFirst() then begin
-                                    TempCurrency.Init();
-                                    TempCurrency.Code := Code;
-                                    TempCurrency.Description := Description;
-                                    TempCurrency.Insert();
-                                end;
-                            until Next() = 0;
+                    if Currency.Find('-') then
+                        repeat
+                            VendLedgEntry2.SetRange("Currency Code", Currency.Code);
+                            if VendLedgEntry2.FindFirst() then begin
+                                TempCurrency.Init();
+                                TempCurrency.Code := Currency.Code;
+                                TempCurrency.Description := Currency.Description;
+                                TempCurrency.Insert();
+                            end;
+                        until Currency.Next() = 0;
                 end;
 
                 GetCurrencyRecord(Currency, "Currency Code");

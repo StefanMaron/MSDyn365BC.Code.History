@@ -32,7 +32,7 @@ codeunit 144001 "Sales/Purchase Document"
         // Setup: Create Item and Vendor with Currency. Modify General Ledger Setup for Additional Reporting Currency. Create Purchase Order.
         Initialize();
         GeneralLedgerSetup.Get();
-        CreateVendor(Vendor, CreateCurrency, '');
+        CreateVendor(Vendor, CreateCurrency(), '');
         ModifyGeneralLedgerSetup(Vendor."Currency Code");
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", '', false);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -88,7 +88,6 @@ codeunit 144001 "Sales/Purchase Document"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
-        TaxArea: Record "Tax Area";
         TaxDetail: Record "Tax Detail";
         VATPostingSetup: Record "VAT Posting Setup";
         DocumentNo: Code[20];
@@ -98,7 +97,7 @@ codeunit 144001 "Sales/Purchase Document"
 
         // Setup: Update Purchase Payable Setup,
         Initialize();
-        UpdatePurchasePayableSetup;
+        UpdatePurchasePayableSetup();
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
         CreateVendor(Vendor, '', TaxAreaCode);
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", TaxDetail."Tax Group Code", true);
@@ -138,7 +137,7 @@ codeunit 144001 "Sales/Purchase Document"
     local procedure CreateCustomerWithCurrency(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Currency Code", CreateCurrency);
+        Customer.Validate("Currency Code", CreateCurrency());
         Customer.Modify(true);
     end;
 
@@ -213,7 +212,7 @@ codeunit 144001 "Sales/Purchase Document"
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandInt(10));  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;

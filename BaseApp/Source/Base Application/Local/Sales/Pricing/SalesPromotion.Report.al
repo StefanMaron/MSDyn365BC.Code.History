@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.Foundation.Company;

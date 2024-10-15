@@ -35,12 +35,9 @@ codeunit 142056 "UT REP Bank Reconciliation"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
-        Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
-        WrongFilterSetErr: Label 'Wrong Filter value on Report request form';
 
     [Test]
     [HandlerFunctions('BankAccountReconcileRequestPageHandler')]
@@ -53,13 +50,13 @@ codeunit 142056 "UT REP Bank Reconciliation"
         // Purpose of the test is to validate Bank Account Ledger Entry - OnAfterGetRecord trigger of Report ID - 10409.
         // Setup: Create Bank Account Ledger Entry.
         Initialize();
-        BankAccountNo := CreateBankAccountLedgerEntry;
+        BankAccountNo := CreateBankAccountLedgerEntry();
 
         // Exercise.
         REPORT.Run(REPORT::"Bank Account - Reconcile");  // Opens BankAccountReconcileRequestPageHandler;
 
         // Verify: Verify Bank Account No. after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_BankAccount', BankAccountNo);
     end;
 
@@ -88,7 +85,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         Amount := LibraryRandom.RandInt(100);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
             GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
-            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"Bank Account", BankAccount."No.", Amount);
+            LibraryPurchase.CreateVendorNo(), GenJnlLine."Bal. Account Type"::"Bank Account", BankAccount."No.", Amount);
         GenJnlLine.Validate("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Computer Check");
         GenJnlLine.Modify(true);
 
@@ -122,7 +119,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -134,7 +131,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
     begin
         BankAccountLedgerEntry2.FindLast();
         BankAccountLedgerEntry."Entry No." := BankAccountLedgerEntry2."Entry No." + 1;
-        BankAccountLedgerEntry."Bank Account No." := CreateBankAccount;
+        BankAccountLedgerEntry."Bank Account No." := CreateBankAccount();
         BankAccountLedgerEntry."Document Type" := BankAccountLedgerEntry."Document Type"::Payment;
         BankAccountLedgerEntry.Amount := LibraryRandom.RandDec(10, 2);
 
@@ -151,7 +148,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
     begin
         LibraryVariableStorage.Dequeue(No);
         BankAccountReconcile."Bank Account".SetFilter("No.", No);
-        BankAccountReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

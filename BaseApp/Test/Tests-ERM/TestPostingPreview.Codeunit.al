@@ -38,11 +38,11 @@ codeunit 134768 "Test Posting Preview"
         GLEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(GLEntry.FieldNo(Amount));
 
-        GLEntriesPreview.Trap;
+        GLEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, GLEntry);
 
-        GLEntriesPreview.First;
-        Assert.AreEqual(GLEntry.Amount, GLEntriesPreview.Amount.AsDEcimal, 'Entry amounts were not equal.');
+        GLEntriesPreview.First();
+        Assert.AreEqual(GLEntry.Amount, GLEntriesPreview.Amount.AsDecimal(), 'Entry amounts were not equal.');
     end;
 
     [Test]
@@ -58,11 +58,11 @@ codeunit 134768 "Test Posting Preview"
         VATEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(VATEntry.FieldNo(Amount));
 
-        VATEntriesPreview.Trap;
+        VATEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, VATEntry);
 
-        VATEntriesPreview.First;
-        Assert.AreEqual(VATEntry.Amount, VATEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        VATEntriesPreview.First();
+        Assert.AreEqual(VATEntry.Amount, VATEntriesPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -78,13 +78,13 @@ codeunit 134768 "Test Posting Preview"
         ValueEntry."Cost Amount (Actual)" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(ValueEntry.FieldNo("Cost Amount (Actual)"));
 
-        ValueEntriesPreview.Trap;
+        ValueEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, ValueEntry);
 
-        ValueEntriesPreview.First;
+        ValueEntriesPreview.First();
         Assert.AreEqual(
           ValueEntry."Cost Amount (Actual)",
-          ValueEntriesPreview."Cost Amount (Actual)".AsDEcimal,
+          ValueEntriesPreview."Cost Amount (Actual)".AsDecimal(),
           AmountsNotEqualErr);
     end;
 
@@ -101,11 +101,11 @@ codeunit 134768 "Test Posting Preview"
         ItemLedgerEntry.Quantity := LibraryRandom.RandDec(100, 2);
         LibraryPostPrevHandler.SetValueFieldNo(ItemLedgerEntry.FieldNo(Quantity));
 
-        ItemLedgerEntriesPreview.Trap;
+        ItemLedgerEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, ItemLedgerEntry);
 
-        ItemLedgerEntriesPreview.First;
-        Assert.AreEqual(ItemLedgerEntry.Quantity, ItemLedgerEntriesPreview.Quantity.AsDEcimal, AmountsNotEqualErr);
+        ItemLedgerEntriesPreview.First();
+        Assert.AreEqual(ItemLedgerEntry.Quantity, ItemLedgerEntriesPreview.Quantity.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -121,13 +121,13 @@ codeunit 134768 "Test Posting Preview"
         CustLedgerEntry."Max. Payment Tolerance" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(CustLedgerEntry.FieldNo("Max. Payment Tolerance"));
 
-        CustLedgEntriesPreview.Trap;
+        CustLedgEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, CustLedgerEntry);
 
-        CustLedgEntriesPreview.First;
+        CustLedgEntriesPreview.First();
         Assert.AreEqual(
           CustLedgerEntry."Max. Payment Tolerance",
-          CustLedgEntriesPreview."Max. Payment Tolerance".AsDEcimal,
+          CustLedgEntriesPreview."Max. Payment Tolerance".AsDecimal(),
           AmountsNotEqualErr);
     end;
 
@@ -144,11 +144,11 @@ codeunit 134768 "Test Posting Preview"
         DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(DetailedCustLedgEntry.FieldNo(Amount));
 
-        DetCustLedgEntrPreview.Trap;
+        DetCustLedgEntrPreview.Trap();
         RunPreview(LibraryPostPrevHandler, DetailedCustLedgEntry);
 
-        DetCustLedgEntrPreview.First;
-        Assert.AreEqual(DetailedCustLedgEntry.Amount, DetCustLedgEntrPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        DetCustLedgEntrPreview.First();
+        Assert.AreEqual(DetailedCustLedgEntry.Amount, DetCustLedgEntrPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -164,13 +164,13 @@ codeunit 134768 "Test Posting Preview"
         VendorLedgerEntry."Max. Payment Tolerance" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(VendorLedgerEntry.FieldNo("Max. Payment Tolerance"));
 
-        VendLedgEntriesPreview.Trap;
+        VendLedgEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, VendorLedgerEntry);
 
-        VendLedgEntriesPreview.First;
+        VendLedgEntriesPreview.First();
         Assert.AreEqual(
           VendorLedgerEntry."Max. Payment Tolerance",
-          VendLedgEntriesPreview."Max. Payment Tolerance".AsDEcimal,
+          VendLedgEntriesPreview."Max. Payment Tolerance".AsDecimal(),
           AmountsNotEqualErr);
     end;
 
@@ -187,11 +187,11 @@ codeunit 134768 "Test Posting Preview"
         DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(DetailedVendorLedgEntry.FieldNo(Amount));
 
-        DetailedVendEntriesPreview.Trap;
+        DetailedVendEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, DetailedVendorLedgEntry);
 
-        DetailedVendEntriesPreview.First;
-        Assert.AreEqual(DetailedVendorLedgEntry.Amount, DetailedVendEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        DetailedVendEntriesPreview.First();
+        Assert.AreEqual(DetailedVendorLedgEntry.Amount, DetailedVendEntriesPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -207,10 +207,10 @@ codeunit 134768 "Test Posting Preview"
         EmployeeLedgerEntry."Message to Recipient" := LibraryUtility.GenerateGUID();
         LibraryPostPrevHandler.SetValueFieldNo(EmployeeLedgerEntry.FieldNo("Message to Recipient"));
 
-        EmplLedgerEntriesPreview.Trap;
+        EmplLedgerEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, EmployeeLedgerEntry);
 
-        EmplLedgerEntriesPreview.First;
+        EmplLedgerEntriesPreview.First();
         Assert.AreEqual(
           EmployeeLedgerEntry."Message to Recipient",
           Format(EmplLedgerEntriesPreview."Message to Recipient"),
@@ -230,11 +230,11 @@ codeunit 134768 "Test Posting Preview"
         DetailedEmployeeLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(DetailedEmployeeLedgerEntry.FieldNo(Amount));
 
-        DetailedEmplEntriesPreview.Trap;
+        DetailedEmplEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, DetailedEmployeeLedgerEntry);
 
-        DetailedEmplEntriesPreview.First;
-        Assert.AreEqual(DetailedEmployeeLedgerEntry.Amount, DetailedEmplEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        DetailedEmplEntriesPreview.First();
+        Assert.AreEqual(DetailedEmployeeLedgerEntry.Amount, DetailedEmplEntriesPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -251,11 +251,11 @@ codeunit 134768 "Test Posting Preview"
         FALedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(FALedgerEntry.FieldNo(Amount));
 
-        FALedgerEntriesPreview.Trap;
+        FALedgerEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, FALedgerEntry);
 
-        FALedgerEntriesPreview.First;
-        Assert.AreEqual(FALedgerEntry.Amount, FALedgerEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        FALedgerEntriesPreview.First();
+        Assert.AreEqual(FALedgerEntry.Amount, FALedgerEntriesPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -271,11 +271,11 @@ codeunit 134768 "Test Posting Preview"
         BankAccountLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(BankAccountLedgerEntry.FieldNo(Amount));
 
-        BankAccLedgEntrPreview.Trap;
+        BankAccLedgEntrPreview.Trap();
         RunPreview(LibraryPostPrevHandler, BankAccountLedgerEntry);
 
-        BankAccLedgEntrPreview.First;
-        Assert.AreEqual(BankAccountLedgerEntry.Amount, BankAccLedgEntrPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        BankAccLedgEntrPreview.First();
+        Assert.AreEqual(BankAccountLedgerEntry.Amount, BankAccLedgEntrPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -292,11 +292,11 @@ codeunit 134768 "Test Posting Preview"
         ResLedgerEntry.Quantity := LibraryRandom.RandInt(100);
         LibraryPostPrevHandler.SetValueFieldNo(ResLedgerEntry.FieldNo(Quantity));
 
-        ResourceLedgEntriesPreview.Trap;
+        ResourceLedgEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, ResLedgerEntry);
 
-        ResourceLedgEntriesPreview.First;
-        Assert.AreEqual(ResLedgerEntry.Quantity, ResourceLedgEntriesPreview.Quantity.AsInteger, AmountsNotEqualErr);
+        ResourceLedgEntriesPreview.First();
+        Assert.AreEqual(ResLedgerEntry.Quantity, ResourceLedgEntriesPreview.Quantity.AsInteger(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -313,11 +313,11 @@ codeunit 134768 "Test Posting Preview"
         ServiceLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(ServiceLedgerEntry.FieldNo(Amount));
 
-        ServiceLedgerEntriesPreview.Trap;
+        ServiceLedgerEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, ServiceLedgerEntry);
 
-        ServiceLedgerEntriesPreview.First;
-        Assert.AreEqual(ServiceLedgerEntry.Amount, ServiceLedgerEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        ServiceLedgerEntriesPreview.First();
+        Assert.AreEqual(ServiceLedgerEntry.Amount, ServiceLedgerEntriesPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -333,11 +333,11 @@ codeunit 134768 "Test Posting Preview"
         WarrantyLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(WarrantyLedgerEntry.FieldNo(Amount));
 
-        WarrantyLedgEntriesPreview.Trap;
+        WarrantyLedgEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, WarrantyLedgerEntry);
 
-        WarrantyLedgEntriesPreview.First;
-        Assert.AreEqual(WarrantyLedgerEntry.Amount, WarrantyLedgEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        WarrantyLedgEntriesPreview.First();
+        Assert.AreEqual(WarrantyLedgerEntry.Amount, WarrantyLedgEntriesPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -354,11 +354,11 @@ codeunit 134768 "Test Posting Preview"
         MaintenanceLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(MaintenanceLedgerEntry.FieldNo(Amount));
 
-        MaintLedgEntriesPreview.Trap;
+        MaintLedgEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, MaintenanceLedgerEntry);
 
-        MaintLedgEntriesPreview.First;
-        Assert.AreEqual(MaintenanceLedgerEntry.Amount, MaintLedgEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+        MaintLedgEntriesPreview.First();
+        Assert.AreEqual(MaintenanceLedgerEntry.Amount, MaintLedgEntriesPreview.Amount.AsDecimal(), AmountsNotEqualErr);
     end;
 
     [Test]
@@ -375,13 +375,13 @@ codeunit 134768 "Test Posting Preview"
         JobLedgerEntry."Line Amount" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(JobLedgerEntry.FieldNo("Line Amount"));
 
-        JobLedgerEntriesPreview.Trap;
+        JobLedgerEntriesPreview.Trap();
         RunPreview(LibraryPostPrevHandler, JobLedgerEntry);
 
-        JobLedgerEntriesPreview.First;
+        JobLedgerEntriesPreview.First();
         Assert.AreEqual(
           JobLedgerEntry."Line Amount",
-          JobLedgerEntriesPreview."Line Amount".AsDEcimal,
+          JobLedgerEntriesPreview."Line Amount".AsDecimal(),
           AmountsNotEqualErr);
     end;
 
@@ -447,13 +447,13 @@ codeunit 134768 "Test Posting Preview"
         RecRef: RecordRef;
     begin
         RecRef.GetTable(RecVar);
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         BindSubscription(LibraryPostPrevHandler);
-        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive() before preview');
+        Assert.IsFalse(GenJnlPostPreview.IsActive(), 'GenJnlPostPreview.IsActive() before preview');
         asserterror GenJnlPostPreview.Preview(LibraryPostPrevHandler, RecVar);
-        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive() after preview');
+        Assert.IsFalse(GenJnlPostPreview.IsActive(), 'GenJnlPostPreview.IsActive() after preview');
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(RecRef.Number));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
     end;
 
     local procedure RunPreviewWithCommit(LibraryPostPrevHandler: Codeunit "Library - Post. Prev. Handler"; RecVar: Variant)
@@ -463,11 +463,11 @@ codeunit 134768 "Test Posting Preview"
     begin
         BindSubscription(LibraryPostPrevHandler);
         LibraryPostPrevHandler.SetInvokeCommit(true);
-        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive() before preview');
-        ErrorMessagesPage.Trap;
+        Assert.IsFalse(GenJnlPostPreview.IsActive(), 'GenJnlPostPreview.IsActive() before preview');
+        ErrorMessagesPage.Trap();
         asserterror GenJnlPostPreview.Preview(LibraryPostPrevHandler, RecVar);
         Assert.ExpectedError('');
-        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive() after preview');
+        Assert.IsFalse(GenJnlPostPreview.IsActive(), 'GenJnlPostPreview.IsActive() after preview');
         Assert.ExpectedMessage('Commit is prohibited in the current scope.', ErrorMessagesPage.Description.Value);
     end;
 }

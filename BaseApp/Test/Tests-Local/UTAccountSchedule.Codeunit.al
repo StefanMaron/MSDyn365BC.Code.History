@@ -33,7 +33,7 @@ codeunit 142068 "UT Account Schedule"
         REPORT.Run(REPORT::"Account Schedule Layout");  // Opens AccountScheduleLayoutRequestPageHandler.
 
         // Verify: Verify Filters that Acc. Schedule Name is updated on Report Account Schedule Layout.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'AccSchedFilter', StrSubstNo('%1: %2', AccScheduleLine.FieldCaption("Schedule Name"), AccScheduleLine."Schedule Name"));
         LibraryReportDataset.AssertElementWithValueExists('SubTitle', 'for ' + AccScheduleLine.Description);
@@ -55,12 +55,12 @@ codeunit 142068 "UT Account Schedule"
         // Purpose of the test is to validate Acc. Schedule Overview - OnOpenPage trigger of Page ID - 490.
         // Setup: Create Account Schedule.
         CreateAccScheduleName(AccScheduleLine);
-        AccountScheduleNames.OpenEdit;
+        AccountScheduleNames.OpenEdit();
         AccountScheduleNames.FILTER.SetFilter(Name, AccScheduleLine."Schedule Name");
-        AccScheduleOverview.Trap;
+        AccScheduleOverview.Trap();
 
         // Exercise.
-        AccountScheduleNames.Overview.Invoke;
+        AccountScheduleNames.Overview.Invoke();
 
         // Verify: New Created Schedule Name exist in Acc. Schedule Overview.
         AccScheduleOverview.CurrentSchedName.SetValue(AccScheduleLine."Schedule Name");
@@ -204,7 +204,7 @@ codeunit 142068 "UT Account Schedule"
     var
         AccScheduleName: Record "Acc. Schedule Name";
     begin
-        AccScheduleName.Name := LibraryUTUtility.GetNewCode10;
+        AccScheduleName.Name := LibraryUTUtility.GetNewCode10();
         AccScheduleName.Description := AccScheduleName.Name;
         AccScheduleName.Insert();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
@@ -221,7 +221,7 @@ codeunit 142068 "UT Account Schedule"
     begin
         LibraryVariableStorage.Dequeue(ScheduleName);
         AccountScheduleLayout."Acc. Schedule Line".SetFilter("Schedule Name", ScheduleName);
-        AccountScheduleLayout.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AccountScheduleLayout.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

@@ -39,7 +39,7 @@ codeunit 142067 "UT REPORTS GENERAL"
         REPORT.Run(REPORT::"Currency List");  // Opens CurrencyListRequestPageHandler.
 
         // Verify: Verify Currency Code after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Currency_Code', CurrencyExchangeRate."Currency Code");
         LibraryReportDataset.AssertElementWithValueExists(
           'CurrExchRate__Exchange_Rate_Amount_', CurrencyExchangeRate."Exchange Rate Amount");
@@ -56,13 +56,13 @@ codeunit 142067 "UT REPORTS GENERAL"
         // Purpose of the test is to validate Language - OnAfterGetRecord trigger of Report ID - 10310.
         // Setup: Create Language.
         Initialize();
-        LanguageCode := CreateLanguage;
+        LanguageCode := CreateLanguage();
 
         // Exercise.
         REPORT.Run(REPORT::"Language List");  // Opens LanguageListRequestPageHandler.
 
         // Verify: Verify Windows Language Name of Language after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Language_Code', LanguageCode);
     end;
 
@@ -78,13 +78,13 @@ codeunit 142067 "UT REPORTS GENERAL"
         // Purpose of the test is to validate Reason Code - OnPreReport trigger of Report ID - 10312.
         // Setup: Create Reason Code.
         Initialize();
-        Code := CreateReasonCode;
+        Code := CreateReasonCode();
 
         // Exercise.
         REPORT.Run(REPORT::"Reason Code List");  // Opens ReasonCodeListRequestPageHandler.
 
         // Verify: Verify Filters on Reason Code is updated on Report Reason Code List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'ReasonFilter', StrSubstNo('%1: %2', ReasonCode.FieldCaption(Code), Code));
     end;
@@ -106,7 +106,7 @@ codeunit 142067 "UT REPORTS GENERAL"
         REPORT.Run(REPORT::"Country/Region List");  // Opens handler - CountryRegionListRequestPageHandler.
 
         // Verify: Verify Country Region Code and Name on Report - Country/Region List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CountryFilter', StrSubstNo(CountryFilterTxt, CountryRegion.FieldCaption(Code), CountryRegion.Code));
         LibraryReportDataset.AssertElementWithValueExists('Country_Region_Code', CountryRegion.Code);
         LibraryReportDataset.AssertElementWithValueExists('Country_Region_Name', CountryRegion.Name);
@@ -160,7 +160,6 @@ codeunit 142067 "UT REPORTS GENERAL"
     procedure RunCustomerStatementsReportSelections()
     var
         ReportSelections: Record "Report Selections";
-        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
     begin
         // [FEATURE] [Report Selection] [UT]
         // [SCENARIO 314076] Run report 153 "Customer Statement" in case Report Selections for "C.Statement" contains the only line with Report 10072 "Customer Statements".
@@ -266,8 +265,8 @@ codeunit 142067 "UT REPORTS GENERAL"
 
     local procedure CreateCountryRegion(var CountryRegion: Record "Country/Region")
     begin
-        CountryRegion.Code := LibraryUTUtility.GetNewCode10;
-        CountryRegion.Name := LibraryUTUtility.GetNewCode;
+        CountryRegion.Code := LibraryUTUtility.GetNewCode10();
+        CountryRegion.Name := LibraryUTUtility.GetNewCode();
         CountryRegion.Insert();
         LibraryVariableStorage.Enqueue(CountryRegion.Code);  // Enqueue required inside CountryRegionListRequestPageHandler.
     end;
@@ -276,7 +275,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(10, 2);
@@ -290,7 +289,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     var
         Language: Record Language;
     begin
-        Language.Code := LibraryUTUtility.GetNewCode10;
+        Language.Code := LibraryUTUtility.GetNewCode10();
         Language.Insert();
 
         // Enqueue required for LanguageListRequestPageHandler.
@@ -302,7 +301,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     var
         ReasonCode: Record "Reason Code";
     begin
-        ReasonCode.Code := LibraryUTUtility.GetNewCode10;
+        ReasonCode.Code := LibraryUTUtility.GetNewCode10();
         ReasonCode.Insert();
 
         // Enqueue required for ReasonCodeListRequestPageHandler.
@@ -310,7 +309,7 @@ codeunit 142067 "UT REPORTS GENERAL"
         exit(ReasonCode.Code);
     end;
 
-    local procedure CreateAndPostGenJnlLineWithDimensions(GLAccountNo: Code[20]; Dimension1ValueCode: Code[20]; Dimension2ValueCode: Code[20]; PostingDate: Date) PostedDocNo: Code[20]
+    local procedure CreateAndPostGenJnlLineWithDimensions(GLAccountNo: Code[20]; Dimension1ValueCode: Code[20]; Dimension2ValueCode: Code[20]; PostingDate: Date): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -329,7 +328,7 @@ codeunit 142067 "UT REPORTS GENERAL"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure InsertReportSelections(ReportUsage: Option; Sequence: Code[10]; ReportID: Integer)
+    local procedure InsertReportSelections(ReportUsage: Enum "Report Selection Usage"; Sequence: Code[10]; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -348,7 +347,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         LibraryVariableStorage.Dequeue(Code);
         CurrencyList.Currency.SetFilter(Code, Code);
-        CurrencyList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CurrencyList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -359,7 +358,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         LibraryVariableStorage.Dequeue(Code);
         LanguageList.Language.SetFilter(Code, Code);
-        LanguageList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LanguageList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -370,7 +369,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         LibraryVariableStorage.Dequeue(Code);
         ReasonCodeList."Reason Code".SetFilter(Code, Code);
-        ReasonCodeList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReasonCodeList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -381,21 +380,21 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         LibraryVariableStorage.Dequeue(Code);
         CountryRegionList."Country/Region".SetFilter(Code, Code);
-        CountryRegionList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CountryRegionList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLRegisterRequestPageHandler(var GLRegister: TestRequestPage "G/L Register")
     begin
-        GLRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerStatementsCancelRequestPageHandler(var CustomerStatements: TestRequestPage "Customer Statements")
     begin
-        CustomerStatements.Cancel.Invoke;
+        CustomerStatements.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -414,7 +413,7 @@ codeunit 142067 "UT REPORTS GENERAL"
         TrialBalanceDetailSummary.PrintTransactionDetail.SetValue(true);
         TrialBalanceDetailSummary."G/L Account".SetFilter("No.", GLAccountNo);
         TrialBalanceDetailSummary."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', FromDate, ToDate));
-        TrialBalanceDetailSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
+        TrialBalanceDetailSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName(), FileName);
     end;
 }
 

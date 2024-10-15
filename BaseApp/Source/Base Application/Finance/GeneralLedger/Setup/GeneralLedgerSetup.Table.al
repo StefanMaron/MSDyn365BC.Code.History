@@ -2,6 +2,7 @@
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Analysis;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -39,6 +40,7 @@ using Microsoft.eServices.EDocument;
 table 98 "General Ledger Setup"
 {
     Caption = 'General Ledger Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -90,7 +92,9 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Default VAT Date';
         }
+#pragma warning disable AL0842
         field(8; "VAT Reporting Date Usage"; Enum "VAT Reporting Date Usage")
+#pragma warning restore AL0842
         {
             Caption = 'VAT Date Usage';
 
@@ -583,9 +587,9 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Adapt Main Menu to Permissions';
             InitValue = true;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Replaced with UI Elements Removal feature.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '24.0';
         }
         field(97; "Allow G/L Acc. Deletion Before"; Date)
         {
@@ -813,6 +817,12 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Enable Data Check';
         }
+        field(178; "Document Retention Period"; Enum "Docs - Retention Period Def.")
+        {
+            Caption = 'Documents Retention Period';
+            DataClassification = SystemMetadata;
+            InitValue = 0;
+        }
         field(180; "Apply Jnl. Template Name"; Code[10])
         {
             Caption = 'Apply Jnl. Template Name';
@@ -830,12 +840,12 @@ table 98 "General Ledger Setup"
         }
         field(182; "Job WIP Jnl. Template Name"; Code[10])
         {
-            Caption = 'Job WIP Jnl. Template Name';
+            Caption = 'Project WIP Jnl. Template Name';
             TableRelation = "Gen. Journal Template";
         }
         field(183; "Job WIP Jnl. Batch Name"; Code[10])
         {
-            Caption = 'Job WIP Jnl. Batch Name';
+            Caption = 'Project WIP Jnl. Batch Name';
             TableRelation = if ("Job WIP Jnl. Template Name" = filter(<> '')) "Gen. Journal Batch".Name where("Journal Template Name" = field("Job WIP Jnl. Template Name"));
 
             trigger OnValidate()
@@ -896,6 +906,16 @@ table 98 "General Ledger Setup"
                     Error('');
             end;
 
+        }
+        field(190; "Acc. Receivables Category"; Integer)
+        {
+            TableRelation = "G/L Account Category";
+            Caption = 'Account Receivables G/L Account Category';
+        }
+	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        {
+            Caption = 'Dimension Posting';
+            DataClassification = CustomerContent;
         }
         field(10001; "VAT in Use"; Boolean)
         {

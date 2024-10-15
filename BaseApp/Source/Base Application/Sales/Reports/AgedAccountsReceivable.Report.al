@@ -201,7 +201,7 @@ report 120 "Aged Accounts Receivable"
                             CustLedgEntry.SetRange("Closed by Entry No.", "Entry No.");
                         CustLedgEntry.SetRange("Posting Date", 0D, EndingDate);
                         CopyDimFiltersFromCustomer(CustLedgEntry);
-                        if CustLedgEntry.FindSet(false, false) then
+                        if CustLedgEntry.FindSet(false) then
                             repeat
                                 InsertTemp(CustLedgEntry);
                             until CustLedgEntry.Next() = 0;
@@ -210,7 +210,7 @@ report 120 "Aged Accounts Receivable"
                         CustLedgEntry.SetRange("Entry No.", "Closed by Entry No.");
                         CustLedgEntry.SetRange("Posting Date", 0D, EndingDate);
                         CopyDimFiltersFromCustomer(CustLedgEntry);
-                        if CustLedgEntry.FindSet(false, false) then
+                        if CustLedgEntry.FindSet(false) then
                             repeat
                                 InsertTemp(CustLedgEntry);
                             until CustLedgEntry.Next() = 0;
@@ -418,7 +418,7 @@ report 120 "Aged Accounts Receivable"
                             PeriodIndex: Integer;
                         begin
                             if Number = 1 then begin
-                                if not TempCustLedgEntry.FindSet(false, false) then
+                                if not TempCustLedgEntry.FindSet(false) then
                                     CurrReport.Break();
                             end else
                                 if TempCustLedgEntry.Next() = 0 then
@@ -427,7 +427,7 @@ report 120 "Aged Accounts Receivable"
                             CustLedgEntryEndingDate := TempCustLedgEntry;
                             DetailedCustomerLedgerEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntryEndingDate."Entry No.");
                             OnTempCustLedgEntryGetRecordOnAfterSetDetailedEntryFilters(DetailedCustomerLedgerEntry);
-                            if DetailedCustomerLedgerEntry.FindSet(false, false) then
+                            if DetailedCustomerLedgerEntry.FindSet(false) then
                                 repeat
                                     if (DetailedCustomerLedgerEntry."Entry Type" =
                                         DetailedCustomerLedgerEntry."Entry Type"::"Initial Entry") and
@@ -534,7 +534,7 @@ report 120 "Aged Accounts Receivable"
                         Clear(TotalCustLedgEntry);
 
                         if Number = 1 then begin
-                            if not TempCurrency.FindSet(false, false) then begin
+                            if not TempCurrency.FindSet(false) then begin
                                 CurrReport.Break();
                                 NumberOfLines -= 1;
                             end;
@@ -623,7 +623,7 @@ report 120 "Aged Accounts Receivable"
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then begin
-                        if not TempCurrency2.FindSet(false, false) then
+                        if not TempCurrency2.FindSet(false) then
                             CurrReport.Break();
                     end else
                         if TempCurrency2.Next() = 0 then
@@ -631,7 +631,7 @@ report 120 "Aged Accounts Receivable"
 
                     Clear(AgedCustLedgEntry);
                     TempCurrencyAmount.SetRange("Currency Code", TempCurrency2.Code);
-                    if TempCurrencyAmount.FindSet(false, false) then
+                    if TempCurrencyAmount.FindSet(false) then
                         repeat
                             if TempCurrencyAmount.Date <> DMY2Date(31, 12, 9999) then
                                 AgedCustLedgEntry[GetPeriodIndex(TempCurrencyAmount.Date)]."Remaining Amount" :=
@@ -865,32 +865,30 @@ report 120 "Aged Accounts Receivable"
     var
         Currency: Record Currency;
     begin
-        with TempCustLedgEntry do begin
-            if Get(CustLedgEntry."Entry No.") then
-                exit;
-            TempCustLedgEntry := CustLedgEntry;
-            Insert();
-            if PrintAmountInLCY then begin
-                Clear(TempCurrency);
-                TempCurrency."Amount Rounding Precision" := GLSetup."Amount Rounding Precision";
-                if TempCurrency.Insert() then;
-                exit;
-            end;
-            if TempCurrency.Get("Currency Code") then
-                exit;
-            if TempCurrency.Get('') and ("Currency Code" = GLSetup."LCY Code") then
-                exit;
-            if TempCurrency.Get(GLSetup."LCY Code") and ("Currency Code" = '') then
-                exit;
-            if "Currency Code" <> '' then
-                Currency.Get("Currency Code")
-            else begin
-                Clear(Currency);
-                Currency."Amount Rounding Precision" := GLSetup."Amount Rounding Precision";
-            end;
-            TempCurrency := Currency;
-            TempCurrency.Insert();
+        if TempCustLedgEntry.Get(CustLedgEntry."Entry No.") then
+            exit;
+        TempCustLedgEntry := CustLedgEntry;
+        TempCustLedgEntry.Insert();
+        if PrintAmountInLCY then begin
+            Clear(TempCurrency);
+            TempCurrency."Amount Rounding Precision" := GLSetup."Amount Rounding Precision";
+            if TempCurrency.Insert() then;
+            exit;
         end;
+        if TempCurrency.Get(TempCustLedgEntry."Currency Code") then
+            exit;
+        if TempCurrency.Get('') and (TempCustLedgEntry."Currency Code" = GLSetup."LCY Code") then
+            exit;
+        if TempCurrency.Get(GLSetup."LCY Code") and (TempCustLedgEntry."Currency Code" = '') then
+            exit;
+        if TempCustLedgEntry."Currency Code" <> '' then
+            Currency.Get(TempCustLedgEntry."Currency Code")
+        else begin
+            Clear(Currency);
+            Currency."Amount Rounding Precision" := GLSetup."Amount Rounding Precision";
+        end;
+        TempCurrency := Currency;
+        TempCurrency.Insert();
     end;
 
     local procedure GetPeriodIndex(Date: Date): Integer
@@ -914,31 +912,29 @@ report 120 "Aged Accounts Receivable"
     begin
         TempCurrency2.Code := CurrencyCode;
         if TempCurrency2.Insert() then;
-        with TempCurrencyAmount do begin
-            for i := 1 to ArrayLen(TotalCustLedgEntry) do begin
-                "Currency Code" := CurrencyCode;
-                Date := PeriodStartDate[i];
-                if Find() then begin
-                    Amount := Amount + TotalCustLedgEntry[i]."Remaining Amount";
-                    Modify();
-                end else begin
-                    "Currency Code" := CurrencyCode;
-                    Date := PeriodStartDate[i];
-                    Amount := TotalCustLedgEntry[i]."Remaining Amount";
-                    Insert();
-                end;
-            end;
-            "Currency Code" := CurrencyCode;
-            Date := DMY2Date(31, 12, 9999);
-            if Find() then begin
-                Amount := Amount + TotalCustLedgEntry[1].Amount;
-                Modify();
+        for i := 1 to ArrayLen(TotalCustLedgEntry) do begin
+            TempCurrencyAmount."Currency Code" := CurrencyCode;
+            TempCurrencyAmount.Date := PeriodStartDate[i];
+            if TempCurrencyAmount.Find() then begin
+                TempCurrencyAmount.Amount := TempCurrencyAmount.Amount + TotalCustLedgEntry[i]."Remaining Amount";
+                TempCurrencyAmount.Modify();
             end else begin
-                "Currency Code" := CurrencyCode;
-                Date := DMY2Date(31, 12, 9999);
-                Amount := TotalCustLedgEntry[1].Amount;
-                Insert();
+                TempCurrencyAmount."Currency Code" := CurrencyCode;
+                TempCurrencyAmount.Date := PeriodStartDate[i];
+                TempCurrencyAmount.Amount := TotalCustLedgEntry[i]."Remaining Amount";
+                TempCurrencyAmount.Insert();
             end;
+        end;
+        TempCurrencyAmount."Currency Code" := CurrencyCode;
+        TempCurrencyAmount.Date := DMY2Date(31, 12, 9999);
+        if TempCurrencyAmount.Find() then begin
+            TempCurrencyAmount.Amount := TempCurrencyAmount.Amount + TotalCustLedgEntry[1].Amount;
+            TempCurrencyAmount.Modify();
+        end else begin
+            TempCurrencyAmount."Currency Code" := CurrencyCode;
+            TempCurrencyAmount.Date := DMY2Date(31, 12, 9999);
+            TempCurrencyAmount.Amount := TotalCustLedgEntry[1].Amount;
+            TempCurrencyAmount.Insert();
         end;
     end;
 

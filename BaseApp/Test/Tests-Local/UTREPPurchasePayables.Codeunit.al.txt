@@ -27,18 +27,18 @@ codeunit 142082 "UT REP Purchase Payables"
         Initialize();
 
         // [GIVEN] Vendor Ledger Entry on 23-02-20 with amount "A1" for "Vend1"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[1], CreateVendor, CalcDate('<+30D>', WorkDate()) + 1, -1);
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[1], CreateVendor(), CalcDate('<+30D>', WorkDate()) + 1, -1);
         // [GIVEN] Vendor Ledger Entry on 23-01-20 with amount "A2" for "Vend2"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[2], CreateVendor, WorkDate(), -1);
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[2], CreateVendor(), WorkDate(), -1);
         // [GIVEN] Vendor Ledger Entry on 23-12-19 with amount "A3" for "Vend3"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[3], CreateVendor, CalcDate('<-30D>', WorkDate()) - 1, -1);
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[3], CreateVendor(), CalcDate('<-30D>', WorkDate()) - 1, -1);
         // [GIVEN] Vendor Ledger Entry on 23-01-20 with amount "A4" for "Vend4"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[4], CreateVendor, WorkDate(), -1);
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[4], CreateVendor(), WorkDate(), -1);
 
         LibraryVariableStorage.Enqueue(CalcDate('<+30D>', WorkDate()) + 1);
         LibraryVariableStorage.Enqueue(
           LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText + '|' +
-          LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText);
+          LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText());
 
         // [GIVEN] Report Period Dates 23-02-20/ 23-02-20/ 24-01-20/ 25-12-19
         // [WHEN] Run Aged Accounts Payable report on 01-03-21 with 30D as default reporting period, Aging Method = Due Date
@@ -48,7 +48,7 @@ codeunit 142082 "UT REP Purchase Payables"
         // [THEN] "Vend2" has AmountDue3 = "A2" whereas all other values of AmountDue are 0
         // [THEN] "Vend3" has AmountDue4 = "A3" whereas all other values of AmountDue are 0
         // [THEN] "Vend4" has AmountDue3 = "A4" whereas all other values of AmountDue are 0
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAmountDueForVendor(VendorLedgerEntry[1]."Document No.", -VendorLedgerEntry[1].Amount, 0, 0, 0);
         VerifyAmountDueForVendor(VendorLedgerEntry[2]."Document No.", 0, 0, -VendorLedgerEntry[2].Amount, 0);
         VerifyAmountDueForVendor(VendorLedgerEntry[3]."Document No.", 0, 0, 0, -VendorLedgerEntry[3].Amount);
@@ -68,7 +68,7 @@ codeunit 142082 "UT REP Purchase Payables"
         // [SCENARIO 285677] Run report 10085 - Aged Accounts Payable for vendor with entries of diferent due date
         Initialize();
 
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         PostingDate := CalcDate('<-4M>', WorkDate());
         // [GIVEN] Vendor Ledger Entry "V1" on 31-08-20 with amount "A1"
         CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[1], VendorNo, PostingDate - 1, -1);
@@ -91,7 +91,7 @@ codeunit 142082 "UT REP Purchase Payables"
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(
           LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText + '|' +
-          LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText);
+          LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText());
 
         // [GIVEN] Report Period Dates 30-11-20/ 31-10-20/ 01-10-20/ 01-09-20
         // [WHEN] Run detailed Aged Accounts Payable report on 01-03-21 with 30D as default reporting period, Aging Method = Trans Date
@@ -102,7 +102,7 @@ codeunit 142082 "UT REP Purchase Payables"
         // [THEN] "V3" has AmountDue2 = "A3" whereas all other values of AmountDue are 0
         // [THEN] "V4" has AmountDue1 = "A4" whereas all other values of AmountDue are 0
         // [THEN] "V5" has AmountDue4 = "A5" whereas all other values of AmountDue are 0
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAmountDueForVendor(VendorLedgerEntry[1]."Document No.", 0, 0, 0, -VendorLedgerEntry[1].Amount);
         VerifyAmountDueForVendor(VendorLedgerEntry[2]."Document No.", 0, 0, -VendorLedgerEntry[2].Amount, 0);
         VerifyAmountDueForVendor(VendorLedgerEntry[3]."Document No.", 0, -VendorLedgerEntry[3].Amount, 0, 0);
@@ -119,7 +119,7 @@ codeunit 142082 "UT REP Purchase Payables"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -129,7 +129,7 @@ codeunit 142082 "UT REP Purchase Payables"
         VendorLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Posting Date" := PostingDate;
         VendorLedgerEntry."Due Date" := PostingDate;
         VendorLedgerEntry.Open := true;
@@ -162,7 +162,7 @@ codeunit 142082 "UT REP Purchase Payables"
     local procedure VerifyAmountDueForVendor(DocumentNo: Code[20]; AmountDue1: Decimal; AmountDue2: Decimal; AmountDue3: Decimal; AmountDue4: Decimal)
     begin
         LibraryReportDataset.SetRange('DocNo', DocumentNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('AmountDue_1_', AmountDue1);
         LibraryReportDataset.AssertCurrentRowValueEquals('AmountDue_2_', AmountDue2);
         LibraryReportDataset.AssertCurrentRowValueEquals('AmountDue_3_', AmountDue3);
@@ -175,9 +175,9 @@ codeunit 142082 "UT REP Purchase Payables"
     begin
         AgedAccountsPayable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate);
         AgedAccountsPayable.PrintDetail.SetValue(true);
-        AgedAccountsPayable.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        AgedAccountsPayable.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         AgedAccountsPayable.AgingMethod.SetValue(1);
-        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -186,9 +186,9 @@ codeunit 142082 "UT REP Purchase Payables"
     begin
         AgedAccountsPayable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate);
         AgedAccountsPayable.PrintDetail.SetValue(false);
-        AgedAccountsPayable.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        AgedAccountsPayable.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         AgedAccountsPayable.AgingMethod.SetValue(0);
-        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

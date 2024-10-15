@@ -142,9 +142,9 @@ codeunit 142096 "Export Electr. Accounting Test"
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Transactions", "Request Type" = "AF", "Order Number" = "ABC6912345/12"
         Initialize();
 
-        CreateTestData;
+        CreateTestData();
 
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_Transactions);
     end;
@@ -157,9 +157,9 @@ codeunit 142096 "Export Electr. Accounting Test"
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Transactions", "Request Type" = "DE", "Process Number" = "AB012345678901"
         Initialize();
 
-        CreateTestData;
+        CreateTestData();
 
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::DE, '', GetProcessNumber);
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::DE, '', GetProcessNumber());
 
         VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_Transactions);
     end;
@@ -179,13 +179,13 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateGLEntry(GLEntry, BankAccountType::Customer);
 
         // with AF
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
 
         // Verify Header
         VerifyXMLHeader('Polizas', Month);
-        VerifyTipoSolicitudAndNumOrden('Polizas', 'AF', GetOrderNumber);
+        VerifyTipoSolicitudAndNumOrden('Polizas', 'AF', GetOrderNumber());
 
         // Verify Content
         VerifyJournalTransactionsInXML(GLEntry);
@@ -210,7 +210,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreatePostedSalesEInvoice(SalesInvoiceHeader, CustLedgerEntry);
 
         // with AF
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
@@ -233,7 +233,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateGLEntry(GLEntry, BankAccountType::Customer);
         CreateCustLedgEntry(CustLedgerEntry, GLEntry, true);
 
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
@@ -256,7 +256,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateGLEntry(GLEntry, BankAccountType::Vendor);
         CreateCustLedgEntry(CustLedgerEntry, GLEntry, false);
 
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
@@ -281,7 +281,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateBankAccountLedgerEntry(BankAccountLedgerEntry, GLEntry);
         CreateVendLedgEntry(VendorLedgerEntry, GLEntry, true);
 
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
@@ -304,7 +304,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateGLEntry(GLEntry, BankAccountType::Company);
         CreateBankAccountLedgerEntry(BankAccountLedgerEntry, GLEntry);
 
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
@@ -331,7 +331,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateVendLedgEntry(VendorLedgerEntry, GLEntry, true);
         CreateCheckLedgerEntry(CheckLedgerEntry, BankAccountLedgerEntry, VendorLedgerEntry."Vendor No.");
 
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
@@ -354,7 +354,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateGLEntry(GLEntry, BankAccountType::Vendor);
         CreateVendLedgEntry(VendorLedgerEntry, GLEntry, false);
 
-        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber, '');
+        ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
@@ -369,7 +369,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "FC", "Order Number" = "ABC6912345/12"
         Initialize();
 
-        ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate(), 3), Month, RequestType::FC, GetOrderNumber, '');
+        ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate(), 3), Month, RequestType::FC, GetOrderNumber(), '');
 
         VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_AuxAccount);
     end;
@@ -382,7 +382,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "DE", "Process Number" = "AB012345678901"
         Initialize();
 
-        ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate(), 3), Month, RequestType::DE, '', GetProcessNumber);
+        ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate(), 3), Month, RequestType::DE, '', GetProcessNumber());
 
         VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_AuxAccount);
     end;
@@ -400,12 +400,12 @@ codeunit 142096 "Export Electr. Accounting Test"
 
         CreateGLEntry(GLEntry, BankAccountType::Customer);
 
-        ExportAccounts.ExportAuxiliaryAccounts(Year, Month, RequestType::FC, GetOrderNumber, '');
+        ExportAccounts.ExportAuxiliaryAccounts(Year, Month, RequestType::FC, GetOrderNumber(), '');
 
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/AuxiliarCtas');
 
         VerifyXMLHeader('AuxiliarCtas', Month);
-        VerifyTipoSolicitudAndNumOrden('AuxiliarCtas', 'FC', GetOrderNumber);
+        VerifyTipoSolicitudAndNumOrden('AuxiliarCtas', 'FC', GetOrderNumber());
         VerifyAuxiliaryAccountInXML(GLEntry."G/L Account No.");
     end;
 
@@ -422,12 +422,12 @@ codeunit 142096 "Export Electr. Accounting Test"
 
         CreateGLEntry(GLEntry, BankAccountType::Customer);
 
-        ExportAccounts.ExportAuxiliaryAccounts(Year, Month, RequestType::DE, '', GetProcessNumber);
+        ExportAccounts.ExportAuxiliaryAccounts(Year, Month, RequestType::DE, '', GetProcessNumber());
 
         InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/AuxiliarCtas');
 
         VerifyXMLHeader('AuxiliarCtas', Month);
-        VerifyTipoSolicitudAndNumTramite('AuxiliarCtas', 'DE', GetProcessNumber);
+        VerifyTipoSolicitudAndNumTramite('AuxiliarCtas', 'DE', GetProcessNumber());
         VerifyAuxiliaryAccountInXML(GLEntry."G/L Account No.");
     end;
 
@@ -442,17 +442,17 @@ codeunit 142096 "Export Electr. Accounting Test"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Export Electr. Accounting Test");
 
-        SetupCompanyInfo;
+        SetupCompanyInfo();
 
         CurrentWorkDate := CalcDate('<1Y>', WorkDate());
         Year := Date2DMY(CurrentWorkDate, 3);
         Month := Date2DMY(CurrentWorkDate, 2);
 
-        ExportFileName := GetFileName;
+        ExportFileName := GetFileName();
         ExportAccounts.InitializeRequest(ExportFileName);
 
-        FixChartOfAccounts;
-        ExportXSDShemas;
+        FixChartOfAccounts();
+        ExportXSDShemas();
 
         Initialized := true;
         Commit();
@@ -968,7 +968,7 @@ codeunit 142096 "Export Electr. Accounting Test"
             "Recipient Bank Account" := VendorBankAccount.Code;
             "Document No." := Format(LibraryRandom.RandInt(10000));
             "Transaction No." := GLEntry."Transaction No.";
-            "Payment Method Code" := CreatePaymentMethod;
+            "Payment Method Code" := CreatePaymentMethod();
             Insert();
         end;
     end;
@@ -1129,7 +1129,7 @@ codeunit 142096 "Export Electr. Accounting Test"
 
                     "SAT Account Code" := '100';
                     Modify();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1180,11 +1180,11 @@ codeunit 142096 "Export Electr. Accounting Test"
     local procedure ExportXSDShemas()
     begin
         XSDSchemaFile_CatalogosParaEsqContE :=
-          LibraryUtility.GetInetRoot + '..\' + '\GDL\NA\App\Test\XMLSchemas\CatalogosParaEsqContE.xsd';
-        XSDSchemaFile_ChartOfAccount := LibraryUtility.GetInetRoot + '..\' + '\GDL\NA\App\Test\XMLSchemas\CatalogoCuentas_1_3.xsd';
-        XSDSchemaFile_Balance := LibraryUtility.GetInetRoot + '..\' + '\GDL\NA\App\Test\XMLSchemas\BalanzaComprobacion_1_3.xsd';
-        XSDSchemaFile_Transactions := LibraryUtility.GetInetRoot + '..\' + '\GDL\NA\App\Test\XMLSchemas\PolizasPeriodo_1_3.xsd';
-        XSDSchemaFile_AuxAccount := LibraryUtility.GetInetRoot + '..\' + '\GDL\NA\App\Test\XMLSchemas\AuxiliarCtas_1_3.xsd';
+          LibraryUtility.GetInetRoot() + '..\' + '\GDL\NA\App\Test\XMLSchemas\CatalogosParaEsqContE.xsd';
+        XSDSchemaFile_ChartOfAccount := LibraryUtility.GetInetRoot() + '..\' + '\GDL\NA\App\Test\XMLSchemas\CatalogoCuentas_1_3.xsd';
+        XSDSchemaFile_Balance := LibraryUtility.GetInetRoot() + '..\' + '\GDL\NA\App\Test\XMLSchemas\BalanzaComprobacion_1_3.xsd';
+        XSDSchemaFile_Transactions := LibraryUtility.GetInetRoot() + '..\' + '\GDL\NA\App\Test\XMLSchemas\PolizasPeriodo_1_3.xsd';
+        XSDSchemaFile_AuxAccount := LibraryUtility.GetInetRoot() + '..\' + '\GDL\NA\App\Test\XMLSchemas\AuxiliarCtas_1_3.xsd';
     end;
 }
 

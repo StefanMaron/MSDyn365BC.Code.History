@@ -45,14 +45,13 @@ codeunit 130150 "Generate Test Data Mgt."
 
     local procedure AddTable(var GenerateTestDataLine: Record "Generate Test Data Line"; TableID: Integer; ParentTableID: Integer)
     begin
-        with GenerateTestDataLine do
-            if not Get(TableID) then begin
-                Init();
-                "Table ID" := TableID;
-                "Parent Table ID" := ParentTableID;
-                Enabled := IsEnabled("Table ID");
-                Insert(true);
-            end;
+        if not GenerateTestDataLine.Get(TableID) then begin
+            GenerateTestDataLine.Init();
+            GenerateTestDataLine."Table ID" := TableID;
+            GenerateTestDataLine."Parent Table ID" := ParentTableID;
+            GenerateTestDataLine.Enabled := IsEnabled(GenerateTestDataLine."Table ID");
+            GenerateTestDataLine.Insert(true);
+        end;
     end;
 
     local procedure CountRecords(TableID: Integer) TotalRecords: Integer
@@ -74,18 +73,16 @@ codeunit 130150 "Generate Test Data Mgt."
 
     local procedure RunTask(var GenerateTestDataLine: Record "Generate Test Data Line")
     begin
-        with GenerateTestDataLine do begin
-            Get("Table ID");
-            Status := Status::"In Progress";
-            "Last Error Message" := '';
-            "Session ID" := SessionId;
-            "Service Instance ID" := ServiceInstanceId;
-            Validate("Added Records", 0);
-            Modify();
-            Commit();
+        GenerateTestDataLine.Get(GenerateTestDataLine."Table ID");
+        GenerateTestDataLine.Status := GenerateTestDataLine.Status::"In Progress";
+        GenerateTestDataLine."Last Error Message" := '';
+        GenerateTestDataLine."Session ID" := SessionId();
+        GenerateTestDataLine."Service Instance ID" := ServiceInstanceId();
+        GenerateTestDataLine.Validate("Added Records", 0);
+        GenerateTestDataLine.Modify();
+        Commit();
 
-            GenerateData(GenerateTestDataLine);
-        end;
+        GenerateData(GenerateTestDataLine);
     end;
 
     local procedure GenerateData(var GenerateTestDataLine: Record "Generate Test Data Line")
@@ -93,36 +90,34 @@ codeunit 130150 "Generate Test Data Mgt."
         CurrentRecNo: Integer;
         RecNoToModify: Integer;
     begin
-        with GenerateTestDataLine do begin
-            RecNoToModify := Round("Records To Add" / 100, 1, '>');
-            for CurrentRecNo := 1 to "Records To Add" do begin
-                GenerateRecord(GenerateTestDataLine);
-                if CurrentRecNo >= ("Added Records" + RecNoToModify) then begin
-                    Validate("Added Records", CurrentRecNo);
-                    Modify();
-                    Commit();
-                end;
+        RecNoToModify := Round(GenerateTestDataLine."Records To Add" / 100, 1, '>');
+        for CurrentRecNo := 1 to GenerateTestDataLine."Records To Add" do begin
+            GenerateRecord(GenerateTestDataLine);
+            if CurrentRecNo >= (GenerateTestDataLine."Added Records" + RecNoToModify) then begin
+                GenerateTestDataLine.Validate("Added Records", CurrentRecNo);
+                GenerateTestDataLine.Modify();
+                Commit();
             end;
-            Validate("Added Records", "Records To Add");
-            UpdateStatus();
-            "Total Records" := CountRecords("Table ID");
-            if Status = Status::Completed then begin
-                Clear("Task ID");
-                "Session ID" := 0;
-                "Service Instance ID" := 0;
-                "Records To Add" := 0;
-                Validate("Added Records", 0);
-                Status := Status::" ";
-            end;
-            Modify();
         end;
+        GenerateTestDataLine.Validate("Added Records", GenerateTestDataLine."Records To Add");
+        GenerateTestDataLine.UpdateStatus();
+        GenerateTestDataLine."Total Records" := CountRecords(GenerateTestDataLine."Table ID");
+        if GenerateTestDataLine.Status = GenerateTestDataLine.Status::Completed then begin
+            Clear(GenerateTestDataLine."Task ID");
+            GenerateTestDataLine."Session ID" := 0;
+            GenerateTestDataLine."Service Instance ID" := 0;
+            GenerateTestDataLine."Records To Add" := 0;
+            GenerateTestDataLine.Validate("Added Records", 0);
+            GenerateTestDataLine.Status := GenerateTestDataLine.Status::" ";
+        end;
+        GenerateTestDataLine.Modify();
     end;
 
     local procedure GenerateRecord(var GenerateTestDataLine: Record "Generate Test Data Line")
     begin
         case GenerateTestDataLine."Table ID" of
             DATABASE::Customer:
-                GenerateCustomer;
+                GenerateCustomer();
             DATABASE::"Sales Header":
                 GenerateSalesDocument("Sales Document Type"::Order);
             DATABASE::"Sales Invoice Header":
@@ -130,7 +125,7 @@ codeunit 130150 "Generate Test Data Mgt."
             DATABASE::"Sales Cr.Memo Header":
                 GeneratePostedSalesDocument("Sales Document Type"::"Credit Memo");
             DATABASE::Vendor:
-                GenerateVendor;
+                GenerateVendor();
             DATABASE::"Purchase Header":
                 GeneratePurchDocument("Purchase Document Type"::Order);
             DATABASE::"Purch. Inv. Header":
@@ -164,7 +159,7 @@ codeunit 130150 "Generate Test Data Mgt."
         SalesLine: Record "Sales Line";
         i: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, GenerateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, GenerateCustomer());
         DocumentNo := SalesHeader."No.";
         for i := 1 to LibraryRandom.RandIntInRange(1, 10) do begin
             LibrarySales.CreateSalesLine(
@@ -207,7 +202,7 @@ codeunit 130150 "Generate Test Data Mgt."
         PurchaseLine: Record "Purchase Line";
         i: Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, GenerateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, GenerateVendor());
         DocumentNo := PurchaseHeader."No.";
         for i := 1 to LibraryRandom.RandIntInRange(1, 10) do begin
             LibraryPurchase.CreatePurchaseLine(
@@ -230,21 +225,19 @@ codeunit 130150 "Generate Test Data Mgt."
     var
         StartTime: DateTime;
     begin
-        with GenerateTestDataLine do begin
-            SetFilter(Status, '<>%1&<>%2', Status::Scheduled, Status::"In Progress");
-            SetRange(Enabled, true);
-            if not IsEmpty() then begin
-                ModifyAll("Records To Add", RecordsToAdd);
-                ModifyAll("Added Records", 0);
-                ModifyAll("Session ID", 0);
-                ModifyAll("Service Instance ID", 0);
-                StartTime := CurrentDateTime;
-                FindSet(true);
-                repeat
-                    StartTime += 100;
-                    ScheduleJobForTable(StartTime);
-                until Next = 0;
-            end;
+        GenerateTestDataLine.SetFilter(Status, '<>%1&<>%2', GenerateTestDataLine.Status::Scheduled, GenerateTestDataLine.Status::"In Progress");
+        GenerateTestDataLine.SetRange(Enabled, true);
+        if not GenerateTestDataLine.IsEmpty() then begin
+            GenerateTestDataLine.ModifyAll("Records To Add", RecordsToAdd);
+            GenerateTestDataLine.ModifyAll("Added Records", 0);
+            GenerateTestDataLine.ModifyAll("Session ID", 0);
+            GenerateTestDataLine.ModifyAll("Service Instance ID", 0);
+            StartTime := CurrentDateTime;
+            GenerateTestDataLine.FindSet(true);
+            repeat
+                StartTime += 100;
+                GenerateTestDataLine.ScheduleJobForTable(StartTime);
+            until GenerateTestDataLine.Next() = 0;
         end;
     end;
 }

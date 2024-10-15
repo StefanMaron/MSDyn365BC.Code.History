@@ -28,6 +28,7 @@ using System.Integration.Excel;
 using System.Media;
 using System.Security.User;
 using System.Apps;
+using Microsoft.Integration.FieldService;
 
 codeunit 1814 "Assisted Setup Subscribers"
 {
@@ -91,9 +92,10 @@ codeunit 1814 "Assisted Setup Subscribers"
         CashFlowForecastTitleTxt: Label 'Configure the Cash Flow Forecast chart';
         CashFlowForecastShortTitleTxt: Label 'Set up cash flow forecasting', MaxLength = 50;
         CashFlowForecastDescriptionTxt: Label 'Specify the accounts to use for the Cash Flow Forecast chart. The guide also helps you specify information about when you pay taxes, and whether to turn on Azure AI.';
-        CRMConnectionSetupTitleTxt: Label 'Set up a connection to %1', Comment = '%1 = CRM product name';
+        CRMConnectionSetupTitleTxt: Label 'Set up integration to %1', Comment = '%1 = CRM product name';
         CRMConnectionSetupShortTitleTxt: Label 'Connect to %1', Comment = '%1 = CRM product name', MaxLength = 32;
         CRMConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115256', Locked = true;
+        FSConnectionSetupHelpTxt: Label '', Locked = true; // TO DO: Update this
         CRMConnectionSetupDescriptionTxt: Label 'Connect your Dynamics 365 services for better insights. Data is exchanged between the apps for better productivity.';
         CDSConnectionSetupTitleTxt: Label 'Set up a connection to Dataverse';
         CDSConnectionSetupShortTitleTxt: Label 'Connect to Dataverse', MaxLength = 50;
@@ -125,10 +127,9 @@ codeunit 1814 "Assisted Setup Subscribers"
         VideoWorkwithgeneraljournalsNameTxt: Label 'Work with general journals';
         VideoIntrotoDynamics365forFinancialsNameTxt: Label 'Learn about Dynamics 365';
         VideoAzureAIforFinancialsNameTxt: Label 'Azure AI with Dynamics 365';
-        VideoUrlSetupEmailTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843243', Locked = true;
         VideoUrlSetupCRMConnectionTxt: Label '', Locked = true;
         VideoUrlSetupApprovalsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843246', Locked = true;
-        CreateJobTxt: Label 'Create a job';
+        CreateJobTxt: Label 'Create a project';
         VideoUrlCreateJobTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843363', Locked = true;
         InviteExternalAccountantTitleTxt: Label 'Invite your external accountant to the company';
         InviteExternalAccountantShortTitleTxt: Label 'Invite your external accountant', MaxLength = 50;
@@ -169,7 +170,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupTimeSheetsTitleTxt: Label 'Set Up Time Sheets';
         SetupTimeSheetsShortTitleTxt: Label 'Set up Time Sheets', MaxLength = 50;
         SetupTimeSheetsHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2166666';
-        SetupTimeSheetsDescriptionTxt: Label 'Track the time used on jobs, register absences, or create simple time registrations for team members on any device.';
+        SetupTimeSheetsDescriptionTxt: Label 'Track the time used on projects, register absences, or create simple time registrations for team members on any device.';
         SetupCopilotAICapabilitiesTitleTxt: Label 'Set up Copilot & AI capabilities';
         SetupCopilotAICapabilitiesShortTitleTxt: Label 'Set up Copilot & AI capabilities', MaxLength = 50;
         SetupCopilotAICapabilitiesDescriptionTxt: Label 'Set up Copilot & AI capabilities to unlock AI-powered experiences.';
@@ -315,6 +316,15 @@ codeunit 1814 "Assisted Setup Subscribers"
         end;
 
         if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
+            GuidedExperience.InsertAssistedSetup(CDSConnectionSetupTitleTxt, CDSConnectionSetupShortTitleTxt, CDSConnectionSetupDescriptionTxt, 10, ObjectType::Page,
+                Page::"CDS Connection Setup Wizard", AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt);
+            GlobalLanguage(Language.GetDefaultApplicationLanguageId());
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                Page::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTitleTxt);
+            GlobalLanguage(CurrentGlobalLanguage);
+        end;
+
+        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
             GuidedExperience.InsertAssistedSetup(STRSUBSTNO(CRMConnectionSetupTitleTxt, CRMProductName.SHORT()),
                 STRSUBSTNO(CRMConnectionSetupShortTitleTxt, CRMProductName.SHORT()), CRMConnectionSetupDescriptionTxt, 10, ObjectType::Page,
                 Page::"CRM Connection Setup Wizard", AssistedSetupGroup::Connect, VideoUrlSetupCRMConnectionTxt, VideoCategory::Connect, CRMConnectionSetupHelpTxt);
@@ -325,11 +335,12 @@ codeunit 1814 "Assisted Setup Subscribers"
         end;
 
         if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            GuidedExperience.InsertAssistedSetup(CDSConnectionSetupTitleTxt, CDSConnectionSetupShortTitleTxt, CDSConnectionSetupDescriptionTxt, 10, ObjectType::Page,
-                Page::"CDS Connection Setup Wizard", AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt);
+            GuidedExperience.InsertAssistedSetup(STRSUBSTNO(CRMConnectionSetupTitleTxt, CRMProductName.FSServiceName()),
+                STRSUBSTNO(CRMConnectionSetupShortTitleTxt, CRMProductName.FSServiceName()), CRMConnectionSetupDescriptionTxt, 10, ObjectType::Page,
+                Page::"FS Connection Setup Wizard", AssistedSetupGroup::Connect, VideoUrlSetupCRMConnectionTxt, VideoCategory::Connect, FSConnectionSetupHelpTxt);
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
             GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-                Page::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTitleTxt);
+                Page::"FS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), STRSUBSTNO(CRMConnectionSetupTitleTxt, CRMProductName.FSServiceName()));
             GlobalLanguage(CurrentGlobalLanguage);
         end;
 

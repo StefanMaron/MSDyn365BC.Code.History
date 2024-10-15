@@ -80,28 +80,26 @@ report 10162 "Top __ Inventory Items"
                 CalcFields("Sales (LCY)", "Net Change");
                 TopSale[NextTopLineNo] := "Sales (LCY)";
                 TopQty[NextTopLineNo] := "Net Change";
-                with ValueEntry do begin
-                    Reset();
-                    if (Item.GetFilter("Global Dimension 1 Filter") <> '') or
-                       (Item.GetFilter("Global Dimension 2 Filter") <> '')
-                    then
-                        SetCurrentKey(
-                          "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type",
-                          "Variance Type", "Item Charge No.", "Location Code", "Variant Code",
-                          "Global Dimension 1 Code", "Global Dimension 2 Code")
-                    else
-                        SetCurrentKey(
-                          "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type",
-                          "Variance Type", "Item Charge No.", "Location Code", "Variant Code");
-                    SetRange("Item No.", Item."No.");
-                    Item.CopyFilter("Location Filter", "Location Code");
-                    Item.CopyFilter("Variant Filter", "Variant Code");
-                    Item.CopyFilter("Global Dimension 1 Filter", "Global Dimension 1 Code");
-                    Item.CopyFilter("Global Dimension 2 Filter", "Global Dimension 2 Code");
-                    Item.CopyFilter("Date Filter", "Posting Date");
-                    CalcSums("Cost Amount (Actual)");
-                    TopValue[NextTopLineNo] := "Cost Amount (Actual)";
-                end;
+                ValueEntry.Reset();
+                if (Item.GetFilter("Global Dimension 1 Filter") <> '') or
+                   (Item.GetFilter("Global Dimension 2 Filter") <> '')
+                then
+                    ValueEntry.SetCurrentKey(
+                      "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type",
+                      "Variance Type", "Item Charge No.", "Location Code", "Variant Code",
+                      "Global Dimension 1 Code", "Global Dimension 2 Code")
+                else
+                    ValueEntry.SetCurrentKey(
+                      "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type",
+                      "Variance Type", "Item Charge No.", "Location Code", "Variant Code");
+                ValueEntry.SetRange("Item No.", Item."No.");
+                Item.CopyFilter("Location Filter", ValueEntry."Location Code");
+                Item.CopyFilter("Variant Filter", ValueEntry."Variant Code");
+                Item.CopyFilter("Global Dimension 1 Filter", ValueEntry."Global Dimension 1 Code");
+                Item.CopyFilter("Global Dimension 2 Filter", ValueEntry."Global Dimension 2 Code");
+                Item.CopyFilter("Date Filter", ValueEntry."Posting Date");
+                ValueEntry.CalcSums("Cost Amount (Actual)");
+                TopValue[NextTopLineNo] := ValueEntry."Cost Amount (Actual)";
                 case TopType of
                     TopType::Sales:
                         TopAmount[NextTopLineNo] := TopSale[NextTopLineNo];

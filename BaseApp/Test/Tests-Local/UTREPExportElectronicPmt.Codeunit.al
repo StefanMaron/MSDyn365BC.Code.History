@@ -144,7 +144,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         // Setup: Create Customer,Bank Account and General Journal Line.
         Initialize();
         CreateExportReportSelection(Layout::RDLC);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CustomerBankAccountCode := CreateCustomerBankAccount(CustomerNo, ExportFormat);
         CreateCustLedgerEntry(CustLedgerEntry, CustomerNo);
         CreateGenJournalLine(
@@ -153,14 +153,14 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         EnqueueValuesForExportElectronicPayment(GenJournalLine);
         Commit();
         // Exercise.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         asserterror ExportPaymentJournalDirect(PaymentJournal, GenJournalLine);
         PaymentJournal.Close();
         // Verify: Verify XML Data.
         GenJournalLine.Find();
 
         // Verify: Verify Journal Template Name after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GenJournalLineJournalTemplateNameTxt, GenJournalLine."Journal Template Name");
     end;
 
@@ -175,7 +175,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         RunExportElectronicPaymentsVendor(GenJournalLine, ExportFormat, false);
 
         // Verify: Verify Journal Template Name after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GenJournalLineJournalTemplateNameTxt, GenJournalLine."Journal Template Name");
         UnbindSubscription(UTREPExportElectronicPmt);
     end;
@@ -231,7 +231,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         ReportSelections.DeleteAll();
 
         // [GIVEN] Gen. Journal Line ready for Export Electronic Payment
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         VendorBankAccountCode := CreateVendorBankAccount(VendorNo, ExportFormat);
         CreateVendorLedgerEntry(VendorLedgerEntry, VendorNo);
         CreateGenJournalLine(
@@ -250,7 +250,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        UpdateCompanyInformation;  // Update Federal ID No. in Company Information.
+        UpdateCompanyInformation();  // Update Federal ID No. in Company Information.
     end;
 
     local procedure RunExportElectronicPaymentsVendor(var GenJournalLine: Record "Gen. Journal Line"; ExportFormat: Option; ElecPaymIAT: Boolean)
@@ -261,7 +261,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     begin
         // Setup: Create Vendor,Bank Account and General Journal Line.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         VendorBankAccountCode := CreateVendorBankAccount(VendorNo, ExportFormat);
         CreateVendorLedgerEntry(VendorLedgerEntry, VendorNo);
         CreateGenJournalLine(
@@ -272,7 +272,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         EnqueueValuesForExportElectronicPayment(GenJournalLine);
         Commit();
         // Exercise.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         asserterror ExportPaymentJournalDirect(PaymentJournal, GenJournalLine);
         PaymentJournal.Close();
         // Verify: Verify XML Data.
@@ -299,7 +299,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         BankAccount."No." := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("No."), DATABASE::"Bank Account");
         BankAccount."Bank Account No." :=
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Account No."), DATABASE::"Bank Account");
-        BankAccount."Bank Acc. Posting Group" := CreateBankAccountPostingGroup;
+        BankAccount."Bank Acc. Posting Group" := CreateBankAccountPostingGroup();
         BankAccount."Bank Branch No." :=
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Branch No."), DATABASE::"Bank Account");
         BankAccount."Last Statement No." :=
@@ -452,7 +452,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         VendorLedgerEntry.Insert();
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; ApplyToDocNo: Code[20]; ExportFormat: Option; Amount: Decimal; RecipientBankAccount: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ApplyToDocNo: Code[20]; ExportFormat: Option; Amount: Decimal; RecipientBankAccount: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -540,7 +540,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         ExportElectronicPayments.BankAccountNo.SetValue(BankAccountNo);
         ExportElectronicPayments.NumberOfCopies.SetValue(0);
         ExportElectronicPayments.PrintCompanyAddress.SetValue(true);
-        ExportElectronicPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ExportElectronicPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -551,7 +551,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         VoidElectronicPayments."BankAccount.""No.""".SetValue(BankAccountNo); // Bank Account No.
-        VoidElectronicPayments.OK.Invoke;
+        VoidElectronicPayments.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -609,7 +609,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         // Handle the layout runs
         CustomLayoutReporting.SetOutputFileBaseName('Test Remittance');
         CustomLayoutReporting.SetSavePath(TempDirectory);
-        CustomLayoutReporting.SetOutputOption(CustomLayoutReporting.GetXMLOption);
+        CustomLayoutReporting.SetOutputOption(CustomLayoutReporting.GetXMLOption());
         CustomLayoutReporting.ProcessReportData(
           ReportSelections.Usage::"V.Remittance", GenJnlLineRecRef, GenJournalLine.FieldName("Account No."), DATABASE::Vendor,
           Vendor.FieldName("No."), false);

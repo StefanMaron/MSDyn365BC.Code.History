@@ -37,7 +37,7 @@ codeunit 137403 "SCM Budget and Analysis"
 
         // [GIVEN] Create Analysis Line Template and three Analysis Lines for that template.
         Initialize();
-        LibraryApplicationArea.EnableSalesAnalysisSetup;
+        LibraryApplicationArea.EnableSalesAnalysisSetup();
         LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisLineTemplate."Analysis Area"::Sales);
         CreateAnalysisLine(AnalysisLineTemplate.Name);
         CreateAnalysisLine(AnalysisLineTemplate.Name);
@@ -65,7 +65,7 @@ codeunit 137403 "SCM Budget and Analysis"
     begin
         // Test to validate Name on Analysis Lines page invoked by Sales Analysis Line Templates.
         Initialize();
-        LibraryApplicationArea.EnableSalesAnalysisSetup;
+        LibraryApplicationArea.EnableSalesAnalysisSetup();
         CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisLineTemplate."Analysis Area"::Sales);
     end;
 
@@ -78,7 +78,7 @@ codeunit 137403 "SCM Budget and Analysis"
     begin
         // Test to validate Name on Analysis Lines page invoked by Purchase Analysis Line Templates.
         Initialize();
-        LibraryApplicationArea.EnablePurchaseAnalysisSetup;
+        LibraryApplicationArea.EnablePurchaseAnalysisSetup();
         CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisLineTemplate."Analysis Area"::Purchase);
     end;
 
@@ -91,7 +91,7 @@ codeunit 137403 "SCM Budget and Analysis"
     begin
         // Test to validate Name on Analysis Lines page invoked by Inventory Analysis Line Templates.
         Initialize();
-        LibraryApplicationArea.EnableInventoryAnalysisSetup;
+        LibraryApplicationArea.EnableInventoryAnalysisSetup();
         CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisLineTemplate."Analysis Area"::Inventory);
     end;
 
@@ -105,9 +105,9 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisLineTemplateName := AnalysisLineTemplate.Name;  // This variable is made global as it is to be verified in the handler.
 
         // Exercise: Open Analysis Lines page from the Analysis Line Templates page using Handler.
-        AnalysisLineTemplates.OpenEdit;
+        AnalysisLineTemplates.OpenEdit();
         AnalysisLineTemplates.FILTER.SetFilter(Name, AnalysisLineTemplate.Name);
-        AnalysisLineTemplates.Lines.Invoke;
+        AnalysisLineTemplates.Lines.Invoke();
 
         // Verify: Verification is done in Analysis Line Handler.
     end;
@@ -158,10 +158,10 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisColumnTemplateName := AnalysisColumnTemplate.Name;  // This variable is made global as it is to be verified in the handler.
 
         // Exercise: Open Analysis Columns page from the Analysis Column Templates page.
-        AnalysisColumnTemplates.OpenEdit;
+        AnalysisColumnTemplates.OpenEdit();
         AnalysisColumnTemplates.FILTER.SetFilter("Analysis Area", Format(AnalysisColumnTemplate."Analysis Area"));
         AnalysisColumnTemplates.FILTER.SetFilter(Name, AnalysisColumnTemplate.Name);
-        AnalysisColumnTemplates.Columns.Invoke;
+        AnalysisColumnTemplates.Columns.Invoke();
 
         // Verify: Verification is done in Analysis Column Handler.
     end;
@@ -318,16 +318,16 @@ codeunit 137403 "SCM Budget and Analysis"
 
         // [GIVEN] Analysis Column line "Show" = Never. Page closed
         LibraryVariableStorage.Enqueue(AnalysisColumn.Show::Never);
-        AnalysisColumnTemplates.OpenEdit;
+        AnalysisColumnTemplates.OpenEdit();
         AnalysisColumnTemplates.FILTER.SetFilter("Analysis Area", Format(AnalysisColumnTemplate."Analysis Area"));
         AnalysisColumnTemplates.FILTER.SetFilter(Name, AnalysisColumnTemplate.Name);
-        AnalysisColumnTemplates.Columns.Invoke;
+        AnalysisColumnTemplates.Columns.Invoke();
 
         // [WHEN] Analysis Columns Line "Show" set to "Always
         // [THEN] "Show" field value can be successfully selected
         // Checked in AnalysisColumnSetShowValueHandler handler
         LibraryVariableStorage.Enqueue(AnalysisColumn.Show::Always);
-        AnalysisColumnTemplates.Columns.Invoke;
+        AnalysisColumnTemplates.Columns.Invoke();
     end;
 
     local procedure Initialize()
@@ -399,7 +399,7 @@ codeunit 137403 "SCM Budget and Analysis"
     procedure RenumberAnalysisLinesHandler(var RenumberAnalysisLines: TestRequestPage "Renumber Analysis Lines")
     begin
         RenumberAnalysisLines.StartRowRefNo.SetValue(NewRowNo);
-        RenumberAnalysisLines.OK.Invoke;
+        RenumberAnalysisLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -407,7 +407,7 @@ codeunit 137403 "SCM Budget and Analysis"
     procedure SalesAnalysisLineHandler(var SalesAnalysisLines: TestPage "Sales Analysis Lines")
     begin
         SalesAnalysisLines.CurrentAnalysisLineTempl.AssertEquals(AnalysisLineTemplateName);
-        SalesAnalysisLines.OK.Invoke;
+        SalesAnalysisLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -415,7 +415,7 @@ codeunit 137403 "SCM Budget and Analysis"
     procedure PurchaseAnalysisLineHandler(var PurchaseAnalysisLines: TestPage "Purchase Analysis Lines")
     begin
         PurchaseAnalysisLines.CurrentAnalysisLineTempl.AssertEquals(AnalysisLineTemplateName);
-        PurchaseAnalysisLines.OK.Invoke;
+        PurchaseAnalysisLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -423,7 +423,7 @@ codeunit 137403 "SCM Budget and Analysis"
     procedure InventoryAnalysisLineHandler(var InventoryAnalysisLines: TestPage "Inventory Analysis Lines")
     begin
         InventoryAnalysisLines.CurrentAnalysisLineTempl.AssertEquals(AnalysisLineTemplateName);
-        InventoryAnalysisLines.OK.Invoke;
+        InventoryAnalysisLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -431,27 +431,26 @@ codeunit 137403 "SCM Budget and Analysis"
     procedure AnalysisColumnHandler(var AnalysisColumns: TestPage "Analysis Columns")
     begin
         AnalysisColumns.CurrentColumnName.AssertEquals(AnalysisColumnTemplateName);
-        AnalysisColumns.OK.Invoke;
+        AnalysisColumns.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AnalysisColumnSetShowValueHandler(var AnalysisColumns: TestPage "Analysis Columns")
     var
-        AnalysisColumn: Record "Analysis Column";
         ShowValue: Integer;
     begin
         ShowValue := LibraryVariableStorage.DequeueInteger();
         AnalysisColumns.Show.SetValue(ShowValue);
         AnalysisColumns.Show.AssertEquals(ShowValue);
-        AnalysisColumns.OK.Invoke;
+        AnalysisColumns.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemListPageHandler(var ItemList: TestPage "Item List")
     begin
-        ItemList.OK.Invoke;
+        ItemList.OK().Invoke();
     end;
 }
 

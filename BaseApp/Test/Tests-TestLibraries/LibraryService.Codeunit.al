@@ -8,15 +8,15 @@ codeunit 131902 "Library - Service"
     end;
 
     var
-        ServicePeriodOneMonth: Label '<1M>', Locked = true;
-        PaymentChannel: Label 'Payment Channel';
         LibraryERM: Codeunit "Library - ERM";
-        NonWorkDayWorkDaySequenceNotFound: Label 'No non-working day followed by a working day found within an interval of %1 days.';
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        ServicePeriodOneMonthTxt: Label '<1M>', Locked = true;
+        PaymentChannelTxt: Label 'Payment Channel';
+        NonWorkDayWorkDaySequenceNotFoundErr: Label 'No non-working day followed by a working day found within an interval of %1 days.', Locked = true;
 
     procedure CreateBaseCalendar(var BaseCalendar: Record "Base Calendar")
     begin
@@ -48,7 +48,7 @@ codeunit 131902 "Library - Service"
         exit(CreditMemoNo);
     end;
 
-    procedure CreateContractServiceDiscount(var ContractServiceDiscount: Record "Contract/Service Discount"; ServiceContractHeader: Record "Service Contract Header"; Type: Option; No: Code[20])
+    procedure CreateContractServiceDiscount(var ContractServiceDiscount: Record "Contract/Service Discount"; ServiceContractHeader: Record "Service Contract Header"; Type: Enum "Service Contract Discount Type"; No: Code[20])
     begin
         ContractServiceDiscount.Init();
         ContractServiceDiscount.Validate("Contract Type", ServiceContractHeader."Contract Type");
@@ -115,13 +115,11 @@ codeunit 131902 "Library - Service"
 
     procedure CreateFaultReasonCode(var FaultReasonCode: Record "Fault Reason Code"; ExcludeWarrantyDiscount: Boolean; ExcludeContractDiscount: Boolean)
     begin
-        with FaultReasonCode do begin
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Fault Reason Code"));
-            Validate(Description, Code);
-            Validate("Exclude Warranty Discount", ExcludeWarrantyDiscount);
-            Validate("Exclude Contract Discount", ExcludeContractDiscount);
-            Insert(true);
-        end;
+        FaultReasonCode.Validate(Code, LibraryUtility.GenerateRandomCode(FaultReasonCode.FieldNo(Code), DATABASE::"Fault Reason Code"));
+        FaultReasonCode.Validate(Description, FaultReasonCode.Code);
+        FaultReasonCode.Validate("Exclude Warranty Discount", ExcludeWarrantyDiscount);
+        FaultReasonCode.Validate("Exclude Contract Discount", ExcludeContractDiscount);
+        FaultReasonCode.Insert(true);
     end;
 
     procedure CreateFaultResolCodesRlship(var FaultResolCodRelationship: Record "Fault/Resol. Cod. Relationship"; FaultCode: Record "Fault Code"; ResolutionCode: Code[10]; ServiceItemGroupCode: Code[10])
@@ -225,8 +223,8 @@ codeunit 131902 "Library - Service"
         ServiceContractAccountGroup.Insert(true);
 
         // Input Accounts as they are mandatory.
-        ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", LibraryERM.CreateGLAccountWithSalesSetup);
-        ServiceContractAccountGroup.Validate("Prepaid Contract Acc.", LibraryERM.CreateGLAccountWithSalesSetup);
+        ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", LibraryERM.CreateGLAccountWithSalesSetup());
+        ServiceContractAccountGroup.Validate("Prepaid Contract Acc.", LibraryERM.CreateGLAccountWithSalesSetup());
         ServiceContractAccountGroup.Modify(true);
     end;
 
@@ -241,7 +239,7 @@ codeunit 131902 "Library - Service"
             CustomerNo := LibrarySales.CreateCustomerNo();
         ServiceContractHeader.Validate("Customer No.", CustomerNo);
         // Validate one month as the default value of the Service Period.
-        Evaluate(ServiceContractHeader."Service Period", ServicePeriodOneMonth);
+        Evaluate(ServiceContractHeader."Service Period", ServicePeriodOneMonthTxt);
         // Validate default value of Service Contract Acc. Gr. Code. This field is a mandatory field for signing Contract.
         CreateServiceContractAcctGrp(ServiceContractAccountGroup);
         ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
@@ -284,7 +282,7 @@ codeunit 131902 "Library - Service"
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         ServiceCost.Validate(Code, LibraryUtility.GenerateRandomCode(ServiceCost.FieldNo(Code), DATABASE::"Service Cost"));
         ServiceCost.Validate(Description, ServiceCost.Code);  // Validating Code as Description because value is not important.
-        ServiceCost.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        ServiceCost.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         ServiceCost.Insert(true);
     end;
 
@@ -293,9 +291,9 @@ codeunit 131902 "Library - Service"
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
         ServiceCreditMemo.OpenNew();
-        ServiceCreditMemo."Customer No.".Activate;
-        ServiceCreditMemoNo := ServiceCreditMemo."No.".Value;
-        ServiceCreditMemo.OK.Invoke;
+        ServiceCreditMemo."Customer No.".Activate();
+        ServiceCreditMemoNo := CopyStr(ServiceCreditMemo."No.".Value(), 1, MaxStrLen(ServiceCreditMemoNo));
+        ServiceCreditMemo.OK().Invoke();
     end;
 
     procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
@@ -328,9 +326,9 @@ codeunit 131902 "Library - Service"
         ServiceOrder: TestPage "Service Order";
     begin
         ServiceOrder.OpenNew();
-        ServiceOrder."Customer No.".Activate;
-        ServiceOrderNo := ServiceOrder."No.".Value;
-        ServiceOrder.OK.Invoke;
+        ServiceOrder."Customer No.".Activate();
+        ServiceOrderNo := CopyStr(ServiceOrder."No.".Value(), 1, MaxStrLen(ServiceOrderNo));
+        ServiceOrder.OK().Invoke();
     end;
 
     procedure CreateServiceDocumentWithItemServiceLine(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
@@ -343,7 +341,6 @@ codeunit 131902 "Library - Service"
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
-        NoSeries: Record "No. Series";
     begin
         CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
 
@@ -617,7 +614,7 @@ codeunit 131902 "Library - Service"
         TroubleshootingLine.Insert(true);
     end;
 
-    procedure CreateTroubleshootingSetup(var TroubleshootingSetup: Record "Troubleshooting Setup"; Type: Option; No: Code[20]; TroubleshootingNo: Code[20])
+    procedure CreateTroubleshootingSetup(var TroubleshootingSetup: Record "Troubleshooting Setup"; Type: Enum "Troubleshooting Item Type"; No: Code[20]; TroubleshootingNo: Code[20])
     begin
         TroubleshootingSetup.Init();
         TroubleshootingSetup.Validate(Type, Type);
@@ -741,46 +738,45 @@ codeunit 131902 "Library - Service"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
         BaseCalender: Record "Base Calendar";
-        LibrarySales: Codeunit "Library - Sales";
     begin
         // Setup Service Management.
         ServiceMgtSetup.Get();
 
         // Use GetGlobalNoSeriesCode to get No. Series code.
         if ServiceMgtSetup."Service Item Nos." = '' then
-            ServiceMgtSetup.Validate("Service Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Service Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Service Order Nos." = '' then
-            ServiceMgtSetup.Validate("Service Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Service Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Service Invoice Nos." = '' then
-            ServiceMgtSetup.Validate("Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Service Credit Memo Nos." = '' then
-            ServiceMgtSetup.Validate("Service Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Service Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Posted Service Shipment Nos." = '' then
-            ServiceMgtSetup.Validate("Posted Service Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Posted Service Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Posted Service Invoice Nos." = '' then
-            ServiceMgtSetup.Validate("Posted Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Posted Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Posted Serv. Credit Memo Nos." = '' then
-            ServiceMgtSetup.Validate("Posted Serv. Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Posted Serv. Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Troubleshooting Nos." = '' then
-            ServiceMgtSetup.Validate("Troubleshooting Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Troubleshooting Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Service Contract Nos." = '' then
-            ServiceMgtSetup.Validate("Service Contract Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Service Contract Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Service Quote Nos." = '' then
-            ServiceMgtSetup.Validate("Service Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Service Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Contract Invoice Nos." = '' then
-            ServiceMgtSetup.Validate("Contract Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Contract Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Contract Credit Memo Nos." = '' then
-            ServiceMgtSetup.Validate("Contract Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Contract Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Prepaid Posting Document Nos." = '' then
-            ServiceMgtSetup.Validate("Prepaid Posting Document Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Prepaid Posting Document Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Contract Credit Memo Nos." = '' then
-            ServiceMgtSetup.Validate("Contract Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Contract Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Posted Service Shipment Nos." = '' then
-            ServiceMgtSetup.Validate("Posted Service Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Posted Service Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Contract Template Nos." = '' then
-            ServiceMgtSetup.Validate("Contract Template Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Contract Template Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if ServiceMgtSetup."Loaner Nos." = '' then
-            ServiceMgtSetup.Validate("Loaner Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ServiceMgtSetup.Validate("Loaner Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         ServiceMgtSetup.Validate("Contract Serv. Ord.  Max. Days", 365);  // Using Default 365 Days.
 
         // Create and Validate Base Calendar.
@@ -791,7 +787,7 @@ codeunit 131902 "Library - Service"
 
         ServiceMgtSetup.Modify(true);
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
     end;
 
     procedure GetFirstWorkingDay(WorkingDate: Date): Date
@@ -831,7 +827,7 @@ codeunit 131902 "Library - Service"
         repeat
             LoopCounter += 1;
             if LoopCounter > MaxLoops then
-                Error(NonWorkDayWorkDaySequenceNotFound, MaxLoops);
+                Error(NonWorkDayWorkDaySequenceNotFoundErr, MaxLoops);
             WorkingDate := CalcDate('<1D>', WorkingDate);
         until
               not (IsWorking(WorkingDate) or IsValidOnHolidays(WorkingDate)) and
@@ -868,7 +864,6 @@ codeunit 131902 "Library - Service"
         CustomizedCalendarChange: Record "Customized Calendar Change";
         ServiceMgtSetup: Record "Service Mgt. Setup";
         CalendarManagement: Codeunit "Calendar Management";
-        Description: Text[30];
     begin
         // Checks if the day is a working day.
         ServiceMgtSetup.Get();
@@ -900,9 +895,9 @@ codeunit 131902 "Library - Service"
         RecRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        if LibraryUtility.CheckFieldExistenceInTable(DATABASE::"Service Contract Header", PaymentChannel) then begin
+        if LibraryUtility.CheckFieldExistenceInTable(DATABASE::"Service Contract Header", PaymentChannelTxt) then begin
             RecRef.GetTable(ServiceContractHeader);
-            FieldRef := RecRef.Field(LibraryUtility.FindFieldNoInTable(DATABASE::"Service Contract Header", PaymentChannel));
+            FieldRef := RecRef.Field(LibraryUtility.FindFieldNoInTable(DATABASE::"Service Contract Header", PaymentChannelTxt));
             FieldRef.Validate(2);  // Input Option as Account Transfer.
             RecRef.SetTable(ServiceContractHeader);
         end;
@@ -951,19 +946,17 @@ codeunit 131902 "Library - Service"
         LibraryWarehouse: Codeunit "Library - Warehouse";
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        with Location do begin
-            Validate("Require Receive", true);
-            Validate("Require Shipment", true);
-            Validate("Require Put-away", true);
-            Validate("Require Pick", true);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Require Pick", true);
 
-            Validate("Bin Mandatory", false);
-            Validate("Use Put-away Worksheet", false);
-            Validate("Directed Put-away and Pick", false);
-            Validate("Use ADCS", false);
+        Location.Validate("Bin Mandatory", false);
+        Location.Validate("Use Put-away Worksheet", false);
+        Location.Validate("Directed Put-away and Pick", false);
+        Location.Validate("Use ADCS", false);
 
-            Modify(true);
-        end;
+        Location.Modify(true);
 
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
@@ -981,17 +974,15 @@ codeunit 131902 "Library - Service"
 
     procedure CreateCustomizedCalendarChange(BaseCalendarCode: Code[10]; var CustomizedCalendarChange: Record "Customized Calendar Change"; SourceType: Option; SourceCode: Code[10]; AdditionalSourceCode: Code[10]; RecurringSystem: Option; WeekDay: Option; IsNonWorking: Boolean)
     begin
-        with CustomizedCalendarChange do begin
-            Init();
-            Validate("Source Type", SourceType);
-            Validate("Source Code", SourceCode);
-            Validate("Additional Source Code", AdditionalSourceCode);
-            Validate("Base Calendar Code", BaseCalendarCode);
-            Validate("Recurring System", RecurringSystem);
-            Validate(Day, WeekDay);
-            Validate(Nonworking, IsNonWorking);
-            Insert(true);
-        end;
+        CustomizedCalendarChange.Init();
+        CustomizedCalendarChange.Validate("Source Type", SourceType);
+        CustomizedCalendarChange.Validate("Source Code", SourceCode);
+        CustomizedCalendarChange.Validate("Additional Source Code", AdditionalSourceCode);
+        CustomizedCalendarChange.Validate("Base Calendar Code", BaseCalendarCode);
+        CustomizedCalendarChange.Validate("Recurring System", RecurringSystem);
+        CustomizedCalendarChange.Validate(Day, WeekDay);
+        CustomizedCalendarChange.Validate(Nonworking, IsNonWorking);
+        CustomizedCalendarChange.Insert(true);
     end;
 
     local procedure UpdateTaxGroupCodeInServiceLine(ServiceHeader: Record "Service Header")

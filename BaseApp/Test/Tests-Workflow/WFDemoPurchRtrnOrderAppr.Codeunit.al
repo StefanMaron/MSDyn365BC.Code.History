@@ -46,14 +46,14 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         CreatePurchaseReturnOrder(PurchaseHeader);
 
         // Exercise
-        PurchaseReturnOrderList.OpenView;
+        PurchaseReturnOrderList.OpenView();
         PurchaseReturnOrderList.GotoRecord(PurchaseHeader);
-        asserterror PurchaseReturnOrderList.Post.Invoke;
+        asserterror PurchaseReturnOrderList.Post.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBePostedErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
@@ -77,14 +77,14 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         CreatePurchaseReturnOrder(PurchaseHeader);
 
         // Exercise
-        PurchaseReturnOrderList.OpenView;
+        PurchaseReturnOrderList.OpenView();
         PurchaseReturnOrderList.GotoRecord(PurchaseHeader);
-        asserterror PurchaseReturnOrderList.Release.Invoke;
+        asserterror PurchaseReturnOrderList.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -109,7 +109,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -128,9 +128,9 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Exercise
         Commit();
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        asserterror PurchaseReturnOrder."Re&lease".Invoke;
+        asserterror PurchaseReturnOrder."Re&lease".Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(PurchaseHeader.RecordId, 0, 1)));
@@ -155,7 +155,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -173,9 +173,9 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         VerifyPurchaseReturnOrderIsPendingApproval(PurchaseHeader);
 
         // Exercise
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        asserterror PurchaseReturnOrder.Reopen.Invoke;
+        asserterror PurchaseReturnOrder.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -201,7 +201,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -259,7 +259,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -321,7 +321,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -399,7 +399,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -452,15 +452,15 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseReturnOrder(PurchHeader);
         Commit();
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseReturnOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseReturnOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(PurchaseReturnOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseReturnOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseReturnOrder.SendApprovalRequest.Invoke;
+        asserterror PurchaseReturnOrder.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -469,33 +469,33 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseReturnOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseReturnOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(PurchaseReturnOrder.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(PurchaseReturnOrder.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(PurchaseReturnOrder.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(PurchaseReturnOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseReturnOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(PurchaseReturnOrder.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(PurchaseReturnOrder.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(PurchaseReturnOrder.Delegate.Visible(), 'Delegate should NOT be visible');
         PurchaseReturnOrder.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        PurchaseReturnOrder.SendApprovalRequest.Invoke;
+        PurchaseReturnOrder.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(PurchaseReturnOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseReturnOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseReturnOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseReturnOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         PurchaseReturnOrder.Close();
@@ -504,13 +504,13 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(PurchaseReturnOrder.Approve.Visible, 'Approve should be visible');
-        Assert.IsTrue(PurchaseReturnOrder.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(PurchaseReturnOrder.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(PurchaseReturnOrder.Approve.Visible(), 'Approve should be visible');
+        Assert.IsTrue(PurchaseReturnOrder.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(PurchaseReturnOrder.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -531,15 +531,15 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseReturnOrder(PurchHeader);
         Commit();
-        PurchaseReturnOrderList.OpenEdit;
+        PurchaseReturnOrderList.OpenEdit();
         PurchaseReturnOrderList.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseReturnOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseReturnOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseReturnOrderList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseReturnOrderList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseReturnOrderList.SendApprovalRequest.Invoke;
+        asserterror PurchaseReturnOrderList.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -548,30 +548,30 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrderList.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseReturnOrderList.OpenEdit;
+        PurchaseReturnOrderList.OpenEdit();
         PurchaseReturnOrderList.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseReturnOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseReturnOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseReturnOrderList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseReturnOrderList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         PurchaseReturnOrderList.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
-        PurchaseReturnOrderList.OpenEdit;
+        PurchaseReturnOrderList.OpenEdit();
         PurchaseReturnOrderList.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        PurchaseReturnOrderList.SendApprovalRequest.Invoke;
+        PurchaseReturnOrderList.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(PurchaseReturnOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseReturnOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseReturnOrderList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseReturnOrderList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -594,7 +594,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -661,7 +661,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -731,7 +731,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Purch Rtrn Order Appr.");
@@ -769,9 +769,9 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PurchaseReturnOrder.SendApprovalRequest.Invoke;
+        PurchaseReturnOrder.SendApprovalRequest.Invoke();
         PurchaseReturnOrder.Close();
     end;
 
@@ -833,9 +833,9 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PurchaseReturnOrder.Approve.Invoke;
+        PurchaseReturnOrder.Approve.Invoke();
         PurchaseReturnOrder.Close();
     end;
 
@@ -843,9 +843,9 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PurchaseReturnOrder.Reject.Invoke;
+        PurchaseReturnOrder.Reject.Invoke();
         PurchaseReturnOrder.Close();
     end;
 
@@ -853,9 +853,9 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PurchaseReturnOrder.Delegate.Invoke;
+        PurchaseReturnOrder.Delegate.Invoke();
         PurchaseReturnOrder.Close();
     end;
 
@@ -863,9 +863,9 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PurchaseReturnOrder.CancelApprovalRequest.Invoke;
+        PurchaseReturnOrder.CancelApprovalRequest.Invoke();
         PurchaseReturnOrder.Close();
     end;
 
@@ -881,16 +881,16 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder: TestPage "Purchase Return Order";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, PurchaseReturnOrder.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, PurchaseReturnOrder.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            PurchaseReturnOrder.Comment.Invoke;
-            if ApprovalComments.First then
+            PurchaseReturnOrder.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -910,13 +910,13 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -933,13 +933,13 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -955,15 +955,15 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder: TestPage "Purchase Return Order";
         PurchaseReturnOrderList: TestPage "Purchase Return Order List";
     begin
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseReturnOrder.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseReturnOrder.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         PurchaseReturnOrder.Close();
 
-        PurchaseReturnOrderList.OpenView;
+        PurchaseReturnOrderList.OpenView();
         PurchaseReturnOrderList.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseReturnOrderList.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseReturnOrderList.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         PurchaseReturnOrderList.Close();
     end;

@@ -40,6 +40,7 @@ table 5108 "Sales Line Archive"
 {
     Caption = 'Sales Line Archive';
     PasteIsValid = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -237,7 +238,7 @@ table 5108 "Sales Line Archive"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(52; "Work Type Code"; Code[10])
@@ -607,14 +608,14 @@ table 5108 "Sales Line Archive"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             Editable = false;
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Contract Entry No."; Integer)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Contract Entry No.';
+            Caption = 'Project Contract Entry No.';
         }
         field(1700; "Deferral Code"; Code[10])
         {

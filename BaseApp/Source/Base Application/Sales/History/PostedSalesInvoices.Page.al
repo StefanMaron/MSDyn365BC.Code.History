@@ -22,7 +22,7 @@ page 143 "Posted Sales Invoices"
     QueryCategory = 'Posted Sales Invoices';
     SourceTable = "Sales Invoice Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     AboutTitle = 'About posted sales invoices';
@@ -363,7 +363,7 @@ page 143 "Posted Sales Invoices"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part(GLEntriesPart; "G/L Entries Part")
             {
@@ -474,7 +474,7 @@ page 143 "Posted Sales Invoices"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Create Invoice in Dynamics 365 Sales';
-                    Enabled = NOT CRMIsCoupledToRecord;
+                    Enabled = not CRMIsCoupledToRecord;
                     Image = NewSalesInvoice;
                     ToolTip = 'Generate the document in the coupled Dynamics 365 Sales account.';
 
@@ -631,7 +631,7 @@ page 143 "Posted Sales Invoices"
                 Ellipsis = true;
                 Image = Print;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 var
@@ -681,7 +681,7 @@ page 143 "Posted Sales Invoices"
                 Image = Navigate;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin

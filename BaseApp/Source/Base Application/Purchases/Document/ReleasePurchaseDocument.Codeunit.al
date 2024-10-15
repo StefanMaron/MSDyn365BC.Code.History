@@ -44,78 +44,76 @@ codeunit 415 "Release Purchase Document"
         PrintPostedDocuments: Boolean;
         IsHandled: Boolean;
     begin
-        with PurchaseHeader do begin
-            if Status = Status::Released then
-                exit;
+        if PurchaseHeader.Status = PurchaseHeader.Status::Released then
+            exit;
 
-            IsHandled := false;
-            OnBeforeReleasePurchaseDoc(PurchaseHeader, PreviewMode, SkipCheckReleaseRestrictions, IsHandled, SkipWhseRequestOperations);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnBeforeReleasePurchaseDoc(PurchaseHeader, PreviewMode, SkipCheckReleaseRestrictions, IsHandled, SkipWhseRequestOperations);
+        if IsHandled then
+            exit;
 
-            if not (PreviewMode or SkipCheckReleaseRestrictions) then
-                CheckPurchaseReleaseRestrictions();
+        if not (PreviewMode or SkipCheckReleaseRestrictions) then
+            PurchaseHeader.CheckPurchaseReleaseRestrictions();
 
-            TestField("Buy-from Vendor No.");
+        PurchaseHeader.TestField("Buy-from Vendor No.");
 
-            IsHandled := false;
-            OnCodeOnAfterCheckPurchaseReleaseRestrictions(PurchaseHeader, IsHandled);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnCodeOnAfterCheckPurchaseReleaseRestrictions(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
 
-            CheckPurchLines(PurchLine);
+        CheckPurchLines(PurchLine);
 
-            OnCodeOnAfterCheck(PurchaseHeader, PurchLine, LinesWereModified);
+        OnCodeOnAfterCheck(PurchaseHeader, PurchLine, LinesWereModified);
 
-            PurchLine.SetRange("Drop Shipment", false);
-            NotOnlyDropShipment := PurchLine.Find('-');
+        PurchLine.SetRange("Drop Shipment", false);
+        NotOnlyDropShipment := PurchLine.Find('-');
 
-            OnCodeOnCheckTracking(PurchaseHeader, PurchLine);
+        OnCodeOnCheckTracking(PurchaseHeader, PurchLine);
 
-            PurchLine.Reset();
+        PurchLine.Reset();
 
-            IsHandled := false;
-            OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode, LinesWereModified, IsHandled);
-            PurchSetup.Get();
-            if not IsHandled then
-                if PurchSetup."Calc. Inv. Discount" then begin
-                    PostingDate := "Posting Date";
-                    PrintPostedDocuments := "Print Posted Documents";
-                    CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
-                    LinesWereModified := true;
-                    Get("Document Type", "No.");
-                    "Print Posted Documents" := PrintPostedDocuments;
-                    if PostingDate <> "Posting Date" then
-                        Validate("Posting Date", PostingDate);
-                end;
-
-            IsHandled := false;
-            OnBeforeModifyPurchDoc(PurchaseHeader, PreviewMode, IsHandled);
-            if IsHandled then
-                exit;
-
-            if PrepaymentMgt.TestPurchasePrepayment(PurchaseHeader) and ("Document Type" = "Document Type"::Order) then begin
-                Status := Status::"Pending Prepayment";
-                Modify(true);
-                OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
-                exit;
+        IsHandled := false;
+        OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode, LinesWereModified, IsHandled);
+        PurchSetup.Get();
+        if not IsHandled then
+            if PurchSetup."Calc. Inv. Discount" then begin
+                PostingDate := PurchaseHeader."Posting Date";
+                PrintPostedDocuments := PurchaseHeader."Print Posted Documents";
+                CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
+                LinesWereModified := true;
+                PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+                PurchaseHeader."Print Posted Documents" := PrintPostedDocuments;
+                if PostingDate <> PurchaseHeader."Posting Date" then
+                    PurchaseHeader.Validate("Posting Date", PostingDate);
             end;
-            Status := Status::Released;
 
-            OnCodeOnBeforeCalcAndUpdateVATOnLines(PurchaseHeader);
-            LinesWereModified := LinesWereModified or CalcAndUpdateVATOnLines(PurchaseHeader, PurchLine);
+        IsHandled := false;
+        OnBeforeModifyPurchDoc(PurchaseHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
 
-            OnCodeOnBeforeModifyHeader(PurchaseHeader, PurchLine, PreviewMode, LinesWereModified);
-
-            Modify(true);
-
-            if NotOnlyDropShipment then
-                if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
-                    if not SkipWhseRequestOperations then
-                        WhsePurchRelease.Release(PurchaseHeader);
-
+        if PrepaymentMgt.TestPurchasePrepayment(PurchaseHeader) and (PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order) then begin
+            PurchaseHeader.Status := PurchaseHeader.Status::"Pending Prepayment";
+            PurchaseHeader.Modify(true);
             OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
+            exit;
         end;
+        PurchaseHeader.Status := PurchaseHeader.Status::Released;
+
+        OnCodeOnBeforeCalcAndUpdateVATOnLines(PurchaseHeader);
+        LinesWereModified := LinesWereModified or CalcAndUpdateVATOnLines(PurchaseHeader, PurchLine);
+
+        OnCodeOnBeforeModifyHeader(PurchaseHeader, PurchLine, PreviewMode, LinesWereModified);
+
+        PurchaseHeader.Modify(true);
+
+        if NotOnlyDropShipment then
+            if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::Order, PurchaseHeader."Document Type"::"Return Order"] then
+                if not SkipWhseRequestOperations then
+                    WhsePurchRelease.Release(PurchaseHeader);
+
+        OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
     end;
 
     local procedure CheckPurchLines(var PurchLine: Record "Purchase Line")
@@ -177,16 +175,14 @@ codeunit 415 "Release Purchase Document"
         if IsHandled then
             exit;
 
-        with PurchHeader do begin
-            if Status = Status::Open then
-                exit;
-            if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
-                if not SkipWhseRequestOperations then
-                    WhsePurchRelease.Reopen(PurchHeader);
-            Status := Status::Open;
-            OnReopenOnBeforePurchaseHeaderModify(PurchHeader);
-            Modify(true);
-        end;
+        if PurchHeader.Status = PurchHeader.Status::Open then
+            exit;
+        if PurchHeader."Document Type" in [PurchHeader."Document Type"::Order, PurchHeader."Document Type"::"Return Order"] then
+            if not SkipWhseRequestOperations then
+                WhsePurchRelease.Reopen(PurchHeader);
+        PurchHeader.Status := PurchHeader.Status::Open;
+        OnReopenOnBeforePurchaseHeaderModify(PurchHeader);
+        PurchHeader.Modify(true);
 
         OnAfterReopenPurchaseDoc(PurchHeader, PreviewMode, SkipWhseRequestOperations);
     end;
@@ -214,15 +210,14 @@ codeunit 415 "Release Purchase Document"
         if IsHandled then
             exit;
 
-        with PurchHeader do
-            if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestPurchasePayment(PurchHeader) then begin
-                if TestStatusIsNotPendingPrepayment() then begin
-                    Status := Status::"Pending Prepayment";
-                    Modify();
-                    Commit();
-                end;
-                Error(Text005, "Document Type", "No.");
+        if (PurchHeader."Document Type" = PurchHeader."Document Type"::Order) and PrepaymentMgt.TestPurchasePayment(PurchHeader) then begin
+            if PurchHeader.TestStatusIsNotPendingPrepayment() then begin
+                PurchHeader.Status := PurchHeader.Status::"Pending Prepayment";
+                PurchHeader.Modify();
+                Commit();
             end;
+            Error(Text005, PurchHeader."Document Type", PurchHeader."No.");
+        end;
 
         CheckPurchaseHeaderPendingApproval(PurchHeader);
 

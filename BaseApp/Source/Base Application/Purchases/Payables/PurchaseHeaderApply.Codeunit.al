@@ -9,40 +9,38 @@ codeunit 402 "Purchase Header Apply"
     trigger OnRun()
     begin
         PurchHeader.Copy(Rec);
-        with PurchHeader do begin
-            PayToVendorNo := "Pay-to Vendor No.";
-            VendLedgEntry.SetCurrentKey("Vendor No.", Open);
-            VendLedgEntry.SetRange("Vendor No.", PayToVendorNo);
-            VendLedgEntry.SetRange(Open, true);
-            OnRunOnAfterFilterVendLedgEntry(VendLedgEntry, PurchHeader);
-            if "Applies-to ID" = '' then
-                "Applies-to ID" := "No.";
-            if "Applies-to ID" = '' then
-                Error(
-                  Text000,
-                  FieldCaption("No."), FieldCaption("Applies-to ID"));
-            ApplyVendEntries.SetPurch(PurchHeader, VendLedgEntry, FieldNo("Applies-to ID"));
-            ApplyVendEntries.SetRecord(VendLedgEntry);
-            ApplyVendEntries.SetTableView(VendLedgEntry);
-            ApplyVendEntries.LookupMode(true);
-            OK := ApplyVendEntries.RunModal() = ACTION::LookupOK;
-            Clear(ApplyVendEntries);
-            if not OK then
-                exit;
-            VendLedgEntry.Reset();
-            VendLedgEntry.SetCurrentKey("Vendor No.", Open);
-            VendLedgEntry.SetRange("Vendor No.", PayToVendorNo);
-            VendLedgEntry.SetRange(Open, true);
-            VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            OnRunOnBeforeVendLedgEntryFindFirst(VendLedgEntry);
-            if VendLedgEntry.FindFirst() then begin
-                "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
-                "Applies-to Doc. No." := '';
-            end else
-                "Applies-to ID" := '';
+        PayToVendorNo := PurchHeader."Pay-to Vendor No.";
+        VendLedgEntry.SetCurrentKey("Vendor No.", Open);
+        VendLedgEntry.SetRange("Vendor No.", PayToVendorNo);
+        VendLedgEntry.SetRange(Open, true);
+        OnRunOnAfterFilterVendLedgEntry(VendLedgEntry, PurchHeader);
+        if PurchHeader."Applies-to ID" = '' then
+            PurchHeader."Applies-to ID" := PurchHeader."No.";
+        if PurchHeader."Applies-to ID" = '' then
+            Error(
+              Text000,
+              PurchHeader.FieldCaption("No."), PurchHeader.FieldCaption("Applies-to ID"));
+        ApplyVendEntries.SetPurch(PurchHeader, VendLedgEntry, PurchHeader.FieldNo("Applies-to ID"));
+        ApplyVendEntries.SetRecord(VendLedgEntry);
+        ApplyVendEntries.SetTableView(VendLedgEntry);
+        ApplyVendEntries.LookupMode(true);
+        OK := ApplyVendEntries.RunModal() = ACTION::LookupOK;
+        Clear(ApplyVendEntries);
+        if not OK then
+            exit;
+        VendLedgEntry.Reset();
+        VendLedgEntry.SetCurrentKey("Vendor No.", Open);
+        VendLedgEntry.SetRange("Vendor No.", PayToVendorNo);
+        VendLedgEntry.SetRange(Open, true);
+        VendLedgEntry.SetRange("Applies-to ID", PurchHeader."Applies-to ID");
+        OnRunOnBeforeVendLedgEntryFindFirst(VendLedgEntry);
+        if VendLedgEntry.FindFirst() then begin
+            PurchHeader."Applies-to Doc. Type" := PurchHeader."Applies-to Doc. Type"::" ";
+            PurchHeader."Applies-to Doc. No." := '';
+        end else
+            PurchHeader."Applies-to ID" := '';
 
-            Modify();
-        end;
+        PurchHeader.Modify();
 
         OnAfterOnRun(PurchHeader);
     end;

@@ -30,7 +30,8 @@ codeunit 5980 "Service-Post"
                   TableData "Service Invoice Header" = rimd,
                   TableData "Service Invoice Line" = rimd,
                   TableData "Service Cr.Memo Header" = rimd,
-                  TableData "Service Cr.Memo Line" = rimd;
+                  TableData "Service Cr.Memo Line" = rimd,
+                  tabledata "G/L Entry" = r;
     TableNo = "Service Header";
 
     trigger OnRun()
@@ -113,85 +114,78 @@ codeunit 5980 "Service-Post"
 
             Initialize(ServiceHeader, PassedServLine, PassedShip, PassedConsume, PassedInvoice);
 
-            with ServiceHeader do begin
-                if Invoice then
-                    Window.Open('#1#################################\\' + Text002 + Text003 + Text004 + Text005)
-                else
-                    Window.Open('#1#################################\\' + Text006);
-                Window.Update(1, StrSubstNo('%1 %2', "Document Type", "No."));
+            if Invoice then
+                Window.Open('#1#################################\\' + Text002 + Text003 + Text004 + Text005)
+            else
+                Window.Open('#1#################################\\' + Text006);
+            Window.Update(1, StrSubstNo('%1 %2', ServiceHeader."Document Type", ServiceHeader."No."));
 
-                GLSetup.Get();
-                if GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled then
-                    TestField("Payment Method Code");
+            GLSetup.Get();
+            if GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled then
+                ServiceHeader.TestField(ServiceHeader."Payment Method Code");
 
-                if ServDocumentsMgt.SetNoSeries(ServiceHeader) then
-                    Modify();
+            if ServDocumentsMgt.SetNoSeries(ServiceHeader) then
+                ServiceHeader.Modify();
 
-                ServDocumentsMgt.CalcInvDiscount();
-                Find();
+            ServDocumentsMgt.CalcInvDiscount();
+            ServiceHeader.Find();
 
-                CollectWhseShipmentInformation(PassedServHeader);
+            CollectWhseShipmentInformation(PassedServHeader);
 
-                LockTables(ServiceLine, GLEntry);
-
-                // fetch related document (if any), for testing invoices and credit memos fields.
-                Clear(ServDocReg);
-                ServDocReg.ServiceDocument("Document Type".AsInteger(), "No.", ServDocType, ServDocNo);
-
-                // update quantites upon posting options and test related fields.
-                ServDocumentsMgt.CheckAndBlankQtys(ServDocType);
-
-                // create posted documents (both header and lines).
-                WhseShip := false;
-                if Ship then begin
-                    ServShipmentNo := ServDocumentsMgt.PrepareShipmentHeader();
-                    WhseShip := not TempWarehouseShipmentHeader.IsEmpty();
-                end;
-                if Invoice then
-                    if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
-                        ServInvoiceNo := ServDocumentsMgt.PrepareInvoiceHeader(Window)
-                    else
-                        ServCrMemoNo := ServDocumentsMgt.PrepareCrMemoHeader(Window);
-
-                if WhseShip then begin
-                    WarehouseShipmentHeader.Get(TempWarehouseShipmentHeader."No.");
-                    OnBeforeCreatePostedWhseShptHeader(PostedWhseShipmentHeader, WarehouseShipmentHeader, ServiceHeader);
-                    WhsePostShpt.CreatePostedShptHeader(PostedWhseShipmentHeader, WarehouseShipmentHeader, "Shipping No.", "Posting Date");
-                end;
-
-                // main lines posting routine via Journals
-                ServDocumentsMgt.PostDocumentLines(Window);
-                ServDocumentsMgt.CollectTrackingSpecification(TempTrackingSpecification);
-
-                ServDocumentsMgt.SetLastNos(ServiceHeader);
-                Modify();
-
-                // handling afterposting modification/deletion of documents
-                ServDocumentsMgt.UpdateDocumentLines();
-
-                ServDocumentsMgt.InsertValueEntryRelation();
-
-                if WhseShip then begin
-                    if TempWarehouseShipmentLine.FindSet() then
-                        repeat
-                            WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
-                            WhsePostShpt.CreatePostedShptLine(WarehouseShipmentLine, PostedWhseShipmentHeader,
-                            PostedWhseShipmentLine, TempTrackingSpecification);
-                        until TempWarehouseShipmentLine.Next() = 0;
-                    if WarehouseShipmentHeaderLocal.Get(WarehouseShipmentHeader."No.") then
-                        UpdateWhseDocuments();
-                end;
-
-                if PreviewMode then begin
-                    Window.Close();
-                    GenJnlPostPreview.ThrowError();
-                end;
-
-                Finalize(ServiceHeader);
-
-                OnAfterFinalizePostingOnBeforeCommit(
-                PassedServHeader, PassedServLine, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice);
+            LockTables(ServiceLine, GLEntry);
+            // fetch related document (if any), for testing invoices and credit memos fields.
+            Clear(ServDocReg);
+            ServDocReg.ServiceDocument(ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", ServDocType, ServDocNo);
+            // update quantites upon posting options and test related fields.
+            ServDocumentsMgt.CheckAndBlankQtys(ServDocType);
+            // create posted documents (both header and lines).
+            WhseShip := false;
+            if Ship then begin
+                ServShipmentNo := ServDocumentsMgt.PrepareShipmentHeader();
+                WhseShip := not TempWarehouseShipmentHeader.IsEmpty();
             end;
+            if Invoice then
+                if ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice] then
+                    ServInvoiceNo := ServDocumentsMgt.PrepareInvoiceHeader(Window)
+                else
+                    ServCrMemoNo := ServDocumentsMgt.PrepareCrMemoHeader(Window);
+
+            if WhseShip then begin
+                WarehouseShipmentHeader.Get(TempWarehouseShipmentHeader."No.");
+                OnBeforeCreatePostedWhseShptHeader(PostedWhseShipmentHeader, WarehouseShipmentHeader, ServiceHeader);
+                WhsePostShpt.CreatePostedShptHeader(PostedWhseShipmentHeader, WarehouseShipmentHeader, ServiceHeader."Shipping No.", ServiceHeader."Posting Date");
+            end;
+            // main lines posting routine via Journals
+            ServDocumentsMgt.PostDocumentLines(Window);
+            ServDocumentsMgt.CollectTrackingSpecification(TempTrackingSpecification);
+
+            ServDocumentsMgt.SetLastNos(ServiceHeader);
+            ServiceHeader.Modify();
+            // handling afterposting modification/deletion of documents
+            ServDocumentsMgt.UpdateDocumentLines();
+
+            ServDocumentsMgt.InsertValueEntryRelation();
+
+            if WhseShip then begin
+                if TempWarehouseShipmentLine.FindSet() then
+                    repeat
+                        WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
+                        WhsePostShpt.CreatePostedShptLine(WarehouseShipmentLine, PostedWhseShipmentHeader,
+                          PostedWhseShipmentLine, TempTrackingSpecification);
+                    until TempWarehouseShipmentLine.Next() = 0;
+                if WarehouseShipmentHeaderLocal.Get(WarehouseShipmentHeader."No.") then
+                    UpdateWhseDocuments();
+            end;
+
+            if PreviewMode then begin
+                Window.Close();
+                GenJnlPostPreview.ThrowError();
+            end;
+
+            Finalize(ServiceHeader);
+
+            OnAfterFinalizePostingOnBeforeCommit(
+              PassedServHeader, PassedServLine, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice);
 
             if WhseShip then
                 WhseServiceRelease.Release(ServiceHeader);
@@ -279,28 +273,26 @@ codeunit 5980 "Service-Post"
         if IsHandled then
             exit;
 
-        with ServiceHeader do begin
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    begin
-                        PassedShip := true;
-                        PassedInvoice := true;
-                    end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        PassedShip := false;
-                        PassedInvoice := true;
-                    end;
-            end;
-
-            ServDocumentsMgt.CheckAndSetPostingConstants(PassedShip, PassedConsume, PassedInvoice);
-
-            if not (PassedShip or PassedInvoice or PassedConsume) then
-                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
-
-            if Invoice and ("Document Type" <> "Document Type"::"Credit Memo") then
-                TestField("Due Date");
+        case ServiceHeader."Document Type" of
+            ServiceHeader."Document Type"::Invoice:
+                begin
+                    PassedShip := true;
+                    PassedInvoice := true;
+                end;
+            ServiceHeader."Document Type"::"Credit Memo":
+                begin
+                    PassedShip := false;
+                    PassedInvoice := true;
+                end;
         end;
+
+        ServDocumentsMgt.CheckAndSetPostingConstants(PassedShip, PassedConsume, PassedInvoice);
+
+        if not (PassedShip or PassedInvoice or PassedConsume) then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+
+        if Invoice and (ServiceHeader."Document Type" <> ServiceHeader."Document Type"::"Credit Memo") then
+            ServiceHeader.TestField(ServiceHeader."Due Date");
         SetPostingOptions(PassedShip, PassedConsume, PassedInvoice);
     end;
 
@@ -327,28 +319,26 @@ codeunit 5980 "Service-Post"
         if IsHandled then
             exit;
 
-        with PassedServiceHeader do begin
-            TestField("Document Type", ErrorInfo.Create());
-            TestField("Customer No.", ErrorInfo.Create());
-            TestField("Bill-to Customer No.", ErrorInfo.Create());
-            TestField("Posting Date", ErrorInfo.Create());
-            TestField("Document Date", ErrorInfo.Create());
-            GLSetup.Get();
-            if GLSetup."Journal Templ. Name Mandatory" then
-                TestField("Journal Templ. Name", ErrorInfo.Create());
-            if PassedServiceLine.IsEmpty() then
-                TestServLinePostingDate("Document Type", "No.", "Journal Templ. Name")
-            else
-                if "Posting Date" <> PassedServiceLine."Posting Date" then begin
-                    if PassedServiceLine.Type <> PassedServiceLine.Type::" " then
-                        if GenJnlCheckLine.DateNotAllowed(PassedServiceLine."Posting Date", "Journal Templ. Name") then
-                            PassedServiceLine.FieldError("Posting Date", ErrorInfo.Create(Text007, true));
+        PassedServiceHeader.TestField("Document Type", ErrorInfo.Create());
+        PassedServiceHeader.TestField("Customer No.", ErrorInfo.Create());
+        PassedServiceHeader.TestField("Bill-to Customer No.", ErrorInfo.Create());
+        PassedServiceHeader.TestField("Posting Date", ErrorInfo.Create());
+        PassedServiceHeader.TestField("Document Date", ErrorInfo.Create());
+        GLSetup.Get();
+        if GLSetup."Journal Templ. Name Mandatory" then
+            PassedServiceHeader.TestField("Journal Templ. Name", ErrorInfo.Create());
+        if PassedServiceLine.IsEmpty() then
+            TestServLinePostingDate(PassedServiceHeader."Document Type", PassedServiceHeader."No.", PassedServiceHeader."Journal Templ. Name")
+        else
+            if PassedServiceHeader."Posting Date" <> PassedServiceLine."Posting Date" then begin
+                if PassedServiceLine.Type <> PassedServiceLine.Type::" " then
+                    if GenJnlCheckLine.DateNotAllowed(PassedServiceLine."Posting Date", PassedServiceHeader."Journal Templ. Name") then
+                        PassedServiceLine.FieldError("Posting Date", ErrorInfo.Create(Text007, true));
 
-                    if GenJnlCheckLine.DateNotAllowed("Posting Date", "Journal Templ. Name") then
-                        FieldError("Posting Date", ErrorInfo.Create(Text007, true));
-                end;
-            TestMandatoryFields(PassedServiceLine);
-        end;
+                if GenJnlCheckLine.DateNotAllowed(PassedServiceHeader."Posting Date", PassedServiceHeader."Journal Templ. Name") then
+                    PassedServiceHeader.FieldError(PassedServiceHeader."Posting Date", ErrorInfo.Create(Text007, true));
+            end;
+        PassedServiceHeader.TestMandatoryFields(PassedServiceLine);
     end;
 
     procedure SetPostingDate(NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewPostingDate: Date)
@@ -387,65 +377,63 @@ codeunit 5980 "Service-Post"
 
     procedure TestDeleteHeader(ServiceHeader: Record "Service Header"; var ServiceShptHeader: Record "Service Shipment Header"; var ServiceInvHeader: Record "Service Invoice Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
-        with ServiceHeader do begin
-            Clear(ServiceShptHeader);
-            Clear(ServiceInvHeader);
-            Clear(ServiceCrMemoHeader);
-            ServiceSetup.Get();
+        Clear(ServiceShptHeader);
+        Clear(ServiceInvHeader);
+        Clear(ServiceCrMemoHeader);
+        ServiceSetup.Get();
 
-            SourceCodeSetup.Get();
-            SourceCodeSetup.TestField("Deleted Document");
-            SourceCode.Get(SourceCodeSetup."Deleted Document");
+        SourceCodeSetup.Get();
+        SourceCodeSetup.TestField("Deleted Document");
+        SourceCode.Get(SourceCodeSetup."Deleted Document");
 
-            if ("Shipping No. Series" <> '') and ("Shipping No." <> '') then begin
-                ServiceShptHeader.TransferFields(ServiceHeader);
-                OnTestDeleteHeaderOnAfterServiceShptHeaderTransferFields(ServiceShptHeader, ServiceHeader);
-                ServiceShptHeader."No." := "Shipping No.";
-                ServiceShptHeader."Posting Date" := Today;
-                ServiceShptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServiceShptHeader."User ID"));
-                ServiceShptHeader."Source Code" := SourceCode.Code;
+        if (ServiceHeader."Shipping No. Series" <> '') and (ServiceHeader."Shipping No." <> '') then begin
+            ServiceShptHeader.TransferFields(ServiceHeader);
+            OnTestDeleteHeaderOnAfterServiceShptHeaderTransferFields(ServiceShptHeader, ServiceHeader);
+            ServiceShptHeader."No." := ServiceHeader."Shipping No.";
+            ServiceShptHeader."Posting Date" := Today;
+            ServiceShptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServiceShptHeader."User ID"));
+            ServiceShptHeader."Source Code" := SourceCode.Code;
+        end;
+
+        if (ServiceHeader."Posting No. Series" <> '') and
+           ((ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice]) and
+            (ServiceHeader."Posting No." <> '') or
+            (ServiceHeader."Document Type" = ServiceHeader."Document Type"::Invoice) and
+            (ServiceHeader."No. Series" = ServiceHeader."Posting No. Series"))
+        then begin
+            ServiceInvHeader.TransferFields(ServiceHeader);
+            OnTestDeleteHeaderOnAfterServiceInvHeaderTransferFields(ServiceInvHeader, ServiceHeader);
+            if ServiceHeader."Posting No." <> '' then
+                ServiceInvHeader."No." := ServiceHeader."Posting No.";
+            if ServiceHeader."Document Type" = ServiceHeader."Document Type"::Invoice then begin
+                ServiceInvHeader."Pre-Assigned No. Series" := ServiceHeader."No. Series";
+                ServiceInvHeader."Pre-Assigned No." := ServiceHeader."No.";
+            end else begin
+                ServiceInvHeader."Pre-Assigned No. Series" := '';
+                ServiceInvHeader."Pre-Assigned No." := '';
+                ServiceInvHeader."Order No. Series" := ServiceHeader."No. Series";
+                ServiceInvHeader."Order No." := ServiceHeader."No.";
             end;
+            ServiceInvHeader."Posting Date" := Today;
+            ServiceInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServiceInvHeader."User ID"));
+            ServiceInvHeader."Source Code" := SourceCode.Code;
+        end;
 
-            if ("Posting No. Series" <> '') and
-               (("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) and
-                ("Posting No." <> '') or
-                ("Document Type" = "Document Type"::Invoice) and
-                ("No. Series" = "Posting No. Series"))
-            then begin
-                ServiceInvHeader.TransferFields(ServiceHeader);
-                OnTestDeleteHeaderOnAfterServiceInvHeaderTransferFields(ServiceInvHeader, ServiceHeader);
-                if "Posting No." <> '' then
-                    ServiceInvHeader."No." := "Posting No.";
-                if "Document Type" = "Document Type"::Invoice then begin
-                    ServiceInvHeader."Pre-Assigned No. Series" := "No. Series";
-                    ServiceInvHeader."Pre-Assigned No." := "No.";
-                end else begin
-                    ServiceInvHeader."Pre-Assigned No. Series" := '';
-                    ServiceInvHeader."Pre-Assigned No." := '';
-                    ServiceInvHeader."Order No. Series" := "No. Series";
-                    ServiceInvHeader."Order No." := "No.";
-                end;
-                ServiceInvHeader."Posting Date" := Today;
-                ServiceInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServiceInvHeader."User ID"));
-                ServiceInvHeader."Source Code" := SourceCode.Code;
-            end;
-
-            if ("Posting No. Series" <> '') and
-               (("Document Type" in ["Document Type"::"Credit Memo"]) and
-                ("Posting No." <> '') or
-                ("Document Type" = "Document Type"::"Credit Memo") and
-                ("No. Series" = "Posting No. Series"))
-            then begin
-                ServiceCrMemoHeader.TransferFields(ServiceHeader);
-                OnTestDeleteHeaderOnAfterServiceCrMemoHeaderTransferFields(ServiceCrMemoHeader, ServiceHeader);
-                if "Posting No." <> '' then
-                    ServiceCrMemoHeader."No." := "Posting No.";
-                ServiceCrMemoHeader."Pre-Assigned No. Series" := "No. Series";
-                ServiceCrMemoHeader."Pre-Assigned No." := "No.";
-                ServiceCrMemoHeader."Posting Date" := Today;
-                ServiceCrMemoHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServiceCrMemoHeader."User ID"));
-                ServiceCrMemoHeader."Source Code" := SourceCode.Code;
-            end;
+        if (ServiceHeader."Posting No. Series" <> '') and
+           ((ServiceHeader."Document Type" in [ServiceHeader."Document Type"::"Credit Memo"]) and
+            (ServiceHeader."Posting No." <> '') or
+            (ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo") and
+            (ServiceHeader."No. Series" = ServiceHeader."Posting No. Series"))
+        then begin
+            ServiceCrMemoHeader.TransferFields(ServiceHeader);
+            OnTestDeleteHeaderOnAfterServiceCrMemoHeaderTransferFields(ServiceCrMemoHeader, ServiceHeader);
+            if ServiceHeader."Posting No." <> '' then
+                ServiceCrMemoHeader."No." := ServiceHeader."Posting No.";
+            ServiceCrMemoHeader."Pre-Assigned No. Series" := ServiceHeader."No. Series";
+            ServiceCrMemoHeader."Pre-Assigned No." := ServiceHeader."No.";
+            ServiceCrMemoHeader."Posting Date" := Today;
+            ServiceCrMemoHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ServiceCrMemoHeader."User ID"));
+            ServiceCrMemoHeader."Source Code" := SourceCode.Code;
         end;
     end;
 
@@ -464,40 +452,38 @@ codeunit 5980 "Service-Post"
 
     procedure DeleteHeader(ServiceHeader: Record "Service Header"; var ServiceShptHeader: Record "Service Shipment Header"; var ServiceInvHeader: Record "Service Invoice Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
-        with ServiceHeader do begin
-            TestDeleteHeader(ServiceHeader, ServiceShptHeader, ServiceInvHeader, ServiceCrMemoHeader);
-            if ServiceShptHeader."No." <> '' then begin
-                OnBeforeServiceShptHeaderInsert(ServiceShptHeader, ServiceHeader);
-                ServiceShptHeader.Insert();
-                ServiceShptLine.Init();
-                ServiceShptLine."Document No." := ServiceShptHeader."No.";
-                ServiceShptLine."Line No." := 10000;
-                ServiceShptLine.Description := SourceCode.Description;
-                OnDeleteHeaderOnBeforeServiceShptLineInsert(ServiceHeader, ServiceShptHeader, ServiceShptLine);
-                ServiceShptLine.Insert();
-            end;
+        TestDeleteHeader(ServiceHeader, ServiceShptHeader, ServiceInvHeader, ServiceCrMemoHeader);
+        if ServiceShptHeader."No." <> '' then begin
+            OnBeforeServiceShptHeaderInsert(ServiceShptHeader, ServiceHeader);
+            ServiceShptHeader.Insert();
+            ServiceShptLine.Init();
+            ServiceShptLine."Document No." := ServiceShptHeader."No.";
+            ServiceShptLine."Line No." := 10000;
+            ServiceShptLine.Description := SourceCode.Description;
+            OnDeleteHeaderOnBeforeServiceShptLineInsert(ServiceHeader, ServiceShptHeader, ServiceShptLine);
+            ServiceShptLine.Insert();
+        end;
 
-            if ServiceInvHeader."No." <> '' then begin
-                OnBeforeServiceInvHeaderInsert(ServiceInvHeader, ServiceHeader);
-                ServiceInvHeader.Insert();
-                ServiceInvLine.Init();
-                ServiceInvLine."Document No." := ServiceInvHeader."No.";
-                ServiceInvLine."Line No." := 10000;
-                ServiceInvLine.Description := SourceCode.Description;
-                OnDeleteHeaderOnBeforeServiceInvLineInsert(ServiceHeader, ServiceInvHeader, ServiceInvLine);
-                ServiceInvLine.Insert();
-            end;
+        if ServiceInvHeader."No." <> '' then begin
+            OnBeforeServiceInvHeaderInsert(ServiceInvHeader, ServiceHeader);
+            ServiceInvHeader.Insert();
+            ServiceInvLine.Init();
+            ServiceInvLine."Document No." := ServiceInvHeader."No.";
+            ServiceInvLine."Line No." := 10000;
+            ServiceInvLine.Description := SourceCode.Description;
+            OnDeleteHeaderOnBeforeServiceInvLineInsert(ServiceHeader, ServiceInvHeader, ServiceInvLine);
+            ServiceInvLine.Insert();
+        end;
 
-            if ServiceCrMemoHeader."No." <> '' then begin
-                OnBeforeServiceCrMemoHeaderInsert(ServiceCrMemoHeader, ServiceHeader);
-                ServiceCrMemoHeader.Insert();
-                ServiceCrMemoLine.Init();
-                ServiceCrMemoLine."Document No." := ServiceCrMemoHeader."No.";
-                ServiceCrMemoLine."Line No." := 10000;
-                ServiceCrMemoLine.Description := SourceCode.Description;
-                OnDeleteHeaderOnBeforeServiceCrMemoLineInsert(ServiceHeader, ServiceCrMemoHeader, ServiceCrMemoLine);
-                ServiceCrMemoLine.Insert();
-            end;
+        if ServiceCrMemoHeader."No." <> '' then begin
+            OnBeforeServiceCrMemoHeaderInsert(ServiceCrMemoHeader, ServiceHeader);
+            ServiceCrMemoHeader.Insert();
+            ServiceCrMemoLine.Init();
+            ServiceCrMemoLine."Document No." := ServiceCrMemoHeader."No.";
+            ServiceCrMemoLine."Line No." := 10000;
+            ServiceCrMemoLine.Description := SourceCode.Description;
+            OnDeleteHeaderOnBeforeServiceCrMemoLineInsert(ServiceHeader, ServiceCrMemoHeader, ServiceCrMemoLine);
+            ServiceCrMemoLine.Insert();
         end;
         OnAfterDeleteHeader(ServiceHeader, ServiceShptHeader, ServiceInvHeader, ServiceCrMemoHeader);
     end;
@@ -540,16 +526,14 @@ codeunit 5980 "Service-Post"
         ServLine: Record "Service Line";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
-        with ServLine do begin
-            SetRange("Document Type", ServHeaderDocType);
-            SetRange("Document No.", ServHeaderNo);
-            SetFilter(Type, '<>%1', Type::" ");
-            if FindSet() then
-                repeat
-                    if GenJnlCheckLine.DateNotAllowed("Posting Date", JnlTemplateName) then
-                        FieldError("Posting Date", ErrorInfo.Create(Text007, true));
-                until Next() = 0;
-        end;
+        ServLine.SetRange("Document Type", ServHeaderDocType);
+        ServLine.SetRange("Document No.", ServHeaderNo);
+        ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
+        if ServLine.FindSet() then
+            repeat
+                if GenJnlCheckLine.DateNotAllowed(ServLine."Posting Date", JnlTemplateName) then
+                    ServLine.FieldError("Posting Date", ErrorInfo.Create(Text007, true));
+            until ServLine.Next() = 0;
     end;
 
     procedure SetPreviewMode(NewPreviewMode: Boolean)
@@ -562,36 +546,35 @@ codeunit 5980 "Service-Post"
         ServiceInvHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        with ServiceHeader do
-            case "Document Type" of
-                "Document Type"::Order:
-                    if Invoice then begin
-                        ServiceInvHeader.Get("Last Posting No.");
-                        ServiceInvHeader.SetRecFilter();
-                        PostedServiceDocumentVariant := ServiceInvHeader;
-                    end;
-                "Document Type"::Invoice:
-                    begin
-                        if "Last Posting No." = '' then
-                            ServiceInvHeader.Get("No.")
-                        else
-                            ServiceInvHeader.Get("Last Posting No.");
+        case ServiceHeader."Document Type" of
+            ServiceHeader."Document Type"::Order:
+                if Invoice then begin
+                    ServiceInvHeader.Get(ServiceHeader."Last Posting No.");
+                    ServiceInvHeader.SetRecFilter();
+                    PostedServiceDocumentVariant := ServiceInvHeader;
+                end;
+            ServiceHeader."Document Type"::Invoice:
+                begin
+                    if ServiceHeader."Last Posting No." = '' then
+                        ServiceInvHeader.Get(ServiceHeader."No.")
+                    else
+                        ServiceInvHeader.Get(ServiceHeader."Last Posting No.");
 
-                        ServiceInvHeader.SetRecFilter();
-                        PostedServiceDocumentVariant := ServiceInvHeader;
-                    end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        if "Last Posting No." = '' then
-                            ServiceCrMemoHeader.Get("No.")
-                        else
-                            ServiceCrMemoHeader.Get("Last Posting No.");
-                        ServiceCrMemoHeader.SetRecFilter();
-                        PostedServiceDocumentVariant := ServiceCrMemoHeader;
-                    end;
-                else
-                    Error(NotSupportedDocumentTypeErr, "Document Type");
-            end;
+                    ServiceInvHeader.SetRecFilter();
+                    PostedServiceDocumentVariant := ServiceInvHeader;
+                end;
+            ServiceHeader."Document Type"::"Credit Memo":
+                begin
+                    if ServiceHeader."Last Posting No." = '' then
+                        ServiceCrMemoHeader.Get(ServiceHeader."No.")
+                    else
+                        ServiceCrMemoHeader.Get(ServiceHeader."Last Posting No.");
+                    ServiceCrMemoHeader.SetRecFilter();
+                    PostedServiceDocumentVariant := ServiceCrMemoHeader;
+                end;
+            else
+                Error(NotSupportedDocumentTypeErr, ServiceHeader."Document Type");
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -600,36 +583,35 @@ codeunit 5980 "Service-Post"
         ServiceInvHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        with ServiceHeader do
-            case "Document Type" of
-                "Document Type"::Order:
-                    if Invoice then begin
-                        ServiceInvHeader.Get("Last Posting No.");
-                        ServiceInvHeader.SetRecFilter();
-                        ServiceInvHeader.SendProfile(DocumentSendingProfile);
-                    end;
-                "Document Type"::Invoice:
-                    begin
-                        if "Last Posting No." = '' then
-                            ServiceInvHeader.Get("No.")
-                        else
-                            ServiceInvHeader.Get("Last Posting No.");
+        case ServiceHeader."Document Type" of
+            ServiceHeader."Document Type"::Order:
+                if Invoice then begin
+                    ServiceInvHeader.Get(ServiceHeader."Last Posting No.");
+                    ServiceInvHeader.SetRecFilter();
+                    ServiceInvHeader.SendProfile(DocumentSendingProfile);
+                end;
+            ServiceHeader."Document Type"::Invoice:
+                begin
+                    if ServiceHeader."Last Posting No." = '' then
+                        ServiceInvHeader.Get(ServiceHeader."No.")
+                    else
+                        ServiceInvHeader.Get(ServiceHeader."Last Posting No.");
 
-                        ServiceInvHeader.SetRecFilter();
-                        ServiceInvHeader.SendProfile(DocumentSendingProfile);
-                    end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        if "Last Posting No." = '' then
-                            ServiceCrMemoHeader.Get("No.")
-                        else
-                            ServiceCrMemoHeader.Get("Last Posting No.");
-                        ServiceCrMemoHeader.SetRecFilter();
-                        ServiceCrMemoHeader.SendProfile(DocumentSendingProfile);
-                    end;
-                else
-                    Error(NotSupportedDocumentTypeErr, "Document Type");
-            end;
+                    ServiceInvHeader.SetRecFilter();
+                    ServiceInvHeader.SendProfile(DocumentSendingProfile);
+                end;
+            ServiceHeader."Document Type"::"Credit Memo":
+                begin
+                    if ServiceHeader."Last Posting No." = '' then
+                        ServiceCrMemoHeader.Get(ServiceHeader."No.")
+                    else
+                        ServiceCrMemoHeader.Get(ServiceHeader."Last Posting No.");
+                    ServiceCrMemoHeader.SetRecFilter();
+                    ServiceCrMemoHeader.SendProfile(DocumentSendingProfile);
+                end;
+            else
+                Error(NotSupportedDocumentTypeErr, ServiceHeader."Document Type");
+        end;
     end;
 
     [IntegrationEvent(true, false)]
@@ -647,10 +629,12 @@ codeunit 5980 "Service-Post"
     begin
     end;
 
+#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostWithLines(var PassedServiceHeader: Record "Service Header"; IsHandled: Boolean)
+    local procedure OnAfterPostWithLines(var PassedServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
+#pragma warning restore AS0077
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidatePostingAndDocumentDate(var ServiceHeader: Record "Service Header"; PreviewMode: Boolean)

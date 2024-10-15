@@ -18,6 +18,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPurchase: Codeunit "Library - Purchase";
         ValueMustBeEqualMsg: Label 'Value Must Be Equal.';
         ExpectedTaxGroupCodeErr: Label 'Tax Group Code must have a value in G/L Account: No.=%1. It cannot be zero or empty.';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -70,7 +71,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Setup.
         Initialize();
         CreateCustomer(Customer);
-        CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem, '');
+        CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem(), '');
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         RecRef.GetTable(ServiceHeader);
         FieldRef := RecRef.Field(ServiceHeader.FieldNo("Tax Liable"));
@@ -97,7 +98,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Setup.
         Initialize();
         CreateCustomer(Customer);
-        CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem, '');
+        CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem(), '');
         ServiceLine."Quantity Shipped" := LibraryRandom.RandInt(100);
         ServiceLine.Modify();
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -230,7 +231,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Setup.
         Initialize();
         CreateCustomer(Customer);
-        CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem, HeaderTaxAreaCode);
+        CreateServiceOrder(ServiceLine, Customer."No.", ServiceLine.Type::Item, CreateItem(), HeaderTaxAreaCode);
         ServiceLine."Tax Area Code" := LineTaxAreaCode;
         ServiceLine.Modify();
         RecRef.GetTable(ServiceLine);
@@ -243,6 +244,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         Assert.ExpectedErrorCode('Dialog');
     end;
 
+#if not CLEAN25
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -286,7 +288,7 @@ codeunit 142090 "UT TAB Sales Tax II"
           '', GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.", Vendor."IRS 1099 Code", GenJournalLine.FieldNo("Bal. Account No."));
     end;
 
-    local procedure OnValidateAccountNoGenJournalLine(AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; IRSCodeValue: Code[10]; FieldNo: Integer)
+    local procedure OnValidateAccountNoGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; IRSCodeValue: Code[10]; FieldNo: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         RecRef: RecordRef;
@@ -373,7 +375,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         OnValidateGenJournalLineWithAccountTypeAsVendor(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine.FieldNo(Amount));
     end;
 
-    local procedure OnValidateGenJournalLineWithAccountTypeAsVendor(DocumentType: Option; FieldNo: Integer)
+    local procedure OnValidateGenJournalLineWithAccountTypeAsVendor(DocumentType: Enum "Gen. Journal Document Type"; FieldNo: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
@@ -384,7 +386,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         CreateVendor(Vendor);
         CreateGenJournalLine(
           GenJournalLine, DocumentType, GenJournalLine."Account Type"::Vendor, Vendor."No.", GenJournalLine."Bal. Account Type", '');
-        GenJournalLine."IRS 1099 Code" := CreateIRSCode;
+        GenJournalLine."IRS 1099 Code" := CreateIRSCode();
         GenJournalLine.Amount := LibraryRandom.RandDec(100, 2);
         GenJournalLine.Modify();
         RecRef.GetTable(GenJournalLine);
@@ -502,7 +504,7 @@ codeunit 142090 "UT TAB Sales Tax II"
           GenJournalLine."Account Type", 0, GenJournalLine.FieldNo(Amount));  // 0 is used for verifying Amount.
     end;
 
-    local procedure OnValidateGenJournalLineWithDocumentType(DocumentType: Option; AccountType: Option; Amount: Decimal; FieldNo: Integer)
+    local procedure OnValidateGenJournalLineWithDocumentType(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal; FieldNo: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
@@ -512,7 +514,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // Setup.
         CreateVendor(Vendor);
         CreateGenJournalLine(GenJournalLine, DocumentType, AccountType, '', GenJournalLine."Bal. Account Type", '');
-        GenJournalLine."IRS 1099 Code" := CreateIRSCode;
+        GenJournalLine."IRS 1099 Code" := CreateIRSCode();
         GenJournalLine.Amount := Amount;
         GenJournalLine.Modify();
         RecRef.GetTable(GenJournalLine);
@@ -525,6 +527,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         RecRef.SetTable(GenJournalLine);
         GenJournalLine.TestField("IRS 1099 Amount", -Amount);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -538,7 +541,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         Initialize();
 
         // [GIVEN] Create Vendor with a Tax Area Code
-        CreateVendor(Vendor);
+        LibraryPurchase.CreateVendor(Vendor);
         Vendor."Tax Area Code" := LibraryUtility.GenerateRandomCode(82, 81);
         Vendor.Modify();
 
@@ -562,10 +565,10 @@ codeunit 142090 "UT TAB Sales Tax II"
         // [SCENARIO 289828] Service Contract Account Group "Non-Prepaid Contract Acc." can be validated only by GLAccount with Tax Group Code defined
         Initialize();
         // [GIVEN] GLAccount with Tax Group Code undefined - X
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         // [GIVEN] Service Contract Account Group
-        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10;
+        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10();
         ServiceContractAccountGroup.Insert();
 
         // [WHEN] Validate "Non-Prepaid Contract Acc." Service Contract Account Group with X
@@ -587,11 +590,11 @@ codeunit 142090 "UT TAB Sales Tax II"
         Initialize();
         // [GIVEN] GLAccount with Tax Group Code defined - X
         LibraryERM.CreateTaxGroup(TaxGroup);
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."Tax Group Code" := TaxGroup.Code;
         GLAccount.Insert();
         // [GIVEN] Service Contract Account Group
-        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10;
+        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10();
         ServiceContractAccountGroup.Insert();
         // [WHEN] Validate "Non-Prepaid Contract Acc." Service Contract Account Group with X
         ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", GLAccount."No.");
@@ -613,11 +616,11 @@ codeunit 142090 "UT TAB Sales Tax II"
         Initialize();
         // [GIVEN] GLAccount with Tax Group Code defined - X
         LibraryERM.CreateTaxGroup(TaxGroup);
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."Tax Group Code" := TaxGroup.Code;
         GLAccount.Insert();
         // [GIVEN] Service Contract Account Group
-        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10;
+        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10();
         ServiceContractAccountGroup.Insert();
         // [WHEN] Validate "Prepaid Contract Acc." on Service Contract Account Group with X
         ServiceContractAccountGroup.Validate("Prepaid Contract Acc.", GLAccount."No.");
@@ -637,10 +640,10 @@ codeunit 142090 "UT TAB Sales Tax II"
         // [SCENARIO 289828] Service Contract Account Group "Prepaid Contract Acc." can be validated only by GLAccount with Tax Group Code defined
         Initialize();
         // [GIVEN] GLAccount with Tax Group Code undefined - X
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         // [GIVEN] Service Contract Account Group
-        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10;
+        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10();
         ServiceContractAccountGroup.Insert();
 
         // [WHEN] Validate "Prepaid Contract Acc." on Service Contract Account Group with X
@@ -666,8 +669,8 @@ codeunit 142090 "UT TAB Sales Tax II"
         CompanyInformationPage.OpenEdit();
 
         // [THEN] Otstanding PO reports are available        
-        Assert.IsTrue(CompanyInformationPage."VAT Registration No.".Visible, '');
-        Assert.IsTrue(CompanyInformationPage."VAT Registration No.".Editable, '');
+        Assert.IsTrue(CompanyInformationPage."VAT Registration No.".Visible(), '');
+        Assert.IsTrue(CompanyInformationPage."VAT Registration No.".Editable(), '');
         CompanyInformationPage.Close();
         LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
@@ -684,7 +687,7 @@ codeunit 142090 "UT TAB Sales Tax II"
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryERMCountryData.CreateVATData();
-        CreateVATPostingSetup;
+        CreateVATPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -692,18 +695,18 @@ codeunit 142090 "UT TAB Sales Tax II"
 
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Tax Exemption No." := LibraryUTUtility.GetNewCode10;
-        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
-        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer."Tax Exemption No." := LibraryUTUtility.GetNewCode10();
+        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10();
+        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         Customer.Insert();
     end;
 
     local procedure CreateCost(var ServiceCost: Record "Service Cost")
     begin
-        ServiceCost.Code := LibraryUTUtility.GetNewCode10;
+        ServiceCost.Code := LibraryUTUtility.GetNewCode10();
         ServiceCost."Cost Type" := ServiceCost."Cost Type"::Travel;
-        ServiceCost."Account No." := CreateGLAccount(LibraryUTUtility.GetNewCode10, '');
+        ServiceCost."Account No." := CreateGLAccount(LibraryUTUtility.GetNewCode10(), '');
         ServiceCost.Insert();
     end;
 
@@ -711,22 +714,23 @@ codeunit 142090 "UT TAB Sales Tax II"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."Gen. Prod. Posting Group" := GenProdPostingGroup;
         GLAccount."VAT Prod. Posting Group" := VATProdPostingGroup;
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20])
+#if not CLEAN25
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
 
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalBatch.Insert();
 
@@ -740,30 +744,33 @@ codeunit 142090 "UT TAB Sales Tax II"
 
         GenJournalLine.Insert();
     end;
+#endif
 
     local procedure CreateItem(): Code[20]
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item."Inventory Posting Group" := LibraryUTUtility.GetNewCode10;
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item."Inventory Posting Group" := LibraryUTUtility.GetNewCode10();
         Item.Insert();
         exit(Item."No.");
     end;
 
+#if not CLEAN25
     local procedure CreateIRSCode(): Code[10]
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
-        IRS1099FormBox.Code := LibraryUTUtility.GetNewCode10;
+        IRS1099FormBox.Code := LibraryUTUtility.GetNewCode10();
         IRS1099FormBox.Insert();
         exit(IRS1099FormBox.Code);
     end;
+#endif
 
     local procedure CreateSalesTaxDifference(var SalesTaxDifference: Record "Sales Tax Amount Difference"; ServiceHeader: Record "Service Header")
     begin
         SalesTaxDifference."Document Product Area" := SalesTaxDifference."Document Product Area"::Sales;
-        SalesTaxDifference."Document Type" := ServiceHeader."Document Type";
+        SalesTaxDifference."Document Type" := ServiceHeader."Document Type".AsInteger();
         SalesTaxDifference."Document No." := ServiceHeader."No.";
         SalesTaxDifference."Tax Area Code" := ServiceHeader."Tax Area Code";
         SalesTaxDifference.Insert();
@@ -773,7 +780,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     var
         ServiceItem: Record "Service Item";
     begin
-        ServiceItem."No." := LibraryUTUtility.GetNewCode;
+        ServiceItem."No." := LibraryUTUtility.GetNewCode();
         ServiceItem."Customer No." := CustomerNo;
         ServiceItem."Item No." := ItemNo;
         ServiceItem.Insert();
@@ -786,7 +793,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     begin
         Customer.Get(CustomerNo);
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceHeader."Customer No." := CustomerNo;
         ServiceHeader."Bill-to Customer No." := CustomerNo;
         ServiceHeader."Tax Area Code" := TaxAreaCode;
@@ -794,7 +801,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         ServiceHeader.Insert();
     end;
 
-    local procedure CreateServiceOrder(var ServiceLine: Record "Service Line"; CustomerNo: Code[20]; Type: Option; No: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateServiceOrder(var ServiceLine: Record "Service Line"; CustomerNo: Code[20]; Type: Enum "Service Line Type"; No: Code[20]; TaxAreaCode: Code[20])
     var
         ServiceHeader: Record "Service Header";
         ServiceItemLineNo: Integer;
@@ -827,7 +834,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea."Country/Region" := Country;
         TaxArea."Use External Tax Engine" := UseExternalTaxEngine;
         TaxArea.Insert();
@@ -845,12 +852,14 @@ codeunit 142090 "UT TAB Sales Tax II"
         VATPostingSetup.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."IRS 1099 Code" := CreateIRSCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor."IRS 1099 Code" := CreateIRSCode();
         Vendor.Insert();
     end;
+#endif
 
     [MessageHandler]
     [Scope('OnPrem')]

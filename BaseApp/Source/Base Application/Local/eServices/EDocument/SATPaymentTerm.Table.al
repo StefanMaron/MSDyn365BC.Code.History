@@ -10,6 +10,7 @@ table 27017 "SAT Payment Term"
     DataPerCompany = false;
     DrillDownPageID = "SAT Payment Terms";
     LookupPageID = "SAT Payment Terms";
+    DataClassification = CustomerContent;
 
     fields
     {

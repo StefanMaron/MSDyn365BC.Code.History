@@ -49,9 +49,10 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 223191] Notificaiton appears it the purchase invoice page in case of Vendor Invoice No. already used for another invoice
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
-        EnableShowExternalDocAlreadyExistNotification;
+        EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase invoice with Vendor Invoice No. = XXX
         CreatePostPurchDocWithExternalDocNo(
@@ -59,7 +60,7 @@ codeunit 134099 "Purchase Documents"
 
         // [GIVEN] Create new invoice and open it in the Purchase Invoice page
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // [WHEN] Vendor Invoice No. field is being filled in by XXX value
@@ -70,6 +71,7 @@ codeunit 134099 "Purchase Documents"
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::Invoice);
 
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -86,9 +88,10 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 223191] Notificaiton appears it the purchase order page in case of Vendor Invoice No. already used for another invoice
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
-        EnableShowExternalDocAlreadyExistNotification;
+        EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase order with Vendor Invoice No. = XXX
         CreatePostPurchDocWithExternalDocNo(
@@ -96,7 +99,7 @@ codeunit 134099 "Purchase Documents"
 
         // [GIVEN] Create new order and open it in the Purchase Order page
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         // [WHEN] Vendor Invoice No. field is being filled in by XXX value
@@ -107,6 +110,7 @@ codeunit 134099 "Purchase Documents"
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::Invoice);
 
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -123,9 +127,10 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 223191] Notificaiton appears it the purchase credit memo page in case of Vendor Cr. Memo No. already used for another credit memo
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
-        EnableShowExternalDocAlreadyExistNotification;
+        EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase credit memo with Vendor Cr. Memo No. = XXX
         CreatePostPurchDocWithExternalDocNo(
@@ -133,7 +138,7 @@ codeunit 134099 "Purchase Documents"
 
         // [GIVEN] Create new credit memo and open it in the Purchase Credit Memo page
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         // [WHEN] Vendor Cr. Memo No. field is being filled in by XXX value
@@ -144,6 +149,7 @@ codeunit 134099 "Purchase Documents"
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::"Credit Memo");
 
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -160,10 +166,11 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 223191] Notificaiton appears it the purchase return order page in case of Vendor Cr. Memo No. already used for another return order
         Initialize();
-        UpdateNoSeriesOnPurchaseSetup;
+        LibraryERM.SetEnableDataCheck(false);
+        UpdateNoSeriesOnPurchaseSetup();
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
-        EnableShowExternalDocAlreadyExistNotification;
+        EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase return order with Vendor Cr. Memo No. = XXX
         CreatePostPurchDocWithExternalDocNo(
@@ -171,7 +178,7 @@ codeunit 134099 "Purchase Documents"
 
         // [GIVEN] Create new return order and open it in the Purchase Return Order page
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
 
         // [WHEN] Vendor Cr. Memo No. field is being filled in by XXX value
@@ -182,6 +189,7 @@ codeunit 134099 "Purchase Documents"
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::"Credit Memo");
 
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -198,6 +206,7 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 300997] Notificaiton appears it the purchase invoice page in case of Vendor Invoice No. already used for another invoice when there are no My Notification records
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Delete all My Notificaiton records
         ClearMyNotification();
@@ -208,7 +217,7 @@ codeunit 134099 "Purchase Documents"
 
         // [GIVEN] Create new invoice and open it in the Purchase Invoice page
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // [WHEN] Vendor Invoice No. field is being filled in by XXX value
@@ -219,6 +228,7 @@ codeunit 134099 "Purchase Documents"
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::Invoice);
 
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -235,12 +245,13 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 300997] Notificaiton appears it the purchase credit memo page in case of Vendor Cr. Memo No. already used for another credit memo when there are no My Notification records
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Delete all My Notificaiton records
         ClearMyNotification();
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
-        EnableShowExternalDocAlreadyExistNotification;
+        EnableShowExternalDocAlreadyExistNotification();
 
         // [GIVEN] Create and post purchase credit memo with Vendor Cr. Memo No. = XXX
         CreatePostPurchDocWithExternalDocNo(
@@ -248,7 +259,7 @@ codeunit 134099 "Purchase Documents"
 
         // [GIVEN] Create new credit memo and open it in the Purchase Credit Memo page
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         // [WHEN] Vendor Cr. Memo No. field is being filled in by XXX value
@@ -259,6 +270,7 @@ codeunit 134099 "Purchase Documents"
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::"Credit Memo");
 
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -368,9 +380,9 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         Commit();
 
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
 
         asserterror PurchaseHeader.Find();
     end;
@@ -390,9 +402,9 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         Commit();
 
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        PurchaseInvoices.PostSelected.Invoke;
+        PurchaseInvoices.PostSelected.Invoke();
 
         asserterror PurchaseHeader.Find();
     end;
@@ -412,14 +424,14 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         Commit();
 
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        PurchaseQuote.Print.Invoke;
+        PurchaseQuote.Print.Invoke();
 
         PurchaseHeader.Find();
 
-        Assert.AreEqual(REPORT::"Purchase - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(REPORT::"Purchase - Quote", LibraryVariableStorage.DequeueInteger(), WrongReportInvokedErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -437,14 +449,14 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         Commit();
 
-        PurchaseQuotes.OpenView;
+        PurchaseQuotes.OpenView();
         PurchaseQuotes.GotoRecord(PurchaseHeader);
-        PurchaseQuotes.Print.Invoke;
+        PurchaseQuotes.Print.Invoke();
 
         PurchaseHeader.Find();
 
-        Assert.AreEqual(REPORT::"Purchase - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(REPORT::"Purchase - Quote", LibraryVariableStorage.DequeueInteger(), WrongReportInvokedErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -465,9 +477,9 @@ codeunit 134099 "Purchase Documents"
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PurchaseOrder.Post.Invoke;
+        PurchaseOrder.Post.Invoke();
 
         PurchaseHeader.Find();
     end;
@@ -490,9 +502,9 @@ codeunit 134099 "Purchase Documents"
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseOrderList.OpenView;
+        PurchaseOrderList.OpenView();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
-        PurchaseOrderList.Post.Invoke;
+        PurchaseOrderList.Post.Invoke();
 
         PurchaseHeader.Find();
     end;
@@ -512,9 +524,9 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         Commit();
 
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.Post.Invoke;
+        PurchaseCreditMemo.Post.Invoke();
 
         asserterror PurchaseHeader.Find();
     end;
@@ -534,9 +546,9 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         Commit();
 
-        PurchaseCreditMemos.OpenView;
+        PurchaseCreditMemos.OpenView();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemos.Post.Invoke;
+        PurchaseCreditMemos.Post.Invoke();
 
         asserterror PurchaseHeader.Find();
     end;
@@ -556,13 +568,13 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         Commit();
 
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        asserterror PurchaseInvoice.Post.Invoke;
+        asserterror PurchaseInvoice.Post.Invoke();
 
         Assert.ExpectedError(ZeroQuantityInLineErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -582,9 +594,9 @@ codeunit 134099 "Purchase Documents"
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(false);
 
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        asserterror PurchaseReturnOrder.Post.Invoke;
+        asserterror PurchaseReturnOrder.Post.Invoke();
 
         Assert.ExpectedError(ZeroQuantityInLineErr);
 
@@ -605,13 +617,13 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         Commit();
 
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        asserterror PurchaseInvoices.PostSelected.Invoke;
+        asserterror PurchaseInvoices.PostSelected.Invoke();
 
         Assert.ExpectedError(ZeroQuantityInLineErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -629,13 +641,13 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         Commit();
 
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        asserterror PurchaseQuote.Print.Invoke;
+        asserterror PurchaseQuote.Print.Invoke();
 
         Assert.ExpectedError(ZeroQuantityInLineErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -653,13 +665,13 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         Commit();
 
-        PurchaseQuotes.OpenView;
+        PurchaseQuotes.OpenView();
         PurchaseQuotes.GotoRecord(PurchaseHeader);
-        asserterror PurchaseQuotes.Print.Invoke;
+        asserterror PurchaseQuotes.Print.Invoke();
 
         Assert.ExpectedError(ZeroQuantityInLineErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -677,13 +689,13 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         Commit();
 
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        asserterror PurchaseOrder.Post.Invoke;
+        asserterror PurchaseOrder.Post.Invoke();
 
         Assert.ExpectedError(ZeroQuantityInLineErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -704,13 +716,13 @@ codeunit 134099 "Purchase Documents"
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(false);
 
-        PurchaseOrderList.OpenView;
+        PurchaseOrderList.OpenView();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
-        asserterror PurchaseOrderList.Post.Invoke;
+        asserterror PurchaseOrderList.Post.Invoke();
 
         Assert.ExpectedError(ConfirmZeroQuantityPostingMsg);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -728,13 +740,13 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         Commit();
 
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        asserterror PurchaseCreditMemo.Post.Invoke;
+        asserterror PurchaseCreditMemo.Post.Invoke();
 
         Assert.ExpectedError(ZeroQuantityInLineErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -752,13 +764,13 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         Commit();
 
-        PurchaseCreditMemos.OpenView;
+        PurchaseCreditMemos.OpenView();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        asserterror PurchaseCreditMemos.Post.Invoke;
+        asserterror PurchaseCreditMemos.Post.Invoke();
 
         Assert.ExpectedError(ZeroQuantityInLineErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -775,15 +787,15 @@ codeunit 134099 "Purchase Documents"
 
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
 
-        PurchaseHeader.Validate("Posting Date", WorkDate + 1);
+        PurchaseHeader.Validate("Posting Date", WorkDate() + 1);
 
         MessageText := StrSubstNo(PurchLinesNotUpdatedDateMsg, PurchaseHeader.FieldCaption("Posting Date"));
         MessageText := StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg);
 
         // A message is captured by MessageCaptureHandler
-        Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -803,15 +815,15 @@ codeunit 134099 "Purchase Documents"
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Validate("Currency Code", Currency.Code);
-        PurchaseHeader.Validate("Posting Date", WorkDate + 1);
+        PurchaseHeader.Validate("Posting Date", WorkDate() + 1);
 
         // A message is captured by MessageCaptureHandler
         MessageText := StrSubstNo(PurchLinesNotUpdatedDateMsg, PurchaseHeader.FieldCaption("Posting Date"));
         MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
         MessageText := StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg);
-        Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -832,9 +844,9 @@ codeunit 134099 "Purchase Documents"
         MessageText := StrSubstNo(PurchLinesNotUpdatedMsg, PurchaseHeader.FieldCaption("Language Code"));
         MessageText := StrSubstNo(SplitMessageTxt, MessageText, UpdateManuallyMsg);
 
-        Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1652,7 +1664,7 @@ codeunit 134099 "Purchase Documents"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Purchase Documents");
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
 
@@ -1669,12 +1681,12 @@ codeunit 134099 "Purchase Documents"
             IntrastatSetup.Init();
             IntrastatSetup.Insert();
         end;
-        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
+        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
 #endif
 
-        ReportSelections.SetRange(Usage, LibraryERMCountryData.GetReportSelectionsUsagePurchaseQuote);
+        ReportSelections.SetRange(Usage, LibraryERMCountryData.GetReportSelectionsUsagePurchaseQuote());
         ReportSelections.ModifyAll("Report ID", REPORT::"Purchase - Quote");
 
         IsInitialized := true;
@@ -1697,15 +1709,15 @@ codeunit 134099 "Purchase Documents"
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreatePurchaseOrderWithLineTypeItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreatePostPurchDocWithExternalDocNo(var ExternalDocumentNo: Code[35]; var VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; var PurchaseHeader: Record "Purchase Header")
@@ -1729,29 +1741,30 @@ codeunit 134099 "Purchase Documents"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNo, 0);
+          LibraryInventory.CreateItemNo(), 0);
         PurchaseHeader.SetRecFilter();
     end;
 
     local procedure CreatePurchaseOrderWithItemAndChargeItem(var PurchaseHeaderOrder: Record "Purchase Header"; var PurchaseLineItem: Record "Purchase Line"; var PurchaseLineChargeItem: Record "Purchase Line"; QtyToAssign: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(
-            PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+          PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeaderOrder.Validate("VAT Bus. Posting Group", '');
         PurchaseHeaderOrder.Modify();
 
         LibraryPurchase.CreatePurchaseLineWithoutVAT(
-            PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item.AsInteger(), '', QtyToAssign + 1);
+            PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item, '', QtyToAssign + 1);
         LibraryPurchase.CreatePurchaseLineWithoutVAT(
-            PurchaseLineChargeItem, PurchaseHeaderOrder, PurchaseLineChargeItem.Type::"Charge (Item)".AsInteger(), '', QtyToAssign);
+            PurchaseLineChargeItem, PurchaseHeaderOrder, PurchaseLineChargeItem.Type::"Charge (Item)", '', QtyToAssign);
         PurchaseLineChargeItem.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLineChargeItem.Modify(true);
+
         LibraryVariableStorage.Enqueue(QtyToAssign);
         PurchaseLineChargeItem.ShowItemChargeAssgnt();
         PurchaseLineChargeItem.Modify(true);
@@ -1771,17 +1784,18 @@ codeunit 134099 "Purchase Documents"
         PurchaseHeaderOrder.Modify();
 
         LibraryPurchase.CreatePurchaseLineWithoutVAT(
-            PurchaseLineChargeItem, PurchaseHeaderOrder, PurchaseLineChargeItem.Type::"Charge (Item)".AsInteger(), '', QtyToAssign);
+            PurchaseLineChargeItem, PurchaseHeaderOrder, PurchaseLineChargeItem.Type::"Charge (Item)", '', QtyToAssign);
         PurchaseLineChargeItem.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLineChargeItem.Modify(true);
+
         LibraryPurchase.CreatePurchaseLineWithoutVAT(
-          PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item.AsInteger(), '', QtyToAssign + 1);
+          PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item, '', QtyToAssign + 1);
 
         LibraryVariableStorage.Enqueue(QtyToAssign);
         PurchaseLineChargeItem.ShowItemChargeAssgnt();
         PurchaseLineChargeItem.Modify(true);
 
-        Commit;
+        Commit();
 
         PurchaseLineChargeItem.Find();
         PurchaseLineChargeItem.CalcFields("Qty. to Assign");
@@ -1815,7 +1829,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseHeader: Record "Purchase Header";
         MyNotifications: Record "My Notifications";
     begin
-        if MyNotifications.Get(UserId, PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId) then
+        if MyNotifications.Get(UserId, PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId()) then
             MyNotifications.Delete();
         PurchaseHeader.SetShowExternalDocAlreadyExistNotificationDefaultState(true);
     end;
@@ -1825,8 +1839,8 @@ codeunit 134099 "Purchase Documents"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
-        PurchasesPayablesSetup."Posted Return Shpt. Nos." := LibraryERM.CreateNoSeriesCode;
+        PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode();
+        PurchasesPayablesSetup."Posted Return Shpt. Nos." := LibraryERM.CreateNoSeriesCode();
         PurchasesPayablesSetup.Modify();
     end;
 
@@ -1885,10 +1899,10 @@ codeunit 134099 "Purchase Documents"
 
     local procedure VerifyNotificationData(ExternalDocumentNo: Code[35]; VendorLedgerEntryNo: Integer; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        Assert.AreEqual(VendorLedgerEntryNo, LibraryVariableStorage.DequeueInteger, 'Unexpected vendor ledger entry no.');
+        Assert.AreEqual(VendorLedgerEntryNo, LibraryVariableStorage.DequeueInteger(), 'Unexpected vendor ledger entry no.');
         Assert.AreEqual(
           StrSubstNo(PurchaseAlreadyExistsTxt, DocumentType, ExternalDocumentNo),
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Unexpected notificaiton message');
     end;
 
@@ -1937,7 +1951,7 @@ codeunit 134099 "Purchase Documents"
     [Scope('OnPrem')]
     procedure ConfirmHandlerCount(Question: Text[1024]; var Reply: Boolean)
     begin
-        if LibraryVariableStorage.Length > 1 then
+        if LibraryVariableStorage.Length() > 1 then
             Reply := LibraryVariableStorage.DequeueBoolean()
         else
             Reply := false;
@@ -1955,7 +1969,7 @@ codeunit 134099 "Purchase Documents"
     [Scope('OnPrem')]
     procedure PurchaseQuoteRequestPageHandler(var PurchaseQuote: TestRequestPage "Purchase - Quote")
     begin
-        PurchaseQuote.Cancel.Invoke;
+        PurchaseQuote.Cancel().Invoke();
         LibraryVariableStorage.Enqueue(REPORT::"Purchase - Quote");
     end;
 
@@ -1977,14 +1991,14 @@ codeunit 134099 "Purchase Documents"
     procedure ItemChargeAssignmentPurchModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
         ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
-        ItemChargeAssignmentPurch.OK.Invoke();
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactListPageHandler(var ContactList: TestPage "Contact List")
     begin
-        ContactList.GotoKey(LibraryVariableStorage.DequeueText);
-        ContactList.OK.Invoke;
+        ContactList.GotoKey(LibraryVariableStorage.DequeueText());
+        ContactList.OK().Invoke();
     end;
 }

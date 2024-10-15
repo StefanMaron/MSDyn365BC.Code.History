@@ -6,6 +6,7 @@ using System.Reflection;
 table 725 "Custom Address Format"
 {
     Caption = 'Custom Address Format';
+    DataClassification = CustomerContent;
 
     fields
     {

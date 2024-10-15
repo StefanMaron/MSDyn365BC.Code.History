@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -275,7 +275,6 @@ page 10807 "Sales Tax Setup Wizard"
                 trigger OnAction()
                 var
                     GuidedExperience: Codeunit "Guided Experience";
-                    Info: ModuleInfo;
                 begin
                     Rec.StoreSalesTaxSetup();
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Sales Tax Setup Wizard");

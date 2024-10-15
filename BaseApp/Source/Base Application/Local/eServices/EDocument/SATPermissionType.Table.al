@@ -9,6 +9,7 @@ table 27023 "SAT Permission Type"
     DataPerCompany = false;
     DrillDownPageID = "SAT Permission Types";
     LookupPageID = "SAT Permission Types";
+    DataClassification = CustomerContent;
 
     fields
     {

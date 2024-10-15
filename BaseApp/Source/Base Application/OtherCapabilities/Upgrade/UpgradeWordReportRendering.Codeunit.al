@@ -16,10 +16,10 @@ codeunit 104053 "Upgrade Word Report Rendering"
         FeatureKey: Record "Feature Key";
         FeatureManagementFacade: Codeunit "Feature Management Facade";
         UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTagDefinations: Codeunit "Upgrade Tag Definitions";
         PlatformRenderingInPlatformTxt: Label 'RenderWordReportsInPlatform', Locked = true;
     begin
-        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetRenderWordReportsInPlatformFeatureKeyUpgradeTag()) then begin
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinations.GetRenderWordReportsInPlatformFeatureKeyUpgradeTag()) then begin
             if FeatureKey.Get(PlatformRenderingInPlatformTxt) then
                 if FeatureKey.Enabled = FeatureKey.Enabled::None then begin
                     FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
@@ -28,7 +28,7 @@ codeunit 104053 "Upgrade Word Report Rendering"
                     FeatureManagementFacade.AfterValidateEnabled(FeatureKey);
                 end;
 
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRenderWordReportsInPlatformFeatureKeyUpgradeTag());
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinations.GetRenderWordReportsInPlatformFeatureKeyUpgradeTag());
         end;
     end;
 

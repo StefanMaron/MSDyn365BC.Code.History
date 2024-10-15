@@ -2,7 +2,7 @@ namespace System.DataAdministration;
 
 using System.Threading;
 
-Codeunit 3998 "Retention Policy Scheduler"
+codeunit 3998 "Retention Policy Scheduler"
 {
     Access = Internal;
     Permissions = tabledata "Job Queue Category" = ri,

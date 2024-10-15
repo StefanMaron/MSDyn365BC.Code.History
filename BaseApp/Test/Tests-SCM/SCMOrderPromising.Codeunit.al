@@ -10,6 +10,7 @@ codeunit 137044 "SCM Order Promising"
     end;
 
     var
+        LibraryERM: Codeunit "Library - ERM";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -109,6 +110,7 @@ codeunit 137044 "SCM Order Promising"
         // Create two Sales Orders on Workdate.
         Initialize();
         LibrarySales.SetStockoutWarning(true);
+        LibraryERM.SetEnableDataCheck(false);
 
         LibraryInventory.CreateItem(Item);
         ItemNo := Item."No.";
@@ -118,7 +120,7 @@ codeunit 137044 "SCM Order Promising"
         CreateSalesOrder(SalesHeader, WorkDate(), '', Item."No.", Quantity);
         CreateSalesOrder(SalesHeader, WorkDate(), '', Item."No.", Quantity2);
 
-        // Update the Shipment Date later than WORKDATE + CompanyInformation."Check-Avail. Period Calc." on the 2nd Sales Order.
+        // Update the Shipment Date later than WorkDate() + CompanyInformation."Check-Avail. Period Calc." on the 2nd Sales Order.
         // To trigger Check Availablity warning we need to modify it on page.
         CompanyInformation.Get();
         LibraryVariableStorage.Enqueue(false);
@@ -133,6 +135,7 @@ codeunit 137044 "SCM Order Promising"
         LibraryVariableStorage.Enqueue(-(Quantity + Quantity2));
         UpdateShipmentDateOnSalesOrderPage(SalesHeader."No.", WorkDate());
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -149,6 +152,7 @@ codeunit 137044 "SCM Order Promising"
         Initialize();
         UpdateCompanyInformationCalcBucket(0);
         LibrarySales.SetStockoutWarning(true);
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Purchase Order with Expected Receipt Date (i.e. Date1 = 05-05-15).
         // [GIVEN] Sales Order with Shipment Date which is later than Receipt Date in Purchase Order (i.e. Date2 = 10-05-15).
@@ -162,6 +166,7 @@ codeunit 137044 "SCM Order Promising"
         // [THEN] There is a lack of Inventory on Date3. Availability warning is raised.
         // Verification is done in CheckAvailabilityHandler.
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -178,6 +183,7 @@ codeunit 137044 "SCM Order Promising"
         Initialize();
         UpdateCompanyInformationCalcBucket(0);
         LibrarySales.SetStockoutWarning(true);
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Purchase Order with Expected Receipt Date (i.e. Date1 = 05-05-15).
         // [GIVEN] Sales Order with Shipment Date preceding Receipt Date in Purchase Order (i.e. Date2 = 01-05-15). Lack of Inventory on Date2.
@@ -191,6 +197,7 @@ codeunit 137044 "SCM Order Promising"
         // [THEN] There is a lack of Inventory on Date3. Availability warnings is raised.
         // Verification is done in CheckAvailabilityHandler.
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -235,10 +242,10 @@ codeunit 137044 "SCM Order Promising"
         Qty := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Sales order with Shipment Date = "D", Requested Delivery Date = "D" + 1
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 1, WorkDate());
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate() + 1, WorkDate());
 
         // [GIVEN] Purchase order with Expected Receipt Date = "D" + 2
-        CreatePurchaseOrder(PurchaseHeader, WorkDate + 2, '', Item."No.", Qty);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate() + 2, '', Item."No.", Qty);
 
         // [WHEN] Calculate order promising line for the sales order
         CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
@@ -264,16 +271,16 @@ codeunit 137044 "SCM Order Promising"
         Qty := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Sales order with Requested Delivery Date = "D", Shipment Date = "D" + 2
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate(), WorkDate + 2);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate(), WorkDate() + 2);
 
         // [GIVEN] Purchase order with Expected Receipt Date = "D" + 1
-        CreatePurchaseOrder(PurchaseHeader, WorkDate + 1, '', Item."No.", Qty);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate() + 1, '', Item."No.", Qty);
 
         // [WHEN] Calculate order promising line for the sales order
         CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
 
         // [THEN] Earliest shipment date = "D" + 1
-        TempOrderPromisingLine.TestField("Earliest Shipment Date", WorkDate + 1);
+        TempOrderPromisingLine.TestField("Earliest Shipment Date", WorkDate() + 1);
     end;
 
     [Test]
@@ -295,7 +302,7 @@ codeunit 137044 "SCM Order Promising"
         Qty := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Sales order with Shipment Date = "D", Requested Delivery Date = "D"
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 1, WorkDate + 1);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate() + 1, WorkDate() + 1);
 
         // [GIVEN] Create base calendar and mark date "D" as non-working
         LibraryService.CreateBaseCalendar(BaseCalendar);
@@ -366,12 +373,12 @@ codeunit 137044 "SCM Order Promising"
         Qty := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Sales order: Quantity = "X", Requested Delivery Date = "D" + 3 days
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 3, WorkDate());
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate() + 3, WorkDate());
         // [GIVEN] Sales order: Quantity = "X", Requested Delivery Date = "D" days
         CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate(), WorkDate());
 
         // [GIVEN] Create purchase order: Quantity = "X", Expected Receipt Date = "D" + 2
-        CreatePurchaseOrder(PurchaseHeader, WorkDate + 2, '', Item."No.", Qty);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate() + 2, '', Item."No.", Qty);
 
         // [WHEN] Calculate order promising line for the second sales order (date = "D")
         CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
@@ -398,10 +405,10 @@ codeunit 137044 "SCM Order Promising"
         // [GIVEN] Sales order: Quantity = "X", Requested Delivery Date = "D"
         CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate(), WorkDate());
         // [GIVEN] Sales order: Quantity = "X", Requested Delivery Date = "D" + 2 days
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 2, WorkDate());
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate() + 2, WorkDate());
 
         // [GIVEN] Create purchase order: Quantity = "X", Expected Receipt Date = "D" + 1
-        CreatePurchaseOrder(PurchaseHeader, WorkDate + 1, '', Item."No.", 1);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate() + 1, '', Item."No.", 1);
 
         // [WHEN] Calculate order promising line for the second sales order (date = "D" + 2)
         CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
@@ -460,7 +467,7 @@ codeunit 137044 "SCM Order Promising"
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
-        ShipmentDate := WorkDate + 10;
+        ShipmentDate := WorkDate() + 10;
 
         // [GIVEN] Sales order with Requested Delivery Date = "D"
         CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, ShipmentDate, ShipmentDate);
@@ -496,8 +503,8 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] Sales order with three items - one of of each Item type
         InventoryItemNo := LibraryInventory.CreateItemNo(); // Item.Type::Inventory
-        ServiceItemNo := CreateItemTypeService;           // Item.Type::Service
-        NonStockItemNo := CreateItemTypeNonStock;         // Item.Type::Non-Inventory
+        ServiceItemNo := CreateItemTypeService();           // Item.Type::Service
+        NonStockItemNo := CreateItemTypeNonStock();         // Item.Type::Non-Inventory
         CreateSalesOrderForThreeItems(SalesHeader, InventoryItemNo, ServiceItemNo, NonStockItemNo);
 
         // [WHEN] Transferring Sales Lines to Order Promising Lines
@@ -532,8 +539,8 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] Job with three items - one of each type
         InventoryItemNo := LibraryInventory.CreateItemNo(); // Item.Type::Inventory
-        ServiceItemNo := CreateItemTypeService;           // Item.Type::Service
-        NonStockItemNo := CreateItemTypeNonStock;         // Item.Type::Non-Inventory
+        ServiceItemNo := CreateItemTypeService();           // Item.Type::Service
+        NonStockItemNo := CreateItemTypeNonStock();         // Item.Type::Non-Inventory
 
         CreateJobForThreeItems(Job, InventoryItemNo, ServiceItemNo, NonStockItemNo);
 
@@ -568,11 +575,11 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate + 1);
-        NoOfNotificationsRaised := LibraryVariableStorage.DequeueInteger;
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate() + 1);
+        NoOfNotificationsRaised := LibraryVariableStorage.DequeueInteger();
 
         // [WHEN] Insert new sales line for "Z" units of "I" on WORKDATE. "Z" is covered with inventory "X", but leaves the future demands uncovered.
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
@@ -599,17 +606,17 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate + 1);
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate() + 1);
 
-        // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE + 1 day. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
+        // [GIVEN] Sales line "SL" for "Z" units of "I" on WorkDate() + 1 day. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate + 1, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate() + 1, LibraryRandom.RandIntInRange(50, 100));
 
         // [WHEN] Change the date on "SL" to WORKDATE.
-        NoOfNotificationsRaised := LibraryVariableStorage.DequeueInteger;
+        NoOfNotificationsRaised := LibraryVariableStorage.DequeueInteger();
         UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate());
 
         // [THEN] Availability warning is not raised.
@@ -633,17 +640,17 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate + 1);
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate() + 1);
 
-        // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE - 1 day. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
+        // [GIVEN] Sales line "SL" for "Z" units of "I" on WorkDate() - 1 day. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
           SalesLine, SalesHeader, ItemNo, WorkDate() - 1, LibraryRandom.RandIntInRange(50, 100));
 
         // [WHEN] Change the date on "SL" to WORKDATE.
-        NoOfNotificationRaised := LibraryVariableStorage.DequeueInteger;
+        NoOfNotificationRaised := LibraryVariableStorage.DequeueInteger();
         UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate());
 
         // [THEN] Availability warning is not raised.
@@ -667,15 +674,15 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate + 1);
-        NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger;
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate() + 1);
+        NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger();
 
-        // [WHEN] Insert new sales line for "Z" units of "I" on supply date (WORKDATE + 1 day). "Z" is covered with inventory "X", but leaves the future demands uncovered.
+        // [WHEN] Insert new sales line for "Z" units of "I" on supply date (WorkDate() + 1 day). "Z" is covered with inventory "X", but leaves the future demands uncovered.
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate + 1, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate() + 1, LibraryRandom.RandIntInRange(50, 100));
 
         // [THEN] Availability warning is raised.
         VerifyNoOfRaisedNotifications(NoOfWarningsRaised, 1);
@@ -699,18 +706,18 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate + 1);
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate() + 1);
 
-        // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE + 2 days. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
+        // [GIVEN] Sales line "SL" for "Z" units of "I" on WorkDate() + 2 days. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate + 2, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate() + 2, LibraryRandom.RandIntInRange(50, 100));
 
-        // [WHEN] Change the date on "SL" to the supply date (WORKDATE + 1 day).
-        NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger;
-        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate + 1);
+        // [WHEN] Change the date on "SL" to the supply date (WorkDate() + 1 day).
+        NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger();
+        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate() + 1);
 
         // [THEN] Availability warning is raised.
         VerifyNoOfRaisedNotifications(NoOfWarningsRaised, 1);
@@ -734,18 +741,18 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" << "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate + 1);
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandInt(10), WorkDate() + 1);
 
-        // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE - 1 day. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
+        // [GIVEN] Sales line "SL" for "Z" units of "I" on WorkDate() - 1 day. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
           SalesLine, SalesHeader, ItemNo, WorkDate() - 1, LibraryRandom.RandIntInRange(50, 100));
 
-        // [WHEN] Change the date on "SL" to the supply date (WORKDATE + 1 day).
-        NoOfRaisedNotifications := LibraryVariableStorage.DequeueInteger;
-        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate + 1);
+        // [WHEN] Change the date on "SL" to the supply date (WorkDate() + 1 day).
+        NoOfRaisedNotifications := LibraryVariableStorage.DequeueInteger();
+        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate() + 1);
 
         // [THEN] Availability warning is raised.
         VerifyNoOfRaisedNotifications(NoOfRaisedNotifications, 1);
@@ -767,15 +774,15 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" > "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" > "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(500, 1000), WorkDate + 1);
-        NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger;
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(500, 1000), WorkDate() + 1);
+        NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger();
 
-        // [WHEN] Insert new sales line for "Z" units of "I" on supply date (WORKDATE + 1 day). Overall demanded qty. ("X" + "Z") is covered with "X" + "Y".
+        // [WHEN] Insert new sales line for "Z" units of "I" on supply date (WorkDate() + 1 day). Overall demanded qty. ("X" + "Z") is covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate + 1, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate() + 1, LibraryRandom.RandIntInRange(50, 100));
 
         // [THEN] Availability warning is not raised.
         VerifyNoOfRaisedNotifications(NoOfWarningsRaised, 0);
@@ -796,18 +803,18 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" > "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" > "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(500, 1000), WorkDate + 1);
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(500, 1000), WorkDate() + 1);
 
-        // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE + 2 days. Overall demanded qty. ("X" + "Z") is covered with "X" + "Y".
+        // [GIVEN] Sales line "SL" for "Z" units of "I" on WorkDate() + 2 days. Overall demanded qty. ("X" + "Z") is covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate + 2, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate() + 2, LibraryRandom.RandIntInRange(50, 100));
 
-        // [WHEN] Change the date on "SL" to the supply date (WORKDATE + 1 day).
-        NoOfRaisedWarnings := LibraryVariableStorage.DequeueInteger;
-        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate + 1);
+        // [WHEN] Change the date on "SL" to the supply date (WorkDate() + 1 day).
+        NoOfRaisedWarnings := LibraryVariableStorage.DequeueInteger();
+        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate() + 1);
 
         // [THEN] Availability warning is not raised.
         VerifyNoOfRaisedNotifications(NoOfRaisedWarnings, 0);
@@ -829,73 +836,21 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
-        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WORKDATE + 13 days).
-        // [GIVEN] Purchase order for "Y" units of "I" ("Y" > "X") on WORKDATE + 1 day.
+        // [GIVEN] Sales line for "X" units of "I" on the last date of the calc. period (WorkDate() + 13 days).
+        // [GIVEN] Purchase order for "Y" units of "I" ("Y" > "X") on WorkDate() + 1 day.
         CreateInventoryDemandAndSupply(
-          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(500, 1000), WorkDate + 1);
+          ItemNo, SalesHeader, LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(500, 1000), WorkDate() + 1);
 
-        // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE - 1 day. Overall demanded qty. ("X" + "Z") is covered with "X" + "Y".
+        // [GIVEN] Sales line "SL" for "Z" units of "I" on WorkDate() - 1 day. Overall demanded qty. ("X" + "Z") is covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
           SalesLine, SalesHeader, ItemNo, WorkDate() - 1, LibraryRandom.RandIntInRange(50, 100));
 
-        // [WHEN] Change the date on "SL" to the supply date (WORKDATE + 1 day).
-        NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger;
-        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate + 1);
+        // [WHEN] Change the date on "SL" to the supply date (WorkDate() + 1 day).
+        NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger();
+        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate() + 1);
 
         // [THEN] Availability warning is not raised.
         VerifyNoOfRaisedNotifications(NoOfWarningsRaised, 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('AssemblyAvailabilityModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure AvailabilityWarningRaisedForBOMComponentAfterShipmentDateChangedFromLaterDate()
-    var
-        AsmItem: Record Item;
-        CompItem: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ItemCheckAvail: Codeunit "Item-Check Avail.";
-        IsWarningRaised: Boolean;
-    begin
-        // [FEATURE] [Sales] [Order] [Shipment Date] [Assemble-to-Order]
-        // [SCENARIO 234903] Availability warning for BOM component is raised after shipment date of an assembled item is shifted to the date on which the component is lacking.
-        Initialize();
-
-        // [GIVEN] Enable stockout warnings.
-        LibrarySales.SetStockoutWarning(true);
-        LibraryAssembly.SetStockoutWarning(true);
-
-        // [GIVEN] Assembled item "I" with a component "C".
-        CreateAssembleToOrderItemWithComponent(AsmItem, CompItem);
-
-        // [GIVEN] 2 pc of component "C" is in stock on WORKDATE, 1 pc is set to be purchased on WORKDATE + 10 days.
-        // [GIVEN] Sales order "SO1" for 1 pc of assembled item "I" on WORKDATE + 20 days.
-        CreateSupplyForBOMComponentAndDemandForAssembledItem(
-          AsmItem."No.", CompItem."No.", 2, 1, 1, WorkDate(), WorkDate + 20, WorkDate + 10);
-
-        // [GIVEN] Another sales order "SO2" for 2 pcs of assembled item "I" on WORKDATE + 30 days.
-        CreateSalesOrder(SalesHeader, WorkDate + 30, '', AsmItem."No.", 2);
-        FindSalesline(SalesLine, SalesHeader, AsmItem."No.");
-
-        // [WHEN] Set "Shipment Date" on the sales "SO2" to the date of purchase of the component (WORKDATE + 20 days) and check the availability.
-        SalesLine."Shipment Date" := WorkDate + 20;
-
-        LibraryVariableStorage.Enqueue(false);
-        IsWarningRaised := ItemCheckAvail.SalesLineCheck(SalesLine);
-
-        // [THEN] Assembly availability warning for component "C" is raised, since the component must be available on at least one day before the assembly.
-        Assert.IsTrue(IsWarningRaised, 'Assembly availability warning is not raised.');
-        Assert.AreEqual(
-          CompItem."No.", LibraryVariableStorage.DequeueText,
-          'Assembly availability warning does not include the lacking BOM component.');
-
-        // [THEN] "Able to Assemble" quantity on the warning is 1 pc, which is less than required 2 pcs.
-        Assert.AreEqual(
-          1, LibraryVariableStorage.DequeueDecimal,
-          'Wrong expected available quantity is shown in the assembly availability warning for the lacking BOM component.');
-
-        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
@@ -919,16 +874,16 @@ codeunit 137044 "SCM Order Promising"
         // [GIVEN] Assembled item "I" with a component "C".
         CreateAssembleToOrderItemWithComponent(AsmItem, CompItem);
 
-        // [GIVEN] 1 pc of component "C" is in stock on WORKDATE, 2 pcs are set to be purchased on WORKDATE + 1 month.
-        // [GIVEN] Sales order for 2 pcs of assembled item "I" on WORKDATE + 2 months.
+        // [GIVEN] 1 pc of component "C" is in stock on WorkDate(), 2 pcs are set to be purchased on WorkDate() + 1 month.
+        // [GIVEN] Sales order for 2 pcs of assembled item "I" on WorkDate() + 2 months.
         // [GIVEN] The component "C" is now supplied by the inventory and the purchase.
         CreateSupplyForBOMComponentAndDemandForAssembledItem(
-          AsmItem."No.", CompItem."No.", 1, 2, 2, WorkDate(), WorkDate + 30, WorkDate + 60);
+          AsmItem."No.", CompItem."No.", 1, 2, 2, WorkDate(), WorkDate() + 30, WorkDate() + 60);
 
         // [WHEN] Set "Shipment Date" on the sales line to a later date.
         SalesLine.SetRange("No.", AsmItem."No.");
         SalesLine.FindFirst();
-        SalesLine."Shipment Date" := WorkDate + 90;
+        SalesLine."Shipment Date" := WorkDate() + 90;
         IsWarningRaised := ItemCheckAvail.SalesLineCheck(SalesLine);
 
         // [THEN] Assembly availability warning for component "C" is not raised.
@@ -959,13 +914,13 @@ codeunit 137044 "SCM Order Promising"
         // [GIVEN] Assembled item "I" with a component "C".
         CreateAssembleToOrderItemWithComponent(AsmItem, CompItem);
 
-        // [GIVEN] 2 pc of component "C" is in stock on WORKDATE, 1 pc is set to be purchased on WORKDATE + 10 days.
-        // [GIVEN] Sales order "SO1" for 1 pc of assembled item "I" on WORKDATE + 20 days.
+        // [GIVEN] 2 pc of component "C" is in stock on WorkDate(), 1 pc is set to be purchased on WorkDate() + 10 days.
+        // [GIVEN] Sales order "SO1" for 1 pc of assembled item "I" on WorkDate() + 20 days.
         CreateSupplyForBOMComponentAndDemandForAssembledItem(
-          AsmItem."No.", CompItem."No.", 2, 1, 1, WorkDate(), WorkDate + 20, WorkDate + 10);
+          AsmItem."No.", CompItem."No.", 2, 1, 1, WorkDate(), WorkDate() + 20, WorkDate() + 10);
 
-        // [GIVEN] Another sales order "SO2" for 2 pcs of assembled item "I" on WORKDATE + 30 days.
-        CreateSalesOrder(SalesHeader, WorkDate + 30, '', AsmItem."No.", 2);
+        // [GIVEN] Another sales order "SO2" for 2 pcs of assembled item "I" on WorkDate() + 30 days.
+        CreateSalesOrder(SalesHeader, WorkDate() + 30, '', AsmItem."No.", 2);
         FindSalesline(SalesLine, SalesHeader, AsmItem."No.");
 
         // [GIVEN] Find Assembly Order linked to "SO2".
@@ -973,13 +928,13 @@ codeunit 137044 "SCM Order Promising"
           AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         FindAssemblyLine(AssemblyLine, AssemblyHeader, CompItem."No.");
 
-        // [WHEN] Set "Due Date" on the assembly line to the date earlier than the purchase date (e.g. WORKDATE + 15 days) and check the availability.
-        AssemblyLine."Due Date" := WorkDate + 15;
+        // [WHEN] Set "Due Date" on the assembly line to the date earlier than the purchase date (e.g. WorkDate() + 15 days) and check the availability.
+        AssemblyLine."Due Date" := WorkDate() + 15;
         ItemCheckAvail.AssemblyLineCheck(AssemblyLine);
 
         // [THEN] Availability notification for the component "C" is raised.
         Assert.AreEqual(
-          CompItem."No.", LibraryVariableStorage.DequeueText,
+          CompItem."No.", LibraryVariableStorage.DequeueText(),
           'Availability notification for the component item is not raised');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(AssemblyLine);
@@ -1074,7 +1029,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] Service item linked to an inventory item
         LibraryInventory.CreateItem(Item);
-        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo());
         ServiceItem.Validate("Item No.", Item."No.");
         ServiceItem.Modify(true);
 
@@ -1148,7 +1103,7 @@ codeunit 137044 "SCM Order Promising"
         CreateItem(Item, Item."Replenishment System"::"Prod. Order");
 
         ExpectedQuantity := LibraryRandom.RandIntInRange(2, 4);
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", ExpectedQuantity, 0D, WorkDate + 7);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", ExpectedQuantity, 0D, WorkDate() + 7);
         LibraryManufacturing.CreateProductionOrderFromSalesOrder(
           SalesHeader, ProductionOrder.Status::"Firm Planned", "Create Production Order Type"::ItemOrder);
         AvailableToPromise.CalcAvailableInventory(Item);
@@ -1305,7 +1260,7 @@ codeunit 137044 "SCM Order Promising"
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityModalPageHandler')]
+    [HandlerFunctions('AssemblyAvailabilityModalPageHandler,SendAssemblyAvailabilityNotificationHandler')]
     procedure AvailWarningInAssemblyOrderForAlwaysReserveComponent()
     var
         CompItem: Record Item;
@@ -1321,12 +1276,12 @@ codeunit 137044 "SCM Order Promising"
         CompItem.Validate(Reserve, CompItem.Reserve::Always);
         CompItem.Modify(true);
 
-        LibraryVariableStorage.Enqueue(true);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate() + 1, AsmItem."No.", '', 1, '');
 
         Assert.AreEqual(CompItem."No.", LibraryVariableStorage.DequeueText(), '');
         Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), '');
 
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1424,7 +1379,7 @@ codeunit 137044 "SCM Order Promising"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Promising");
 
-        UpdateCompSalesManufPurchSetup;
+        UpdateCompSalesManufPurchSetup();
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
@@ -1456,8 +1411,8 @@ codeunit 137044 "SCM Order Promising"
         UpdateCompanyInformationPeriodCalc(DateFormula);
         UpdateCompanyInformationCalcBucket(1);
         UpdateSalesReceivablesSetup();
-        UpdateManufacturingSetup;
-        UpdatePurchaseSetup;
+        UpdateManufacturingSetup();
+        UpdatePurchaseSetup();
     end;
 
     local procedure UpdateCompanyInfoBaseCalendarCode(BaseCalendarCode: Code[10])
@@ -1479,7 +1434,7 @@ codeunit 137044 "SCM Order Promising"
             Get();
             Validate("Normal Starting Time", 080000T);
             Validate("Normal Ending Time", 160000T);
-            Validate("Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             Modify(true);
         end;
     end;
@@ -1492,7 +1447,7 @@ codeunit 137044 "SCM Order Promising"
             Get();
             Validate("Credit Warnings", "Credit Warnings"::"No Warning");
             Validate("Stockout Warning", false);
-            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             Modify(true);
         end;
     end;
@@ -1503,7 +1458,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         with PurchasesPayablesSetup do begin
             Get();
-            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             Modify(true);
         end;
     end;
@@ -1657,7 +1612,7 @@ codeunit 137044 "SCM Order Promising"
     local procedure CreateOrderPromisingSetups(var Item: Record Item; var ShipmentDate: Date)
     begin
         // Create Locations and update Inventory Posting setups of these Locations.
-        CreateUpdateLocations;
+        CreateUpdateLocations();
         CreateProdOrderItemSetup(Item, 3);
 
         // Create Inventory for Item. Create Documents for generating Demand and Suply.
@@ -1758,7 +1713,7 @@ codeunit 137044 "SCM Order Promising"
         ItemNo := LibraryInventory.CreateItemNo();
         CreateAndPostItemJournalLine(ItemNo, '', InventoryQty);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
           SalesLine, SalesHeader, ItemNo, CalcDate(AvailCalcPeriod, WorkDate()) - 1, InventoryQty);
 
@@ -1785,7 +1740,7 @@ codeunit 137044 "SCM Order Promising"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
         Evaluate(ShipmentDate, SalesOrder.Control1906127307."Shipment Date".Value);
         SalesOrder.Close();
@@ -1919,7 +1874,7 @@ codeunit 137044 "SCM Order Promising"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
         SalesOrder.SalesLines."Shipment Date".SetValue(ShipmentDate); // Trigger the Check Availability warning.
         SalesOrder.Close();
@@ -1991,7 +1946,7 @@ codeunit 137044 "SCM Order Promising"
     [Scope('OnPrem')]
     procedure CreateSalesOrderForThreeItems(var SalesHeader: Record "Sales Header"; ItemNo1: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20])
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         InsertSalesLineForItemToDoc(SalesHeader, ItemNo1, LibraryRandom.RandInt(10));
         InsertSalesLineForItemToDoc(SalesHeader, ItemNo2, LibraryRandom.RandInt(10));
         InsertSalesLineForItemToDoc(SalesHeader, ItemNo3, LibraryRandom.RandInt(10));
@@ -2068,7 +2023,7 @@ codeunit 137044 "SCM Order Promising"
     local procedure VerifyNoOfRaisedNotifications(NotificationsRaisedEarlier: Integer; NotificationsRaisedOnAction: Integer)
     begin
         Assert.AreEqual(
-          NotificationsRaisedOnAction, LibraryVariableStorage.DequeueInteger - NotificationsRaisedEarlier - 1,
+          NotificationsRaisedOnAction, LibraryVariableStorage.DequeueInteger() - NotificationsRaisedEarlier - 1,
           WrongNoOfAvailNotificationsRaisedErr);
     end;
 
@@ -2092,22 +2047,24 @@ codeunit 137044 "SCM Order Promising"
         ServiceLines.Type.SetValue(ServiceLine.Type::Item);
         ServiceLines."No.".SetValue(LibraryVariableStorage.DequeueText());
         ServiceLines.Quantity.SetValue(1);
-        ServiceLines.OK.Invoke();
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
-    procedure AssemblyAvailabilityModalPageHandler(var AssemblyAvailability: TestPage "Assembly Availability")
-    var
-        Reply: Boolean;
+    procedure AssemblyAvailabilityModalPageHandler(var AssemblyAvailability: TestPage "Assembly Availability Check")
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Enqueue(AssemblyAvailability.AssemblyLineAvail."No.".Value);
         LibraryVariableStorage.Enqueue(AssemblyAvailability.AssemblyLineAvail.AbleToAssemble.Value);
+    end;
 
-        if Reply then
-            AssemblyAvailability.Yes.Invoke()
-        else
-            AssemblyAvailability.No.Invoke();
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendAssemblyAvailabilityNotificationHandler(var Notification: Notification): Boolean
+    var
+        AssemblyLineManagement: Codeunit "Assembly Line Management";
+    begin
+        AssemblyLineManagement.ShowNotificationDetails(Notification);
+        Notification.Recall();
     end;
 
     [ConfirmHandler]
@@ -2159,7 +2116,7 @@ codeunit 137044 "SCM Order Promising"
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
-        LibraryVariableStorage.DequeueInteger;
+        LibraryVariableStorage.DequeueInteger();
     end;
 
     [ModalPageHandler]

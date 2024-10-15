@@ -20,6 +20,7 @@ table 5476 "Sales Invoice Line Aggregate"
     Caption = 'Sales Invoice Line Aggregate';
     TableType = Temporary;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

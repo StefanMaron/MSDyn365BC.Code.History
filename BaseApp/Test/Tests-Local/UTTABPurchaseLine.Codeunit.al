@@ -27,7 +27,7 @@ codeunit 144051 "UT TAB Purchase Line"
         // Purpose of the test is to validate Trigger OnValidate of Location Code for Table 39 - Purchase Line.
 
         // Setup.
-        UpdatePurchasePayablesSetup;
+        UpdatePurchasePayablesSetup();
         CreateVendor(Vendor, CreateTaxArea(TaxArea."Country/Region"::CA, false));
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", '', Vendor."Tax Area Code");
         RecRef.GetTable(PurchaseLine);
@@ -47,7 +47,6 @@ codeunit 144051 "UT TAB Purchase Line"
     procedure OnValidateLocCodeWithoutLocAndBusiPresPurchLine()
     var
         TaxArea: Record "Tax Area";
-        Vendor: Record Vendor;
     begin
         // Purpose of the test is to validate Trigger OnValidate of Location Code without location and Business Presence on Vendor Location is False and without location for Table 39 - Purchase Line.
         OnValidateLocCodeVendorLocPurchLine('', CreateTaxArea(TaxArea."Country/Region"::CA, false), CreateTaxArea(TaxArea."Country/Region"::CA, false));
@@ -70,7 +69,6 @@ codeunit 144051 "UT TAB Purchase Line"
     local procedure OnValidateLocCodeVendorLocPurchLine(LocationCode: Code[10]; HeaderTaxAreaCode: Code[20]; VendorLocTaxAreaCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
-        VendorLocation: Record "Vendor Location";
         Vendor: Record Vendor;
         RecRef: RecordRef;
         FieldRef: FieldRef;
@@ -110,7 +108,6 @@ codeunit 144051 "UT TAB Purchase Line"
     var
         Location: Record Location;
         TaxArea: Record "Tax Area";
-        TaxAreaCode: Code[20];
     begin
         // Purpose of the test is to validate Trigger OnValidate of Location Code with location and Business Presence on Vendor Location is True for Table 39 - Purchase Line.
         CreateLocation(Location, CreateTaxArea(TaxArea."Country/Region"::CA, false));
@@ -122,10 +119,8 @@ codeunit 144051 "UT TAB Purchase Line"
         PurchaseLine: Record "Purchase Line";
         TaxArea: Record "Tax Area";
         Vendor: Record Vendor;
-        VendorLocation: Record "Vendor Location";
         RecRef: RecordRef;
         FieldRef: FieldRef;
-        TaxAreaCode: Code[10];
     begin
         // Setup.
         CreateVendor(Vendor, '');
@@ -165,7 +160,6 @@ codeunit 144051 "UT TAB Purchase Line"
     local procedure OnValidateTaxAreaCodePurchaseLine(HeaderTaxAreaCode: Code[20]; LineTaxAreaCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
-        TaxArea: Record "Tax Area";
         Vendor: Record Vendor;
         RecRef: RecordRef;
         FieldRef: FieldRef;
@@ -189,7 +183,7 @@ codeunit 144051 "UT TAB Purchase Line"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Buy-from Vendor No." := VendorNo;
         PurchaseHeader."Tax Area Code" := TaxAreaCode;
         PurchaseHeader."Pay-to Vendor No." := PurchaseHeader."Buy-from Vendor No.";
@@ -201,7 +195,7 @@ codeunit 144051 "UT TAB Purchase Line"
         PurchaseLine."Pay-to Vendor No." := PurchaseHeader."Pay-to Vendor No.";
         PurchaseLine."Line No." := LibraryRandom.RandInt(10);
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine."No." := CreateItem;
+        PurchaseLine."No." := CreateItem();
         PurchaseLine.Insert();
     end;
 
@@ -209,14 +203,14 @@ codeunit 144051 "UT TAB Purchase Line"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         exit(Item."No.");
     end;
 
     local procedure CreateLocation(var Location: Record Location; TaxAreaCode: Code[20]): Code[10]
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location."Tax Area Code" := TaxAreaCode;
         Location.Insert();
         exit(Location.Code);
@@ -226,7 +220,7 @@ codeunit 144051 "UT TAB Purchase Line"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea."Country/Region" := Country;
         TaxArea."Use External Tax Engine" := UseExternalTaxEngine;
         TaxArea.Insert();
@@ -235,7 +229,7 @@ codeunit 144051 "UT TAB Purchase Line"
 
     local procedure CreateVendor(var Vendor: Record Vendor; TaxAreaCode: Code[20])
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Pay-to Vendor No." := Vendor."No.";
         Vendor."Tax Area Code" := TaxAreaCode;
         Vendor.Insert();

@@ -47,14 +47,14 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalBatch, GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
         Commit();
-        CashReceiptJournal.OpenView;
+        CashReceiptJournal.OpenView();
 
         // [WHEN] Open Cash Receipt Journal Page
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Batch and line workflow factboxes are not visible on Cash Receipt Journal Page
-        Assert.IsFalse(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowNotHiddenErr);
-        Assert.IsFalse(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible, LineWorkflowNotHiddenErr);
+        Assert.IsFalse(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowNotHiddenErr);
+        Assert.IsFalse(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible(), LineWorkflowNotHiddenErr);
     end;
 
     [Test]
@@ -73,19 +73,19 @@ codeunit 134339 "UI Workflow Factboxes"
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
-          GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode,
+          GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode(),
           GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
         Commit();
-        CashReceiptJournal.OpenView;
+        CashReceiptJournal.OpenView();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [WHEN] Click the Send Approval Request action on Cash Receipt Journal Page
-        CashReceiptJournal.SendApprovalRequestJournalBatch.Invoke;
+        CashReceiptJournal.SendApprovalRequestJournalBatch.Invoke();
 
         // [THEN] Batch workflow status factbox becomes visible on Cash Receipt Journal Page
-        Assert.IsTrue(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowHiddenErr);
-        Assert.IsFalse(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible, LineWorkflowNotHiddenErr);
+        Assert.IsTrue(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowHiddenErr);
+        Assert.IsFalse(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible(), LineWorkflowNotHiddenErr);
     end;
 
     [Test]
@@ -104,21 +104,21 @@ codeunit 134339 "UI Workflow Factboxes"
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
-          GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode,
+          GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode(),
           GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
         // [GIVEN] Approval request sent
         Commit();
-        CashReceiptJournal.OpenView;
+        CashReceiptJournal.OpenView();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        CashReceiptJournal.SendApprovalRequestJournalBatch.Invoke;
+        CashReceiptJournal.SendApprovalRequestJournalBatch.Invoke();
 
         // [WHEN] Click the Cancel Approval Request action on Cash Receipt Journal Page
-        CashReceiptJournal.CancelApprovalRequestJournalBatch.Invoke;
+        CashReceiptJournal.CancelApprovalRequestJournalBatch.Invoke();
 
         // [THEN] Batch workflow status factbox is not visible on Cash Receipt Journal Page
-        Assert.IsFalse(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowNotHiddenErr);
-        Assert.IsFalse(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible, LineWorkflowNotHiddenErr);
+        Assert.IsFalse(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowNotHiddenErr);
+        Assert.IsFalse(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible(), LineWorkflowNotHiddenErr);
     end;
 
     [Test]
@@ -136,19 +136,19 @@ codeunit 134339 "UI Workflow Factboxes"
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
-          GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode,
+          GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode(),
           GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
         Commit();
-        CashReceiptJournal.OpenView;
+        CashReceiptJournal.OpenView();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [WHEN] Click the Send Approval Request action on Cash Receipt Journal Page
-        CashReceiptJournal.SendApprovalRequestJournalLine.Invoke;
+        CashReceiptJournal.SendApprovalRequestJournalLine.Invoke();
 
         // [THEN] Line workflow status factbox is visible on Cash Receipt Journal Page
-        Assert.IsFalse(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowNotHiddenErr);
-        Assert.IsTrue(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible, LineWorkflowHiddenErr);
+        Assert.IsFalse(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowNotHiddenErr);
+        Assert.IsTrue(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible(), LineWorkflowHiddenErr);
     end;
 
     [Test]
@@ -167,21 +167,21 @@ codeunit 134339 "UI Workflow Factboxes"
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
-          GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode,
+          GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode(),
           GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
         // [GIVEN] Approval request sent
         Commit();
-        CashReceiptJournal.OpenView;
+        CashReceiptJournal.OpenView();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        CashReceiptJournal.SendApprovalRequestJournalLine.Invoke;
+        CashReceiptJournal.SendApprovalRequestJournalLine.Invoke();
 
         // [WHEN] Click the Cancel Approval Request action on Cash Receipt Journal Page
-        CashReceiptJournal.CancelApprovalRequestJournalLine.Invoke;
+        CashReceiptJournal.CancelApprovalRequestJournalLine.Invoke();
 
         // [THEN] Line workflow status factbox is not visible on Cash Receipt Journal Page
-        Assert.IsFalse(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowNotHiddenErr);
-        Assert.IsFalse(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible, LineWorkflowNotHiddenErr);
+        Assert.IsFalse(CashReceiptJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowNotHiddenErr);
+        Assert.IsFalse(CashReceiptJournal.WorkflowStatusLine.WorkflowDescription.Visible(), LineWorkflowNotHiddenErr);
     end;
 
     [Test]
@@ -203,13 +203,13 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalBatch, GenJournalLine, GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
 
         // [WHEN] Open Payment Journal Page
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Batch and line workflow factboxes are not visible on Payment Journal Page
-        Assert.IsFalse(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowNotHiddenErr);
+        Assert.IsFalse(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowNotHiddenErr);
     end;
 
     [Test]
@@ -228,18 +228,18 @@ codeunit 134339 "UI Workflow Factboxes"
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
-          GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode,
+          GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode(),
           GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
         Commit();
-        PaymentJournal.OpenView;
+        PaymentJournal.OpenView();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [WHEN] Click the Send Approval Request action on Payment Journal Page
-        PaymentJournal.SendApprovalRequestJournalBatch.Invoke;
+        PaymentJournal.SendApprovalRequestJournalBatch.Invoke();
 
         // [THEN] Batch workflow status factbox becomes visible on Payment Journal Page
-        Assert.IsTrue(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowHiddenErr);
+        Assert.IsTrue(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowHiddenErr);
     end;
 
     [Test]
@@ -258,20 +258,20 @@ codeunit 134339 "UI Workflow Factboxes"
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
-          GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode,
+          GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode(),
           GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
         // [GIVEN] Approval request sent
         Commit();
-        PaymentJournal.OpenView;
+        PaymentJournal.OpenView();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        PaymentJournal.SendApprovalRequestJournalBatch.Invoke;
+        PaymentJournal.SendApprovalRequestJournalBatch.Invoke();
 
         // [WHEN] Click the Cancel Approval Request action on Payment Journal Page
-        PaymentJournal.CancelApprovalRequestJournalBatch.Invoke;
+        PaymentJournal.CancelApprovalRequestJournalBatch.Invoke();
 
         // [THEN] Batch workflow status factbox is not visible on Payment Journal Page
-        Assert.IsFalse(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowNotHiddenErr);
+        Assert.IsFalse(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowNotHiddenErr);
     end;
 
     [Test]
@@ -289,18 +289,18 @@ codeunit 134339 "UI Workflow Factboxes"
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
-          GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode,
+          GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode(),
           GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
         Commit();
-        PaymentJournal.OpenView;
+        PaymentJournal.OpenView();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [WHEN] Click the Send Approval Request action on Payment Journal Page
-        PaymentJournal.SendApprovalRequestJournalLine.Invoke;
+        PaymentJournal.SendApprovalRequestJournalLine.Invoke();
 
         // [THEN] Line workflow status factbox is visible on Payment Journal Page
-        Assert.IsFalse(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowNotHiddenErr);
+        Assert.IsFalse(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowNotHiddenErr);
     end;
 
     [Test]
@@ -319,20 +319,20 @@ codeunit 134339 "UI Workflow Factboxes"
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
-          GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode,
+          GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode(),
           GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
         // [GIVEN] Approval request sent
         Commit();
-        PaymentJournal.OpenView;
+        PaymentJournal.OpenView();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        PaymentJournal.SendApprovalRequestJournalLine.Invoke;
+        PaymentJournal.SendApprovalRequestJournalLine.Invoke();
 
         // [WHEN] Click the Cancel Approval Request action on Payment Journal Page
-        PaymentJournal.CancelApprovalRequestJournalLine.Invoke;
+        PaymentJournal.CancelApprovalRequestJournalLine.Invoke();
 
         // [THEN] Line workflow status factbox is not visible on Payment Journal Page
-        Assert.IsFalse(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible, BatchWorkflowNotHiddenErr);
+        Assert.IsFalse(PaymentJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), BatchWorkflowNotHiddenErr);
     end;
 
     local procedure Initialize()
@@ -377,7 +377,7 @@ codeunit 134339 "UI Workflow Factboxes"
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
         GenJournalBatch.Modify(true);
     end;
 
@@ -396,7 +396,7 @@ codeunit 134339 "UI Workflow Factboxes"
         GenJournalTemplate.DeleteAll();
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDec(100, 2));
     end;
 

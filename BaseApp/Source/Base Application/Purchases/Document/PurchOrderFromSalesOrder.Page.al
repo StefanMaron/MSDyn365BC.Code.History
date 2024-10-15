@@ -114,7 +114,7 @@ page 1328 "Purch. Order From Sales Order"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Show Unavailable';
-                    Enabled = NOT ShowAllDocsIsEnable;
+                    Enabled = not ShowAllDocsIsEnable;
                     Image = Document;
                     ToolTip = 'Show lines only for items where a sales quantity is unavailable and must be purchased.';
 
@@ -209,25 +209,6 @@ page 1328 "Purch. Order From Sales Order"
                         ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
                     end;
                 }
-#if not CLEAN21
-                action(Timeline)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Timeline';
-                    Image = Timeline;
-                    Scope = Repeater;
-                    ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
-                    ObsoleteTag = '21.0';
-
-                    trigger OnAction()
-                    begin
-                        Rec.ShowTimeline(Rec);
-                    end;
-                }
-#endif
             }
         }
         area(Promoted)
@@ -266,14 +247,6 @@ page 1328 "Purch. Order From Sales Order"
                 actionref("BOM Level_Promoted"; "BOM Level")
                 {
                 }
-#if not CLEAN21
-                actionref(Timeline_Promoted; Timeline)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
         }
     }

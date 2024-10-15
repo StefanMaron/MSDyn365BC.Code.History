@@ -46,15 +46,15 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         Initialize();
 
         // [GIVEN] The approval workflow for puchase quote is enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // [GIVEN] There is a sales quote that is not approved and released.
         CreateSalesQuote(SalesHeader);
 
         // [WHEN] The user wants to Make Order of the sales quote.
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
         SalesQuotes.GotoRecord(SalesHeader);
-        asserterror SalesQuotes.MakeOrder.Invoke;
+        asserterror SalesQuotes.MakeOrder.Invoke();
 
         // [THEN] The user will get an error that he cannot make an order of a sales quote that is not approved and released.
         Assert.ExpectedError(StrSubstNo(DocCannotBeMadeOrderErr, SalesHeader."Document Type", SalesHeader."No."));
@@ -75,7 +75,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         Initialize();
 
         // [GIVEN] The approval workflow for puchase quote is enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
 
         // [GIVEN] The sales quote is created and sent to approval.
@@ -84,9 +84,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SendSalesQuoteForApproval(SalesHeader);
 
         // [WHEN] The user wants to Make Order of the sales quote.
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
         SalesQuotes.GotoRecord(SalesHeader);
-        asserterror SalesQuotes.MakeOrder.Invoke;
+        asserterror SalesQuotes.MakeOrder.Invoke();
 
         // [THEN] The user gets an error that he cannot use this action
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(SalesHeader.RecordId, 0, 1)));
@@ -109,14 +109,14 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         CreateSalesQuote(SalesHeader);
 
         // Exercise
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        asserterror SalesQuote.Release.Invoke;
+        asserterror SalesQuote.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -141,7 +141,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -160,9 +160,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Exercise
         Commit();
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        asserterror SalesQuote.Release.Invoke;
+        asserterror SalesQuote.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(SalesHeader.RecordId, 0, 1)));
@@ -187,7 +187,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -205,9 +205,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         VerifySalesQuoteIsPendingApproval(SalesHeader);
 
         // Exercise
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        asserterror SalesQuote.Reopen.Invoke;
+        asserterror SalesQuote.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -233,7 +233,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -290,7 +290,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [THEN] Sales Quote is reopened and approval entries are marked as rejected.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -351,7 +351,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [THEN] Sales Quote is released.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -428,7 +428,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [THEN] Sales Quote is opend and approval requests are marked as cancelled.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -481,15 +481,15 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [WHEN] SalesHeader card is opened.
         CreateSalesQuote(SalesHeader);
         Commit();
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesQuote.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(SalesQuote.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesQuote.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror SalesQuote.SendApprovalRequest.Invoke;
+        asserterror SalesQuote.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -498,33 +498,33 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesQuote.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(SalesQuote.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(SalesQuote.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(SalesQuote.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(SalesQuote.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesQuote.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(SalesQuote.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(SalesQuote.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(SalesQuote.Delegate.Visible(), 'Delegate should NOT be visible');
         SalesQuote.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        SalesQuote.SendApprovalRequest.Invoke;
+        SalesQuote.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(SalesQuote.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesQuote.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesQuote.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         SalesQuote.Close();
@@ -533,13 +533,13 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
 
         // [WHEN] SalesHeader card is opened.
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(SalesQuote.Approve.Visible, 'Approva should be visible');
-        Assert.IsTrue(SalesQuote.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(SalesQuote.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(SalesQuote.Approve.Visible(), 'Approva should be visible');
+        Assert.IsTrue(SalesQuote.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(SalesQuote.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -560,15 +560,15 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [WHEN] SalesHeader card is opened.
         CreateSalesQuote(SalesHeader);
         Commit();
-        SalesQuotes.OpenEdit;
+        SalesQuotes.OpenEdit();
         SalesQuotes.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesQuotes.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(SalesQuotes.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror SalesQuotes.SendApprovalRequest.Invoke;
+        asserterror SalesQuotes.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -577,30 +577,30 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuotes.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
-        SalesQuotes.OpenEdit;
+        SalesQuotes.OpenEdit();
         SalesQuotes.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesQuotes.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(SalesQuotes.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         SalesQuotes.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
-        SalesQuotes.OpenEdit;
+        SalesQuotes.OpenEdit();
         SalesQuotes.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        SalesQuotes.SendApprovalRequest.Invoke;
+        SalesQuotes.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(SalesQuotes.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesQuotes.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesQuotes.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -623,7 +623,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -690,7 +690,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -759,7 +759,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // [WHEN] Run CheckAvailableCreditLimit for the Sales Quote
         // [THEN] Return value = "0"
-        Assert.AreEqual(0, SalesHeader.CheckAvailableCreditLimit, 'Available credit limit should be 0');
+        Assert.AreEqual(0, SalesHeader.CheckAvailableCreditLimit(), 'Available credit limit should be 0');
     end;
 
     [Test]
@@ -777,7 +777,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         Initialize();
 
         // [GIVEN] The approval workflow for sales quote is enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode());
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
 
         // [GIVEN] The sales quote is created and sent to approval.
@@ -786,9 +786,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SendSalesQuoteForApproval(SalesHeader);
 
         // [WHEN] The user wants to Make Invoice of the sales quote.
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
         SalesQuotes.GotoRecord(SalesHeader);
-        asserterror SalesQuotes.MakeInvoice.Invoke;
+        asserterror SalesQuotes.MakeInvoice.Invoke();
 
         // [THEN] The user gets an error that he cannot use this action
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(SalesHeader.RecordId, 0, 1)));
@@ -803,7 +803,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -839,7 +839,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     begin
         CreateVATPostingSetup(VATPostingSetup);
         CreateCustomerTemplate(CustomerTemplate, VATPostingSetup."VAT Bus. Posting Group");
-        CreateSalesHeaderWithContact2(SalesHeader, LibraryMarketing.CreateCompanyContactNo, CustomerTemplate.Code);
+        CreateSalesHeaderWithContact2(SalesHeader, LibraryMarketing.CreateCompanyContactNo(), CustomerTemplate.Code);
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.Modify(true);
         CreateSalesLineWithVATProdPostingGroup(SalesLine, SalesHeader, VATPostingSetup."VAT Prod. Posting Group", 1);
@@ -902,9 +902,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.SendApprovalRequest.Invoke;
+        SalesQuote.SendApprovalRequest.Invoke();
         SalesQuote.Close();
     end;
 
@@ -966,9 +966,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.Approve.Invoke;
+        SalesQuote.Approve.Invoke();
         SalesQuote.Close();
     end;
 
@@ -976,9 +976,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.Reject.Invoke;
+        SalesQuote.Reject.Invoke();
         SalesQuote.Close();
     end;
 
@@ -986,9 +986,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.Delegate.Invoke;
+        SalesQuote.Delegate.Invoke();
         SalesQuote.Close();
     end;
 
@@ -996,9 +996,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.CancelApprovalRequest.Invoke;
+        SalesQuote.CancelApprovalRequest.Invoke();
         SalesQuote.Close();
     end;
 
@@ -1014,16 +1014,16 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote: TestPage "Sales Quote";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, SalesQuote.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, SalesQuote.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            SalesQuote.Comment.Invoke;
-            if ApprovalComments.First then
+            SalesQuote.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -1043,13 +1043,13 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1066,13 +1066,13 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1088,14 +1088,14 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote: TestPage "Sales Quote";
         SalesQuotes: TestPage "Sales Quotes";
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, SalesQuote.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesQuote.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         SalesQuote.Close();
 
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
         SalesQuotes.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, SalesQuotes.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesQuotes.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         SalesQuotes.Close();
     end;
 
@@ -1103,7 +1103,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     [Scope('OnPrem')]
     procedure MessageHandlerValidateMessage(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message)
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message)
     end;
 
     [ConfirmHandler]

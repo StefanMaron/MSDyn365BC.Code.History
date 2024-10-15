@@ -889,71 +889,70 @@ report 10401 "Check (Stub/Stub/Check)"
                     var
                         CurrencySymbol: Code[5];
                     begin
-                        if not TestPrint then
-                            with GenJnlLine do begin
-                                CheckLedgEntry.Init();
-                                CheckLedgEntry."Bank Account No." := BankAcc2."No.";
-                                CheckLedgEntry."Posting Date" := "Posting Date";
-                                CheckLedgEntry."Document Type" := "Document Type";
-                                CheckLedgEntry."Document No." := UseCheckNo;
-                                CheckLedgEntry.Description := CheckToAddr[1];
-                                CheckLedgEntry."Bank Payment Type" := "Bank Payment Type";
-                                CheckLedgEntry."Bal. Account Type" := BalancingType;
-                                CheckLedgEntry."Bal. Account No." := BalancingNo;
-                                if FoundLast and AddedRemainingAmount then begin
-                                    if TotalLineAmount < 0 then
-                                        Error(
-                                          Text020,
-                                          UseCheckNo, TotalLineAmount);
-                                    CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Printed;
-                                    CheckLedgEntry.Amount := TotalLineAmount;
+                        if not TestPrint then begin
+                            CheckLedgEntry.Init();
+                            CheckLedgEntry."Bank Account No." := BankAcc2."No.";
+                            CheckLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+                            CheckLedgEntry."Document Type" := GenJnlLine."Document Type";
+                            CheckLedgEntry."Document No." := UseCheckNo;
+                            CheckLedgEntry.Description := CheckToAddr[1];
+                            CheckLedgEntry."Bank Payment Type" := GenJnlLine."Bank Payment Type";
+                            CheckLedgEntry."Bal. Account Type" := BalancingType;
+                            CheckLedgEntry."Bal. Account No." := BalancingNo;
+                            if FoundLast and AddedRemainingAmount then begin
+                                if TotalLineAmount < 0 then
+                                    Error(
+                                      Text020,
+                                      UseCheckNo, TotalLineAmount);
+                                CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Printed;
+                                CheckLedgEntry.Amount := TotalLineAmount;
+                            end else begin
+                                CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Voided;
+                                CheckLedgEntry.Amount := 0;
+                            end;
+                            CheckLedgEntry."Check Date" := GenJnlLine."Posting Date";
+                            CheckLedgEntry."Check No." := UseCheckNo;
+                            CheckManagement.InsertCheck(CheckLedgEntry, GenJnlLine.RecordId);
+
+                            if FoundLast and AddedRemainingAmount then begin
+                                CheckAmountText := CheckLedgEntry.GetCheckAmountText(BankAcc2."Currency Code", CurrencySymbol);
+
+                                if CheckLanguage = 3084 then begin
+                                    // French
+                                    DollarSignBefore := '';
+                                    DollarSignAfter := CurrencySymbol;
                                 end else begin
-                                    CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Voided;
-                                    CheckLedgEntry.Amount := 0;
+                                    DollarSignBefore := CurrencySymbol;
+                                    DollarSignAfter := ' ';
                                 end;
-                                CheckLedgEntry."Check Date" := "Posting Date";
-                                CheckLedgEntry."Check No." := UseCheckNo;
-                                CheckManagement.InsertCheck(CheckLedgEntry, RecordId);
-
-                                if FoundLast and AddedRemainingAmount then begin
-                                    CheckAmountText := CheckLedgEntry.GetCheckAmountText(BankAcc2."Currency Code", CurrencySymbol);
-
-                                    if CheckLanguage = 3084 then begin   // French
-                                        DollarSignBefore := '';
-                                        DollarSignAfter := CurrencySymbol;
-                                    end else begin
-                                        DollarSignBefore := CurrencySymbol;
-                                        DollarSignAfter := ' ';
-                                    end;
-                                    if not ChkTransMgt.FormatNoText(DescriptionLine, CheckLedgEntry.Amount, CheckLanguage, BankAcc2."Currency Code") then
-                                        Error(DescriptionLine[1]);
-                                    VoidText := '';
-                                end else begin
-                                    Clear(CheckAmountText);
-                                    Clear(DescriptionLine);
-                                    DescriptionLine[1] := Text021;
-                                    DescriptionLine[2] := DescriptionLine[1];
-                                    VoidText := Text022;
-                                end;
-                            end
-                        else
-                            with GenJnlLine do begin
-                                CheckLedgEntry.Init();
-                                CheckLedgEntry."Bank Account No." := BankAcc2."No.";
-                                CheckLedgEntry."Posting Date" := "Posting Date";
-                                CheckLedgEntry."Document No." := UseCheckNo;
-                                CheckLedgEntry.Description := Text023;
-                                CheckLedgEntry."Bank Payment Type" := "Bank Payment Type"::"Computer Check";
-                                CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::"Test Print";
-                                CheckLedgEntry."Check Date" := "Posting Date";
-                                CheckLedgEntry."Check No." := UseCheckNo;
-                                CheckManagement.InsertCheck(CheckLedgEntry, RecordId);
-
-                                CheckAmountText := Text024;
-                                DescriptionLine[1] := Text025;
+                                if not ChkTransMgt.FormatNoText(DescriptionLine, CheckLedgEntry.Amount, CheckLanguage, BankAcc2."Currency Code") then
+                                    Error(DescriptionLine[1]);
+                                VoidText := '';
+                            end else begin
+                                Clear(CheckAmountText);
+                                Clear(DescriptionLine);
+                                DescriptionLine[1] := Text021;
                                 DescriptionLine[2] := DescriptionLine[1];
                                 VoidText := Text022;
                             end;
+                        end
+                        else begin
+                            CheckLedgEntry.Init();
+                            CheckLedgEntry."Bank Account No." := BankAcc2."No.";
+                            CheckLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+                            CheckLedgEntry."Document No." := UseCheckNo;
+                            CheckLedgEntry.Description := Text023;
+                            CheckLedgEntry."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Computer Check";
+                            CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::"Test Print";
+                            CheckLedgEntry."Check Date" := GenJnlLine."Posting Date";
+                            CheckLedgEntry."Check No." := UseCheckNo;
+                            CheckManagement.InsertCheck(CheckLedgEntry, GenJnlLine.RecordId);
+
+                            CheckAmountText := Text024;
+                            DescriptionLine[1] := Text025;
+                            DescriptionLine[2] := DescriptionLine[1];
+                            VoidText := Text022;
+                        end;
 
                         ChecksPrinted := ChecksPrinted + 1;
                         FirstPage := false;

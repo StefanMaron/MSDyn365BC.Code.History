@@ -44,6 +44,7 @@ table 111 "Sales Shipment Line"
     LookupPageID = "Posted Sales Shipment Lines";
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Value Entry" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -196,7 +197,7 @@ table 111 "Sales Shipment Line"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(52; "Work Type Code"; Code[10])
@@ -314,7 +315,7 @@ table 111 "Sales Shipment Line"
         }
         field(91; "Currency Code"; Code[10])
         {
-            CalcFormula = Lookup("Sales Shipment Header"."Currency Code" where("No." = field("Document No.")));
+            CalcFormula = lookup("Sales Shipment Header"."Currency Code" where("No." = field("Document No.")));
             Caption = 'Currency Code';
             Editable = false;
             FieldClass = FlowField;
@@ -380,13 +381,13 @@ table 111 "Sales Shipment Line"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             Editable = false;
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Contract Entry No."; Integer)
         {
-            Caption = 'Job Contract Entry No.';
+            Caption = 'Project Contract Entry No.';
             Editable = false;
         }
         field(5402; "Variant Code"; Code[10])

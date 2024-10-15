@@ -9,7 +9,7 @@ using Microsoft.Inventory.Item.Attribute;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Setup;
 using Microsoft.Pricing.PriceList;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Purchases.Pricing;
 using Microsoft.Sales.Pricing;
 #endif
@@ -79,43 +79,39 @@ codeunit 730 "Copy Item"
 
     local procedure SetTargetItemNo(var TargetItem: Record Item; CopyCounter: Integer)
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        with TargetItem do begin
-            if TempCopyItemBuffer."Target No. Series" <> '' then begin
-                OnBeforeInitSeries(SourceItem, InventorySetup);
-                InventorySetup.TestField("Item Nos.");
-                "No." := '';
-                NoSeriesMgt.InitSeries(TempCopyItemBuffer."Target No. Series", '', 0D, "No.", "No. Series");
-            end else begin
-                NoSeriesMgt.TestManual(InventorySetup."Item Nos.");
+        if TempCopyItemBuffer."Target No. Series" <> '' then begin
+            OnBeforeInitSeries(SourceItem, InventorySetup);
+            TargetItem."No." := NoSeries.GetNextNo(TempCopyItemBuffer."Target No. Series");
+        end else begin
+            InventorySetup.TestField("Item Nos.");
+            NoSeries.TestManual(InventorySetup."Item Nos.");
 
-                if CopyCounter > 1 then
-                    TempCopyItemBuffer."Target Item No." := IncStr(TempCopyItemBuffer."Target Item No.");
-                "No." := TempCopyItemBuffer."Target Item No.";
-            end;
-
-            CheckExistingItem("No.");
-
-            if CopyCounter = 1 then
-                FirstItemNo := "No.";
-            LastItemNo := "No.";
+            if CopyCounter > 1 then
+                TempCopyItemBuffer."Target Item No." := IncStr(TempCopyItemBuffer."Target Item No.");
+            TargetItem."No." := TempCopyItemBuffer."Target Item No.";
         end;
+
+        CheckExistingItem(TargetItem."No.");
+
+        if CopyCounter = 1 then
+            FirstItemNo := TargetItem."No.";
+        LastItemNo := TargetItem."No.";
     end;
 
     local procedure InitTargetItem(var TargetItem: Record Item; CopyCounter: Integer)
     begin
-        with TargetItem do begin
-            TransferFields(SourceItem);
+        TargetItem.TransferFields(SourceItem);
 
-            SetTargetItemNo(TargetItem, CopyCounter);
+        SetTargetItemNo(TargetItem, CopyCounter);
 
-            "Last Date Modified" := Today;
-            "Created From Nonstock Item" := false;
+        TargetItem."Last Date Modified" := Today;
+        TargetItem."Created From Nonstock Item" := false;
 #if not CLEAN23
-            "Coupled to CRM" := false;
+        TargetItem."Coupled to CRM" := false;
 #endif
-        end;
+
     end;
 
     procedure CopyItem(CopyCounter: Integer)
@@ -145,7 +141,7 @@ codeunit 730 "Copy Item"
         CopyTroubleshootingSetup(SourceItem."No.", TargetItem."No.");
         CopyItemResourceSkills(SourceItem."No.", TargetItem."No.");
         CopyItemPriceListLines(SourceItem."No.", TargetItem."No.");
-#if not CLEAN21
+#if not CLEAN23
         CopyItemSalesPrices(SourceItem."No.", TargetItem."No.");
         CopySalesLineDiscounts(SourceItem."No.", TargetItem."No.");
         CopyPurchasePrices(SourceItem."No.", TargetItem."No.");
@@ -427,7 +423,7 @@ codeunit 730 "Copy Item"
             until PriceListLine.Next() = 0;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the method CopyItemPriceListLines()', '17.0')]
     local procedure CopyItemSalesPrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var

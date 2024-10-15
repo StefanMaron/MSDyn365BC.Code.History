@@ -37,7 +37,7 @@ page 9621 "Add Page Fields"
             group("Step details")
             {
                 Caption = 'Step details';
-                Visible = (CurrentNavigationPage = CurrentNavigationPage::FieldBasicDefinitionPage) AND (NewFieldType <> 'Boolean');
+                Visible = (CurrentNavigationPage = CurrentNavigationPage::FieldBasicDefinitionPage) and (NewFieldType <> 'Boolean');
                 group("Step 1 of 2")
                 {
                     Caption = 'Step 1 of 2';
@@ -349,7 +349,7 @@ page 9621 "Add Page Fields"
                         group(FilterSection)
                         {
                             Caption = 'RELATED TABLE FILTER CRITERIA';
-                            Enabled = (RelatedTableName <> '') AND (RelatedTableFieldName <> '');
+                            Enabled = (RelatedTableName <> '') and (RelatedTableFieldName <> '');
                             field(RelatedTableFilterField; RelatedTableFilterFieldName)
                             {
                                 ApplicationArea = Basic, Suite;
@@ -449,7 +449,7 @@ page 9621 "Add Page Fields"
             group(Control52)
             {
                 Caption = 'Step details';
-                Visible = (CurrentNavigationPage = CurrentNavigationPage::FieldBasicDefinitionPage) AND (NewFieldType = 'Boolean');
+                Visible = (CurrentNavigationPage = CurrentNavigationPage::FieldBasicDefinitionPage) and (NewFieldType = 'Boolean');
                 group(Step1Header_Boolean)
                 {
                     Caption = 'FIELD DEFINITION';
@@ -684,7 +684,7 @@ page 9621 "Add Page Fields"
 
         case NewFieldType of
             'Text', 'Code':
-                PropertyDictionary.Add(NavDesignerProperty.Editable, ConvertToBooleanText(IsFieldEditable));
+                PropertyDictionary.Add(NavDesignerProperty.Editable(), ConvertToBooleanText(IsFieldEditable));
             'Decimal':
                 begin
                     PropertyDictionary.Add(NavDesignerProperty.DecimalPlaces, Format(Field_NoOfDecimalPlaces));

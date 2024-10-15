@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +18,9 @@ report 10109 "Vendor 1099 Div"
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor 1099 Dividend';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -317,17 +321,15 @@ report 10109 "Vendor 1099 Div"
     begin
         // Search for invoices paid off by this payment
         EntryAppMgt.GetAppliedVendorEntries(TempAppliedEntry, VendorNo, PeriodDate, true);
-        with TempAppliedEntry do begin
-            // Search for invoices with 1099 amounts
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetFilter("IRS 1099 Amount", '<>0');
-            SetRange("IRS 1099 Code", 'DIV-', 'DIV-99');
-            if FindSet() then
-                repeat
-                    IRS1099Management.Calculate1099Amount(
-                      Invoice1099Amount, Amounts, Codes, LastLineNo, TempAppliedEntry, "Amount to Apply");
-                until Next() = 0;
-        end;
+        // Search for invoices with 1099 amounts
+        TempAppliedEntry.SetFilter("Document Type", '%1|%2', TempAppliedEntry."Document Type"::Invoice, TempAppliedEntry."Document Type"::"Credit Memo");
+        TempAppliedEntry.SetFilter("IRS 1099 Amount", '<>0');
+        TempAppliedEntry.SetRange("IRS 1099 Code", 'DIV-', 'DIV-99');
+        if TempAppliedEntry.FindSet() then
+            repeat
+                IRS1099Management.Calculate1099Amount(
+                  Invoice1099Amount, Amounts, Codes, LastLineNo, TempAppliedEntry, TempAppliedEntry."Amount to Apply");
+            until TempAppliedEntry.Next() = 0;
     end;
 
     procedure Calculate1099Amount(InvoiceEntry: Record "Vendor Ledger Entry"; AppliedAmount: Decimal)
@@ -369,35 +371,35 @@ report 10109 "Vendor 1099 Div"
 
     procedure FormatCompanyAddress(var CompanyAddress: array[5] of Text[100]; var CompanyInfo: Record "Company Information"; TestPrint: Boolean)
     begin
-        with CompanyInfo do
-            if TestPrint then begin
-                for i := 1 to ArrayLen(CompanyAddress) do
-                    CompanyAddress[i] := PadStr('x', MaxStrLen(CompanyAddress[i]), 'X');
-            end else begin
-                Get();
+        if TestPrint then begin
+            for i := 1 to ArrayLen(CompanyAddress) do
+                CompanyAddress[i] := PadStr('x', MaxStrLen(CompanyAddress[i]), 'X');
+        end else begin
+            CompanyInfo.Get();
 
-                Clear(CompanyAddress);
-                CompanyAddress[1] := Name;
-                CompanyAddress[2] := Address;
-                CompanyAddress[3] := "Address 2";
-                if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen(CompanyAddress[4]) then begin
-                    CompanyAddress[4] := City;
-                    CompanyAddress[5] := County + '  ' + "Post Code";
-                    if CompressArray(CompanyAddress) = ArrayLen(CompanyAddress) then begin
-                        CompanyAddress[3] := CompanyAddress[4];  // lose address 2 to add phone no.
-                        CompanyAddress[4] := CompanyAddress[5];
-                    end;
-                    CompanyAddress[5] := "Phone No.";
-                end else
-                    if (City <> '') and (County <> '') then begin
-                        CompanyAddress[4] := City + ', ' + County + '  ' + "Post Code";
-                        CompanyAddress[5] := "Phone No.";
-                    end else begin
-                        CompanyAddress[4] := DelChr(City + ' ' + County + ' ' + "Post Code", '<>');
-                        CompanyAddress[5] := "Phone No.";
-                    end;
-                CompressArray(CompanyAddress);
-            end;
+            Clear(CompanyAddress);
+            CompanyAddress[1] := CompanyInfo.Name;
+            CompanyAddress[2] := CompanyInfo.Address;
+            CompanyAddress[3] := CompanyInfo."Address 2";
+            if StrLen(CompanyInfo.City + ', ' + CompanyInfo.County + '  ' + CompanyInfo."Post Code") > MaxStrLen(CompanyAddress[4]) then begin
+                CompanyAddress[4] := CompanyInfo.City;
+                CompanyAddress[5] := CompanyInfo.County + '  ' + CompanyInfo."Post Code";
+                if CompressArray(CompanyAddress) = ArrayLen(CompanyAddress) then begin
+                    CompanyAddress[3] := CompanyAddress[4];
+                    // lose address 2 to add phone no.
+                    CompanyAddress[4] := CompanyAddress[5];
+                end;
+                CompanyAddress[5] := CompanyInfo."Phone No.";
+            end else
+                if (CompanyInfo.City <> '') and (CompanyInfo.County <> '') then begin
+                    CompanyAddress[4] := CompanyInfo.City + ', ' + CompanyInfo.County + '  ' + CompanyInfo."Post Code";
+                    CompanyAddress[5] := CompanyInfo."Phone No.";
+                end else begin
+                    CompanyAddress[4] := DelChr(CompanyInfo.City + ' ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code", '<>');
+                    CompanyAddress[5] := CompanyInfo."Phone No.";
+                end;
+            CompressArray(CompanyAddress);
+        end;
     end;
 
     local procedure UpdatePeriodDateArray()
@@ -407,3 +409,4 @@ report 10109 "Vendor 1099 Div"
     end;
 }
 
+#endif

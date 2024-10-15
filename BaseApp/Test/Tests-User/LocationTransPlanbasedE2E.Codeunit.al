@@ -49,7 +49,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Initialize();
 
         // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CreateAnItemAssociatedWithVendorAndSeveralLocationsForStorage(
           OrangeItemNo, VendorName, OrangeLocationCode, AppleLocationCode, FruitsLocationCode, InTransitLocationCode);
         SellAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocation(
@@ -57,7 +57,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         CheckPostedDetailsOfTransferShipmentAndReceipt(OrangeLocationCode, FruitsLocationCode, InTransitLocationCode);
 
         // Wrap-up
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -80,7 +80,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Initialize();
 
         // Exercise
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
         CreateAnItemAssociatedWithVendorAndSeveralLocationsForStorage(
           OrangeItemNo, VendorName, OrangeLocationCode, AppleLocationCode, FruitsLocationCode, InTransitLocationCode);
         SellAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocation(
@@ -88,7 +88,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         CheckPostedDetailsOfTransferShipmentAndReceipt(OrangeLocationCode, FruitsLocationCode, InTransitLocationCode);
 
         // Wrap-up
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -120,21 +120,21 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Commit();
 
         // Exercise
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         TryCreatingAnItemAssociatedWithVendorAndSeveralLocationsForStorage(
           AnyItemDescription, Vendor."No.", AnyVendorName, AnyLocationCode, AnyLocationName);
         TrySellingAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocation(
           Item."No.", Vendor.Name, TransferHeader, ExtraLocationCode, Customer.Name);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         CheckPostedDetailsOfTransferShipmentAndReceiptForSpecificTransferOrder(TransferHeader);
 
         // Wrap-up
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Initialize();
 
         // Exercise
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         CreateAnItemAssociatedWithVendorAndSeveralLocationsForStorage(
           OrangeItemNo, VendorName, OrangeLocationCode, AppleLocationCode, FruitsLocationCode, InTransitLocationCode);
         SellAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocation(
@@ -166,7 +166,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         CheckPostedDetailsOfTransferShipmentAndReceipt(OrangeLocationCode, FruitsLocationCode, InTransitLocationCode);
 
         // Wrap-up
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -198,21 +198,21 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Commit();
 
         // Exercise
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         TryCreatingAnItemAssociatedWithVendorAndSeveralLocationsForStorage(
           AnyItemDescription, Vendor."No.", AnyVendorName, AnyLocationCode, AnyLocationName);
         TrySellingAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocation(
           Item."No.", Vendor.Name, TransferHeader, ExtraLocationCode, Customer.Name);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         CheckPostedDetailsOfTransferShipmentAndReceiptForSpecificTransferOrder(TransferHeader);
 
         // Wrap-up
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -236,7 +236,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Initialize();
 
         // Exercise
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
         CreateAnItemAssociatedWithVendorAndSeveralLocationsForStorage(
           OrangeItemNo, VendorName, OrangeLocationCode, AppleLocationCode, FruitsLocationCode, InTransitLocationCode);
         SellAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocation(
@@ -244,7 +244,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         CheckPostedDetailsOfTransferShipmentAndReceipt(OrangeLocationCode, FruitsLocationCode, InTransitLocationCode);
 
         // Wrap-up
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -270,29 +270,29 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Initialize();
 
         // Exercise
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
         CreateAnItemAssociatedWithVendorAndSeveralLocationsForStorage(
           OrangeItemNo, VendorName, OrangeLocationCode, AppleLocationCode, FruitsLocationCode, InTransitLocationCode);
 
         TransferOrder.OpenNew();
         TransferOrder."Transfer-from Code".SetValue(OrangeLocationCode);
         TransferOrder."Transfer-to Code".SetValue(AppleLocationCode);
-        TransferOrderNo := TransferOrder."No.".Value;
+        TransferOrderNo := TransferOrder."No.".Value();
         TransferOrder."In-Transit Code".SetValue(InTransitLocationCode);
         TransferOrder.TransferLines."Item No.".SetValue(OrangeItemNo);
-        TransferOrder.OK.Invoke;
+        TransferOrder.OK().Invoke();
 
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoKey(TransferOrderNo);
         TransferOrder."Transfer-from Code".SetValue(FruitsLocationCode);
-        TransferOrder.OK.Invoke;
+        TransferOrder.OK().Invoke();
 
         TransferLine.SetRange("Document No.", TransferOrderNo);
         TransferLine.FindFirst();
         Assert.AreEqual(FruitsLocationCode, TransferLine."Transfer-from Code", TransferLineNotExistsErrorTxt);
 
         // Wrap-up
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -305,7 +305,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
@@ -316,7 +316,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
@@ -417,7 +417,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         ShipTransferOrder(TransferOrderNo);
         ReceiveTransferOrder(TransferOrderNo);
 
-        CustomerName := CreateCustomer;
+        CustomerName := CreateCustomer();
         SellOneItemToCustomerFromLocation(OrangeItemNo, FruitsLocationCode, CustomerName);
 
         DeleteLocation(AppleLocationCode);
@@ -441,7 +441,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         asserterror ReceiveTransferOrder(TransferHeader."No.");
         Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
-        asserterror CreateCustomer;
+        asserterror CreateCustomer();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         asserterror SellOneItemToCustomerFromLocation(ItemNo, TransferHeader."Transfer-from Code", CustomerName);
@@ -472,7 +472,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LocationCard.OpenNew();
         LocationCard.Code.SetValue(Code);
         LocationCard.Name.SetValue(Name);
-        LocationCard.OK.Invoke;
+        LocationCard.OK().Invoke();
     end;
 
     local procedure CreateInTransitLocation("Code": Code[10]; Name: Text[100])
@@ -483,7 +483,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LocationCard.Code.SetValue(Code);
         LocationCard.Name.SetValue(Name);
         LocationCard."Use As In-Transit".SetValue(true);
-        LocationCard.OK.Invoke;
+        LocationCard.OK().Invoke();
     end;
 
     local procedure EditLocationAddressAndContactDetails("Code": Code[10])
@@ -491,16 +491,16 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Location: Record Location;
         LocationCard: TestPage "Location Card";
     begin
-        LocationCard.OpenEdit;
+        LocationCard.OpenEdit();
         LocationCard.GotoKey(Code);
         LocationCard.Address.SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Location.Address)), 1, MaxStrLen(Location.Address)));
         LocationCard."Phone No.".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Location."Phone No.")), 1, MaxStrLen(Location."Phone No.")));
-        LocationCard."E-Mail".SetValue(LibraryUtility.GenerateRandomEmail);
+        LocationCard."E-Mail".SetValue(LibraryUtility.GenerateRandomEmail());
         LocationCard."Home Page".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Location."Home Page")), 1, MaxStrLen(Location."Home Page")));
-        LocationCard.OK.Invoke;
+        LocationCard.OK().Invoke();
     end;
 
     local procedure CreateItemFromVendor(ItemDescription: Text[100]; var InventoryPostingGroup: Code[20]; var VendorName: Text[100]) ItemNo: Code[20]
@@ -519,8 +519,8 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     begin
         VendorCard.OpenNew();
         VendorCard.Name.SetValue(Name);
-        VendorNo := VendorCard."No.".Value;
-        VendorCard.OK.Invoke;
+        VendorNo := VendorCard."No.".Value();
+        VendorCard.OK().Invoke();
     end;
 
     local procedure CreateItem(Description: Text[100]; VendorNo: Code[20]; var InventoryPostingGroup: Code[20]) ItemNo: Code[20]
@@ -536,14 +536,14 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         ItemCard."Unit Cost".SetValue(UnitCost);
         ItemCard."Unit Price".SetValue(UnitCost + LibraryRandom.RandDec(100, 2));
         ItemCard."Vendor No.".SetValue(VendorNo);
-        if ApplicationAreaMgmtFacade.IsVATEnabled then begin
+        if ApplicationAreaMgmtFacade.IsVATEnabled() then begin
             LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
             ItemCard."VAT Prod. Posting Group".SetValue(VATPostingSetup."VAT Prod. Posting Group");
         end;
-        ItemNo := ItemCard."No.".Value;
-        InventoryPostingGroup := ItemCard."Inventory Posting Group".Value;
+        ItemNo := ItemCard."No.".Value();
+        InventoryPostingGroup := ItemCard."Inventory Posting Group".Value();
 
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -574,14 +574,14 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         InventoryPostingSetup: TestPage "Inventory Posting Setup";
     begin
-        InventoryPostingSetup.OpenEdit;
-        InventoryPostingSetup.New;
+        InventoryPostingSetup.OpenEdit();
+        InventoryPostingSetup.New();
         InventoryPostingSetup."Location Code".SetValue(LocationCode);
         InventoryPostingSetup."Invt. Posting Group Code".SetValue(InventoryPostingGroup);
-        InventoryPostingSetup."Inventory Account".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
-        InventoryPostingSetup."Inventory Account (Interim)".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
-        InventoryPostingSetup."WIP Account".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
-        InventoryPostingSetup.OK.Invoke;
+        InventoryPostingSetup."Inventory Account".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        InventoryPostingSetup."Inventory Account (Interim)".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        InventoryPostingSetup."WIP Account".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        InventoryPostingSetup.OK().Invoke();
     end;
 
     local procedure BuyItemFromVendorAtLocation(ItemNo: Code[20]; VendorName: Text[100]; LocationCode: Code[10])
@@ -593,12 +593,12 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorName);
         PurchaseInvoice."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines."No.".SetValue(ItemNo);
         PurchaseInvoice.PurchLines."Location Code".SetValue(LocationCode);
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandDecInRange(10, 100, 2));
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(10, 100, 2));
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
     end;
 
     [ConfirmHandler]
@@ -612,7 +612,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoicePageHandler(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice")
     begin
-        PostedPurchaseInvoice.OK.Invoke;
+        PostedPurchaseInvoice.OK().Invoke();
     end;
 
     local procedure TransferOneItemFromLocationToAnother(FromLocationCode: Code[10]; ToLocationCode: Code[10]; InTransitLocationCode: Code[10]; ItemNo: Code[20]) TransferOrderNo: Code[20]
@@ -622,16 +622,16 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         TransferOrder.OpenNew();
         TransferOrder."Transfer-from Code".SetValue(FromLocationCode);
         TransferOrder."Transfer-to Code".SetValue(ToLocationCode);
-        TransferOrderNo := TransferOrder."No.".Value;
-        TransferOrder.OK.Invoke;
+        TransferOrderNo := TransferOrder."No.".Value();
+        TransferOrder.OK().Invoke();
 
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoKey(TransferOrderNo);
         TransferOrder."In-Transit Code".SetValue(InTransitLocationCode);
-        TransferOrder.TransferLines.New;
+        TransferOrder.TransferLines.New();
         TransferOrder.TransferLines."Item No.".SetValue(ItemNo);
         TransferOrder.TransferLines.Quantity.SetValue(1);
-        TransferOrder.OK.Invoke;
+        TransferOrder.OK().Invoke();
     end;
 
     local procedure EditTransferOrderAddressAndContactDetails(TransferOrderNo: Code[20])
@@ -639,7 +639,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         TransferHeader: Record "Transfer Header";
         TransferOrder: TestPage "Transfer Order";
     begin
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoKey(TransferOrderNo);
         TransferOrder."Transfer-from Address 2".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(TransferHeader."Transfer-from Address 2")),
@@ -653,34 +653,34 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         TransferOrder."Transfer-to Name 2".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(TransferHeader."Transfer-to Name 2")),
             1, MaxStrLen(TransferHeader."Transfer-to Name 2")));
-        TransferOrder.OK.Invoke;
+        TransferOrder.OK().Invoke();
     end;
 
     local procedure ShipTransferOrder(TransferOrderNo: Code[20])
     var
         TransferOrder: TestPage "Transfer Order";
     begin
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoKey(TransferOrderNo);
         LibraryVariableStorage.Enqueue(1);
-        TransferOrder.Post.Invoke;
+        TransferOrder.Post.Invoke();
     end;
 
     local procedure ReceiveTransferOrder(TransferOrderNo: Code[20])
     var
         TransferOrder: TestPage "Transfer Order";
     begin
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoKey(TransferOrderNo);
         LibraryVariableStorage.Enqueue(2);
-        TransferOrder.Post.Invoke;
+        TransferOrder.Post.Invoke();
     end;
 
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure ShipOrReceiveTransferOrderStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     [MessageHandler]
@@ -696,11 +696,11 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     begin
         SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines."No.".SetValue(ItemNo);
         SalesInvoice.SalesLines."Location Code".SetValue(LocationCode);
         SalesInvoice.SalesLines.Quantity.SetValue(1);
-        SalesInvoice.Post.Invoke;
+        SalesInvoice.Post.Invoke();
     end;
 
     local procedure CreateCustomer() CustomerName: Text[100]
@@ -712,14 +712,14 @@ codeunit 135402 "Location Trans. Plan-based E2E"
 
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(CustomerName);
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesInvoicePageHandler(var PostedSalesInvoice: TestPage "Posted Sales Invoice")
     begin
-        PostedSalesInvoice.OK.Invoke;
+        PostedSalesInvoice.OK().Invoke();
     end;
 
     local procedure DeleteLocation("Code": Code[10])
@@ -734,11 +734,11 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         PostedTransferShipments: TestPage "Posted Transfer Shipments";
     begin
-        PostedTransferShipments.OpenEdit;
+        PostedTransferShipments.OpenEdit();
         PostedTransferShipments.FILTER.SetFilter("Transfer-from Code", FromLocationCode);
         PostedTransferShipments.FILTER.SetFilter("Transfer-to Code", ToLocationCode);
         LibraryVariableStorage.Enqueue(InTransitLocationCode);
-        PostedTransferShipments.View.Invoke;
+        PostedTransferShipments.View().Invoke();
         PostedTransferShipments.Close();
     end;
 
@@ -746,7 +746,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     [Scope('OnPrem')]
     procedure PostedTransferShipmentPageHandler(var PostedTransferShipment: TestPage "Posted Transfer Shipment")
     begin
-        PostedTransferShipment."In-Transit Code".AssertEquals(LibraryVariableStorage.DequeueText);
+        PostedTransferShipment."In-Transit Code".AssertEquals(LibraryVariableStorage.DequeueText());
         PostedTransferShipment.Close();
     end;
 
@@ -754,11 +754,11 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         PostedTransferReceipts: TestPage "Posted Transfer Receipts";
     begin
-        PostedTransferReceipts.OpenEdit;
+        PostedTransferReceipts.OpenEdit();
         PostedTransferReceipts.FILTER.SetFilter("Transfer-from Code", FromLocationCode);
         PostedTransferReceipts.FILTER.SetFilter("Transfer-to Code", ToLocationCode);
         LibraryVariableStorage.Enqueue(InTransitLocationCode);
-        PostedTransferReceipts.View.Invoke;
+        PostedTransferReceipts.View().Invoke();
         PostedTransferReceipts.Close();
     end;
 
@@ -766,7 +766,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     [Scope('OnPrem')]
     procedure PostedTransferReceiptPageHandler(var PostedTransferReceipt: TestPage "Posted Transfer Receipt")
     begin
-        PostedTransferReceipt."In-Transit Code".AssertEquals(LibraryVariableStorage.DequeueText);
+        PostedTransferReceipt."In-Transit Code".AssertEquals(LibraryVariableStorage.DequeueText());
         PostedTransferReceipt.Close();
     end;
 }

@@ -22,21 +22,21 @@ page 130011 "Tainted Tables"
                     Style = Attention;
                     StyleExpr = Modified;
                 }
-                field("<Table Name>"; SourceTableName)
+                field("<Table Name>"; SourceTableName())
                 {
                     ApplicationArea = All;
                     Caption = 'Table Name';
                     Style = Attention;
                     StyleExpr = Modified;
                 }
-                field("<Snapshot Row Count>"; RowCountBefore)
+                field("<Snapshot Row Count>"; RowCountBefore())
                 {
                     ApplicationArea = All;
                     Caption = 'Snapshot Row Count';
                     Style = Attention;
                     StyleExpr = Modified;
                 }
-                field("<Current Row Count>"; RowCountNow)
+                field("<Current Row Count>"; RowCountNow())
                 {
                     ApplicationArea = All;
                     Caption = 'Current Row Count';
@@ -60,12 +60,12 @@ page 130011 "Tainted Tables"
 
     trigger OnAfterGetRecord()
     begin
-        Modified := RowCountBefore <> RowCountNow;
+        Modified := RowCountBefore() <> RowCountNow();
     end;
 
     trigger OnOpenPage()
     begin
-        RefreshPage
+        RefreshPage();
     end;
 
     var

@@ -12,6 +12,7 @@ table 5480 "Tax Group Buffer"
 {
     Caption = 'Tax Group Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -397,62 +397,60 @@ codeunit 27000 "Export Accounts"
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with AppliedVendorLedgerEntry do begin
-            Reset();
+        AppliedVendorLedgerEntry.Reset();
 
-            VendorLedgerEntry.Get(EntryNo);
+        VendorLedgerEntry.Get(EntryNo);
 
-            DetailedVendorLedgEntry1.SetCurrentKey("Vendor Ledger Entry No.");
-            DetailedVendorLedgEntry1.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
-            DetailedVendorLedgEntry1.SetRange(Unapplied, false);
-            if DetailedVendorLedgEntry1.Find('-') then
-                repeat
-                    if DetailedVendorLedgEntry1."Vendor Ledger Entry No." =
-                       DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No."
-                    then begin
-                        DetailedVendorLedgEntry2.Init();
-                        DetailedVendorLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
-                        DetailedVendorLedgEntry2.SetRange(
-                          "Applied Vend. Ledger Entry No.", DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No.");
-                        DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::Application);
-                        DetailedVendorLedgEntry2.SetRange(Unapplied, false);
-                        if DetailedVendorLedgEntry2.Find('-') then
-                            repeat
-                                if DetailedVendorLedgEntry2."Vendor Ledger Entry No." <> DetailedVendorLedgEntry2."Applied Vend. Ledger Entry No."
-                                then begin
-                                    SetCurrentKey("Entry No.");
-                                    SetRange("Entry No.", DetailedVendorLedgEntry2."Vendor Ledger Entry No.");
-                                    if Find('-') then
-                                        Mark(true);
-                                end;
-                            until DetailedVendorLedgEntry2.Next() = 0;
-                    end else begin
-                        SetCurrentKey("Entry No.");
-                        SetRange("Entry No.", DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No.");
-                        if Find('-') then
-                            Mark(true);
-                    end;
-                until DetailedVendorLedgEntry1.Next() = 0;
+        DetailedVendorLedgEntry1.SetCurrentKey("Vendor Ledger Entry No.");
+        DetailedVendorLedgEntry1.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
+        DetailedVendorLedgEntry1.SetRange(Unapplied, false);
+        if DetailedVendorLedgEntry1.Find('-') then
+            repeat
+                if DetailedVendorLedgEntry1."Vendor Ledger Entry No." =
+                   DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No."
+                then begin
+                    DetailedVendorLedgEntry2.Init();
+                    DetailedVendorLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
+                    DetailedVendorLedgEntry2.SetRange(
+                      "Applied Vend. Ledger Entry No.", DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No.");
+                    DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::Application);
+                    DetailedVendorLedgEntry2.SetRange(Unapplied, false);
+                    if DetailedVendorLedgEntry2.Find('-') then
+                        repeat
+                            if DetailedVendorLedgEntry2."Vendor Ledger Entry No." <> DetailedVendorLedgEntry2."Applied Vend. Ledger Entry No."
+                            then begin
+                                AppliedVendorLedgerEntry.SetCurrentKey("Entry No.");
+                                AppliedVendorLedgerEntry.SetRange("Entry No.", DetailedVendorLedgEntry2."Vendor Ledger Entry No.");
+                                if AppliedVendorLedgerEntry.Find('-') then
+                                    AppliedVendorLedgerEntry.Mark(true);
+                            end;
+                        until DetailedVendorLedgEntry2.Next() = 0;
+                end else begin
+                    AppliedVendorLedgerEntry.SetCurrentKey("Entry No.");
+                    AppliedVendorLedgerEntry.SetRange("Entry No.", DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No.");
+                    if AppliedVendorLedgerEntry.Find('-') then
+                        AppliedVendorLedgerEntry.Mark(true);
+                end;
+            until DetailedVendorLedgEntry1.Next() = 0;
 
-            SetCurrentKey("Entry No.");
-            SetRange("Entry No.");
+        AppliedVendorLedgerEntry.SetCurrentKey("Entry No.");
+        AppliedVendorLedgerEntry.SetRange("Entry No.");
 
-            if VendorLedgerEntry."Closed by Entry No." <> 0 then begin
-                "Entry No." := VendorLedgerEntry."Closed by Entry No.";
-                Mark(true);
-            end;
-
-            SetCurrentKey("Closed by Entry No.");
-            SetRange("Closed by Entry No.", VendorLedgerEntry."Entry No.");
-            if Find('-') then
-                repeat
-                    Mark(true);
-                until Next() = 0;
-
-            SetCurrentKey("Entry No.");
-            SetRange("Closed by Entry No.");
-            MarkedOnly(true);
+        if VendorLedgerEntry."Closed by Entry No." <> 0 then begin
+            AppliedVendorLedgerEntry."Entry No." := VendorLedgerEntry."Closed by Entry No.";
+            AppliedVendorLedgerEntry.Mark(true);
         end;
+
+        AppliedVendorLedgerEntry.SetCurrentKey("Closed by Entry No.");
+        AppliedVendorLedgerEntry.SetRange("Closed by Entry No.", VendorLedgerEntry."Entry No.");
+        if AppliedVendorLedgerEntry.Find('-') then
+            repeat
+                AppliedVendorLedgerEntry.Mark(true);
+            until AppliedVendorLedgerEntry.Next() = 0;
+
+        AppliedVendorLedgerEntry.SetCurrentKey("Entry No.");
+        AppliedVendorLedgerEntry.SetRange("Closed by Entry No.");
+        AppliedVendorLedgerEntry.MarkedOnly(true);
     end;
 
     local procedure FindAppliedCustomerReceipts(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; EntryNo: Integer)
@@ -461,60 +459,58 @@ codeunit 27000 "Export Accounts"
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with AppliedCustLedgerEntry do begin
-            Reset();
+        AppliedCustLedgerEntry.Reset();
 
-            CustLedgerEntry.Get(EntryNo);
+        CustLedgerEntry.Get(EntryNo);
 
-            DetailedCustLedgEntry1.SetCurrentKey("Cust. Ledger Entry No.");
-            DetailedCustLedgEntry1.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-            DetailedCustLedgEntry1.SetRange(Unapplied, false);
-            if DetailedCustLedgEntry1.Find('-') then
-                repeat
-                    if DetailedCustLedgEntry1."Cust. Ledger Entry No." = DetailedCustLedgEntry1."Applied Cust. Ledger Entry No." then begin
-                        DetailedCustLedgEntry2.Init();
-                        DetailedCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
-                        DetailedCustLedgEntry2.SetRange(
-                          "Applied Cust. Ledger Entry No.", DetailedCustLedgEntry1."Applied Cust. Ledger Entry No.");
-                        DetailedCustLedgEntry2.SetRange("Entry Type", DetailedCustLedgEntry2."Entry Type"::Application);
-                        DetailedCustLedgEntry2.SetRange(Unapplied, false);
-                        if DetailedCustLedgEntry2.Find('-') then
-                            repeat
-                                if DetailedCustLedgEntry2."Cust. Ledger Entry No." <> DetailedCustLedgEntry2."Applied Cust. Ledger Entry No."
-                                then begin
-                                    SetCurrentKey("Entry No.");
-                                    SetRange("Entry No.", DetailedCustLedgEntry2."Cust. Ledger Entry No.");
-                                    if Find('-') then
-                                        Mark(true);
-                                end;
-                            until DetailedCustLedgEntry2.Next() = 0;
-                    end else begin
-                        SetCurrentKey("Entry No.");
-                        SetRange("Entry No.", DetailedCustLedgEntry1."Applied Cust. Ledger Entry No.");
-                        if Find('-') then
-                            Mark(true);
-                    end;
-                until DetailedCustLedgEntry1.Next() = 0;
+        DetailedCustLedgEntry1.SetCurrentKey("Cust. Ledger Entry No.");
+        DetailedCustLedgEntry1.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry1.SetRange(Unapplied, false);
+        if DetailedCustLedgEntry1.Find('-') then
+            repeat
+                if DetailedCustLedgEntry1."Cust. Ledger Entry No." = DetailedCustLedgEntry1."Applied Cust. Ledger Entry No." then begin
+                    DetailedCustLedgEntry2.Init();
+                    DetailedCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
+                    DetailedCustLedgEntry2.SetRange(
+                      "Applied Cust. Ledger Entry No.", DetailedCustLedgEntry1."Applied Cust. Ledger Entry No.");
+                    DetailedCustLedgEntry2.SetRange("Entry Type", DetailedCustLedgEntry2."Entry Type"::Application);
+                    DetailedCustLedgEntry2.SetRange(Unapplied, false);
+                    if DetailedCustLedgEntry2.Find('-') then
+                        repeat
+                            if DetailedCustLedgEntry2."Cust. Ledger Entry No." <> DetailedCustLedgEntry2."Applied Cust. Ledger Entry No."
+                            then begin
+                                AppliedCustLedgerEntry.SetCurrentKey("Entry No.");
+                                AppliedCustLedgerEntry.SetRange("Entry No.", DetailedCustLedgEntry2."Cust. Ledger Entry No.");
+                                if AppliedCustLedgerEntry.Find('-') then
+                                    AppliedCustLedgerEntry.Mark(true);
+                            end;
+                        until DetailedCustLedgEntry2.Next() = 0;
+                end else begin
+                    AppliedCustLedgerEntry.SetCurrentKey("Entry No.");
+                    AppliedCustLedgerEntry.SetRange("Entry No.", DetailedCustLedgEntry1."Applied Cust. Ledger Entry No.");
+                    if AppliedCustLedgerEntry.Find('-') then
+                        AppliedCustLedgerEntry.Mark(true);
+                end;
+            until DetailedCustLedgEntry1.Next() = 0;
 
-            SetCurrentKey("Entry No.");
-            SetRange("Entry No.");
+        AppliedCustLedgerEntry.SetCurrentKey("Entry No.");
+        AppliedCustLedgerEntry.SetRange("Entry No.");
 
-            if CustLedgerEntry."Closed by Entry No." <> 0 then begin
-                "Entry No." := CustLedgerEntry."Closed by Entry No.";
-                Mark(true);
-            end;
-
-            SetCurrentKey("Closed by Entry No.");
-            SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
-            if Find('-') then
-                repeat
-                    Mark(true);
-                until Next() = 0;
-
-            SetCurrentKey("Entry No.");
-            SetRange("Closed by Entry No.");
-            MarkedOnly(true);
+        if CustLedgerEntry."Closed by Entry No." <> 0 then begin
+            AppliedCustLedgerEntry."Entry No." := CustLedgerEntry."Closed by Entry No.";
+            AppliedCustLedgerEntry.Mark(true);
         end;
+
+        AppliedCustLedgerEntry.SetCurrentKey("Closed by Entry No.");
+        AppliedCustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
+        if AppliedCustLedgerEntry.Find('-') then
+            repeat
+                AppliedCustLedgerEntry.Mark(true);
+            until AppliedCustLedgerEntry.Next() = 0;
+
+        AppliedCustLedgerEntry.SetCurrentKey("Entry No.");
+        AppliedCustLedgerEntry.SetRange("Closed by Entry No.");
+        AppliedCustLedgerEntry.MarkedOnly(true);
     end;
 
     local procedure CreateReceipt(var TempXMLBuffer: Record "XML Buffer"; LedgerEntry: Variant; IsAuxiliary: Boolean)
@@ -542,12 +538,12 @@ codeunit 27000 "Export Accounts"
         FindCustVendDetails(LedgerEntryRecordRef, CountryRegion, RFCNo, VATRegistrationNo, CustVendName);
         AmountFieldRef := LedgerEntryRecordRef.Field(13);
         AmountFieldRef.CalcField();
-        Amount := AmountFieldRef.Value;
-        CurrencyCode := LedgerEntryRecordRef.Field(11).Value;
-        AdjustedCurrencyFactor := LedgerEntryRecordRef.Field(73).Value;
-        PaymentMethodCode := LedgerEntryRecordRef.Field(172).Value;
+        Amount := AmountFieldRef.Value();
+        CurrencyCode := LedgerEntryRecordRef.Field(11).Value();
+        AdjustedCurrencyFactor := LedgerEntryRecordRef.Field(73).Value();
+        PaymentMethodCode := LedgerEntryRecordRef.Field(172).Value();
 
-        DocumentNo := LedgerEntryRecordRef.Field(6).Value;
+        DocumentNo := LedgerEntryRecordRef.Field(6).Value();
         if (CountryRegion = CompanyInformation."Country/Region Code") or (CountryRegion = '') then begin
             UUIDCFDI := FindUUIDCFDI(LedgerEntryRecordRef);
 
@@ -619,14 +615,13 @@ codeunit 27000 "Export Accounts"
                     PaymentHandled := true;
             until BankAccountLedgerEntry.Next() = 0;
 
-        with GLEntry do
-            if (not PaymentHandled) and
-               ("Credit Amount" > 0) and
-               ("Document Type" = "Document Type"::Payment)
-            then begin
-                CreateOtrMetodoPagoNode(TempXMLBuffer, DATABASE::"Cust. Ledger Entry", "Transaction No.");
-                CreateOtrMetodoPagoNode(TempXMLBuffer, DATABASE::"Vendor Ledger Entry", "Transaction No.");
-            end
+        if (not PaymentHandled) and
+            (GLEntry."Credit Amount" > 0) and
+            (GLEntry."Document Type" = GLEntry."Document Type"::Payment)
+        then begin
+            CreateOtrMetodoPagoNode(TempXMLBuffer, DATABASE::"Cust. Ledger Entry", GLEntry."Transaction No.");
+            CreateOtrMetodoPagoNode(TempXMLBuffer, DATABASE::"Vendor Ledger Entry", GLEntry."Transaction No.");
+        end
     end;
 
     local procedure CreateChequeNode(var TempXMLBuffer: Record "XML Buffer" temporary; CheckLedgerEntry: Record "Check Ledger Entry"): Boolean
@@ -853,10 +848,10 @@ codeunit 27000 "Export Accounts"
                 FindCustVendDetails(LedgerEntryRecordRef, CountryRegion, RFCNo, VATRegistrationNo, Name);
                 AmountFieldRef := LedgerEntryRecordRef.Field(13);
                 AmountFieldRef.CalcField();
-                Amount := AmountFieldRef.Value;
-                CurrencyCode := LedgerEntryRecordRef.Field(11).Value;
-                AdjustedCurrencyFactor := LedgerEntryRecordRef.Field(73).Value;
-                PostingDate := LedgerEntryRecordRef.Field(4).Value;
+                Amount := AmountFieldRef.Value();
+                CurrencyCode := LedgerEntryRecordRef.Field(11).Value();
+                AdjustedCurrencyFactor := LedgerEntryRecordRef.Field(73).Value();
+                PostingDate := LedgerEntryRecordRef.Field(4).Value();
 
                 TempXMLBuffer.AddGroupElement('OtrMetodoPago');
                 TempXMLBuffer.AddAttribute('MetPagoPol', PaymentMethod."SAT Payment Method Code");
@@ -889,9 +884,9 @@ codeunit 27000 "Export Accounts"
     begin
         SourceCodeSetup.Get();
         RecordRef.GetTable(CustVendLedgerEntry);
-        DocumentType := RecordRef.Field(5).Value;
-        DocumentNo := RecordRef.Field(6).Value;
-        SourceCode := RecordRef.Field(28).Value;
+        DocumentType := RecordRef.Field(5).Value();
+        DocumentNo := RecordRef.Field(6).Value();
+        SourceCode := RecordRef.Field(28).Value();
         case SourceCode of
             SourceCodeSetup.Sales:
                 case DocumentType of
@@ -929,7 +924,7 @@ codeunit 27000 "Export Accounts"
         Vendor: Record Vendor;
         CustVendNo: Code[20];
     begin
-        CustVendNo := LedgerEntryRecordRef.Field(3).Value;
+        CustVendNo := LedgerEntryRecordRef.Field(3).Value();
         if LedgerEntryRecordRef.Number = DATABASE::"Cust. Ledger Entry" then begin
             Customer.Get(CustVendNo);
 

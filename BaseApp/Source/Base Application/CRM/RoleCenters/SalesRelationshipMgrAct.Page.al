@@ -7,7 +7,6 @@ using Microsoft.CRM.Opportunity;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Sales.Document;
-using System.Environment;
 using System.Visualization;
 
 page 9076 "Sales & Relationship Mgr. Act."
@@ -56,7 +55,7 @@ page 9076 "Sales & Relationship Mgr. Act."
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Opportunity Entries";
                     Style = Favorable;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies opportunities with a due date in seven days or more.';
                 }
                 field("Overdue Opportunities"; Rec."Overdue Opportunities")
@@ -64,7 +63,7 @@ page 9076 "Sales & Relationship Mgr. Act."
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Opportunity Entries";
                     Style = Unfavorable;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies opportunities that have exceeded the due date.';
                 }
                 field("Closed Opportunities"; Rec."Closed Opportunities")
@@ -107,6 +106,7 @@ page 9076 "Sales & Relationship Mgr. Act."
                     DrillDownPageID = "Integration Synch. Error List";
                     ToolTip = 'Specifies the number of errors related to data integration.';
                     Visible = ShowIntegrationErrorsCue;
+                    StyleExpr = IntegrationErrorsCue;
                 }
                 field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
@@ -115,6 +115,7 @@ page 9076 "Sales & Relationship Mgr. Act."
                     DrillDownPageID = "CRM Skipped Records";
                     ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Sales.';
                     Visible = ShowD365SIntegrationCues;
+                    StyleExpr = CoupledErrorsCue;
                 }
             }
         }
@@ -146,6 +147,7 @@ page 9076 "Sales & Relationship Mgr. Act."
     trigger OnOpenPage()
     var
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
@@ -157,17 +159,26 @@ page 9076 "Sales & Relationship Mgr. Act."
 
         Rec.SetFilter("Due Date Filter", '<>%1&%2..%3', 0D, WorkDate(), WorkDate() + 7);
         Rec.SetFilter("Overdue Date Filter", '<>%1&..%2', 0D, WorkDate() - 1);
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
         ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
         ShowIntegrationErrorsCue := ShowDataIntegrationCues and (not ShowD365SIntegrationCues);
+
+        if IntegrationSynchJobErrors.IsEmpty() then
+            IntegrationErrorsCue := 'Favorable'
+        else
+            IntegrationErrorsCue := 'Unfavorable';
+        CRMIntegrationRecord.SetRange(Skipped, true);
+        if CRMIntegrationRecord.IsEmpty() then
+            CoupledErrorsCue := 'Favorable'
+        else
+            CoupledErrorsCue := 'Unfavorable';
     end;
 
     var
-        EnvironmentInfo: Codeunit "Environment Information";
-        ShowIntelligentCloud: Boolean;
         ShowD365SIntegrationCues: Boolean;
         ShowDataIntegrationCues: Boolean;
         ShowIntegrationErrorsCue: Boolean;
+        IntegrationErrorsCue: Text;
+        CoupledErrorsCue: Text;
 }
 

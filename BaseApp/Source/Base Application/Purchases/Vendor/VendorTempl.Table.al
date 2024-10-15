@@ -23,13 +23,16 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.FinanceCharge;
 using System.Globalization;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 
 table 1383 "Vendor Templ."
 {
     Caption = 'Vendor Template';
     LookupPageID = "Vendor Templ. List";
     DrillDownPageID = "Vendor Templ. List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -274,11 +277,24 @@ table 1383 "Vendor Templ."
             Caption = 'Email';
             ExtendedDatatype = EMail;
         }
+#if not CLEAN24
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(103; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -424,7 +440,15 @@ table 1383 "Vendor Templ."
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
             TableRelation = "IRS 1099 Form-Box";
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10023; "RFC No."; Code[13])
         {

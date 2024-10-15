@@ -9,14 +9,12 @@ codeunit 132554 "Data Exch. E2E"
     end;
 
     var
-        GenJourrnalLine: Record "Gen. Journal Line";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         WrongDataExchFieldNameErr: Label 'Data Exch Field name is incorrect';
         WrongDataExchFieldValueErr: Label 'Data Exch Field value is incorrect';
         TooManyDataExchFieldRecordsErr: Label 'Data Exch Field has unexpected entries';
-        
+
 
     [Test]
     [Scope('OnPrem')]
@@ -33,10 +31,10 @@ codeunit 132554 "Data Exch. E2E"
         // [SCENARIO] Creating a Data Exchange format for mapping fields from Gen Journal Line without any grouping
         // [GIVEN] A Data Exchange format that maps data from Gen Journal Line
         Initialize(DataExchDef, DataExchLineDef, DataExchField, DataExchFieldMapping, DataExchColumnDef, DataExchMapping);
-        
+
         // [GIVEN] to journal lines in the system
         CreateGenJournalLines();
-        
+
         // [WHEN] Init data exchange and export from
         DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -48,7 +46,7 @@ codeunit 132554 "Data Exch. E2E"
         // [WHEN] Getting exported data exchange fields
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         if DataExchField.FindSet() then begin
-            
+
             // [THEN] First is equal to first mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '10000');
             DataExchField.Next();
@@ -56,11 +54,11 @@ codeunit 132554 "Data Exch. E2E"
             // [THEN] Second is equal to second mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Country Code', 'DK');
             DataExchField.Next();
-            
+
             // [THEN] Third is equal to third mapped field from first Gen Journal Line record
-            CheckDataExchField(DataExchField, 'Amount', '100');  
+            CheckDataExchField(DataExchField, 'Amount', '100');
             DataExchField.Next();
-            
+
             // [THEN] Fourth is equal to first mapped field from second Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '20000');
             DataExchField.Next();
@@ -95,10 +93,10 @@ codeunit 132554 "Data Exch. E2E"
         DataExchFieldMapping."Transformation Rule" := 'EUCOUNTRYCODELOOKUP';
         DataExchFieldMapping.Modify(true);
         Commit();
-        
+
         // [GIVEN] to journal lines in the system
         CreateGenJournalLines();
-        
+
         // [WHEN] Init data exchange and export from
         DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -110,7 +108,7 @@ codeunit 132554 "Data Exch. E2E"
         // [WHEN] Getting exported data exchange fields
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         if DataExchField.FindSet() then begin
-            
+
             // [THEN] First is equal to first mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '10000');
             DataExchField.Next();
@@ -119,11 +117,11 @@ codeunit 132554 "Data Exch. E2E"
             // Result is changed from DK to Denmark, as we applied Field Lookup transformation rule
             CheckDataExchField(DataExchField, 'Country Code', 'Denmark');
             DataExchField.Next();
-            
+
             // [THEN] Third is equal to third mapped field from first Gen Journal Line record
-            CheckDataExchField(DataExchField, 'Amount', '100');  
+            CheckDataExchField(DataExchField, 'Amount', '100');
             DataExchField.Next();
-            
+
             // [THEN] Fourth is equal to first mapped field from second Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '20000');
             DataExchField.Next();
@@ -159,10 +157,10 @@ codeunit 132554 "Data Exch. E2E"
         DataExchFieldMapping."Transformation Rule" := 'ROUNDTOINT';
         DataExchFieldMapping.Modify();
         Commit();
-        
+
         // [GIVEN] to journal lines in the system
         CreateGenJournalLinesWithDecimal();
-        
+
         // [WHEN] Init data exchange and export from
         DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -174,7 +172,7 @@ codeunit 132554 "Data Exch. E2E"
         // [WHEN] Getting exported data exchange fields
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         if DataExchField.FindSet() then begin
-            
+
             // [THEN] First is equal to first mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '10000');
             DataExchField.Next();
@@ -183,11 +181,11 @@ codeunit 132554 "Data Exch. E2E"
             // Result is changed from DK to Denmark, as we applied Field Lookup transformation rule
             CheckDataExchField(DataExchField, 'Country Code', 'DK');
             DataExchField.Next();
-            
+
             // [THEN] Third is equal to third mapped field from first Gen Journal Line record
-            CheckDataExchField(DataExchField, 'Amount', '101');  
+            CheckDataExchField(DataExchField, 'Amount', '101');
             DataExchField.Next();
-            
+
             // [THEN] Fourth is equal to first mapped field from second Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '20000');
             DataExchField.Next();
@@ -225,10 +223,10 @@ codeunit 132554 "Data Exch. E2E"
         DataExchFieldMapping."Transformation Rule" := 'EUCOUNTRYCODELOOKUP';
         DataExchFieldMapping.Modify(true);
         Commit();
-        
+
         // [GIVEN] to journal lines in the system
         CreateGenJournalLines();
-        
+
         // [WHEN] Init data exchange and export from
         DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -240,7 +238,7 @@ codeunit 132554 "Data Exch. E2E"
         // [WHEN] Getting exported data exchange fields
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         if DataExchField.FindSet() then begin
-            
+
             // [THEN] First is equal to first mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '10000');
             DataExchField.Next();
@@ -249,11 +247,11 @@ codeunit 132554 "Data Exch. E2E"
             // Result is changed from DK to FR. As we applied default value Field Lookup transformation rule is skipped
             CheckDataExchField(DataExchField, 'Country Code', 'FR');
             DataExchField.Next();
-            
+
             // [THEN] Third is equal to third mapped field from first Gen Journal Line record
-            CheckDataExchField(DataExchField, 'Amount', '100');  
+            CheckDataExchField(DataExchField, 'Amount', '100');
             DataExchField.Next();
-            
+
             // [THEN] Fourth is equal to first mapped field from second Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '20000');
             DataExchField.Next();
@@ -284,11 +282,11 @@ codeunit 132554 "Data Exch. E2E"
         // [SCENARIO] Creating a Data Exchange format for mapping fields from Gen Journal Line with grouping
         // [GIVEN] A Data Exchange format that maps data from Gen Journal Line
         Initialize(DataExchDef, DataExchLineDef, DataExchField, DataExchFieldMapping, DataExchColumnDef, DataExchMapping);
-        CreateDataExchFieldGrouping(DataExchMapping,  DATABASE::"Gen. Journal Line");
-        
+        CreateDataExchFieldGrouping(DataExchMapping, DATABASE::"Gen. Journal Line");
+
         // [GIVEN] to journal lines in the system
         CreateGenJournalLines();
-        
+
         // [WHEN] Init data exchange and export from
         DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -300,7 +298,7 @@ codeunit 132554 "Data Exch. E2E"
         // [WHEN] Getting exported data exchange fields
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         if DataExchField.FindSet() then begin
-            
+
             // [THEN] First is equal to first mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '10000');
             DataExchField.Next();
@@ -308,10 +306,10 @@ codeunit 132554 "Data Exch. E2E"
             // [THEN] Second is equal to second mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Country Code', 'DK');
             DataExchField.Next();
-            
+
             // [THEN] Third is equal to the sum of all amounts for grouped fields. 
             // IN this test it is DK, so Amount should be 300
-            CheckDataExchField(DataExchField, 'Amount', '300');            
+            CheckDataExchField(DataExchField, 'Amount', '300');
             Assert.AreEqual(DataExchField.Next(), 0, TooManyDataExchFieldRecordsErr);
         end;
     end;
@@ -331,16 +329,16 @@ codeunit 132554 "Data Exch. E2E"
         // [SCENARIO] Creating a Data Exchange format for mapping fields from Gen Journal Line with grouping and apply EUCOUNTRYCODELOOKUP transformation rule
         // [GIVEN] A Data Exchange format that maps data from Gen Journal Line
         Initialize(DataExchDef, DataExchLineDef, DataExchField, DataExchFieldMapping, DataExchColumnDef, DataExchMapping);
-        CreateDataExchFieldGrouping(DataExchMapping,  DATABASE::"Gen. Journal Line");
+        CreateDataExchFieldGrouping(DataExchMapping, DATABASE::"Gen. Journal Line");
         DataExchFieldMapping.SetFilter("Column No.", '2');
         DataExchFieldMapping.FindFirst();
         DataExchFieldMapping."Transformation Rule" := 'EUCOUNTRYCODELOOKUP';
         DataExchFieldMapping.Modify(true);
         Commit();
-        
+
         // [GIVEN] to journal lines in the system
         CreateGenJournalLines();
-        
+
         // [WHEN] Init data exchange and export from
         DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -352,7 +350,7 @@ codeunit 132554 "Data Exch. E2E"
         // [WHEN] Getting exported data exchange fields
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         if DataExchField.FindSet() then begin
-            
+
             // [THEN] First is equal to first mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '10000');
             DataExchField.Next();
@@ -361,10 +359,10 @@ codeunit 132554 "Data Exch. E2E"
             // Result is changed from DK to Denmark, as we applied Field Lookup transformation rule
             CheckDataExchField(DataExchField, 'Country Code', 'Denmark');
             DataExchField.Next();
-            
+
             // [THEN] Third is equal to the sum of all amounts for grouped fields. 
             // IN this test it is DK, so Amount should be 300
-            CheckDataExchField(DataExchField, 'Amount', '300');            
+            CheckDataExchField(DataExchField, 'Amount', '300');
             Assert.AreEqual(DataExchField.Next(), 0, TooManyDataExchFieldRecordsErr);
         end;
     end;
@@ -384,7 +382,7 @@ codeunit 132554 "Data Exch. E2E"
         // [SCENARIO] Creating a Data Exchange format for mapping fields from Gen Journal Line with grouping and apply EUCOUNTRYCODELOOKUP transformation rule
         // [GIVEN] A Data Exchange format that maps data from Gen Journal Line
         Initialize(DataExchDef, DataExchLineDef, DataExchField, DataExchFieldMapping, DataExchColumnDef, DataExchMapping);
-        CreateDataExchFieldGrouping(DataExchMapping,  DATABASE::"Gen. Journal Line");
+        CreateDataExchFieldGrouping(DataExchMapping, DATABASE::"Gen. Journal Line");
         DataExchFieldMapping.SetFilter("Column No.", '2');
         DataExchFieldMapping.FindFirst();
         DataExchFieldMapping."Transformation Rule" := 'EUCOUNTRYCODELOOKUP';
@@ -397,10 +395,10 @@ codeunit 132554 "Data Exch. E2E"
         DataExchColumnDef.Justification := DataExchColumnDef.Justification::Right;
         DataExchColumnDef.Modify(true);
         Commit();
-        
+
         // [GIVEN] to journal lines in the system
         CreateGenJournalLines();
-        
+
         // [WHEN] Init data exchange and export from
         DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -412,7 +410,7 @@ codeunit 132554 "Data Exch. E2E"
         // [WHEN] Getting exported data exchange fields
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         if DataExchField.FindSet() then begin
-            
+
             // [THEN] First is equal to first mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '10000');
             DataExchField.Next();
@@ -421,10 +419,10 @@ codeunit 132554 "Data Exch. E2E"
             // Result is changed from DK to Denmark, as we applied Field Lookup transformation rule and then padded string to 10 characters
             CheckDataExchField(DataExchField, 'Country Code', '---Denmark');
             DataExchField.Next();
-            
+
             // [THEN] Third is equal to the sum of all amounts for grouped fields. 
             // IN this test it is DK, so Amount should be 300
-            CheckDataExchField(DataExchField, 'Amount', '300');            
+            CheckDataExchField(DataExchField, 'Amount', '300');
             Assert.AreEqual(DataExchField.Next(), 0, TooManyDataExchFieldRecordsErr);
         end;
     end;
@@ -444,16 +442,16 @@ codeunit 132554 "Data Exch. E2E"
         // [SCENARIO] Creating a Data Exchange format for mapping fields from Gen Journal Line with grouping and apply ROUNDTOINT transformation rule
         // [GIVEN] A Data Exchange format that maps data from Gen Journal Line
         Initialize(DataExchDef, DataExchLineDef, DataExchField, DataExchFieldMapping, DataExchColumnDef, DataExchMapping);
-        CreateDataExchFieldGrouping(DataExchMapping,  DATABASE::"Gen. Journal Line");
+        CreateDataExchFieldGrouping(DataExchMapping, DATABASE::"Gen. Journal Line");
         DataExchFieldMapping.SetFilter("Column No.", '3');
         DataExchFieldMapping.FindFirst();
         DataExchFieldMapping."Transformation Rule" := 'ROUNDTOINT';
         DataExchFieldMapping.Modify(true);
         Commit();
-        
+
         // [GIVEN] to journal lines in the system
         CreateGenJournalLinesWithDecimal();
-        
+
         // [WHEN] Init data exchange and export from
         DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -465,7 +463,7 @@ codeunit 132554 "Data Exch. E2E"
         // [WHEN] Getting exported data exchange fields
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         if DataExchField.FindSet() then begin
-            
+
             // [THEN] First is equal to first mapped field from first Gen Journal Line record
             CheckDataExchField(DataExchField, 'Line No', '10000');
             DataExchField.Next();
@@ -474,10 +472,10 @@ codeunit 132554 "Data Exch. E2E"
             // Result is changed from DK to Denmark, as we applied Field Lookup transformation rule
             CheckDataExchField(DataExchField, 'Country Code', 'DK');
             DataExchField.Next();
-            
+
             // [THEN] Third is equal to the sum of all amounts for grouped fields. 
             // IN this test it is DK, so Amount should be 301 as the sum of amounts is 300.7; 
-            CheckDataExchField(DataExchField, 'Amount', '301');            
+            CheckDataExchField(DataExchField, 'Amount', '301');
             Assert.AreEqual(DataExchField.Next(), 0, TooManyDataExchFieldRecordsErr);
         end;
     end;
@@ -500,9 +498,9 @@ codeunit 132554 "Data Exch. E2E"
         CreateDataExchColumnDef(DataExchColumnDef, DataExchLineDef);
         CreateDataExchMapping(DataExchMapping, DataExchLineDef, DATABASE::"Gen. Journal Line");
         CreateDataExchFieldMapping(DataExchFieldMapping, DataExchMapping);
-    
+
         if not TransformationRule.Get('EUCOUNTRYCODELOOKUP') then begin
-            TransformationRule.CreateRule('EUCOUNTRYCODELOOKUP', 'EU Country Lookup', Enum::"Transformation Rule Type"::"Field Lookup", 0, 0, '', '');
+            TransformationRule.CreateRule('EUCOUNTRYCODELOOKUP', 'EU Country Lookup', Enum::"Transformation Rule Type"::"Field Lookup".AsInteger(), 0, 0, '', '');
             TransformationRule.Get('EUCOUNTRYCODELOOKUP');
         end;
         TransformationRule."Table ID" := 9;
@@ -512,7 +510,7 @@ codeunit 132554 "Data Exch. E2E"
         TransformationRule.Modify();
 
         if not TransformationRule.Get('ROUNDTOINT') then begin
-            TransformationRule.CreateRule('ROUNDTOINT', 'Round to int', Enum::"Transformation Rule Type"::Round, 0, 0, '', '');
+            TransformationRule.CreateRule('ROUNDTOINT', 'Round to int', Enum::"Transformation Rule Type"::Round.AsInteger(), 0, 0, '', '');
             TransformationRule.Get('ROUNDTOINT');
         end;
         TransformationRule.Precision := 1.00;
@@ -632,7 +630,7 @@ codeunit 132554 "Data Exch. E2E"
         DataExchFieldMapping."Table ID" := DataExchMapping."Table ID";
         DataExchFieldMapping."Data Exch. Line Def Code" := DataExchMapping."Data Exch. Line Def Code";
         DataExchFieldMapping."Column No." := 1;
-       
+
         RecRef.Open(DataExchFieldMapping."Table ID");
         FieldRef := RecRef.Field(2);
         DataExchFieldMapping."Field ID" := FieldRef.Number;
@@ -659,12 +657,12 @@ codeunit 132554 "Data Exch. E2E"
         DataExchFieldMapping."Table ID" := DataExchMapping."Table ID";
         DataExchFieldMapping."Data Exch. Line Def Code" := DataExchMapping."Data Exch. Line Def Code";
         DataExchFieldMapping."Column No." := 3;
-       
+
         RecRef.Open(DataExchFieldMapping."Table ID");
         FieldRef := RecRef.Field(13);
         DataExchFieldMapping."Field ID" := FieldRef.Number;
         DataExchFieldMapping.Insert();
-        
+
     end;
 
     local procedure CreateDataExchFieldGrouping(var DataExchMapping: Record "Data Exch. Mapping"; TableID: Integer)
@@ -676,7 +674,7 @@ codeunit 132554 "Data Exch. E2E"
         DataExchFieldGrouping."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
         DataExchFieldGrouping."Data Exch. Line Def Code" := DataExchMapping."Data Exch. Line Def Code";
         DataExchFieldGrouping."Table ID" := TableID;
-        DataExchFieldGrouping."Field ID" := 120;    
+        DataExchFieldGrouping."Field ID" := 120;
         DataExchFieldGrouping.Insert();
     end;
 

@@ -10,15 +10,10 @@ codeunit 134121 "Price Source List UT"
 
     var
         Assert: Codeunit Assert;
-        LibraryERM: Codeunit "Library - ERM";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryJob: Codeunit "Library - Job";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
-        LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -277,9 +272,6 @@ codeunit 134121 "Price Source List UT"
     var
         Campaign: Record Campaign;
         Contact: Record Contact;
-        Customer: Record Customer;
-        Job: Record Job;
-        Vendor: Record Vendor;
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceSourceList: Codeunit "Price Source List";
         SourceType: Enum "Price Source Type";
@@ -345,7 +337,6 @@ codeunit 134121 "Price Source List UT"
     [Test]
     procedure T103_GetSourceGroupFromListWithGroupsOnThreeLevels()
     var
-        Customer: Record Customer;
         Job: Record Job;
         JobTask: Record "Job Task";
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
@@ -398,27 +389,69 @@ codeunit 134121 "Price Source List UT"
     var
         Contact: Record Contact;
         Customer: Record Customer;
+        CustomerPriceGroup: Record "Customer Price Group";
+        CustomerDiscountGroup: Record "Customer Discount Group";
         ContactBusinessRelation: Record "Contact Business Relation";
         PriceSource: Record "Price Source";
         TempPriceSource: Record "Price Source" temporary;
         PriceSourceList: Codeunit "Price Source List";
     begin
-        // [SCENARIO] AddChildren method adds customer price price source to the price source list when called for contact
+        // [SCENARIO] AddChildren method adds customer, price group and discount group as price sources when called for contact
         Initialize();
-        // [GIVEN] Contact with business relation to customer exist
+        // [GIVEN] Contact with business relation to customer containing price group and discount groupp exist
         LibraryMarketing.CreateCompanyContact(Contact);
         LibrarySales.CreateCustomer(Customer);
+        SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
         LibraryMarketing.CreateBusinessRelationBetweenContactAndCustomer(ContactBusinessRelation, Contact."No.", Customer."No.");
         Contact.ToPriceSource(PriceSource);
         PriceSourceList.Init();
         // [WHEN] Price Source List is initialized
         PriceSourceList.AddChildren(PriceSource);
         PriceSourceList.Add(PriceSource);
-        // [THEN] PriceSourceList contains exactly two price sources. One of them for contact and a second for customer.
+        // [THEN] PriceSourceList contains exactly 4 price sources. One for the contact, second for a customer, third for a price group and a fourth for a discount group.
         PriceSourceList.GetList(TempPriceSource);
-        Assert.RecordCount(TempPriceSource, 2);
+        Assert.RecordCount(TempPriceSource, 4);
         Assert.AreEqual(Contact."No.", PriceSourceList.GetValue(Enum::"Price Source Type"::Contact), 'Contact Prices not found.');
         Assert.AreEqual(Customer."No.", PriceSourceList.GetValue(Enum::"Price Source Type"::Customer), 'Customer Prices not found.');
+        Assert.AreEqual(CustomerPriceGroup.Code, PriceSourceList.GetValue(Enum::"Price Source Type"::"Customer Price Group"), 'Prices for Customer Price Group not found.');
+        Assert.AreEqual(CustomerDiscountGroup.Code, PriceSourceList.GetValue(Enum::"Price Source Type"::"Customer Disc. Group"), 'Prices for Customer Disc. Group not found.');
+    end;
+
+    [Test]
+    procedure T201_AddChildPriceSourcesForCustomer()
+    var
+        Customer: Record Customer;
+        CustomerPriceGroup: Record "Customer Price Group";
+        CustomerDiscountGroup: Record "Customer Discount Group";
+        PriceSource: Record "Price Source";
+        TempPriceSource: Record "Price Source" temporary;
+        PriceSourceList: Codeunit "Price Source List";
+    begin
+        // [SCENARIO] AddChildren method adds price group and discount group as price sources when called from customer
+        Initialize();
+        // [GIVEN] Customer with price group and discount groupp assigned exist
+        LibrarySales.CreateCustomer(Customer);
+        SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
+        Customer.ToPriceSource(PriceSource);
+        PriceSourceList.Init();
+        // [WHEN] Price Source List is initialized
+        PriceSourceList.AddChildren(PriceSource);
+        PriceSourceList.Add(PriceSource);
+        // [THEN] PriceSourceList contains exactly three price sources. One for the customer, second for a price group and a third for a discount group.
+        PriceSourceList.GetList(TempPriceSource);
+        Assert.RecordCount(TempPriceSource, 3);
+        Assert.AreEqual(Customer."No.", PriceSourceList.GetValue(Enum::"Price Source Type"::Customer), 'Customer Prices not found.');
+        Assert.AreEqual(CustomerPriceGroup.Code, PriceSourceList.GetValue(Enum::"Price Source Type"::"Customer Price Group"), 'Prices for Customer Price Group not found.');
+        Assert.AreEqual(CustomerDiscountGroup.Code, PriceSourceList.GetValue(Enum::"Price Source Type"::"Customer Disc. Group"), 'Prices for Customer Disc. Group not found.');
+    end;
+
+    local procedure SetGroupsOnCustomer(var Customer: Record Customer; var CustomerDiscountGroup: Record "Customer Discount Group"; var CustomerPriceGroup: Record "Customer Price Group")
+    begin
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        Customer."Customer Disc. Group" := CustomerDiscountGroup.Code;
+        Customer."Customer Price Group" := CustomerPriceGroup.Code;
+        Customer.Modify();
     end;
 
     local procedure Initialize()
@@ -431,7 +464,7 @@ codeunit 134121 "Price Source List UT"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Price Source List UT");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price Source List UT");
     end;
 

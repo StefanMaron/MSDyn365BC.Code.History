@@ -1,5 +1,6 @@
 table 140000 "Data Type Buffer NA"
 {
+    DataClassification = CustomerContent;
 
     fields
     {

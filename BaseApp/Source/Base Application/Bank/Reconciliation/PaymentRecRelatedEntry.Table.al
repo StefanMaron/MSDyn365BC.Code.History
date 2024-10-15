@@ -6,7 +6,8 @@ table 184 "Payment Rec. Related Entry"
 {
     Caption = 'Payment Reconciliation Related Entry';
     ReplicateData = false;
-    DataClassification = SystemMetadata;
+    DataClassification = CustomerContent;
+
     fields
     {
         field(1; "Entry No."; Integer)

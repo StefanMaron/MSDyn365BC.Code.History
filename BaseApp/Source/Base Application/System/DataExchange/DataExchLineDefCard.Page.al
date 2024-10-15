@@ -36,7 +36,7 @@ page 1212 "Data Exch Line Def Card"
                 field(Namespace; Rec.Namespace)
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = IsXMLFileType AND IsBankStatementImportType;
+                    Editable = IsXMLFileType and IsBankStatementImportType;
                     ToolTip = 'Specifies the namespace (uniform resource name (urn)) for a target document that is expected in the file for validation. You can leave the field blank if you do not want to enable namespace validation.';
                 }
             }

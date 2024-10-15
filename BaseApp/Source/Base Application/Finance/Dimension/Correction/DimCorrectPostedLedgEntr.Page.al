@@ -76,7 +76,7 @@ page 2584 "Dim Correct Posted Ledg Entr"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
@@ -240,10 +240,6 @@ page 2584 "Dim Correct Posted Ledg Entr"
                 ApplicationArea = All;
                 Caption = 'Show Selection Criteria';
                 Image = History;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the filter criteria that was used to select the entries to correct.';
 
                 trigger OnAction()

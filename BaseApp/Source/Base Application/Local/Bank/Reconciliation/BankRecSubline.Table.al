@@ -20,6 +20,7 @@ table 10126 "Bank Rec. Sub-line"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

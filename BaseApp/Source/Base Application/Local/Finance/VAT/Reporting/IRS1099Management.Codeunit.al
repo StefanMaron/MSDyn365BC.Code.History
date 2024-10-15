@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +14,9 @@ using System.Threading;
 
 codeunit 10500 "IRS 1099 Management"
 {
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -362,50 +366,47 @@ codeunit 10500 "IRS 1099 Management"
 
     procedure GetFormattedVendorAddress(Vendor: Record Vendor) FormattedAddress: Text[30]
     begin
-        with Vendor do begin
-            FormattedAddress := '';
-            if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen(FormattedAddress) then
-                exit(City);
-            if (City <> '') and (County <> '') then
-                exit(CopyStr(City + ', ' + County + '  ' + "Post Code", 1, MaxStrLen(FormattedAddress)));
-            exit(CopyStr(DelChr(City + ' ' + County + ' ' + "Post Code", '<>'), 1, MaxStrLen(FormattedAddress)));
-        end;
+        FormattedAddress := '';
+        if StrLen(Vendor.City + ', ' + Vendor.County + '  ' + Vendor."Post Code") > MaxStrLen(FormattedAddress) then
+            exit(Vendor.City);
+        if (Vendor.City <> '') and (Vendor.County <> '') then
+            exit(CopyStr(Vendor.City + ', ' + Vendor.County + '  ' + Vendor."Post Code", 1, MaxStrLen(FormattedAddress)));
+        exit(CopyStr(DelChr(Vendor.City + ' ' + Vendor.County + ' ' + Vendor."Post Code", '<>'), 1, MaxStrLen(FormattedAddress)));
     end;
 
     procedure FormatCompanyAddress(var CompanyAddress: array[5] of Text[100]; var CompanyInfo: Record "Company Information"; TestPrint: Boolean)
     var
         i: Integer;
     begin
-        with CompanyInfo do begin
-            if TestPrint then begin
-                for i := 1 to ArrayLen(CompanyAddress) do
-                    CompanyAddress[i] := PadStr('x', MaxStrLen(CompanyAddress[i]), 'X');
-                exit;
-            end;
-            Get();
-
-            Clear(CompanyAddress);
-            CompanyAddress[1] := Name;
-            CompanyAddress[2] := Address;
-            CompanyAddress[3] := "Address 2";
-            if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen(CompanyAddress[4]) then begin
-                CompanyAddress[4] := City;
-                CompanyAddress[5] := County + '  ' + "Post Code";
-                if CompressArray(CompanyAddress) = ArrayLen(CompanyAddress) then begin
-                    CompanyAddress[3] := CompanyAddress[4];  // lose address 2 to add phone no.
-                    CompanyAddress[4] := CompanyAddress[5];
-                end;
-                CompanyAddress[5] := "Phone No.";
-            end else
-                if (City <> '') and (County <> '') then begin
-                    CompanyAddress[4] := CopyStr(City + ', ' + County + '  ' + "Post Code", 1, MaxStrLen(CompanyAddress[4]));
-                    CompanyAddress[5] := "Phone No.";
-                end else begin
-                    CompanyAddress[4] := CopyStr(DelChr(City + ' ' + County + ' ' + "Post Code", '<>'), 1, MaxStrLen(CompanyAddress[4]));
-                    CompanyAddress[5] := "Phone No.";
-                end;
-            CompressArray(CompanyAddress);
+        if TestPrint then begin
+            for i := 1 to ArrayLen(CompanyAddress) do
+                CompanyAddress[i] := PadStr('x', MaxStrLen(CompanyAddress[i]), 'X');
+            exit;
         end;
+        CompanyInfo.Get();
+
+        Clear(CompanyAddress);
+        CompanyAddress[1] := CompanyInfo.Name;
+        CompanyAddress[2] := CompanyInfo.Address;
+        CompanyAddress[3] := CompanyInfo."Address 2";
+        if StrLen(CompanyInfo.City + ', ' + CompanyInfo.County + '  ' + CompanyInfo."Post Code") > MaxStrLen(CompanyAddress[4]) then begin
+            CompanyAddress[4] := CompanyInfo.City;
+            CompanyAddress[5] := CompanyInfo.County + '  ' + CompanyInfo."Post Code";
+            if CompressArray(CompanyAddress) = ArrayLen(CompanyAddress) then begin
+                CompanyAddress[3] := CompanyAddress[4];
+                // lose address 2 to add phone no.
+                CompanyAddress[4] := CompanyAddress[5];
+            end;
+            CompanyAddress[5] := CompanyInfo."Phone No.";
+        end else
+            if (CompanyInfo.City <> '') and (CompanyInfo.County <> '') then begin
+                CompanyAddress[4] := CopyStr(CompanyInfo.City + ', ' + CompanyInfo.County + '  ' + CompanyInfo."Post Code", 1, MaxStrLen(CompanyAddress[4]));
+                CompanyAddress[5] := CompanyInfo."Phone No.";
+            end else begin
+                CompanyAddress[4] := CopyStr(DelChr(CompanyInfo.City + ' ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code", '<>'), 1, MaxStrLen(CompanyAddress[4]));
+                CompanyAddress[5] := CompanyInfo."Phone No.";
+            end;
+        CompressArray(CompanyAddress);
     end;
 
     procedure GetAmtByCode(Codes: array[20] of Code[10]; Amounts: array[20] of Decimal; LastLineNo: Integer; "Code": Code[10]; TestPrint: Boolean): Decimal
@@ -435,26 +436,24 @@ codeunit 10500 "IRS 1099 Management"
     begin
         EntryApplicationManagement.GetAppliedVendorEntries(
           TempVendorLedgerEntry, VendorNo, PeriodDate, true);
-        with TempVendorLedgerEntry do begin
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetFilter("IRS 1099 Amount", '<>0');
-            if Filter <> '' then
-                SetFilter("IRS 1099 Code", Filter);
-            if FindSet() then
-                repeat
-                    Calculate1099Amount(
-                      Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, "Amount to Apply");
-                    if GetAdjustmentRec(IRS1099Adjustment, TempVendorLedgerEntry) then begin
-                        TempIRS1099Adjustment := IRS1099Adjustment;
-                        if not TempIRS1099Adjustment.Find() then begin
-                            UpdateLines(
-                              Amounts, Codes, LastLineNo, TempVendorLedgerEntry, "IRS 1099 Code", IRS1099Adjustment.Amount);
-                            TempIRS1099Adjustment.Insert();
-                        end;
+        TempVendorLedgerEntry.SetFilter("Document Type", '%1|%2', TempVendorLedgerEntry."Document Type"::Invoice, TempVendorLedgerEntry."Document Type"::"Credit Memo");
+        TempVendorLedgerEntry.SetFilter("IRS 1099 Amount", '<>0');
+        if Filter <> '' then
+            TempVendorLedgerEntry.SetFilter("IRS 1099 Code", Filter);
+        if TempVendorLedgerEntry.FindSet() then
+            repeat
+                Calculate1099Amount(
+                  Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, TempVendorLedgerEntry."Amount to Apply");
+                if GetAdjustmentRec(IRS1099Adjustment, TempVendorLedgerEntry) then begin
+                    TempIRS1099Adjustment := IRS1099Adjustment;
+                    if not TempIRS1099Adjustment.Find() then begin
+                        UpdateLines(
+                          Amounts, Codes, LastLineNo, TempVendorLedgerEntry, TempVendorLedgerEntry."IRS 1099 Code", IRS1099Adjustment.Amount);
+                        TempIRS1099Adjustment.Insert();
                     end;
-                until Next() = 0;
-            AddAdjustments(Amounts, TempIRS1099Adjustment, VendorNo, PeriodDate[1], LastLineNo, Filter, Codes);
-        end;
+                end;
+            until TempVendorLedgerEntry.Next() = 0;
+        AddAdjustments(Amounts, TempIRS1099Adjustment, VendorNo, PeriodDate[1], LastLineNo, Filter, Codes);
     end;
 
     local procedure AddAdjustments(var Amounts: array[20] of Decimal; var TempIRS1099Adjustment: Record "IRS 1099 Adjustment" temporary; VendorNo: Code[20]; StartingDate: Date; LastLineNo: Integer; IRSCodeFilter: Text; Codes: array[20] of Code[10])
@@ -488,3 +487,4 @@ codeunit 10500 "IRS 1099 Management"
     end;
 }
 
+#endif

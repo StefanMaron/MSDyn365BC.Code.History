@@ -29,7 +29,7 @@ codeunit 141000 "ERM Sales Prepayment"
         Initialize();
 
         if not ForLCY then begin
-            CurrencyCode := FindCurrency;
+            CurrencyCode := FindCurrency();
             CreateNewExchangeRate(CurrencyCode);
         end;
 
@@ -243,7 +243,7 @@ codeunit 141000 "ERM Sales Prepayment"
             exit;
 
         LibraryERMCountryData.CreateVATData();
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         isInitialized := true;
         Commit();

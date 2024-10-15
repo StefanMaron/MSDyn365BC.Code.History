@@ -53,7 +53,7 @@
         GetReceiptLine(PurchInvoiceHeader, PurchOrderHeader."Last Receiving No.");
 
         LibraryPurchase.PostPurchaseDocument(PurchInvoiceHeader, false, true);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
 
         PurchOrderLine.Find();
         Assert.AreEqual(
@@ -114,11 +114,11 @@
         GetReceiptLine(PurchInvoiceHeader, PurchOrderHeader."Last Receiving No.");
 
         LibraryPurchase.PostPurchaseDocument(PurchInvoiceHeader, false, true);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
 
         PurchOrderHeader.Find();
         InvoicePurchaseDoc(PurchOrderHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     [Test]
@@ -171,7 +171,7 @@
         GetReceiptLine(PurchInvoiceHeader, PurchOrderHeader."Last Receiving No.");
 
         LibraryPurchase.PostPurchaseDocument(PurchInvoiceHeader, false, true);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     [Test]
@@ -217,7 +217,7 @@
         Initialize();
         PostPartialInvoiceWithPrepmt(PurchOrderHeader, PositiveDiff);
         PostInvoiceWithRcptFromOrder(PurchOrderHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     local procedure PostInvoiceWithRcptFromOrder(PurchOrderHeader: Record "Purchase Header")
@@ -251,14 +251,14 @@
         InvoicePurchaseDoc(PurchHeader);
 
         PostInvoiceWithRcptFromOrder(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     local procedure PreparePOLineWithLineDisc(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; PositiveDiff: Boolean)
     begin
         PreparePurchOrder(PurchHeader);
         AddPurchOrderLine100PctPrepmt(PurchLine, PurchHeader, PositiveDiff);
-        PurchLine.Validate("Line Discount %", GetSpecialLineDiscPct);
+        PurchLine.Validate("Line Discount %", GetSpecialLineDiscPct());
         PurchLine.Modify();
     end;
 
@@ -314,7 +314,7 @@
         PurchLine.FindFirst();
         PurchLine.TestField("Quantity Invoiced", GetQtyToShipTFS332246(PositiveDiff));
 
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     [Test]
@@ -353,7 +353,7 @@
         PurchHeader."Prices Including VAT" := PricesInclVAT;
         PostPartialInvoiceWithPrepmt(PurchHeader, PositiveDiff);
         InvoicePurchaseDoc(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     [Test]
@@ -384,14 +384,14 @@
 
         UpdateQtysInLine(PurchLine, GetQtyToShipTFS332246(PositiveDiff), GetQtyToShipTFS332246(PositiveDiff));
         InvoicePurchaseDoc(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
 
         UpdateQtysInLine(PurchLine, GetQtyToShipTFS332246(PositiveDiff), GetQtyToShipTFS332246(PositiveDiff));
         InvoicePurchaseDoc(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
 
         InvoicePurchaseDoc(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     [Test]
@@ -414,10 +414,10 @@
 
         // [WHEN] Try to decrease Purchase Invoice Line Quantity value from Purchase Invoice page.
         OpenPurchaseInvoicePage(PurchaseInvoice, PurchaseInvoiceHeader);
-        asserterror PurchaseInvoice.PurchLines.Quantity.SetValue(PurchaseInvoice.PurchLines.Quantity.AsDEcimal - 0.01);
+        asserterror PurchaseInvoice.PurchLines.Quantity.SetValue(PurchaseInvoice.PurchLines.Quantity.AsDecimal() - 0.01);
 
         // [THEN] Error occurs: "Line Amount Excl. VAT cannot be less than X"
-        VerifyLineAmountExpectedError(CannotBeLessThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDEcimal);
+        VerifyLineAmountExpectedError(CannotBeLessThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDecimal());
     end;
 
     [Test]
@@ -442,12 +442,12 @@
         // [WHEN] Try to decrease Purchase Invoice Line "Direct Unit Cost" value
         OpenPurchaseInvoicePage(PurchaseInvoice, PurchaseInvoiceHeader);
         asserterror PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(
-            PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal - 0.01);
+            PurchaseInvoice.PurchLines."Direct Unit Cost".AsDecimal() - 0.01);
 
         // [THEN] Error occurs: "Direct Unit Cost must be X when the Prepayment Invoice has already been posted"
         Assert.ExpectedErrorCode('Validation');
         Assert.ExpectedError(PurchaseLine.FieldCaption("Direct Unit Cost"));
-        Assert.ExpectedError(StrSubstNo(DirectCostModifyMsg, PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal));
+        Assert.ExpectedError(StrSubstNo(DirectCostModifyMsg, PurchaseInvoice.PurchLines."Direct Unit Cost".AsDecimal()));
     end;
 
     [Test]
@@ -472,12 +472,12 @@
         // [WHEN] Try to increase Purchase Invoice Line "Direct Unit Cost" value
         OpenPurchaseInvoicePage(PurchaseInvoice, PurchaseInvoiceHeader);
         asserterror PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(
-            PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal + 0.01);
+            PurchaseInvoice.PurchLines."Direct Unit Cost".AsDecimal() + 0.01);
 
         // [THEN] Error occurs: "Direct Unit Cost must be X when the Prepayment Invoice has already been posted"
         Assert.ExpectedErrorCode('Validation');
         Assert.ExpectedError(PurchaseLine.FieldCaption("Direct Unit Cost"));
-        Assert.ExpectedError(StrSubstNo(DirectCostModifyMsg, PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal));
+        Assert.ExpectedError(StrSubstNo(DirectCostModifyMsg, PurchaseInvoice.PurchLines."Direct Unit Cost".AsDecimal()));
     end;
 
     [Test]
@@ -500,10 +500,10 @@
 
         // [WHEN] Try to decrease Purchase Invoice Line "Line Discount %" value
         OpenPurchaseInvoicePage(PurchaseInvoice, PurchaseInvoiceHeader);
-        asserterror PurchaseInvoice.PurchLines."Line Discount %".SetValue(PurchaseInvoice.PurchLines."Line Discount %".AsDEcimal - 0.01);
+        asserterror PurchaseInvoice.PurchLines."Line Discount %".SetValue(PurchaseInvoice.PurchLines."Line Discount %".AsDecimal() - 0.01);
 
         // [THEN] Error occurs: "Line Amount Excl. VAT cannot be more than X"
-        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDEcimal);
+        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDecimal());
     end;
 
     [Test]
@@ -526,10 +526,10 @@
 
         // [WHEN] Try to increase Purchase Invoice Line "Line Discount %" value
         OpenPurchaseInvoicePage(PurchaseInvoice, PurchaseInvoiceHeader);
-        asserterror PurchaseInvoice.PurchLines."Line Discount %".SetValue(PurchaseInvoice.PurchLines."Line Discount %".AsDEcimal + 0.01);
+        asserterror PurchaseInvoice.PurchLines."Line Discount %".SetValue(PurchaseInvoice.PurchLines."Line Discount %".AsDecimal() + 0.01);
 
         // [THEN] Error occurs: "Line Amount Excl. VAT cannot be less than X"
-        VerifyLineAmountExpectedError(CannotBeLessThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDEcimal);
+        VerifyLineAmountExpectedError(CannotBeLessThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDecimal());
     end;
 
     [Test]
@@ -640,7 +640,7 @@
         // [GIVEN] Post Prepayment Invoice
         // [WHEN] Post Sales Order
         // [THEN] G/L Entry with "Payables Account" has been posted with Amount = 0
-        TwoDocLinesPrepmt100Pct_Case376958(true, true, CreateCurrencyCodeWithRandomExchRate);
+        TwoDocLinesPrepmt100Pct_Case376958(true, true, CreateCurrencyCodeWithRandomExchRate());
     end;
 
     [Test]
@@ -656,7 +656,7 @@
         // [GIVEN] Post Prepayment Invoice
         // [WHEN] Post Sales Order
         // [THEN] G/L Entry with "Payables Account" has been posted with Amount = 0
-        TwoDocLinesPrepmt100Pct_Case376958(false, true, CreateCurrencyCodeWithRandomExchRate);
+        TwoDocLinesPrepmt100Pct_Case376958(false, true, CreateCurrencyCodeWithRandomExchRate());
     end;
 
     [Test]
@@ -673,7 +673,7 @@
         // [GIVEN] Post Prepayment Invoice
         // [WHEN] Post Sales Order
         // [THEN] G/L Entry with "Payables Account" has been posted with Amount = 0
-        TwoDocLinesPrepmt100Pct_Case376958(true, false, CreateCurrencyCodeWithRandomExchRate);
+        TwoDocLinesPrepmt100Pct_Case376958(true, false, CreateCurrencyCodeWithRandomExchRate());
     end;
 
     [Test]
@@ -689,7 +689,7 @@
         // [GIVEN] Post Prepayment Invoice
         // [WHEN] Post Sales Order
         // [THEN] G/L Entry with "Payables Account" has been posted with Amount = 0
-        TwoDocLinesPrepmt100Pct_Case376958(false, false, CreateCurrencyCodeWithRandomExchRate);
+        TwoDocLinesPrepmt100Pct_Case376958(false, false, CreateCurrencyCodeWithRandomExchRate());
     end;
 
     [Test]
@@ -804,6 +804,7 @@
           PurchaseLine, PurchaseHeaderOrder, LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDecInRange(1000, 2000, 2), 100, 0);
 
         LibraryERMCountryData.UpdateVATPostingSetup();
+
         PostPurchPrepmtInvoice(PurchaseHeaderOrder);
 
         VerifyDescriptionOnPostedInvoiceRoundingLine(PurchaseHeaderOrder);
@@ -965,7 +966,7 @@
 
     local procedure CreateCurrencyCodeWithRandomExchRate(): Code[10]
     begin
-        exit(UpdateCurrencyInvRoundPrecision(LibraryERM.CreateCurrencyWithRandomExchRates));
+        exit(UpdateCurrencyInvRoundPrecision(LibraryERM.CreateCurrencyWithRandomExchRates()));
     end;
 
     local procedure CreateCurrencyCodeWithExchRate(ExchRate: Decimal): Code[10]
@@ -976,7 +977,7 @@
     local procedure AddPurchOrderLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Qty: Decimal; UnitPrice: Decimal; PrepmtPct: Decimal; DiscountPct: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, Qty);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), Qty);
         UpdateGenPostingSetupPrepmtAccounts(PurchaseLine, PurchaseLine."VAT Prod. Posting Group");
         UpdatePurchLine(PurchaseLine, UnitPrice, DiscountPct, PrepmtPct);
     end;
@@ -1111,8 +1112,8 @@
     local procedure UpdateVATPostingSetupAccounts(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         with VATPostingSetup do begin
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup());
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup());
             Modify(true);
         end;
     end;
@@ -1174,9 +1175,9 @@
 
     local procedure OpenPurchaseInvoicePage(var PurchaseInvoice: TestPage "Purchase Invoice"; PurchaseInvoiceHeader: Record "Purchase Header")
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseInvoiceHeader);
-        PurchaseInvoice.PurchLines.Last;
+        PurchaseInvoice.PurchLines.Last();
     end;
 
     local procedure VerifyDescriptionOnPostedInvoiceRoundingLine(PurchaseHeaderOrder: Record "Purchase Header")

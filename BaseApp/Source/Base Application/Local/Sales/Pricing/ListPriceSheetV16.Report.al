@@ -8,7 +8,7 @@ using Microsoft.CRM.Campaign;
 using Microsoft.Finance.Currency;
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Item;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
@@ -322,7 +322,7 @@ report 10165 "List Price Sheet V16"
     {
     }
 
-#if not CLEAN21
+#if not CLEAN23
     trigger OnInitReport()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

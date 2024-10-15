@@ -37,7 +37,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Initialize();
         // [GIVEN] Customer Posting Group with "Invoice Rounding Account" = "G"
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
-        CustomerPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        CustomerPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithSalesSetup());
         CustomerPostingGroup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -60,7 +60,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Initialize();
         // [GIVEN] Vendor Posting Group with "Invoice Rounding Account" = "G"
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
-        VendorPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithPurchSetup);
+        VendorPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithPurchSetup());
         VendorPostingGroup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -142,7 +142,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [GIVEN] Sales & Receivables Setup has "Freight G/L Acc. No." = "F"
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Freight G/L Acc. No.", LibraryERM.CreateGLAccountNo);
+        SalesReceivablesSetup.Validate("Freight G/L Acc. No.", LibraryERM.CreateGLAccountNo());
         SalesReceivablesSetup.Modify(true);
         LibraryVariableStorage.Enqueue(SalesReceivablesSetup.FieldCaption("Freight G/L Acc. No."));
 
@@ -209,7 +209,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccountNo);
 
         // [THEN] G/L Account "G" is shown in two lines as Receivables and Payable Account
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -261,7 +261,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
 
         // [THEN] Gen. Journal Template is not shown on "G/L Account Where-Used List"
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'There must not be records.');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'There must not be records.');
     end;
 
     [Test]
@@ -318,7 +318,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 100);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 100);
 
         LibraryERM.CreateGenJnlAllocation(
           GenJnlAllocation,
@@ -558,7 +558,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Initialize();
 
         // [GIVEN] Service Contract Account Group with G/L Account "G"
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
         ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", GLAccount."No.");
         ServiceContractAccountGroup.Modify();
@@ -639,7 +639,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Initialize();
 
         // [GIVEN] Sales & Receivables Setup with G/L Account "G"
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         UpdateSalesSetupFreightGLAcc(GLAccount."No.");
 
         // [WHEN] Run Where-Used function for G/L Account "G"
@@ -664,11 +664,11 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Initialize();
 
         // [GIVEN] Sales & Receivables Setup with G/L Account "G"
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         UpdateSalesSetupFreightGLAcc(GLAccount."No.");
 
         // [WHEN] Run Where-Used function for G/L Account "G"
-        SalesReceivablesSetupPage.Trap;
+        SalesReceivablesSetupPage.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
 
         // [THEN] Sales & Receivables Setup page opened
@@ -687,7 +687,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Initialize();
 
         // [GIVEN] Purchases & Payables Setup with "Debit Acc. for Non-Item Lines" = "G"
-        GLAccount.Get(LibraryERM.CreateGLAccountNo);
+        GLAccount.Get(LibraryERM.CreateGLAccountNo());
         UpdatPurchSetupDebitAccforNonItemLines(GLAccount."No.");
 
         // [WHEN] Run Where-Used function for G/L Account "G"
@@ -712,11 +712,11 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Initialize();
 
         // [GIVEN] Purchases & Payables Setup with G/L Account "G"
-        GLAccount.Get(LibraryERM.CreateGLAccountNo);
+        GLAccount.Get(LibraryERM.CreateGLAccountNo());
         UpdatPurchSetupDebitAccforNonItemLines(GLAccount."No.");
 
         // [WHEN] Run Where-Used function for G/L Account "G"
-        PurchasesPayablesSetupPage.Trap;
+        PurchasesPayablesSetupPage.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
 
         // [THEN] Purchases & Payables Setup page opened
@@ -762,7 +762,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         Initialize();
 
         // [GIVEN] Cash Flow Setup with G/L Account "G"
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         CashFlowSetup.Get();
         CashFlowSetup.Validate("Tax Bal. Account Type", CashFlowSetup."Tax Bal. Account Type"::"G/L Account");
         CashFlowSetup.Validate("Tax Bal. Account No.", GLAccount."No.");
@@ -826,7 +826,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         TableWithLinkToGLAccount.Insert();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
-        TableWithLinkToGLAccountPage.Trap;
+        TableWithLinkToGLAccountPage.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(TableWithLinkToGLAccount."Account No.");
 
         // [THEN] "Table With Link to G/L Account" page opened
@@ -866,20 +866,20 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)
     begin
-        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText, InvalidTableCaptionErr);
-        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText, InvalidFieldCaptionErr);
-        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText, InvalidLineValueErr);
+        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText(), InvalidTableCaptionErr);
+        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText(), InvalidFieldCaptionErr);
+        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText(), InvalidLineValueErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
+        GLAccountWhereUsedList.First();
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Table Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Field Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.Line.Value);
-        GLAccountWhereUsedList.OK.Invoke;
+        GLAccountWhereUsedList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -893,33 +893,33 @@ codeunit 134093 "ERM G/L Account Where-Used"
             LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.Line.Value);
         until (not GLAccountWhereUsedList.Next());
 
-        GLAccountWhereUsedList.OK.Invoke();
+        GLAccountWhereUsedList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedCheckNoRecordsHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.First);
+        LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.First());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedTwoLinesHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
-        GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
+        GLAccountWhereUsedList.First();
+        GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText());
         GLAccountWhereUsedList.Next();
-        GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
-        GLAccountWhereUsedList.OK.Invoke;
+        GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText());
+        GLAccountWhereUsedList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedShowDetailsHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
-        GLAccountWhereUsedList.ShowDetails.Invoke;
+        GLAccountWhereUsedList.First();
+        GLAccountWhereUsedList.ShowDetails.Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. G/L Acc. Where-Used", 'OnAfterFillTableBuffer', '', false, false)]

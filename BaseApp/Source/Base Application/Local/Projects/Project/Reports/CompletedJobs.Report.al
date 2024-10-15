@@ -14,7 +14,8 @@ report 10212 "Completed Jobs"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Projects/Project/Reports/CompletedJobs.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Completed Jobs';
+    Caption = 'Completed Projects';
+    AdditionalSearchTerms = 'Completed Jobs';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -248,7 +249,7 @@ report 10212 "Completed Jobs"
         "Profit%": Decimal;
         TLGrouping: Boolean;
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        Completed_JobsCaptionLbl: Label 'Completed Jobs';
+        Completed_JobsCaptionLbl: Label 'Completed Projects';
         ScheduledPriceCaptionLbl: Label 'Scheduled Price';
         InvoicedPriceCaptionLbl: Label 'Invoiced Price';
         UsageCostCaptionLbl: Label 'Usage (Cost)';

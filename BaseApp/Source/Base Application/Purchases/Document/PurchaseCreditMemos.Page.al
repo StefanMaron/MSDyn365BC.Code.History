@@ -399,7 +399,7 @@ page 9309 "Purchase Credit Memos"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -415,7 +415,7 @@ page 9309 "Purchase Credit Memos"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -467,8 +467,11 @@ page 9309 "Purchase Credit Memos"
 
                     trigger OnAction()
                     var
+                        SelectedPurchaseHeader: Record "Purchase Header";
                         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
                     begin
+                        CurrPage.SetSelectionFilter(SelectedPurchaseHeader);
+                        PurchPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedPurchaseHeader, Rec."No.");
                         PurchPostYesNo.Preview(Rec);
                     end;
                 }
@@ -492,7 +495,7 @@ page 9309 "Purchase Credit Memos"
                     Image = PostPrint;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize print the document or journal. The values and quantities are posted to the related accounts.';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin

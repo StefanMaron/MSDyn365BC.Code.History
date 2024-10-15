@@ -1,6 +1,8 @@
 namespace Microsoft.CRM.Interaction;
 
+#pragma warning disable AL0659
 enum 5082 "Interaction Template Wizard Action"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

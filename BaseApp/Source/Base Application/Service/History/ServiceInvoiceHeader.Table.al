@@ -48,6 +48,7 @@ table 5992 "Service Invoice Header"
     DrillDownPageID = "Posted Service Invoices";
     LookupPageID = "Posted Service Invoices";
     Permissions = TableData "Service Order Allocation" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -835,6 +836,10 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Allow Line Disc.';
         }
+        field(9001; "Quote No."; Code[20])
+        {
+            Caption = 'Quote No.';
+        }	
         field(10018; "STE Transaction ID"; Text[20])
         {
             Caption = 'STE Transaction ID';
@@ -936,6 +941,20 @@ table 5992 "Service Invoice Header"
             Caption = 'Date/Time First Req. Sent';
             Editable = false;
         }
+        field(10050; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';
+        }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
         field(27000; "CFDI Purpose"; Code[10])
         {
             Caption = 'CFDI Purpose';
@@ -961,6 +980,12 @@ table 5992 "Service Invoice Header"
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
         }
+        field(27005; "CFDI Period"; Option)
+        {
+            Caption = 'CFDI Period';
+            OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
+            OptionMembers = "Diario","Semanal","Quincenal","Mensual";
+        }
         field(27007; "CFDI Cancellation ID"; Text[50])
         {
             Caption = 'CFDI Cancellation ID';
@@ -968,6 +993,19 @@ table 5992 "Service Invoice Header"
         field(27008; "Marked as Canceled"; Boolean)
         {
             Caption = 'Marked as Canceled';
+        }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+            TableRelation = "SAT Address";
+
+            trigger OnLookup()
+            var
+                SATAddress: Record "SAT Address";
+            begin
+                if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
+                    Rec."SAT Address ID" := SATAddress.Id;
+            end;
         }
     }
 
@@ -1188,6 +1226,27 @@ table 5992 "Service Invoice Header"
             else
                 exit('Unfavorable');
         end;
+    end;
+
+    procedure PrintToDocumentAttachment(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceInvoiceHeader.Count() = 1;
+        if ServiceInvoiceHeader.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(ServiceInvoiceHeader, ShowNotificationAction);
+            until ServiceInvoiceHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(ServiceInvoiceHeader: Record "Service Invoice Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ServiceInvoiceHeader.SetRecFilter();
+
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"SM.Invoice".AsInteger(), ServiceInvoiceHeader, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     [IntegrationEvent(false, false)]

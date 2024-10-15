@@ -39,7 +39,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup: Create General Journal Line Account Type - IC Partner.
         Initialize();
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, WorkDate());  // Posting Date - WORKDATE.
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner(), WorkDate());  // Posting Date - WORKDATE.
 
         // Exercise: Execute function - CheckICPartner of Report - Payment Journal - Test.
         PaymentJournalTest.CheckICPartner(GenJournalLine, AccountName);
@@ -60,7 +60,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, WorkDate());  // Posting Date - WORKDATE.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"G/L Account", CreateGLAccount(), WorkDate());  // Posting Date - WORKDATE.
     end;
 
     [Test]
@@ -75,7 +75,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Customer, CreateCustomer, WorkDate());  // Posting Date - WORKDATE.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Customer, CreateCustomer(), WorkDate());  // Posting Date - WORKDATE.
     end;
 
     [Test]
@@ -90,7 +90,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Vendor, CreateVendor, WorkDate());  // Posting Date - WORKDATE.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Vendor, CreateVendor(), WorkDate());  // Posting Date - WORKDATE.
     end;
 
     [Test]
@@ -105,7 +105,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, WorkDate());  // Posting Date - WORKDATE.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(), WorkDate());  // Posting Date - WORKDATE.
     end;
 
     [Test]
@@ -120,10 +120,10 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset, 0D);  // Posting Date - 0D.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset(), 0D);  // Posting Date - 0D.
     end;
 
-    local procedure OnAfterGetRecordAccountTypePaymentJournalTest(AccountType: Option; AccountNo: Code[20]; PostingDate: Date)
+    local procedure OnAfterGetRecordAccountTypePaymentJournalTest(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -178,7 +178,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
     local procedure OnPreReportInternetFileTransfer(StartDate: Date; EndDate: Date)
     begin
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // Enqueue value for Request Page handler - GSTHSTInternetFileTransferRequestPageHandler.
         LibraryVariableStorage.Enqueue(StartDate);
@@ -201,7 +201,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // Enqueue value for Request Page handler - GSTHSTInternetFileTransferRequestPageHandler.
         LibraryVariableStorage.Enqueue(WorkDate());
@@ -247,7 +247,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup: Create Random Decimal number with one Decimal digit.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         Amount := LibraryRandom.RandDec(10, 1);
         DecimalValueString := DelChr(Format(Amount), '=', '.');  // Calculation based on function - FormatDecimals of Report - GST/HST Internet File Transfer.
@@ -272,7 +272,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup: Create Random Decimal number with Decimal digits in Range 2 to 8(Maximum).
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         Amount := LibraryRandom.RandDec(10, LibraryRandom.RandIntInRange(2, 8));
         DecimalValueString := DelChr(Format(Amount), '=', '.');  // Calculation based on function - FormatDecimals of Report - GST/HST Internet File Transfer.
@@ -422,9 +422,9 @@ codeunit 141038 "UT REP Electronic Payment"
         PaymentJournalTest.Run();  // Invokes PaymentJournalTestExcelRequestPageHandler.
 
         // [THEN] Report prints all 3 lines
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.SetRange(GenJournalLine.FieldCaption(Description), Vendor."No.");
-        Assert.AreEqual(NumberOfLines, LibraryReportValidation.CountRows, StrSubstNo(RowsExpectedMsg, NumberOfLines));
+        Assert.AreEqual(NumberOfLines, LibraryReportValidation.CountRows(), StrSubstNo(RowsExpectedMsg, NumberOfLines));
     end;
 
     [Test]
@@ -466,9 +466,9 @@ codeunit 141038 "UT REP Electronic Payment"
         REPORT.Run(REPORT::"Payment Journal - Test", true, false, GenJournalLine[1]);
 
         // [THEN] Report prints all 3 lines
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.SetRange(GenJournalLine[1].FieldCaption(Description), Vendor."No.");
-        Assert.AreEqual(ArrayLen(GenJournalLine), LibraryReportValidation.CountRows, StrSubstNo(RowsExpectedMsg, ArrayLen(GenJournalLine)));
+        Assert.AreEqual(ArrayLen(GenJournalLine), LibraryReportValidation.CountRows(), StrSubstNo(RowsExpectedMsg, ArrayLen(GenJournalLine)));
     end;
 
     [Test]
@@ -484,7 +484,7 @@ codeunit 141038 "UT REP Electronic Payment"
         Initialize();
 
         // [GIVEN] Gen. Journal Line.
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateGLAccount, WorkDate());
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateGLAccount(), WorkDate());
 
         // [WHEN] Run "Payment Journal - Test" report (opens handler - PaymentJournalTestRequestPageHandler).
         REPORT.Run(REPORT::"Payment Journal - Test");
@@ -518,7 +518,7 @@ codeunit 141038 "UT REP Electronic Payment"
           GenJournalLine."Account Type"::Vendor,
           Vendor."No.",
           GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo,
+          LibraryERM.CreateGLAccountNo(),
           LibraryRandom.RandDec(100, 2));
         LibraryReportValidation.SetFileName(Vendor."No.");
         Commit();
@@ -527,7 +527,7 @@ codeunit 141038 "UT REP Electronic Payment"
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
         REPORT.Run(REPORT::"Payment Journal - Test", true, false, GenJournalLine);
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.SetRange(GenJournalLine.FieldCaption(Description), Vendor."No.");
 
         // [THEN] "Payment_Journal___TestCaption1" field = 10089's report caption.
@@ -551,8 +551,8 @@ codeunit 141038 "UT REP Electronic Payment"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
-        BankAccount."Last Check No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
+        BankAccount."Last Check No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.")
     end;
@@ -561,7 +561,7 @@ codeunit 141038 "UT REP Electronic Payment"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -570,7 +570,7 @@ codeunit 141038 "UT REP Electronic Payment"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
         FixedAsset.Insert();
         exit(FixedAsset."No.");
     end;
@@ -579,7 +579,7 @@ codeunit 141038 "UT REP Electronic Payment"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -588,7 +588,7 @@ codeunit 141038 "UT REP Electronic Payment"
     var
         ICPartner: Record "IC Partner";
     begin
-        ICPartner.Code := LibraryUTUtility.GetNewCode;
+        ICPartner.Code := LibraryUTUtility.GetNewCode();
         ICPartner.Name := ICPartner.Code;
         ICPartner.Insert();
         exit(ICPartner.Code);
@@ -598,7 +598,7 @@ codeunit 141038 "UT REP Electronic Payment"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -607,10 +607,10 @@ codeunit 141038 "UT REP Electronic Payment"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
 
         // Enqueue value for Request Page handler - PaymentJournalTestRequestPageHandler
@@ -627,7 +627,7 @@ codeunit 141038 "UT REP Electronic Payment"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; PostingDate: Date)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -639,18 +639,18 @@ codeunit 141038 "UT REP Electronic Payment"
         GenJournalLine."Account No." := AccountNo;
         GenJournalLine."Bal. Account Type" := GenJournalLine."Account Type";
         GenJournalLine."Bal. Account No." := GenJournalLine."Account No.";
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
-        GenJournalLine."Applies-to ID" := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Applies-to ID" := LibraryUTUtility.GetNewCode();
         GenJournalLine."Posting Date" := PostingDate;
-        GenJournalLine."Recurring Method" := LibraryRandom.RandIntInRange(1, 6);  // Recurring Method - Option Range 1 to 6.
+        GenJournalLine."Recurring Method" := "Gen. Journal Recurring Method".FromInteger(LibraryRandom.RandIntInRange(1, 6));  // Recurring Method - Option Range 1 to 6.
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);
         GenJournalLine.Insert();
     end;
 
     local procedure VerifyBatchAndAccountNo(GenJournalLine: Record "Gen. Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Journal_Batch_Name', GenJournalLine."Journal Batch Name");
         LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line__Document_No__', GenJournalLine."Document No.");
         LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line__Account_No__', GenJournalLine."Account No.");
@@ -661,7 +661,7 @@ codeunit 141038 "UT REP Electronic Payment"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'Payment_Journal___TestCaption',
           PaymentJournalTestCaptionTxt);
@@ -685,20 +685,20 @@ codeunit 141038 "UT REP Electronic Payment"
     begin
         LibraryVariableStorage.Dequeue(JournalTemplateName);
         LibraryVariableStorage.Dequeue(JournalBatchName);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         PaymentJournalTest."Gen. Journal Line".SetFilter("Journal Template Name", JournalTemplateName);
         PaymentJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", JournalBatchName);
-        PaymentJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PaymentJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PaymentJournalTestExcelRequestPageHandler(var PaymentJournalTest: TestRequestPage "Payment Journal - Test")
     begin
-        PaymentJournalTest."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        PaymentJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
-        PaymentJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName);
+        PaymentJournalTest."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        PaymentJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
+        PaymentJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -710,10 +710,10 @@ codeunit 141038 "UT REP Electronic Payment"
     begin
         LibraryVariableStorage.Dequeue(StartDate);
         LibraryVariableStorage.Dequeue(EndDate);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         GSTHSTInternetFileTransfer.StartDate.SetValue(StartDate);
         GSTHSTInternetFileTransfer.EndDate.SetValue(EndDate);
-        GSTHSTInternetFileTransfer.OK.Invoke;
+        GSTHSTInternetFileTransfer.OK().Invoke();
     end;
 }
 

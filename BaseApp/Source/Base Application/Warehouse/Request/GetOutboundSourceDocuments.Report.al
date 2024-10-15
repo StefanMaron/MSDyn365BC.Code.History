@@ -289,13 +289,13 @@ report 7304 "Get Outbound Source Documents"
         LocationCode := LocationCode2;
     end;
 
-    local procedure GetLocation(LocationCode: Code[10])
+    local procedure GetLocation(LocationCode2: Code[10])
     begin
-        if LocationCode = '' then
+        if LocationCode2 = '' then
             Clear(Location)
         else
-            if Location.Code <> LocationCode then
-                Location.Get(LocationCode);
+            if Location.Code <> LocationCode2 then
+                Location.Get(LocationCode2);
     end;
 
     local procedure IsPickToBeMadeForAsmLine(AsmLine: Record "Assembly Line"): Boolean
@@ -306,7 +306,7 @@ report 7304 "Get Outbound Source Documents"
         GetLocation(AsmLine."Location Code");
 
         AsmLine.CalcFields("Pick Qty.");
-        if Location."Require Shipment" then
+        if Location."Asm. Consump. Whse. Handling" = Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)" then
             exit(AsmLine.Quantity > AsmLine."Qty. Picked" + AsmLine."Pick Qty.");
 
         exit(AsmLine."Quantity to Consume" > AsmLine."Qty. Picked" + AsmLine."Pick Qty.");
@@ -331,7 +331,7 @@ report 7304 "Get Outbound Source Documents"
         Item: Record Item;
     begin
         GetLocation(JobPlanningLine."Location Code");
-        if Location."Require Pick" and Location."Require Shipment" and not JobPlanningLine."Completely Picked" then begin
+        if (Location."Job Consump. Whse. Handling" = Location."Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)") and not JobPlanningLine."Completely Picked" then begin
             Item.Get(JobPlanningLine."No.");
             if Item.IsInventoriableType() then
                 if WhsePickWkshCreate.FromJobPlanningLine(PickWkshTemplate, PickWkshName, JobPlanningLine) then

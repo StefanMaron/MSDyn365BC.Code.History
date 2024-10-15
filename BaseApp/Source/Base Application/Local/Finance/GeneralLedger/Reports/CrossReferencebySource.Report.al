@@ -21,9 +21,17 @@ report 10010 "Cross Reference by Source"
     {
         dataitem("G/L Register"; "G/L Register")
         {
+#if not CLEAN24
             DataItemTableView = sorting("Source Code", "Journal Batch Name", "Creation Date");
+#else
+            DataItemTableView = sorting("Source Code", "Journal Batch Name");
+#endif
             PrintOnlyIfDetail = true;
+#if not CLEAN24
             RequestFilterFields = "No.", "Source Code", "Journal Batch Name", "Creation Date";
+#else
+            RequestFilterFields = "No.", "Source Code", "Journal Batch Name";
+#endif
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }

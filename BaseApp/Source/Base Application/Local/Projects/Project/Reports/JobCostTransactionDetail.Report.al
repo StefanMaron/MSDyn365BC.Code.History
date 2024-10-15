@@ -13,7 +13,8 @@ report 10220 "Job Cost Transaction Detail"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Projects/Project/Reports/JobCostTransactionDetail.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Job Cost Transaction Detail';
+    Caption = 'Project Cost Transaction Detail';
+    AdditionalSearchTerms = 'Job Cost Transaction Detail';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -203,9 +204,9 @@ report 10220 "Job Cost Transaction Detail"
         AmtPostedToGL: array[2] of Decimal;
         Text000: Label 'Total Usage for %1 %2';
         Text001: Label 'Total Sales for %1 %2';
-        Job_Cost_Transaction_DetailCaptionLbl: Label 'Job Cost Transaction Detail';
+        Job_Cost_Transaction_DetailCaptionLbl: Label 'Project Cost Transaction Detail';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        Job_Ledger_Entry__Amt__Recognized_CaptionLbl: Label 'Job Ledger Entry - Amt. Recognized';
+        Job_Ledger_Entry__Amt__Recognized_CaptionLbl: Label 'Project Ledger Entry - Amt. Recognized';
 
     procedure IncrementTotals(EntryType: Integer)
     var

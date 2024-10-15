@@ -71,45 +71,43 @@ codeunit 10092 "Export Payments (Cecoban)"
         CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
-        with BankAccount do begin
-            LockTable();
-            Get(BankAccountNo);
-            TestField("Export Format", "Export Format"::MX);
-            TestField("Transit No.");
-            TestField("E-Pay Export File Path");
-            if "E-Pay Export File Path"[StrLen("E-Pay Export File Path")] <> '\' then
-                Error(Text002,
-                  FieldCaption("E-Pay Export File Path"),
-                  TableCaption,
-                  "No.");
-            TestField("Bank Acc. Posting Group");
-            TestField(Blocked, false);
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("Export Format", BankAccount."Export Format"::MX);
+        BankAccount.TestField("Transit No.");
+        BankAccount.TestField("E-Pay Export File Path");
+        if BankAccount."E-Pay Export File Path"[StrLen(BankAccount."E-Pay Export File Path")] <> '\' then
+            Error(Text002,
+              BankAccount.FieldCaption("E-Pay Export File Path"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        BankAccount.TestField("Bank Acc. Posting Group");
+        BankAccount.TestField(Blocked, false);
 
-            "Last E-Pay Export File Name" := ExportFileName();
-            FileName := RBMgt.ServerTempFileName('');
-            Modify();
+        BankAccount."Last E-Pay Export File Name" := ExportFileName();
+        FileName := RBMgt.ServerTempFileName('');
+        BankAccount.Modify();
 
-            if Exists(FileName) then
-                Error(Text003,
-                  FileName,
-                  FieldCaption("Last E-Pay Export File Name"),
-                  TableCaption,
-                  "No.");
-            ExportFile.TextMode(true);
-            ExportFile.WriteMode(true);
-            ExportFile.Create(FileName);
+        if Exists(FileName) then
+            Error(Text003,
+              FileName,
+              BankAccount.FieldCaption("Last E-Pay Export File Name"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        ExportFile.TextMode(true);
+        ExportFile.WriteMode(true);
+        ExportFile.Create(FileName);
 
-            FileIsInProcess := true;
-            FileDate := Today;
-            NoOfRec := 0;
-            FileHashTotal := 0;
-            TotalFileDebit := 0;
-            TotalFileCredit := 0;
-            FileEntryAddendaCount := 0;
-            BatchCount := 0;
-            RecordLength := 422;
-            BatchNo := 0;
-        end;
+        FileIsInProcess := true;
+        FileDate := Today;
+        NoOfRec := 0;
+        FileHashTotal := 0;
+        TotalFileDebit := 0;
+        TotalFileCredit := 0;
+        FileEntryAddendaCount := 0;
+        BatchCount := 0;
+        RecordLength := 422;
+        BatchNo := 0;
     end;
 
     procedure StartExportBatch(OperationCode: Integer; SourceCode: Code[10]; SettleDate: Date)
@@ -179,105 +177,127 @@ codeunit 10092 "Export Payments (Cecoban)"
         DemandCredit := (PaymentAmount < 0);
         PaymentAmount := Abs(PaymentAmount);
 
-        with GenJnlLine do begin
-            if "Account Type" = "Account Type"::Vendor then begin
-                AcctType := 'V';
-                AcctNo := "Account No.";
+        if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor then begin
+            AcctType := 'V';
+            AcctNo := GenJnlLine."Account No.";
+        end else
+            if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then begin
+                AcctType := 'C';
+                AcctNo := GenJnlLine."Account No.";
             end else
-                if "Account Type" = "Account Type"::Customer then begin
-                    AcctType := 'C';
-                    AcctNo := "Account No.";
+                if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor then begin
+                    AcctType := 'V';
+                    AcctNo := GenJnlLine."Bal. Account No.";
                 end else
-                    if "Bal. Account Type" = "Bal. Account Type"::Vendor then begin
-                        AcctType := 'V';
-                        AcctNo := "Bal. Account No.";
+                    if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer then begin
+                        AcctType := 'C';
+                        AcctNo := GenJnlLine."Bal. Account No.";
                     end else
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then begin
-                            AcctType := 'C';
-                            AcctNo := "Bal. Account No.";
-                        end else
-                            Error(Text018,
-                              FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), Vendor.TableCaption(), Customer.TableCaption());
+                        Error(Text018,
+                          GenJnlLine.FieldCaption("Account Type"), GenJnlLine.FieldCaption("Bal. Account Type"), Vendor.TableCaption(), Customer.TableCaption());
 
-            if AcctType = 'V' then begin
-                Vendor.Get(AcctNo);
-                Vendor.TestField(Blocked, Vendor.Blocked::" ");
-                Vendor.TestField("Privacy Blocked", false);
-                AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
-                RFCNo := Vendor."VAT Registration No.";
+        if AcctType = 'V' then begin
+            Vendor.Get(AcctNo);
+            Vendor.TestField(Blocked, Vendor.Blocked::" ");
+            Vendor.TestField("Privacy Blocked", false);
+            AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
+            RFCNo := Vendor."VAT Registration No.";
 
-                EFTRecepientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAcct, GenJnlLine, Vendor."No.");
+            EFTRecepientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAcct, GenJnlLine, Vendor."No.");
 
-                if not PayeeCheckDigit(VendorBankAcct."Transit No.") then
-                    VendorBankAcct.FieldError("Transit No.", TransitNoErr);
+            if not PayeeCheckDigit(VendorBankAcct."Transit No.") then
+                VendorBankAcct.FieldError("Transit No.", TransitNoErr);
 
-                VendorBankAcct.TestField("Bank Account No.");
-                TransitNo := VendorBankAcct."Transit No.";
-                BankAcctNo := VendorBankAcct."Bank Account No.";
-            end else
-                if AcctType = 'C' then begin
-                    Customer.Get(AcctNo);
-                    if Customer."Privacy Blocked" then
-                        Error(PrivacyBlockedErr, "Account Type");
+            VendorBankAcct.TestField("Bank Account No.");
+            TransitNo := VendorBankAcct."Transit No.";
+            BankAcctNo := VendorBankAcct."Bank Account No.";
+        end else
+            if AcctType = 'C' then begin
+                Customer.Get(AcctNo);
+                if Customer."Privacy Blocked" then
+                    Error(PrivacyBlockedErr, GenJnlLine."Account Type");
 
-                    if Customer.Blocked in [Customer.Blocked::All] then
-                        Error(Text1020100, "Account Type", Customer.Blocked);
-                    AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
-                    RFCNo := Customer."VAT Registration No.";
+                if Customer.Blocked in [Customer.Blocked::All] then
+                    Error(Text1020100, GenJnlLine."Account Type", Customer.Blocked);
+                AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
+                RFCNo := Customer."VAT Registration No.";
 
-                    EFTRecepientBankAccountMgt.GetRecipientCustomerBankAccount(CustBankAcct, GenJnlLine, Customer."No.");
+                EFTRecepientBankAccountMgt.GetRecipientCustomerBankAccount(CustBankAcct, GenJnlLine, Customer."No.");
 
-                    if not PayeeCheckDigit(CustBankAcct."Transit No.") then
-                        CustBankAcct.FieldError("Transit No.", TransitNoErr);
-                    CustBankAcct.TestField("Bank Account No.");
-                    TransitNo := CustBankAcct."Transit No.";
-                    BankAcctNo := CustBankAcct."Bank Account No.";
-                end;
+                if not PayeeCheckDigit(CustBankAcct."Transit No.") then
+                    CustBankAcct.FieldError("Transit No.", TransitNoErr);
+                CustBankAcct.TestField("Bank Account No.");
+                TransitNo := CustBankAcct."Transit No.";
+                BankAcctNo := CustBankAcct."Bank Account No.";
+            end;
 
-            TraceNo := TraceNo + 1;
-            SequenceNo := SequenceNo + 1;
-            DetailRec := '';
-            // Cecoban Detail rec
-            AddToPrnString(DetailRec, '2', 1, 2, Justification::Right, '0');                      // Record Type of Input "02" is Detail
-            AddNumToPrnString(DetailRec, SequenceNo, 3, 7);                                     // Sequence Number
-            AddNumToPrnString(DetailRec, OpCode, 10, 2);                                            // Operation Code
-            AddToPrnString(DetailRec, '01', 12, 2, Justification::Left, ' ');                    // Currency Code, 01 - MX peso 05 - USD
-            AddToPrnString(DetailRec, Format(FileDate, 0, '<Year,4><Month,2><Day,2>'), 14, 8, Justification::Right, '0');
-            // Transfer Date AAAAMMDD
-
-            AddToPrnString(DetailRec, BankAccount."Bank Account No.", 22, 3, Justification::Left, ' ');                    // ODFI
-            AddToPrnString(DetailRec, BankAcctNo, 25, 3, Justification::Left, ' ');                // RDFI
-            AddAmtToPrnString(DetailRec, PaymentAmount, 28, 15);                                           // Operation Fee
-            AddToPrnString(DetailRec, ' ', 43, 16, Justification::Left, ' ');                    // Future use
-            AddNumToPrnString(DetailRec, OpCode, 59, 2);                                        // Operation Type
-            AddToPrnString(DetailRec, Format(SettleDate, 0, '<Year,2><Month,2><Day,2>'), 61, 8, Justification::Right, '0');
-            // Date Entered AAAAMMDD
-            AddNumToPrnString(DetailRec, 1, 69, 2);                    // '?????' Originator Account Type
-            AddToPrnString(DetailRec, BankAccount."Transit No.", 71, 20, Justification::Left, '');          // Originator Account No.
-            AddToPrnString(DetailRec, AcctName, 91, 40, Justification::Left, '');                    // Originator Account Name
-            AddToPrnString(DetailRec, '', 131, 18, Justification::Left, '');                   // Originator RFC/CURP
-            AddNumToPrnString(DetailRec, PayeeAcctType, 149, 2);                    // Payee Account Type
-            AddToPrnString(DetailRec, TransitNo, 151, 20, Justification::Left, '');              // Payee Account No.
-            AddToPrnString(DetailRec, AcctName, 171, 40, Justification::Left, '');                    // Payee Account Name
-            AddToPrnString(DetailRec, RFCNo, 211, 18, Justification::Left, '');                   // Payee RFC/CURP
-            AddToPrnString(DetailRec, '', 229, 40, Justification::Left, '');                   // Transmitter Service Reference
-            AddToPrnString(DetailRec, '', 269, 40, Justification::Left, '');                   // Service Owner
-            AddAmtToPrnString(DetailRec, 0, 309, 15);                                            // Operation Tax Cost
-            AddNumToPrnString(DetailRec, 0, 324, 7);                                       // Originator Numeric reference
-            AddToPrnString(DetailRec, '', 331, 40, Justification::Left, '');                   // Originator alpha reference
-            AddToPrnString(DetailRec, GenerateTraceNoCode(TraceNo), 371, 30, Justification::Left, '');                   // Tracking code
-            AddNumToPrnString(DetailRec, 0, 401, 2);                                            // Return Reason
-            AddToPrnString(DetailRec, Format(Today, 0, '<Year><Month,2><Day,2>'), 403, 8, Justification::Left, ' ');   // Initial Presentation Date
-            AddToPrnString(DetailRec, '', 411, 12, Justification::Left, ' ');                   // future use
-
-            ExportPrnString(DetailRec);
-            EntryAddendaCount := EntryAddendaCount + 1;
-            if DemandCredit then
-                TotalBatchCredit := TotalBatchCredit + PaymentAmount
-            else
-                TotalBatchDebit := TotalBatchDebit + PaymentAmount;
-            IncrementHashTotal(BatchHashTotal, MakeHash(CopyStr(TransitNo, 1, 8)));
-        end;
+        TraceNo := TraceNo + 1;
+        SequenceNo := SequenceNo + 1;
+        DetailRec := '';
+        // Cecoban Detail rec
+        AddToPrnString(DetailRec, '2', 1, 2, Justification::Right, '0');
+        // Record Type of Input "02" is Detail
+        AddNumToPrnString(DetailRec, SequenceNo, 3, 7);
+        // Sequence Number
+        AddNumToPrnString(DetailRec, OpCode, 10, 2);
+        // Operation Code
+        AddToPrnString(DetailRec, '01', 12, 2, Justification::Left, ' ');
+        // Currency Code, 01 - MX peso 05 - USD
+        AddToPrnString(DetailRec, Format(FileDate, 0, '<Year,4><Month,2><Day,2>'), 14, 8, Justification::Right, '0');
+        // Transfer Date AAAAMMDD
+        AddToPrnString(DetailRec, BankAccount."Bank Account No.", 22, 3, Justification::Left, ' ');
+        // ODFI
+        AddToPrnString(DetailRec, BankAcctNo, 25, 3, Justification::Left, ' ');
+        // RDFI
+        AddAmtToPrnString(DetailRec, PaymentAmount, 28, 15);
+        // Operation Fee
+        AddToPrnString(DetailRec, ' ', 43, 16, Justification::Left, ' ');
+        // Future use
+        AddNumToPrnString(DetailRec, OpCode, 59, 2);
+        // Operation Type
+        AddToPrnString(DetailRec, Format(SettleDate, 0, '<Year,2><Month,2><Day,2>'), 61, 8, Justification::Right, '0');
+        // Date Entered AAAAMMDD
+        AddNumToPrnString(DetailRec, 1, 69, 2);
+        // '?????' Originator Account Type
+        AddToPrnString(DetailRec, BankAccount."Transit No.", 71, 20, Justification::Left, '');
+        // Originator Account No.
+        AddToPrnString(DetailRec, AcctName, 91, 40, Justification::Left, '');
+        // Originator Account Name
+        AddToPrnString(DetailRec, '', 131, 18, Justification::Left, '');
+        // Originator RFC/CURP
+        AddNumToPrnString(DetailRec, PayeeAcctType, 149, 2);
+        // Payee Account Type
+        AddToPrnString(DetailRec, TransitNo, 151, 20, Justification::Left, '');
+        // Payee Account No.
+        AddToPrnString(DetailRec, AcctName, 171, 40, Justification::Left, '');
+        // Payee Account Name
+        AddToPrnString(DetailRec, RFCNo, 211, 18, Justification::Left, '');
+        // Payee RFC/CURP
+        AddToPrnString(DetailRec, '', 229, 40, Justification::Left, '');
+        // Transmitter Service Reference
+        AddToPrnString(DetailRec, '', 269, 40, Justification::Left, '');
+        // Service Owner
+        AddAmtToPrnString(DetailRec, 0, 309, 15);
+        // Operation Tax Cost
+        AddNumToPrnString(DetailRec, 0, 324, 7);
+        // Originator Numeric reference
+        AddToPrnString(DetailRec, '', 331, 40, Justification::Left, '');
+        // Originator alpha reference
+        AddToPrnString(DetailRec, GenerateTraceNoCode(TraceNo), 371, 30, Justification::Left, '');
+        // Tracking code
+        AddNumToPrnString(DetailRec, 0, 401, 2);
+        // Return Reason
+        AddToPrnString(DetailRec, Format(Today, 0, '<Year><Month,2><Day,2>'), 403, 8, Justification::Left, ' ');
+        // Initial Presentation Date
+        AddToPrnString(DetailRec, '', 411, 12, Justification::Left, ' ');
+        // future use
+        ExportPrnString(DetailRec);
+        EntryAddendaCount := EntryAddendaCount + 1;
+        if DemandCredit then
+            TotalBatchCredit := TotalBatchCredit + PaymentAmount
+        else
+            TotalBatchDebit := TotalBatchDebit + PaymentAmount;
+        IncrementHashTotal(BatchHashTotal, MakeHash(CopyStr(TransitNo, 1, 8)));
 
         exit(GenerateFullTraceNoCode(TraceNo));
     end;
@@ -459,25 +479,23 @@ codeunit 10092 "Export Payments (Cecoban)"
         ExportFullPathName: Text;
         TransmitFullPathName: Text;
     begin
-        with BankAccount do begin
-            Get(BankAccountNo);
-            TestField("E-Pay Export File Path");
-            if "E-Pay Export File Path"[StrLen("E-Pay Export File Path")] <> '\' then
-                Error(Text002,
-                  FieldCaption("E-Pay Export File Path"),
-                  TableCaption,
-                  "No.");
-            TestField("E-Pay Trans. Program Path");
-            if "E-Pay Trans. Program Path"[StrLen("E-Pay Trans. Program Path")] <> '\' then
-                Error(Text002,
-                  FieldCaption("E-Pay Trans. Program Path"),
-                  TableCaption,
-                  "No.");
-            ExportFullPathName := "E-Pay Export File Path" + FName;
-            TransmitFullPathName := "E-Pay Trans. Program Path" + FName;
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("E-Pay Export File Path");
+        if BankAccount."E-Pay Export File Path"[StrLen(BankAccount."E-Pay Export File Path")] <> '\' then
+            Error(Text002,
+              BankAccount.FieldCaption("E-Pay Export File Path"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        BankAccount.TestField("E-Pay Trans. Program Path");
+        if BankAccount."E-Pay Trans. Program Path"[StrLen(BankAccount."E-Pay Trans. Program Path")] <> '\' then
+            Error(Text002,
+              BankAccount.FieldCaption("E-Pay Trans. Program Path"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        ExportFullPathName := BankAccount."E-Pay Export File Path" + FName;
+        TransmitFullPathName := BankAccount."E-Pay Trans. Program Path" + FName;
 
-            Error(Text016, FName);
-        end;
+        Error(Text016, FName);
     end;
 
     procedure ExportFileName(): Text[30]

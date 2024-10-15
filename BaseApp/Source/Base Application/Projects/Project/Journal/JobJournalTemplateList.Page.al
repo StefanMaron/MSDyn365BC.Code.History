@@ -2,7 +2,7 @@ namespace Microsoft.Projects.Project.Journal;
 
 page 275 "Job Journal Template List"
 {
-    Caption = 'Job Journal Template List';
+    Caption = 'Project Journal Template List';
     Editable = false;
     PageType = List;
     SourceTable = "Job Journal Template";
@@ -22,7 +22,7 @@ page 275 "Job Journal Template List"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a description of the job journal template for easy identification.';
+                    ToolTip = 'Specifies a description of the project journal template for easy identification.';
                 }
                 field("Test Report ID"; Rec."Test Report ID")
                 {
@@ -75,7 +75,7 @@ page 275 "Job Journal Template List"
                 field("Posting Report Caption"; Rec."Posting Report Caption")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the name of the posting report that is printed when you print the job journal.';
+                    ToolTip = 'Specifies the name of the posting report that is printed when you print the project journal.';
                     Visible = false;
                 }
             }

@@ -112,7 +112,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         CreateSalesQuoteWOCustomer(SalesHeader, Contact."No.", CustomerTemplate.Code);
 
         // [WHEN] Convert the Sales Quote to Order by Make Order.
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
         SalesOrder.Close();
 
@@ -146,7 +146,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         CreateAndAssignQuoteToOpportunity(Opportunity, Contact."No.");
 
         // [WHEN] Try assigning another Sales Quote to the Opportunity created earlier.
-        asserterror Opportunity.CreateQuote;
+        asserterror Opportunity.CreateQuote();
 
         // [THEN] Check that the application generates an error on assigning a Sales Quote to an Opportunity that has already been assigned a Sales Quote.
         Assert.AreEqual(StrSubstNo(SalesQuoteAlreadyAssignedError), GetLastErrorText, UnknownError);
@@ -292,7 +292,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         CustomerTemplateCode := CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Convert Quote to Order.
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
         SalesOrder.Close();
 
@@ -327,7 +327,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         CustomerTemplateCode := CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Convert Quote to Order.
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
         SalesOrder.Close();
 
@@ -486,7 +486,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Sales Order made from Sales Quote
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
         SalesOrder.Close();
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Order);
@@ -538,7 +538,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Sales Order made from Sales Quote
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
         SalesOrder.Close();
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Order);
@@ -633,7 +633,7 @@ codeunit 136204 "Marketing Quotations Contacts"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryTemplates.EnableTemplatesFeature();
 
         IsInitialized := true;
@@ -645,7 +645,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     begin
         Opportunity.SetRange("Contact No.", ContactNo);
         Opportunity.FindFirst();
-        Opportunity.CreateQuote;
+        Opportunity.CreateQuote();
     end;
 
     local procedure ArchiveSalesDocument(var SalesHeader: Record "Sales Header"): Code[20]
@@ -795,7 +795,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         exit(SalesHeader2."Sell-to Customer No.");
     end;
 
-    local procedure VerifyDocumentTypeAndNoOnOpportunity(ContactNo: Code[20]; SalesDocumentNo: Code[20]; SalesDocumentType: Option)
+    local procedure VerifyDocumentTypeAndNoOnOpportunity(ContactNo: Code[20]; SalesDocumentNo: Code[20]; SalesDocumentType: Enum "Opportunity Document Type")
     var
         Opportunity: Record Opportunity;
     begin
@@ -835,7 +835,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         TempOpportunity.Validate("Sales Cycle Code", SalesCycle.Code);
         TempOpportunity.Validate("Activate First Stage", true);
         TempOpportunity.Modify();
-        TempOpportunity.FinishWizard;
+        TempOpportunity.FinishWizard();
     end;
 
     [PageHandler]
@@ -880,7 +880,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         TempOpportunityEntry.Init();
         CloseOpportunity.GetRecord(TempOpportunityEntry);
         TempOpportunityEntry.Insert();
-        TempOpportunityEntry.FinishWizard;
+        TempOpportunityEntry.FinishWizard();
     end;
 
     [ModalPageHandler]
@@ -890,7 +890,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         CustomerTemplate: Record "Customer Templ.";
         ActionOption: Option LookupOK,Cancel;
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ActionOption::LookupOK:
                 begin
                     CustomerTemplate.Get(CustomerTemplateCode2);

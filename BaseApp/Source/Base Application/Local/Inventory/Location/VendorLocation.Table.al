@@ -12,6 +12,7 @@ table 10013 "Vendor Location"
     Caption = 'Vendor Location';
     DrillDownPageID = "Vendor Locations";
     LookupPageID = "Vendor Locations";
+    DataClassification = CustomerContent;
 
     fields
     {

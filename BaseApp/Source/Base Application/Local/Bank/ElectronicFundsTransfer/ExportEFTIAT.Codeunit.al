@@ -77,69 +77,67 @@ codeunit 10097 "Export EFT (IAT)"
         CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
-        with BankAccount do begin
-            LockTable();
-            Get(BankAccountNo);
-            TestField("Export Format", "Export Format"::US);
-            TestField("Transit No.");
-            if "Country/Region Code" = 'US' then
-                if not ExportPaymentsACH.CheckDigit("Transit No.") then
-                    Error(IsNotValidErr);
-            TestField("Last E-Pay Export File Name");
-            TestField(Blocked, false);
-            FileName := FileManagement.ServerTempFileName('');
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("Export Format", BankAccount."Export Format"::US);
+        BankAccount.TestField("Transit No.");
+        if BankAccount."Country/Region Code" = 'US' then
+            if not ExportPaymentsACH.CheckDigit(BankAccount."Transit No.") then
+                Error(IsNotValidErr);
+        BankAccount.TestField("Last E-Pay Export File Name");
+        BankAccount.TestField(Blocked, false);
+        FileName := FileManagement.ServerTempFileName('');
 
-            if "Last ACH File ID Modifier" = '' then
-                "Last ACH File ID Modifier" := 'A'
-            else begin
-                i := 1;
-                while (i < ArrayLen(DummyModifierValues)) and
-                      ("Last ACH File ID Modifier" <> DummyModifierValues[i])
-                do
-                    i := i + 1;
-                if i = ArrayLen(DummyModifierValues) then
-                    i := 1
-                else
-                    i := i + 1;
-                "Last ACH File ID Modifier" := DummyModifierValues[i];
-            end;
-            Modify();
-
-            if Exists(FileName) then
-                Error(AlreadyExistsErr);
-
-            FileDate := Today;
-            FileTime := Time;
-            EFTValues.SetNoOfRec(0);
-            FileHashTotal := 0;
-            EFTValues.SetFileHashTotal(FileHashTotal);
-            EFTValues.SetTotalFileDebit(0);
-            EFTValues.SetTotalFileCredit(0);
-            EFTValues.SetFileEntryAddendaCount(0);
-            EFTValues.SetBatchCount(0);
-            EFTValues.SetBatchNo(0);
-            BlockingFactor := 10;
-            RecordLength := 94;
-
-            ACHUSHeader.Get(DataExchEntryNo);
-            ACHUSHeader."File Record Type" := 1;
-            ACHUSHeader."Priority Code" := 1;
-            ACHUSHeader."Transit Routing Number" := "Transit No.";
-            ACHUSHeader."Federal ID No." := DelChr(CompanyInformation."Federal ID No.", '=', ' .,-');
-            ACHUSHeader."File Creation Date" := FileDate;
-            ACHUSHeader."File Creation Time" := FileTime;
-            ACHUSHeader."File ID Modifier" := "Last ACH File ID Modifier";
-            ACHUSHeader."Record Size" := RecordLength;
-            ACHUSHeader."Blocking Factor" := BlockingFactor;
-            ACHUSHeader."Format Code" := 1;
-            ACHUSHeader."Bank Name" := Name;
-            ACHUSHeader."Bank Account Number" := "No.";
-            ACHUSHeader."Company Name" := CompanyInformation.Name;
-            ACHUSHeader.Reference := ReferenceCode;
-            OnStartExportFileOnBeforeACHUSHeaderModify(ACHUSHeader, BankAccount);
-            ACHUSHeader.Modify();
-            EFTValues.SetNoOfRec := EFTValues.GetNoOfRec() + 1;
+        if BankAccount."Last ACH File ID Modifier" = '' then
+            BankAccount."Last ACH File ID Modifier" := 'A'
+        else begin
+            i := 1;
+            while (i < ArrayLen(DummyModifierValues)) and
+                  (BankAccount."Last ACH File ID Modifier" <> DummyModifierValues[i])
+            do
+                i := i + 1;
+            if i = ArrayLen(DummyModifierValues) then
+                i := 1
+            else
+                i := i + 1;
+            BankAccount."Last ACH File ID Modifier" := DummyModifierValues[i];
         end;
+        BankAccount.Modify();
+
+        if Exists(FileName) then
+            Error(AlreadyExistsErr);
+
+        FileDate := Today;
+        FileTime := Time;
+        EFTValues.SetNoOfRec(0);
+        FileHashTotal := 0;
+        EFTValues.SetFileHashTotal(FileHashTotal);
+        EFTValues.SetTotalFileDebit(0);
+        EFTValues.SetTotalFileCredit(0);
+        EFTValues.SetFileEntryAddendaCount(0);
+        EFTValues.SetBatchCount(0);
+        EFTValues.SetBatchNo(0);
+        BlockingFactor := 10;
+        RecordLength := 94;
+
+        ACHUSHeader.Get(DataExchEntryNo);
+        ACHUSHeader."File Record Type" := 1;
+        ACHUSHeader."Priority Code" := 1;
+        ACHUSHeader."Transit Routing Number" := BankAccount."Transit No.";
+        ACHUSHeader."Federal ID No." := DelChr(CompanyInformation."Federal ID No.", '=', ' .,-');
+        ACHUSHeader."File Creation Date" := FileDate;
+        ACHUSHeader."File Creation Time" := FileTime;
+        ACHUSHeader."File ID Modifier" := BankAccount."Last ACH File ID Modifier";
+        ACHUSHeader."Record Size" := RecordLength;
+        ACHUSHeader."Blocking Factor" := BlockingFactor;
+        ACHUSHeader."Format Code" := 1;
+        ACHUSHeader."Bank Name" := BankAccount.Name;
+        ACHUSHeader."Bank Account Number" := BankAccount."No.";
+        ACHUSHeader."Company Name" := CompanyInformation.Name;
+        ACHUSHeader.Reference := ReferenceCode;
+        OnStartExportFileOnBeforeACHUSHeaderModify(ACHUSHeader, BankAccount);
+        ACHUSHeader.Modify();
+        EFTValues.SetNoOfRec := EFTValues.GetNoOfRec() + 1;
     end;
 
     [Scope('OnPrem')]
@@ -504,78 +502,76 @@ codeunit 10097 "Export EFT (IAT)"
     var
         EFTRecipientBankAccountMgt: Codeunit "EFT Recipient Bank Account Mgt";
     begin
-        with TempEFTExportWorkset do begin
-            if "Account Type" = "Account Type"::Vendor then begin
-                DestinationAcctType := 'V';
-                DestinationAcctNo := "Account No.";
+        if TempEFTExportWorkset."Account Type" = TempEFTExportWorkset."Account Type"::Vendor then begin
+            DestinationAcctType := 'V';
+            DestinationAcctNo := TempEFTExportWorkset."Account No.";
+        end else
+            if TempEFTExportWorkset."Account Type" = TempEFTExportWorkset."Account Type"::Customer then begin
+                DestinationAcctType := 'C';
+                DestinationAcctNo := TempEFTExportWorkset."Account No.";
             end else
-                if "Account Type" = "Account Type"::Customer then begin
-                    DestinationAcctType := 'C';
-                    DestinationAcctNo := "Account No.";
+                if TempEFTExportWorkset."Bal. Account Type" = TempEFTExportWorkset."Bal. Account Type"::Vendor then begin
+                    DestinationAcctType := 'V';
+                    DestinationAcctNo := TempEFTExportWorkset."Bal. Account No.";
                 end else
-                    if "Bal. Account Type" = "Bal. Account Type"::Vendor then begin
-                        DestinationAcctType := 'V';
-                        DestinationAcctNo := "Bal. Account No.";
+                    if TempEFTExportWorkset."Bal. Account Type" = TempEFTExportWorkset."Bal. Account Type"::Customer then begin
+                        DestinationAcctType := 'C';
+                        DestinationAcctNo := TempEFTExportWorkset."Bal. Account No.";
                     end else
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then begin
-                            DestinationAcctType := 'C';
-                            DestinationAcctNo := "Bal. Account No.";
-                        end else
-                            Error(ReferErr);
+                        Error(ReferErr);
 
-            if DestinationAcctType = 'V' then begin
-                Vendor.Get(DestinationAcctNo);
-                Vendor.TestField(Blocked, Vendor.Blocked::" ");
-                Vendor.TestField("Privacy Blocked", false);
-                DestinationName := Vendor.Name;
-                DestinationFederalIDNo := Vendor."Federal ID No.";
-                DestinationAddress := Vendor.Address + ' ' + Vendor."Address 2";
-                DestinationCity := Vendor.City;
-                DestinationCountryCode := Vendor."Country/Region Code";
-                DestinationCounty := Vendor.County;
-                DestinationPostCode := Vendor."Post Code";
+        if DestinationAcctType = 'V' then begin
+            Vendor.Get(DestinationAcctNo);
+            Vendor.TestField(Blocked, Vendor.Blocked::" ");
+            Vendor.TestField("Privacy Blocked", false);
+            DestinationName := Vendor.Name;
+            DestinationFederalIDNo := Vendor."Federal ID No.";
+            DestinationAddress := Vendor.Address + ' ' + Vendor."Address 2";
+            DestinationCity := Vendor.City;
+            DestinationCountryCode := Vendor."Country/Region Code";
+            DestinationCounty := Vendor.County;
+            DestinationPostCode := Vendor."Post Code";
 
-                EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, TempEFTExportWorkset, DestinationAcctNo);
+            EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, TempEFTExportWorkset, DestinationAcctNo);
 
-                if VendorBankAccount."Country/Region Code" = 'US' then
-                    if not ExportPaymentsACH.CheckDigit(VendorBankAccount."Transit No.") then
+            if VendorBankAccount."Country/Region Code" = 'US' then
+                if not ExportPaymentsACH.CheckDigit(VendorBankAccount."Transit No.") then
+                    Error(IsNotValidErr);
+
+            VendorBankAccount.TestField("Bank Account No.");
+            DestinationBankName := VendorBankAccount.Name;
+            DestinationBankTransitNo := VendorBankAccount."Transit No.";
+            DestinationBankAcctNo := VendorBankAccount."Bank Account No.";
+            DestinationBankCurrencyCode := VendorBankAccount."Currency Code";
+            DestinationBankCountryCode := VendorBankAccount."Country/Region Code";
+        end else
+            if DestinationAcctType = 'C' then begin
+                Customer.Get(DestinationAcctNo);
+                if Customer."Privacy Blocked" then
+                    Error(PrivacyBlockedErr);
+                if Customer.Blocked in [Customer.Blocked::All] then
+                    Error(IsBlockedErr);
+
+                DestinationName := Customer.Name;
+                DestinationFederalIDNo := ' ';
+                DestinationAddress := Customer.Address + ' ' + Customer."Address 2";
+                DestinationCity := Customer.City;
+                DestinationCountryCode := Customer."Country/Region Code";
+                DestinationCounty := Customer.County;
+                DestinationPostCode := Customer."Post Code";
+
+                EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, DestinationAcctNo);
+
+                if CustomerBankAccount."Country/Region Code" = 'US' then
+                    if not ExportPaymentsACH.CheckDigit(CustomerBankAccount."Transit No.") then
                         Error(IsNotValidErr);
-
-                VendorBankAccount.TestField("Bank Account No.");
-                DestinationBankName := VendorBankAccount.Name;
-                DestinationBankTransitNo := VendorBankAccount."Transit No.";
-                DestinationBankAcctNo := VendorBankAccount."Bank Account No.";
-                DestinationBankCurrencyCode := VendorBankAccount."Currency Code";
-                DestinationBankCountryCode := VendorBankAccount."Country/Region Code";
-            end else
-                if DestinationAcctType = 'C' then begin
-                    Customer.Get(DestinationAcctNo);
-                    if Customer."Privacy Blocked" then
-                        Error(PrivacyBlockedErr);
-                    if Customer.Blocked in [Customer.Blocked::All] then
-                        Error(IsBlockedErr);
-
-                    DestinationName := Customer.Name;
-                    DestinationFederalIDNo := ' ';
-                    DestinationAddress := Customer.Address + ' ' + Customer."Address 2";
-                    DestinationCity := Customer.City;
-                    DestinationCountryCode := Customer."Country/Region Code";
-                    DestinationCounty := Customer.County;
-                    DestinationPostCode := Customer."Post Code";
-
-                    EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, DestinationAcctNo);
-
-                    if CustomerBankAccount."Country/Region Code" = 'US' then
-                        if not ExportPaymentsACH.CheckDigit(CustomerBankAccount."Transit No.") then
-                            Error(IsNotValidErr);
-                    CustomerBankAccount.TestField("Bank Account No.");
-                    DestinationBankName := CustomerBankAccount.Name;
-                    DestinationBankTransitNo := CustomerBankAccount."Transit No.";
-                    DestinationBankAcctNo := CustomerBankAccount."Bank Account No.";
-                    DestinationBankCurrencyCode := CustomerBankAccount."Currency Code";
-                    DestinationBankCountryCode := CustomerBankAccount."Country/Region Code";
-                end;
-        end;
+                CustomerBankAccount.TestField("Bank Account No.");
+                DestinationBankName := CustomerBankAccount.Name;
+                DestinationBankTransitNo := CustomerBankAccount."Transit No.";
+                DestinationBankAcctNo := CustomerBankAccount."Bank Account No.";
+                DestinationBankCurrencyCode := CustomerBankAccount."Currency Code";
+                DestinationBankCountryCode := CustomerBankAccount."Country/Region Code";
+            end;
     end;
 
     [IntegrationEvent(false, false)]

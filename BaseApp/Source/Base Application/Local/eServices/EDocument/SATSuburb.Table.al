@@ -9,6 +9,7 @@ using Microsoft.Foundation.Address;
 table 27029 "SAT Suburb"
 {
     DataPerCompany = false;
+    DataClassification = CustomerContent;
 
     fields
     {

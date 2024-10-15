@@ -172,7 +172,7 @@ codeunit 141019 "UT TAB Sales Tax"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 322 Tax Detail.
 
         // Setup: Create Tax Detail.
-        CreateTaxDetail(TaxDetail, CreateTaxJurisdiction, TaxDetail."Tax Type"::"Sales Tax Only");
+        CreateTaxDetail(TaxDetail, CreateTaxJurisdiction(), TaxDetail."Tax Type"::"Sales Tax Only");
         TaxDetail2."Tax Jurisdiction Code" := TaxDetail."Tax Jurisdiction Code";
         TaxDetail2."Tax Group Code" := TaxDetail."Tax Group Code";
 
@@ -194,7 +194,7 @@ codeunit 141019 "UT TAB Sales Tax"
         // Purpose of the test is to validate OnRename Trigger of Table ID - 322 Tax Detail.
 
         // Setup: Create two Tax Detail.
-        CreateTaxDetail(TaxDetail, CreateTaxJurisdiction, TaxDetail."Tax Type");  // Using Default Tax Type - Sales and Use Tax.
+        CreateTaxDetail(TaxDetail, CreateTaxJurisdiction(), TaxDetail."Tax Type");  // Using Default Tax Type - Sales and Use Tax.
         CreateTaxDetail(TaxDetail2, TaxDetail."Tax Jurisdiction Code", TaxDetail2."Tax Type"::"Sales Tax Only");
         TaxDetail2."Tax Group Code" := TaxDetail."Tax Group Code";
 
@@ -218,7 +218,7 @@ codeunit 141019 "UT TAB Sales Tax"
         CreateSalesTaxAmountDifference(SalesTaxAmountDifference);
 
         // Exercise & Verify: Execute function - AnyTaxDifferenceRecords and verify Sales Tax Amount Difference exist.
-        Assert.IsTrue(SalesTaxAmountDifference.AnyTaxDifferenceRecords(SalesTaxAmountDifference."Document Product Area", SalesTaxAmountDifference."Document Type", SalesTaxAmountDifference."Document No."), 'Sales Tax Amount Difference must exist.');
+        Assert.IsTrue(SalesTaxAmountDifference.AnyTaxDifferenceRecords(SalesTaxAmountDifference."Document Product Area".AsInteger(), SalesTaxAmountDifference."Document Type", SalesTaxAmountDifference."Document No."), 'Sales Tax Amount Difference must exist.');
     end;
 
     [Test]
@@ -274,7 +274,7 @@ codeunit 141019 "UT TAB Sales Tax"
         CreateSalesTaxAmountLine(SalesTaxAmountLine);
 
         // Exercise & Verify: Verify updated Tax Percentage after execution of function - TaxAmountText.
-        Assert.AreEqual(StrSubstNo('%1% Tax', SalesTaxAmountLine."Tax %"), SalesTaxAmountLine.TaxAmountText, ValueMustEqualMsg);
+        Assert.AreEqual(StrSubstNo('%1% Tax', SalesTaxAmountLine."Tax %"), SalesTaxAmountLine.TaxAmountText(), ValueMustEqualMsg);
     end;
 
     [Test]
@@ -326,7 +326,7 @@ codeunit 141019 "UT TAB Sales Tax"
         CreateSalesTaxAmountLine(SalesTaxAmountLine);
 
         // Exercise & Verify: Verify updated Tax Base Amount after execution of function - GetTotalTaxBase.
-        Assert.AreEqual(SalesTaxAmountLine."Tax Base Amount", SalesTaxAmountLine.GetTotalTaxBase, ValueMustEqualMsg);
+        Assert.AreEqual(SalesTaxAmountLine."Tax Base Amount", SalesTaxAmountLine.GetTotalTaxBase(), ValueMustEqualMsg);
     end;
 
     [Test]
@@ -342,7 +342,7 @@ codeunit 141019 "UT TAB Sales Tax"
         CreateSalesTaxAmountLine(SalesTaxAmountLine);
 
         // Exercise & Verify: Verify updated Amount Including Tax after execution of function - GetTotalAmountInclTax.
-        Assert.AreEqual(SalesTaxAmountLine."Amount Including Tax", SalesTaxAmountLine.GetTotalAmountInclTax, ValueMustEqualMsg);
+        Assert.AreEqual(SalesTaxAmountLine."Amount Including Tax", SalesTaxAmountLine.GetTotalAmountInclTax(), ValueMustEqualMsg);
     end;
 
     [Test]
@@ -443,16 +443,16 @@ codeunit 141019 "UT TAB Sales Tax"
 
     local procedure CreateCurrency(var Currency: Record Currency)
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
     end;
 
     local procedure CreateLocation(var Location: Record Location; TaxAreaCode: Code[20])
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location."Do Not Use For Tax Calculation" := true;
         Location."Tax Area Code" := TaxAreaCode;
-        Location."Tax Exemption No." := LibraryUTUtility.GetNewCode;
+        Location."Tax Exemption No." := LibraryUTUtility.GetNewCode();
         Location."Provincial Tax Area Code" := Location."Tax Area Code";
         Location.Insert();
     end;
@@ -461,8 +461,8 @@ codeunit 141019 "UT TAB Sales Tax"
     var
         TaxArea: Record "Tax Area";
     begin
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Tax Area Code" := CreateTaxArea(TaxArea."Country/Region");
         SalesHeader."Bill-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesHeader.Insert();
@@ -474,7 +474,7 @@ codeunit 141019 "UT TAB Sales Tax"
     begin
         CreateSalesHeader(SalesHeader);
         SalesLine."Document No." := SalesHeader."No.";
-        SalesLine."No." := CreateStandardText;
+        SalesLine."No." := CreateStandardText();
         SalesLine."Tax Area Code" := SalesHeader."Tax Area Code";
         SalesLine."Tax Liable" := true;
         SalesLine.Insert();
@@ -484,14 +484,14 @@ codeunit 141019 "UT TAB Sales Tax"
     var
         StandardText: Record "Standard Text";
     begin
-        StandardText.Code := LibraryUTUtility.GetNewCode;
+        StandardText.Code := LibraryUTUtility.GetNewCode();
         StandardText.Insert();
         exit(StandardText.Code);
     end;
 
     local procedure CreateSalesTaxAmountDifference(var SalesTaxAmountDifference: Record "Sales Tax Amount Difference")
     begin
-        SalesTaxAmountDifference."Document No." := LibraryUTUtility.GetNewCode;
+        SalesTaxAmountDifference."Document No." := LibraryUTUtility.GetNewCode();
         SalesTaxAmountDifference.Insert();
     end;
 
@@ -513,7 +513,7 @@ codeunit 141019 "UT TAB Sales Tax"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea."Country/Region" := Country;
         TaxArea.Insert();
         exit(TaxArea.Code);
@@ -522,14 +522,14 @@ codeunit 141019 "UT TAB Sales Tax"
     local procedure CreateTaxAreaLine(var TaxAreaLine: Record "Tax Area Line"; TaxArea: Code[20])
     begin
         TaxAreaLine."Tax Area" := TaxArea;
-        TaxAreaLine."Tax Jurisdiction Code" := CreateTaxJurisdiction;
+        TaxAreaLine."Tax Jurisdiction Code" := CreateTaxJurisdiction();
         TaxAreaLine.Insert();
     end;
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxType: Option)
     begin
         TaxDetail."Tax Jurisdiction Code" := TaxJurisdictionCode;
-        TaxDetail."Tax Group Code" := LibraryUTUtility.GetNewCode10;
+        TaxDetail."Tax Group Code" := LibraryUTUtility.GetNewCode10();
         TaxDetail."Tax Type" := TaxType;
         TaxDetail.Insert();
     end;
@@ -538,7 +538,7 @@ codeunit 141019 "UT TAB Sales Tax"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10();
         TaxJurisdiction.Insert();
         exit(TaxJurisdiction.Code);
     end;

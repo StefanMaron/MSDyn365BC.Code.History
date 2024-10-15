@@ -41,7 +41,9 @@ codeunit 361 MoveEntries
 {
     Permissions = TableData "G/L Entry" = rm,
                   TableData "Cust. Ledger Entry" = rm,
+                  tabledata "Detailed Cust. Ledg. Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm,
+                  tabledata "Detailed Vendor Ledg. Entry" = rm,
                   TableData "Item Ledger Entry" = rm,
                   TableData "Job Ledger Entry" = rm,
                   TableData "Res. Ledger Entry" = rm,
@@ -92,7 +94,7 @@ codeunit 361 MoveEntries
         Text013: Label 'You cannot delete %1 %2 because prepaid contract entries exist in %3.';
         Text014: Label 'You cannot delete %1 %2, because open prepaid contract entries exist in %3.';
         Text015: Label 'You cannot delete %1 %2 because there are outstanding purchase return order lines.';
-        TimeSheetLinesErr: Label 'You cannot delete job %1 because it has open or submitted time sheet lines.', Comment = 'You cannot delete job JOB001 because it has open or submitted time sheet lines.';
+        TimeSheetLinesErr: Label 'You cannot delete project %1 because it has open or submitted time sheet lines.', Comment = 'You cannot delete project PROJECT001 because it has open or submitted time sheet lines.';
         GLAccDeleteClosedPeriodsQst: Label 'Note that accounting regulations may require that you save accounting data for a certain number of years. Are you sure you want to delete the G/L account?';
         CannotDeleteGLAccountWithEntriesInOpenFiscalYearErr: Label 'You cannot delete G/L account %1 because it has ledger entries in a fiscal year that has not been closed yet.', Comment = '%1 - G/L Account No. You cannot delete G/L Account 1000 because it has ledger entries in a fiscal year that has not been closed yet.';
         CannotDeleteGLAccountWithEntriesAfterDateErr: Label 'You cannot delete G/L account %1 because it has ledger entries posted after %2.', Comment = '%1 - G/L Account No., %2 - Date. You cannot delete G/L Account 1000 because it has ledger entries posted after 01-01-2010.';
@@ -123,6 +125,7 @@ codeunit 361 MoveEntries
 
     procedure MoveCustEntries(Cust: Record Customer)
     var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         NewCustNo: Code[20];
     begin
         OnBeforeMoveCustEntries(Cust, NewCustNo);
@@ -155,6 +158,9 @@ codeunit 361 MoveEntries
 
         CustLedgEntry.SetRange(Open);
         CustLedgEntry.ModifyAll("Customer No.", NewCustNo);
+
+        DetailedCustLedgEntry.SetRange("Customer No.", Cust."No.");
+        DetailedCustLedgEntry.ModifyAll("Customer No.", NewCustNo);
 
         ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Customer No.", Cust."No.");
@@ -240,6 +246,7 @@ codeunit 361 MoveEntries
 
     procedure MoveVendorEntries(Vend: Record Vendor)
     var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         NewVendNo: Code[20];
     begin
         OnBeforeMoveVendEntries(Vend, NewVendNo);
@@ -265,6 +272,9 @@ codeunit 361 MoveEntries
 
         VendLedgEntry.SetRange(Open);
         VendLedgEntry.ModifyAll("Vendor No.", NewVendNo);
+
+        DetailedVendorLedgEntry.SetRange("Vendor No.", Vend."No.");
+        DetailedVendorLedgEntry.ModifyAll("Vendor No.", NewVendNo);
 
         WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange("Vendor No.", Vend."No.");

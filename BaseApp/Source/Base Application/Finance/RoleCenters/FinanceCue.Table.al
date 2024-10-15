@@ -6,6 +6,7 @@ using Microsoft.FixedAssets.Ledger;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
+using Microsoft.Sales.Reminder;
 using Microsoft.Purchases.Vendor;
 using Microsoft.RoleCenters;
 using Microsoft.Sales.Customer;
@@ -17,6 +18,7 @@ using Microsoft.Bank.Deposit;
 table 9054 "Finance Cue"
 {
     Caption = 'Finance Cue';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -191,6 +193,63 @@ table 9054 "Finance Cue"
             Caption = 'Outstanding Vendor Invoices';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(34; "Total Overdue (LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Total Overdue (LCY)';
+            FieldClass = FlowField;
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" where(
+                "Initial Entry Due Date" = field(upperlimit("Overdue Date Filter"))
+            ));
+        }
+        field(35; "Total Outstanding (LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Total Outstanding (LCY)';
+            FieldClass = FlowField;
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)");
+        }
+        field(36; "Non Issued Reminders"; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("Reminder Header" where("Posting Date" = field(upperlimit("Date Filter"))));
+            Caption = 'Non Issued Reminders';
+        }
+        field(37; "Date Filter"; Date)
+        {
+            FieldClass = FlowFilter;
+            Caption = 'Date Filter';
+        }
+        field(38; "AR Accounts Balance"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'A/R Accounts Balance';
+            FieldClass = Normal;
+        }
+        field(39; "Active Reminders"; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("Issued Reminder Header" where(Canceled = const(false)));
+            Caption = 'Active Reminders';
+        }
+        field(40; "Reminders not Send"; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("Issued Reminder Header" where("Sent For Current Level" = const(false)));
+            Caption = 'Reminders not Send';
+        }
+        field(41; "Active Reminder Automation"; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("Reminder Action Group" where(Blocked = const(false)));
+            Caption = 'Active Reminder Automation';
+        }
+        field(42; "Reminder Automation Failures"; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("Reminder Automation Error" where(Dismissed = const(false)));
+            Caption = 'Reminder Automation Failures';
         }
         field(10120; "Bank Reconciliations to Post"; Integer)
         {

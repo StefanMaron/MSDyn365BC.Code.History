@@ -45,7 +45,7 @@ codeunit 5063 ArchiveManagement
         Text006: Label 'Entries exist for on or more of the following:\  - %1\  - %2\  - %3.\Restoration of document will delete these entries.\Continue with restore?';
         Text007: Label 'Archive %1 no.: %2?';
         Text008: Label 'Item Tracking Line';
-        Text009: Label 'Unposted %1 %2 does not exist anymore.\It is not possible to restore the %1.';
+        Text009: Label 'Unposted %1 %2 does not exist anymore.\It is not possible to restore the %1.';        
 
     procedure AutoArchiveSalesDocument(var SalesHeader: Record "Sales Header")
     var
@@ -59,27 +59,26 @@ codeunit 5063 ArchiveManagement
 
         SalesReceivablesSetup.Get();
 
-        with SalesHeader do
-            case "Document Type" of
-                "Document Type"::Quote:
-                    case SalesReceivablesSetup."Archive Quotes" of
-                        SalesReceivablesSetup."Archive Quotes"::Always:
-                            ArchSalesDocumentNoConfirm(SalesHeader);
-                        SalesReceivablesSetup."Archive Quotes"::Question:
-                            ArchiveSalesDocument(SalesHeader);
-                    end;
-                "Document Type"::Order:
-                    if SalesReceivablesSetup."Archive Orders" then begin
-                        PrepareDeferralsForSalesOrder(SalesHeader);
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Quote:
+                case SalesReceivablesSetup."Archive Quotes" of
+                    SalesReceivablesSetup."Archive Quotes"::Always:
                         ArchSalesDocumentNoConfirm(SalesHeader);
-                    end;
-                "Document Type"::"Blanket Order":
-                    if SalesReceivablesSetup."Archive Blanket Orders" then
-                        ArchSalesDocumentNoConfirm(SalesHeader);
-                "Document Type"::"Return Order":
-                    if SalesReceivablesSetup."Archive Return Orders" then
-                        ArchSalesDocumentNoConfirm(SalesHeader);
-            end;
+                    SalesReceivablesSetup."Archive Quotes"::Question:
+                        ArchiveSalesDocument(SalesHeader);
+                end;
+            SalesHeader."Document Type"::Order:
+                if SalesReceivablesSetup."Archive Orders" then begin
+                    PrepareDeferralsForSalesOrder(SalesHeader);
+                    ArchSalesDocumentNoConfirm(SalesHeader);
+                end;
+            SalesHeader."Document Type"::"Blanket Order":
+                if SalesReceivablesSetup."Archive Blanket Orders" then
+                    ArchSalesDocumentNoConfirm(SalesHeader);
+            SalesHeader."Document Type"::"Return Order":
+                if SalesReceivablesSetup."Archive Return Orders" then
+                    ArchSalesDocumentNoConfirm(SalesHeader);
+        end;
 
         OnAfterAutoArchiveSalesDocument(SalesHeader);
     end;
@@ -96,27 +95,26 @@ codeunit 5063 ArchiveManagement
 
         PurchasesPayablesSetup.Get();
 
-        with PurchaseHeader do
-            case "Document Type" of
-                "Document Type"::Quote:
-                    case PurchasesPayablesSetup."Archive Quotes" of
-                        PurchasesPayablesSetup."Archive Quotes"::Always:
-                            ArchPurchDocumentNoConfirm(PurchaseHeader);
-                        PurchasesPayablesSetup."Archive Quotes"::Question:
-                            ArchivePurchDocument(PurchaseHeader);
-                    end;
-                "Document Type"::Order:
-                    if PurchasesPayablesSetup."Archive Orders" then begin
-                        PrepareDeferralsPurchaseOrder(PurchaseHeader);
+        case PurchaseHeader."Document Type" of
+            PurchaseHeader."Document Type"::Quote:
+                case PurchasesPayablesSetup."Archive Quotes" of
+                    PurchasesPayablesSetup."Archive Quotes"::Always:
                         ArchPurchDocumentNoConfirm(PurchaseHeader);
-                    end;
-                "Document Type"::"Blanket Order":
-                    if PurchasesPayablesSetup."Archive Blanket Orders" then
-                        ArchPurchDocumentNoConfirm(PurchaseHeader);
-                "Document Type"::"Return Order":
-                    if PurchasesPayablesSetup."Archive Return Orders" then
-                        ArchPurchDocumentNoConfirm(PurchaseHeader);
-            end;
+                    PurchasesPayablesSetup."Archive Quotes"::Question:
+                        ArchivePurchDocument(PurchaseHeader);
+                end;
+            PurchaseHeader."Document Type"::Order:
+                if PurchasesPayablesSetup."Archive Orders" then begin
+                    PrepareDeferralsPurchaseOrder(PurchaseHeader);
+                    ArchPurchDocumentNoConfirm(PurchaseHeader);
+                end;
+            PurchaseHeader."Document Type"::"Blanket Order":
+                if PurchasesPayablesSetup."Archive Blanket Orders" then
+                    ArchPurchDocumentNoConfirm(PurchaseHeader);
+            PurchaseHeader."Document Type"::"Return Order":
+                if PurchasesPayablesSetup."Archive Return Orders" then
+                    ArchPurchDocumentNoConfirm(PurchaseHeader);
+        end;
 
         OnAfterAutoArchivePurchDocument(PurchaseHeader);
     end;
@@ -190,15 +188,13 @@ codeunit 5063 ArchiveManagement
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if SalesLine.FindSet() then
             repeat
-                with SalesLineArchive do begin
-                    Init();
-                    TransferFields(SalesLine);
-                    "Doc. No. Occurrence" := SalesHeader."Doc. No. Occurrence";
-                    "Version No." := SalesHeaderArchive."Version No.";
-                    RecordLinkManagement.CopyLinks(SalesLine, SalesLineArchive);
-                    OnBeforeSalesLineArchiveInsert(SalesLineArchive, SalesLine);
-                    Insert();
-                end;
+                SalesLineArchive.Init();
+                SalesLineArchive.TransferFields(SalesLine);
+                SalesLineArchive."Doc. No. Occurrence" := SalesHeader."Doc. No. Occurrence";
+                SalesLineArchive."Version No." := SalesHeaderArchive."Version No.";
+                RecordLinkManagement.CopyLinks(SalesLine, SalesLineArchive);
+                OnBeforeSalesLineArchiveInsert(SalesLineArchive, SalesLine);
+                SalesLineArchive.Insert();
                 if SalesLine."Deferral Code" <> '' then
                     StoreDeferrals(
                         Enum::"Deferral Document Type"::Sales.AsInteger(), SalesLine."Document Type".AsInteger(),
@@ -243,15 +239,13 @@ codeunit 5063 ArchiveManagement
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         if PurchLine.FindSet() then
             repeat
-                with PurchLineArchive do begin
-                    Init();
-                    TransferFields(PurchLine);
-                    "Doc. No. Occurrence" := PurchHeader."Doc. No. Occurrence";
-                    "Version No." := PurchHeaderArchive."Version No.";
-                    RecordLinkManagement.CopyLinks(PurchLine, PurchLineArchive);
-                    OnBeforePurchLineArchiveInsert(PurchLineArchive, PurchLine);
-                    Insert();
-                end;
+                PurchLineArchive.Init();
+                PurchLineArchive.TransferFields(PurchLine);
+                PurchLineArchive."Doc. No. Occurrence" := PurchHeader."Doc. No. Occurrence";
+                PurchLineArchive."Version No." := PurchHeaderArchive."Version No.";
+                RecordLinkManagement.CopyLinks(PurchLine, PurchLineArchive);
+                OnBeforePurchLineArchiveInsert(PurchLineArchive, PurchLine);
+                PurchLineArchive.Insert();
                 if PurchLine."Deferral Code" <> '' then
                     StoreDeferrals(
                         Enum::"Deferral Document Type"::Purchase.AsInteger(), PurchLine."Document Type".AsInteger(),
@@ -397,45 +391,43 @@ codeunit 5063 ArchiveManagement
         OnRestoreSalesLinesOnAfterSalesLineArchiveSetFilters(SalesLineArchive, SalesHeaderArchive, SalesHeader);
         if SalesLineArchive.FindSet() then
             repeat
-                with SalesLine do begin
-                    Init();
-                    TransferFields(SalesLineArchive);
-                    OnRestoreSalesLinesOnBeforeSalesLineInsert(SalesLine, SalesLineArchive);
-                    Insert(true);
-                    OnRestoreSalesLinesOnAfterSalesLineInsert(SalesLine, SalesLineArchive);
-                    if Type <> Type::" " then begin
-                        Validate("No.");
-                        if SalesLineArchive."Variant Code" <> '' then
-                            Validate("Variant Code", SalesLineArchive."Variant Code");
-                        if SalesLineArchive."Unit of Measure Code" <> '' then
-                            Validate("Unit of Measure Code", SalesLineArchive."Unit of Measure Code");
-                        Validate("Location Code", SalesLineArchive."Location Code");
-                        ShouldValidateQuantity := Quantity <> 0;
-                        OnRestoreSalesLinesOnAfterCalcShouldValidateQuantity(SalesLine, SalesLineArchive, ShouldValidateQuantity);
-                        if ShouldValidateQuantity then
-                            Validate(Quantity, SalesLineArchive.Quantity);
-                        OnRestoreSalesLinesOnAfterValidateQuantity(SalesLine, SalesLineArchive);
-                        Validate("Unit Price", SalesLineArchive."Unit Price");
-                        Validate("Unit Cost (LCY)", SalesLineArchive."Unit Cost (LCY)");
-                        Validate("Line Discount %", SalesLineArchive."Line Discount %");
-                        if SalesLineArchive."Inv. Discount Amount" <> 0 then
-                            Validate("Inv. Discount Amount", SalesLineArchive."Inv. Discount Amount");
-                        if Amount <> SalesLineArchive.Amount then
-                            Validate(Amount, SalesLineArchive.Amount);
-                        Validate(Description, SalesLineArchive.Description);
-                    end;
-                    "Shortcut Dimension 1 Code" := SalesLineArchive."Shortcut Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := SalesLineArchive."Shortcut Dimension 2 Code";
-                    "Dimension Set ID" := SalesLineArchive."Dimension Set ID";
-                    "Deferral Code" := SalesLineArchive."Deferral Code";
-                    RestoreDeferrals(
-                        Enum::"Deferral Document Type"::Sales.AsInteger(),
-                        SalesLineArchive."Document Type".AsInteger(), SalesLineArchive."Document No.", SalesLineArchive."Line No.",
-                        SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
-                    RecordLinkManagement.CopyLinks(SalesLineArchive, SalesLine);
-                    OnAfterTransferFromArchToSalesLine(SalesLine, SalesLineArchive);
-                    Modify(true);
+                SalesLine.Init();
+                SalesLine.TransferFields(SalesLineArchive);
+                OnRestoreSalesLinesOnBeforeSalesLineInsert(SalesLine, SalesLineArchive);
+                SalesLine.Insert(true);
+                OnRestoreSalesLinesOnAfterSalesLineInsert(SalesLine, SalesLineArchive);
+                if SalesLine.Type <> SalesLine.Type::" " then begin
+                    SalesLine.Validate("No.");
+                    if SalesLineArchive."Variant Code" <> '' then
+                        SalesLine.Validate("Variant Code", SalesLineArchive."Variant Code");
+                    if SalesLineArchive."Unit of Measure Code" <> '' then
+                        SalesLine.Validate("Unit of Measure Code", SalesLineArchive."Unit of Measure Code");
+                    SalesLine.Validate("Location Code", SalesLineArchive."Location Code");
+                    ShouldValidateQuantity := SalesLine.Quantity <> 0;
+                    OnRestoreSalesLinesOnAfterCalcShouldValidateQuantity(SalesLine, SalesLineArchive, ShouldValidateQuantity);
+                    if ShouldValidateQuantity then
+                        SalesLine.Validate(Quantity, SalesLineArchive.Quantity);
+                    OnRestoreSalesLinesOnAfterValidateQuantity(SalesLine, SalesLineArchive);
+                    SalesLine.Validate("Unit Price", SalesLineArchive."Unit Price");
+                    SalesLine.Validate("Unit Cost (LCY)", SalesLineArchive."Unit Cost (LCY)");
+                    SalesLine.Validate("Line Discount %", SalesLineArchive."Line Discount %");
+                    if SalesLineArchive."Inv. Discount Amount" <> 0 then
+                        SalesLine.Validate("Inv. Discount Amount", SalesLineArchive."Inv. Discount Amount");
+                    if SalesLine.Amount <> SalesLineArchive.Amount then
+                        SalesLine.Validate(Amount, SalesLineArchive.Amount);
+                    SalesLine.Validate(Description, SalesLineArchive.Description);
                 end;
+                SalesLine."Shortcut Dimension 1 Code" := SalesLineArchive."Shortcut Dimension 1 Code";
+                SalesLine."Shortcut Dimension 2 Code" := SalesLineArchive."Shortcut Dimension 2 Code";
+                SalesLine."Dimension Set ID" := SalesLineArchive."Dimension Set ID";
+                SalesLine."Deferral Code" := SalesLineArchive."Deferral Code";
+                RestoreDeferrals(
+                    Enum::"Deferral Document Type"::Sales.AsInteger(),
+                    SalesLineArchive."Document Type".AsInteger(), SalesLineArchive."Document No.", SalesLineArchive."Line No.",
+                    SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
+                RecordLinkManagement.CopyLinks(SalesLineArchive, SalesLine);
+                OnAfterTransferFromArchToSalesLine(SalesLine, SalesLineArchive);
+                SalesLine.Modify(true);
                 OnAfterRestoreSalesLine(SalesHeader, SalesLine, SalesHeaderArchive, SalesLineArchive);
             until SalesLineArchive.Next() = 0;
 
@@ -508,7 +500,7 @@ codeunit 5063 ArchiveManagement
                         exit(PurchHeaderArchive."Version No." + 1);
 
                     exit(1);
-                end;
+                end;            
             else begin
                 OnGetNextVersionNo(TableId, DocType, DocNo, DocNoOccurrence, VersionNo);
                 exit(VersionNo)

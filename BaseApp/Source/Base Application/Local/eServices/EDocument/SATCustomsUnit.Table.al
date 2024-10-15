@@ -8,6 +8,7 @@ table 27046 "SAT Customs Unit"
 {
     DrillDownPageID = "SAT Custom Units";
     LookupPageID = "SAT Custom Units";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -79,28 +79,26 @@ codeunit 427 ICInboxOutboxMgt
         GLSetup."Last IC Transaction No." := ICTransactionNo;
         GLSetup.Modify();
 
-        with TempGenJnlLine do begin
-            OutboxJnlTransaction.Init();
-            OutboxJnlTransaction."Transaction No." := ICTransactionNo;
-            OutboxJnlTransaction."IC Partner Code" := "IC Partner Code";
-            OutboxJnlTransaction."Source Type" := OutboxJnlTransaction."Source Type"::"Journal Line";
-            OutboxJnlTransaction."Document Type" := "Document Type";
-            OutboxJnlTransaction."Document No." := "Document No.";
-            OutboxJnlTransaction."Posting Date" := "Posting Date";
-            OutboxJnlTransaction."Document Date" := "Document Date";
+        OutboxJnlTransaction.Init();
+        OutboxJnlTransaction."Transaction No." := ICTransactionNo;
+        OutboxJnlTransaction."IC Partner Code" := TempGenJnlLine."IC Partner Code";
+        OutboxJnlTransaction."Source Type" := OutboxJnlTransaction."Source Type"::"Journal Line";
+        OutboxJnlTransaction."Document Type" := TempGenJnlLine."Document Type";
+        OutboxJnlTransaction."Document No." := TempGenJnlLine."Document No.";
+        OutboxJnlTransaction."Posting Date" := TempGenJnlLine."Posting Date";
+        OutboxJnlTransaction."Document Date" := TempGenJnlLine."Document Date";
 #if not CLEAN22
-            OutboxJnlTransaction."IC Partner G/L Acc. No." := "IC Partner G/L Acc. No.";
+        OutboxJnlTransaction."IC Partner G/L Acc. No." := TempGenJnlLine."IC Partner G/L Acc. No.";
 #endif
-            OutboxJnlTransaction."IC Account Type" := "IC Account Type";
-            OutboxJnlTransaction."IC Account No." := "IC Account No.";
-            OutboxJnlTransaction."Source Line No." := "Source Line No.";
-            if Rejection then
-                OutboxJnlTransaction."Transaction Source" := OutboxJnlTransaction."Transaction Source"::"Rejected by Current Company"
-            else
-                OutboxJnlTransaction."Transaction Source" := OutboxJnlTransaction."Transaction Source"::"Created by Current Company";
-            OnCreateOutboxJnlTransactionOnBeforeOutboxJnlTransactionInsert(OutboxJnlTransaction, TempGenJnlLine);
-            OutboxJnlTransaction.Insert();
-        end;
+        OutboxJnlTransaction."IC Account Type" := TempGenJnlLine."IC Account Type";
+        OutboxJnlTransaction."IC Account No." := TempGenJnlLine."IC Account No.";
+        OutboxJnlTransaction."Source Line No." := TempGenJnlLine."Source Line No.";
+        if Rejection then
+            OutboxJnlTransaction."Transaction Source" := OutboxJnlTransaction."Transaction Source"::"Rejected by Current Company"
+        else
+            OutboxJnlTransaction."Transaction Source" := OutboxJnlTransaction."Transaction Source"::"Created by Current Company";
+        OnCreateOutboxJnlTransactionOnBeforeOutboxJnlTransactionInsert(OutboxJnlTransaction, TempGenJnlLine);
+        OutboxJnlTransaction.Insert();
         OnInsertICOutboxTransaction(OutboxJnlTransaction, TempGenJnlLine);
         exit(ICTransactionNo);
     end;
@@ -207,31 +205,29 @@ codeunit 427 ICInboxOutboxMgt
         GLSetup."Last IC Transaction No." := TransactionNo;
         GLSetup.Modify();
         Customer.Get(SalesHeader."Sell-to Customer No.");
-        with SalesHeader do begin
-            OutboxTransaction.Init();
-            OutboxTransaction."Transaction No." := TransactionNo;
-            OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
-            OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
-            case "Document Type" of
-                "Document Type"::Order:
-                    OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Order;
-                "Document Type"::Invoice:
-                    OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Invoice;
-                "Document Type"::"Credit Memo":
-                    OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Credit Memo";
-                "Document Type"::"Return Order":
-                    OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Return Order";
-            end;
-            OutboxTransaction."Document No." := "No.";
-            OutboxTransaction."Posting Date" := "Posting Date";
-            OutboxTransaction."Document Date" := "Document Date";
-            if Rejection then
-                OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Rejected by Current Company"
-            else
-                OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
-            OnBeforeOutBoxTransactionInsert(OutboxTransaction, SalesHeader);
-            OutboxTransaction.Insert();
+        OutboxTransaction.Init();
+        OutboxTransaction."Transaction No." := TransactionNo;
+        OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
+        OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Order:
+                OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Order;
+            SalesHeader."Document Type"::Invoice:
+                OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Invoice;
+            SalesHeader."Document Type"::"Credit Memo":
+                OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Credit Memo";
+            SalesHeader."Document Type"::"Return Order":
+                OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Return Order";
         end;
+        OutboxTransaction."Document No." := SalesHeader."No.";
+        OutboxTransaction."Posting Date" := SalesHeader."Posting Date";
+        OutboxTransaction."Document Date" := SalesHeader."Document Date";
+        if Rejection then
+            OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Rejected by Current Company"
+        else
+            OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
+        OnBeforeOutBoxTransactionInsert(OutboxTransaction, SalesHeader);
+        OutboxTransaction.Insert();
         ICOutBoxSalesHeader.TransferFields(SalesHeader);
         OnAfterICOutBoxSalesHeaderTransferFields(ICOutBoxSalesHeader, SalesHeader);
         if OutboxTransaction."Document Type" = OutboxTransaction."Document Type"::Order then
@@ -244,44 +240,42 @@ codeunit 427 ICInboxOutboxMgt
         DimMgt.CopyDocDimtoICDocDim(DATABASE::"IC Outbox Sales Header", ICOutBoxSalesHeader."IC Transaction No.",
           ICOutBoxSalesHeader."IC Partner Code", ICOutBoxSalesHeader."Transaction Source", 0, SalesHeader."Dimension Set ID");
 
-        with ICOutBoxSalesLine do begin
-            SalesLine.Reset();
-            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-            SalesLine.SetRange("Document No.", SalesHeader."No.");
-            if SalesLine.Find('-') then
-                repeat
-                    Init();
-                    TransferFields(SalesLine);
-                    case SalesLine."Document Type" of
-                        SalesLine."Document Type"::Order:
-                            "Document Type" := "Document Type"::Order;
-                        SalesLine."Document Type"::Invoice:
-                            "Document Type" := "Document Type"::Invoice;
-                        SalesLine."Document Type"::"Credit Memo":
-                            "Document Type" := "Document Type"::"Credit Memo";
-                        SalesLine."Document Type"::"Return Order":
-                            "Document Type" := "Document Type"::"Return Order";
-                    end;
-                    "IC Transaction No." := OutboxTransaction."Transaction No.";
-                    "IC Partner Code" := OutboxTransaction."IC Partner Code";
-                    if "IC Item Reference No." = '' then
-                        "IC Item Reference No." := SalesLine."Item Reference No.";
-                    "Transaction Source" := OutboxTransaction."Transaction Source";
-                    "Currency Code" := ICOutBoxSalesHeader."Currency Code";
-                    if SalesLine.Type = SalesLine.Type::" " then begin
-                        "IC Partner Reference" := '';
-                        "IC Item Reference No." := '';
-                    end;
-                    DimMgt.CopyDocDimtoICDocDim(DATABASE::"IC Outbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source",
-                      "Line No.", SalesLine."Dimension Set ID");
-                    UpdateICOutboxSalesLineReceiptShipment(ICOutBoxSalesLine, ICOutBoxSalesHeader);
-                    if Insert(true) then begin
-                        OnCreateOutboxSalesDocTransOnAfterICOutBoxSalesLineInsert(ICOutBoxSalesLine, SalesLine);
-                        LinesCreated := true;
-                    end;
-                    OnAfterICOutBoxSalesLineInsert(SalesLine, ICOutBoxSalesLine);
-                until SalesLine.Next() = 0;
-        end;
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.Find('-') then
+            repeat
+                ICOutBoxSalesLine.Init();
+                ICOutBoxSalesLine.TransferFields(SalesLine);
+                case SalesLine."Document Type" of
+                    SalesLine."Document Type"::Order:
+                        ICOutBoxSalesLine."Document Type" := ICOutBoxSalesLine."Document Type"::Order;
+                    SalesLine."Document Type"::Invoice:
+                        ICOutBoxSalesLine."Document Type" := ICOutBoxSalesLine."Document Type"::Invoice;
+                    SalesLine."Document Type"::"Credit Memo":
+                        ICOutBoxSalesLine."Document Type" := ICOutBoxSalesLine."Document Type"::"Credit Memo";
+                    SalesLine."Document Type"::"Return Order":
+                        ICOutBoxSalesLine."Document Type" := ICOutBoxSalesLine."Document Type"::"Return Order";
+                end;
+                ICOutBoxSalesLine."IC Transaction No." := OutboxTransaction."Transaction No.";
+                ICOutBoxSalesLine."IC Partner Code" := OutboxTransaction."IC Partner Code";
+                if ICOutBoxSalesLine."IC Item Reference No." = '' then
+                    ICOutBoxSalesLine."IC Item Reference No." := SalesLine."Item Reference No.";
+                ICOutBoxSalesLine."Transaction Source" := OutboxTransaction."Transaction Source";
+                ICOutBoxSalesLine."Currency Code" := ICOutBoxSalesHeader."Currency Code";
+                if SalesLine.Type = SalesLine.Type::" " then begin
+                    ICOutBoxSalesLine."IC Partner Reference" := '';
+                    ICOutBoxSalesLine."IC Item Reference No." := '';
+                end;
+                DimMgt.CopyDocDimtoICDocDim(DATABASE::"IC Outbox Sales Line", ICOutBoxSalesLine."IC Transaction No.", ICOutBoxSalesLine."IC Partner Code", ICOutBoxSalesLine."Transaction Source",
+                  ICOutBoxSalesLine."Line No.", SalesLine."Dimension Set ID");
+                UpdateICOutboxSalesLineReceiptShipment(ICOutBoxSalesLine, ICOutBoxSalesHeader);
+                if ICOutBoxSalesLine.Insert(true) then begin
+                    OnCreateOutboxSalesDocTransOnAfterICOutBoxSalesLineInsert(ICOutBoxSalesLine, SalesLine);
+                    LinesCreated := true;
+                end;
+                OnAfterICOutBoxSalesLineInsert(SalesLine, ICOutBoxSalesLine);
+            until SalesLine.Next() = 0;
 
         if LinesCreated then begin
             ICOutBoxSalesHeader.Insert();
@@ -331,19 +325,17 @@ codeunit 427 ICInboxOutboxMgt
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
         GLSetup.Modify();
-        with SalesInvHdr do begin
-            OutboxTransaction.Init();
-            OutboxTransaction."Transaction No." := TransactionNo;
-            OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
-            OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
-            OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Invoice;
-            OutboxTransaction."Document No." := "No.";
-            OutboxTransaction."Posting Date" := "Posting Date";
-            OutboxTransaction."Document Date" := "Document Date";
-            OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
-            OnCreateOutboxSalesInvTransOnBeforeOutboxTransactionInsert(OutboxTransaction);
-            OutboxTransaction.Insert();
-        end;
+        OutboxTransaction.Init();
+        OutboxTransaction."Transaction No." := TransactionNo;
+        OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
+        OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
+        OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Invoice;
+        OutboxTransaction."Document No." := SalesInvHdr."No.";
+        OutboxTransaction."Posting Date" := SalesInvHdr."Posting Date";
+        OutboxTransaction."Document Date" := SalesInvHdr."Document Date";
+        OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
+        OnCreateOutboxSalesInvTransOnBeforeOutboxTransactionInsert(OutboxTransaction);
+        OutboxTransaction.Insert();
         ICOutBoxSalesHeader.TransferFields(SalesInvHdr);
         ICOutBoxSalesHeader."Document Type" := ICOutBoxSalesHeader."Document Type"::Invoice;
         ICOutBoxSalesHeader."IC Partner Code" := OutboxTransaction."IC Partner Code";
@@ -363,64 +355,62 @@ codeunit 427 ICInboxOutboxMgt
         CreateICDocDimFromPostedDocDim(ICDocDim, SalesInvHdr."Dimension Set ID", DATABASE::"IC Outbox Sales Header");
 
         RoundingLineNo := FindRoundingSalesInvLine(SalesInvHdr."No.");
-        with ICOutBoxSalesLine do begin
-            SalesInvLine.Reset();
-            SalesInvLine.SetRange("Document No.", SalesInvHdr."No.");
-            if RoundingLineNo <> 0 then
-                SalesInvLine.SetRange("Line No.", 0, RoundingLineNo - 1);
-            if SalesInvLine.FindSet() then
-                repeat
-                    IsCommentType := (SalesInvLine.Type = SalesInvLine.Type::" ");
-                    if IsCommentType or ((SalesInvLine."No." <> '') and (SalesInvLine.Quantity <> 0)) then begin
-                        Init();
-                        TransferFields(SalesInvLine);
-                        "Document Type" := "Document Type"::Invoice;
-                        "IC Transaction No." := OutboxTransaction."Transaction No.";
-                        "IC Partner Code" := OutboxTransaction."IC Partner Code";
-                        "Transaction Source" := OutboxTransaction."Transaction Source";
-                        "Currency Code" := ICOutBoxSalesHeader."Currency Code";
-                        if SalesInvLine.Type = SalesInvLine.Type::" " then begin
-                            "IC Partner Reference" := '';
-                            "IC Item Reference No." := '';
-                        end;
-                        if (SalesInvLine."Bill-to Customer No." <> SalesInvLine."Sell-to Customer No.") and
-                           (SalesInvLine.Type = SalesInvLine.Type::Item)
-                        then
-                            case ICPartner."Outbound Sales Item No. Type" of
-                                ICPartner."Outbound Sales Item No. Type"::"Internal No.":
-                                    begin
-                                        "IC Partner Ref. Type" := "IC Partner Ref. Type"::Item;
-                                        "IC Partner Reference" := SalesInvLine."No.";
-                                    end;
-                                ICPartner."Outbound Sales Item No. Type"::"Cross Reference":
-                                    begin
-                                        Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross reference");
-                                        ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
-                                        ItemReference.SetRange("Reference Type No.", SalesInvLine."Bill-to Customer No.");
-                                        ItemReference.SetRange("Item No.", SalesInvLine."No.");
-                                        ToDate := SalesInvLine.GetDateForCalculations();
-                                        if ToDate <> 0D then begin
-                                            ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
-                                            ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
-                                        end;
-                                        if ItemReference.FindFirst() then
-                                            "IC Item Reference No." := ItemReference."Reference No.";
-                                    end;
-                                ICPartner."Outbound Sales Item No. Type"::"Common Item No.":
-                                    begin
-                                        Item.Get(SalesInvLine."No.");
-                                        "IC Partner Reference" := Item."Common Item No.";
-                                    end;
-                            end;
-                        UpdateICOutboxSalesLineReceiptShipment(ICOutBoxSalesLine, ICOutBoxSalesHeader);
-                        OnCreateOutboxSalesInvTransOnBeforeICOutBoxSalesLineInsert(ICOutBoxSalesLine, SalesInvLine, ICOutBoxSalesHeader);
-                        Insert(true);
-
-                        ICDocDim."Line No." := SalesInvLine."Line No.";
-                        CreateICDocDimFromPostedDocDim(ICDocDim, SalesInvLine."Dimension Set ID", DATABASE::"IC Outbox Sales Line");
+        SalesInvLine.Reset();
+        SalesInvLine.SetRange("Document No.", SalesInvHdr."No.");
+        if RoundingLineNo <> 0 then
+            SalesInvLine.SetRange("Line No.", 0, RoundingLineNo - 1);
+        if SalesInvLine.FindSet() then
+            repeat
+                IsCommentType := (SalesInvLine.Type = SalesInvLine.Type::" ");
+                if IsCommentType or ((SalesInvLine."No." <> '') and (SalesInvLine.Quantity <> 0)) then begin
+                    ICOutBoxSalesLine.Init();
+                    ICOutBoxSalesLine.TransferFields(SalesInvLine);
+                    ICOutBoxSalesLine."Document Type" := ICOutBoxSalesLine."Document Type"::Invoice;
+                    ICOutBoxSalesLine."IC Transaction No." := OutboxTransaction."Transaction No.";
+                    ICOutBoxSalesLine."IC Partner Code" := OutboxTransaction."IC Partner Code";
+                    ICOutBoxSalesLine."Transaction Source" := OutboxTransaction."Transaction Source";
+                    ICOutBoxSalesLine."Currency Code" := ICOutBoxSalesHeader."Currency Code";
+                    if SalesInvLine.Type = SalesInvLine.Type::" " then begin
+                        ICOutBoxSalesLine."IC Partner Reference" := '';
+                        ICOutBoxSalesLine."IC Item Reference No." := '';
                     end;
-                until SalesInvLine.Next() = 0;
-        end;
+                    if (SalesInvLine."Bill-to Customer No." <> SalesInvLine."Sell-to Customer No.") and
+                       (SalesInvLine.Type = SalesInvLine.Type::Item)
+                    then
+                        case ICPartner."Outbound Sales Item No. Type" of
+                            ICPartner."Outbound Sales Item No. Type"::"Internal No.":
+                                begin
+                                    ICOutBoxSalesLine."IC Partner Ref. Type" := ICOutBoxSalesLine."IC Partner Ref. Type"::Item;
+                                    ICOutBoxSalesLine."IC Partner Reference" := SalesInvLine."No.";
+                                end;
+                            ICPartner."Outbound Sales Item No. Type"::"Cross Reference":
+                                begin
+                                    ICOutBoxSalesLine.Validate("IC Partner Ref. Type", ICOutBoxSalesLine."IC Partner Ref. Type"::"Cross reference");
+                                    ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
+                                    ItemReference.SetRange("Reference Type No.", SalesInvLine."Bill-to Customer No.");
+                                    ItemReference.SetRange("Item No.", SalesInvLine."No.");
+                                    ToDate := SalesInvLine.GetDateForCalculations();
+                                    if ToDate <> 0D then begin
+                                        ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+                                        ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
+                                    end;
+                                    if ItemReference.FindFirst() then
+                                        ICOutBoxSalesLine."IC Item Reference No." := ItemReference."Reference No.";
+                                end;
+                            ICPartner."Outbound Sales Item No. Type"::"Common Item No.":
+                                begin
+                                    Item.Get(SalesInvLine."No.");
+                                    ICOutBoxSalesLine."IC Partner Reference" := Item."Common Item No.";
+                                end;
+                        end;
+                    UpdateICOutboxSalesLineReceiptShipment(ICOutBoxSalesLine, ICOutBoxSalesHeader);
+                    OnCreateOutboxSalesInvTransOnBeforeICOutBoxSalesLineInsert(ICOutBoxSalesLine, SalesInvLine, ICOutBoxSalesHeader);
+                    ICOutBoxSalesLine.Insert(true);
+
+                    ICDocDim."Line No." := SalesInvLine."Line No.";
+                    CreateICDocDimFromPostedDocDim(ICDocDim, SalesInvLine."Dimension Set ID", DATABASE::"IC Outbox Sales Line");
+                end;
+            until SalesInvLine.Next() = 0;
 
         OnBeforeICOutboxTransactionCreatedSalesInvTrans(SalesInvHdr, SalesInvLine, ICOutBoxSalesHeader, OutboxTransaction);
         OnInsertICOutboxSalesInvTransaction(OutboxTransaction);
@@ -460,19 +450,17 @@ codeunit 427 ICInboxOutboxMgt
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
         GLSetup.Modify();
-        with SalesCrMemoHdr do begin
-            OutboxTransaction.Init();
-            OutboxTransaction."Transaction No." := TransactionNo;
-            OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
-            OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
-            OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Credit Memo";
-            OutboxTransaction."Document No." := "No.";
-            OutboxTransaction."Posting Date" := "Posting Date";
-            OutboxTransaction."Document Date" := "Document Date";
-            OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
-            OnCreateOutboxSalesCrMemoTransOnBeforeOutboxTransactionInsert(OutboxTransaction);
-            OutboxTransaction.Insert();
-        end;
+        OutboxTransaction.Init();
+        OutboxTransaction."Transaction No." := TransactionNo;
+        OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
+        OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
+        OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Credit Memo";
+        OutboxTransaction."Document No." := SalesCrMemoHdr."No.";
+        OutboxTransaction."Posting Date" := SalesCrMemoHdr."Posting Date";
+        OutboxTransaction."Document Date" := SalesCrMemoHdr."Document Date";
+        OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
+        OnCreateOutboxSalesCrMemoTransOnBeforeOutboxTransactionInsert(OutboxTransaction);
+        OutboxTransaction.Insert();
         ICOutBoxSalesHeader.TransferFields(SalesCrMemoHdr);
         ICOutBoxSalesHeader."Document Type" := ICOutBoxSalesHeader."Document Type"::"Credit Memo";
         ICOutBoxSalesHeader."IC Partner Code" := OutboxTransaction."IC Partner Code";
@@ -492,35 +480,33 @@ codeunit 427 ICInboxOutboxMgt
         CreateICDocDimFromPostedDocDim(ICDocDim, SalesCrMemoHdr."Dimension Set ID", DATABASE::"IC Outbox Sales Header");
 
         RoundingLineNo := FindRoundingSalesCrMemoLine(SalesCrMemoHdr."No.");
-        with ICOutBoxSalesLine do begin
-            SalesCrMemoLine.Reset();
-            SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHdr."No.");
-            if RoundingLineNo <> 0 then
-                SalesCrMemoLine.SetRange("Line No.", 0, RoundingLineNo - 1);
-            if SalesCrMemoLine.FindSet() then
-                repeat
-                    IsCommentType := (SalesCrMemoLine.Type = SalesCrMemoLine.Type::" ");
-                    if IsCommentType or ((SalesCrMemoLine."No." <> '') and (SalesCrMemoLine.Quantity <> 0)) then begin
-                        Init();
-                        TransferFields(SalesCrMemoLine);
-                        "Document Type" := "Document Type"::"Credit Memo";
-                        "IC Transaction No." := OutboxTransaction."Transaction No.";
-                        "IC Partner Code" := OutboxTransaction."IC Partner Code";
-                        "Transaction Source" := OutboxTransaction."Transaction Source";
-                        "Currency Code" := ICOutBoxSalesHeader."Currency Code";
-                        if SalesCrMemoLine.Type = SalesCrMemoLine.Type::" " then begin
-                            "IC Partner Reference" := '';
-                            "IC Item Reference No." := '';
-                        end;
-                        UpdateICOutboxSalesLineReceiptShipment(ICOutBoxSalesLine, ICOutBoxSalesHeader);
-                        OnCreateOutboxSalesCrMemoTransOnBeforeICOutBoxSalesLineInsert(ICOutBoxSalesLine, SalesCrMemoLine);
-                        Insert(true);
-
-                        ICDocDim."Line No." := SalesCrMemoLine."Line No.";
-                        CreateICDocDimFromPostedDocDim(ICDocDim, SalesCrMemoLine."Dimension Set ID", DATABASE::"IC Outbox Sales Line");
+        SalesCrMemoLine.Reset();
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHdr."No.");
+        if RoundingLineNo <> 0 then
+            SalesCrMemoLine.SetRange("Line No.", 0, RoundingLineNo - 1);
+        if SalesCrMemoLine.FindSet() then
+            repeat
+                IsCommentType := (SalesCrMemoLine.Type = SalesCrMemoLine.Type::" ");
+                if IsCommentType or ((SalesCrMemoLine."No." <> '') and (SalesCrMemoLine.Quantity <> 0)) then begin
+                    ICOutBoxSalesLine.Init();
+                    ICOutBoxSalesLine.TransferFields(SalesCrMemoLine);
+                    ICOutBoxSalesLine."Document Type" := ICOutBoxSalesLine."Document Type"::"Credit Memo";
+                    ICOutBoxSalesLine."IC Transaction No." := OutboxTransaction."Transaction No.";
+                    ICOutBoxSalesLine."IC Partner Code" := OutboxTransaction."IC Partner Code";
+                    ICOutBoxSalesLine."Transaction Source" := OutboxTransaction."Transaction Source";
+                    ICOutBoxSalesLine."Currency Code" := ICOutBoxSalesHeader."Currency Code";
+                    if SalesCrMemoLine.Type = SalesCrMemoLine.Type::" " then begin
+                        ICOutBoxSalesLine."IC Partner Reference" := '';
+                        ICOutBoxSalesLine."IC Item Reference No." := '';
                     end;
-                until SalesCrMemoLine.Next() = 0;
-        end;
+                    UpdateICOutboxSalesLineReceiptShipment(ICOutBoxSalesLine, ICOutBoxSalesHeader);
+                    OnCreateOutboxSalesCrMemoTransOnBeforeICOutBoxSalesLineInsert(ICOutBoxSalesLine, SalesCrMemoLine);
+                    ICOutBoxSalesLine.Insert(true);
+
+                    ICDocDim."Line No." := SalesCrMemoLine."Line No.";
+                    CreateICDocDimFromPostedDocDim(ICDocDim, SalesCrMemoLine."Dimension Set ID", DATABASE::"IC Outbox Sales Line");
+                end;
+            until SalesCrMemoLine.Next() = 0;
         OnBeforeICOutboxTransactionCreatedSalesCrMemoTrans(SalesCrMemoHdr, SalesCrMemoLine, ICOutBoxSalesHeader, OutboxTransaction);
         OnInsertICOutboxSalesCrMemoTransaction(OutboxTransaction);
     end;
@@ -549,31 +535,29 @@ codeunit 427 ICInboxOutboxMgt
         GLSetup.Modify();
         Vendor.Get(PurchHeader."Buy-from Vendor No.");
         Vendor.CheckBlockedVendOnDocs(Vendor, false);
-        with PurchHeader do begin
-            OutboxTransaction.Init();
-            OutboxTransaction."Transaction No." := TransactionNo;
-            OutboxTransaction."IC Partner Code" := Vendor."IC Partner Code";
-            OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Purchase Document";
-            case "Document Type" of
-                "Document Type"::Order:
-                    OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Order;
-                "Document Type"::Invoice:
-                    OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Invoice;
-                "Document Type"::"Credit Memo":
-                    OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Credit Memo";
-                "Document Type"::"Return Order":
-                    OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Return Order";
-            end;
-            OutboxTransaction."Document No." := "No.";
-            OutboxTransaction."Posting Date" := "Posting Date";
-            OutboxTransaction."Document Date" := "Document Date";
-            if Rejection then
-                OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Rejected by Current Company"
-            else
-                OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
-            OnCreateOutboxPurchDocTransOnBeforeOutboxTransactionInsert(OutboxTransaction, PurchHeader);
-            OutboxTransaction.Insert();
+        OutboxTransaction.Init();
+        OutboxTransaction."Transaction No." := TransactionNo;
+        OutboxTransaction."IC Partner Code" := Vendor."IC Partner Code";
+        OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Purchase Document";
+        case PurchHeader."Document Type" of
+            PurchHeader."Document Type"::Order:
+                OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Order;
+            PurchHeader."Document Type"::Invoice:
+                OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Invoice;
+            PurchHeader."Document Type"::"Credit Memo":
+                OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Credit Memo";
+            PurchHeader."Document Type"::"Return Order":
+                OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Return Order";
         end;
+        OutboxTransaction."Document No." := PurchHeader."No.";
+        OutboxTransaction."Posting Date" := PurchHeader."Posting Date";
+        OutboxTransaction."Document Date" := PurchHeader."Document Date";
+        if Rejection then
+            OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Rejected by Current Company"
+        else
+            OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
+        OnCreateOutboxPurchDocTransOnBeforeOutboxTransactionInsert(OutboxTransaction, PurchHeader);
+        OutboxTransaction.Insert();
         ICOutBoxPurchHeader.TransferFields(PurchHeader);
         ICOutBoxPurchHeader."IC Transaction No." := OutboxTransaction."Transaction No.";
         ICOutBoxPurchHeader."IC Partner Code" := OutboxTransaction."IC Partner Code";
@@ -585,44 +569,42 @@ codeunit 427 ICInboxOutboxMgt
         AssignCountryCode(OutboxTransaction."IC Partner Code", ICOutBoxPurchHeader."Ship-to Country/Region Code");
         DimMgt.CopyDocDimtoICDocDim(DATABASE::"IC Outbox Purchase Header", ICOutBoxPurchHeader."IC Transaction No.",
           ICOutBoxPurchHeader."IC Partner Code", ICOutBoxPurchHeader."Transaction Source", 0, PurchHeader."Dimension Set ID");
-        with ICOutBoxPurchLine do begin
-            PurchLine.Reset();
-            PurchLine.SetRange("Document Type", PurchHeader."Document Type");
-            PurchLine.SetRange("Document No.", PurchHeader."No.");
-            OnCreateOutboxPurchDocTransOnAfterPurchLineSetFilters(PurchHeader, PurchLine);
-            if PurchLine.Find('-') then
-                repeat
-                    Init();
-                    TransferFields(PurchLine);
-                    case PurchLine."Document Type" of
-                        PurchLine."Document Type"::Order:
-                            "Document Type" := "Document Type"::Order;
-                        PurchLine."Document Type"::Invoice:
-                            "Document Type" := "Document Type"::Invoice;
-                        PurchLine."Document Type"::"Credit Memo":
-                            "Document Type" := "Document Type"::"Credit Memo";
-                        PurchLine."Document Type"::"Return Order":
-                            "Document Type" := "Document Type"::"Return Order";
-                    end;
-                    "IC Partner Code" := OutboxTransaction."IC Partner Code";
-                    "IC Transaction No." := OutboxTransaction."Transaction No.";
-                    if "IC Item Reference No." = '' then
-                        "IC Item Reference No." := PurchLine."Item Reference No.";
-                    "Transaction Source" := OutboxTransaction."Transaction Source";
-                    "Currency Code" := ICOutBoxPurchHeader."Currency Code";
-                    DimMgt.CopyDocDimtoICDocDim(
-                      DATABASE::"IC Outbox Purchase Line", "IC Transaction No.", "IC Partner Code", "Transaction Source",
-                      "Line No.", PurchLine."Dimension Set ID");
-                    if PurchLine.Type = PurchLine.Type::" " then begin
-                        "IC Partner Reference" := '';
-                        "IC Item Reference No." := '';
-                    end;
-                    if Insert(true) then begin
-                        OnCreateOutboxPurchDocTransOnAfterICOutBoxPurchLineInsert(ICOutBoxPurchLine, PurchLine);
-                        LinesCreated := true;
-                    end;
-                until PurchLine.Next() = 0;
-        end;
+        PurchLine.Reset();
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        OnCreateOutboxPurchDocTransOnAfterPurchLineSetFilters(PurchHeader, PurchLine);
+        if PurchLine.Find('-') then
+            repeat
+                ICOutBoxPurchLine.Init();
+                ICOutBoxPurchLine.TransferFields(PurchLine);
+                case PurchLine."Document Type" of
+                    PurchLine."Document Type"::Order:
+                        ICOutBoxPurchLine."Document Type" := ICOutBoxPurchLine."Document Type"::Order;
+                    PurchLine."Document Type"::Invoice:
+                        ICOutBoxPurchLine."Document Type" := ICOutBoxPurchLine."Document Type"::Invoice;
+                    PurchLine."Document Type"::"Credit Memo":
+                        ICOutBoxPurchLine."Document Type" := ICOutBoxPurchLine."Document Type"::"Credit Memo";
+                    PurchLine."Document Type"::"Return Order":
+                        ICOutBoxPurchLine."Document Type" := ICOutBoxPurchLine."Document Type"::"Return Order";
+                end;
+                ICOutBoxPurchLine."IC Partner Code" := OutboxTransaction."IC Partner Code";
+                ICOutBoxPurchLine."IC Transaction No." := OutboxTransaction."Transaction No.";
+                if ICOutBoxPurchLine."IC Item Reference No." = '' then
+                    ICOutBoxPurchLine."IC Item Reference No." := PurchLine."Item Reference No.";
+                ICOutBoxPurchLine."Transaction Source" := OutboxTransaction."Transaction Source";
+                ICOutBoxPurchLine."Currency Code" := ICOutBoxPurchHeader."Currency Code";
+                DimMgt.CopyDocDimtoICDocDim(
+                  DATABASE::"IC Outbox Purchase Line", ICOutBoxPurchLine."IC Transaction No.", ICOutBoxPurchLine."IC Partner Code", ICOutBoxPurchLine."Transaction Source",
+                  ICOutBoxPurchLine."Line No.", PurchLine."Dimension Set ID");
+                if PurchLine.Type = PurchLine.Type::" " then begin
+                    ICOutBoxPurchLine."IC Partner Reference" := '';
+                    ICOutBoxPurchLine."IC Item Reference No." := '';
+                end;
+                if ICOutBoxPurchLine.Insert(true) then begin
+                    OnCreateOutboxPurchDocTransOnAfterICOutBoxPurchLineInsert(ICOutBoxPurchLine, PurchLine);
+                    LinesCreated := true;
+                end;
+            until PurchLine.Next() = 0;
 
         if LinesCreated then begin
             ICOutBoxPurchHeader.Insert();
@@ -644,28 +626,26 @@ codeunit 427 ICInboxOutboxMgt
         FeatureTelemetry.LogUsage('0000IK2', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Journal Line');
 
         GetGLSetup();
-        with TempGenJnlLine do begin
 #if not CLEAN22
-            if ("IC Partner G/L Acc. No." <> '') and ("IC Account No." = '') then begin
-                "IC Account Type" := "IC Account Type"::"G/L Account";
-                "IC Account No." := "IC Partner G/L Acc. No.";
-            end;
-#endif
-            if (("Bal. Account Type" in
-                 ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"IC Partner"]) and
-                ("Bal. Account No." <> '')) or
-               (("Account Type" = "Account Type"::"G/L Account") and ("IC Account No." <> '')) or
-               (("Account Type" = "Account Type"::"Bank Account") and ("IC Account No." <> ''))
-            then
-                RunExchangeAccGLJournalLine(TransactionNo, TempGenJnlLine);
-            if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"IC Partner"]) and
-               ("Account No." <> '')
-            then
-                InsertOutboxJnlLine(TempGenJnlLine, TransactionNo, TransactionSource, false);
-
-            if "IC Account No." <> '' then
-                InsertOutboxJnlLine(TempGenJnlLine, TransactionNo, TransactionSource, true);
+        if (TempGenJnlLine."IC Partner G/L Acc. No." <> '') and (TempGenJnlLine."IC Account No." = '') then begin
+            TempGenJnlLine."IC Account Type" := TempGenJnlLine."IC Account Type"::"G/L Account";
+            TempGenJnlLine."IC Account No." := TempGenJnlLine."IC Partner G/L Acc. No.";
         end;
+#endif
+        if ((TempGenJnlLine."Bal. Account Type" in
+             [TempGenJnlLine."Bal. Account Type"::Customer, TempGenJnlLine."Bal. Account Type"::Vendor, TempGenJnlLine."Bal. Account Type"::"IC Partner"]) and
+            (TempGenJnlLine."Bal. Account No." <> '')) or
+           ((TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::"G/L Account") and (TempGenJnlLine."IC Account No." <> '')) or
+           ((TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::"Bank Account") and (TempGenJnlLine."IC Account No." <> ''))
+        then
+            RunExchangeAccGLJournalLine(TransactionNo, TempGenJnlLine);
+        if (TempGenJnlLine."Account Type" in [TempGenJnlLine."Account Type"::Customer, TempGenJnlLine."Account Type"::Vendor, TempGenJnlLine."Account Type"::"IC Partner"]) and
+           (TempGenJnlLine."Account No." <> '')
+        then
+            InsertOutboxJnlLine(TempGenJnlLine, TransactionNo, TransactionSource, false);
+
+        if TempGenJnlLine."IC Account No." <> '' then
+            InsertOutboxJnlLine(TempGenJnlLine, TransactionNo, TransactionSource, true);
     end;
 
     local procedure RunExchangeAccGLJournalLine(TransactionNo: Integer; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
@@ -678,51 +658,48 @@ codeunit 427 ICInboxOutboxMgt
     local procedure InsertOutboxJnlLine(TempGenJnlLine: Record "Gen. Journal Line" temporary; TransactionNo: Integer; TransactionSource: Option "Rejected by Current Company"," Created by Current Company"; BalancingLine: Boolean)
     var
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
-        DimMgt: Codeunit DimensionManagement;
     begin
         GetGLSetup();
-        with TempGenJnlLine do begin
-            ICOutboxJnlLine.Init();
-            ICOutboxJnlLine."Transaction No." := TransactionNo;
-            ICOutboxJnlLine."IC Partner Code" := "IC Partner Code";
-            ICOutboxJnlLine."Transaction Source" := TransactionSource;
-            ICOutboxJnlLine.Description := Description;
-            ICOutboxJnlLine."Currency Code" := "Currency Code";
-            ICOutboxJnlLine.Quantity := Quantity;
-            ICOutboxJnlLine."Document No." := "Document No.";
-            if BalancingLine then begin
-                ICOutboxJnlLine."Line No." := "Line No.";
-                if TempGenJnlLine."IC Account Type" = TempGenJnlLine."IC Account Type"::"G/L Account" then
-                    ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::"G/L Account";
-                if TempGenJnlLine."IC Account Type" = TempGenJnlLine."IC Account Type"::"Bank Account" then
-                    ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::"Bank Account";
-                ICOutboxJnlLine."Account No." := "IC Account No.";
-                ICOutboxJnlLine.Amount := -Amount;
-                ICOutboxJnlLine."VAT Amount" := "Bal. VAT Amount";
-            end else begin
-                ICOutboxJnlLine."Line No." := 0;
-                case "Account Type" of
-                    "Account Type"::Customer:
-                        ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::Customer;
-                    "Account Type"::Vendor:
-                        ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::Vendor;
-                    "Account Type"::"IC Partner":
-                        ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::"IC Partner";
-                end;
-                ICOutboxJnlLine."Account No." := "Account No.";
-                ICOutboxJnlLine.Amount := Amount;
-                ICOutboxJnlLine."VAT Amount" := "VAT Amount";
-                ICOutboxJnlLine."Due Date" := "Due Date";
-                ICOutboxJnlLine."Payment Discount %" := "Payment Discount %";
-                ICOutboxJnlLine."Payment Discount Date" := "Pmt. Discount Date";
+        ICOutboxJnlLine.Init();
+        ICOutboxJnlLine."Transaction No." := TransactionNo;
+        ICOutboxJnlLine."IC Partner Code" := TempGenJnlLine."IC Partner Code";
+        ICOutboxJnlLine."Transaction Source" := TransactionSource;
+        ICOutboxJnlLine.Description := TempGenJnlLine.Description;
+        ICOutboxJnlLine."Currency Code" := TempGenJnlLine."Currency Code";
+        ICOutboxJnlLine.Quantity := TempGenJnlLine.Quantity;
+        ICOutboxJnlLine."Document No." := TempGenJnlLine."Document No.";
+        if BalancingLine then begin
+            ICOutboxJnlLine."Line No." := TempGenJnlLine."Line No.";
+            if TempGenJnlLine."IC Account Type" = TempGenJnlLine."IC Account Type"::"G/L Account" then
+                ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::"G/L Account";
+            if TempGenJnlLine."IC Account Type" = TempGenJnlLine."IC Account Type"::"Bank Account" then
+                ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::"Bank Account";
+            ICOutboxJnlLine."Account No." := TempGenJnlLine."IC Account No.";
+            ICOutboxJnlLine.Amount := -TempGenJnlLine.Amount;
+            ICOutboxJnlLine."VAT Amount" := TempGenJnlLine."Bal. VAT Amount";
+        end else begin
+            ICOutboxJnlLine."Line No." := 0;
+            case TempGenJnlLine."Account Type" of
+                TempGenJnlLine."Account Type"::Customer:
+                    ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::Customer;
+                TempGenJnlLine."Account Type"::Vendor:
+                    ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::Vendor;
+                TempGenJnlLine."Account Type"::"IC Partner":
+                    ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::"IC Partner";
             end;
-            DimMgt.CopyJnlLineDimToICJnlDim(
-              DATABASE::"IC Outbox Jnl. Line", TransactionNo, "IC Partner Code",
-              ICOutboxJnlLine."Transaction Source", ICOutboxJnlLine."Line No.", "Dimension Set ID");
-            OnInsertOutboxJnlLineOnBeforeICOutboxJnlLineInsert(ICOutboxJnlLine, TempGenJnlLine);
-            ICOutboxJnlLine.Insert();
-            OnInsertICOutboxJnlLine(ICOutboxJnlLine, TempGenJnlLine);
+            ICOutboxJnlLine."Account No." := TempGenJnlLine."Account No.";
+            ICOutboxJnlLine.Amount := TempGenJnlLine.Amount;
+            ICOutboxJnlLine."VAT Amount" := TempGenJnlLine."VAT Amount";
+            ICOutboxJnlLine."Due Date" := TempGenJnlLine."Due Date";
+            ICOutboxJnlLine."Payment Discount %" := TempGenJnlLine."Payment Discount %";
+            ICOutboxJnlLine."Payment Discount Date" := TempGenJnlLine."Pmt. Discount Date";
         end;
+        DimMgt.CopyJnlLineDimToICJnlDim(
+          DATABASE::"IC Outbox Jnl. Line", TransactionNo, TempGenJnlLine."IC Partner Code",
+          ICOutboxJnlLine."Transaction Source", ICOutboxJnlLine."Line No.", TempGenJnlLine."Dimension Set ID");
+        OnInsertOutboxJnlLineOnBeforeICOutboxJnlLineInsert(ICOutboxJnlLine, TempGenJnlLine);
+        ICOutboxJnlLine.Insert();
+        OnInsertICOutboxJnlLine(ICOutboxJnlLine, TempGenJnlLine);
     end;
 
     procedure TranslateICGLAccount(ICAccNo: Code[30]): Code[20]
@@ -765,7 +742,6 @@ codeunit 427 ICInboxOutboxMgt
         TempInOutBoxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim." temporary;
         HandledInboxJnlLine: Record "Handled IC Inbox Jnl. Line";
         ICSetup: Record "IC Setup";
-        DimMgt: Codeunit DimensionManagement;
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
@@ -778,84 +754,83 @@ codeunit 427 ICInboxOutboxMgt
         if not IsHandled then begin
             GetGLSetup();
             ICSetup.Get();
-            with GenJnlLine2 do
-                if InboxTransaction."Transaction Source" = InboxTransaction."Transaction Source"::"Created by Partner" then begin
-                    Init();
-                    "Journal Template Name" := TempGenJnlLine."Journal Template Name";
-                    "Journal Batch Name" := TempGenJnlLine."Journal Batch Name";
-                    if ICSetup."Auto. Send Transactions" then begin
-                        GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-                        "Posting No. Series" := GenJnlBatch."Posting No. Series";
-                    end;
-                    if TempGenJnlLine."Posting Date" <> 0D then
-                        "Posting Date" := TempGenJnlLine."Posting Date"
-                    else
-                        "Posting Date" := InboxTransaction."Posting Date";
-                    "Document Type" := InboxTransaction."Document Type";
-                    "Document No." := TempGenJnlLine."Document No.";
-                    "Source Code" := GenJnlTemplate."Source Code";
-                    "Line No." := TempGenJnlLine."Line No." + 10000;
-                    case InboxJnlLine."Account Type" of
-                        InboxJnlLine."Account Type"::"G/L Account":
-                            begin
-                                "Account Type" := "Account Type"::"G/L Account";
-                                Validate("Account No.", TranslateICGLAccount(InboxJnlLine."Account No."));
-                            end;
-                        InboxJnlLine."Account Type"::Customer:
-                            begin
-                                "Account Type" := "Account Type"::Customer;
-                                Validate("Account No.", TranslateICPartnerToCustomer(InboxJnlLine."IC Partner Code"));
-                            end;
-                        InboxJnlLine."Account Type"::Vendor:
-                            begin
-                                "Account Type" := "Account Type"::Vendor;
-                                Validate("Account No.", TranslateICPartnerToVendor(InboxJnlLine."IC Partner Code"));
-                            end;
-                        InboxJnlLine."Account Type"::"IC Partner":
-                            begin
-                                "Account Type" := "Account Type"::"IC Partner";
-                                Validate("Account No.", InboxJnlLine."IC Partner Code");
-                            end;
-                        InboxJnlLine."Account Type"::"Bank Account":
-                            begin
-                                "Account Type" := "Account Type"::"Bank Account";
-                                Validate("Account No.", TranslateICBankAccount(InboxJnlLine."Account No."));
-                            end;
-                    end;
-                    if InboxJnlLine.Description <> '' then
-                        Description := InboxJnlLine.Description;
-                    if InboxJnlLine."Currency Code" = GLSetup."LCY Code" then
-                        InboxJnlLine."Currency Code" := '';
-                    Validate("Currency Code", InboxJnlLine."Currency Code");
-                    Validate(Amount, InboxJnlLine.Amount);
-                    if ("VAT Amount" <> InboxJnlLine."VAT Amount") and
-                       ("VAT Amount" <> 0) and (InboxJnlLine."VAT Amount" <> 0)
-                    then
-                        Validate("VAT Amount", InboxJnlLine."VAT Amount");
-                    "Due Date" := InboxJnlLine."Due Date";
-                    Validate("Payment Discount %", InboxJnlLine."Payment Discount %");
-                    Validate("Pmt. Discount Date", InboxJnlLine."Payment Discount Date");
-                    Quantity := InboxJnlLine.Quantity;
-                    "IC Direction" := TempGenJnlLine."IC Direction"::Incoming;
-                    "IC Partner Transaction No." := InboxJnlLine."Transaction No.";
-                    "External Document No." := InboxJnlLine."Document No.";
-                    OnBeforeInsertGenJnlLine(GenJnlLine2, InboxJnlLine);
-                    Insert();
-                    InOutBoxJnlLineDim.SetRange("Table ID", DATABASE::"IC Inbox Jnl. Line");
-                    InOutBoxJnlLineDim.SetRange("Transaction No.", InboxTransaction."Transaction No.");
-                    InOutBoxJnlLineDim.SetRange("Line No.", InboxJnlLine."Line No.");
-                    InOutBoxJnlLineDim.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
-                    TempInOutBoxJnlLineDim.DeleteAll();
-                    DimMgt.CopyICJnlDimToICJnlDim(InOutBoxJnlLineDim, TempInOutBoxJnlLineDim);
-                    "Dimension Set ID" := DimMgt.CreateDimSetIDFromICJnlLineDim(TempInOutBoxJnlLineDim);
-                    DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
-                      "Shortcut Dimension 2 Code");
-                    OnCreateJournalLinesOnBeforeModify(GenJnlLine2, InboxJnlLine);
-                    Modify();
-                    HandledInboxJnlLine.TransferFields(InboxJnlLine);
-                    HandledInboxJnlLine.Insert();
-                    TempGenJnlLine."Line No." := "Line No.";
+            if InboxTransaction."Transaction Source" = InboxTransaction."Transaction Source"::"Created by Partner" then begin
+                GenJnlLine2.Init();
+                GenJnlLine2."Journal Template Name" := TempGenJnlLine."Journal Template Name";
+                GenJnlLine2."Journal Batch Name" := TempGenJnlLine."Journal Batch Name";
+                if ICSetup."Auto. Send Transactions" then begin
+                    GenJnlBatch.Get(GenJnlLine2."Journal Template Name", GenJnlLine2."Journal Batch Name");
+                    GenJnlLine2."Posting No. Series" := GenJnlBatch."Posting No. Series";
                 end;
+                if TempGenJnlLine."Posting Date" <> 0D then
+                    GenJnlLine2."Posting Date" := TempGenJnlLine."Posting Date"
+                else
+                    GenJnlLine2."Posting Date" := InboxTransaction."Posting Date";
+                GenJnlLine2."Document Type" := InboxTransaction."Document Type";
+                GenJnlLine2."Document No." := TempGenJnlLine."Document No.";
+                GenJnlLine2."Source Code" := GenJnlTemplate."Source Code";
+                GenJnlLine2."Line No." := TempGenJnlLine."Line No." + 10000;
+                case InboxJnlLine."Account Type" of
+                    InboxJnlLine."Account Type"::"G/L Account":
+                        begin
+                            GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"G/L Account";
+                            GenJnlLine2.Validate("Account No.", TranslateICGLAccount(InboxJnlLine."Account No."));
+                        end;
+                    InboxJnlLine."Account Type"::Customer:
+                        begin
+                            GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::Customer;
+                            GenJnlLine2.Validate("Account No.", TranslateICPartnerToCustomer(InboxJnlLine."IC Partner Code"));
+                        end;
+                    InboxJnlLine."Account Type"::Vendor:
+                        begin
+                            GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::Vendor;
+                            GenJnlLine2.Validate("Account No.", TranslateICPartnerToVendor(InboxJnlLine."IC Partner Code"));
+                        end;
+                    InboxJnlLine."Account Type"::"IC Partner":
+                        begin
+                            GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"IC Partner";
+                            GenJnlLine2.Validate("Account No.", InboxJnlLine."IC Partner Code");
+                        end;
+                    InboxJnlLine."Account Type"::"Bank Account":
+                        begin
+                            GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"Bank Account";
+                            GenJnlLine2.Validate("Account No.", TranslateICBankAccount(InboxJnlLine."Account No."));
+                        end;
+                end;
+                if InboxJnlLine.Description <> '' then
+                    GenJnlLine2.Description := InboxJnlLine.Description;
+                if InboxJnlLine."Currency Code" = GLSetup."LCY Code" then
+                    InboxJnlLine."Currency Code" := '';
+                GenJnlLine2.Validate("Currency Code", InboxJnlLine."Currency Code");
+                GenJnlLine2.Validate(Amount, InboxJnlLine.Amount);
+                if (GenJnlLine2."VAT Amount" <> InboxJnlLine."VAT Amount") and
+                   (GenJnlLine2."VAT Amount" <> 0) and (InboxJnlLine."VAT Amount" <> 0)
+                then
+                    GenJnlLine2.Validate("VAT Amount", InboxJnlLine."VAT Amount");
+                GenJnlLine2."Due Date" := InboxJnlLine."Due Date";
+                GenJnlLine2.Validate("Payment Discount %", InboxJnlLine."Payment Discount %");
+                GenJnlLine2.Validate("Pmt. Discount Date", InboxJnlLine."Payment Discount Date");
+                GenJnlLine2.Quantity := InboxJnlLine.Quantity;
+                GenJnlLine2."IC Direction" := TempGenJnlLine."IC Direction"::Incoming;
+                GenJnlLine2."IC Partner Transaction No." := InboxJnlLine."Transaction No.";
+                GenJnlLine2."External Document No." := InboxJnlLine."Document No.";
+                OnBeforeInsertGenJnlLine(GenJnlLine2, InboxJnlLine);
+                GenJnlLine2.Insert();
+                InOutBoxJnlLineDim.SetRange("Table ID", DATABASE::"IC Inbox Jnl. Line");
+                InOutBoxJnlLineDim.SetRange("Transaction No.", InboxTransaction."Transaction No.");
+                InOutBoxJnlLineDim.SetRange("Line No.", InboxJnlLine."Line No.");
+                InOutBoxJnlLineDim.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
+                TempInOutBoxJnlLineDim.DeleteAll();
+                DimMgt.CopyICJnlDimToICJnlDim(InOutBoxJnlLineDim, TempInOutBoxJnlLineDim);
+                GenJnlLine2."Dimension Set ID" := DimMgt.CreateDimSetIDFromICJnlLineDim(TempInOutBoxJnlLineDim);
+                DimMgt.UpdateGlobalDimFromDimSetID(GenJnlLine2."Dimension Set ID", GenJnlLine2."Shortcut Dimension 1 Code",
+                  GenJnlLine2."Shortcut Dimension 2 Code");
+                OnCreateJournalLinesOnBeforeModify(GenJnlLine2, InboxJnlLine);
+                GenJnlLine2.Modify();
+                HandledInboxJnlLine.TransferFields(InboxJnlLine);
+                HandledInboxJnlLine.Insert();
+                TempGenJnlLine."Line No." := GenJnlLine2."Line No.";
+            end;
         end;
         OnAfterCreateJournalLines(GenJnlLine2);
     end;
@@ -1421,12 +1396,12 @@ codeunit 427 ICInboxOutboxMgt
         );
     end;
 
-    internal procedure ShowDuplicateICDocumentWarning(var PurchaseHeader: Record "Purchase Header")
+    procedure ShowDuplicateICDocumentWarning(var PurchaseHeader: Record "Purchase Header")
     begin
         ShowDuplicateICDocumentWarning(PurchaseHeader, DuplicateICDocumentMsg);
     end;
 
-    internal procedure ShowDuplicateICDocumentWarning(var PurchaseHeader: Record "Purchase Header"; WarningMsg: Text)
+    procedure ShowDuplicateICDocumentWarning(var PurchaseHeader: Record "Purchase Header"; WarningMsg: Text)
     var
         Notification: Notification;
         DocumentType: Text;
@@ -1606,9 +1581,8 @@ codeunit 427 ICInboxOutboxMgt
         FeatureTelemetry.LogUptake('0000IJI', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IK9', ICMapping.GetFeatureTelemetryName(), 'Recreate Inbox Transaction');
 
-        with HandledInboxTransaction do
-            if not (Status in [Status::Accepted, Status::Cancelled]) then
-                Error(Text005, FieldCaption(Status), Status::Accepted, Status::Cancelled);
+        if not (HandledInboxTransaction.Status in [HandledInboxTransaction.Status::Accepted, HandledInboxTransaction.Status::Cancelled]) then
+            Error(Text005, HandledInboxTransaction.FieldCaption(Status), HandledInboxTransaction.Status::Accepted, HandledInboxTransaction.Status::Cancelled);
 
         if Confirm then
             if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
@@ -1772,9 +1746,8 @@ codeunit 427 ICInboxOutboxMgt
         FeatureTelemetry.LogUptake('0000IJJ', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKA', ICMapping.GetFeatureTelemetryName(), 'Recreate Outbox Transaction');
 
-        with HandledOutboxTransaction do
-            if not (Status in [Status::"Sent to IC Partner", Status::Cancelled]) then
-                Error(Text005, FieldCaption(Status), Status::"Sent to IC Partner", Status::Cancelled);
+        if not (HandledOutboxTransaction.Status in [HandledOutboxTransaction.Status::"Sent to IC Partner", HandledOutboxTransaction.Status::Cancelled]) then
+            Error(Text005, HandledOutboxTransaction.FieldCaption(Status), HandledOutboxTransaction.Status::"Sent to IC Partner", HandledOutboxTransaction.Status::Cancelled);
 
         if ConfirmManagement.GetResponseOrDefault(Text000, true) then begin
             HandledOutboxTransaction2 := HandledOutboxTransaction;
@@ -1935,134 +1908,132 @@ codeunit 427 ICInboxOutboxMgt
         FeatureTelemetry.LogUptake('0000IJK', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKB', ICMapping.GetFeatureTelemetryName(), 'Forwarding to OutBox');
 
-        with InboxTransaction do begin
-            OutboxTransaction.Init();
-            OutboxTransaction."Transaction No." := "Transaction No.";
-            OutboxTransaction."IC Partner Code" := "IC Partner Code";
-            OutboxTransaction."Source Type" := "Source Type";
-            OutboxTransaction."Document Type" := "Document Type";
-            OutboxTransaction."Document No." := "Document No.";
-            OutboxTransaction."Posting Date" := "Posting Date";
-            OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Rejected by Current Company";
-            OutboxTransaction."Document Date" := "Document Date";
-            OnForwardToOutBoxOnBeforeOutboxTransactionInsert(OutboxTransaction, InboxTransaction);
-            OutboxTransaction.Insert();
-            case "Source Type" of
-                "Source Type"::Journal:
-                    begin
-                        InboxJnlLine.SetRange("Transaction No.", "Transaction No.");
-                        InboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
-                        InboxJnlLine.SetRange("Transaction Source", "Transaction Source");
-                        if InboxJnlLine.Find('-') then
+        OutboxTransaction.Init();
+        OutboxTransaction."Transaction No." := InboxTransaction."Transaction No.";
+        OutboxTransaction."IC Partner Code" := InboxTransaction."IC Partner Code";
+        OutboxTransaction."Source Type" := InboxTransaction."Source Type";
+        OutboxTransaction."Document Type" := InboxTransaction."Document Type";
+        OutboxTransaction."Document No." := InboxTransaction."Document No.";
+        OutboxTransaction."Posting Date" := InboxTransaction."Posting Date";
+        OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Rejected by Current Company";
+        OutboxTransaction."Document Date" := InboxTransaction."Document Date";
+        OnForwardToOutBoxOnBeforeOutboxTransactionInsert(OutboxTransaction, InboxTransaction);
+        OutboxTransaction.Insert();
+        case InboxTransaction."Source Type" of
+            InboxTransaction."Source Type"::Journal:
+                begin
+                    InboxJnlLine.SetRange("Transaction No.", InboxTransaction."Transaction No.");
+                    InboxJnlLine.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
+                    InboxJnlLine.SetRange("Transaction Source", InboxTransaction."Transaction Source");
+                    if InboxJnlLine.Find('-') then
+                        repeat
+                            OutboxJnlLine.TransferFields(InboxJnlLine);
+                            OutboxJnlLine."Transaction Source" := OutboxTransaction."Transaction Source";
+                            OutboxJnlLine.Insert();
+                            HndlInboxJnlLine.TransferFields(InboxJnlLine);
+                            HndlInboxJnlLine.Insert();
+
+                            ICJnlLineDim.SetRange("Table ID", DATABASE::"IC Inbox Jnl. Line");
+                            ICJnlLineDim.SetRange("Transaction No.", InboxJnlLine."Transaction No.");
+                            ICJnlLineDim.SetRange("IC Partner Code", InboxJnlLine."IC Partner Code");
+                            ICJnlLineDim.SetRange("Line No.", InboxJnlLine."Line No.");
+                            if ICJnlLineDim.Find('-') then
+                                repeat
+                                    ICJnlLineDim2 := ICJnlLineDim;
+                                    ICJnlLineDim2."Table ID" := DATABASE::"IC Outbox Jnl. Line";
+                                    ICJnlLineDim2."Transaction Source" := OutboxJnlLine."Transaction Source";
+                                    ICJnlLineDim2.Insert();
+                                until ICJnlLineDim.Next() = 0;
+
+                        until InboxJnlLine.Next() = 0;
+                end;
+            InboxTransaction."Source Type"::"Sales Document":
+                begin
+                    if InboxSalesHdr.Get(InboxTransaction."Transaction No.", InboxTransaction."IC Partner Code", InboxTransaction."Transaction Source") then begin
+                        OutboxSalesHdr.TransferFields(InboxSalesHdr);
+                        OutboxSalesHdr."Transaction Source" := OutboxTransaction."Transaction Source";
+                        OutboxSalesHdr.Insert();
+                        ICDocDim.Reset();
+                        DimMgt.SetICDocDimFilters(
+                          ICDocDim, DATABASE::"IC Inbox Sales Header", InboxTransaction."Transaction No.", InboxTransaction."IC Partner Code", InboxTransaction."Transaction Source", 0);
+                        if ICDocDim.Find('-') then
+                            DimMgt.CopyICDocDimtoICDocDim(
+                              ICDocDim, ICDocDim2, DATABASE::"IC Outbox Sales Header", OutboxSalesHdr."Transaction Source");
+                        HndlInboxSalesHdr.TransferFields(InboxSalesHdr);
+                        HndlInboxSalesHdr.Insert();
+                        if ICDocDim.Find('-') then
+                            DimMgt.MoveICDocDimtoICDocDim(
+                              ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Header", InboxSalesHdr."Transaction Source");
+                        InboxSalesLine.SetRange("IC Transaction No.", InboxTransaction."Transaction No.");
+                        InboxSalesLine.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
+                        InboxSalesLine.SetRange("Transaction Source", InboxTransaction."Transaction Source");
+                        if InboxSalesLine.Find('-') then
                             repeat
-                                OutboxJnlLine.TransferFields(InboxJnlLine);
-                                OutboxJnlLine."Transaction Source" := OutboxTransaction."Transaction Source";
-                                OutboxJnlLine.Insert();
-                                HndlInboxJnlLine.TransferFields(InboxJnlLine);
-                                HndlInboxJnlLine.Insert();
+                                OutboxSalesLine.TransferFields(InboxSalesLine);
+                                OutboxSalesLine."Transaction Source" := OutboxTransaction."Transaction Source";
+                                OutboxSalesLine.Insert();
+                                ICDocDim.Reset();
+                                DimMgt.SetICDocDimFilters(
+                                  ICDocDim, DATABASE::"IC Inbox Sales Line", InboxTransaction."Transaction No.", InboxTransaction."IC Partner Code", InboxTransaction."Transaction Source",
+                                  OutboxSalesLine."Line No.");
+                                if ICDocDim.Find('-') then
+                                    DimMgt.CopyICDocDimtoICDocDim(
+                                      ICDocDim, ICDocDim2, DATABASE::"IC Outbox Sales Line", OutboxSalesLine."Transaction Source");
+                                HndlInboxSalesLine.TransferFields(InboxSalesLine);
+                                OnForwardToOutBoxOnBeforeHndlInboxSalesLineInsert(HndlInboxSalesLine, InboxSalesLine);
+                                HndlInboxSalesLine.Insert();
 
-                                ICJnlLineDim.SetRange("Table ID", DATABASE::"IC Inbox Jnl. Line");
-                                ICJnlLineDim.SetRange("Transaction No.", InboxJnlLine."Transaction No.");
-                                ICJnlLineDim.SetRange("IC Partner Code", InboxJnlLine."IC Partner Code");
-                                ICJnlLineDim.SetRange("Line No.", InboxJnlLine."Line No.");
-                                if ICJnlLineDim.Find('-') then
-                                    repeat
-                                        ICJnlLineDim2 := ICJnlLineDim;
-                                        ICJnlLineDim2."Table ID" := DATABASE::"IC Outbox Jnl. Line";
-                                        ICJnlLineDim2."Transaction Source" := OutboxJnlLine."Transaction Source";
-                                        ICJnlLineDim2.Insert();
-                                    until ICJnlLineDim.Next() = 0;
-
-                            until InboxJnlLine.Next() = 0;
+                                if ICDocDim.Find('-') then
+                                    DimMgt.MoveICDocDimtoICDocDim(
+                                      ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", InboxSalesLine."Transaction Source");
+                            until InboxSalesLine.Next() = 0;
                     end;
-                "Source Type"::"Sales Document":
-                    begin
-                        if InboxSalesHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then begin
-                            OutboxSalesHdr.TransferFields(InboxSalesHdr);
-                            OutboxSalesHdr."Transaction Source" := OutboxTransaction."Transaction Source";
-                            OutboxSalesHdr.Insert();
-                            ICDocDim.Reset();
-                            DimMgt.SetICDocDimFilters(
-                              ICDocDim, DATABASE::"IC Inbox Sales Header", "Transaction No.", "IC Partner Code", "Transaction Source", 0);
-                            if ICDocDim.Find('-') then
-                                DimMgt.CopyICDocDimtoICDocDim(
-                                  ICDocDim, ICDocDim2, DATABASE::"IC Outbox Sales Header", OutboxSalesHdr."Transaction Source");
-                            HndlInboxSalesHdr.TransferFields(InboxSalesHdr);
-                            HndlInboxSalesHdr.Insert();
-                            if ICDocDim.Find('-') then
-                                DimMgt.MoveICDocDimtoICDocDim(
-                                  ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Header", InboxSalesHdr."Transaction Source");
-                            InboxSalesLine.SetRange("IC Transaction No.", "Transaction No.");
-                            InboxSalesLine.SetRange("IC Partner Code", "IC Partner Code");
-                            InboxSalesLine.SetRange("Transaction Source", "Transaction Source");
-                            if InboxSalesLine.Find('-') then
-                                repeat
-                                    OutboxSalesLine.TransferFields(InboxSalesLine);
-                                    OutboxSalesLine."Transaction Source" := OutboxTransaction."Transaction Source";
-                                    OutboxSalesLine.Insert();
-                                    ICDocDim.Reset();
-                                    DimMgt.SetICDocDimFilters(
-                                      ICDocDim, DATABASE::"IC Inbox Sales Line", "Transaction No.", "IC Partner Code", "Transaction Source",
-                                      OutboxSalesLine."Line No.");
-                                    if ICDocDim.Find('-') then
-                                        DimMgt.CopyICDocDimtoICDocDim(
-                                          ICDocDim, ICDocDim2, DATABASE::"IC Outbox Sales Line", OutboxSalesLine."Transaction Source");
-                                    HndlInboxSalesLine.TransferFields(InboxSalesLine);
-                                    OnForwardToOutBoxOnBeforeHndlInboxSalesLineInsert(HndlInboxSalesLine, InboxSalesLine);
-                                    HndlInboxSalesLine.Insert();
-
-                                    if ICDocDim.Find('-') then
-                                        DimMgt.MoveICDocDimtoICDocDim(
-                                          ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", InboxSalesLine."Transaction Source");
-                                until InboxSalesLine.Next() = 0;
-                        end;
-                        OnAfterForwardToOutBoxSalesDoc(InboxTransaction, OutboxTransaction);
+                    OnAfterForwardToOutBoxSalesDoc(InboxTransaction, OutboxTransaction);
+                end;
+            InboxTransaction."Source Type"::"Purchase Document":
+                begin
+                    if InboxPurchHdr.Get(InboxTransaction."Transaction No.", InboxTransaction."IC Partner Code", InboxTransaction."Transaction Source") then begin
+                        OutboxPurchHdr.TransferFields(InboxPurchHdr);
+                        OutboxPurchHdr."Transaction Source" := OutboxTransaction."Transaction Source";
+                        OutboxPurchHdr.Insert();
+                        ICDocDim.Reset();
+                        DimMgt.SetICDocDimFilters(
+                          ICDocDim, DATABASE::"IC Inbox Purchase Header", InboxTransaction."Transaction No.", InboxTransaction."IC Partner Code", InboxTransaction."Transaction Source", 0);
+                        if ICDocDim.Find('-') then
+                            DimMgt.CopyICDocDimtoICDocDim(
+                              ICDocDim, ICDocDim2, DATABASE::"IC Outbox Purchase Header", OutboxPurchHdr."Transaction Source");
+                        HndlInboxPurchHdr.TransferFields(InboxPurchHdr);
+                        HndlInboxPurchHdr.Insert();
+                        if ICDocDim.Find('-') then
+                            DimMgt.MoveICDocDimtoICDocDim(
+                              ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Header", InboxPurchHdr."Transaction Source");
+                        InboxPurchLine.SetRange("IC Transaction No.", InboxTransaction."Transaction No.");
+                        InboxPurchLine.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
+                        InboxPurchLine.SetRange("Transaction Source", InboxTransaction."Transaction Source");
+                        if InboxPurchLine.Find('-') then
+                            repeat
+                                OutboxPurchLine.TransferFields(InboxPurchLine);
+                                OutboxPurchLine."Transaction Source" := OutboxTransaction."Transaction Source";
+                                OutboxPurchLine.Insert();
+                                ICDocDim.Reset();
+                                DimMgt.SetICDocDimFilters(
+                                  ICDocDim, DATABASE::"IC Inbox Purchase Line", InboxTransaction."Transaction No.", InboxTransaction."IC Partner Code", InboxTransaction."Transaction Source",
+                                  OutboxPurchLine."Line No.");
+                                if ICDocDim.Find('-') then
+                                    DimMgt.CopyICDocDimtoICDocDim(
+                                      ICDocDim, ICDocDim2, DATABASE::"IC Outbox Purchase Line", OutboxPurchLine."Transaction Source");
+                                HndlInboxPurchLine.TransferFields(InboxPurchLine);
+                                OnForwardToOutBoxOnBeforeHndlInboxPurchLineInsert(HndlInboxPurchLine, InboxPurchLine);
+                                HndlInboxPurchLine.Insert();
+                                if ICDocDim.Find('-') then
+                                    DimMgt.MoveICDocDimtoICDocDim(
+                                      ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", InboxPurchLine."Transaction Source");
+                            until InboxPurchLine.Next() = 0;
                     end;
-                "Source Type"::"Purchase Document":
-                    begin
-                        if InboxPurchHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then begin
-                            OutboxPurchHdr.TransferFields(InboxPurchHdr);
-                            OutboxPurchHdr."Transaction Source" := OutboxTransaction."Transaction Source";
-                            OutboxPurchHdr.Insert();
-                            ICDocDim.Reset();
-                            DimMgt.SetICDocDimFilters(
-                              ICDocDim, DATABASE::"IC Inbox Purchase Header", "Transaction No.", "IC Partner Code", "Transaction Source", 0);
-                            if ICDocDim.Find('-') then
-                                DimMgt.CopyICDocDimtoICDocDim(
-                                  ICDocDim, ICDocDim2, DATABASE::"IC Outbox Purchase Header", OutboxPurchHdr."Transaction Source");
-                            HndlInboxPurchHdr.TransferFields(InboxPurchHdr);
-                            HndlInboxPurchHdr.Insert();
-                            if ICDocDim.Find('-') then
-                                DimMgt.MoveICDocDimtoICDocDim(
-                                  ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Header", InboxPurchHdr."Transaction Source");
-                            InboxPurchLine.SetRange("IC Transaction No.", "Transaction No.");
-                            InboxPurchLine.SetRange("IC Partner Code", "IC Partner Code");
-                            InboxPurchLine.SetRange("Transaction Source", "Transaction Source");
-                            if InboxPurchLine.Find('-') then
-                                repeat
-                                    OutboxPurchLine.TransferFields(InboxPurchLine);
-                                    OutboxPurchLine."Transaction Source" := OutboxTransaction."Transaction Source";
-                                    OutboxPurchLine.Insert();
-                                    ICDocDim.Reset();
-                                    DimMgt.SetICDocDimFilters(
-                                      ICDocDim, DATABASE::"IC Inbox Purchase Line", "Transaction No.", "IC Partner Code", "Transaction Source",
-                                      OutboxPurchLine."Line No.");
-                                    if ICDocDim.Find('-') then
-                                        DimMgt.CopyICDocDimtoICDocDim(
-                                          ICDocDim, ICDocDim2, DATABASE::"IC Outbox Purchase Line", OutboxPurchLine."Transaction Source");
-                                    HndlInboxPurchLine.TransferFields(InboxPurchLine);
-                                    OnForwardToOutBoxOnBeforeHndlInboxPurchLineInsert(HndlInboxPurchLine, InboxPurchLine);
-                                    HndlInboxPurchLine.Insert();
-                                    if ICDocDim.Find('-') then
-                                        DimMgt.MoveICDocDimtoICDocDim(
-                                          ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", InboxPurchLine."Transaction Source");
-                                until InboxPurchLine.Next() = 0;
-                        end;
-                        OnAfterForwardToOutBoxPurchDoc(InboxTransaction, OutboxTransaction);
-                    end;
-            end;
-            InsertICCommentLinesAsRejectedOutboxTransaction(InboxTransaction);
+                    OnAfterForwardToOutBoxPurchDoc(InboxTransaction, OutboxTransaction);
+                end;
         end;
+        InsertICCommentLinesAsRejectedOutboxTransaction(InboxTransaction);
     end;
 
     local procedure InsertICCommentLinesAsRejectedOutboxTransaction(ICInboxTransaction: Record "IC Inbox Transaction")
@@ -2070,18 +2041,16 @@ codeunit 427 ICInboxOutboxMgt
         ICCommentLine: Record "IC Comment Line";
         ICCommentLine2: Record "IC Comment Line";
     begin
-        with ICInboxTransaction do begin
-            ICCommentLine.SetRange("Table Name", ICCommentLine."Table Name"::"Handled IC Inbox Transaction");
-            ICCommentLine.SetRange("Transaction No.", "Transaction No.");
-            ICCommentLine.SetRange("IC Partner Code", "IC Partner Code");
-            if ICCommentLine.Find('-') then
-                repeat
-                    ICCommentLine2 := ICCommentLine;
-                    ICCommentLine2."Table Name" := ICCommentLine."Table Name"::"IC Outbox Transaction";
-                    ICCommentLine2."Transaction Source" := ICCommentLine."Transaction Source"::Rejected;
-                    ICCommentLine2.Insert();
-                until ICCommentLine.Next() = 0;
-        end;
+        ICCommentLine.SetRange("Table Name", ICCommentLine."Table Name"::"Handled IC Inbox Transaction");
+        ICCommentLine.SetRange("Transaction No.", ICInboxTransaction."Transaction No.");
+        ICCommentLine.SetRange("IC Partner Code", ICInboxTransaction."IC Partner Code");
+        if ICCommentLine.Find('-') then
+            repeat
+                ICCommentLine2 := ICCommentLine;
+                ICCommentLine2."Table Name" := ICCommentLine."Table Name"::"IC Outbox Transaction";
+                ICCommentLine2."Transaction Source" := ICCommentLine."Transaction Source"::Rejected;
+                ICCommentLine2.Insert();
+            until ICCommentLine.Next() = 0;
     end;
 
     procedure GetCompanyInfo()
@@ -2365,40 +2334,38 @@ codeunit 427 ICInboxOutboxMgt
         if TempPartnerICPartner."Vendor No." = '' then
             Error(Text001, TempPartnerICPartner.TableCaption(), TempPartnerICPartner.Code, Vendor.TableCaption(), ICOutboxSalesHeader."IC Partner Code");
 
-        with ICInboxPurchHeader do begin
-            "IC Transaction No." := ICInboxTrans."Transaction No.";
-            "IC Partner Code" := ICInboxTrans."IC Partner Code";
-            "Transaction Source" := ICInboxTrans."Transaction Source";
-            "Document Type" := ICOutboxSalesHeader."Document Type";
-            "No." := ICOutboxSalesHeader."No.";
-            "Ship-to Name" := ICOutboxSalesHeader."Ship-to Name";
-            "Ship-to Address" := ICOutboxSalesHeader."Ship-to Address";
-            "Ship-to Address 2" := ICOutboxSalesHeader."Ship-to Address 2";
-            "Ship-to City" := ICOutboxSalesHeader."Ship-to City";
-            "Ship-to Post Code" := ICOutboxSalesHeader."Ship-to Post Code";
-            "Ship-to County" := ICOutboxSalesHeader."Ship-to County";
-            "Ship-to Country/Region Code" := ICOutboxSalesHeader."Ship-to Country/Region Code";
-            "Posting Date" := ICOutboxSalesHeader."Posting Date";
-            "Due Date" := ICOutboxSalesHeader."Due Date";
-            "Payment Discount %" := ICOutboxSalesHeader."Payment Discount %";
-            "Pmt. Discount Date" := ICOutboxSalesHeader."Pmt. Discount Date";
-            "Currency Code" := ICOutboxSalesHeader."Currency Code";
-            "Document Date" := ICOutboxSalesHeader."Document Date";
-            "Buy-from Vendor No." := TempPartnerICPartner."Vendor No.";
-            "Pay-to Vendor No." := TempPartnerICPartner."Vendor No.";
-            "Vendor Invoice No." := ICOutboxSalesHeader."No.";
-            "Vendor Order No." := ICOutboxSalesHeader."Order No.";
-            "Vendor Cr. Memo No." := ICOutboxSalesHeader."No.";
-            "Your Reference" := ICOutboxSalesHeader."External Document No.";
-            "Sell-to Customer No." := ICOutboxSalesHeader."Sell-to Customer No.";
-            "Expected Receipt Date" := ICOutboxSalesHeader."Requested Delivery Date";
-            "Requested Receipt Date" := ICOutboxSalesHeader."Requested Delivery Date";
-            "Promised Receipt Date" := ICOutboxSalesHeader."Promised Delivery Date";
-            "Prices Including VAT" := ICOutboxSalesHeader."Prices Including VAT";
-            OnBeforeICInboxPurchHeaderInsert(ICInboxPurchHeader, ICOutboxSalesHeader);
-            Insert();
-            OnAfterICInboxPurchHeaderInsert(ICInboxPurchHeader, ICOutboxSalesHeader);
-        end;
+        ICInboxPurchHeader."IC Transaction No." := ICInboxTrans."Transaction No.";
+        ICInboxPurchHeader."IC Partner Code" := ICInboxTrans."IC Partner Code";
+        ICInboxPurchHeader."Transaction Source" := ICInboxTrans."Transaction Source";
+        ICInboxPurchHeader."Document Type" := ICOutboxSalesHeader."Document Type";
+        ICInboxPurchHeader."No." := ICOutboxSalesHeader."No.";
+        ICInboxPurchHeader."Ship-to Name" := ICOutboxSalesHeader."Ship-to Name";
+        ICInboxPurchHeader."Ship-to Address" := ICOutboxSalesHeader."Ship-to Address";
+        ICInboxPurchHeader."Ship-to Address 2" := ICOutboxSalesHeader."Ship-to Address 2";
+        ICInboxPurchHeader."Ship-to City" := ICOutboxSalesHeader."Ship-to City";
+        ICInboxPurchHeader."Ship-to Post Code" := ICOutboxSalesHeader."Ship-to Post Code";
+        ICInboxPurchHeader."Ship-to County" := ICOutboxSalesHeader."Ship-to County";
+        ICInboxPurchHeader."Ship-to Country/Region Code" := ICOutboxSalesHeader."Ship-to Country/Region Code";
+        ICInboxPurchHeader."Posting Date" := ICOutboxSalesHeader."Posting Date";
+        ICInboxPurchHeader."Due Date" := ICOutboxSalesHeader."Due Date";
+        ICInboxPurchHeader."Payment Discount %" := ICOutboxSalesHeader."Payment Discount %";
+        ICInboxPurchHeader."Pmt. Discount Date" := ICOutboxSalesHeader."Pmt. Discount Date";
+        ICInboxPurchHeader."Currency Code" := ICOutboxSalesHeader."Currency Code";
+        ICInboxPurchHeader."Document Date" := ICOutboxSalesHeader."Document Date";
+        ICInboxPurchHeader."Buy-from Vendor No." := TempPartnerICPartner."Vendor No.";
+        ICInboxPurchHeader."Pay-to Vendor No." := TempPartnerICPartner."Vendor No.";
+        ICInboxPurchHeader."Vendor Invoice No." := ICOutboxSalesHeader."No.";
+        ICInboxPurchHeader."Vendor Order No." := ICOutboxSalesHeader."Order No.";
+        ICInboxPurchHeader."Vendor Cr. Memo No." := ICOutboxSalesHeader."No.";
+        ICInboxPurchHeader."Your Reference" := ICOutboxSalesHeader."External Document No.";
+        ICInboxPurchHeader."Sell-to Customer No." := ICOutboxSalesHeader."Sell-to Customer No.";
+        ICInboxPurchHeader."Expected Receipt Date" := ICOutboxSalesHeader."Requested Delivery Date";
+        ICInboxPurchHeader."Requested Receipt Date" := ICOutboxSalesHeader."Requested Delivery Date";
+        ICInboxPurchHeader."Promised Receipt Date" := ICOutboxSalesHeader."Promised Delivery Date";
+        ICInboxPurchHeader."Prices Including VAT" := ICOutboxSalesHeader."Prices Including VAT";
+        OnBeforeICInboxPurchHeaderInsert(ICInboxPurchHeader, ICOutboxSalesHeader);
+        ICInboxPurchHeader.Insert();
+        OnAfterICInboxPurchHeaderInsert(ICInboxPurchHeader, ICOutboxSalesHeader);
     end;
 
     procedure OutboxSalesLineToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxSalesLine: Record "IC Outbox Sales Line"; var ICInboxPurchLine: Record "IC Inbox Purchase Line")
@@ -2409,38 +2376,36 @@ codeunit 427 ICInboxOutboxMgt
         FeatureTelemetry.LogUptake('0000IJO', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKF', ICMapping.GetFeatureTelemetryName(), 'Outbox Sales Line to Inbox');
 
-        with ICInboxPurchLine do begin
-            "IC Transaction No." := ICInboxTrans."Transaction No.";
-            "IC Partner Code" := ICInboxTrans."IC Partner Code";
-            "Transaction Source" := ICInboxTrans."Transaction Source";
-            "Line No." := ICOutboxSalesLine."Line No.";
-            "Document Type" := ICOutboxSalesLine."Document Type";
-            "Document No." := ICOutboxSalesLine."Document No.";
-            "IC Partner Ref. Type" := ICOutboxSalesLine."IC Partner Ref. Type";
-            "IC Partner Reference" := ICOutboxSalesLine."IC Partner Reference";
-            "IC Item Reference No." := ICOutboxSalesLine."IC Item Reference No.";
-            Description := ICOutboxSalesLine.Description;
-            "Description 2" := ICOutboxSalesLine."Description 2";
-            Quantity := ICOutboxSalesLine.Quantity;
-            "Direct Unit Cost" := ICOutboxSalesLine."Unit Price";
-            "Line Discount Amount" := ICOutboxSalesLine."Line Discount Amount";
-            "Amount Including VAT" := ICOutboxSalesLine."Amount Including VAT";
-            "Job No." := ICOutboxSalesLine."Job No.";
-            "VAT Base Amount" := ICOutboxSalesLine."VAT Base Amount";
-            "Unit Cost" := ICOutboxSalesLine."Unit Price";
-            "Line Amount" := ICOutboxSalesLine."Line Amount";
-            "Line Discount %" := ICOutboxSalesLine."Line Discount %";
-            "Unit of Measure Code" := ICOutboxSalesLine."Unit of Measure Code";
-            "Requested Receipt Date" := ICOutboxSalesLine."Requested Delivery Date";
-            "Promised Receipt Date" := ICOutboxSalesLine."Promised Delivery Date";
-            "Receipt No." := ICOutboxSalesLine."Shipment No.";
-            "Receipt Line No." := ICOutboxSalesLine."Shipment Line No.";
-            "Return Shipment No." := ICOutboxSalesLine."Return Receipt No.";
-            "Return Shipment Line No." := ICOutboxSalesLine."Return Receipt Line No.";
-            OnBeforeICInboxPurchLineInsert(ICInboxPurchLine, ICOutboxSalesLine);
-            Insert();
-            OnAfterICInboxPurchLineInsert(ICInboxPurchLine, ICOutboxSalesLine);
-        end;
+        ICInboxPurchLine."IC Transaction No." := ICInboxTrans."Transaction No.";
+        ICInboxPurchLine."IC Partner Code" := ICInboxTrans."IC Partner Code";
+        ICInboxPurchLine."Transaction Source" := ICInboxTrans."Transaction Source";
+        ICInboxPurchLine."Line No." := ICOutboxSalesLine."Line No.";
+        ICInboxPurchLine."Document Type" := ICOutboxSalesLine."Document Type";
+        ICInboxPurchLine."Document No." := ICOutboxSalesLine."Document No.";
+        ICInboxPurchLine."IC Partner Ref. Type" := ICOutboxSalesLine."IC Partner Ref. Type";
+        ICInboxPurchLine."IC Partner Reference" := ICOutboxSalesLine."IC Partner Reference";
+        ICInboxPurchLine."IC Item Reference No." := ICOutboxSalesLine."IC Item Reference No.";
+        ICInboxPurchLine.Description := ICOutboxSalesLine.Description;
+        ICInboxPurchLine."Description 2" := ICOutboxSalesLine."Description 2";
+        ICInboxPurchLine.Quantity := ICOutboxSalesLine.Quantity;
+        ICInboxPurchLine."Direct Unit Cost" := ICOutboxSalesLine."Unit Price";
+        ICInboxPurchLine."Line Discount Amount" := ICOutboxSalesLine."Line Discount Amount";
+        ICInboxPurchLine."Amount Including VAT" := ICOutboxSalesLine."Amount Including VAT";
+        ICInboxPurchLine."Job No." := ICOutboxSalesLine."Job No.";
+        ICInboxPurchLine."VAT Base Amount" := ICOutboxSalesLine."VAT Base Amount";
+        ICInboxPurchLine."Unit Cost" := ICOutboxSalesLine."Unit Price";
+        ICInboxPurchLine."Line Amount" := ICOutboxSalesLine."Line Amount";
+        ICInboxPurchLine."Line Discount %" := ICOutboxSalesLine."Line Discount %";
+        ICInboxPurchLine."Unit of Measure Code" := ICOutboxSalesLine."Unit of Measure Code";
+        ICInboxPurchLine."Requested Receipt Date" := ICOutboxSalesLine."Requested Delivery Date";
+        ICInboxPurchLine."Promised Receipt Date" := ICOutboxSalesLine."Promised Delivery Date";
+        ICInboxPurchLine."Receipt No." := ICOutboxSalesLine."Shipment No.";
+        ICInboxPurchLine."Receipt Line No." := ICOutboxSalesLine."Shipment Line No.";
+        ICInboxPurchLine."Return Shipment No." := ICOutboxSalesLine."Return Receipt No.";
+        ICInboxPurchLine."Return Shipment Line No." := ICOutboxSalesLine."Return Receipt Line No.";
+        OnBeforeICInboxPurchLineInsert(ICInboxPurchLine, ICOutboxSalesLine);
+        ICInboxPurchLine.Insert();
+        OnAfterICInboxPurchLineInsert(ICInboxPurchLine, ICOutboxSalesLine);
     end;
 
     procedure OutboxICCommentLineToInbox(var ICInboxTransaction: Record "IC Inbox Transaction" temporary; OutgoingICCommentLine: Record "IC Comment Line"; var NewICCommentLine: Record "IC Comment Line" temporary)
@@ -2482,34 +2447,32 @@ codeunit 427 ICInboxOutboxMgt
         if TempPartnerICPartner."Customer No." = '' then
             Error(Text001, TempPartnerICPartner.TableCaption(), TempPartnerICPartner.Code, Customer.TableCaption(), ICOutboxPurchHeader."IC Partner Code");
 
-        with ICInboxSalesHeader do begin
-            "IC Transaction No." := ICInboxTrans."Transaction No.";
-            "IC Partner Code" := ICInboxTrans."IC Partner Code";
-            "Transaction Source" := ICInboxTrans."Transaction Source";
-            "Document Type" := ICOutboxPurchHeader."Document Type";
-            "No." := ICOutboxPurchHeader."No.";
-            "Ship-to Name" := ICOutboxPurchHeader."Ship-to Name";
-            "Ship-to Address" := ICOutboxPurchHeader."Ship-to Address";
-            "Ship-to Address 2" := ICOutboxPurchHeader."Ship-to Address 2";
-            "Ship-to City" := ICOutboxPurchHeader."Ship-to City";
-            "Ship-to Post Code" := ICOutboxPurchHeader."Ship-to Post Code";
-            "Ship-to County" := ICOutboxPurchHeader."Ship-to County";
-            "Ship-to Country/Region Code" := ICOutboxPurchHeader."Ship-to Country/Region Code";
-            "Posting Date" := ICOutboxPurchHeader."Posting Date";
-            "Due Date" := ICOutboxPurchHeader."Due Date";
-            "Payment Discount %" := ICOutboxPurchHeader."Payment Discount %";
-            "Pmt. Discount Date" := ICOutboxPurchHeader."Pmt. Discount Date";
-            "Currency Code" := ICOutboxPurchHeader."Currency Code";
-            "Document Date" := ICOutboxPurchHeader."Document Date";
-            "Sell-to Customer No." := TempPartnerICPartner."Customer No.";
-            "Bill-to Customer No." := TempPartnerICPartner."Customer No.";
-            "Prices Including VAT" := ICOutboxPurchHeader."Prices Including VAT";
-            "Requested Delivery Date" := ICOutboxPurchHeader."Requested Receipt Date";
-            "Promised Delivery Date" := ICOutboxPurchHeader."Promised Receipt Date";
-            OnBeforeICInboxSalesHeaderInsert(ICInboxSalesHeader, ICOutboxPurchHeader);
-            Insert();
-            OnAfterICInboxSalesHeaderInsert(ICInboxSalesHeader, ICOutboxPurchHeader);
-        end;
+        ICInboxSalesHeader."IC Transaction No." := ICInboxTrans."Transaction No.";
+        ICInboxSalesHeader."IC Partner Code" := ICInboxTrans."IC Partner Code";
+        ICInboxSalesHeader."Transaction Source" := ICInboxTrans."Transaction Source";
+        ICInboxSalesHeader."Document Type" := ICOutboxPurchHeader."Document Type";
+        ICInboxSalesHeader."No." := ICOutboxPurchHeader."No.";
+        ICInboxSalesHeader."Ship-to Name" := ICOutboxPurchHeader."Ship-to Name";
+        ICInboxSalesHeader."Ship-to Address" := ICOutboxPurchHeader."Ship-to Address";
+        ICInboxSalesHeader."Ship-to Address 2" := ICOutboxPurchHeader."Ship-to Address 2";
+        ICInboxSalesHeader."Ship-to City" := ICOutboxPurchHeader."Ship-to City";
+        ICInboxSalesHeader."Ship-to Post Code" := ICOutboxPurchHeader."Ship-to Post Code";
+        ICInboxSalesHeader."Ship-to County" := ICOutboxPurchHeader."Ship-to County";
+        ICInboxSalesHeader."Ship-to Country/Region Code" := ICOutboxPurchHeader."Ship-to Country/Region Code";
+        ICInboxSalesHeader."Posting Date" := ICOutboxPurchHeader."Posting Date";
+        ICInboxSalesHeader."Due Date" := ICOutboxPurchHeader."Due Date";
+        ICInboxSalesHeader."Payment Discount %" := ICOutboxPurchHeader."Payment Discount %";
+        ICInboxSalesHeader."Pmt. Discount Date" := ICOutboxPurchHeader."Pmt. Discount Date";
+        ICInboxSalesHeader."Currency Code" := ICOutboxPurchHeader."Currency Code";
+        ICInboxSalesHeader."Document Date" := ICOutboxPurchHeader."Document Date";
+        ICInboxSalesHeader."Sell-to Customer No." := TempPartnerICPartner."Customer No.";
+        ICInboxSalesHeader."Bill-to Customer No." := TempPartnerICPartner."Customer No.";
+        ICInboxSalesHeader."Prices Including VAT" := ICOutboxPurchHeader."Prices Including VAT";
+        ICInboxSalesHeader."Requested Delivery Date" := ICOutboxPurchHeader."Requested Receipt Date";
+        ICInboxSalesHeader."Promised Delivery Date" := ICOutboxPurchHeader."Promised Receipt Date";
+        OnBeforeICInboxSalesHeaderInsert(ICInboxSalesHeader, ICOutboxPurchHeader);
+        ICInboxSalesHeader.Insert();
+        OnAfterICInboxSalesHeaderInsert(ICInboxSalesHeader, ICOutboxPurchHeader);
     end;
 
     procedure OutboxPurchLineToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchLine: Record "IC Outbox Purchase Line"; var ICInboxSalesLine: Record "IC Inbox Sales Line")
@@ -2520,36 +2483,34 @@ codeunit 427 ICInboxOutboxMgt
         FeatureTelemetry.LogUptake('0000IJQ', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKH', ICMapping.GetFeatureTelemetryName(), 'Outbox Purchase Line to Inbox');
 
-        with ICInboxSalesLine do begin
-            "IC Transaction No." := ICInboxTrans."Transaction No.";
-            "IC Partner Code" := ICInboxTrans."IC Partner Code";
-            "Transaction Source" := ICInboxTrans."Transaction Source";
-            "Line No." := ICOutboxPurchLine."Line No.";
-            "Document Type" := ICOutboxPurchLine."Document Type";
-            "Document No." := ICOutboxPurchLine."Document No.";
-            if ICOutboxPurchLine."IC Partner Ref. Type" = ICOutboxPurchLine."IC Partner Ref. Type"::"Vendor Item No." then
-                "IC Partner Ref. Type" := "IC Partner Ref. Type"::Item
-            else
-                "IC Partner Ref. Type" := ICOutboxPurchLine."IC Partner Ref. Type";
-            "IC Partner Reference" := ICOutboxPurchLine."IC Partner Reference";
-            "IC Item Reference No." := ICOutboxPurchLine."IC Item Reference No.";
-            Description := ICOutboxPurchLine.Description;
-            "Description 2" := ICOutboxPurchLine."Description 2";
-            Quantity := ICOutboxPurchLine.Quantity;
-            "Line Discount Amount" := ICOutboxPurchLine."Line Discount Amount";
-            "Amount Including VAT" := ICOutboxPurchLine."Amount Including VAT";
-            "Job No." := ICOutboxPurchLine."Job No.";
-            "VAT Base Amount" := ICOutboxPurchLine."VAT Base Amount";
-            "Unit Price" := ICOutboxPurchLine."Direct Unit Cost";
-            "Line Amount" := ICOutboxPurchLine."Line Amount";
-            "Line Discount %" := ICOutboxPurchLine."Line Discount %";
-            "Unit of Measure Code" := ICOutboxPurchLine."Unit of Measure Code";
-            "Requested Delivery Date" := ICOutboxPurchLine."Requested Receipt Date";
-            "Promised Delivery Date" := ICOutboxPurchLine."Promised Receipt Date";
-            OnBeforeICInboxSalesLineInsert(ICInboxSalesLine, ICOutboxPurchLine);
-            Insert();
-            OnAfterICInboxSalesLineInsert(ICInboxSalesLine, ICOutboxPurchLine);
-        end;
+        ICInboxSalesLine."IC Transaction No." := ICInboxTrans."Transaction No.";
+        ICInboxSalesLine."IC Partner Code" := ICInboxTrans."IC Partner Code";
+        ICInboxSalesLine."Transaction Source" := ICInboxTrans."Transaction Source";
+        ICInboxSalesLine."Line No." := ICOutboxPurchLine."Line No.";
+        ICInboxSalesLine."Document Type" := ICOutboxPurchLine."Document Type";
+        ICInboxSalesLine."Document No." := ICOutboxPurchLine."Document No.";
+        if ICOutboxPurchLine."IC Partner Ref. Type" = ICOutboxPurchLine."IC Partner Ref. Type"::"Vendor Item No." then
+            ICInboxSalesLine."IC Partner Ref. Type" := ICInboxSalesLine."IC Partner Ref. Type"::Item
+        else
+            ICInboxSalesLine."IC Partner Ref. Type" := ICOutboxPurchLine."IC Partner Ref. Type";
+        ICInboxSalesLine."IC Partner Reference" := ICOutboxPurchLine."IC Partner Reference";
+        ICInboxSalesLine."IC Item Reference No." := ICOutboxPurchLine."IC Item Reference No.";
+        ICInboxSalesLine.Description := ICOutboxPurchLine.Description;
+        ICInboxSalesLine."Description 2" := ICOutboxPurchLine."Description 2";
+        ICInboxSalesLine.Quantity := ICOutboxPurchLine.Quantity;
+        ICInboxSalesLine."Line Discount Amount" := ICOutboxPurchLine."Line Discount Amount";
+        ICInboxSalesLine."Amount Including VAT" := ICOutboxPurchLine."Amount Including VAT";
+        ICInboxSalesLine."Job No." := ICOutboxPurchLine."Job No.";
+        ICInboxSalesLine."VAT Base Amount" := ICOutboxPurchLine."VAT Base Amount";
+        ICInboxSalesLine."Unit Price" := ICOutboxPurchLine."Direct Unit Cost";
+        ICInboxSalesLine."Line Amount" := ICOutboxPurchLine."Line Amount";
+        ICInboxSalesLine."Line Discount %" := ICOutboxPurchLine."Line Discount %";
+        ICInboxSalesLine."Unit of Measure Code" := ICOutboxPurchLine."Unit of Measure Code";
+        ICInboxSalesLine."Requested Delivery Date" := ICOutboxPurchLine."Requested Receipt Date";
+        ICInboxSalesLine."Promised Delivery Date" := ICOutboxPurchLine."Promised Receipt Date";
+        OnBeforeICInboxSalesLineInsert(ICInboxSalesLine, ICOutboxPurchLine);
+        ICInboxSalesLine.Insert();
+        OnAfterICInboxSalesLineInsert(ICInboxSalesLine, ICOutboxPurchLine);
     end;
 
     procedure OutboxJnlLineDimToInbox(var ICInboxJnlLine: Record "IC Inbox Jnl. Line"; var ICOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim."; var ICInboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim."; ICInboxTableID: Integer)
@@ -2793,27 +2754,25 @@ codeunit 427 ICInboxOutboxMgt
         if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLineSource."Receipt No.") then
             exit(false);
 
-        with PurchRcptLine do begin
-            SetCurrentKey("Qty. Rcd. Not Invoiced");
-            SetRange("Order No.", PurchaseHeader."No.");
-            SetRange("Order Line No.", PurchaseLineSource."Receipt Line No.");
-            SetRange(Type, PurchaseLineSource.Type);
-            SetRange("No.", PurchaseLineSource."No.");
-            SetFilter("Qty. Rcd. Not Invoiced", '<>%1', 0);
-            if FindSet() then
-                repeat
-                    PurchaseLine.SetCurrentKey("Document Type", "Receipt No.");
-                    PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
-                    PurchaseLine.SetRange("Receipt No.", "Document No.");
-                    PurchaseLine.SetRange("Receipt Line No.", "Line No.");
-                    PurchaseLine.SetRange(Type, PurchaseLineSource.Type);
-                    PurchaseLine.SetRange("No.", PurchaseLineSource."No.");
-                    PurchaseLine.CalcSums(Quantity);
-                    if Abs("Qty. Rcd. Not Invoiced" - PurchaseLine.Quantity) >= Abs(PurchaseLineSource.Quantity) then
-                        exit(true);
-                until Next() = 0;
-            exit(false);
-        end;
+        PurchRcptLine.SetCurrentKey("Qty. Rcd. Not Invoiced");
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLineSource."Receipt Line No.");
+        PurchRcptLine.SetRange(Type, PurchaseLineSource.Type);
+        PurchRcptLine.SetRange("No.", PurchaseLineSource."No.");
+        PurchRcptLine.SetFilter("Qty. Rcd. Not Invoiced", '<>%1', 0);
+        if PurchRcptLine.FindSet() then
+            repeat
+                PurchaseLine.SetCurrentKey("Document Type", "Receipt No.");
+                PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
+                PurchaseLine.SetRange("Receipt No.", PurchRcptLine."Document No.");
+                PurchaseLine.SetRange("Receipt Line No.", PurchRcptLine."Line No.");
+                PurchaseLine.SetRange(Type, PurchaseLineSource.Type);
+                PurchaseLine.SetRange("No.", PurchaseLineSource."No.");
+                PurchaseLine.CalcSums(Quantity);
+                if Abs(PurchRcptLine."Qty. Rcd. Not Invoiced" - PurchaseLine.Quantity) >= Abs(PurchaseLineSource.Quantity) then
+                    exit(true);
+            until PurchRcptLine.Next() = 0;
+        exit(false);
     end;
 
     procedure FindShipmentLine(var ReturnShptLine: Record "Return Shipment Line"; PurchaseLineSource: Record "Purchase Line"): Boolean
@@ -2824,56 +2783,50 @@ codeunit 427 ICInboxOutboxMgt
         if not PurchaseHeader.Get(PurchaseHeader."Document Type"::"Return Order", PurchaseLineSource."Return Shipment No.") then
             exit(false);
 
-        with ReturnShptLine do begin
-            SetCurrentKey("Return Qty. Shipped Not Invd.");
-            SetRange("Return Order No.", PurchaseHeader."No.");
-            SetRange("Return Order Line No.", PurchaseLineSource."Return Shipment Line No.");
-            SetRange(Type, PurchaseLineSource.Type);
-            SetRange("No.", PurchaseLineSource."No.");
-            SetFilter("Return Qty. Shipped Not Invd.", '<>%1', 0);
-            if FindSet() then
-                repeat
-                    PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
-                    PurchaseLine.SetRange("Return Shipment No.", "Document No.");
-                    PurchaseLine.SetRange("Return Shipment Line No.", "Line No.");
-                    PurchaseLine.SetRange(Type, PurchaseLineSource.Type);
-                    PurchaseLine.SetRange("No.", PurchaseLineSource."No.");
-                    PurchaseLine.CalcSums(Quantity);
-                    if Abs("Return Qty. Shipped Not Invd." - PurchaseLine.Quantity) >= Abs(PurchaseLineSource.Quantity) then
-                        exit(true);
-                until Next() = 0;
-            exit(false);
-        end;
+        ReturnShptLine.SetCurrentKey("Return Qty. Shipped Not Invd.");
+        ReturnShptLine.SetRange("Return Order No.", PurchaseHeader."No.");
+        ReturnShptLine.SetRange("Return Order Line No.", PurchaseLineSource."Return Shipment Line No.");
+        ReturnShptLine.SetRange(Type, PurchaseLineSource.Type);
+        ReturnShptLine.SetRange("No.", PurchaseLineSource."No.");
+        ReturnShptLine.SetFilter("Return Qty. Shipped Not Invd.", '<>%1', 0);
+        if ReturnShptLine.FindSet() then
+            repeat
+                PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
+                PurchaseLine.SetRange("Return Shipment No.", ReturnShptLine."Document No.");
+                PurchaseLine.SetRange("Return Shipment Line No.", ReturnShptLine."Line No.");
+                PurchaseLine.SetRange(Type, PurchaseLineSource.Type);
+                PurchaseLine.SetRange("No.", PurchaseLineSource."No.");
+                PurchaseLine.CalcSums(Quantity);
+                if Abs(ReturnShptLine."Return Qty. Shipped Not Invd." - PurchaseLine.Quantity) >= Abs(PurchaseLineSource.Quantity) then
+                    exit(true);
+            until ReturnShptLine.Next() = 0;
+        exit(false);
     end;
 
     local procedure FindRoundingSalesInvLine(DocumentNo: Code[20]): Integer
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        with SalesInvoiceLine do begin
-            SetRange("Document No.", DocumentNo);
-            if FindLast() then
-                if Type = Type::"G/L Account" then
-                    if "No." <> '' then
-                        if "No." = GetCustInvRndgAccNo("Bill-to Customer No.") then
-                            exit("Line No.");
-            exit(0);
-        end;
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        if SalesInvoiceLine.FindLast() then
+            if SalesInvoiceLine.Type = SalesInvoiceLine.Type::"G/L Account" then
+                if SalesInvoiceLine."No." <> '' then
+                    if SalesInvoiceLine."No." = GetCustInvRndgAccNo(SalesInvoiceLine."Bill-to Customer No.") then
+                        exit(SalesInvoiceLine."Line No.");
+        exit(0);
     end;
 
     local procedure FindRoundingSalesCrMemoLine(DocumentNo: Code[20]): Integer
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesCrMemoLine do begin
-            SetRange("Document No.", DocumentNo);
-            if FindLast() then
-                if Type = Type::"G/L Account" then
-                    if "No." <> '' then
-                        if "No." = GetCustInvRndgAccNo("Bill-to Customer No.") then
-                            exit("Line No.");
-            exit(0);
-        end;
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        if SalesCrMemoLine.FindLast() then
+            if SalesCrMemoLine.Type = SalesCrMemoLine.Type::"G/L Account" then
+                if SalesCrMemoLine."No." <> '' then
+                    if SalesCrMemoLine."No." = GetCustInvRndgAccNo(SalesCrMemoLine."Bill-to Customer No.") then
+                        exit(SalesCrMemoLine."Line No.");
+        exit(0);
     end;
 
     local procedure UpdateSalesLineICPartnerReference(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ICInboxSalesLine: Record "IC Inbox Sales Line")
@@ -2883,45 +2836,44 @@ codeunit 427 ICInboxOutboxMgt
         GLAccount: Record "G/L Account";
         ToDate: Date;
     begin
-        with ICInboxSalesLine do
-            if ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::"G/L Account") and
-               ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::" ") and
-               ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::"Charge (Item)") and
-               ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::"Cross reference")
-            then begin
-                ICPartner.Get(SalesHeader."Sell-to IC Partner Code");
-                case ICPartner."Outbound Sales Item No. Type" of
-                    ICPartner."Outbound Sales Item No. Type"::"Common Item No.":
-                        SalesLine.Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Common Item No.");
-                    ICPartner."Outbound Sales Item No. Type"::"Internal No.":
-                        begin
-                            SalesLine."IC Partner Ref. Type" := "IC Partner Ref. Type"::Item;
-                            SalesLine."IC Partner Reference" := "IC Partner Reference";
+        if (ICInboxSalesLine."IC Partner Ref. Type" <> ICInboxSalesLine."IC Partner Ref. Type"::"G/L Account") and
+               (ICInboxSalesLine."IC Partner Ref. Type" <> ICInboxSalesLine."IC Partner Ref. Type"::" ") and
+               (ICInboxSalesLine."IC Partner Ref. Type" <> ICInboxSalesLine."IC Partner Ref. Type"::"Charge (Item)") and
+               (ICInboxSalesLine."IC Partner Ref. Type" <> ICInboxSalesLine."IC Partner Ref. Type"::"Cross reference")
+        then begin
+            ICPartner.Get(SalesHeader."Sell-to IC Partner Code");
+            case ICPartner."Outbound Sales Item No. Type" of
+                ICPartner."Outbound Sales Item No. Type"::"Common Item No.":
+                    SalesLine.Validate("IC Partner Ref. Type", ICInboxSalesLine."IC Partner Ref. Type"::"Common Item No.");
+                ICPartner."Outbound Sales Item No. Type"::"Internal No.":
+                    begin
+                        SalesLine."IC Partner Ref. Type" := ICInboxSalesLine."IC Partner Ref. Type"::Item;
+                        SalesLine."IC Partner Reference" := ICInboxSalesLine."IC Partner Reference";
+                    end;
+                ICPartner."Outbound Sales Item No. Type"::"Cross Reference":
+                    begin
+                        SalesLine.Validate("IC Partner Ref. Type", ICInboxSalesLine."IC Partner Ref. Type"::"Cross reference");
+                        ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
+                        ItemReference.SetRange("Reference Type No.", SalesHeader."Sell-to Customer No.");
+                        ItemReference.SetRange("Item No.", ICInboxSalesLine."IC Item Reference No.");
+                        ToDate := SalesLine.GetDateForCalculations();
+                        if ToDate <> 0D then begin
+                            ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+                            ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
                         end;
-                    ICPartner."Outbound Sales Item No. Type"::"Cross Reference":
-                        begin
-                            SalesLine.Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross reference");
-                            ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
-                            ItemReference.SetRange("Reference Type No.", SalesHeader."Sell-to Customer No.");
-                            ItemReference.SetRange("Item No.", "IC Item Reference No.");
-                            ToDate := SalesLine.GetDateForCalculations();
-                            if ToDate <> 0D then begin
-                                ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
-                                ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
-                            end;
-                            if ItemReference.FindFirst() then
-                                SalesLine."IC Item Reference No." := ItemReference."Reference No.";
-                        end;
-                end;
-            end else begin
-                SalesLine."IC Partner Ref. Type" := "IC Partner Ref. Type";
-                if "IC Partner Ref. Type" <> "IC Partner Ref. Type"::"G/L Account" then begin
-                    SalesLine."IC Partner Reference" := "IC Partner Reference";
-                    SalesLine."IC Item Reference No." := "IC Item Reference No.";
-                end else
-                    if GLAccount.Get(TranslateICGLAccount("IC Partner Reference")) then
-                        SalesLine."IC Partner Reference" := GLAccount."Default IC Partner G/L Acc. No";
+                        if ItemReference.FindFirst() then
+                            SalesLine."IC Item Reference No." := ItemReference."Reference No.";
+                    end;
             end;
+        end else begin
+            SalesLine."IC Partner Ref. Type" := ICInboxSalesLine."IC Partner Ref. Type";
+            if ICInboxSalesLine."IC Partner Ref. Type" <> ICInboxSalesLine."IC Partner Ref. Type"::"G/L Account" then begin
+                SalesLine."IC Partner Reference" := ICInboxSalesLine."IC Partner Reference";
+                SalesLine."IC Item Reference No." := ICInboxSalesLine."IC Item Reference No.";
+            end else
+                if GLAccount.Get(TranslateICGLAccount(ICInboxSalesLine."IC Partner Reference")) then
+                    SalesLine."IC Partner Reference" := GLAccount."Default IC Partner G/L Acc. No";
+        end;
     end;
 
     procedure UpdatePurchLineICPartnerReference(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
@@ -2937,50 +2889,50 @@ codeunit 427 ICInboxOutboxMgt
         if IsHandled then
             exit;
 
-        with ICInboxPurchLine do
-            if ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::"G/L Account") and
-               ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::" ") and
-               ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::"Charge (Item)") and
-               ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::"Cross Reference")
-            then begin
-                ICPartner.Get(PurchaseHeader."Buy-from IC Partner Code");
-                case ICPartner."Outbound Purch. Item No. Type" of
-                    ICPartner."Outbound Purch. Item No. Type"::"Common Item No.":
-                        PurchaseLine.Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Common Item No.");
-                    ICPartner."Outbound Purch. Item No. Type"::"Internal No.":
-                        begin
-                            PurchaseLine."IC Partner Ref. Type" := "IC Partner Ref. Type"::Item;
-                            PurchaseLine."IC Partner Reference" := "IC Partner Reference";
+        if (ICInboxPurchLine."IC Partner Ref. Type" <> ICInboxPurchLine."IC Partner Ref. Type"::"G/L Account") and
+               (ICInboxPurchLine."IC Partner Ref. Type" <> ICInboxPurchLine."IC Partner Ref. Type"::" ") and
+               (ICInboxPurchLine."IC Partner Ref. Type" <> ICInboxPurchLine."IC Partner Ref. Type"::"Charge (Item)") and
+               (ICInboxPurchLine."IC Partner Ref. Type" <> ICInboxPurchLine."IC Partner Ref. Type"::"Cross Reference")
+        then begin
+            ICPartner.Get(PurchaseHeader."Buy-from IC Partner Code");
+            case ICPartner."Outbound Purch. Item No. Type" of
+                ICPartner."Outbound Purch. Item No. Type"::"Common Item No.":
+                    PurchaseLine.Validate("IC Partner Ref. Type", ICInboxPurchLine."IC Partner Ref. Type"::"Common Item No.");
+                ICPartner."Outbound Purch. Item No. Type"::"Internal No.":
+                    begin
+                        PurchaseLine."IC Partner Ref. Type" := ICInboxPurchLine."IC Partner Ref. Type"::Item;
+                        PurchaseLine."IC Partner Reference" := ICInboxPurchLine."IC Partner Reference";
+                    end;
+                ICPartner."Outbound Purch. Item No. Type"::"Cross Reference":
+                    begin
+                        PurchaseLine.Validate("IC Partner Ref. Type", ICInboxPurchLine."IC Partner Ref. Type"::"Cross reference");
+                        ItemReference.SetRange("Reference Type", "Item Reference Type"::Vendor);
+                        ItemReference.SetRange("Reference Type No.", PurchaseHeader."Buy-from Vendor No.");
+                        ItemReference.SetRange("Item No.", ICInboxPurchLine."IC Item Reference No.");
+                        ToDate := PurchaseLine.GetDateForCalculations();
+                        if ToDate <> 0D then begin
+                            ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+                            ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
                         end;
-                    ICPartner."Outbound Purch. Item No. Type"::"Cross Reference":
-                        begin
-                            PurchaseLine.Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross reference");
-                            ItemReference.SetRange("Reference Type", "Item Reference Type"::Vendor);
-                            ItemReference.SetRange("Reference Type No.", PurchaseHeader."Buy-from Vendor No.");
-                            ItemReference.SetRange("Item No.", "IC Item Reference No.");
-                            ToDate := PurchaseLine.GetDateForCalculations();
-                            if ToDate <> 0D then begin
-                                ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
-                                ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
-                            end;
-                            if ItemReference.FindFirst() then
-                                PurchaseLine."IC Item Reference No." := ItemReference."Reference No.";
-                        end;
-                    ICPartner."Outbound Purch. Item No. Type"::"Vendor Item No.":
-                        begin
-                            PurchaseLine."IC Partner Ref. Type" := "IC Partner Ref. Type"::"Vendor Item No.";
-                            PurchaseLine."IC Item Reference No." := PurchaseLine."Vendor Item No."; // TODO
-                        end;
-                end;
-            end else begin
-                PurchaseLine."IC Partner Ref. Type" := "IC Partner Ref. Type";
-                if "IC Partner Ref. Type" <> "IC Partner Ref. Type"::"G/L Account" then begin
-                    PurchaseLine."IC Partner Reference" := "IC Partner Reference";
-                    PurchaseLine."IC Item Reference No." := "IC Item Reference No.";
-                end else
-                    if GLAccount.Get(TranslateICGLAccount("IC Partner Reference")) then
-                        PurchaseLine."IC Partner Reference" := GLAccount."Default IC Partner G/L Acc. No";
+                        if ItemReference.FindFirst() then
+                            PurchaseLine."IC Item Reference No." := ItemReference."Reference No.";
+                    end;
+                ICPartner."Outbound Purch. Item No. Type"::"Vendor Item No.":
+                    begin
+                        PurchaseLine."IC Partner Ref. Type" := ICInboxPurchLine."IC Partner Ref. Type"::"Vendor Item No.";
+                        PurchaseLine."IC Item Reference No." := PurchaseLine."Vendor Item No.";
+                        // TODO
+                    end;
             end;
+        end else begin
+            PurchaseLine."IC Partner Ref. Type" := ICInboxPurchLine."IC Partner Ref. Type";
+            if ICInboxPurchLine."IC Partner Ref. Type" <> ICInboxPurchLine."IC Partner Ref. Type"::"G/L Account" then begin
+                PurchaseLine."IC Partner Reference" := ICInboxPurchLine."IC Partner Reference";
+                PurchaseLine."IC Item Reference No." := ICInboxPurchLine."IC Item Reference No.";
+            end else
+                if GLAccount.Get(TranslateICGLAccount(ICInboxPurchLine."IC Partner Reference")) then
+                    PurchaseLine."IC Partner Reference" := GLAccount."Default IC Partner G/L Acc. No";
+        end;
     end;
 
     procedure UpdatePurchLineReceiptShipment(var PurchaseLine: Record "Purchase Line")
@@ -3036,25 +2988,24 @@ codeunit 427 ICInboxOutboxMgt
         if IsHandled then
             exit;
 
-        with ICOutboxSalesLine do
-            case "Document Type" of
-                "Document Type"::Order,
-              "Document Type"::Invoice:
-                    if "Shipment No." = '' then begin
-                        "Shipment No." := CopyStr(ICOutboxSalesHeader."External Document No.", 1, MaxStrLen("Shipment No."));
-                        "Shipment Line No." := "Line No.";
-                    end else
-                        if SalesShipmentHeader.Get("Shipment No.") then
-                            "Shipment No." := CopyStr(SalesShipmentHeader."External Document No.", 1, MaxStrLen("Shipment No."));
-                "Document Type"::"Credit Memo",
-              "Document Type"::"Return Order":
-                    if "Return Receipt No." = '' then begin
-                        "Return Receipt No." := CopyStr(ICOutboxSalesHeader."External Document No.", 1, MaxStrLen("Return Receipt No."));
-                        "Return Receipt Line No." := "Line No.";
-                    end else
-                        if ReturnReceiptHeader.Get("Return Receipt No.") then
-                            "Return Receipt No." := CopyStr(ReturnReceiptHeader."External Document No.", 1, MaxStrLen("Return Receipt No."));
-            end;
+        case ICOutboxSalesLine."Document Type" of
+            ICOutboxSalesLine."Document Type"::Order,
+              ICOutboxSalesLine."Document Type"::Invoice:
+                if ICOutboxSalesLine."Shipment No." = '' then begin
+                    ICOutboxSalesLine."Shipment No." := CopyStr(ICOutboxSalesHeader."External Document No.", 1, MaxStrLen(ICOutboxSalesLine."Shipment No."));
+                    ICOutboxSalesLine."Shipment Line No." := ICOutboxSalesLine."Line No.";
+                end else
+                    if SalesShipmentHeader.Get(ICOutboxSalesLine."Shipment No.") then
+                        ICOutboxSalesLine."Shipment No." := CopyStr(SalesShipmentHeader."External Document No.", 1, MaxStrLen(ICOutboxSalesLine."Shipment No."));
+            ICOutboxSalesLine."Document Type"::"Credit Memo",
+              ICOutboxSalesLine."Document Type"::"Return Order":
+                if ICOutboxSalesLine."Return Receipt No." = '' then begin
+                    ICOutboxSalesLine."Return Receipt No." := CopyStr(ICOutboxSalesHeader."External Document No.", 1, MaxStrLen(ICOutboxSalesLine."Return Receipt No."));
+                    ICOutboxSalesLine."Return Receipt Line No." := ICOutboxSalesLine."Line No.";
+                end else
+                    if ReturnReceiptHeader.Get(ICOutboxSalesLine."Return Receipt No.") then
+                        ICOutboxSalesLine."Return Receipt No." := CopyStr(ReturnReceiptHeader."External Document No.", 1, MaxStrLen(ICOutboxSalesLine."Return Receipt No."));
+        end;
     end;
 
     local procedure AssignCurrencyCodeInOutBoxDoc(var CurrencyCode: Code[10]; ICPartnerCode: Code[20])

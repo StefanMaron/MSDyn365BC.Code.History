@@ -10,6 +10,7 @@ using Microsoft.Bank.Check;
 table 10811 "EFT Export Workset"
 {
     Caption = 'EFT Export Workset';
+    DataClassification = CustomerContent;
 
     fields
     {

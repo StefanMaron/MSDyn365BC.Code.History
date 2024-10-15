@@ -52,10 +52,10 @@ codeunit 134232 "ERM Prepare Journal"
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [WHEN] Run Prepare Journal > G/L Accounts Opening balance
-        LibraryLowerPermissions.SetJournalsEdit;
-        GeneralJournal.OpenEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."G/L Accounts Opening balance ".Invoke;
+        GeneralJournal."G/L Accounts Opening balance ".Invoke();
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and generates General Journal Line
         GenJournalLine.SetFilter("Account No.", GLAccount."No.");
@@ -86,14 +86,14 @@ codeunit 134232 "ERM Prepare Journal"
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [WHEN] Run Prepare Journal > G/L Accounts Opening balance
-        LibraryLowerPermissions.SetJournalsEdit;
-        GeneralJournal.OpenEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."G/L Accounts Opening balance ".Invoke;
+        GeneralJournal."G/L Accounts Opening balance ".Invoke();
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and General Journal Line is not generated
         GenJournalLine.SetFilter("Account No.", GLAccount."No.");
-        Assert.IsFalse(GenJournalLine.FindFirst, 'General Journal Line is prepared for Not-Direct Posting G/L Account.');
+        Assert.IsFalse(GenJournalLine.FindFirst(), 'General Journal Line is prepared for Not-Direct Posting G/L Account.');
     end;
 
     [Test]
@@ -114,9 +114,9 @@ codeunit 134232 "ERM Prepare Journal"
 
         // [WHEN] Run Prepare Journal > Prepare Customers Opening Balance
         LibraryLowerPermissions.SetOutsideO365Scope();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Customers Opening balance".Invoke;
+        GeneralJournal."Customers Opening balance".Invoke();
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and generates General Journal Line
         GenJournalLine.SetFilter("Account No.", Customer."No.");
@@ -146,13 +146,13 @@ codeunit 134232 "ERM Prepare Journal"
 
         // [WHEN] Run Prepare Journal > Prepare Customers Opening Balance
         LibraryLowerPermissions.SetOutsideO365Scope();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Customers Opening balance".Invoke;
+        GeneralJournal."Customers Opening balance".Invoke();
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and General Journal Line is not generated
         GenJournalLine.SetFilter("Account No.", Customer."No.");
-        Assert.IsFalse(GenJournalLine.FindFirst, 'General Journal Line is prepared for blocked Customer.');
+        Assert.IsFalse(GenJournalLine.FindFirst(), 'General Journal Line is prepared for blocked Customer.');
     end;
 
     [Test]
@@ -173,9 +173,9 @@ codeunit 134232 "ERM Prepare Journal"
 
         // [WHEN] Run Prepare Journal > Prepare Vendor Opening Balance
         LibraryLowerPermissions.SetOutsideO365Scope();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Vendors Opening balance".Invoke;
+        GeneralJournal."Vendors Opening balance".Invoke();
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and generates General Journal Line
         GenJournalLine.SetFilter("Account No.", Vendor."No.");
@@ -205,13 +205,13 @@ codeunit 134232 "ERM Prepare Journal"
 
         // [WHEN] Run Prepare Journal > Prepare Vendor Opening Balance
         LibraryLowerPermissions.SetOutsideO365Scope();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Vendors Opening balance".Invoke;
+        GeneralJournal."Vendors Opening balance".Invoke();
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and General Journal Line is not generated
         GenJournalLine.SetFilter("Account No.", Vendor."No.");
-        Assert.IsFalse(GenJournalLine.FindFirst, 'General Journal Line is prepared for blocked Vendor.');
+        Assert.IsFalse(GenJournalLine.FindFirst(), 'General Journal Line is prepared for blocked Vendor.');
     end;
 
     [Test]
@@ -235,13 +235,13 @@ codeunit 134232 "ERM Prepare Journal"
 
         // [WHEN] Run Prepare Journal > Prepare Customers Opening Balance
         LibraryLowerPermissions.SetOutsideO365Scope();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Customers Opening balance".Invoke;
+        GeneralJournal."Customers Opening balance".Invoke();
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and General Journal Line is not generated
         GenJournalLine.SetFilter("Account No.", Customer."No.");
-        Assert.IsFalse(GenJournalLine.FindFirst, 'General Journal Line is prepared for PrivacyBlocked Customer.');
+        Assert.IsFalse(GenJournalLine.FindFirst(), 'General Journal Line is prepared for PrivacyBlocked Customer.');
     end;
 
     [Test]
@@ -265,13 +265,13 @@ codeunit 134232 "ERM Prepare Journal"
 
         // [WHEN] Run Prepare Journal > Prepare Vendor Opening Balance
         LibraryLowerPermissions.SetOutsideO365Scope();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Vendors Opening balance".Invoke;
+        GeneralJournal."Vendors Opening balance".Invoke();
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and General Journal Line is not generated
         GenJournalLine.SetFilter("Account No.", Vendor."No.");
-        Assert.IsFalse(GenJournalLine.FindFirst, 'General Journal Line is prepared for PrivacyBlocked Vendor.');
+        Assert.IsFalse(GenJournalLine.FindFirst(), 'General Journal Line is prepared for PrivacyBlocked Vendor.');
     end;
 
     [Test]
@@ -296,7 +296,7 @@ codeunit 134232 "ERM Prepare Journal"
       LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
       LibraryERM.CreateGenJournalBatch(GenJournalBatch,GenJournalTemplate.Name);
       LibraryVariableStorage.Enqueue(GenJournalTemplate.Name);
-      GeneralJournal.OpenEdit;
+      GeneralJournal.OpenEdit();
       GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
       // [GIVEN] Current Posting Date is set to "X".
@@ -304,10 +304,10 @@ codeunit 134232 "ERM Prepare Journal"
       GeneralJournal."<CurrentPostingDate>".SetValue(CurrentPostingDate);
 
       // [WHEN] "G/L Accounts Opening balance " is invoked.
-      GeneralJournal."G/L Accounts Opening balance ".Invoke;
+      GeneralJournal."G/L Accounts Opening balance ".Invoke();
 
       // [THEN] Created General journal line has Posting Date equal to "X".
-      GeneralJournal.First;
+      GeneralJournal.First();
       EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
       Assert.AreEqual(CurrentPostingDate,PostingDate,'');
     end;
@@ -333,14 +333,14 @@ codeunit 134232 "ERM Prepare Journal"
       LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
       LibraryERM.CreateGenJournalBatch(GenJournalBatch,GenJournalTemplate.Name);
       LibraryVariableStorage.Enqueue(GenJournalTemplate.Name);
-      GeneralJournal.OpenEdit;
+      GeneralJournal.OpenEdit();
       GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
       // [WHEN] "G/L Accounts Opening balance " is invoked.
-      GeneralJournal."G/L Accounts Opening balance ".Invoke;
+      GeneralJournal."G/L Accounts Opening balance ".Invoke();
 
       // [THEN] Created General journal line has Posting Date equal to WorkDate().
-      GeneralJournal.First;
+      GeneralJournal.First();
       EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
       Assert.AreEqual(WorkDate(),PostingDate,'');
     end;
@@ -365,7 +365,7 @@ codeunit 134232 "ERM Prepare Journal"
       // [GIVEN] Empty journal opened on General Journal page.
       CreateGeneralJournalBatch(GenJournalBatch);
       LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-      GeneralJournal.OpenEdit;
+      GeneralJournal.OpenEdit();
       GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
       // [GIVEN] Current Posting Date is set to "X".
@@ -373,10 +373,10 @@ codeunit 134232 "ERM Prepare Journal"
       GeneralJournal."<CurrentPostingDate>".SetValue(CurrentPostingDate);
 
       // [WHEN] "Customers Opening balance " is invoked.
-      GeneralJournal."Customers Opening balance".Invoke;
+      GeneralJournal."Customers Opening balance".Invoke();
 
       // [THEN] Created General journal line has Posting Date equal to "X".
-      GeneralJournal.First;
+      GeneralJournal.First();
       EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
       Assert.AreEqual(CurrentPostingDate,PostingDate,'');
     end;
@@ -400,14 +400,14 @@ codeunit 134232 "ERM Prepare Journal"
       // [GIVEN] Empty journal opened on General Journal page.
       CreateGeneralJournalBatch(GenJournalBatch);
       LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-      GeneralJournal.OpenEdit;
+      GeneralJournal.OpenEdit();
       GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
       // [WHEN] "Customers Opening balance " is invoked.
-      GeneralJournal."Customers Opening balance".Invoke;
+      GeneralJournal."Customers Opening balance".Invoke();
 
       // [THEN] Created General journal line has Posting Date equal to WorkDate().
-      GeneralJournal.First;
+      GeneralJournal.First();
       EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
       Assert.AreEqual(WorkDate(),PostingDate,'');
     end;
@@ -432,7 +432,7 @@ codeunit 134232 "ERM Prepare Journal"
       // [GIVEN] Empty journal opened on General Journal page.
       CreateGeneralJournalBatch(GenJournalBatch);
       LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-      GeneralJournal.OpenEdit;
+      GeneralJournal.OpenEdit();
       GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
       // [GIVEN] Current Posting Date is set to "X".
@@ -440,10 +440,10 @@ codeunit 134232 "ERM Prepare Journal"
       GeneralJournal."<CurrentPostingDate>".SetValue(CurrentPostingDate);
 
       // [WHEN] "Vendors Opening balance" is invoked.
-      GeneralJournal."Vendors Opening balance".Invoke;
+      GeneralJournal."Vendors Opening balance".Invoke();
 
       // [THEN] Created General journal line has Posting Date equal to "X".
-      GeneralJournal.First;
+      GeneralJournal.First();
       EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
       Assert.AreEqual(CurrentPostingDate,PostingDate,'');
     end;
@@ -467,14 +467,14 @@ codeunit 134232 "ERM Prepare Journal"
       // [GIVEN] Empty journal opened on General Journal page.
       CreateGeneralJournalBatch(GenJournalBatch);
       LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-      GeneralJournal.OpenEdit;
+      GeneralJournal.OpenEdit();
       GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
       // [WHEN] "Vendors Opening balance" is invoked.
-      GeneralJournal."Vendors Opening balance".Invoke;
+      GeneralJournal."Vendors Opening balance".Invoke();
 
       // [THEN] Created General journal line has Posting Date equal to WorkDate().
-      GeneralJournal.First;
+      GeneralJournal.First();
       EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
       Assert.AreEqual(WorkDate(),PostingDate,'');
     end;
@@ -487,7 +487,7 @@ codeunit 134232 "ERM Prepare Journal"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalBatch.Modify(true);
     end;
 
@@ -502,7 +502,7 @@ codeunit 134232 "ERM Prepare Journal"
     procedure GenJnlTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
       GeneralJournalTemplateList.FILTER.SetFilter(Name,LibraryVariableStorage.DequeueText());
-      GeneralJournalTemplateList.OK.Invoke;
+      GeneralJournalTemplateList.OK().Invoke();
     end;
 }
 

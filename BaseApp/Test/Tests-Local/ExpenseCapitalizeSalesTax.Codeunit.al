@@ -740,7 +740,7 @@
         CreatePurchaseOrder(PurchaseHeader, TaxArea.Code, TaxGroup.Code, true);
 
         // [THEN] Open PurchaseOrder page.
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         Commit();  // Commit required for Run Purchase Order Report.
 
@@ -748,7 +748,7 @@
         LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");
 
         // [THEN]
-        PurchaseOrder."&Print".Invoke;  // Print.
+        PurchaseOrder."&Print".Invoke();  // Print.
 
         // [VERIFY] Verify the TAx Amount on Report xml file.
         VerifyTaxAmount(PurchaseHeader, TaxGroup.Code);
@@ -874,7 +874,7 @@
     local procedure CreateJobPurchaseOrderInForeignCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     begin
         CreateJobPurchaseOrder(
-          PurchaseHeader, PurchaseLine, TaxGroupCode, TaxAreaCode, Quantity, UnitCost, CreateCurrencyWithExchangeRate);
+          PurchaseHeader, PurchaseLine, TaxGroupCode, TaxAreaCode, Quantity, UnitCost, CreateCurrencyWithExchangeRate());
     end;
 
     local procedure CreateJobPurchaseOrderInLocalCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; Quantity: Decimal; UnitCost: Decimal)
@@ -1020,7 +1020,7 @@
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountNo, 1);
+          LibraryERM.CreateGLAccountNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
         SalesLine.Modify(true);
@@ -1134,7 +1134,6 @@
     local procedure VerifyUnitCostOnJobLedgerEntry(var PurchaseLine: Record "Purchase Line"; ExpectedUnitCost: Decimal; ExpectedUnitCostLCY: Decimal)
     var
         JobLedgerEntry: Record "Job Ledger Entry";
-        JobCurrFactor: Decimal;
     begin
         JobLedgerEntry.SetRange("Job No.", PurchaseLine."Job No.");
         JobLedgerEntry.SetRange("Job Task No.", PurchaseLine."Job Task No.");
@@ -1223,14 +1222,14 @@
     [Scope('OnPrem')]
     procedure SalesDocumentTest_RPH(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     begin
-        SalesDocumentTest.Cancel.Invoke;
+        SalesDocumentTest.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseDocumentTest_RPH(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
-        PurchaseDocumentTest.Cancel.Invoke;
+        PurchaseDocumentTest.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1238,12 +1237,10 @@
     procedure PurchOrderRequestPageHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
     var
         BuyfromVendorNo: Variant;
-        LogInteraction: Variant;
-        PrintCompanyAddress: Variant;
     begin
         LibraryVariableStorage.Dequeue(BuyfromVendorNo);
         StandardPurchaseOrder."Purchase Header".SetFilter("Buy-from Vendor No.", BuyfromVendorNo);
-        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

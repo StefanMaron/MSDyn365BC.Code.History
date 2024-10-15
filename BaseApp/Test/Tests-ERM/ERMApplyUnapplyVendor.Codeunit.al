@@ -579,7 +579,7 @@
 
         // Setup: Create and Post Purchase Invoice, Create a Vendor Payment and apply it to posted Invoice.
         Initialize();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         PaymentTolerance := LibraryRandom.RandDec(10, 2);  // Using Random value for Payment Tolerance.
         SetPaymentTolerancePct(PaymentTolerance);
@@ -591,7 +591,7 @@
         Amount := OpenGeneralJournalPage(GenJournalLine."Document No.", GenJournalLine."Document Type");
 
         // Exericse.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Remaining Amount on Vendor Ledger Entry.
@@ -616,7 +616,7 @@
 
         // Setup: Create and Post Purchase Invoice with Currency, Create a Vendor Payment without Currency and apply it to posted Invoice after modifying Payment Amount.
         Initialize();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         PaymentTolerance := LibraryRandom.RandDec(10, 2);  // Using Random value for Payment Tolerance.
         SetPaymentTolerancePct(PaymentTolerance);
@@ -631,7 +631,7 @@
         UpdateGenJournalLine(GenJournalLine, '', PostedDocumentNo, Amount);
 
         // Exericse.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Remaining Amount on Vendor Ledger Entry.
@@ -657,14 +657,14 @@
         SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", CreateCurrency(0));  // Taken 0 value for Rounding Precision.
-        Vendor.Validate("Payment Method Code", FindPaymentMethodWithBalanceAccount);
+        Vendor.Validate("Payment Method Code", FindPaymentMethodWithBalanceAccount());
         Vendor.Modify(true);
 
         // Exercise: Create and post Purchase Order with Random Quantity and Direct Unit Cost.
-        LibraryLowerPermissions.AddAccountPayables;
+        LibraryLowerPermissions.AddAccountPayables();
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine, WorkDate(), Vendor."No.", LibraryInventory.CreateItemNo, PurchaseHeader."Document Type"::Order,
+            PurchaseLine, WorkDate(), Vendor."No.", LibraryInventory.CreateItemNo(), PurchaseHeader."Document Type"::Order,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Verify: Verify GL, Vendor and Detailed Vendor ledger entries.
@@ -683,13 +683,13 @@
         // Setup.
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Method Code", FindPaymentMethodWithBalanceAccount);
+        Vendor.Validate("Payment Method Code", FindPaymentMethodWithBalanceAccount());
         Vendor.Modify(true);
 
         // Exercise: Create and post Sales Order.
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchLine, WorkDate(), Vendor."No.", LibraryInventory.CreateItemNo, PurchHeader."Document Type"::Order,
+            PurchLine, WorkDate(), Vendor."No.", LibraryInventory.CreateItemNo(), PurchHeader."Document Type"::Order,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Verify: Try to modify Payment Method Code in Vendor Ledger Entry.
@@ -757,7 +757,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Unapply Vendor Entries.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         UnapplyVendorLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
 
         // Verify: Verify VAT Amount on G/L Entry.
@@ -786,7 +786,7 @@
         DocumentNo := CreateAndPostPurchDocAndPayment(GenJournalLine, Vendor."No.", PurchaseHeader."Document Type"::Order);
 
         // Exercise: Run Page Vendor Ledger Entries to invoke Apply Vendor Entries.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         RunVendorLedgerEntries(Vendor."No.", DocumentNo);
 
         // Verify: Verify Amount To Apply on Vendor Ledger Entries for Document Type Invoice.
@@ -810,7 +810,7 @@
         CreateAndPostPurchDocAndPayment(GenJournalLine, Vendor."No.", PurchaseHeader."Document Type"::Invoice);
 
         // Exercise: Run Page Vendor Ledger Entries to invoke Apply Vendor Entries.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         RunVendorLedgerEntries(Vendor."No.", GenJournalLine."Document No.");
 
         // Verify: Verify Amount To Apply on Vendor Ledger Entries for Document Type Payment.
@@ -830,7 +830,7 @@
         // Setup: Create and post Gen journal line for two Invoice and two Credit Memo. and Create One Payment Line.
         Initialize();
         CreateGeneralJournalLine(
-          GenJournalLine, 2, CreateVendor, GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine, 2, CreateVendor(), GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandIntInRange(100, 200));
         ModifyGenJournalLine(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateGenJnlLineWithDoctTypeCreditMemo(GenJournalLine);
@@ -840,12 +840,12 @@
         ModifyGenJournalLine(GenJournalLine);
 
         // Exercise: Apply Set Applies To ID and Amount Apply.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         SetAppliesToIDAndAmountToApply(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // Verify: Verification done in ApplyingVendorEntriesPageHandler.
         OpenGenJournalPage(DummyGeneralJournal, GenJournalLine."Document No.", GenJournalLine."Document Type");
-        DummyGeneralJournal."Apply Entries".Invoke;
+        DummyGeneralJournal."Apply Entries".Invoke();
     end;
 
     [Test]
@@ -902,7 +902,7 @@
         CreateGeneralJournalLine(GenJnlLine, 1, '', GenJnlLine."Document Type"::Refund, 0);
 
         // Exercise: Set open Credit Memo No. for "Applies To Doc. No".
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         GenJnlLine.Validate("Applies-to Doc. No.", VendLedgEntry."Document No.");
         GenJnlLine.Modify(true);
 
@@ -937,7 +937,7 @@
         InvoiceAmount := PaymentAmount * LibraryRandom.RandIntInRange(3, 5);
 
         // Exercise
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         CreateAndPostGenJnlLineWithCurrency(
           GenJournalLine, GenJournalBatch, WorkDate(), GenJournalLine."Document Type"::Invoice,
           Vendor."No.", '', -InvoiceAmount);
@@ -990,7 +990,7 @@
           GenJournalLine."Applies-to Doc. Type"::Invoice, DocumentNo);
 
         // [WHEN] Invoice unapplied from payment
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryERM.FindVendorLedgerEntry(
           VendLedgerEntry, VendLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
         VendEntryApplyPostedEntries.UnApplyVendLedgEntry(VendLedgerEntry."Entry No.");
@@ -1056,7 +1056,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Unapply "N" Invoices Ledger Entries
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         for i := 1 to NoOfDocuments do begin
             FindClosedInvLedgerEntry(VendLedgEntry, Vendor."No.");
             VendEntryApplyPostedEntries.UnApplyVendLedgEntry(VendLedgEntry."Entry No.");
@@ -1132,7 +1132,7 @@
         Assert.RecordIsEmpty(GLEntry);
 
         // Tear Down: Return back the old value of "Adjust For Payment Discount".
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -1250,7 +1250,7 @@
     begin
         // [FEATURE] [FCY] [Adjust Exchange Rate]
         // [SCENARIO 304391] "Remaining Amt. (LCY)" should match "Adjusted Currency Factor" after Unapply of the entry being adjusted on the later date.
-        Initialize;
+        Initialize();
         BindSubscription(ERMApplyUnapplyVendor);
 
         // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
@@ -1797,7 +1797,7 @@
                     Validate("Applies-to ID", AppliesToID);
                     Validate("Amount to Apply", -AmountsToApply[i]);
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1809,7 +1809,7 @@
             if FindSet() then
                 repeat
                     Result += Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1869,7 +1869,7 @@
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalBatch.Modify(true);
     end;
 
@@ -2031,7 +2031,7 @@
     begin
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine, WorkDate(), VendorNo, LibraryInventory.CreateItemNo, DocType,
+            PurchaseLine, WorkDate(), VendorNo, LibraryInventory.CreateItemNo(), DocType,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(1000, 2));
         CreateGeneralJournalLine(GenJournalLine, 1, VendorNo, GenJournalLine."Document Type"::Payment,
           LibraryRandom.RandDec(100, 2));
@@ -2110,7 +2110,7 @@
     begin
         // Create Purchase line using Random Quantity and Amount.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateZeroVATPostingGLAccount,
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateZeroVATPostingGLAccount(),
           LibraryRandom.RandDec(10, 2));
         UpdateDirectUnitCostOnPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
         UpdateGeneralPostingSetup(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -2123,7 +2123,7 @@
         LibraryPurchase: Codeunit "Library - Purchase";
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Terms Code", GetPaymentTerms);
+        Vendor.Validate("Payment Terms Code", GetPaymentTerms());
         Vendor.Validate("Application Method", Vendor."Application Method"::Manual);
         Vendor.Modify(true);
         exit(Vendor."No.");
@@ -2258,7 +2258,7 @@
         UpdateGenPostSetupWithPurchPmtDiscAccount(GeneralPostingSetup);
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", VATPct);
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
         Vendor.Get(
@@ -2356,7 +2356,7 @@
             FindSet();
             repeat
                 DiscountAmount += "Original Pmt. Disc. Possible";
-            until Next = 0;
+            until Next() = 0;
             Vendor.Get(VendorNo);
             Vendor.CalcFields("Balance (LCY)");
             exit(Vendor."Balance (LCY)" + DiscountAmount);
@@ -2392,15 +2392,15 @@
     begin
         OpenGenJournalPage(DummyGeneralJournal, DocumentNo, DocumentType);
         LibraryVariableStorage.Enqueue(true); // Invoke set applies to ID action.
-        DummyGeneralJournal."Apply Entries".Invoke;
+        DummyGeneralJournal."Apply Entries".Invoke();
         Amount := LibraryRandom.RandDec(10, 2);  // Used Random value to make difference in General Journal line Amount.
-        DummyGeneralJournal.Amount.SetValue(DummyGeneralJournal.Amount.AsDEcimal - Amount);
-        DummyGeneralJournal.OK.Invoke;
+        DummyGeneralJournal.Amount.SetValue(DummyGeneralJournal.Amount.AsDecimal() - Amount);
+        DummyGeneralJournal.OK().Invoke();
     end;
 
     local procedure OpenGenJournalPage(DummyGeneralJournal: TestPage "General Journal"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        DummyGeneralJournal.OpenEdit;
+        DummyGeneralJournal.OpenEdit();
         DummyGeneralJournal.FILTER.SetFilter("Document No.", DocumentNo);
         DummyGeneralJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
     end;
@@ -2449,7 +2449,7 @@
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", "Remaining Amount");
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2480,7 +2480,7 @@
         Vendor.SetRange("No.", GenJournalLine."Account No.");
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, false, 0, false, WorkDate(), GenJournalLine."Account No.", true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo,
+          WorkDate(), false, 0, false, WorkDate(), GenJournalLine."Account No.", true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo,
           GenJournalLine."Bank Payment Type"::"Manual Check");
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.RunModal();
@@ -2642,7 +2642,7 @@
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Document Type", DocumentType);
         DetailedVendorLedgEntry.SetRange("Source Code", SourceCode);
-        Assert.IsTrue(DetailedVendorLedgEntry.FindFirst, DetailedVendorLedgerErr);
+        Assert.IsTrue(DetailedVendorLedgEntry.FindFirst(), DetailedVendorLedgerErr);
     end;
 
     local procedure VerifyGenJournalEntry(GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal)
@@ -2651,7 +2651,7 @@
     begin
         GenJournalLine2.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine2.SetRange("Account No.", GenJournalLine."Account No.");
-        Assert.IsTrue(GenJournalLine2.FindFirst, GeneralJournalErr);
+        Assert.IsTrue(GenJournalLine2.FindFirst(), GeneralJournalErr);
         Assert.IsTrue(Amount > 0, NegativeAmountErr);
     end;
 
@@ -2674,7 +2674,7 @@
     begin
         FindGLEntries(GLEntry, GenJournalLine."Document No.");
         Assert.AreNearlyEqual(
-          GenJournalLine."VAT Amount", GLEntry."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          GenJournalLine."VAT Amount", GLEntry."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmountErr, GLEntry."VAT Amount"));
     end;
 
@@ -2703,7 +2703,7 @@
                 Assert.AreEqual(DimSetIDs[1], "Dimension Set ID", FieldCaption("Dimension Set ID"));
                 Assert.AreEqual(Amounts[Index], Amount, FieldCaption(Amount));
                 Sum += Amounts[Index];
-                Next;
+                Next();
             end;
             Assert.AreEqual(DimSetIDs[1], "Dimension Set ID", FieldCaption("Dimension Set ID"));
             Assert.AreEqual(-Sum, Amount, FieldCaption(Amount));
@@ -2733,7 +2733,7 @@
             FindSet();
             repeat
                 Assert.AreEqual(ExpectedACY, "Additional-Currency Amount", NonzeroACYErr);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2783,22 +2783,22 @@
         LibraryVariableStorage.Dequeue(SetAppliesToIDValue);
         SetAppliesToID := SetAppliesToIDValue;  // Assign Variant to Boolean.
         if SetAppliesToID then
-            ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+            ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure VendorLedgerEntriesPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     [ModalPageHandler]
@@ -2828,16 +2828,16 @@
 
         with ApplyVendorEntries do begin
             // verify invoice entry
-            ActionSetAppliesToID.Invoke; // apply entry
-            AppliedAmount.AssertEquals(Round(-InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision));
-            ActionSetAppliesToID.Invoke; // unapply
+            ActionSetAppliesToID.Invoke(); // apply entry
+            AppliedAmount.AssertEquals(Round(-InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
+            ActionSetAppliesToID.Invoke(); // unapply
 
             // verify cr. memo entry
-            Next;
-            ActionSetAppliesToID.Invoke; // apply next entry
-            AppliedAmount.AssertEquals(Round(PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision));
+            Next();
+            ActionSetAppliesToID.Invoke(); // apply next entry
+            AppliedAmount.AssertEquals(Round(PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
 
-            OK.Invoke;
+            OK().Invoke();
         end;
     end;
 
@@ -2854,7 +2854,7 @@
         PurchaseLineAmountLCY := Value;
         LibraryVariableStorage.Dequeue(Value);
         JournalLineAmount := Value;
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
 
         Evaluate(PageControlValue, ApplyVendorEntries.ApplnRounding.Value);
         Assert.AreEqual(
@@ -2864,7 +2864,7 @@
         Assert.AreEqual(
           0, PageControlValue, ApplyVendorEntries.ControlBalance.Caption);
 
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]

@@ -327,6 +327,20 @@ page 438 "Issued Reminder"
                     IssuedReminderHeader.PrintRecords(false, true, false);
                 end;
             }
+            action(MarkAsSent)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Mark as Sent';
+                Image = SendConfirmation;
+                ToolTip = 'Mark the reminder as sent.';
+
+                trigger OnAction()
+                var
+                    SendReminder: Codeunit "Send Reminder";
+                begin
+                    SendReminder.UpdateReminderSentFromUI(Rec);
+                end;
+            }
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
@@ -366,6 +380,9 @@ page 438 "Issued Reminder"
                 {
                 }
                 actionref("Send by &Email_Promoted"; "Send by &Email")
+                {
+                }
+                actionref(MarkAsSent_Promoted; MarkAsSent)
                 {
                 }
                 actionref("&Navigate_Promoted"; "&Navigate")

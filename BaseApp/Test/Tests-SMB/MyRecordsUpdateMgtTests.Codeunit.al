@@ -54,7 +54,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize();
         CreateTestCustomer(Customer);
-        CreateMyCustomer(Customer, GetCurrentUserID);
+        CreateMyCustomer(Customer, GetCurrentUserID());
         CreateMyCustomer(Customer, 'Test');
         OldCustomer := Customer;
 
@@ -84,7 +84,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize();
         CreateTestCustomer(Customer);
-        CreateMyCustomer(Customer, GetCurrentUserID);
+        CreateMyCustomer(Customer, GetCurrentUserID());
         CreateMyCustomer(Customer, '');
         OldCustomer := Customer;
 
@@ -118,9 +118,9 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestCustomer(Customer);
         CreateTestCustomer(Customer2);
 
-        CreateMyCustomer(Customer, GetCurrentUserID);
+        CreateMyCustomer(Customer, GetCurrentUserID());
 
-        CreateMyCustomer(Customer2, GetCurrentUserID);
+        CreateMyCustomer(Customer2, GetCurrentUserID());
         CreateMyCustomer(Customer2, '');
 
         OldCustomer := Customer;
@@ -159,7 +159,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestCustomer(Customer);
         CreateTestCustomer(Customer2);
 
-        CreateMyCustomer(Customer, GetCurrentUserID);
+        CreateMyCustomer(Customer, GetCurrentUserID());
 
         // Execute
         Customer2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name)));
@@ -183,7 +183,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Create Customer, create My Customer linked to this Customer
         CreateTestCustomer(Customer);
-        CreateMyCustomer(Customer, GetCurrentUserID);
+        CreateMyCustomer(Customer, GetCurrentUserID());
 
         // [GIVEN] Create Customer Temporary record from Customer record mentioned above
         TempCustomer := Customer;
@@ -237,7 +237,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize();
         CreateTestVendor(Vendor);
-        CreateMyVendor(Vendor, GetCurrentUserID);
+        CreateMyVendor(Vendor, GetCurrentUserID());
         CreateMyVendor(Vendor, 'Test');
         OldVendor := Vendor;
 
@@ -267,7 +267,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize();
         CreateTestVendor(Vendor);
-        CreateMyVendor(Vendor, GetCurrentUserID);
+        CreateMyVendor(Vendor, GetCurrentUserID());
         CreateMyVendor(Vendor, '');
         OldVendor := Vendor;
 
@@ -301,9 +301,9 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestVendor(Vendor);
         CreateTestVendor(Vendor2);
 
-        CreateMyVendor(Vendor, GetCurrentUserID);
+        CreateMyVendor(Vendor, GetCurrentUserID());
 
-        CreateMyVendor(Vendor2, GetCurrentUserID);
+        CreateMyVendor(Vendor2, GetCurrentUserID());
         CreateMyVendor(Vendor2, '');
 
         OldVendor := Vendor;
@@ -342,7 +342,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestVendor(Vendor);
         CreateTestVendor(Vendor2);
 
-        CreateMyVendor(Vendor, GetCurrentUserID);
+        CreateMyVendor(Vendor, GetCurrentUserID());
 
         // Execute
         Vendor2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name)));
@@ -366,7 +366,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Create Vendor, create My Vendor linked to this Vendor
         CreateTestVendor(Vendor);
-        CreateMyVendor(Vendor, GetCurrentUserID);
+        CreateMyVendor(Vendor, GetCurrentUserID());
 
         // [GIVEN] Create Vendor Temporary record from Vendor record mentioned above
         TempVendor := Vendor;
@@ -420,7 +420,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize();
         CreateTestItem(Item);
-        CreateMyItem(Item, GetCurrentUserID);
+        CreateMyItem(Item, GetCurrentUserID());
         CreateMyItem(Item, 'Test');
         OldItem := Item;
 
@@ -450,7 +450,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize();
         CreateTestItem(Item);
-        CreateMyItem(Item, GetCurrentUserID);
+        CreateMyItem(Item, GetCurrentUserID());
         CreateMyItem(Item, '');
         OldItem := Item;
 
@@ -484,9 +484,9 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestItem(Item);
         CreateTestItem(Item2);
 
-        CreateMyItem(Item, GetCurrentUserID);
+        CreateMyItem(Item, GetCurrentUserID());
 
-        CreateMyItem(Item2, GetCurrentUserID);
+        CreateMyItem(Item2, GetCurrentUserID());
         CreateMyItem(Item2, '');
 
         OldItem := Item;
@@ -526,7 +526,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestItem(Item);
         CreateTestItem(Item2);
 
-        CreateMyItem(Item, GetCurrentUserID);
+        CreateMyItem(Item, GetCurrentUserID());
 
         // Execute
         Item2.Validate(
@@ -551,7 +551,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Create Item, create My Item linked to this Item
         CreateTestItem(Item);
-        CreateMyItem(Item, GetCurrentUserID);
+        CreateMyItem(Item, GetCurrentUserID());
 
         // [GIVEN] Create Item Temporary record from Item record mentioned above
         TempItem := Item;
@@ -607,7 +607,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestAccount(GLAccount);
         OldGLAccount := GLAccount;
         CreateMyAccount(GLAccount, 'Test');
-        CreateMyAccount(GLAccount, GetCurrentUserID);
+        CreateMyAccount(GLAccount, GetCurrentUserID());
 
         // Execute
         GLAccount.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLAccount.Name)), 1, MaxStrLen(GLAccount.Name)));
@@ -633,7 +633,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize();
         CreateTestAccount(GLAccount);
-        CreateMyAccount(GLAccount, GetCurrentUserID);
+        CreateMyAccount(GLAccount, GetCurrentUserID());
         CreateMyAccount(GLAccount, '');
         OldGLAccount := GLAccount;
 
@@ -663,9 +663,9 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestAccount(GLAccount);
         CreateTestAccount(GLAccount2);
 
-        CreateMyAccount(GLAccount, GetCurrentUserID);
+        CreateMyAccount(GLAccount, GetCurrentUserID());
 
-        CreateMyAccount(GLAccount2, GetCurrentUserID);
+        CreateMyAccount(GLAccount2, GetCurrentUserID());
         CreateMyAccount(GLAccount2, '');
 
         // Execute
@@ -698,7 +698,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         CreateTestAccount(GLAccount);
         CreateTestAccount(GLAccount2);
 
-        CreateMyAccount(GLAccount, GetCurrentUserID);
+        CreateMyAccount(GLAccount, GetCurrentUserID());
 
         // Execute
         GLAccount2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLAccount.Name)), 1, MaxStrLen(GLAccount.Name)));
@@ -722,7 +722,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Create G/L Account, create My Account linked to this G/L Account
         CreateTestAccount(GLAccount);
-        CreateMyAccount(GLAccount, GetCurrentUserID);
+        CreateMyAccount(GLAccount, GetCurrentUserID());
 
         // [GIVEN] Create G/L Account Temporary record from G/L Account record mentioned above
         TempGLAccount := GLAccount;
@@ -750,13 +750,13 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Customer "CCC"
         CreateTestCustomer(Customer);
-        CreateMyCustomer(Customer, GetCurrentUserID);
+        CreateMyCustomer(Customer, GetCurrentUserID());
 
         // [GIVEN] Detailed Customer Ledger Entry for Customer "CCC" having 100 "Amount" and 200 "Amount LCY"
         AmountLCY := CreateDetailedCustLedgEntry(Customer."No.");
 
         // [WHEN] Calculate "Balance" of My Customer for Customer "CCC"
-        MyCustomer.Get(GetCurrentUserID, Customer."No.");
+        MyCustomer.Get(GetCurrentUserID(), Customer."No.");
         MyCustomer.CalcFields("Balance (LCY)");
 
         // [THEN] "Balance" is 200
@@ -777,13 +777,13 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Vendor "VVV"
         CreateTestVendor(Vendor);
-        CreateMyVendor(Vendor, GetCurrentUserID);
+        CreateMyVendor(Vendor, GetCurrentUserID());
 
         // [GIVEN] Detailed Vendor Ledger Entry for Vendor "VVV" having -200 "Amount LCY" (negative).
         AmountLCY := -CreateDetailedVendorLedgEntry(Vendor."No.");
 
         // [WHEN] Calculate "Balance" of My Vendor for Vendor "VVV"
-        MyVendor.Get(GetCurrentUserID, Vendor."No.");
+        MyVendor.Get(GetCurrentUserID(), Vendor."No.");
         MyVendor.CalcFields("Balance (LCY)");
 
         // [THEN] "Balance" shown on My Vendor page is 200 (positive sign, same as on Vendor List page).
@@ -978,7 +978,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         MyCustomers: TestPage "My Customers";
     begin
-        MyCustomers.OpenView;
+        MyCustomers.OpenView();
         MyCustomers.GotoRecord(MyCustomer);
         MyCustomers."Customer No.".AssertEquals(Customer."No.");
         MyCustomers.Name.AssertEquals(Customer.Name);
@@ -996,7 +996,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         MyVendors: TestPage "My Vendors";
     begin
-        MyVendors.OpenView;
+        MyVendors.OpenView();
         MyVendors.GotoRecord(MyVendor);
         MyVendors."Vendor No.".AssertEquals(Vendor."No.");
         MyVendors.Name.AssertEquals(Vendor.Name);
@@ -1014,7 +1014,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         MyItems: TestPage "My Items";
     begin
-        MyItems.OpenView;
+        MyItems.OpenView();
         MyItems.GotoRecord(MyItem);
         MyItems."Item No.".AssertEquals(Item."No.");
         MyItems.Description.AssertEquals(Item.Description);
@@ -1031,7 +1031,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         MyAccounts: TestPage "My Accounts";
     begin
-        MyAccounts.OpenView;
+        MyAccounts.OpenView();
         MyAccounts.GotoRecord(MyAccount);
         MyAccounts."Account No.".AssertEquals(GLAccount."No.");
         MyAccounts.Name.AssertEquals(GLAccount.Name);

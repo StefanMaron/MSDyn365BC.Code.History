@@ -17,11 +17,11 @@ codeunit 5720 "Item Reference Management"
     end;
 
     var
-        Item: Record Item;
-        ItemReference: Record "Item Reference";
-        ItemVariant: Record "Item Variant";
-        SalesLine: Record "Sales Line";
-        PurchLine: Record "Purchase Line";
+        GlobalItem: Record Item;
+        GlobalItemReference: Record "Item Reference";
+        GlobalItemVariant: Record "Item Variant";
+        GlobalSalesLine: Record "Sales Line";
+        GlobalPurchLine: Record "Purchase Line";
         Found: Boolean;
         ItemRefNotExistErr: Label 'There are no items with reference %1.', Comment = '%1=Reference No.';
         ItemRefWrongTypeErr: Label 'The reference type must be Customer or Vendor.';
@@ -31,43 +31,42 @@ codeunit 5720 "Item Reference Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeEnterSalesItemReference(SalesLine2, ItemReference, Found, IsHandled);
+        OnBeforeEnterSalesItemReference(SalesLine2, GlobalItemReference, Found, IsHandled);
         if IsHandled then
             exit;
 
-        with SalesLine2 do
-            if Type = Type::Item then begin
-                FindItemReferenceForSalesLine(SalesLine2);
+        if SalesLine2.Type = SalesLine2.Type::Item then begin
+            FindItemReferenceForSalesLine(SalesLine2);
 
-                if Found then begin
-                    "Item Reference No." := ItemReference."Reference No.";
-                    "Item Reference Unit of Measure" := ItemReference."Unit of Measure";
-                    "Item Reference Type" := ItemReference."Reference Type";
-                    if ItemReference.Description <> '' then begin
-                        Description := ItemReference.Description;
-                        "Description 2" := ItemReference."Description 2";
-                    end;
-                    "Item Reference Type No." := ItemReference."Reference Type No.";
-                    OnAfterSalesItemReferenceFound(SalesLine2, ItemReference);
-                end else begin
-                    "Item Reference No." := '';
-                    "Item Reference Type" := "Item Reference Type"::" ";
-                    "Item Reference Type No." := '';
-                    if "Variant Code" <> '' then begin
-                        ItemVariant.Get("No.", "Variant Code");
-                        Description := ItemVariant.Description;
-                        "Description 2" := ItemVariant."Description 2";
-                        OnEnterSalesItemReferenceOnAfterFillDescriptionFromItemVariant(SalesLine2, ItemVariant);
-                    end else begin
-                        Item.Get("No.");
-                        Description := Item.Description;
-                        "Description 2" := Item."Description 2";
-                        OnEnterSalesItemReferenceOnAfterFillDescriptionFromItem(SalesLine2, Item);
-                    end;
-                    GetItemTranslation();
-                    OnAfterSalesItemItemRefNotFound(SalesLine2, ItemVariant);
+            if Found then begin
+                SalesLine2."Item Reference No." := GlobalItemReference."Reference No.";
+                SalesLine2."Item Reference Unit of Measure" := GlobalItemReference."Unit of Measure";
+                SalesLine2."Item Reference Type" := GlobalItemReference."Reference Type";
+                if GlobalItemReference.Description <> '' then begin
+                    SalesLine2.Description := GlobalItemReference.Description;
+                    SalesLine2."Description 2" := GlobalItemReference."Description 2";
                 end;
+                SalesLine2."Item Reference Type No." := GlobalItemReference."Reference Type No.";
+                OnAfterSalesItemReferenceFound(SalesLine2, GlobalItemReference);
+            end else begin
+                SalesLine2."Item Reference No." := '';
+                SalesLine2."Item Reference Type" := SalesLine2."Item Reference Type"::" ";
+                SalesLine2."Item Reference Type No." := '';
+                if SalesLine2."Variant Code" <> '' then begin
+                    GlobalItemVariant.Get(SalesLine2."No.", SalesLine2."Variant Code");
+                    SalesLine2.Description := GlobalItemVariant.Description;
+                    SalesLine2."Description 2" := GlobalItemVariant."Description 2";
+                    OnEnterSalesItemReferenceOnAfterFillDescriptionFromItemVariant(SalesLine2, GlobalItemVariant);
+                end else begin
+                    GlobalItem.Get(SalesLine2."No.");
+                    SalesLine2.Description := GlobalItem.Description;
+                    SalesLine2."Description 2" := GlobalItem."Description 2";
+                    OnEnterSalesItemReferenceOnAfterFillDescriptionFromItem(SalesLine2, GlobalItem);
+                end;
+                SalesLine2.GetItemTranslation();
+                OnAfterSalesItemItemRefNotFound(SalesLine2, GlobalItemVariant);
             end;
+        end;
     end;
 
     local procedure FindItemReferenceForSalesLine(SalesLine: Record "Sales Line")
@@ -76,27 +75,27 @@ codeunit 5720 "Item Reference Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFindItemReferenceForSalesLine(SalesLine, ItemReference, Found, IsHandled);
+        OnBeforeFindItemReferenceForSalesLine(SalesLine, GlobalItemReference, Found, IsHandled);
         if IsHandled then
             exit;
 
-        ItemReference.Reset();
-        ItemReference.SetRange("Item No.", SalesLine."No.");
-        ItemReference.SetRange("Variant Code", SalesLine."Variant Code");
-        ItemReference.SetRange("Unit of Measure", SalesLine."Unit of Measure Code");
+        GlobalItemReference.Reset();
+        GlobalItemReference.SetRange("Item No.", SalesLine."No.");
+        GlobalItemReference.SetRange("Variant Code", SalesLine."Variant Code");
+        GlobalItemReference.SetRange("Unit of Measure", SalesLine."Unit of Measure Code");
         ToDate := SalesLine.GetDateForCalculations();
         if ToDate <> 0D then begin
-            ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
-            ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
+            GlobalItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+            GlobalItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
         end;
-        ItemReference.SetRange("Reference Type", SalesLine."Item Reference Type"::Customer);
-        ItemReference.SetRange("Reference Type No.", SalesLine."Sell-to Customer No.");
-        ItemReference.SetRange("Reference No.", SalesLine."Item Reference No.");
-        if ItemReference.FindFirst() then
+        GlobalItemReference.SetRange("Reference Type", SalesLine."Item Reference Type"::Customer);
+        GlobalItemReference.SetRange("Reference Type No.", SalesLine."Sell-to Customer No.");
+        GlobalItemReference.SetRange("Reference No.", SalesLine."Item Reference No.");
+        if GlobalItemReference.FindFirst() then
             Found := true
         else begin
-            ItemReference.SetRange("Reference No.");
-            Found := ItemReference.FindFirst();
+            GlobalItemReference.SetRange("Reference No.");
+            Found := GlobalItemReference.FindFirst();
         end;
     end;
 
@@ -109,11 +108,11 @@ codeunit 5720 "Item Reference Management"
         if IsHandled then
             exit;
 
-        SalesLine.Copy(SalesLine2);
-        if SalesLine.Type = SalesLine.Type::Item then
+        GlobalSalesLine.Copy(SalesLine2);
+        if GlobalSalesLine.Type = GlobalSalesLine.Type::Item then
             FindOrSelectFromItemReferenceList(
-                ReturnedItemReference, ShowDialog, SalesLine."No.", SalesLine."Item Reference No.", SalesLine."Sell-to Customer No.",
-                ReturnedItemReference."Reference Type"::Customer, SalesLine.GetDateForCalculations());
+                ReturnedItemReference, ShowDialog, GlobalSalesLine."No.", GlobalSalesLine."Item Reference No.", GlobalSalesLine."Sell-to Customer No.",
+                ReturnedItemReference."Reference Type"::Customer, GlobalSalesLine.GetDateForCalculations());
     end;
 
     procedure EnterPurchaseItemReference(var PurchLine2: Record "Purchase Line")
@@ -123,52 +122,51 @@ codeunit 5720 "Item Reference Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeEnterPurchaseItemReference(PurchLine2, ItemReference, Found, IsHandled);
+        OnBeforeEnterPurchaseItemReference(PurchLine2, GlobalItemReference, Found, IsHandled);
         if IsHandled then
             exit;
 
-        with PurchLine2 do
-            if Type = Type::Item then begin
-                ItemReference.Reset();
-                ItemReference.SetRange("Item No.", "No.");
-                ItemReference.SetRange("Variant Code", "Variant Code");
-                ItemReference.SetRange("Unit of Measure", "Unit of Measure Code");
-                ToDate := PurchLine2.GetDateForCalculations();
-                if ToDate <> 0D then begin
-                    ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
-                    ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
-                end;
-                ItemReference.SetRange("Reference Type", "Item Reference Type"::Vendor);
-                ItemReference.SetRange("Reference Type No.", "Buy-from Vendor No.");
-                ItemReference.SetRange("Reference No.", "Item Reference No.");
-                if ItemReference.FindFirst() then
-                    Found := true
-                else begin
-                    ItemReference.SetRange("Reference No.");
-                    Found := ItemReference.FindFirst();
-                end;
-
-                if Found then begin
-                    "Item Reference No." := ItemReference."Reference No.";
-                    "Item Reference Unit of Measure" := ItemReference."Unit of Measure";
-                    "Item Reference Type" := ItemReference."Reference Type";
-                    "Item Reference Type No." := ItemReference."Reference Type No.";
-                    ShouldAssignDescription := ItemReference.Description <> '';
-                    OnEnterPurchaseItemReferenceOnAfterCalcShouldAssignDescription(PurchLine2, ItemReference, ShouldAssignDescription);
-                    if ShouldAssignDescription then begin
-                        Description := ItemReference.Description;
-                        "Description 2" := ItemReference."Description 2";
-                    end;
-                    OnAfterPurchItemReferenceFound(PurchLine2, ItemReference);
-                end else begin
-                    "Item Reference No." := '';
-                    "Item Reference Type" := "Item Reference Type"::" ";
-                    "Item Reference Type No." := '';
-                    FillDescription(PurchLine2);
-                    GetItemTranslation();
-                    OnAfterPurchItemItemRefNotFound(PurchLine2, ItemVariant);
-                end;
+        if PurchLine2.Type = PurchLine2.Type::Item then begin
+            GlobalItemReference.Reset();
+            GlobalItemReference.SetRange("Item No.", PurchLine2."No.");
+            GlobalItemReference.SetRange("Variant Code", PurchLine2."Variant Code");
+            GlobalItemReference.SetRange("Unit of Measure", PurchLine2."Unit of Measure Code");
+            ToDate := PurchLine2.GetDateForCalculations();
+            if ToDate <> 0D then begin
+                GlobalItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+                GlobalItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
             end;
+            GlobalItemReference.SetRange("Reference Type", PurchLine2."Item Reference Type"::Vendor);
+            GlobalItemReference.SetRange("Reference Type No.", PurchLine2."Buy-from Vendor No.");
+            GlobalItemReference.SetRange("Reference No.", PurchLine2."Item Reference No.");
+            if GlobalItemReference.FindFirst() then
+                Found := true
+            else begin
+                GlobalItemReference.SetRange("Reference No.");
+                Found := GlobalItemReference.FindFirst();
+            end;
+
+            if Found then begin
+                PurchLine2."Item Reference No." := GlobalItemReference."Reference No.";
+                PurchLine2."Item Reference Unit of Measure" := GlobalItemReference."Unit of Measure";
+                PurchLine2."Item Reference Type" := GlobalItemReference."Reference Type";
+                PurchLine2."Item Reference Type No." := GlobalItemReference."Reference Type No.";
+                ShouldAssignDescription := GlobalItemReference.Description <> '';
+                OnEnterPurchaseItemReferenceOnAfterCalcShouldAssignDescription(PurchLine2, GlobalItemReference, ShouldAssignDescription);
+                if ShouldAssignDescription then begin
+                    PurchLine2.Description := GlobalItemReference.Description;
+                    PurchLine2."Description 2" := GlobalItemReference."Description 2";
+                end;
+                OnAfterPurchItemReferenceFound(PurchLine2, GlobalItemReference);
+            end else begin
+                PurchLine2."Item Reference No." := '';
+                PurchLine2."Item Reference Type" := PurchLine2."Item Reference Type"::" ";
+                PurchLine2."Item Reference Type No." := '';
+                FillDescription(PurchLine2);
+                PurchLine2.GetItemTranslation();
+                OnAfterPurchItemItemRefNotFound(PurchLine2, GlobalItemVariant);
+            end;
+        end;
     end;
 
     local procedure FillDescription(var PurchaseLine: Record "Purchase Line")
@@ -181,13 +179,13 @@ codeunit 5720 "Item Reference Management"
             exit;
 
         if PurchaseLine."Variant Code" <> '' then begin
-            ItemVariant.Get(PurchaseLine."No.", PurchaseLine."Variant Code");
-            PurchaseLine.Description := ItemVariant.Description;
-            PurchaseLine."Description 2" := ItemVariant."Description 2";
+            GlobalItemVariant.Get(PurchaseLine."No.", PurchaseLine."Variant Code");
+            PurchaseLine.Description := GlobalItemVariant.Description;
+            PurchaseLine."Description 2" := GlobalItemVariant."Description 2";
         end else begin
-            Item.Get(PurchaseLine."No.");
-            PurchaseLine.Description := Item.Description;
-            PurchaseLine."Description 2" := Item."Description 2";
+            GlobalItem.Get(PurchaseLine."No.");
+            PurchaseLine.Description := GlobalItem.Description;
+            PurchaseLine."Description 2" := GlobalItem."Description 2";
         end;
     end;
 
@@ -200,11 +198,11 @@ codeunit 5720 "Item Reference Management"
         if IsHandled then
             exit;
 
-        PurchLine.Copy(PurchLine2);
-        if PurchLine.Type = PurchLine.Type::Item then
+        GlobalPurchLine.Copy(PurchLine2);
+        if GlobalPurchLine.Type = GlobalPurchLine.Type::Item then
             FindOrSelectFromItemReferenceList(
-                ReturnedItemReference, ShowDialog, PurchLine."No.", PurchLine."Item Reference No.", PurchLine."Buy-from Vendor No.",
-                ReturnedItemReference."Reference Type"::Vendor, PurchLine.GetDateForCalculations());
+                ReturnedItemReference, ShowDialog, GlobalPurchLine."No.", GlobalPurchLine."Item Reference No.", GlobalPurchLine."Buy-from Vendor No.",
+                ReturnedItemReference."Reference Type"::Vendor, GlobalPurchLine.GetDateForCalculations());
     end;
 
     local procedure FilterItemReferenceByItemVendor(var ItemReference: Record "Item Reference"; ItemVendor: Record "Item Vendor")
@@ -233,8 +231,8 @@ codeunit 5720 "Item Reference Management"
         ItemReference.Validate("Reference Type No.", ItemVend."Vendor No.");
         ItemReference."Reference No." := ItemVend."Vendor Item No.";
         if ItemReference."Unit of Measure" = '' then begin
-            Item.Get(ItemVend."Item No.");
-            ItemReference.Validate("Unit of Measure", Item."Base Unit of Measure");
+            GlobalItem.Get(ItemVend."Item No.");
+            ItemReference.Validate("Unit of Measure", GlobalItem."Base Unit of Measure");
         end;
     end;
 
@@ -292,15 +290,15 @@ codeunit 5720 "Item Reference Management"
         QtyCustOrVendCR: Integer;
         QtyBarCodeAndBlankCR: Integer;
     begin
-        InitItemReferenceFilters(ItemReference, ItemNo, ItemRefNo, ItemRefType, ToDate);
-        CountItemReference(ItemReference, QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefType, ItemRefTypeNo);
+        InitItemReferenceFilters(GlobalItemReference, ItemNo, ItemRefNo, ItemRefType, ToDate);
+        CountItemReference(GlobalItemReference, QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefType, ItemRefTypeNo);
         MultipleItemsToChoose := true;
 
         ProcessDecisionTree(QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose);
 
         SelectOrFindReference(ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose, ShowDialog);
 
-        ItemReferenceToReturn.Copy(ItemReference);
+        ItemReferenceToReturn.Copy(GlobalItemReference);
     end;
 
     local procedure ProcessDecisionTree(QtyCustOrVendCR: Integer; QtyBarCodeAndBlankCR: Integer; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; var TempRecRequired: Boolean; var MultipleItemsToChoose: Boolean)
@@ -308,7 +306,7 @@ codeunit 5720 "Item Reference Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeProcessDecisionTree(ItemReference, QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose, IsHandled);
+        OnBeforeProcessDecisionTree(GlobalItemReference, QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose, IsHandled);
         if IsHandled then
             exit;
 
@@ -318,13 +316,13 @@ codeunit 5720 "Item Reference Management"
             (QtyCustOrVendCR = 0) and (QtyBarCodeAndBlankCR = 1):
                 MultipleItemsToChoose := false;
             (QtyCustOrVendCR = 0) and (QtyBarCodeAndBlankCR > 1):
-                MultipleItemsToChoose := BarCodeCRAreMappedToDifferentItems(ItemReference);
+                MultipleItemsToChoose := BarCodeCRAreMappedToDifferentItems(GlobalItemReference);
             (QtyCustOrVendCR = 1) and (QtyBarCodeAndBlankCR = 0):
                 MultipleItemsToChoose := false;
             (QtyCustOrVendCR = 1) and (QtyBarCodeAndBlankCR > 0):
-                MultipleItemsToChoose := CustVendAndBarCodeCRAreMappedToDifferentItems(ItemReference, ItemRefType, ItemRefTypeNo);
+                MultipleItemsToChoose := CustVendAndBarCodeCRAreMappedToDifferentItems(GlobalItemReference, ItemRefType, ItemRefTypeNo);
             (QtyCustOrVendCR > 1) and (QtyBarCodeAndBlankCR = 0):
-                SetFiltersTypeAndTypeNoItemRef(ItemReference, ItemRefType, ItemRefTypeNo);
+                SetFiltersTypeAndTypeNoItemRef(GlobalItemReference, ItemRefType, ItemRefTypeNo);
             (QtyCustOrVendCR > 1) and (QtyBarCodeAndBlankCR > 0):
                 TempRecRequired := true;
         end;
@@ -335,16 +333,16 @@ codeunit 5720 "Item Reference Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSelectOrFindReference(ItemReference, ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose, ShowDialog, IsHandled);
+        OnBeforeSelectOrFindReference(GlobalItemReference, ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose, ShowDialog, IsHandled);
         if IsHandled then
             exit;
 
         if ShowDialog and MultipleItemsToChoose then begin
-            if not RunPageReferenceListOnRealOrTempRec(ItemReference, TempRecRequired, ItemRefType, ItemRefTypeNo) then
+            if not RunPageReferenceListOnRealOrTempRec(GlobalItemReference, TempRecRequired, ItemRefType, ItemRefTypeNo) then
                 Error(ItemRefNotExistErr, ItemRefNo);
         end else
-            if not FindFirstCustVendItemReference(ItemReference, ItemRefType, ItemRefTypeNo) then
-                FindFirstBarCodeOrBlankTypeItemReference(ItemReference);
+            if not FindFirstCustVendItemReference(GlobalItemReference, ItemRefType, ItemRefTypeNo) then
+                FindFirstBarCodeOrBlankTypeItemReference(GlobalItemReference);
     end;
 
     local procedure InitItemReferenceFilters(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ToDate: Date)
@@ -513,35 +511,34 @@ codeunit 5720 "Item Reference Management"
         OnBeforeSalesReferenceNoLookup(SalesLine, SalesHeader, IsHandled);
         if IsHandled then
             exit;
-        with SalesLine do
-            case Type of
-                Type::Item:
-                    begin
-                        GetSalesHeader();
-                        ItemReference2.SetCurrentKey("Reference Type", "Reference Type No.");
-                        ItemReference2.SetFilter("Reference Type", '%1|%2', ItemReference2."Reference Type"::Customer, ItemReference2."Reference Type"::" ");
-                        ItemReference2.SetFilter("Reference Type No.", '%1|%2', SalesHeader."Sell-to Customer No.", '');
-                        ToDate := SalesLine.GetDateForCalculations();
-                        if ToDate <> 0D then begin
-                            ItemReference2.SetFilter("Starting Date", '<=%1', ToDate);
-                            ItemReference2.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
-                        end;
-                        OnSalesReferenceNoLookupOnAfterSetFilters(ItemReference2, SalesLine, SalesHeader);
-                        if PAGE.RunModal(PAGE::"Item Reference List", ItemReference2) = ACTION::LookupOK then begin
-                            SalesLine."Item Reference No." := ItemReference2."Reference No.";
-                            ValidateSalesReferenceNo(SalesLine, SalesHeader, ItemReference2, false, 0);
-                            SalesLine.UpdateReferencePriceAndDiscount();
-                            SalesReferenceNoLookupValidateUnitPrice(SalesLine, SalesHeader);
-                        end;
+        case SalesLine.Type of
+            SalesLine.Type::Item:
+                begin
+                    SalesLine.GetSalesHeader();
+                    ItemReference2.SetCurrentKey("Reference Type", "Reference Type No.");
+                    ItemReference2.SetFilter("Reference Type", '%1|%2', ItemReference2."Reference Type"::Customer, ItemReference2."Reference Type"::" ");
+                    ItemReference2.SetFilter("Reference Type No.", '%1|%2', SalesHeader."Sell-to Customer No.", '');
+                    ToDate := SalesLine.GetDateForCalculations();
+                    if ToDate <> 0D then begin
+                        ItemReference2.SetFilter("Starting Date", '<=%1', ToDate);
+                        ItemReference2.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
                     end;
-                Type::"G/L Account", Type::Resource:
-                    begin
-                        GetSalesHeader();
-                        SalesHeader.TestField("Sell-to IC Partner Code");
-                        if PAGE.RunModal(PAGE::"IC G/L Account List", ICGLAcc) = ACTION::LookupOK then
-                            SalesLine."Item Reference No." := ICGLAcc."No.";
+                    OnSalesReferenceNoLookupOnAfterSetFilters(ItemReference2, SalesLine, SalesHeader);
+                    if PAGE.RunModal(PAGE::"Item Reference List", ItemReference2) = ACTION::LookupOK then begin
+                        SalesLine."Item Reference No." := ItemReference2."Reference No.";
+                        ValidateSalesReferenceNo(SalesLine, SalesHeader, ItemReference2, false, 0);
+                        SalesLine.UpdateReferencePriceAndDiscount();
+                        SalesReferenceNoLookupValidateUnitPrice(SalesLine, SalesHeader);
                     end;
-            end;
+                end;
+            SalesLine.Type::"G/L Account", SalesLine.Type::Resource:
+                begin
+                    SalesLine.GetSalesHeader();
+                    SalesHeader.TestField("Sell-to IC Partner Code");
+                    if PAGE.RunModal(PAGE::"IC G/L Account List", ICGLAcc) = ACTION::LookupOK then
+                        SalesLine."Item Reference No." := ICGLAcc."No.";
+                end;
+        end;
     end;
 
     local procedure SalesReferenceNoLookupValidateUnitPrice(var SalesLine: Record "Sales Line"; SalesHeader: record "Sales Header")
@@ -726,6 +723,8 @@ codeunit 5720 "Item Reference Management"
             PhysInvtOrderLine.Validate("Item No.", ReturnedItemReference."Item No.");
             if ReturnedItemReference."Variant Code" <> '' then
                 PhysInvtOrderLine.Validate("Variant Code", ReturnedItemReference."Variant Code");
+            if ReturnedItemReference."Unit of Measure" <> '' then
+                PhysInvtOrderLine.Validate("Base Unit of Measure Code", ReturnedItemReference."Unit of Measure");
         end;
 
         PhysInvtOrderLine."Item Reference Unit of Measure" := ReturnedItemReference."Unit of Measure";
@@ -789,6 +788,8 @@ codeunit 5720 "Item Reference Management"
             PhysInvtRecordLine.Validate("Item No.", ReturnedItemReference."Item No.");
             if ReturnedItemReference."Variant Code" <> '' then
                 PhysInvtRecordLine.Validate("Variant Code", ReturnedItemReference."Variant Code");
+            if ReturnedItemReference."Unit of Measure" <> '' then
+                PhysInvtRecordLine.Validate("Unit of Measure Code", ReturnedItemReference."Unit of Measure");
         end;
 
         PhysInvtRecordLine."Item Reference Unit of Measure" := ReturnedItemReference."Unit of Measure";
@@ -851,6 +852,8 @@ codeunit 5720 "Item Reference Management"
             ItemJournalLine.Validate("Item No.", ReturnedItemReference."Item No.");
             if ReturnedItemReference."Variant Code" <> '' then
                 ItemJournalLine.Validate("Variant Code", ReturnedItemReference."Variant Code");
+            if ReturnedItemReference."Unit of Measure" <> '' then
+                ItemJournalLine.Validate("Unit of Measure Code", ReturnedItemReference."Unit of Measure");
         end;
 
         ItemJournalLine."Item Reference Unit of Measure" := ReturnedItemReference."Unit of Measure";
@@ -891,6 +894,8 @@ codeunit 5720 "Item Reference Management"
             InvtDocumentLine.Validate("Item No.", ReturnedItemReference."Item No.");
             if ReturnedItemReference."Variant Code" <> '' then
                 InvtDocumentLine.Validate("Variant Code", ReturnedItemReference."Variant Code");
+            if ReturnedItemReference."Unit of Measure" <> '' then
+                InvtDocumentLine.Validate("Unit of Measure Code", ReturnedItemReference."Unit of Measure");
         end;
 
         InvtDocumentLine."Item Reference Unit of Measure" := ReturnedItemReference."Unit of Measure";
@@ -929,12 +934,12 @@ codeunit 5720 "Item Reference Management"
         end;
     end;
 
-    local procedure TestEmptyOrBaseItemUnitOfMeasure(ItemReference: Record "Item Reference")
+    local procedure TestEmptyOrBaseItemUnitOfMeasure(ItemReferenceToTest: Record "Item Reference")
     begin
-        ItemReference.TestField("Item No.");
-        Item.Get(ItemReference."Item No.");
-        if not (ItemReference."Unit of Measure" in ['', Item."Base Unit of Measure"]) then
-            ItemReference.FieldError("Unit of Measure");
+        ItemReferenceToTest.TestField("Item No.");
+        GlobalItem.Get(ItemReferenceToTest."Item No.");
+        if not (ItemReferenceToTest."Unit of Measure" in ['', GlobalItem."Base Unit of Measure"]) then
+            ItemReferenceToTest.FieldError("Unit of Measure");
     end;
 
     [IntegrationEvent(false, false)]
@@ -1088,7 +1093,7 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidatePurchaseReferenceNoOnBeforeAssignNo(var PurchaseLine: Record "Purchase Line"; ReturnedItemReference: Record "Item Reference")
+    local procedure OnValidatePurchaseReferenceNoOnBeforeAssignNo(var PurchaseLine: Record "Purchase Line"; var ReturnedItemReference: Record "Item Reference")
     begin
     end;
 

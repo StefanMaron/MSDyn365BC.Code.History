@@ -26,7 +26,7 @@ report 99000756 "Detailed Calculation"
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(AsofCalcDate; Text000 + Format(CalculateDate))
+            column(AsofCalcDate; CalculateDateLbl + Format(CalculateDate))
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -409,24 +409,13 @@ report 99000756 "Detailed Calculation"
         VersionMgt: Codeunit VersionManagement;
         RtngVersionCode: Code[20];
         ItemFilter: Text;
-        CompItemQtyBase: Decimal;
-        CalculateDate: Date;
-        CostTotal: Decimal;
-        ProdUnitCost: Decimal;
-        ProdTotalCost: Decimal;
-        CostTime: Decimal;
         InBOM: Boolean;
         InRouting: Boolean;
-        Level: Integer;
-        NextLevel: Integer;
-        SingleLevelMfgOvhd: Decimal;
         DirectUnitCost: Decimal;
         IndirectCostPct: Decimal;
         OverheadRate: Decimal;
-        FooterProdTotalCost: Decimal;
-        FooterCostTotal: Decimal;
 
-        Text000: Label 'As of ';
+        CalculateDateLbl: Label 'As of ';
         CurrReportPageNoCaptLbl: Label 'Page';
         DetailedCalculationCaptLbl: Label 'Detailed Calculation';
         CostTimeCaptionLbl: Label 'Cost Time';
@@ -447,5 +436,15 @@ report 99000756 "Detailed Calculation"
         PBOMNoList: array[99] of Code[20];
         PBOMVersionCode: array[99] of Code[20];
         Quantity: array[99] of Decimal;
+        CalculateDate: Date;
+        Level: Integer;
+        NextLevel: Integer;
+        CompItemQtyBase: Decimal;
+        CostTotal: Decimal;
+        ProdUnitCost: Decimal;
+        ProdTotalCost: Decimal;
+        CostTime: Decimal;
+        SingleLevelMfgOvhd: Decimal;
+        FooterProdTotalCost: Decimal;
+        FooterCostTotal: Decimal;
 }
-

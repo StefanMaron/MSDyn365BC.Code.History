@@ -19,12 +19,16 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob: Codeunit "Library - Job";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         Initialized: Boolean;
-        UnitPriceErr: Label 'Unit Price is not correct, please refer setup in Job Resource Price.';
-        ConfirmUsageWithBlankLineTypeQst: Label 'Usage will not be linked to the job planning line because the Line Type field is empty.\\Do you want to continue?';
+#if not CLEAN23
+        UnitPriceErr: Label 'Unit Price is not correct, please refer setup in Project Resource Price.';
+#endif
+        ConfirmUsageWithBlankLineTypeQst: Label 'Usage will not be linked to the project planning line because the Line Type field is empty.\\Do you want to continue?';
         PostJournalLineQst: Label 'Do you want to post the journal lines?';
-        JobPlanningLineRenameErr: Label 'You cannot change the %1 or %2 of this %3.', Comment = '%1 = Job Number field name; %2 = Job Task Number field name; %3 = Job Planning Line table name';
+        JobPlanningLineRenameErr: Label 'You cannot change the %1 or %2 of this %3.', Comment = '%1 = Project Number field name; %2 = Project Task Number field name; %3 = Project Planning Line table name';
 
     [Test]
     [Scope('OnPrem')]
@@ -56,7 +60,7 @@ codeunit 136303 "Job Consumption - Usage Link"
                 Validate("Usage Link", false);
                 // should still be true
                 Assert.IsTrue("Usage Link", FieldCaption("Usage Link"));
-            until Next = 0;
+            until Next() = 0;
         end;
 
         with JobPlanningLine do begin
@@ -97,7 +101,7 @@ codeunit 136303 "Job Consumption - Usage Link"
                 Assert.IsFalse("Usage Link", 'Usage link for line type that includes budget');
                 Validate("Usage Link", true);
                 Assert.IsTrue("Usage Link", 'Enabling usage link.');
-            until Next = 0;
+            until Next() = 0;
         end;
 
         with JobPlanningLine do begin
@@ -115,7 +119,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget) with an explicit link (Job."Apply Usage Link" = FALSE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, false, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -125,7 +129,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget) with an explicit link (Job."Apply Usage Link" = TRUE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, true, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), true, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -135,7 +139,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget & Billable) with an explicit link (Job."Apply Usage Link" = FALSE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -145,7 +149,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget & Billable) with an explicit link (Job."Apply Usage Link" = TRUE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, true, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), true, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -155,7 +159,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget) with an explicit link (Job."Apply Usage Link" = FALSE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeSchedule, false, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -165,7 +169,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget) with an explicit link (Job."Apply Usage Link" = TRUE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeSchedule, true, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), true, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -175,7 +179,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget & Billable) with an explicit link (Job."Apply Usage Link" = FALSE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -185,7 +189,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget & Billable) with an explicit link (Job."Apply Usage Link" = TRUE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, true, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), true, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -195,7 +199,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget) with an explicit link (Job."Apply Usage Link" = FALSE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, false, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -205,7 +209,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget) with an explicit link (Job."Apply Usage Link" = TRUE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, true, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), true, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -215,7 +219,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget & Billable) with an explicit link (Job."Apply Usage Link" = FALSE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -225,7 +229,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget & Billable) with an explicit link (Job."Apply Usage Link" = TRUE), post execution, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, true, LibraryJob.JobConsumption)
+        UseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), true, LibraryJob.JobConsumption())
     end;
 
     [Test]
@@ -239,7 +243,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Check that Planning lines cannot be deleted if usage has been posted.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, true, LibraryJob.JobConsumption);
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), true, LibraryJob.JobConsumption());
 
         JobLedgerEntry.FindLast();
         JobUsageLink.SetRange("Entry No.", JobLedgerEntry."Entry No.");
@@ -254,7 +258,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, false, LibraryJob.ServiceConsumption)
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.ServiceConsumption())
     end;
 
     [Test]
@@ -263,7 +267,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget & Billable) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.ServiceConsumption)
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.ServiceConsumption())
     end;
 
     [Test]
@@ -272,7 +276,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeSchedule, false, LibraryJob.ServiceConsumption)
+        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.ServiceConsumption())
     end;
 
     [Test]
@@ -281,7 +285,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget & Billable) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.ServiceConsumption)
+        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.ServiceConsumption())
     end;
 
     [Test]
@@ -290,7 +294,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget) with an explicit link, post execution via Gen. Journal, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, false, LibraryJob.GenJournalConsumption)
+        UseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.GenJournalConsumption())
     end;
 
     [Test]
@@ -299,7 +303,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget & Billable) with an explicit link, post execution via Gen. Journal, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.GenJournalConsumption)
+        UseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.GenJournalConsumption())
     end;
 
     [Test]
@@ -308,7 +312,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget) with an explicit link, post execution via Purchase Document, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, false, LibraryJob.PurchaseConsumption)
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.PurchaseConsumption())
     end;
 
     [Test]
@@ -317,7 +321,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget & Billable) with an explicit link, post execution via Purchase Document, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.PurchaseConsumption)
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.PurchaseConsumption())
     end;
 
     [Test]
@@ -326,7 +330,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget) with an explicit link, post execution via Purchase Document, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, false, LibraryJob.PurchaseConsumption)
+        UseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.PurchaseConsumption())
     end;
 
     [Test]
@@ -335,7 +339,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget & Billable) with an explicit link, post execution via Purchase Document, verify that link created and Quantities and Amounts are correct.
 
-        UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.PurchaseConsumption)
+        UseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.PurchaseConsumption())
     end;
 
     local procedure UseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Enum "Job Planning Line Line Type"; ApplyUsageLink: Boolean; Source: Option)
@@ -358,7 +362,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // can only link to a planning line which type includes budget
         Assert.IsTrue(
-          LineTypeToMatch in [LibraryJob.PlanningLineTypeSchedule, LibraryJob.PlanningLineTypeBoth],
+          LineTypeToMatch in [LibraryJob.PlanningLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth()],
           'Line type should include budget.');
 
         // Setup
@@ -386,7 +390,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LineCount := JobPlanningLine.Count();
 
         // Exercise
-        LibraryJob.UseJobPlanningLineExplicit(JobPlanningLine, LibraryJob.UsageLineTypeBlank, 1, Source, JobJournalLine);
+        LibraryJob.UseJobPlanningLineExplicit(JobPlanningLine, LibraryJob.UsageLineTypeBlank(), 1, Source, JobJournalLine);
 
         // refresh
         JobPlanningLine.Get(Job."No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
@@ -419,7 +423,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": FALSE, Type: Item, Line Type: Budget) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -429,7 +433,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": TRUE, Type: Item, Line Type: Budget) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, true)
+        PartialUseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), true)
     end;
 
     [Test]
@@ -439,7 +443,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": FALSE, Type: Item, Line Type: Budget & Billable) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -449,7 +453,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": TRUE, Type: Item, Line Type: Budget & Billable) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, true)
+        PartialUseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), true)
     end;
 
     [Test]
@@ -459,7 +463,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": FALSE, Type: Resource, Line Type: Budget) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -469,7 +473,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": TRUE, Type: Resource, Line Type: Budget) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeSchedule, true)
+        PartialUseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), true)
     end;
 
     [Test]
@@ -479,7 +483,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": FALSE, Type: Resource, Line Type: Budget & Billable) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -489,7 +493,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": TRUE, Type: Resource, Line Type: Budget & Billable) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, true)
+        PartialUseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), true)
     end;
 
     [Test]
@@ -499,7 +503,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": FALSE, Type: G/L Account, Line Type: Budget) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -509,7 +513,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": TRUE, Type: G/L Account, Line Type: Budget) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, true)
+        PartialUseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), true)
     end;
 
     [Test]
@@ -519,7 +523,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": FALSE, Type: G/L Account, Line Type: Budget & Billable) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -529,7 +533,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO] Verify that usage links created and Qtys and Amts are correct when planning line (Job."Apply Usage Link": TRUE, Type: G/L Account, Line Type: Budget & Billable) used completely via job journal in two steps with an explicit link.
 
-        PartialUseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, true)
+        PartialUseLinked(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), true)
     end;
 
     local procedure PartialUseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Enum "Job Planning Line Line Type"; ApplyUsageLink: Boolean)
@@ -573,7 +577,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Exercise - use 1 to 99% of planning line
         LibraryJob.UseJobPlanningLineExplicit(
-          JobPlanningLine, LibraryJob.UsageLineTypeBlank, LibraryRandom.RandInt(99) / 100, LibraryJob.JobConsumption,
+          JobPlanningLine, LibraryJob.UsageLineTypeBlank(), LibraryRandom.RandInt(99) / 100, LibraryJob.JobConsumption(),
           JobJournalLine);
         // refresh
         JobPlanningLine.Get(Job."No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
@@ -594,7 +598,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Exercise - use the rest
         BeforeJobPlanningLine := JobPlanningLine;
-        LibraryJob.UseJobPlanningLineExplicit(JobPlanningLine, LibraryJob.UsageLineTypeBlank, 1, LibraryJob.JobConsumption, JobJournalLine);
+        LibraryJob.UseJobPlanningLineExplicit(JobPlanningLine, LibraryJob.UsageLineTypeBlank(), 1, LibraryJob.JobConsumption(), JobJournalLine);
         // refresh
         JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
 
@@ -615,7 +619,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BlankMatchScheduledItem()
     begin
-        UseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeSchedule, false)
+        UseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -623,7 +627,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ScheduleMatchScheduledItem()
     begin
-        UseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeSchedule, false)
+        UseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -631,7 +635,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ContractMatchScheduledItem()
     begin
-        asserterror UseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeSchedule, false);
+        asserterror UseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -640,7 +644,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BothMatchScheduledItem()
     begin
-        asserterror UseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeSchedule, false);
+        asserterror UseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -649,7 +653,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BlankMatchBothItem()
     begin
-        UseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -657,7 +661,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ScheduleMatchBothItem()
     begin
-        UseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -665,7 +669,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ContractMatchBothItem()
     begin
-        UseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -673,7 +677,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BothMatchBothItem()
     begin
-        UseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -681,7 +685,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BlankMatchScheduledResource()
     begin
-        UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeSchedule, false)
+        UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -689,7 +693,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ScheduleMatchScheduledResource()
     begin
-        UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeSchedule, false)
+        UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -697,7 +701,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ContractMatchScheduledResource()
     begin
-        asserterror UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeSchedule, false);
+        asserterror UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -706,7 +710,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BothMatchScheduledResource()
     begin
-        asserterror UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeSchedule, false);
+        asserterror UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -715,7 +719,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BlankMatchBothResource()
     begin
-        UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -723,7 +727,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ScheduleMatchBothResource()
     begin
-        UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -731,7 +735,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ContractMatchBothResource()
     begin
-        UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -739,7 +743,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BothMatchBothResource()
     begin
-        UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -747,7 +751,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BlankMatchScheduledGL()
     begin
-        UseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeSchedule, false)
+        UseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -755,7 +759,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ScheduleMatchScheduledGL()
     begin
-        UseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeSchedule, false)
+        UseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -763,7 +767,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ContractMatchScheduledGL()
     begin
-        asserterror UseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeSchedule, false);
+        asserterror UseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -772,7 +776,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BothMatchScheduledGL()
     begin
-        asserterror UseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeSchedule, false);
+        asserterror UseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -781,7 +785,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BlankMatchBothGL()
     begin
-        UseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -789,7 +793,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ScheduleMatchBothGL()
     begin
-        UseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -797,7 +801,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ContractMatchBothGL()
     begin
-        UseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -805,7 +809,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BothMatchBothGL()
     begin
-        UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeBoth, false)
+        UseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     local procedure UseMatched(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Enum "Job Line Type"; LineTypeToMatch: Enum "Job Line Type"; ApplyUsageLink: Boolean)
@@ -825,7 +829,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // can only link to a planning line which type includes budget
         Assert.IsTrue(
-          LineTypeToMatch in [LibraryJob.PlanningLineTypeSchedule, LibraryJob.PlanningLineTypeBoth],
+          LineTypeToMatch in [LibraryJob.PlanningLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth()],
           'Line type should include budget.');
 
         // Setup
@@ -868,7 +872,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBlankMatchScheduledItem()
     begin
-        PartialUseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -876,7 +880,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PScheduleMatchScheduledItem()
     begin
-        PartialUseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -885,7 +889,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure PContractMatchScheduledItem()
     begin
         asserterror
-          PartialUseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeSchedule, false);
+          PartialUseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -895,7 +899,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure PBothMatchScheduledItem()
     begin
         asserterror
-          PartialUseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeSchedule, false);
+          PartialUseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -904,7 +908,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBlankMatchBothItem()
     begin
-        PartialUseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -912,7 +916,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PScheduleMatchBothItem()
     begin
-        PartialUseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -920,7 +924,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PContractMatchBothItem()
     begin
-        PartialUseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -928,7 +932,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBothMatchBothItem()
     begin
-        PartialUseMatched(LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -936,7 +940,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBlankMatchScheduledResource()
     begin
-        PartialUseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -944,7 +948,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PScheduleMatchScheduledRes()
     begin
-        PartialUseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -953,7 +957,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure PContractMatchScheduledRes()
     begin
         asserterror
-          PartialUseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeSchedule, false);
+          PartialUseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -963,7 +967,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure PBothMatchScheduledResource()
     begin
         asserterror
-          PartialUseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeSchedule, false);
+          PartialUseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -972,7 +976,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBlankMatchBothResource()
     begin
-        PartialUseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -980,7 +984,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PScheduleMatchBothResource()
     begin
-        PartialUseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -988,7 +992,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PContractMatchBothResource()
     begin
-        PartialUseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -996,7 +1000,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBothMatchBothResource()
     begin
-        PartialUseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.ResourceType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -1004,7 +1008,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBlankMatchScheduledGL()
     begin
-        PartialUseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -1012,7 +1016,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PScheduleMatchScheduledGL()
     begin
-        PartialUseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeSchedule, false)
+        PartialUseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -1021,7 +1025,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure PContractMatchScheduledGL()
     begin
         asserterror
-          PartialUseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeSchedule, false);
+          PartialUseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -1031,7 +1035,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure PBothMatchScheduledGL()
     begin
         asserterror
-          PartialUseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeSchedule, false);
+          PartialUseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeSchedule(), false);
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -1040,7 +1044,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBlankMatchBothGL()
     begin
-        PartialUseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBlank(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -1048,7 +1052,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PScheduleMatchBothGL()
     begin
-        PartialUseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -1056,7 +1060,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PContractMatchBothGL()
     begin
-        PartialUseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeContract(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -1064,7 +1068,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure PBothMatchBothGL()
     begin
-        PartialUseMatched(LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeBoth, false)
+        PartialUseMatched(LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBoth(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
@@ -1117,7 +1121,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Exercise - use the rest
         BeforeJobPlanningLine := JobPlanningLine;
-        LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 1, JobJournalLine);
+        LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule(), 1, JobJournalLine);
 
         // refresh
         JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
@@ -1139,7 +1143,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessScheduledItem()
     begin
-        ExcessUseMatched(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, false)
+        ExcessUseMatched(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -1147,7 +1151,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessScheduledItemDefault()
     begin
-        ExcessUseMatched(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, true)
+        ExcessUseMatched(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), true)
     end;
 
     [Test]
@@ -1155,7 +1159,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessBothItem()
     begin
-        ExcessUseMatched(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, false)
+        ExcessUseMatched(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -1163,7 +1167,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessBothItemDefault()
     begin
-        ExcessUseMatched(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, true)
+        ExcessUseMatched(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), true)
     end;
 
     [Test]
@@ -1171,7 +1175,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessScheduledResource()
     begin
-        ExcessUseMatched(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeSchedule, false)
+        ExcessUseMatched(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -1179,7 +1183,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessScheduledResourceDefault()
     begin
-        ExcessUseMatched(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeSchedule, true)
+        ExcessUseMatched(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), true)
     end;
 
     [Test]
@@ -1187,7 +1191,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessBothResource()
     begin
-        ExcessUseMatched(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, false)
+        ExcessUseMatched(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -1195,7 +1199,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessBothResourceDefault()
     begin
-        ExcessUseMatched(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, true)
+        ExcessUseMatched(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), true)
     end;
 
     [Test]
@@ -1203,7 +1207,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessScheduledGL()
     begin
-        ExcessUseMatched(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, false)
+        ExcessUseMatched(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), false)
     end;
 
     [Test]
@@ -1211,7 +1215,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessScheduledGLDefault()
     begin
-        ExcessUseMatched(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, true)
+        ExcessUseMatched(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), true)
     end;
 
     [Test]
@@ -1219,7 +1223,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessBothGL()
     begin
-        ExcessUseMatched(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, false)
+        ExcessUseMatched(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), false)
     end;
 
     [Test]
@@ -1227,7 +1231,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ExcessBothGLDefault()
     begin
-        ExcessUseMatched(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, true)
+        ExcessUseMatched(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), true)
     end;
 
     local procedure ExcessUseMatched(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Enum "Job Planning Line Line Type"; ApplyUsageLink: Boolean)
@@ -1247,7 +1251,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // can only match a planning line which type includes budget
         Assert.IsTrue(
-          LineTypeToMatch in [LibraryJob.PlanningLineTypeSchedule, LibraryJob.PlanningLineTypeBoth],
+          LineTypeToMatch in [LibraryJob.PlanningLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth()],
           'Line type should include budget.');
 
         // Setup
@@ -1265,7 +1269,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Exercise - use three (random) times the planned quantity
         BeforeJobPlanningLine := JobPlanningLine;
-        LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 3, JobJournalLine);
+        LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule(), 3, JobJournalLine);
 
         // refresh
         JobPlanningLine.Get(Job."No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
@@ -1294,7 +1298,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure MatchMultipleItemLines()
     begin
-        MatchMultipleLines(LibraryJob.ItemType, false)
+        MatchMultipleLines(LibraryJob.ItemType(), false)
     end;
 
     [Test]
@@ -1302,7 +1306,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure MatchMultipleItemLinesDefault()
     begin
-        MatchMultipleLines(LibraryJob.ItemType, true)
+        MatchMultipleLines(LibraryJob.ItemType(), true)
     end;
 
     [Test]
@@ -1310,7 +1314,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure MatchMultipleGLLines()
     begin
-        MatchMultipleLines(LibraryJob.GLAccountType, false)
+        MatchMultipleLines(LibraryJob.GLAccountType(), false)
     end;
 
     [Test]
@@ -1318,7 +1322,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure MatchMultipleGLLinesDefault()
     begin
-        MatchMultipleLines(LibraryJob.GLAccountType, true)
+        MatchMultipleLines(LibraryJob.GLAccountType(), true)
     end;
 
     local procedure MatchMultipleLines(ConsumableType: Enum "Job Planning Line Type"; ApplyUsageLink: Boolean)
@@ -1340,7 +1344,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // this is the planning line we want to match
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, ConsumableType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("Usage Link", true);
         JobPlanningLine.Modify(true);
         JobPlanningLine."Line No." := JobPlanningLine."Line No." + 10000;
@@ -1350,7 +1354,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LineCount := JobPlanningLine.Count();
 
         // Exercise - use both planning lines and more at once
-        LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 3, JobJournalLine);
+        LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule(), 3, JobJournalLine);
 
         // Verify - an extra planning line is created
         Assert.AreEqual(LineCount + 1, JobPlanningLine.Count, 'One extra planning line should have been created');
@@ -1377,7 +1381,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ScheduleNoMatchItem()
     begin
-        UsageLinkNoMatch(LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule)
+        UsageLinkNoMatch(LibraryJob.ItemType(), LibraryJob.UsageLineTypeSchedule())
     end;
 
     [Test]
@@ -1385,7 +1389,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ContractNoMatchItem()
     begin
-        UsageLinkNoMatch(LibraryJob.ItemType, LibraryJob.UsageLineTypeContract)
+        UsageLinkNoMatch(LibraryJob.ItemType(), LibraryJob.UsageLineTypeContract())
     end;
 
     [Test]
@@ -1393,7 +1397,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure BothNoMatchItem()
     begin
-        UsageLinkNoMatch(LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
+        UsageLinkNoMatch(LibraryJob.ItemType(), LibraryJob.UsageLineTypeBoth())
     end;
 
     local procedure UsageLinkNoMatch(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Enum "Job Line Type")
@@ -1421,7 +1425,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - a new, linked line is created
         JobPlanningLine.SetRange(Description, TempJobJournalLine.Description);
-        JobPlanningLine.SetFilter("Line Type", '%1|%2', LibraryJob.PlanningLineTypeSchedule, LibraryJob.PlanningLineTypeBoth);
+        JobPlanningLine.SetFilter("Line Type", '%1|%2', LibraryJob.PlanningLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth());
         Assert.AreEqual(1, JobPlanningLine.Count, 'Only one line of type that includes budget should have been created');
         JobPlanningLine.FindFirst();
         JobLedgerEntry.SetRange(Description, TempJobJournalLine.Description);
@@ -1451,17 +1455,17 @@ codeunit 136303 "Job Consumption - Usage Link"
         Initialize();
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
 
         // Exercise
-        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 1, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule(), 1, JobJournalLine);
         JobJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
         JobJournalLine.Modify(true);
         JobPlanningLine.Delete(true);
 
         // Verfiy
         asserterror LibraryJob.PostJobJournal(JobJournalLine);
-        Assert.IsTrue(StrPos(GetLastErrorText, 'The Job Planning Line does not exist.') = 1, 'Unexpected error');
+        Assert.IsTrue(StrPos(GetLastErrorText, 'The Project Planning Line does not exist.') = 1, 'Unexpected error');
     end;
 
     [Test]
@@ -1475,7 +1479,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that pland and execution matched when executing plan (negative Quantity) for Job Planning Line (Type = Resource) with usage link flag (negative Quantity), do not set link to plan.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        MatchQuantities(QtyToPost, QtyToPost / 3, LibraryJob.ResourceType)
+        MatchQuantities(QtyToPost, QtyToPost / 3, LibraryJob.ResourceType())
     end;
 
     [Test]
@@ -1489,7 +1493,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that plan and execution matched when executing plan (negative Quantity) for Job Planning Line (Type = Item) with usage link flag (negative Quantity), do not set link to plan.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        MatchQuantities(QtyToPost, QtyToPost / 3, LibraryJob.ItemType)
+        MatchQuantities(QtyToPost, QtyToPost / 3, LibraryJob.ItemType())
     end;
 
     [Test]
@@ -1503,7 +1507,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that pland and execution matched when executing plan (negative Quantity) for Job Planning Line (Type = G/L Account) with usage link flag (negative Quantity), do not set link to plan.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        MatchQuantities(QtyToPost, QtyToPost / 3, LibraryJob.GLAccountType)
+        MatchQuantities(QtyToPost, QtyToPost / 3, LibraryJob.GLAccountType())
     end;
 
     [Test]
@@ -1518,7 +1522,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         QtyToPost := LibraryRandom.RandInt(100);
         // these should not match!
-        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType);
+        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType());
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -1534,7 +1538,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         QtyToPost := LibraryRandom.RandInt(100);
         // these should not match!
-        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ItemType);
+        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ItemType());
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -1550,7 +1554,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         QtyToPost := LibraryRandom.RandInt(100);
         // these should not match!
-        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.GLAccountType);
+        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.GLAccountType());
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -1566,7 +1570,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         QtyToPost := -LibraryRandom.RandInt(100);
         // these should not match!
-        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType);
+        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType());
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -1582,7 +1586,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         QtyToPost := -LibraryRandom.RandInt(100);
         // these should not match!
-        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType);
+        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType());
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -1598,7 +1602,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         QtyToPost := -LibraryRandom.RandInt(100);
         // these should not match!
-        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType);
+        asserterror MatchQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType());
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
@@ -1629,7 +1633,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // this is the planning line we want to match
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, ConsumableType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Quantity, QtyToMatch);
         JobPlanningLine.Validate("Usage Link", true);
         JobPlanningLine.Modify(true);
@@ -1640,7 +1644,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LineCount := JobPlanningLine.Count();
 
         // Exercise
-        if (QtyToPost < 0) and (ConsumableType = LibraryJob.ItemType) then begin
+        if (QtyToPost < 0) and (ConsumableType = LibraryJob.ItemType()) then begin
             // Before crediting, use item first
             JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
             JobPlanningLine.Validate(Quantity, Abs(QtyToPost));
@@ -1648,10 +1652,10 @@ codeunit 136303 "Job Consumption - Usage Link"
             JobPlanningLine.Insert(true);
             LineCount += 1;
             LibraryJob.UseJobPlanningLineExplicit(
-              JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 1, LibraryJob.JobConsumption, JobJournalLine);
+              JobPlanningLine, LibraryJob.UsageLineTypeSchedule(), 1, LibraryJob.JobConsumption(), JobJournalLine);
             JobPlanningLine := BeforeJobPlanningLine
         end;
-        LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, QtyToPost / QtyToMatch, JobJournalLine);
+        LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule(), QtyToPost / QtyToMatch, JobJournalLine);
 
         // refresh
         JobPlanningLine.Get(Job."No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
@@ -1692,7 +1696,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (negative Quantity) for Job Planning Line (Type = Resource) with usage link (negative Quantity), set link to plan explicitly.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, QtyToPost / 3, LibraryJob.ResourceType)
+        LinkQuantities(QtyToPost, QtyToPost / 3, LibraryJob.ResourceType())
     end;
 
     [Test]
@@ -1705,7 +1709,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (negative Quantity) for Job Planning Line (Type = Item) with usage link (negative Quantity), set link to plan explicitly.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, QtyToPost / 3, LibraryJob.ItemType)
+        LinkQuantities(QtyToPost, QtyToPost / 3, LibraryJob.ItemType())
     end;
 
     [Test]
@@ -1718,7 +1722,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (negative Quantity) for Job Planning Line (Type = G/L Account) with usage link (negative Quantity), set link to plan explicitly.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, QtyToPost / 3, LibraryJob.GLAccountType)
+        LinkQuantities(QtyToPost, QtyToPost / 3, LibraryJob.GLAccountType())
     end;
 
     [Test]
@@ -1731,7 +1735,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (negative Quantity) for Job Planning Line (Type = Resource) with usage link (positive Quantity), set link to plan explicitly.
 
         QtyToPost := LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType)
+        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType())
     end;
 
     [Test]
@@ -1744,7 +1748,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (negative Quantity) for Job Planning Line (Type = Item) with usage link (positive Quantity), set link to plan explicitly.
 
         QtyToPost := LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ItemType)
+        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ItemType())
     end;
 
     [Test]
@@ -1757,7 +1761,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (negative Quantity) for Job Planning Line (Type = G/L Account) with usage link (positive Quantity), set link to plan explicitly.
 
         QtyToPost := LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.GLAccountType)
+        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.GLAccountType())
     end;
 
     [Test]
@@ -1770,7 +1774,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (positive Quantity) for Job Planning Line (Type = Resource) with usage link (negative Quantity), set link to plan explicitly.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType)
+        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ResourceType())
     end;
 
     [Test]
@@ -1783,7 +1787,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (positive Quantity) for Job Planning Line (Type = Item) with usage link (negative Quantity), set link to plan explicitly.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ItemType)
+        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.ItemType())
     end;
 
     [Test]
@@ -1796,12 +1800,12 @@ codeunit 136303 "Job Consumption - Usage Link"
         // [SCENARIO] Verify that Quantities and Amounts are correct when executing plan (positive Quantity) for Job Planning Line (Type = G/L Account) with usage link (negative Quantity), set link to plan explicitly.
 
         QtyToPost := -LibraryRandom.RandInt(100);
-        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.GLAccountType)
+        LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.GLAccountType())
     end;
 
     local procedure Initialize()
     var
-#if not CLEAN21
+#if not CLEAN23
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1815,7 +1819,7 @@ codeunit 136303 "Job Consumption - Usage Link"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption - Usage Link");
 
-#if not CLEAN21
+#if not CLEAN23
         // Removing special prices, discounts
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
@@ -1826,8 +1830,8 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibrarySales.SetCreditWarningsToNoWarnings;
-        UpdateCustNoSeries; // required for FI
+        LibrarySales.SetCreditWarningsToNoWarnings();
+        UpdateCustNoSeries(); // required for FI
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
@@ -1862,7 +1866,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // this is the planning line we want to match
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, ConsumableType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Quantity, QtyToMatch);
         JobPlanningLine.Validate("Usage Link", true);
         JobPlanningLine.Modify(true);
@@ -1875,7 +1879,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LineCount := JobPlanningLine.Count();
 
         // Exercise
-        if (QtyToPost < 0) and (ConsumableType = LibraryJob.ItemType) then begin
+        if (QtyToPost < 0) and (ConsumableType = LibraryJob.ItemType()) then begin
             // Before crediting, use item first
             JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
             JobPlanningLine.Validate(Quantity, Abs(QtyToPost));
@@ -1883,12 +1887,12 @@ codeunit 136303 "Job Consumption - Usage Link"
             JobPlanningLine.Insert(true);
             LineCount += 1;
             LibraryJob.UseJobPlanningLineExplicit(
-              JobPlanningLine, LibraryJob.UsageLineTypeBlank, 1, LibraryJob.JobConsumption, JobJournalLine);
+              JobPlanningLine, LibraryJob.UsageLineTypeBlank(), 1, LibraryJob.JobConsumption(), JobJournalLine);
             JobPlanningLine := BeforeJobPlanningLine
         end;
 
         LibraryJob.UseJobPlanningLineExplicit(
-          JobPlanningLine, LibraryJob.UsageLineTypeBlank, QtyToPost / QtyToMatch, LibraryJob.JobConsumption, JobJournalLine);
+          JobPlanningLine, LibraryJob.UsageLineTypeBlank(), QtyToPost / QtyToMatch, LibraryJob.JobConsumption(), JobJournalLine);
 
         // refresh
         JobPlanningLine.Get(Job."No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
@@ -1909,7 +1913,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure UseMoreSpecificItemLocation()
     begin
         Initialize();
-        Assert.AreEqual(0, UseItemVariations('A', '', 'A', GetLocationA), 'No planning lines should have been created.')
+        Assert.AreEqual(0, UseItemVariations('A', '', 'A', GetLocationA()), 'No planning lines should have been created.')
     end;
 
     [Test]
@@ -1918,7 +1922,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure UseMoreSpecificItemVariant()
     begin
         Initialize();
-        Assert.AreEqual(0, UseItemVariations('', GetLocationA, 'A', GetLocationA), 'No planning lines should have been created.')
+        Assert.AreEqual(0, UseItemVariations('', GetLocationA(), 'A', GetLocationA()), 'No planning lines should have been created.')
     end;
 
     [Test]
@@ -1927,7 +1931,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure UseLessSpecificItemLocation()
     begin
         Initialize();
-        Assert.AreEqual(1, UseItemVariations('A', GetLocationA, 'A', ''), 'One planning line should have been created.')
+        Assert.AreEqual(1, UseItemVariations('A', GetLocationA(), 'A', ''), 'One planning line should have been created.')
     end;
 
     [Test]
@@ -1936,7 +1940,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure UseLessSpecificItemVariant()
     begin
         Initialize();
-        Assert.AreEqual(1, UseItemVariations('A', GetLocationA, '', GetLocationA), 'One planning line should have been created.')
+        Assert.AreEqual(1, UseItemVariations('A', GetLocationA(), '', GetLocationA()), 'One planning line should have been created.')
     end;
 
     [Test]
@@ -1945,7 +1949,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure UseDifferentItemLocation()
     begin
         Initialize();
-        Assert.AreEqual(1, UseItemVariations('A', GetLocationA, 'A', GetLocationB), 'One planning line should have been created.')
+        Assert.AreEqual(1, UseItemVariations('A', GetLocationA(), 'A', GetLocationB()), 'One planning line should have been created.')
     end;
 
     [Test]
@@ -1954,7 +1958,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure UseDifferentItemVariant()
     begin
         Initialize();
-        Assert.AreEqual(1, UseItemVariations('A', GetLocationA, 'B', GetLocationA), 'One planning line should have been created.')
+        Assert.AreEqual(1, UseItemVariations('A', GetLocationA(), 'B', GetLocationA()), 'One planning line should have been created.')
     end;
 
     [Test]
@@ -1963,7 +1967,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     procedure UseSameItemLocation()
     begin
         Initialize();
-        Assert.AreEqual(0, UseItemVariations('', GetLocationA, '', GetLocationA), 'No planning lines should have been created.')
+        Assert.AreEqual(0, UseItemVariations('', GetLocationA(), '', GetLocationA()), 'No planning lines should have been created.')
     end;
 
     [Test]
@@ -1993,7 +1997,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // this is the planning line we want to match
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate("Variant Code", CreateItemVariant(JobPlanningLine."No.", VariantCodePlan));
         JobPlanningLine.Validate("Location Code", LocationCodePlan);
         JobPlanningLine.Modify(true);
@@ -2001,7 +2005,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LineCount := JobPlanningLine.Count();
 
         // Exercise
-        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 1, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule(), 1, JobJournalLine);
         JobJournalLine.Validate("Variant Code", CreateItemVariant(JobJournalLine."No.", VariantCodeUse));
         JobJournalLine.Validate("Location Code", LocationCodeUse);
         JobJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
@@ -2070,14 +2074,14 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // this is the planning line we want to match
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate("Work Type Code", CreateWorkType(WorkTypeCodePlan));
         JobPlanningLine.Modify(true);
 
         LineCount := JobPlanningLine.Count();
 
         // Exercise
-        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 1, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule(), 1, JobJournalLine);
         JobJournalLine.Validate("Work Type Code", CreateWorkType(WorkTypeCodeUse));
         JobJournalLine.Modify(true);
         LibraryJob.PostJobJournal(JobJournalLine);
@@ -2093,7 +2097,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         exit(JobPlanningLine.Count - LineCount)
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure ResourcePriceWhenWorkTypeCodeMatched()
@@ -2213,7 +2217,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         CreateJobWithTaskAndApplyUsageLink(JobTask);
 
         // [GIVEN] Job Journal Line for Usage with blank "Line Type"
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBlank, LibraryJob.ItemType, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBlank(), LibraryJob.ItemType(), JobTask, JobJournalLine);
         SetSourceForConfirmSpecificMessageHandler(true);
 
         // [WHEN] Post Job Journal Line and confirm message "The Line Type of Job Journal Line was not defined. Do you want to continue?"
@@ -2242,7 +2246,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         CreateJobWithTaskAndApplyUsageLink(JobTask);
 
         // [GIVEN] Job Journal Line for Usage with blank "Line Type"
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBlank, LibraryJob.ItemType, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBlank(), LibraryJob.ItemType(), JobTask, JobJournalLine);
         SetSourceForConfirmSpecificMessageHandler(false);
 
         // [WHEN] Post Job Journal Line and cancel confirmation message "The Line Type of Job Journal Line was not defined. Do you want to continue?"
@@ -2306,7 +2310,7 @@ codeunit 136303 "Job Consumption - Usage Link"
             JobPlanningLine2.TableCaption()));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateJobResourcePriceWithUnitPrice(JobTask: Record "Job Task"; JobResourcePriceType: Option; "Code": Code[20]; WorkTypeCode: Code[10]; UnitPrice: Decimal)
     var
         JobResourcePrice: Record "Job Resource Price";
@@ -2322,7 +2326,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         with JobPlanningLine do begin
             Validate("No.", ResourceNo);
             Validate("Work Type Code", WorkTypeCode);
@@ -2335,7 +2339,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     var
         JobJournalLine: Record "Job Journal Line";
     begin
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeContract, LibraryJob.ResourceType, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobJournalLine);
         with JobJournalLine do begin
             Validate("No.", ResourceNo);
             Validate("Work Type Code", WorkTypeCode);
@@ -2398,7 +2402,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // earlier, but contract line
         NewJobPlanningLine := JobPlanningLine;
         Evaluate(DateForm, '<-1W>');
-        NewJobPlanningLine.Validate("Line Type", LibraryJob.PlanningLineTypeContract);
+        NewJobPlanningLine.Validate("Line Type", LibraryJob.PlanningLineTypeContract());
         NewJobPlanningLine.Validate("Planning Date", CalcDate(DateForm, JobPlanningLine."Planning Date"));
         NewJobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
         NewJobPlanningLine.Insert(true);
@@ -2433,7 +2437,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
-        JobPlanningLine.FindSet
+        JobPlanningLine.FindSet();
     end;
 
     local procedure CreateItemVariant(ItemNo: Code[20]; VariantCode: Code[10]): Code[10]
@@ -2620,8 +2624,8 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure ConfirmSpecificMessageHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]
@@ -2634,7 +2638,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     var
         Location: Record Location;
     begin
-        if LibraryVariableStorage.Length < 1 then begin
+        if LibraryVariableStorage.Length() < 1 then begin
             LibraryJob.FindLocation(Location);
             LibraryInventory.UpdateInventoryPostingSetup(Location);
             LibraryVariableStorage.Enqueue(Location.Code);
@@ -2647,8 +2651,8 @@ codeunit 136303 "Job Consumption - Usage Link"
     var
         Location: Record Location;
     begin
-        if LibraryVariableStorage.Length < 2 then begin
-            Location.SetFilter(Code, '<>%1', GetLocationA);
+        if LibraryVariableStorage.Length() < 2 then begin
+            Location.SetFilter(Code, '<>%1', GetLocationA());
             LibraryJob.FindLocation(Location);
             LibraryInventory.UpdateInventoryPostingSetup(Location);
             LibraryVariableStorage.Enqueue(Location.Code);
@@ -2662,7 +2666,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
     end;
 }

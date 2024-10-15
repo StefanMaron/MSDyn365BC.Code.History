@@ -29,8 +29,8 @@ codeunit 134836 "Test Vendor Lookup"
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
         ConfigTemplateHeader.DeleteAll(true);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
 
         // Lazy Setup.
         if isInitialized then
@@ -83,7 +83,7 @@ codeunit 134836 "Test Vendor Lookup"
 
         // Exercise: Select existing Vend.
         PurchaseQuote.OpenNew();
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
         PurchaseQuote."Buy-from Vendor Name".SetValue(Vend.Name);
         PurchaseQuote."Buy-from Vendor Name".SetValue(Vend1.Name);
 
@@ -107,7 +107,7 @@ codeunit 134836 "Test Vendor Lookup"
         VendName := CopyStr(Format(CreateGuid()), 1, 50);
 
         PurchaseQuote.OpenNew();
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
 
         // Verify
         asserterror PurchaseQuote."Buy-from Vendor Name".SetValue(VendName);
@@ -191,15 +191,15 @@ codeunit 134836 "Test Vendor Lookup"
     begin
         LibraryVariableStorage.Dequeue(VendName);
         VendorList.FILTER.SetFilter(Name, VendName);
-        VendorList.Last;
-        VendorList.OK.Invoke;
+        VendorList.Last();
+        VendorList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendListCancelPageHandler(var VendorList: TestPage "Vendor List")
     begin
-        VendorList.Cancel.Invoke;
+        VendorList.Cancel().Invoke();
     end;
 
     local procedure CreateVend(var Vend: Record Vendor)

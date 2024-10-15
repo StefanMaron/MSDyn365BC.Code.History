@@ -251,12 +251,10 @@ report 10145 "Item Sales by Customer"
                     end;
                     CalcFields("Cost Amount (Actual)");
                     "Invoiced Quantity" := -"Invoiced Quantity";
-                    with ValueEntry do begin
-                        SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
-                        CalcSums("Sales Amount (Actual)", "Discount Amount");
-                        "Discount Amount" := -"Discount Amount";
-                        Profit := "Sales Amount (Actual)" + "Item Ledger Entry"."Cost Amount (Actual)";
-                    end;
+                    ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
+                    ValueEntry.CalcSums("Sales Amount (Actual)", "Discount Amount");
+                    ValueEntry."Discount Amount" := -ValueEntry."Discount Amount";
+                    Profit := ValueEntry."Sales Amount (Actual)" + "Item Ledger Entry"."Cost Amount (Actual)";
 
                     if "Source No." <> '' then
                         Cust.Get("Source No.")
@@ -285,10 +283,8 @@ report 10145 "Item Sales by Customer"
                     if IncludeReturns then
                         SetFilter("Invoiced Quantity", '<>0');
 
-                    with ValueEntry do begin
-                        Reset();
-                        SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-                    end;
+                    ValueEntry.Reset();
+                    ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
 
                     TotalInvQtyForSource := 0;
                     TotalSalesAmtForSource := 0;
@@ -501,12 +497,10 @@ report 10145 "Item Sales by Customer"
             else
                 ProfitPct := 0;
         end else
-            with ValueEntry do begin
-                if "Sales Amount (Actual)" <> 0 then
-                    ProfitPct := Round(Profit / "Sales Amount (Actual)" * 100, 0.1)
-                else
-                    ProfitPct := 0;
-            end;
+            if ValueEntry."Sales Amount (Actual)" <> 0 then
+                ProfitPct := Round(Profit / ValueEntry."Sales Amount (Actual)" * 100, 0.1)
+            else
+                ProfitPct := 0;
     end;
 
     local procedure MakeExcelInfo()

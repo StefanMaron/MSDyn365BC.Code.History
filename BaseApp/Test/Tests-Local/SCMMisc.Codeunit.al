@@ -50,12 +50,12 @@ codeunit 144020 "SCM Misc."
         ProdOrderCount := LibraryRandom.RandIntInRange(2, 4);
         for Counter := 1 to ProdOrderCount do begin
             CreateItemWithVendorNoAndReorderingPolicy(
-              Item, CreateVendorWithTaxAreaCode, Item."Reordering Policy"::Order);
+              Item, CreateVendorWithTaxAreaCode(), Item."Reordering Policy"::Order);
             LibraryVariableStorage.Enqueue(Item."Vendor No.");
             ItemFilter += '|' + Item."No.";
             Clear(SalesHeader);
             CreateSalesOrder(
-              SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandInt(100), LocationBlue.Code, false);
+              SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandInt(100), LocationBlue.Code, false);
         end;
 
         // [GIVEN] Calculate Plan for Items.
@@ -69,7 +69,7 @@ codeunit 144020 "SCM Misc."
         with PurchHeader do begin
             SetRange("Document Type", "Document Type"::Order);
             for Counter := 1 to ProdOrderCount do begin
-                SetRange("Buy-from Vendor No.", LibraryVariableStorage.DequeueText);
+                SetRange("Buy-from Vendor No.", LibraryVariableStorage.DequeueText());
                 Assert.IsFalse(IsEmpty, StrSubstNo(PurchHeaderNotFoundErr, GetRangeMin("Buy-from Vendor No.")));
             end;
         end;
@@ -225,7 +225,7 @@ codeunit 144020 "SCM Misc."
         GetDropShipmentSalesOrders(SalesLine, RequisitionLine);
 
         // [WHEN] Carry Out Action Message
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
         // [THEN] One Purchase Order is created for both Sales Lines
         PurchaseHeader.SetRange("Buy-from Vendor No.", Item."Vendor No.");
@@ -239,8 +239,8 @@ codeunit 144020 "SCM Misc."
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Misc.");
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -253,9 +253,9 @@ codeunit 144020 "SCM Misc."
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryInventory.UpdateGenProdPostingSetup;
+        LibraryInventory.UpdateGenProdPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -269,15 +269,15 @@ codeunit 144020 "SCM Misc."
         RequisitionLine."Journal Batch Name" := RequisitionWkshName.Name;
     end;
 
-    local procedure ItemJournalSetup(var ItemJournalTemplate2: Record "Item Journal Template"; var ItemJournalBatch2: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure ItemJournalSetup(var ItemJournalTemplate2: Record "Item Journal Template"; var ItemJournalBatch2: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     begin
         ItemJournalTemplate.SetRange(Recurring, false);
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate2, ItemJournalTemplateType);
-        ItemJournalTemplate2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate2.Modify(true);
 
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch2, ItemJournalTemplate2.Type, ItemJournalTemplate2.Name);
-        ItemJournalBatch2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch2.Modify(true);
     end;
 
@@ -293,15 +293,15 @@ codeunit 144020 "SCM Misc."
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         InventorySetup.Get();
-        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Modify(true);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -319,7 +319,7 @@ codeunit 144020 "SCM Misc."
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.FindFirst();
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure CreateAndUpdateLocation(var Location: Record Location; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean; BinMandatory: Boolean)
@@ -350,7 +350,7 @@ codeunit 144020 "SCM Misc."
         Item.Modify(true);
     end;
 
-    local procedure CreateItemWithVendorNoAndReorderingPolicy(var Item: Record Item; VendorNo: Code[20]; ReorderingPolicy: Option)
+    local procedure CreateItemWithVendorNoAndReorderingPolicy(var Item: Record Item; VendorNo: Code[20]; ReorderingPolicy: Enum "Reordering Policy")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -451,7 +451,7 @@ codeunit 144020 "SCM Misc."
         Item: Record Item;
     begin
         CreateItemPurchaseReplishment(Item);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLines(SalesHeader, Item."No.", CreatePurchasing(SpecialOrder, DropShipment), 1);
 
         FindSalesLine(SalesLine, SalesHeader);

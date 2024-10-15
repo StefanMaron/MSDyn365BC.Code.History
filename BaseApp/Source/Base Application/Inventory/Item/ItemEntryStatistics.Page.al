@@ -25,37 +25,49 @@ page 304 "Item Entry Statistics"
                     group(Date)
                     {
                         Caption = 'Date';
+#pragma warning disable AA0100
                         field("ItemLedgEntry[5].""Posting Date"""; ItemLedgEntry[5]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Receipt';
                             ToolTip = 'Specifies item ledger entries that are related to purchase receipts.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[1].""Posting Date"""; ValueEntry[1]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Purchases';
                             ToolTip = 'Specifies item ledger entries that are related to purchases.';
                         }
+#pragma warning disable AA0100
                         field("ItemLedgEntry[3].""Posting Date"""; ItemLedgEntry[3]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Positive Adjustment';
                             ToolTip = 'Specifies item ledger entries that are related to positive adjustment through an inventory journal.';
                         }
+#pragma warning disable AA0100
                         field("ItemLedgEntry[6].""Posting Date"""; ItemLedgEntry[6]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Shipment';
                             ToolTip = 'Specifies item ledger entries that are related to sales shipments.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[2].""Posting Date"""; ValueEntry[2]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Sales';
                             ToolTip = 'Specifies item ledger entries that are related to sales.';
                         }
+#pragma warning disable AA0100
                         field("ItemLedgEntry[4].""Posting Date"""; ItemLedgEntry[4]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Negative Adjustment';
@@ -65,37 +77,49 @@ page 304 "Item Entry Statistics"
                     group("Document No.")
                     {
                         Caption = 'Document No.';
+#pragma warning disable AA0100
                         field("ItemLedgEntry[5].""Document No."""; ItemLedgEntry[5]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[1].""Document No."""; ValueEntry[1]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("ItemLedgEntry[3].""Document No."""; ItemLedgEntry[3]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("ItemLedgEntry[6].""Document No."""; ItemLedgEntry[6]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[2].""Document No."""; ValueEntry[2]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("ItemLedgEntry[4].""Document No."""; ItemLedgEntry[4]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
@@ -105,14 +129,18 @@ page 304 "Item Entry Statistics"
                     group(Quantity)
                     {
                         Caption = 'Quantity';
+#pragma warning disable AA0100
                         field("ValueEntry[5].""Valued Quantity"""; ValueEntry[5]."Valued Quantity")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Quantity';
                             DecimalPlaces = 0 : 5;
                             ToolTip = 'Specifies the total quantity of items in the entry.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[1].""Invoiced Quantity"""; ValueEntry[1]."Invoiced Quantity")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Quantity';
@@ -126,14 +154,18 @@ page 304 "Item Entry Statistics"
                             DecimalPlaces = 0 : 5;
                             ToolTip = 'Specifies the total quantity of items in the entry.';
                         }
+#pragma warning disable AA0100
                         field("-ValueEntry[6].""Valued Quantity"""; -ValueEntry[6]."Valued Quantity")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Quantity';
                             DecimalPlaces = 0 : 5;
                             ToolTip = 'Specifies the total quantity of items in the entry.';
                         }
+#pragma warning disable AA0100
                         field("-ValueEntry[2].""Invoiced Quantity"""; -ValueEntry[2]."Invoiced Quantity")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Quantity';
@@ -197,42 +229,54 @@ page 304 "Item Entry Statistics"
                     group("Discount Amount")
                     {
                         Caption = 'Discount Amount';
+#pragma warning disable AA0100
                         field("ValueEntry[5].""Discount Amount"""; ValueEntry[5]."Discount Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[1].""Discount Amount"""; ValueEntry[1]."Discount Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[3].""Discount Amount"""; ValueEntry[3]."Discount Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("-ValueEntry[6].""Discount Amount"""; -ValueEntry[6]."Discount Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("-ValueEntry[2].""Discount Amount"""; -ValueEntry[2]."Discount Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("-ValueEntry[4].""Discount Amount"""; -ValueEntry[4]."Discount Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
@@ -243,42 +287,54 @@ page 304 "Item Entry Statistics"
                     group(Amount)
                     {
                         Caption = 'Amount';
+#pragma warning disable AA0100
                         field("ValueEntry[5].""Cost Amount (Actual)"""; ValueEntry[5]."Cost Amount (Actual)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[1].""Cost Amount (Actual)"""; ValueEntry[1]."Cost Amount (Actual)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[3].""Cost Amount (Actual)"""; ValueEntry[3]."Cost Amount (Actual)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[6].""Sales Amount (Actual)"""; ValueEntry[6]."Sales Amount (Actual)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("ValueEntry[2].""Sales Amount (Actual)"""; ValueEntry[2]."Sales Amount (Actual)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Amount';
                             ToolTip = 'Specifies the net amount of all the lines in the item entry.';
                         }
+#pragma warning disable AA0100
                         field("-ValueEntry[4].""Cost Amount (Actual)"""; -ValueEntry[4]."Cost Amount (Actual)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
@@ -297,25 +353,33 @@ page 304 "Item Entry Statistics"
                     group(Control1900206001)
                     {
                         Caption = 'Date';
+#pragma warning disable AA0100
                         field("PurchOrderLine[1].""Expected Receipt Date"""; PurchOrderLine[1]."Expected Receipt Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Next Receipt';
                             ToolTip = 'Specifies information for the next expected receipt of the item.';
                         }
+#pragma warning disable AA0100
                         field("PurchOrderLine[2].""Expected Receipt Date"""; PurchOrderLine[2]."Expected Receipt Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Last Receipt';
                             ToolTip = 'Specifies information about the last receipt that was posted for the item.';
                         }
+#pragma warning disable AA0100
                         field("SalesLine[1].""Shipment Date"""; SalesLine[1]."Shipment Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Next Shipment';
                             ToolTip = 'Specifies information about the next shipment that is expected for the item.';
                         }
+#pragma warning disable AA0100
                         field("SalesLine[2].""Shipment Date"""; SalesLine[2]."Shipment Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Last Shipment';
@@ -325,25 +389,33 @@ page 304 "Item Entry Statistics"
                     group("Order No.")
                     {
                         Caption = 'Order No.';
+#pragma warning disable AA0100
                         field("PurchOrderLine[1].""Document No."""; PurchOrderLine[1]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Order No.';
                             ToolTip = 'Specifies the number of the order that the item was handled on.';
                         }
+#pragma warning disable AA0100
                         field("PurchOrderLine[2].""Document No."""; PurchOrderLine[2]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Order No.';
                             ToolTip = 'Specifies the number of the order that the item was handled on.';
                         }
+#pragma warning disable AA0100
                         field("SalesLine[1].""Document No."""; SalesLine[1]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Order No.';
                             ToolTip = 'Specifies the number of the order that the item was handled on.';
                         }
+#pragma warning disable AA0100
                         field("SalesLine[2].""Document No."""; SalesLine[2]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Order No.';
@@ -381,28 +453,36 @@ page 304 "Item Entry Statistics"
                     group(Control1900545201)
                     {
                         Caption = 'Unit Amount';
+#pragma warning disable AA0100
                         field("PurchOrderLine[1].""Direct Unit Cost"""; PurchOrderLine[1]."Direct Unit Cost")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 2;
                             Caption = 'Unit Amount';
                             ToolTip = 'Specifies the value per unit on the item ledger entry.';
                         }
+#pragma warning disable AA0100
                         field("PurchOrderLine[2].""Direct Unit Cost"""; PurchOrderLine[2]."Direct Unit Cost")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 2;
                             Caption = 'Unit Amount';
                             ToolTip = 'Specifies the value per unit on the item ledger entry.';
                         }
+#pragma warning disable AA0100
                         field("SalesLine[1].""Unit Price"""; SalesLine[1]."Unit Price")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 2;
                             Caption = 'Unit Amount';
                             ToolTip = 'Specifies the value per unit on the item ledger entry.';
                         }
+#pragma warning disable AA0100
                         field("SalesLine[2].""Unit Price"""; SalesLine[2]."Unit Price")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 2;
@@ -413,25 +493,33 @@ page 304 "Item Entry Statistics"
                     group("Qty. on Order")
                     {
                         Caption = 'Qty. on Order';
+#pragma warning disable AA0100
                         field("PurchOrderLine[1].""Outstanding Quantity"""; PurchOrderLine[1]."Outstanding Quantity")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Qty. on Order';
                             ToolTip = 'Specifies the quantity on the order that the item was handled on.';
                         }
+#pragma warning disable AA0100
                         field("PurchOrderLine[2].""Outstanding Quantity"""; PurchOrderLine[2]."Outstanding Quantity")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Qty. on Order';
                             ToolTip = 'Specifies the quantity on the order that the item was handled on.';
                         }
+#pragma warning disable AA0100
                         field("SalesLine[1].""Outstanding Quantity"""; SalesLine[1]."Outstanding Quantity")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Qty. on Order';
                             ToolTip = 'Specifies the quantity on the order that the item was handled on.';
                         }
+#pragma warning disable AA0100
                         field("SalesLine[2].""Outstanding Quantity"""; SalesLine[2]."Outstanding Quantity")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Qty. on Order';
@@ -475,17 +563,17 @@ page 304 "Item Entry Statistics"
 
             if j in [1, 2] then begin // Purchase,Sale
                 ValueEntry2.SetFilter("Invoiced Quantity", '<>0');
-                FindLastValueEntry(j, ValueEntry2);
+                FindLastValueEntry(j);
                 ValueEntry2.SetRange("Invoiced Quantity");
 
-                FindLastItemEntry(j + 4, ItemLedgEntry2); // Receipt,Shipment
+                FindLastItemEntry(j + 4); // Receipt,Shipment
                 ValueEntry2.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
-                FindLastValueEntry(j + 4, ValueEntry2);
+                FindLastValueEntry(j + 4);
                 ValueEntry2.SetRange("Item Ledger Entry No.");
             end else begin
-                FindLastItemEntry(j, ItemLedgEntry2);
+                FindLastItemEntry(j);
                 ValueEntry2.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
-                FindLastValueEntry(j, ValueEntry2);
+                FindLastValueEntry(j);
                 ValueEntry2.SetRange("Item Ledger Entry No.");
             end;
         end;
@@ -577,57 +665,55 @@ page 304 "Item Entry Statistics"
         j: Integer;
         UnitAmount: array[6] of Decimal;
 
-    local procedure FindLastItemEntry(k: Integer; LastItemLedgEntry: Record "Item Ledger Entry")
+    local procedure FindLastItemEntry(k: Integer)
     begin
-        with LastItemLedgEntry do
-            if ItemLedgEntry2.Find('-') then
-                repeat
-                    ItemLedgEntry2.SetRange("Variant Code", ItemLedgEntry2."Variant Code");
-                    ItemLedgEntry2.SetRange("Drop Shipment", ItemLedgEntry2."Drop Shipment");
-                    ItemLedgEntry2.SetRange("Location Code", ItemLedgEntry2."Location Code");
-                    ItemLedgEntry2.Find('+');
+        if ItemLedgEntry2.Find('-') then
+            repeat
+                ItemLedgEntry2.SetRange("Variant Code", ItemLedgEntry2."Variant Code");
+                ItemLedgEntry2.SetRange("Drop Shipment", ItemLedgEntry2."Drop Shipment");
+                ItemLedgEntry2.SetRange("Location Code", ItemLedgEntry2."Location Code");
+                ItemLedgEntry2.Find('+');
 
-                    if (ItemLedgEntry2."Posting Date" > ItemLedgEntry[k]."Posting Date") or
-                       ((ItemLedgEntry2."Posting Date" = ItemLedgEntry[k]."Posting Date") and
-                        (ItemLedgEntry2."Entry No." > ItemLedgEntry[k]."Entry No."))
-                    then
-                        ItemLedgEntry[k] := ItemLedgEntry2;
+                if (ItemLedgEntry2."Posting Date" > ItemLedgEntry[k]."Posting Date") or
+                   ((ItemLedgEntry2."Posting Date" = ItemLedgEntry[k]."Posting Date") and
+                    (ItemLedgEntry2."Entry No." > ItemLedgEntry[k]."Entry No."))
+                then
+                    ItemLedgEntry[k] := ItemLedgEntry2;
 
-                    Rec.CopyFilter("Variant Filter", ItemLedgEntry2."Variant Code");
-                    Rec.CopyFilter("Drop Shipment Filter", ItemLedgEntry2."Drop Shipment");
-                    Rec.CopyFilter("Location Filter", ItemLedgEntry2."Location Code");
-                until ItemLedgEntry2.Next() = 0;
+                Rec.CopyFilter("Variant Filter", ItemLedgEntry2."Variant Code");
+                Rec.CopyFilter("Drop Shipment Filter", ItemLedgEntry2."Drop Shipment");
+                Rec.CopyFilter("Location Filter", ItemLedgEntry2."Location Code");
+            until ItemLedgEntry2.Next() = 0;
     end;
 
-    local procedure FindLastValueEntry(k: Integer; LastValueEntry: Record "Value Entry")
+    local procedure FindLastValueEntry(k: Integer)
     begin
-        with LastValueEntry do
-            if ValueEntry2.Find('-') then
-                repeat
-                    ValueEntry2.SetRange("Variant Code", ValueEntry2."Variant Code");
-                    ValueEntry2.SetRange("Drop Shipment", ValueEntry2."Drop Shipment");
-                    ValueEntry2.SetRange("Location Code", ValueEntry2."Location Code");
-                    ValueEntry2.Find('+');
+        if ValueEntry2.Find('-') then
+            repeat
+                ValueEntry2.SetRange("Variant Code", ValueEntry2."Variant Code");
+                ValueEntry2.SetRange("Drop Shipment", ValueEntry2."Drop Shipment");
+                ValueEntry2.SetRange("Location Code", ValueEntry2."Location Code");
+                ValueEntry2.Find('+');
 
-                    if (ValueEntry2."Posting Date" > ValueEntry[k]."Posting Date") or
-                       ((ValueEntry2."Posting Date" = ValueEntry[k]."Posting Date") and
-                        (ValueEntry2."Entry No." > ValueEntry[k]."Entry No."))
-                    then begin
-                        ValueEntry[k] := ValueEntry2;
-                        if ValueEntry2."Valued Quantity" <> 0 then begin
-                            if ValueEntry2."Item Ledger Entry Type" = ValueEntry2."Item Ledger Entry Type"::Sale then
-                                UnitAmount[k] :=
-                                  -(ValueEntry2."Sales Amount (Actual)" - ValueEntry2."Discount Amount") / ValueEntry2."Valued Quantity"
-                            else
-                                UnitAmount[k] :=
-                                  (ValueEntry2."Cost Amount (Actual)" + ValueEntry2."Discount Amount") / ValueEntry2."Valued Quantity"
-                        end else
-                            UnitAmount[k] := 0;
-                    end;
-                    Rec.CopyFilter("Variant Filter", ValueEntry2."Variant Code");
-                    Rec.CopyFilter("Drop Shipment Filter", ValueEntry2."Drop Shipment");
-                    Rec.CopyFilter("Location Filter", ValueEntry2."Location Code");
-                until ValueEntry2.Next() = 0;
+                if (ValueEntry2."Posting Date" > ValueEntry[k]."Posting Date") or
+                   ((ValueEntry2."Posting Date" = ValueEntry[k]."Posting Date") and
+                    (ValueEntry2."Entry No." > ValueEntry[k]."Entry No."))
+                then begin
+                    ValueEntry[k] := ValueEntry2;
+                    if ValueEntry2."Valued Quantity" <> 0 then begin
+                        if ValueEntry2."Item Ledger Entry Type" = ValueEntry2."Item Ledger Entry Type"::Sale then
+                            UnitAmount[k] :=
+                              -(ValueEntry2."Sales Amount (Actual)" - ValueEntry2."Discount Amount") / ValueEntry2."Valued Quantity"
+                        else
+                            UnitAmount[k] :=
+                              (ValueEntry2."Cost Amount (Actual)" + ValueEntry2."Discount Amount") / ValueEntry2."Valued Quantity"
+                    end else
+                        UnitAmount[k] := 0;
+                end;
+                Rec.CopyFilter("Variant Filter", ValueEntry2."Variant Code");
+                Rec.CopyFilter("Drop Shipment Filter", ValueEntry2."Drop Shipment");
+                Rec.CopyFilter("Location Filter", ValueEntry2."Location Code");
+            until ValueEntry2.Next() = 0;
     end;
 }
 

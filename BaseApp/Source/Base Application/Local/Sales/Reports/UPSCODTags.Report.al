@@ -161,22 +161,20 @@ report 10079 "UPS COD Tags"
 
     procedure FormatCompanyAddress()
     begin
-        with CompanyInformation do begin
-            Clear(CompanyAddress);
-            CompanyAddress[1] := Name;
-            CompanyAddress[2] := "Name 2";
-            CompanyAddress[3] := Address;
-            CompanyAddress[4] := "Address 2";
-            if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen(CompanyAddress[5]) then begin
-                CompanyAddress[5] := City;
-                CompanyAddress[6] := County + '  ' + "Post Code";
-            end else
-                if (City <> '') and (County <> '') then
-                    CompanyAddress[5] := City + ', ' + County + '  ' + "Post Code"
-                else
-                    CompanyAddress[5] := DelChr(City + ' ' + County + ' ' + "Post Code", '<>');
-            CompressArray(CompanyAddress);
-        end;
+        Clear(CompanyAddress);
+        CompanyAddress[1] := CompanyInformation.Name;
+        CompanyAddress[2] := CompanyInformation."Name 2";
+        CompanyAddress[3] := CompanyInformation.Address;
+        CompanyAddress[4] := CompanyInformation."Address 2";
+        if StrLen(CompanyInformation.City + ', ' + CompanyInformation.County + '  ' + CompanyInformation."Post Code") > MaxStrLen(CompanyAddress[5]) then begin
+            CompanyAddress[5] := CompanyInformation.City;
+            CompanyAddress[6] := CompanyInformation.County + '  ' + CompanyInformation."Post Code";
+        end else
+            if (CompanyInformation.City <> '') and (CompanyInformation.County <> '') then
+                CompanyAddress[5] := CompanyInformation.City + ', ' + CompanyInformation.County + '  ' + CompanyInformation."Post Code"
+            else
+                CompanyAddress[5] := DelChr(CompanyInformation.City + ' ' + CompanyInformation.County + ' ' + CompanyInformation."Post Code", '<>');
+        CompressArray(CompanyAddress);
     end;
 }
 

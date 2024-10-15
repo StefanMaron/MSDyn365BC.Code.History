@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +18,9 @@ report 10110 "Vendor 1099 Information"
     Caption = 'Vendor 1099 Information';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -233,19 +237,17 @@ report 10110 "Vendor 1099 Information"
     procedure ProcessVendorInvoices(VendorNo: Code[20]; PeriodDate: array[2] of Date)
     begin
         EntryAppMgt.GetAppliedVendorEntries(TempAppliedEntry, VendorNo, PeriodDate, true);
-        with TempAppliedEntry do begin
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetFilter("IRS 1099 Amount", '<>0');
-            if FindSet() then
-                repeat
-                    if ("Vendor No." <> LastVendNo) or ("IRS 1099 Code" <> LastIRS1099Code) then begin
-                        ThisVendorCounted := false;
-                        LastVendNo := "Vendor No.";
-                        LastIRS1099Code := "IRS 1099 Code";
-                    end;
-                    Calculate1099Amount(TempAppliedEntry, "Amount to Apply");
-                until Next() = 0;
-        end;
+        TempAppliedEntry.SetFilter("Document Type", '%1|%2', TempAppliedEntry."Document Type"::Invoice, TempAppliedEntry."Document Type"::"Credit Memo");
+        TempAppliedEntry.SetFilter("IRS 1099 Amount", '<>0');
+        if TempAppliedEntry.FindSet() then
+            repeat
+                if (TempAppliedEntry."Vendor No." <> LastVendNo) or (TempAppliedEntry."IRS 1099 Code" <> LastIRS1099Code) then begin
+                    ThisVendorCounted := false;
+                    LastVendNo := TempAppliedEntry."Vendor No.";
+                    LastIRS1099Code := TempAppliedEntry."IRS 1099 Code";
+                end;
+                Calculate1099Amount(TempAppliedEntry, TempAppliedEntry."Amount to Apply");
+            until TempAppliedEntry.Next() = 0;
     end;
 
     procedure Calculate1099Amount(InvoiceEntry: Record "Vendor Ledger Entry"; AppliedAmount: Decimal)
@@ -299,3 +301,4 @@ report 10110 "Vendor 1099 Information"
     end;
 }
 
+#endif

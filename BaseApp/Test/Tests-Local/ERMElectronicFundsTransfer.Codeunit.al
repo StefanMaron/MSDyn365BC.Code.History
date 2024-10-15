@@ -41,10 +41,6 @@
         NoOfRecordsErr: Label 'No of records must be same.';
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
         NoExportDiffCurrencyErr: Label 'You cannot export journal entries if Currency Code is different in Gen. Journal Line and Bank Account.';
-        NoDataOutputErr: Label 'No data exists for the specified report filters.';
-        ExportVendorBankAccountErr: Label 'The error, You must have exactly one Vendor Bank Account with Use for Electronic Payments checked for Vendor %1., occurred when running report %2 for %3.';
-        VendorBankAccountErr: Label 'You must have exactly one Vendor Bank Account with Use for Electronic Payments checked for Vendor %1.';
-        CustomerBankAccountErr: Label 'You must have exactly one Customer Bank Account with Use for Electronic Payments checked for Customer %1.';
         EFTExportGenJnlLineErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         MandatoryDimErr: Label 'Select a %1 for the %2 %3 for %4 %5.';
         RemitAdvFileNotFoundTxt: Label 'Remittance Advice file has not been found';
@@ -80,7 +76,7 @@
         // [THEN]  Verify XML Data.
         GenJournalLine.Find();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.AssertElementWithValueExists(MyBalCaptionTxt, GenJournalLine."Bal. Account No.");
         LibraryReportDataset.AssertElementWithValueExists(MyBalCaptionTxt, GenJournalLine."Bal. Account No.");
@@ -299,7 +295,7 @@
         CustomerNo := CreateCustomerBankAccountWithCustomer(true, CustomerAccountBankCode);
         CreateAndExportPaymentJournal(GenJournalLine."Document Type"::Payment,
           GenJournalLine."Bal. Account Type"::Customer, CustomerNo,
-          Amount, CopyStr(LibraryUtility.GenerateGUID, 1, 3), LibraryUtility.GenerateGUID, false, CustomerAccountBankCode);
+          Amount, CopyStr(LibraryUtility.GenerateGUID(), 1, 3), LibraryUtility.GenerateGUID(), false, CustomerAccountBankCode);
     end;
 
     [Test]
@@ -355,7 +351,7 @@
         Amount := LibraryRandom.RandDec(10, 2);  // Random value for Amount.
         CreateAndExportPaymentJournal(
           GenJournalLine."Document Type"::Payment, GenJournalLine."Bal. Account Type"::Vendor, VendorBankAccount."Vendor No.", Amount,
-          CopyStr(LibraryUtility.GenerateGUID, 1, 3), LibraryUtility.GenerateGUID, false, VendorBankAccount.Code);
+          CopyStr(LibraryUtility.GenerateGUID(), 1, 3), LibraryUtility.GenerateGUID(), false, VendorBankAccount.Code);
     end;
 
     [Test]
@@ -453,12 +449,12 @@
         // [WHEN] Export Payment Journals and open up the Generate EFT page
         PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        GenerateEFTFiles.Trap;
-        PaymentJournal.GenerateEFT.Invoke;
+        GenerateEFTFiles.Trap();
+        PaymentJournal.GenerateEFT.Invoke();
         PaymentJournal.Close();
 
         // [THEN] Iterate through each line in the repeater to make sure there is 2 records
-        if GenerateEFTFiles.GenerateEFTFileLines.First then
+        if GenerateEFTFiles.GenerateEFTFileLines.First() then
             repeat
                 Count += 1;
             until not GenerateEFTFiles.GenerateEFTFileLines.Next();
@@ -503,11 +499,11 @@
         Vendor.Get(GenJournalLine."Account No.");
 
         // TFS ID 435431: To ensure that its EFT File is generated before posting of journal Line.
-        GenerateEFTFiles.Trap;
-        PaymentJournal.GenerateEFT.Invoke;
+        GenerateEFTFiles.Trap();
+        PaymentJournal.GenerateEFT.Invoke();
         PaymentJournal.Close();
 
-        if GenerateEFTFiles.GenerateEFTFileLines.First then
+        if GenerateEFTFiles.GenerateEFTFileLines.First() then
             repeat
                 Count += 1;
             until not GenerateEFTFiles.GenerateEFTFileLines.Next();
@@ -561,8 +557,8 @@
         GenJournalLine2.FindFirst();
 
         // TFS ID 435431: To ensure that its EFT File is generated before posting of journal Line.
-        GenerateEFTFiles.Trap;
-        PaymentJournal.GenerateEFT.Invoke;
+        GenerateEFTFiles.Trap();
+        PaymentJournal.GenerateEFT.Invoke();
         PaymentJournal.Close();
 
         GenerateEFTFiles.GenerateEFTFile.Invoke();
@@ -600,19 +596,19 @@
         PrepareEFTExportScenario(GenJournalLine, PaymentJournal);
 
         // [THEN] Verify Data is created in the EFT Export Table
-        GenerateEFTFiles.Trap;
-        PaymentJournal.GenerateEFT.Invoke;
+        GenerateEFTFiles.Trap();
+        PaymentJournal.GenerateEFT.Invoke();
         PaymentJournal.Close();
 
         // [THEN] Verify Data is deleted
-        if GenerateEFTFiles.GenerateEFTFileLines.First then
+        if GenerateEFTFiles.GenerateEFTFileLines.First() then
             repeat
                 Count += 1;
             until not GenerateEFTFiles.GenerateEFTFileLines.Next();
 
         Assert.AreEqual(Count, 1, NoOfRecordsErr);
 
-        GenerateEFTFiles.Delete.Invoke;
+        GenerateEFTFiles.Delete.Invoke();
 
         EFTExport.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
         Count := EFTExport.Count();
@@ -675,12 +671,12 @@
         AccountNo := CreateCustomerBankAccountWithCustomer(false, CustomerBankAccountCode);
 
         CreatePaymentJournal(GenJournalLine,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account", CreateAndModifyBankAccount,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account", CreateAndModifyBankAccount(),
           GenJournalLine."Applies-to Doc. Type"::" ", '',
           GenJournalLine."Bal. Account Type"::Customer,
           AccountNo, Amount, CustomerBankAccountCode);
         GenJournalLine.Validate("Transaction Type Code", GenJournalLine."Transaction Type Code"::BUS);
-        GenJournalLine.Validate("Transaction Code", CopyStr(LibraryUtility.GenerateGUID, 1, 3));
+        GenJournalLine.Validate("Transaction Code", CopyStr(LibraryUtility.GenerateGUID(), 1, 3));
         GenJournalLine.Validate("Company Entry Description", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
         Commit();
@@ -729,7 +725,7 @@
         TempEFTExportWorkset.Insert();
 
         // [WHEN] Stan call Generate EFT and selects folder "C:\EFT Generation" on a local machine
-        PathToExport := FileManagement.ServerCreateTempSubDirectory;
+        PathToExport := FileManagement.ServerCreateTempSubDirectory();
         GenerateEFT.SetSavePath(PathToExport);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
         GenerateEFT.ProcessAndGenerateEFTFile(TempEFTExportWorkset."Bank Account No.", WorkDate(), TempEFTExportWorkset, EFTValues);
@@ -810,12 +806,12 @@
         // [WHEN] Export Payment Journals and open up the Generate EFT page
         PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
-        GenerateEFTFiles.Trap;
-        PaymentJournal.GenerateEFT.Invoke;
+        GenerateEFTFiles.Trap();
+        PaymentJournal.GenerateEFT.Invoke();
         PaymentJournal.Close();
 
         // [THEN] Iterate through each line in the repeater to make sure there is 1 record
-        if GenerateEFTFiles.GenerateEFTFileLines.First then
+        if GenerateEFTFiles.GenerateEFTFileLines.First() then
             repeat
                 Count += 1;
             until not GenerateEFTFiles.GenerateEFTFileLines.Next();
@@ -833,10 +829,10 @@
         EFTExportWorkset.Insert();
 
         EFTValues.SetNoOfRec := 0;
-        ExpLauncherEFT.SetTestMode;
+        ExpLauncherEFT.SetTestMode();
         // [THEN] Start EFT Process and verify the file will have 10 lines.
         ExpLauncherEFT.EFTPaymentProcess(EFTExportWorkset, TempNameValueBuffer, DataCompression, ZipFileName, EFTValues);
-        Assert.AreEqual(10, EFTValues.GetNoOfRec, 'Wrong number of Records');
+        Assert.AreEqual(10, EFTValues.GetNoOfRec(), 'Wrong number of Records');
     end;
 
     [Test]
@@ -848,7 +844,6 @@
         BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
         VendorBankAccount: array[3] of Record "Vendor Bank Account";
-        FileManagement: Codeunit "File Management";
         ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
@@ -1855,7 +1850,6 @@
     procedure PrintReport_Word_RequestPage()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        BankAccount: Record "Bank Account";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
     begin
@@ -2208,7 +2202,7 @@
         // [GIVEN] FCY Bank Account with EFT setup
         CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'CA');
         CreateBankAccountForCountry(
-            BankAccount, BankAccount."Export Format"::CA, CreateBankExportImportSetup(CreateDataExchDefForCA),
+            BankAccount, BankAccount."Export Format"::CA, CreateBankExportImportSetup(CreateDataExchDefForCA()),
             LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
         // [GIVEN] FCY Vendor Payment with 1000 CAD Amount and 900 USD Amount LCY
         // [GIVEN] Export the payment
@@ -2425,7 +2419,6 @@
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
         ServerTempFileName: Text;
-        FileName: Text;
         XmlFileNames: List of [Text];
         DocumentNos1: List of [Code[20]];
         DocumentNos2: List of [Code[20]];
@@ -2571,12 +2564,7 @@
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     procedure TestEFTGenJnlLineOnPost()
     var
-        GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
-        EFTExport: Record "EFT Export";
-        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
-        BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
         PaymentJournal: TestPage "Payment Journal";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
@@ -3352,13 +3340,13 @@
         if not DataExchFieldMapping.Insert() then;
     end;
 
-    local procedure CreateAndExportPaymentJournal(DocumentType: Option; BalAccountType: Option; AccountNo: Code[20]; Amount: Decimal; TransactionCode: Code[3]; CompanyEntryDescription: Code[10]; ReportDirectRun: Boolean; CustomerBankAccountCode: Code[20])
+    local procedure CreateAndExportPaymentJournal(DocumentType: Enum "Gen. Journal Document Type"; BalAccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; TransactionCode: Code[3]; CompanyEntryDescription: Code[10]; ReportDirectRun: Boolean; CustomerBankAccountCode: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         PaymentJournal: TestPage "Payment Journal";
     begin
         CreatePaymentJournal(
-          GenJournalLine, DocumentType, GenJournalLine."Account Type"::"Bank Account", CreateAndModifyBankAccount,
+          GenJournalLine, DocumentType, GenJournalLine."Account Type"::"Bank Account", CreateAndModifyBankAccount(),
           GenJournalLine."Applies-to Doc. Type"::" ", '', BalAccountType, AccountNo, Amount, CustomerBankAccountCode);
         GenJournalLine.Validate("Transaction Type Code", GenJournalLine."Transaction Type Code"::BUS);
         GenJournalLine.Validate("Transaction Code", TransactionCode);
@@ -3379,7 +3367,7 @@
     var
         BankAccount: Record "Bank Account";
     begin
-        CreateBankAccount(BankAccount, LibraryUtility.GenerateGUID, BankAccount."Export Format"::CA);
+        CreateBankAccount(BankAccount, LibraryUtility.GenerateGUID(), BankAccount."Export Format"::CA);
         CreateBankAccWithBankStatementSetup(BankAccount, 'CA EFT DEFAULT');
         BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID());
         BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID());
@@ -3504,7 +3492,7 @@
         GenJournalBatch.Modify();
     end;
 
-    local procedure CreatePaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal; CustomerBankAccountCode: Code[20])
+    local procedure CreatePaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal; CustomerBankAccountCode: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -3522,18 +3510,18 @@
         GenJournalLine.Modify(true);
     end;
 
-    local procedure ExportPaymentJournalAndVerifyXML(AccountNo: Code[20]; DocumentType: Option; BalAccountType: Option; CustomerBankAccountCode: Code[20])
+    local procedure ExportPaymentJournalAndVerifyXML(AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; BalAccountType: Enum "Gen. Journal Account Type"; CustomerBankAccountCode: Code[20])
     var
         Amount: Decimal;
     begin
         // Exercise.
         Amount := LibraryRandom.RandDec(10, 2);  // Random value for Amount.
         CreateAndExportPaymentJournal(
-          DocumentType, BalAccountType, AccountNo, -Amount, CopyStr(LibraryUtility.GenerateGUID, 1, 3),
-          LibraryUtility.GenerateGUID, true, CustomerBankAccountCode);
+          DocumentType, BalAccountType, AccountNo, -Amount, CopyStr(LibraryUtility.GenerateGUID(), 1, 3),
+          LibraryUtility.GenerateGUID(), true, CustomerBankAccountCode);
 
         // Verify: Verify Account No. and Amount Paid on XML file.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(MyBalCaptionTxt, AccountNo);
         LibraryReportDataset.AssertElementWithValueExists('AmountPaid', Amount);
     end;
@@ -3701,7 +3689,7 @@
 
         TempEFTExportWorkset.TransferFields(EFTExport);
         TempEFTExportWorkset.Include := true;
-        TempEFTExportWorkset.Insert;
+        TempEFTExportWorkset.Insert();
     end;
 
     local procedure CreateAndExportVendorPaymentWithAllBusinessData(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; VendorBankAccount: Record "Vendor Bank Account"; BankAccountNo: Code[20])
@@ -4044,7 +4032,7 @@
         DataExchDef.Get(DataExchDefCodeSource);
         DataExchDef.Code := LibraryUtility.GenerateGUID();
         DataExchDef.Name := LibraryUtility.GenerateGUID();
-        DataExchDef.Insert;
+        DataExchDef.Insert();
 
         DataExchLineDefSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
         DataExchLineDefSource.FindSet();
@@ -4052,7 +4040,7 @@
             DataExchLineDefTarget := DataExchLineDefSource;
             DataExchLineDefTarget."Data Exch. Def Code" := DataExchDef.Code;
             DataExchLineDefTarget.Code := LibraryUtility.GenerateGUID();
-            DataExchLineDefTarget.Insert;
+            DataExchLineDefTarget.Insert();
 
             DataExchColumnDefSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
             DataExchColumnDefSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
@@ -4061,7 +4049,7 @@
                 DataExchColumnDefTarget := DataExchColumnDefSource;
                 DataExchColumnDefTarget."Data Exch. Def Code" := DataExchDef.Code;
                 DataExchColumnDefTarget."Data Exch. Line Def Code" := DataExchLineDefTarget.Code;
-                DataExchColumnDefTarget.Insert;
+                DataExchColumnDefTarget.Insert();
             until DataExchColumnDefSource.Next() = 0;
 
             DataExchMappingSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
@@ -4071,7 +4059,7 @@
                 DataExchMappingTarget := DataExchMappingSource;
                 DataExchMappingTarget."Data Exch. Def Code" := DataExchDef.Code;
                 DataExchMappingTarget."Data Exch. Line Def Code" := DataExchLineDefTarget.Code;
-                DataExchMappingTarget.Insert;
+                DataExchMappingTarget.Insert();
 
                 DataExchFieldMappingSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
                 DataExchFieldMappingSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
@@ -4081,7 +4069,7 @@
                     DataExchFieldMappingTarget := DataExchFieldMappingSource;
                     DataExchFieldMappingTarget."Data Exch. Def Code" := DataExchDef.Code;
                     DataExchFieldMappingTarget."Data Exch. Line Def Code" := DataExchLineDefTarget.Code;
-                    DataExchFieldMappingTarget.Insert;
+                    DataExchFieldMappingTarget.Insert();
                 until DataExchFieldMappingSource.Next() = 0;
             until DataExchMappingSource.Next() = 0;
         until DataExchLineDefSource.Next() = 0;
@@ -4092,7 +4080,7 @@
         BankExportImportSetupTarget := BankExportImportSetupSource;
         BankExportImportSetupTarget.Validate("Data Exch. Def. Code", DataExchDef.Code);
         BankExportImportSetupTarget.Code := LibraryUtility.GenerateGUID();
-        BankExportImportSetupTarget.Insert;
+        BankExportImportSetupTarget.Insert();
     end;
 
     local procedure PrepareEFTExportScenario(var GenJournalLine: Record "Gen. Journal Line"; var PaymentJournal: TestPage "Payment Journal")
@@ -4111,7 +4099,7 @@
         EFTExport.TestField("Check Printed", true);
     end;
 
-    local procedure GetInvoiceAmount(InvoiceNo: Code[20]) InvoiceAmount: Decimal
+    local procedure GetInvoiceAmount(InvoiceNo: Code[20]): Decimal
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
@@ -4202,7 +4190,7 @@
     begin
         Commit();  // Commit required.
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
-        PaymentJournal.ExportPaymentsToFile.Invoke;  // Invokes action Export.
+        PaymentJournal.ExportPaymentsToFile.Invoke();  // Invokes action Export.
     end;
 
     local procedure ExportPaymentJournalViaAction(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; BankAccountNo: Code[20])
@@ -4257,7 +4245,7 @@
         // Handle the layout runs
         CustomLayoutReporting.SetOutputFileBaseName('Test Remittance');
         CustomLayoutReporting.SetSavePath(TempDirectory);
-        CustomLayoutReporting.SetOutputOption(CustomLayoutReporting.GetXMLOption);
+        CustomLayoutReporting.SetOutputOption(CustomLayoutReporting.GetXMLOption());
         CustomLayoutReporting.ProcessReportData(
           ReportSelections.Usage::"V.Remittance", GenJnlLineRecRef, GenJournalLine.FieldName("Account No."), DATABASE::Vendor,
           Vendor.FieldName("No."), false);
@@ -4286,7 +4274,7 @@
         EFTExport.FindFirst();
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20]; BalAccountNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; BalAccountNo: Code[20])
     begin
         GLEntry.SetCurrentKey("Document Type", "Document No.", "Bal. Account No.");
         GLEntry.SetRange("Document Type", DocumentType);
@@ -4483,7 +4471,7 @@
     begin
         CheckLedgerEntries.OpenEdit();
         CheckLedgerEntries.FILTER.SetFilter("Bank Account No.", BankAccountNo);
-        CheckLedgerEntries."Void Check".Invoke;  // Invokes action VoidCheck.
+        CheckLedgerEntries."Void Check".Invoke();  // Invokes action VoidCheck.
     end;
 
     [RequestPageHandler]
@@ -4494,10 +4482,10 @@
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         ExportElectronicPayments.BankAccountNo.SetValue(BankAccountNo);
-        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText);
+        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText());
         ExportElectronicPayments.OutputMethod.SetValue('PDF');
-        ExportElectronicPayments.OK.Invoke;
+        ExportElectronicPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4508,9 +4496,9 @@
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         ExportElectronicPayments.BankAccountNo.SetValue(BankAccountNo);
-        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText);
-        ExportElectronicPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText());
+        ExportElectronicPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4534,7 +4522,7 @@
         LibraryVariableStorage.Dequeue(BankAccountNo);
         ExportElecPaymentsWord.BankAccountNo.SetValue(BankAccountNo);
         ExportElecPaymentsWord.OutputMethod.SetValue('PDF');
-        ExportElecPaymentsWord.OK.Invoke;
+        ExportElecPaymentsWord.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4554,9 +4542,9 @@
     procedure ExportElecPaymentsWord_SaveAsXmlRPH(var ExportElecPaymentsWord: TestRequestPage "ExportElecPayments - Word")
     begin
         ExportElecPaymentsWord.BankAccountNo.SetValue(LibraryVariableStorage.DequeueText());
-        ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText);
-        ExportElecPaymentsWord.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText());
+        ExportElecPaymentsWord.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ReportHandler]
@@ -4646,7 +4634,6 @@
         DataExchLineDef: Record "Data Exch. Line Def";
         DataExchColumnDef: Record "Data Exch. Column Def";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
-        ACHUSHeader: Record "ACH US Header";
         ACHUSDetail: Record "ACH US Detail";
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
@@ -4692,12 +4679,12 @@
         end;
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
         FindGLEntry(GLEntry, DocumentType, DocumentNo, GLAccountNo);
-        Assert.AreNearlyEqual(GLEntry.Amount, Round(Amount), LibraryERM.GetAmountRoundingPrecision, AmountVerificationMsg);
+        Assert.AreNearlyEqual(GLEntry.Amount, Round(Amount), LibraryERM.GetAmountRoundingPrecision(), AmountVerificationMsg);
     end;
 
     local procedure VerifyCheckLedgEntryCount(PostingDate: Date; DocNo: Code[20]; EntryStatus: Option; ExpectedCount: Integer)

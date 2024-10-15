@@ -46,6 +46,7 @@ table 114 "Sales Cr.Memo Header"
     DataCaptionFields = "No.", "Sell-to Customer Name";
     DrillDownPageID = "Posted Sales Credit Memos";
     LookupPageID = "Posted Sales Credit Memos";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -297,6 +298,11 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'VAT Registration No.';
         }
+        field(72; "Registration Number"; Text[50])
+        {
+            Caption = 'Registration No.';
+            DataClassification = CustomerContent;
+        }
         field(73; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -442,10 +448,22 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
         }
+#if not CLEAN24
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            ObsoleteReason = 'Field length will be increased to 50.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(106; "Package Tracking No."; Text[50])
+        {
+            Caption = 'Package Tracking No.';
+        }
+#pragma warning restore AS0086
+#endif
         field(107; "Pre-Assigned No. Series"; Code[20])
         {
             Caption = 'Pre-Assigned No. Series';
@@ -569,7 +587,7 @@ table 114 "Sales Cr.Memo Header"
         }
         field(1302; Paid; Boolean)
         {
-            CalcFormula = - Exist("Cust. Ledger Entry" where("Entry No." = field("Cust. Ledger Entry No."),
+            CalcFormula = - exist("Cust. Ledger Entry" where("Entry No." = field("Cust. Ledger Entry No."),
                                                              Open = filter(true)));
             Caption = 'Paid';
             Editable = false;
@@ -932,7 +950,6 @@ table 114 "Sales Cr.Memo Header"
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
         Text10000: Label 'There is no electronic stamp for document no. %1.';
-        PluralDocTxt: Label 'Credit Memos';
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
 
     procedure SendRecords()

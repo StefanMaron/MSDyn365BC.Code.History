@@ -52,7 +52,9 @@ page 351 "Customer Sales Lines"
                         ShowCustEntriesDue();
                     end;
                 }
+#pragma warning disable AA0100
                 field("Cust.""Sales (LCY)"""; Rec."Sales (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -65,7 +67,9 @@ page 351 "Customer Sales Lines"
                         ShowCustEntries();
                     end;
                 }
+#pragma warning disable AA0100
                 field("Cust.""Profit (LCY)"""; Rec."Profit (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

@@ -617,15 +617,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType CostEntriesNotFound)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2061240834 - NamedType 2593234432" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 cannot exceed %2 characters in %3 %4='%5',%6='%7'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1:Field Caption;%2:Field Value;%3:Table Caption;%4:Field Caption;%5:Field Value;%6:Field Caption;%7:Field Value;]D;]A;(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType CostJnlBatchNameLengthError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2061240834 - NamedType 3842434766" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The lines in Cost Journal are out of balance by %1. Verify that %2 and %3 are correct for each line.]]></Val>
@@ -1013,15 +1004,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Pages - NamedType PostingDateError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3184550183 - NamedType 1510758836" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The previous column set could not be found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Pages - NamedType PreviousSetNotFoundError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3184550183 - NamedType 2929022527" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[TestValidation]]></Val>
@@ -1335,15 +1317,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Tables - NamedType UnexpectedMessageError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1310831976 - NamedType 636392376" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting Rep - Test - NamedType Amount)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1310831976 - NamedType 3076037765" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

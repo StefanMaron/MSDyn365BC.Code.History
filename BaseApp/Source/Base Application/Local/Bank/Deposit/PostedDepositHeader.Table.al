@@ -17,6 +17,7 @@ table 10143 "Posted Deposit Header"
     Caption = 'Posted Deposit Header';
     DataCaptionFields = "No.";
     LookupPageID = "Posted Deposit List";
+    DataClassification = CustomerContent;
 
     fields
     {

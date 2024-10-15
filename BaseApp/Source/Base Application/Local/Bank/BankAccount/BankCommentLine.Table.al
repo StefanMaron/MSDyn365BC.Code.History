@@ -12,6 +12,7 @@ table 10122 "Bank Comment Line"
     Caption = 'Bank Comment Line';
     DrillDownPageID = "Bank Comment List";
     LookupPageID = "Bank Comment List";
+    DataClassification = CustomerContent;
 
     fields
     {

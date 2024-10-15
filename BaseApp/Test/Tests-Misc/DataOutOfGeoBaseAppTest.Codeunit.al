@@ -8,11 +8,7 @@ codeunit 135154 "Data Out Of Geo. BaseApp Test"
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         DataOutOfGeoApp: Codeunit "Data Out Of Geo. App";
-        DontShowAgainMsg: Label 'Don''t show me again';
-        LearnMoreMsg: Label 'Click here to learn more about what that means';
         GeoNotificationsExistingAppsMsg: Label 'Your Dynamics 365 Business Central environment has apps installed that may transfer data to other geographies than the current geography of your Dynamics 365 Business Central environment. This is to ensure proper functionality of the apps.';
-        GeoNotificationTxt: Label 'Data out of geolocation apps';
-        GeoNotificationDescTxt: Label 'Show a warning when there are apps installed that may possibly transfer data outside your countries'' jurisdiction';
         GeoNotificationExistingAppsIdTxt: Label 'c414a6bd-a8f2-4182-9059-0c4e88238046';
         RandAppIdTxt: Label 'f0d20973-77c8-44ef-a99a-dd15c40767c4';
         LearnMoreUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2153389';

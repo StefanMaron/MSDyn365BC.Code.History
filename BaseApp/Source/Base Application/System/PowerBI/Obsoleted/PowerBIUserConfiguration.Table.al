@@ -15,6 +15,7 @@ table 6304 "Power BI User Configuration"
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -38,13 +39,8 @@ table 6304 "Power BI User Configuration"
             Caption = 'Report Visibility';
             ObsoleteReason = 'The report part visibility is now handled by the standard personalization experience. Hide the page using Personalization instead of using this value.';
             DataClassification = SystemMetadata;
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#endif
         }
         field(5; "Selected Report ID"; Guid)
         {
@@ -73,9 +69,6 @@ table 6304 "Power BI User Configuration"
     procedure CreateOrReadForCurrentUser(PageId: Text[50])
     var
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
-#if not CLEAN21
-        SetPowerBIUserConfig: Codeunit "Set Power BI User Config";
-#endif
         IsHandled: Boolean;
     begin
         OnBeforeCreateOrReadUserConfigEntry(Rec, PageId, IsHandled);
@@ -88,11 +81,6 @@ table 6304 "Power BI User Configuration"
             "Page ID" := PageId;
             "User Security ID" := UserSecurityId();
             "Profile ID" := PowerBIServiceMgt.GetEnglishContext();
-#if not CLEAN21
-            "Report Visibility" := true;
-
-            SetPowerBIUserConfig.OnCreateOrReadUserConfigEntryOnBeforePowerBIUserConfigurationInsert(Rec);
-#endif
             OnCreateOrReadUserConfigEntryOnBeforePowerBIUserConfigurationInsert(Rec);
             Insert(true);
         end;

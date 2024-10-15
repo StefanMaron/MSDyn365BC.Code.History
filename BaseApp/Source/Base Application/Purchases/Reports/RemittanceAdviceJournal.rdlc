@@ -3352,6 +3352,9 @@ End Function
         <Field Name="DocDateCaption">
           <DataField>DocDateCaption</DataField>
         </Field>
+        <Field Name="PostingDateCaption">
+          <DataField>PostingDateCaption</DataField>
+        </Field>
         <Field Name="DocNoCaption">
           <DataField>DocNoCaption</DataField>
         </Field>
@@ -3408,6 +3411,9 @@ End Function
         </Field>
         <Field Name="AppliedVendLedgEntryTempDocDate">
           <DataField>AppliedVendLedgEntryTempDocDate</DataField>
+        </Field>
+        <Field Name="AppliedVendLedgEntryTempPostingDate">
+          <DataField>AppliedVendLedgEntryTempPostingDate</DataField>
         </Field>
         <Field Name="AppliedVendLedgEntryTempCurrCode">
           <DataField>AppliedVendLedgEntryTempCurrCode</DataField>

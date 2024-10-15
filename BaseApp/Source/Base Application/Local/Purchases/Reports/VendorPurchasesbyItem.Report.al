@@ -224,10 +224,8 @@ report 10163 "Vendor Purchases by Item"
 
                 trigger OnAfterGetRecord()
                 begin
-                    with ValueEntry do begin
-                        SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
-                        CalcSums("Purchase Amount (Actual)", "Discount Amount");
-                    end;
+                    ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
+                    ValueEntry.CalcSums("Purchase Amount (Actual)", "Discount Amount");
                     if "Source No." <> '' then
                         Vend.Get("Source No.")
                     else
@@ -241,10 +239,8 @@ report 10163 "Vendor Purchases by Item"
                     else
                         SetFilter("Invoiced Quantity", '>0');
 
-                    with ValueEntry do begin
-                        Reset();
-                        SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-                    end;
+                    ValueEntry.Reset();
+                    ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
                 end;
             }
 

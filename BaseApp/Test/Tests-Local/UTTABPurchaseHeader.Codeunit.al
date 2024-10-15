@@ -25,8 +25,8 @@ codeunit 144050 "UT TAB Purchase Header"
         // Purpose of the test is to validate Trigger OnValidate of Location Code for Table 38 - Purchase Header.
 
         // Setup.
-        UpdatePurchasePayablesSetup;
-        TaxAreaCode := CreateTaxArea;
+        UpdatePurchasePayablesSetup();
+        TaxAreaCode := CreateTaxArea();
         CreatePurchaseHeader(PurchaseHeader, CreateVendor(TaxAreaCode), '', '');
         RecRef.GetTable(PurchaseHeader);
         FieldRef := RecRef.Field(PurchaseHeader.FieldNo("Location Code"));
@@ -54,7 +54,7 @@ codeunit 144050 "UT TAB Purchase Header"
     procedure TaxAreaOnPurchaseOrderWithResponsibilityCenter()
     begin
         // Purpose of the test is to verify Tax Area Code when Responsibility Center is updated on Purchase Order.
-        ValidateVendorLocationTaxAreaCode(CreateResponsibilityCenter);
+        ValidateVendorLocationTaxAreaCode(CreateResponsibilityCenter());
     end;
 
     local procedure ValidateVendorLocationTaxAreaCode(ResponsibilityCenter: Code[10])
@@ -98,7 +98,7 @@ codeunit 144050 "UT TAB Purchase Header"
 
         // Setup.
         VendorNo := CreateVendor('');
-        LocationCode := CreateLocation;
+        LocationCode := CreateLocation();
         VendorAltTaxAreaCode := CreateVendorLocation(VendorNo, LocationCode);
         RequisitionWkshName := CreateRequisitionLine(VendorNo, LocationCode);
 
@@ -127,7 +127,7 @@ codeunit 144050 "UT TAB Purchase Header"
 
         // Setup.
         VendorNo := CreateVendor('');
-        CreatePurchaseOrder(PurchaseHeader, VendorNo, '', CreateTaxArea);
+        CreatePurchaseOrder(PurchaseHeader, VendorNo, '', CreateTaxArea());
 
         // Exercise.
         ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
@@ -142,9 +142,9 @@ codeunit 144050 "UT TAB Purchase Header"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item."Inventory Posting Group" := LibraryUTUtility.GetNewCode10;
-        Item."Gen. Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item."Inventory Posting Group" := LibraryUTUtility.GetNewCode10();
+        Item."Gen. Prod. Posting Group" := LibraryUTUtility.GetNewCode10();
         Item.Insert();
         exit(Item."No.");
     end;
@@ -153,7 +153,7 @@ codeunit 144050 "UT TAB Purchase Header"
     var
         Location: Record Location;
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Insert();
         exit(Location.Code);
     end;
@@ -161,7 +161,7 @@ codeunit 144050 "UT TAB Purchase Header"
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LocationCode: Code[10]; TaxAreaCode: Code[20])
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Buy-from Vendor No." := VendorNo;
         PurchaseHeader."Location Code" := LocationCode;
         PurchaseHeader."Tax Area Code" := TaxAreaCode;
@@ -180,7 +180,7 @@ codeunit 144050 "UT TAB Purchase Header"
         PurchaseLine."Pay-to Vendor No." := PurchaseHeader."Pay-to Vendor No.";
         PurchaseLine."Line No." := LibraryRandom.RandInt(10);
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine."No." := CreateItem;
+        PurchaseLine."No." := CreateItem();
         PurchaseLine.Insert();
     end;
 
@@ -190,12 +190,12 @@ codeunit 144050 "UT TAB Purchase Header"
         RequisitionWkshName: Record "Requisition Wksh. Name";
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
-        ReqWkshTemplate.Name := LibraryUTUtility.GetNewCode10;
+        ReqWkshTemplate.Name := LibraryUTUtility.GetNewCode10();
         ReqWkshTemplate.Type := ReqWkshTemplate.Type::"Req.";
         ReqWkshTemplate."Page ID" := PAGE::"Req. Worksheet";
         ReqWkshTemplate.Insert();
 
-        RequisitionWkshName.Name := LibraryUTUtility.GetNewCode10;
+        RequisitionWkshName.Name := LibraryUTUtility.GetNewCode10();
         RequisitionWkshName."Worksheet Template Name" := ReqWkshTemplate.Name;
         RequisitionWkshName."Template Type" := RequisitionWkshName."Template Type"::"Req.";
         RequisitionWkshName.Insert();
@@ -204,7 +204,7 @@ codeunit 144050 "UT TAB Purchase Header"
         RequisitionLine."Journal Batch Name" := RequisitionWkshName.Name;
         RequisitionLine."Line No." := LibraryRandom.RandInt(10);
         RequisitionLine.Type := RequisitionLine.Type::Item;
-        RequisitionLine."No." := CreateItem;
+        RequisitionLine."No." := CreateItem();
         RequisitionLine."Action Message" := RequisitionLine."Action Message"::New;
         RequisitionLine."Accept Action Message" := true;
         RequisitionLine.Quantity := LibraryRandom.RandInt(10);
@@ -219,7 +219,7 @@ codeunit 144050 "UT TAB Purchase Header"
     var
         ResponsibilityCenter: Record "Responsibility Center";
     begin
-        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10;
+        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10();
         ResponsibilityCenter.Insert();
         exit(ResponsibilityCenter.Code);
     end;
@@ -228,7 +228,7 @@ codeunit 144050 "UT TAB Purchase Header"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea."Country/Region" := TaxArea."Country/Region"::CA;
         TaxArea.Insert();
         exit(TaxArea.Code);
@@ -238,9 +238,9 @@ codeunit 144050 "UT TAB Purchase Header"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Tax Area Code" := TaxAreaCode;
-        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10;
+        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -250,7 +250,7 @@ codeunit 144050 "UT TAB Purchase Header"
         VendorLocation: Record "Vendor Location";
     begin
         VendorLocation."Vendor No." := VendorNo;
-        VendorLocation."Alt. Tax Area Code" := CreateTaxArea;
+        VendorLocation."Alt. Tax Area Code" := CreateTaxArea();
         VendorLocation."Location Code" := LocationCode;
         VendorLocation.Insert();
         exit(VendorLocation."Alt. Tax Area Code");
@@ -261,10 +261,10 @@ codeunit 144050 "UT TAB Purchase Header"
         ReqWorksheet: TestPage "Req. Worksheet";
     begin
         Commit();  // COMMIT is required to open the Requisition Worksheet.
-        ReqWorksheet.OpenEdit;
+        ReqWorksheet.OpenEdit();
         ReqWorksheet.CurrentJnlBatchName.SetValue(RequisitionWkshName);
         ReqWorksheet.FILTER.SetFilter("Vendor No.", VendorNo);
-        ReqWorksheet.CarryOutActionMessage.Invoke;
+        ReqWorksheet.CarryOutActionMessage.Invoke();
     end;
 
     local procedure UpdatePurchasePayablesSetup()
@@ -279,7 +279,7 @@ codeunit 144050 "UT TAB Purchase Header"
     [Scope('OnPrem')]
     procedure CarryOutActionMsgHandler(var CarryOutActionMsgReq: TestRequestPage "Carry Out Action Msg. - Req.")
     begin
-        CarryOutActionMsgReq.OK.Invoke;
+        CarryOutActionMsgReq.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -290,7 +290,7 @@ codeunit 144050 "UT TAB Purchase Header"
     begin
         LibrarVariableStorage.Dequeue(Name);
         ReqWorksheetTemplateList.FILTER.SetFilter(Name, Name);
-        ReqWorksheetTemplateList.OK.Invoke;
+        ReqWorksheetTemplateList.OK().Invoke();
     end;
 
     [ConfirmHandler]

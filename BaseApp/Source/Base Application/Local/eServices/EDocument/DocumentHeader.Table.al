@@ -10,6 +10,7 @@ using Microsoft.Inventory.Location;
 table 10002 "Document Header"
 {
     Caption = 'Document Header';
+    DataClassification = CustomerContent;
 
     fields
     {

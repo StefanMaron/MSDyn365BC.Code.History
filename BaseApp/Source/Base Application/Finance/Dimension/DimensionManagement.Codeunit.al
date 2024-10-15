@@ -90,6 +90,8 @@ codeunit 408 DimensionManagement
         GLSetupShortcutDimCode: array[8] of Code[20];
         DimSetFilterCtr: Integer;
         IsCollectErrorsMode: Boolean;
+        SkipChangeDimensionsQst: Boolean;
+        SkipUpdateDimensions: Boolean;
         SourceCode: Code[10];
 
     procedure SetCollectErrorsMode()
@@ -162,14 +164,12 @@ codeunit 408 DimensionManagement
             exit;
 
         TempDimSetEntry.DeleteAll();
-        with DimSetEntry do begin
-            SetRange("Dimension Set ID", DimSetID);
-            if FindSet() then
-                repeat
-                    TempDimSetEntry := DimSetEntry;
-                    TempDimSetEntry.Insert();
-                until Next() = 0;
-        end;
+        DimSetEntry.SetRange("Dimension Set ID", DimSetID);
+        if DimSetEntry.FindSet() then
+            repeat
+                TempDimSetEntry := DimSetEntry;
+                TempDimSetEntry.Insert();
+            until DimSetEntry.Next() = 0;
     end;
 
     procedure ShowDimensionSet(DimSetID: Integer; NewCaption: Text[250])
@@ -261,7 +261,7 @@ codeunit 408 DimensionManagement
     var
         ShortcutDimCode: array[8] of Code[20];
     begin
-        GetShortcutDimensions(DimSetID, ShortcutDimCode);
+        GetGlobalDimensions(DimSetID, ShortcutDimCode);
         GlobalDimVal1 := ShortcutDimCode[1];
         GlobalDimVal2 := ShortcutDimCode[2];
     end;
@@ -423,42 +423,40 @@ codeunit 408 DimensionManagement
         DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
         CollectDefaultDimsToCheck(TableID, No, TempDefaultDim);
-        with TempDefaultDim do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    DimSetEntry.SetRange("Dimension Code", "Dimension Code");
-                    IsHandled := false;
-                    OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim, DimSetEntry, LastErrorMessage, ErrorMessageMgt, isHandled);
-                    if not IsHandled then begin
-                        case "Value Posting" of
-                            "Value Posting"::"Code Mandatory":
-                                if not DimSetEntry.FindFirst() or (DimSetEntry."Dimension Value Code" = '') then
-                                    LogError(RecordId, FieldNo("Value Posting"), GetMissedMandatoryDimErr(TempDefaultDim), '');
-                            "Value Posting"::"Same Code":
-                                if "Dimension Value Code" <> '' then begin
-                                    if DimSetEntry.FindFirst() then begin
-                                        if "Dimension Value Code" <> DimSetEntry."Dimension Value Code" then
-                                            LogSameCodeWrongDimErrWithSubContext(TempDefaultDim, DimSetEntry);
-                                    end
-                                    else
-                                        LogSameCodeMissingDimErrWithSubContext(TempDefaultDim, DimSetID);
-                                end else
-                                    if DimSetEntry.FindFirst() then
-                                        LogError(RecordId, FieldNo("Value Posting"), GetSameCodeBlankDimErr(TempDefaultDim), '');
-                            "Value Posting"::"No Code":
+        TempDefaultDim.Reset();
+        if TempDefaultDim.FindSet() then
+            repeat
+                DimSetEntry.SetRange("Dimension Code", TempDefaultDim."Dimension Code");
+                IsHandled := false;
+                OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim, DimSetEntry, LastErrorMessage, ErrorMessageMgt, isHandled);
+                if not IsHandled then begin
+                    case TempDefaultDim."Value Posting" of
+                        TempDefaultDim."Value Posting"::"Code Mandatory":
+                            if not DimSetEntry.FindFirst() or (DimSetEntry."Dimension Value Code" = '') then
+                                LogError(TempDefaultDim.RecordId, TempDefaultDim.FieldNo(TempDefaultDim."Value Posting"), GetMissedMandatoryDimErr(TempDefaultDim), '');
+                        TempDefaultDim."Value Posting"::"Same Code":
+                            if TempDefaultDim."Dimension Value Code" <> '' then begin
+                                if DimSetEntry.FindFirst() then begin
+                                    if TempDefaultDim."Dimension Value Code" <> DimSetEntry."Dimension Value Code" then
+                                        LogSameCodeWrongDimErrWithSubContext(TempDefaultDim, DimSetEntry);
+                                end
+                                else
+                                    LogSameCodeMissingDimErrWithSubContext(TempDefaultDim, DimSetID);
+                            end else
                                 if DimSetEntry.FindFirst() then
-                                    LogNoCodeFilledDimErrWithSubContext(TempDefaultDim, DimSetEntry);
-                        end;
-                        if DimValuePerAccount.Get("Table ID", "No.", "Dimension Code", DimSetEntry."Dimension Value Code") then
-                            if not DimValuePerAccount.Allowed then
-                                LogError(RecordId, FieldNo("Allowed Values Filter"), GetNotAllowedDimValuePerAccount(TempDefaultDim, DimSetEntry."Dimension Value Code"), '');
+                                    LogError(TempDefaultDim.RecordId, TempDefaultDim.FieldNo(TempDefaultDim."Value Posting"), GetSameCodeBlankDimErr(TempDefaultDim), '');
+                        TempDefaultDim."Value Posting"::"No Code":
+                            if DimSetEntry.FindFirst() then
+                                LogNoCodeFilledDimErrWithSubContext(TempDefaultDim, DimSetEntry);
                     end;
-                    if not IsCollectErrorsMode then
-                        if LastErrorID <> GetLastDimErrorID() then
-                            exit(false);
-                until Next() = 0;
-        end;
+                    if DimValuePerAccount.Get(TempDefaultDim."Table ID", TempDefaultDim."No.", TempDefaultDim."Dimension Code", DimSetEntry."Dimension Value Code") then
+                        if not DimValuePerAccount.Allowed then
+                            LogError(TempDefaultDim.RecordId, TempDefaultDim.FieldNo(TempDefaultDim."Allowed Values Filter"), GetNotAllowedDimValuePerAccount(TempDefaultDim, DimSetEntry."Dimension Value Code"), '');
+                end;
+                if not IsCollectErrorsMode then
+                    if LastErrorID <> GetLastDimErrorID() then
+                        exit(false);
+            until TempDefaultDim.Next() = 0;
         IsHandled := false;
         OnCheckDimValuePostingOnBeforeExit(TableID, No, DimSetID, LastErrorMessage, ErrorMessageMgt, IsChecked, IsHandled);
         if IsHandled then
@@ -599,7 +597,7 @@ codeunit 408 DimensionManagement
 
     local procedure PriorityGreaterThan(Priority1: Integer; Priority2: Integer): Boolean
     begin
-        exit((Priority1 > 0) AND ((Priority2 = 0) or (Priority1 < Priority2)));
+        exit((Priority1 > 0) and ((Priority2 = 0) or (Priority1 < Priority2)));
     end;
 
     local procedure GetDimensionPriorityForTable(TableID: Integer): Integer
@@ -1150,6 +1148,13 @@ codeunit 408 DimensionManagement
                 DefaultDim.Delete();
     end;
 
+    procedure GetGlobalDimensions(DimSetID: Integer; var ShortcutDimCode: array[8] of Code[20])
+    var
+        GetShortcutDimensionValues: Codeunit "Get Shortcut Dimension Values";
+    begin
+        GetShortcutDimensionValues.GetGlobalDimensions(DimSetID, ShortcutDimCode);
+    end;
+
     procedure GetShortcutDimensions(DimSetID: Integer; var ShortcutDimCode: array[8] of Code[20])
     var
         GetShortcutDimensionValues: Codeunit "Get Shortcut Dimension Values";
@@ -1421,7 +1426,7 @@ codeunit 408 DimensionManagement
         IsHandled := false;
         OnBeforeCheckDim(DimCode, Result, IsHandled, Dim);
         if IsHandled then
-            EXIT(Result);
+            exit(Result);
 
         if Dim.Get(DimCode) then begin
             if Dim.Blocked then begin
@@ -1662,31 +1667,27 @@ codeunit 408 DimensionManagement
 
     procedure CopyICDocDimtoICDocDim(FromSourceICDocDim: Record "IC Document Dimension"; var ToSourceICDocDim: Record "IC Document Dimension"; ToTableID: Integer; ToTransactionSource: Integer)
     begin
-        with FromSourceICDocDim do begin
-            SetICDocDimFilters(FromSourceICDocDim, "Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
-            if FindSet() then
-                repeat
-                    ToSourceICDocDim := FromSourceICDocDim;
-                    ToSourceICDocDim."Table ID" := ToTableID;
-                    ToSourceICDocDim."Transaction Source" := ToTransactionSource;
-                    ToSourceICDocDim.Insert();
-                until Next() = 0;
-        end;
+        SetICDocDimFilters(FromSourceICDocDim, FromSourceICDocDim."Table ID", FromSourceICDocDim."Transaction No.", FromSourceICDocDim."IC Partner Code", FromSourceICDocDim."Transaction Source", FromSourceICDocDim."Line No.");
+        if FromSourceICDocDim.FindSet() then
+            repeat
+                ToSourceICDocDim := FromSourceICDocDim;
+                ToSourceICDocDim."Table ID" := ToTableID;
+                ToSourceICDocDim."Transaction Source" := ToTransactionSource;
+                ToSourceICDocDim.Insert();
+            until FromSourceICDocDim.Next() = 0;
     end;
 
     procedure MoveICDocDimtoICDocDim(FromSourceICDocDim: Record "IC Document Dimension"; var ToSourceICDocDim: Record "IC Document Dimension"; ToTableID: Integer; ToTransactionSource: Integer)
     begin
-        with FromSourceICDocDim do begin
-            SetICDocDimFilters(FromSourceICDocDim, "Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
-            if FindSet() then
-                repeat
-                    ToSourceICDocDim := FromSourceICDocDim;
-                    ToSourceICDocDim."Table ID" := ToTableID;
-                    ToSourceICDocDim."Transaction Source" := ToTransactionSource;
-                    ToSourceICDocDim.Insert();
-                    Delete();
-                until Next() = 0;
-        end;
+        SetICDocDimFilters(FromSourceICDocDim, FromSourceICDocDim."Table ID", FromSourceICDocDim."Transaction No.", FromSourceICDocDim."IC Partner Code", FromSourceICDocDim."Transaction Source", FromSourceICDocDim."Line No.");
+        if FromSourceICDocDim.FindSet() then
+            repeat
+                ToSourceICDocDim := FromSourceICDocDim;
+                ToSourceICDocDim."Table ID" := ToTableID;
+                ToSourceICDocDim."Transaction Source" := ToTransactionSource;
+                ToSourceICDocDim.Insert();
+                FromSourceICDocDim.Delete();
+            until FromSourceICDocDim.Next() = 0;
     end;
 
     procedure SetICDocDimFilters(var ICDocDim: Record "IC Document Dimension"; TableID: Integer; TransactionNo: Integer; PartnerCode: Code[20]; TransactionSource: Integer; LineNo: Integer)
@@ -1894,7 +1895,7 @@ codeunit 408 DimensionManagement
         GetGLSetup(GLSetupShortcutDimCode);
         DefaultDim.SetRange("Table ID", Database::Job);
         DefaultDim.SetRange("No.", JobNo);
-        if DefaultDim.FindSet(false, false) then
+        if DefaultDim.FindSet(false) then
             repeat
                 if DefaultDim."Dimension Value Code" <> '' then begin
                     JobTaskDim.Init();
@@ -1929,6 +1930,30 @@ codeunit 408 DimensionManagement
         TempJobTaskDimBuffer.DeleteAll();
     end;
 
+    procedure InsertJobTaskDim(var DefaultDim: Record "Default Dimension"; JobNo: Code[20]; JobTaskNo: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
+    var
+        JobTaskDim: Record "Job Task Dimension";
+    begin
+        GetGLSetup(GLSetupShortcutDimCode);
+        DefaultDim.Reset();
+        DefaultDim.SetRange("Table ID", Database::"Job Task");
+        DefaultDim.SetRange("No.", JobTaskNo);
+        DefaultDim.SetFilter("Dimension Value Code", '<>%1', '');
+        if DefaultDim.FindSet(false) then
+            repeat
+                JobTaskDim.Init();
+                JobTaskDim."Job No." := JobNo;
+                JobTaskDim."Job Task No." := JobTaskNo;
+                JobTaskDim."Dimension Code" := DefaultDim."Dimension Code";
+                JobTaskDim."Dimension Value Code" := DefaultDim."Dimension Value Code";
+                JobTaskDim.Insert();
+                if JobTaskDim."Dimension Code" = GLSetupShortcutDimCode[1] then
+                    GlobalDim1Code := JobTaskDim."Dimension Value Code";
+                if JobTaskDim."Dimension Code" = GLSetupShortcutDimCode[2] then
+                    GlobalDim2Code := JobTaskDim."Dimension Value Code";
+            until DefaultDim.Next() = 0;
+    end;
+
     local procedure UpdateJobTaskDim(DefaultDimension: Record "Default Dimension"; FromOnDelete: Boolean)
     var
         JobTaskDimension: Record "Job Task Dimension";
@@ -1943,11 +1968,17 @@ codeunit 408 DimensionManagement
         if JobTask.IsEmpty() then
             exit;
 
+        if GetSkipUpdateDimensions() then
+            exit;
+
         IsHandled := false;
         OnUpdateJobTaskDimOnBeforConfirm(DefaultDimension, IsHandled);
         if not IsHandled then
-            if not ConfirmManagement.GetResponseOrDefault(Text019, true) then
-                exit;
+            if not SkipChangeDimensionsQst then
+                if not ConfirmManagement.GetResponseOrDefault(Text019, true) then begin
+                    SetSkipUpdateDimensions(true);
+                    exit;
+                end;
 
         JobTaskDimension.SetRange("Job No.", DefaultDimension."No.");
         JobTaskDimension.SetRange("Dimension Code", DefaultDimension."Dimension Code");
@@ -2113,15 +2144,14 @@ codeunit 408 DimensionManagement
         DimValue: Record "Dimension Value";
     begin
         OnBeforeCopyDimBufToDimSetEntry(DimValue);
-        with FromDimBuf do
-            if FindSet() then
-                repeat
-                    DimValue.Get("Dimension Code", "Dimension Value Code");
-                    DimSetEntry."Dimension Code" := "Dimension Code";
-                    DimSetEntry."Dimension Value Code" := "Dimension Value Code";
-                    DimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
-                    DimSetEntry.Insert();
-                until Next() = 0;
+        if FromDimBuf.FindSet() then
+            repeat
+                DimValue.Get(FromDimBuf."Dimension Code", FromDimBuf."Dimension Value Code");
+                DimSetEntry."Dimension Code" := FromDimBuf."Dimension Code";
+                DimSetEntry."Dimension Value Code" := FromDimBuf."Dimension Value Code";
+                DimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
+                DimSetEntry.Insert();
+            until FromDimBuf.Next() = 0;
     end;
 
     procedure CreateDimSetIDFromDimBuf(var DimBuf: Record "Dimension Buffer"): Integer
@@ -2350,20 +2380,18 @@ codeunit 408 DimensionManagement
         if IsHandled then
             exit(NewDimSetID);
 
-        with JobTaskDimension do begin
-            SetRange("Job No.", JobNo);
-            SetRange("Job Task No.", JobTaskNo);
-            if FindSet() then begin
-                repeat
-                    DimValue.Get("Dimension Code", "Dimension Value Code");
-                    TempDimSetEntry."Dimension Code" := "Dimension Code";
-                    TempDimSetEntry."Dimension Value Code" := "Dimension Value Code";
-                    TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
-                    TempDimSetEntry.Insert(true);
-                until Next() = 0;
-                NewDimSetID := GetDimensionSetID(TempDimSetEntry);
-                UpdateGlobalDimFromDimSetID(NewDimSetID, GlobalDimVal1, GlobalDimVal2);
-            end;
+        JobTaskDimension.SetRange("Job No.", JobNo);
+        JobTaskDimension.SetRange("Job Task No.", JobTaskNo);
+        if JobTaskDimension.FindSet() then begin
+            repeat
+                DimValue.Get(JobTaskDimension."Dimension Code", JobTaskDimension."Dimension Value Code");
+                TempDimSetEntry."Dimension Code" := JobTaskDimension."Dimension Code";
+                TempDimSetEntry."Dimension Value Code" := JobTaskDimension."Dimension Value Code";
+                TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
+                TempDimSetEntry.Insert(true);
+            until JobTaskDimension.Next() = 0;
+            NewDimSetID := GetDimensionSetID(TempDimSetEntry);
+            UpdateGlobalDimFromDimSetID(NewDimSetID, GlobalDimVal1, GlobalDimVal2);
         end;
     end;
 
@@ -2810,6 +2838,109 @@ codeunit 408 DimensionManagement
             CodeMandatory := true;
 
         exit(CodeMandatory);
+    end;
+
+    procedure SetSkipChangeDimensionsQst(Skip: Boolean)
+    begin
+        SkipChangeDimensionsQst := Skip;
+    end;
+
+    procedure SetSkipUpdateDimensions(Skip: Boolean)
+    begin
+        SkipUpdateDimensions := Skip;
+    end;
+
+    procedure GetSkipUpdateDimensions(): Boolean
+    begin
+        exit(SkipUpdateDimensions);
+    end;
+
+    /// <summary>
+    /// Adds or updates the dimension value for the specified dimension set.
+    /// </summary>
+    /// <param name="DimSetID">Specifies the dimension set that is going to be updated.</param>
+    /// <param name="DimensionCode">Specifies the code of the dimension that is going to be updated.</param>
+    /// <param name="DimensionValueCode">Specifies the code of the dimension value that is going to set in the dimension set.</param>
+    /// <param name="AutoCreateMissingDimension">Specifies whether the dimension will be created if it doesn't exist.</param>
+    /// <param name="AutoCreateMissingDimensionValue">Specifies whether the dimension value will be created if it doesn't exist.</param>
+    /// <returns>Returns the new dimension set ID.</returns>
+    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20]; AutoCreateMissingDimension: Boolean; AutoCreateMissingDimensionValue: Boolean): Integer
+    begin
+        exit(SetDimensionValue(DimSetID, DimensionCode, '', DimensionValueCode, '', AutoCreateMissingDimension, AutoCreateMissingDimensionValue));
+    end;
+
+    /// <summary>
+    /// Adds or updates the dimension value for the specified dimension set. Any dimension or dimension value that doesn't exist will be created automatically.
+    /// </summary>
+    /// <param name="DimSetID">Specifies the dimension set that is going to be updated.</param>
+    /// <param name="DimensionCode">Specifies the code of the dimension that is going to be updated.</param>
+    /// <param name="DimensionValueCode">Specifies the code of the dimension value that is going to set in the dimension set.</param>
+    /// <param name="DimensionName">Specifies the name of the dimension, if the the dimension doesn't exist yet.</param>
+    /// <param name="DimensionValueName">Specifies the name of the dimension value, if the dimension value doesn't exist yet.</param>
+    /// <returns>Returns the new dimension set ID.</returns>
+    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionName: Text[30]; DimensionValueName: Text[30]): Integer
+    begin
+        exit(SetDimensionValue(DimSetID, DimensionCode, DimensionName, DimensionValueCode, DimensionValueName, true, true));
+    end;
+
+    /// <summary>
+    /// Adds or updates the dimension value for the specified dimension set.
+    /// </summary>
+    /// <param name="DimSetID">Specifies the dimension set that is going to be updated.</param>
+    /// <param name="DimensionCode">Specifies the code of the dimension that is going to be updated.</param>
+    /// <param name="DimensionValueCode">Specifies the code of the dimension value that is going to set in the dimension set.</param>
+    /// <param name="DimensionName">Specifies the name of the dimension, if the the dimension doesn't exist yet.</param>
+    /// <param name="DimensionValueName">Specifies the name of the dimension value, if the the dimension value doesn't exist yet.</param>
+    /// <param name="AutoCreateMissingDimension">Specifies whether the dimension will be create if it doesn't exist.</param>
+    /// <param name="AutoCreateMissingDimensionValue">Specifies whether the dimension value will be create if doesn't exist.</param>
+    /// <returns>Returns the new dimension set ID.</returns>
+    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionName: Text[30]; DimensionValueCode: Code[20]; DimensionValueName: Text[30]; AutoCreateMissingDimension: Boolean; AutoCreateMissingDimensionValue: Boolean): Integer
+    var
+        TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        if '' in [DimensionCode, DimensionValueCode] then
+            exit(DimSetID);
+
+        if AutoCreateMissingDimension then
+            if not Dimension.Get(DimensionCode) then
+                CreateDimension(Dimension, DimensionCode, DimensionName);
+
+        if AutoCreateMissingDimensionValue then
+            if not DimensionValue.Get(DimensionCode, DimensionValueCode) then
+                CreateDimensionValue(DimensionValue, DimensionCode, DimensionValueCode, DimensionValueName);
+
+        DimensionManagement.GetDimensionSet(TempDimensionSetEntry, DimSetID);
+
+        if not TempDimensionSetEntry.Get(DimSetID, DimensionCode) then begin
+            TempDimensionSetEntry.Init();
+            TempDimensionSetEntry.Validate("Dimension Set ID", DimSetID);
+            TempDimensionSetEntry.Validate("Dimension Code", DimensionCode);
+            TempDimensionSetEntry.Insert(true);
+        end;
+        TempDimensionSetEntry.Validate("Dimension Value Code", DimensionValueCode);
+        TempDimensionSetEntry.Modify(true);
+
+        exit(DimensionManagement.GetDimensionSetID(TempDimensionSetEntry));
+    end;
+
+    local procedure CreateDimension(var Dimension: Record Dimension; DimensionCode: Code[20]; DimensionName: Text[30])
+    begin
+        Dimension.Init();
+        Dimension.Validate("Code", DimensionCode);
+        Dimension.Validate(Name, DimensionName);
+        Dimension.Insert(true);
+    end;
+
+    local procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionValueName: Text[30])
+    begin
+        DimensionValue.Init();
+        DimensionValue.Validate("Code", DimensionValueCode);
+        DimensionValue.Validate("Dimension Code", DimensionCode);
+        DimensionValue.Validate(Name, DimensionValueName);
+        DimensionValue.Insert(true);
     end;
 
     [IntegrationEvent(false, false)]

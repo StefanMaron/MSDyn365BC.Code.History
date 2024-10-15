@@ -27,9 +27,6 @@ codeunit 136450 "Attachment Storage Type"
         AttachmentErr: Label 'Wrong attachment''s details';
         HTMLContentErr: Label 'Wrong attachment''s html content';
         SendAttachmentErr: Label 'The interaction template has no attachment for the selected language code.';
-        WordExtensionTxt: Label '.DOC';
-        CouldNotFindAFileTxt: Label 'Sorry, we couldn';
-        AttachmentFileErrorTxt: Label 'Attachment file error';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -650,7 +647,7 @@ codeunit 136450 "Attachment Storage Type"
         Initialize();
         CreateEmptyHTMLAttachment(TempAttachment);
 
-        ExpectedContentBodyText := GenerateContentBodyText;
+        ExpectedContentBodyText := GenerateContentBodyText();
         ExpectedCustomLayoutCode := Format(LibraryRandom.RandIntInRange(100, 999));
         TempAttachment.WriteHTMLCustomLayoutAttachment(ExpectedContentBodyText, ExpectedCustomLayoutCode);
 
@@ -1203,7 +1200,7 @@ codeunit 136450 "Attachment Storage Type"
               StrSubstNo('Attachment %1 not relocated to disk', Attachment."No."));
             Assert.IsTrue(Attachment."Storage Pointer" = Path,
               StrSubstNo('Attachment %1 not relocated to disk', Attachment."No."));
-            LibraryUtility.CheckFileNotEmpty(Attachment.ConstDiskFileName);
+            LibraryUtility.CheckFileNotEmpty(Attachment.ConstDiskFileName());
         until Attachment.Next() = 0;
     end;
 
@@ -1293,7 +1290,7 @@ codeunit 136450 "Attachment Storage Type"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -1358,8 +1355,8 @@ codeunit 136450 "Attachment Storage Type"
         ExtractComponent(Message, DummyText);
         ActualSubject := Message;
 
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualAction, 'Incorrect JavaScript action called from C/AL.');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualSubject, 'Unexpected subject passed to JS function.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualAction, 'Incorrect JavaScript action called from C/AL.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualSubject, 'Unexpected subject passed to JS function.');
     end;
 
     local procedure BindActiveDirectoryMockEvents()

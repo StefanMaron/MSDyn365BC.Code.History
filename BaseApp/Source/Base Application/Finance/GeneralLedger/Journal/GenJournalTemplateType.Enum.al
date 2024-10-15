@@ -41,15 +41,6 @@ enum 89 "Gen. Journal Template Type"
     {
         Caption = 'Payroll Accrual';
     }
-#if not CLEAN21
-    value(9; Deposits)
-    {
-        Caption = 'Deposits';
-        ObsoleteReason = 'Replaced by new Bank Deposits extension';
-        ObsoleteState = Pending;
-        ObsoleteTag = '21.0';
-    }
-#endif
     value(10; "Sales Tax")
     {
         Caption = 'Sales Tax';

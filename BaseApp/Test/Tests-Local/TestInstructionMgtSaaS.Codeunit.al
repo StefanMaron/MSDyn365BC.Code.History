@@ -55,9 +55,9 @@ codeunit 139007 "Test Instruction Mgt. SaaS"
         DocumentNo := SalesHeader."No.";
 
         // Exercise
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         // Verify
         SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
@@ -88,7 +88,7 @@ codeunit 139007 "Test Instruction Mgt. SaaS"
     [Scope('OnPrem')]
     procedure PostAndSendConfirmationModalPageHandler(var PostAndSendConfirmation: TestPage "Post and Send Confirmation")
     begin
-        PostAndSendConfirmation.Yes.Invoke;
+        PostAndSendConfirmation.Yes().Invoke();
     end;
 }
 

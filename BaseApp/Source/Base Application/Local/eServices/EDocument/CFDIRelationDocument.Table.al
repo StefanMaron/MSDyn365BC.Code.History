@@ -12,6 +12,7 @@ using Microsoft.Service.History;
 
 table 27006 "CFDI Relation Document"
 {
+    DataClassification = CustomerContent;
 
     fields
     {

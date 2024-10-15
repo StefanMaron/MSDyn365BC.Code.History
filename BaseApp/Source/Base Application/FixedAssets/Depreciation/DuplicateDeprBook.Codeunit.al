@@ -183,16 +183,15 @@ codeunit 5640 "Duplicate Depr. Book"
                 DeprBook.Code, false, Enum::"FA Journal Line FA Posting Type".FromInteger(GenJnlLine."FA Posting Type".AsInteger() - 1),
                 DuplicateInGenJnl, TemplateName, BatchName);
         end;
-        if not GenJnlPosting then
-            with FAJnlLine do begin
-                FA.Get("FA No.");
-                DuplicateInGenJnl := false;
-                TemplateName := "Journal Template Name";
-                BatchName := "Journal Batch Name";
-                FAGetJnl.JnlName(
-                  DeprBook.Code, FA."Budgeted Asset", "FA Posting Type",
-                  DuplicateInGenJnl, TemplateName, BatchName);
-            end;
+        if not GenJnlPosting then begin
+            FA.Get(FAJnlLine."FA No.");
+            DuplicateInGenJnl := false;
+            TemplateName := FAJnlLine."Journal Template Name";
+            BatchName := FAJnlLine."Journal Batch Name";
+            FAGetJnl.JnlName(
+              DeprBook.Code, FA."Budgeted Asset", FAJnlLine."FA Posting Type",
+              DuplicateInGenJnl, TemplateName, BatchName);
+        end;
         InsertLine(GenJnlPosting, DuplicateInGenJnl, GenJnlLine, FAJnlLine);
     end;
 
@@ -347,16 +346,14 @@ codeunit 5640 "Duplicate Depr. Book"
         if not DeprBook."Use FA Exch. Rate in Duplic." then
             exit;
         ExchangeRate2 := ExchangeRate / GetExchangeRate(FANo, DeprBook);
-        if DuplicateInGenJnl then
-            with GenJnlLine do begin
-                Validate(Amount, Round(Amount * ExchangeRate2));
-                Validate("Salvage Value", Round("Salvage Value" * ExchangeRate2));
-            end;
-        if not DuplicateInGenJnl then
-            with FAJnlLine do begin
-                Validate(Amount, Round(Amount * ExchangeRate2));
-                Validate("Salvage Value", Round("Salvage Value" * ExchangeRate2));
-            end;
+        if DuplicateInGenJnl then begin
+            GenJnlLine.Validate(Amount, Round(GenJnlLine.Amount * ExchangeRate2));
+            GenJnlLine.Validate("Salvage Value", Round(GenJnlLine."Salvage Value" * ExchangeRate2));
+        end;
+        if not DuplicateInGenJnl then begin
+            FAJnlLine.Validate(Amount, Round(FAJnlLine.Amount * ExchangeRate2));
+            FAJnlLine.Validate("Salvage Value", Round(FAJnlLine."Salvage Value" * ExchangeRate2));
+        end;
     end;
 
     local procedure GetExchangeRate(FANo: Code[20]; var DeprBook: Record "Depreciation Book"): Decimal
@@ -375,77 +372,73 @@ codeunit 5640 "Duplicate Depr. Book"
 
     local procedure InsertLine(GenJnlPosting: Boolean; DuplicateInGenJnl: Boolean; GenJnlLine: Record "Gen. Journal Line"; FAJnlLine: Record "FA Journal Line")
     begin
-        if GenJnlPosting and DuplicateInGenJnl then
-            with GenJnlLine do begin
-                AdjustGenJnlLine(GenJnlLine);
-                "Journal Template Name" := TemplateName;
-                "Journal Batch Name" := BatchName;
-                LockTable();
-                FAGetJnl.SetGenJnlRange(GenJnlLine2, TemplateName, BatchName);
-                Validate("Depreciation Book Code", DeprBook.Code);
-                CalcExchangeRateAmount(DuplicateInGenJnl, "Account No.", GenJnlLine, FAJnlLine);
-                "Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
-                FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-                if DeprBook."Use Default Dimension" then
-                    CreateDimFromDefaultDim(0);
-                "Line No." := GenJnlLine2."Line No." + 10000;
-                OnBeforeGenJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
-                Insert(true);
-            end;
+        if GenJnlPosting and DuplicateInGenJnl then begin
+            AdjustGenJnlLine(GenJnlLine);
+            GenJnlLine."Journal Template Name" := TemplateName;
+            GenJnlLine."Journal Batch Name" := BatchName;
+            GenJnlLine.LockTable();
+            FAGetJnl.SetGenJnlRange(GenJnlLine2, TemplateName, BatchName);
+            GenJnlLine.Validate("Depreciation Book Code", DeprBook.Code);
+            CalcExchangeRateAmount(DuplicateInGenJnl, GenJnlLine."Account No.", GenJnlLine, FAJnlLine);
+            GenJnlLine."Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
+            FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
+            if DeprBook."Use Default Dimension" then
+                GenJnlLine.CreateDimFromDefaultDim(0);
+            GenJnlLine."Line No." := GenJnlLine2."Line No." + 10000;
+            OnBeforeGenJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
+            GenJnlLine.Insert(true);
+        end;
 
-        if GenJnlPosting and not DuplicateInGenJnl then
-            with FAJnlLine do begin
-                MakeFAJnlLine(FAJnlLine, GenJnlLine);
-                "Journal Template Name" := TemplateName;
-                "Journal Batch Name" := BatchName;
-                LockTable();
-                FAGetJnl.SetFAJnlRange(FAJnlLine2, TemplateName, BatchName);
-                Validate("Depreciation Book Code", DeprBook.Code);
-                CalcExchangeRateAmount(DuplicateInGenJnl, "FA No.", GenJnlLine, FAJnlLine);
-                "Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
-                FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-                if DeprBook."Use Default Dimension" then
-                    CreateDimFromDefaultDim();
-                "Line No." := FAJnlLine2."Line No." + 10000;
-                OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
-                Insert(true);
-            end;
+        if GenJnlPosting and not DuplicateInGenJnl then begin
+            MakeFAJnlLine(FAJnlLine, GenJnlLine);
+            FAJnlLine."Journal Template Name" := TemplateName;
+            FAJnlLine."Journal Batch Name" := BatchName;
+            FAJnlLine.LockTable();
+            FAGetJnl.SetFAJnlRange(FAJnlLine2, TemplateName, BatchName);
+            FAJnlLine.Validate("Depreciation Book Code", DeprBook.Code);
+            CalcExchangeRateAmount(DuplicateInGenJnl, FAJnlLine."FA No.", GenJnlLine, FAJnlLine);
+            FAJnlLine."Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
+            FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
+            if DeprBook."Use Default Dimension" then
+                FAJnlLine.CreateDimFromDefaultDim();
+            FAJnlLine."Line No." := FAJnlLine2."Line No." + 10000;
+            OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
+            FAJnlLine.Insert(true);
+        end;
 
-        if not GenJnlPosting and DuplicateInGenJnl then
-            with GenJnlLine do begin
-                MakeGenJnlLine(GenJnlLine, FAJnlLine);
-                "Journal Template Name" := TemplateName;
-                "Journal Batch Name" := BatchName;
-                LockTable();
-                FAGetJnl.SetGenJnlRange(GenJnlLine2, TemplateName, BatchName);
-                Validate("Depreciation Book Code", DeprBook.Code);
-                CalcExchangeRateAmount(DuplicateInGenJnl, "Account No.", GenJnlLine, FAJnlLine);
-                "Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
-                FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-                if DeprBook."Use Default Dimension" then
-                    CreateDimFromDefaultDim(0);
-                "Line No." := GenJnlLine2."Line No." + 10000;
-                OnBeforeGenJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
-                Insert(true);
-            end;
+        if not GenJnlPosting and DuplicateInGenJnl then begin
+            MakeGenJnlLine(GenJnlLine, FAJnlLine);
+            GenJnlLine."Journal Template Name" := TemplateName;
+            GenJnlLine."Journal Batch Name" := BatchName;
+            GenJnlLine.LockTable();
+            FAGetJnl.SetGenJnlRange(GenJnlLine2, TemplateName, BatchName);
+            GenJnlLine.Validate("Depreciation Book Code", DeprBook.Code);
+            CalcExchangeRateAmount(DuplicateInGenJnl, GenJnlLine."Account No.", GenJnlLine, FAJnlLine);
+            GenJnlLine."Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
+            FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
+            if DeprBook."Use Default Dimension" then
+                GenJnlLine.CreateDimFromDefaultDim(0);
+            GenJnlLine."Line No." := GenJnlLine2."Line No." + 10000;
+            OnBeforeGenJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
+            GenJnlLine.Insert(true);
+        end;
 
-        if not GenJnlPosting and not DuplicateInGenJnl then
-            with FAJnlLine do begin
-                AdjustFAJnlLine(FAJnlLine);
-                "Journal Template Name" := TemplateName;
-                "Journal Batch Name" := BatchName;
-                LockTable();
-                FAGetJnl.SetFAJnlRange(FAJnlLine2, TemplateName, BatchName);
-                Validate("Depreciation Book Code", DeprBook.Code);
-                CalcExchangeRateAmount(DuplicateInGenJnl, "FA No.", GenJnlLine, FAJnlLine);
-                "Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
-                FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-                if DeprBook."Use Default Dimension" then
-                    CreateDimFromDefaultDim();
-                "Line No." := FAJnlLine2."Line No." + 10000;
-                OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
-                Insert(true);
-            end;
+        if not GenJnlPosting and not DuplicateInGenJnl then begin
+            AdjustFAJnlLine(FAJnlLine);
+            FAJnlLine."Journal Template Name" := TemplateName;
+            FAJnlLine."Journal Batch Name" := BatchName;
+            FAJnlLine.LockTable();
+            FAGetJnl.SetFAJnlRange(FAJnlLine2, TemplateName, BatchName);
+            FAJnlLine.Validate("Depreciation Book Code", DeprBook.Code);
+            CalcExchangeRateAmount(DuplicateInGenJnl, FAJnlLine."FA No.", GenJnlLine, FAJnlLine);
+            FAJnlLine."Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
+            FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
+            if DeprBook."Use Default Dimension" then
+                FAJnlLine.CreateDimFromDefaultDim();
+            FAJnlLine."Line No." := FAJnlLine2."Line No." + 10000;
+            OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
+            FAJnlLine.Insert(true);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

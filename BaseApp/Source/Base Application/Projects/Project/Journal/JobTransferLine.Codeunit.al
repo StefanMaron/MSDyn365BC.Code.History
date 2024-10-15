@@ -247,7 +247,7 @@ codeunit 1004 "Job Transfer Line"
         JobJournalTemplate: Record "Job Journal Template";
         JobJournalBatch: Record "Job Journal Batch";
         JobSetup: Record "Jobs Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
@@ -284,7 +284,7 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Document Date" := PostingDate;
         JobSetup.Get();
         if JobJournalBatch."No. Series" <> '' then
-            JobJnlLine."Document No." := NoSeriesMgt.GetNextNo(JobJournalBatch."No. Series", PostingDate, false)
+            JobJnlLine."Document No." := NoSeries.PeekNextNo(JobJournalBatch."No. Series", PostingDate)
         else
             if JobSetup."Document No. Is Job No." then
                 JobJnlLine."Document No." := JobPlanningLine."Job No."
@@ -323,6 +323,7 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine.Validate("Unit Cost", JobPlanningLine."Unit Cost");
         JobJnlLine.Validate("Unit Price", JobPlanningLine."Unit Price");
         JobJnlLine.Validate("Line Discount %", JobPlanningLine."Line Discount %");
+        JobJnlLine."Assemble to Order" := JobPlanningLine."Assemble to Order";
 
         OnAfterFromPlanningLineToJnlLine(JobJnlLine, JobPlanningLine);
 
@@ -356,7 +357,7 @@ codeunit 1004 "Job Transfer Line"
             "Job No.", "Job Task No.", "Usage Link", "Line No.", "Line Type", Type, "No.", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
             "Serial No.", "Lot No.", Description, "Description 2", "Unit of Measure Code", "Currency Code", "Currency Factor", "Resource Group No.",
             "Location Code", "Work Type Code", "Customer Price Group", "Variant Code", "Bin Code", "Service Order No.", "Country/Region Code",
-            "Qty. per Unit of Measure", "Direct Unit Cost (LCY)", "Unit Cost", "Unit Price", "Line Discount %", "Document No.");
+            "Qty. per Unit of Measure", "Direct Unit Cost (LCY)", "Unit Cost", "Unit Price", "Line Discount %", "Document No.", "Assemble to Order");
         JobPlanningLine.SetRange("Job No.", WarehouseActivityLine."Source No.");
         JobPlanningLine.SetRange("Job Contract Entry No.", WarehouseActivityLine."Source Line No.");
 
@@ -421,6 +422,7 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Serial No." := WarehouseActivityLine."Serial No.";
         JobJnlLine."Lot No." := WarehouseActivityLine."Lot No.";
         JobJnlLine."Package No." := WarehouseActivityLine."Package No.";
+        JobJnlLine."Assemble to Order" := JobPlanningLine."Assemble to Order";
 
         JobJnlLine.Validate(Quantity, WarehouseActivityLine."Qty. to Handle");
         JobJnlLine.Validate("Qty. per Unit of Measure", WarehouseActivityLine."Qty. per Unit of Measure");
@@ -604,175 +606,175 @@ codeunit 1004 "Job Transfer Line"
         if IsHandled then
             exit;
 
-        with PurchLine do begin
-            Validate("Job Planning Line No.");
+        PurchLine.Validate("Job Planning Line No.");
 
-            JobJnlLine.DontCheckStdCost();
-            JobJnlLine.Validate("Job No.", "Job No.");
-            JobJnlLine.Validate("Job Task No.", "Job Task No.");
-            JobTask.Get("Job No.", "Job Task No.");
-            JobJnlLine.Validate("Posting Date", PurchHeader."Posting Date");
-            JobJournalLineValidateType(JobJnlLine, PurchLine);
-            OnFromPurchaseLineToJnlLineOnBeforeValidateNo(JobJnlLine, PurchLine);
-            JobJnlLine.Validate("No.", "No.");
-            JobJnlLine.Validate("Variant Code", "Variant Code");
-            if UpdateBaseQtyForPurchLine(Item, PurchLine) then begin
-                JobJnlLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
-                JobJnlLine.Validate(
-                  Quantity,
-                  UOMMgt.CalcBaseQty(
-                    "No.", "Variant Code", "Unit of Measure Code", "Qty. to Invoice", "Qty. per Unit of Measure"));
-            end else begin
-                JobJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
-                JobJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-                JobJnlLine.Validate(Quantity, "Qty. to Invoice");
-            end;
-
-            if PurchHeader."Document Type" in [PurchHeader."Document Type"::"Return Order",
-                                               PurchHeader."Document Type"::"Credit Memo"]
-            then begin
-                JobJnlLine."Document No." := PurchCrMemoHeader."No.";
-                JobJnlLine."External Document No." := PurchCrMemoHeader."Vendor Cr. Memo No.";
-            end else begin
-                JobJnlLine."Document No." := PurchInvHeader."No.";
-                JobJnlLine."External Document No." := PurchHeader."Vendor Invoice No.";
-            end;
-
-            NonDeductibleVAT.Calculate(NonDeductibleBaseAmount, NonDeductibleVATAmount, NonDeductibleVATAmtPerUnit, NonDeductibleVATAmtPerUnitLCY, NDVATAmountRounding, NDVATBaseRounding, PurchHeader, PurchLine);
-            GetCurrencyRounding(JobJnlLine."Currency Code");
-
-            JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure";
-            JobJnlLine."Unit Cost" := "Unit Cost" / "Qty. per Unit of Measure";
-
-            if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then begin
-                JobJnlLine."Unit Cost (LCY)" += Abs(NonDeductibleVATAmtPerUnitLCY);
-                JobJnlLine."Unit Cost" += Abs(NonDeductibleVATAmtPerUnit);
-            end;
-
-            OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(JobJnlLine, PurchLine);
-
-            TaxToBeExpensedLCY := 0;
-            if Type = Type::Item then begin
-                if Item."Inventory Value Zero" then begin
-                    JobJnlLine."Unit Cost (LCY)" := 0;
-                    JobJnlLine."Unit Cost" := 0;
-                end else
-                    if Item."Costing Method" = Item."Costing Method"::Standard then begin
-                        JobJnlLine."Unit Cost (LCY)" := Item."Standard Cost";
-                        JobJnlLine."Unit Cost" := Item."Standard Cost";
-                        if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then begin
-                            JobJnlLine."Unit Cost (LCY)" += NonDeductibleVATAmtPerUnitLCY;
-                            JobJnlLine."Unit Cost" += NonDeductibleVATAmtPerUnit;
-                        end;
-                    end;
-            end else begin
-                TaxToBeExpensedLCY := "Tax To Be Expensed";
-                if (JobJnlLine.Quantity <> 0) and (TaxToBeExpensedLCY <> 0) then begin
-                    JobJnlLine.Validate("Unit Cost (LCY)", "Unit Cost (LCY)" + TaxToBeExpensedLCY / JobJnlLine.Quantity);
-                    JobJnlLine."Unit Cost" := "Unit Cost" + TaxToBeExpensedLCY * PurchHeader."Currency Factor" / JobJnlLine.Quantity;
-                end;
-            end;
-
-            JobJnlLine."Unit Cost (LCY)" := Round(JobJnlLine."Unit Cost (LCY)", LCYCurrency."Unit-Amount Rounding Precision");
-
-            if (JobJnlLine."Currency Code" = '') and (PurchLine."Currency Code" <> '') then begin
-                PurchLineCurrency.Get(PurchLine."Currency Code");
-                JobJnlLine."Total Cost" := Round(
-                                        CurrencyExchRate.ExchangeAmtFCYToLCY(
-                                            PurchHeader."Posting Date",
-                                            PurchLine."Currency Code",
-                                            Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, PurchLineCurrency."Amount Rounding Precision"),
-                                            PurchHeader."Currency Factor"),
-                                        Currency."Amount Rounding Precision");
-                JobJnlLine."Total Cost (LCY)" := JobJnlLine."Total Cost";
-            end;
-
-            if JobJnlLine."Currency Code" = '' then
-                JobJnlLine."Unit Cost" := JobJnlLine."Unit Cost (LCY)"
-            else
-                if JobJnlLine."Currency Code" = "Currency Code" then begin
-                    if TaxToBeExpensedLCY <> 0 then
-                        JobJnlLine."Unit Cost" :=
-                            Round(
-                                CurrencyExchRate.ExchangeAmtLCYToFCY(
-                                    PurchHeader."Posting Date",
-                                    JobJnlLine."Currency Code",
-                                    JobJnlLine."Unit Cost (LCY)",
-                                    JobJnlLine."Currency Factor"),
-                                Currency."Unit-Amount Rounding Precision")
-                    else
-                        JobJnlLine."Unit Cost" := "Unit Cost";
-                end else
-                    JobJnlLine."Unit Cost" :=
-                      Round(
-                        CurrencyExchRate.ExchangeAmtLCYToFCY(
-                          PurchHeader."Posting Date",
-                          JobJnlLine."Currency Code",
-                          JobJnlLine."Unit Cost (LCY)",
-                          JobJnlLine."Currency Factor"), Currency."Unit-Amount Rounding Precision");
-
-            if not ((JobJnlLine."Currency Code" = '') and (PurchLine."Currency Code" <> '')) then
-                JobJnlLine."Total Cost" := Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, Currency."Amount Rounding Precision");
-
-            if (Type = Type::Item) and Item."Inventory Value Zero" then
-                JobJnlLine."Total Cost (LCY)" := 0
-            else
-                if not ((JobJnlLine."Currency Code" = '') and (PurchLine."Currency Code" <> '')) then
-                    JobJnlLine."Total Cost (LCY)" :=
-                        Round(JobJnlLine."Unit Cost (LCY)" * JobJnlLine.Quantity, LCYCurrency."Amount Rounding Precision");
-
-            if "Currency Code" = '' then
-                JobJnlLine."Direct Unit Cost (LCY)" := "Direct Unit Cost"
-            else
-                JobJnlLine."Direct Unit Cost (LCY)" :=
-                  CurrencyExchRate.ExchangeAmtFCYToLCY(
-                    PurchHeader."Posting Date",
-                    "Currency Code",
-                    "Direct Unit Cost",
-                    PurchHeader."Currency Factor");
-
-            JobJnlLine."Unit Price (LCY)" :=
-              Round("Job Unit Price (LCY)" / "Qty. per Unit of Measure", LCYCurrency."Unit-Amount Rounding Precision");
-            JobJnlLine."Unit Price" :=
-              Round("Job Unit Price" / "Qty. per Unit of Measure", Currency."Unit-Amount Rounding Precision");
-            JobJnlLine."Line Discount %" := "Job Line Discount %";
-
-            if Quantity <> 0 then begin
-                GetCurrencyRounding(PurchHeader."Currency Code");
-
-                Factor := "Qty. to Invoice" / Quantity;
-                JobJnlLine."Total Price (LCY)" :=
-                  Round("Job Total Price (LCY)" * Factor, LCYCurrency."Amount Rounding Precision");
-                JobJnlLine."Total Price" :=
-                  Round("Job Total Price" * Factor, Currency."Amount Rounding Precision");
-                JobJnlLine."Line Amount (LCY)" :=
-                  Round("Job Line Amount (LCY)" * Factor, LCYCurrency."Amount Rounding Precision");
-                JobJnlLine."Line Amount" :=
-                  Round("Job Line Amount" * Factor, Currency."Amount Rounding Precision");
-                JobJnlLine."Line Discount Amount (LCY)" :=
-                  Round("Job Line Disc. Amount (LCY)" * Factor, LCYCurrency."Amount Rounding Precision");
-                JobJnlLine."Line Discount Amount" :=
-                  Round("Job Line Discount Amount" * Factor, Currency."Amount Rounding Precision");
-            end;
-
-            JobJnlLine."Job Planning Line No." := "Job Planning Line No.";
-            JobJnlLine."Remaining Qty." := "Job Remaining Qty.";
-            JobJnlLine."Remaining Qty. (Base)" := "Job Remaining Qty. (Base)";
-            JobJnlLine."Location Code" := "Location Code";
-            JobJnlLine."Bin Code" := "Bin Code";
-            JobJnlLine."Line Type" := "Job Line Type";
-            JobJnlLine."Entry Type" := JobJnlLine."Entry Type"::Usage;
-            JobJnlLine.Description := Description;
-            JobJnlLine."Description 2" := "Description 2";
-            JobJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            JobJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-            JobJnlLine."Source Code" := SourceCode;
-            JobJnlLine."Reason Code" := PurchHeader."Reason Code";
-            JobJnlLine."Document Date" := PurchHeader."Document Date";
-            JobJnlLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            JobJnlLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-            JobJnlLine."Dimension Set ID" := "Dimension Set ID";
+        JobJnlLine.DontCheckStdCost();
+        JobJnlLine.Validate("Job No.", PurchLine."Job No.");
+        JobJnlLine.Validate("Job Task No.", PurchLine."Job Task No.");
+        JobTask.Get(PurchLine."Job No.", PurchLine."Job Task No.");
+        JobJnlLine.Validate("Posting Date", PurchHeader."Posting Date");
+        JobJournalLineValidateType(JobJnlLine, PurchLine);
+        OnFromPurchaseLineToJnlLineOnBeforeValidateNo(JobJnlLine, PurchLine);
+        JobJnlLine.Validate("No.", PurchLine."No.");
+        JobJnlLine.Validate("Variant Code", PurchLine."Variant Code");
+        if UpdateBaseQtyForPurchLine(Item, PurchLine) then begin
+            JobJnlLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+            JobJnlLine.Validate(
+                Quantity,
+                UOMMgt.CalcBaseQty(
+                PurchLine."No.", PurchLine."Variant Code", PurchLine."Unit of Measure Code", PurchLine."Qty. to Invoice", PurchLine."Qty. per Unit of Measure"));
+        end else begin
+            JobJnlLine.Validate("Unit of Measure Code", PurchLine."Unit of Measure Code");
+            JobJnlLine."Qty. per Unit of Measure" := PurchLine."Qty. per Unit of Measure";
+            JobJnlLine.Validate(Quantity, PurchLine."Qty. to Invoice");
         end;
+
+        if PurchHeader."Document Type" in [PurchHeader."Document Type"::"Return Order",
+                                            PurchHeader."Document Type"::"Credit Memo"]
+        then begin
+            JobJnlLine."Document No." := PurchCrMemoHeader."No.";
+            JobJnlLine."External Document No." := PurchCrMemoHeader."Vendor Cr. Memo No.";
+        end else begin
+            JobJnlLine."Document No." := PurchInvHeader."No.";
+            JobJnlLine."External Document No." := PurchHeader."Vendor Invoice No.";
+        end;
+
+        NonDeductibleVAT.Calculate(NonDeductibleBaseAmount, NonDeductibleVATAmount, NonDeductibleVATAmtPerUnit, NonDeductibleVATAmtPerUnitLCY, NDVATAmountRounding, NDVATBaseRounding, PurchHeader, PurchLine);
+        GetCurrencyRounding(JobJnlLine."Currency Code");
+
+        JobJnlLine."Unit Cost (LCY)" := PurchLine."Unit Cost (LCY)" / PurchLine."Qty. per Unit of Measure";
+        JobJnlLine."Unit Cost" := PurchLine."Unit Cost" / PurchLine."Qty. per Unit of Measure";
+
+        if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then begin
+            JobJnlLine."Unit Cost (LCY)" += Abs(NonDeductibleVATAmtPerUnitLCY);
+            JobJnlLine."Unit Cost" += Abs(NonDeductibleVATAmtPerUnit);
+        end;
+
+        OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(JobJnlLine, PurchLine);
+
+        TaxToBeExpensedLCY := 0;
+        if PurchLine.Type = PurchLine.Type::Item then begin
+            if Item."Inventory Value Zero" then begin
+                JobJnlLine."Unit Cost (LCY)" := 0;
+                JobJnlLine."Unit Cost" := 0;
+            end else
+                if Item."Costing Method" = Item."Costing Method"::Standard then begin
+                    JobJnlLine."Unit Cost (LCY)" := Item."Standard Cost";
+                    JobJnlLine."Unit Cost" := Item."Standard Cost";
+                    if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then begin
+                        JobJnlLine."Unit Cost (LCY)" += NonDeductibleVATAmtPerUnitLCY;
+                        JobJnlLine."Unit Cost" += NonDeductibleVATAmtPerUnit;
+                    end;
+                end;
+        end else begin
+            TaxToBeExpensedLCY := PurchLine."Tax To Be Expensed";
+            if (JobJnlLine.Quantity <> 0) and (TaxToBeExpensedLCY <> 0) then begin
+                JobJnlLine.Validate("Unit Cost (LCY)", PurchLine."Unit Cost (LCY)" + TaxToBeExpensedLCY / JobJnlLine.Quantity);
+                JobJnlLine."Unit Cost" := PurchLine."Unit Cost" + TaxToBeExpensedLCY * PurchHeader."Currency Factor" / JobJnlLine.Quantity;
+            end;
+        end;
+
+        JobJnlLine."Unit Cost (LCY)" := Round(JobJnlLine."Unit Cost (LCY)", LCYCurrency."Unit-Amount Rounding Precision");
+
+        if (JobJnlLine."Currency Code" = '') and (PurchLine."Currency Code" <> '') then begin
+            PurchLineCurrency.Get(PurchLine."Currency Code");
+            JobJnlLine."Total Cost" :=
+                Round(
+                    CurrencyExchRate.ExchangeAmtFCYToLCY(
+                        PurchHeader."Posting Date",
+                        PurchLine."Currency Code",
+                        Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, PurchLineCurrency."Amount Rounding Precision"),
+                        PurchHeader."Currency Factor"),
+                    Currency."Amount Rounding Precision");
+            JobJnlLine."Total Cost (LCY)" := JobJnlLine."Total Cost";
+        end;
+
+        case JobJnlLine."Currency Code" of
+            '':
+                JobJnlLine."Unit Cost" := JobJnlLine."Unit Cost (LCY)";
+            PurchLine."Currency Code":
+                if TaxToBeExpensedLCY <> 0 then
+                    JobJnlLine."Unit Cost" :=
+                        Round(
+                            CurrencyExchRate.ExchangeAmtLCYToFCY(
+                                PurchHeader."Posting Date",
+                                JobJnlLine."Currency Code",
+                                JobJnlLine."Unit Cost (LCY)",
+                                JobJnlLine."Currency Factor"),
+                            Currency."Unit-Amount Rounding Precision")
+                else
+                    JobJnlLine."Unit Cost" := PurchLine."Unit Cost";
+            else
+                JobJnlLine."Unit Cost" :=
+                    Round(
+                    CurrencyExchRate.ExchangeAmtLCYToFCY(
+                        PurchHeader."Posting Date",
+                        JobJnlLine."Currency Code",
+                        JobJnlLine."Unit Cost (LCY)",
+                        JobJnlLine."Currency Factor"), Currency."Unit-Amount Rounding Precision");
+        end;
+
+        if not ((JobJnlLine."Currency Code" = '') and (PurchLine."Currency Code" <> '')) then
+            JobJnlLine."Total Cost" := Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, Currency."Amount Rounding Precision");
+
+        if (PurchLine.Type = PurchLine.Type::Item) and Item."Inventory Value Zero" then
+            JobJnlLine."Total Cost (LCY)" := 0
+        else
+            if not ((JobJnlLine."Currency Code" = '') and (PurchLine."Currency Code" <> '')) then
+                JobJnlLine."Total Cost (LCY)" :=
+                    Round(JobJnlLine."Unit Cost (LCY)" * JobJnlLine.Quantity, LCYCurrency."Amount Rounding Precision");
+
+        if PurchLine."Currency Code" = '' then
+            JobJnlLine."Direct Unit Cost (LCY)" := PurchLine."Direct Unit Cost"
+        else
+            JobJnlLine."Direct Unit Cost (LCY)" :=
+                CurrencyExchRate.ExchangeAmtFCYToLCY(
+                PurchHeader."Posting Date",
+                PurchLine."Currency Code",
+                PurchLine."Direct Unit Cost",
+                PurchHeader."Currency Factor");
+
+        JobJnlLine."Unit Price (LCY)" :=
+            Round(PurchLine."Job Unit Price (LCY)" / PurchLine."Qty. per Unit of Measure", LCYCurrency."Unit-Amount Rounding Precision");
+        JobJnlLine."Unit Price" :=
+            Round(PurchLine."Job Unit Price" / PurchLine."Qty. per Unit of Measure", Currency."Unit-Amount Rounding Precision");
+        JobJnlLine."Line Discount %" := PurchLine."Job Line Discount %";
+
+        if PurchLine.Quantity <> 0 then begin
+            GetCurrencyRounding(PurchHeader."Currency Code");
+
+            Factor := PurchLine."Qty. to Invoice" / PurchLine.Quantity;
+            JobJnlLine."Total Price (LCY)" :=
+                Round(PurchLine."Job Total Price (LCY)" * Factor, LCYCurrency."Amount Rounding Precision");
+            JobJnlLine."Total Price" :=
+                Round(PurchLine."Job Total Price" * Factor, Currency."Amount Rounding Precision");
+            JobJnlLine."Line Amount (LCY)" :=
+                Round(PurchLine."Job Line Amount (LCY)" * Factor, LCYCurrency."Amount Rounding Precision");
+            JobJnlLine."Line Amount" :=
+                Round(PurchLine."Job Line Amount" * Factor, Currency."Amount Rounding Precision");
+            JobJnlLine."Line Discount Amount (LCY)" :=
+                Round(PurchLine."Job Line Disc. Amount (LCY)" * Factor, LCYCurrency."Amount Rounding Precision");
+            JobJnlLine."Line Discount Amount" :=
+                Round(PurchLine."Job Line Discount Amount" * Factor, Currency."Amount Rounding Precision");
+        end;
+
+        JobJnlLine."Job Planning Line No." := PurchLine."Job Planning Line No.";
+        JobJnlLine."Remaining Qty." := PurchLine."Job Remaining Qty.";
+        JobJnlLine."Remaining Qty. (Base)" := PurchLine."Job Remaining Qty. (Base)";
+        JobJnlLine."Location Code" := PurchLine."Location Code";
+        JobJnlLine."Bin Code" := PurchLine."Bin Code";
+        JobJnlLine."Line Type" := PurchLine."Job Line Type";
+        JobJnlLine."Entry Type" := JobJnlLine."Entry Type"::Usage;
+        JobJnlLine.Description := PurchLine.Description;
+        JobJnlLine."Description 2" := PurchLine."Description 2";
+        JobJnlLine."Gen. Bus. Posting Group" := PurchLine."Gen. Bus. Posting Group";
+        JobJnlLine."Gen. Prod. Posting Group" := PurchLine."Gen. Prod. Posting Group";
+        JobJnlLine."Source Code" := SourceCode;
+        JobJnlLine."Reason Code" := PurchHeader."Reason Code";
+        JobJnlLine."Document Date" := PurchHeader."Document Date";
+        JobJnlLine."Shortcut Dimension 1 Code" := PurchLine."Shortcut Dimension 1 Code";
+        JobJnlLine."Shortcut Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
+        JobJnlLine."Dimension Set ID" := PurchLine."Dimension Set ID";
 
         OnAfterFromPurchaseLineToJnlLine(JobJnlLine, PurchHeader, PurchInvHeader, PurchCrMemoHeader, PurchLine, SourceCode);
     end;

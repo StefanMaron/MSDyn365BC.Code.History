@@ -40,13 +40,11 @@ codeunit 142500 "Export Payments File Handling"
         TempPath: Text;
     begin
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
-        FileName := CreateClientExportFile(BankAccount."E-Pay Export File Path");
+        FileName := CreateClientExportFile();
 
         ExportPaymentsACH.TransmitExportedFile(BankAccount."No.", FileName);
 
         VerifyMovedFile(BankAccount, FileName);
-
-        DeleteDirectory(TempPath);
     end;
 
     [Test]
@@ -60,13 +58,11 @@ codeunit 142500 "Export Payments File Handling"
         TempPath: Text;
     begin
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
-        FileName := CreateClientExportFile(BankAccount."E-Pay Export File Path");
+        FileName := CreateClientExportFile();
 
         ExportPaymentsRB.TransmitExportedFile(BankAccount."No.", FileName);
 
         VerifyMovedFile(BankAccount, FileName);
-
-        DeleteDirectory(TempPath);
     end;
 
     [Test]
@@ -80,13 +76,11 @@ codeunit 142500 "Export Payments File Handling"
         TempPath: Text;
     begin
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
-        FileName := CreateClientExportFile(BankAccount."E-Pay Export File Path");
+        FileName := CreateClientExportFile();
 
         ExportPaymentsCecoban.TransmitExportedFile(BankAccount."No.", FileName);
 
         VerifyMovedFile(BankAccount, FileName);
-
-        DeleteDirectory(TempPath);
     end;
 
     [Test]
@@ -102,7 +96,7 @@ codeunit 142500 "Export Payments File Handling"
         Initialize();
 
         // Setup: Create Gen journal line and create Vendor bank account.
-        UpdateCompanyInfo;
+        UpdateCompanyInfo();
 
         VendorNo := CreateLongNameVendorNo();
         VendorBankAccountNo := LibraryRandom.RandText(20);
@@ -117,7 +111,7 @@ codeunit 142500 "Export Payments File Handling"
         ExportPaymentsRB.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate());
 
         // Verify: File export successfully without Input Qualifier.
-        ExportPaymentsRB.EndExportFile;
+        ExportPaymentsRB.EndExportFile();
     end;
 
     [Test]
@@ -134,7 +128,7 @@ codeunit 142500 "Export Payments File Handling"
         Initialize();
 
         // Setup: Create Gen journal line and create Vendor bank account.
-        UpdateCompanyInfo;
+        UpdateCompanyInfo();
 
         VendorNo := CreateLongNameVendorNo();
         VendorBankAccountNo := LibraryRandom.RandText(20);
@@ -149,7 +143,7 @@ codeunit 142500 "Export Payments File Handling"
         ExportPaymentsRB.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate());
 
         // Verify: Verify exported file
-        ExportPaymentsRB.EndExportFile;
+        ExportPaymentsRB.EndExportFile();
         VerifyRBFileData(BankAccount, VendorNo, GenJournalLine.Amount, 1);
     end;
 
@@ -167,7 +161,7 @@ codeunit 142500 "Export Payments File Handling"
         // [SCENARIO 364614] Exported Payment File (ACH) has 16-chars length Vendor.Name
         // [SCENARIO 430249] Exported Payment File (ACH) has 22 chars length Vendor Name.
         Initialize();
-        UpdateCompanyInfo;
+        UpdateCompanyInfo();
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
 
         // [GIVEN] Vendor with Name of length 100.
@@ -184,8 +178,6 @@ codeunit 142500 "Export Payments File Handling"
         // [THEN] Exported File (ACH) has Vendor name value trimmed to 22 chars.
         Vendor.Get(VendorNo);
         VerifyExportedFileACHCustVendorName(CopyStr(Vendor.Name, 1, 22), GetBankExportFileName(BankAccount."No."));
-
-        DeleteDirectory(TempPath);
     end;
 
     [Test]
@@ -202,7 +194,7 @@ codeunit 142500 "Export Payments File Handling"
         // [SCENARIO 364614] Exported Payment File (ACH) has 16-chars length Customer.Name
         // [SCENARIO 430249] Exported Payment File (ACH) has 22 chars length Customer Name.
         Initialize();
-        UpdateCompanyInfo;
+        UpdateCompanyInfo();
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
 
         // [GIVEN] Customer with Name of length 100.
@@ -219,8 +211,6 @@ codeunit 142500 "Export Payments File Handling"
         // [THEN] Exported File (ACH) has Customer name value trimmed to 22 chars.
         Customer.Get(CustomerNo);
         VerifyExportedFileACHCustVendorName(CopyStr(Customer.Name, 1, 22), GetBankExportFileName(BankAccount."No."));
-
-        DeleteDirectory(TempPath);
     end;
 
     [Test]
@@ -235,7 +225,7 @@ codeunit 142500 "Export Payments File Handling"
         // [FEATURE] [Export Payments (Cecoban)] [Payables]
         // [SCENARIO 364614] Exported Payment File (Cecoban) has 40-chars length Vendor.Name
         Initialize();
-        UpdateCompanyInfo;
+        UpdateCompanyInfo();
 
         // [GIVEN] Vendor with Name = "XY", where "X" = 40-chars length string, "Y" = 10-chars length string
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::MX);
@@ -252,8 +242,6 @@ codeunit 142500 "Export Payments File Handling"
 
         // [THEN] Exported File (Cecoban) has Vendor name value = "X"
         VerifyExportedFileCecobanVendorName(VendorNo, BankAccount."No.");
-
-        DeleteDirectory(TempPath);
     end;
 
     [Test]
@@ -268,7 +256,7 @@ codeunit 142500 "Export Payments File Handling"
         // [FEATURE] [Export Payments (Cecoban)] [Receivables]
         // [SCENARIO 364614] Exported Payment File (Cecoban) has 40-chars length Customer.Name
         Initialize();
-        UpdateCompanyInfo;
+        UpdateCompanyInfo();
 
         // [GIVEN] Customer with Name = "XY", where "X" = 40-chars length string, "Y" = 10-chars length string
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::MX);
@@ -285,8 +273,6 @@ codeunit 142500 "Export Payments File Handling"
 
         // [THEN] Exported File (Cecoban) has Customer name value = "X"
         VerifyExportedFileCecobanCustomerName(CustomerNo, BankAccount."No.");
-
-        DeleteDirectory(TempPath);
     end;
 
     local procedure Initialize()
@@ -312,7 +298,7 @@ codeunit 142500 "Export Payments File Handling"
           CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10), WorkDate());
         ExportPaymentsACH.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount);
         ExportPaymentsACH.EndExportBatch(ServiceClassCode);
-        ExportPaymentsACH.EndExportFile;
+        ExportPaymentsACH.EndExportFile();
     end;
 
     local procedure ExportPayments_Cecoban(GenJournalLine: Record "Gen. Journal Line")
@@ -323,13 +309,13 @@ codeunit 142500 "Export Payments File Handling"
           GenJournalLine."Bal. Account No.", CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10));
         ExportPaymentsCecoban.StartExportBatch(0, CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10), WorkDate());
         ExportPaymentsCecoban.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate());
-        ExportPaymentsCecoban.EndExportBatch;
-        ExportPaymentsCecoban.EndExportFile;
+        ExportPaymentsCecoban.EndExportBatch();
+        ExportPaymentsCecoban.EndExportFile();
     end;
 
     local procedure CreateBankAccountWithExportPaths(var BankAccount: Record "Bank Account"; ExportFormat: Option) TempPath: Text
     begin
-        TempPath := GetTempPath;
+        TempPath := GetTempPath();
         LibraryERM.CreateBankAccount(BankAccount);
         with BankAccount do begin
             "E-Pay Export File Path" := CopyStr(CreateDirectory(TempPath + 'Misc\'), 1, MaxStrLen("E-Pay Export File Path"));
@@ -341,16 +327,15 @@ codeunit 142500 "Export Payments File Handling"
         end;
     end;
 
-    local procedure CreateClientExportFile(ExportFolderName: Text): Text[30]
+    local procedure CreateClientExportFile(): Text[30]
     var
         FileName: Text[30];
     begin
-        FileName := LibraryUtility.GenerateGUID + '.txt';
-        CreateFile(ExportFolderName + FileName);
+        FileName := LibraryUtility.GenerateGUID() + '.txt';
         exit(FileName);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BankAccountNo: Code[20]; RecipientBanAccount: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountNo: Code[20]; RecipientBanAccount: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         LibraryUTUtility: Codeunit "Library UT Utility";
@@ -365,7 +350,7 @@ codeunit 142500 "Export Payments File Handling"
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             Validate("Bal. Account No.", BankAccountNo);
             Validate("Bank Payment Type", "Bank Payment Type"::"Electronic Payment");
-            Validate("Transaction Code", CopyStr(LibraryUTUtility.GetNewCode10, 1, MaxStrLen("Transaction Code")));
+            Validate("Transaction Code", CopyStr(LibraryUTUtility.GetNewCode10(), 1, MaxStrLen("Transaction Code")));
             Validate("Company Entry Description", CopyStr(AccountNo, 1, 10));
             Validate("Recipient Bank Account", RecipientBanAccount);
             Modify(true);
@@ -449,28 +434,8 @@ codeunit 142500 "Export Payments File Handling"
     end;
 
     local procedure CreateDirectory(FilePathName: Text): Text
-    var
-        FileManagement: Codeunit "File Management";
     begin
         exit(FilePathName);
-    end;
-
-    local procedure DeleteDirectory(FilePathName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-    end;
-
-    local procedure CreateFile(FilePathName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-    end;
-
-    local procedure DeleteFile(FilePathName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
     end;
 
     local procedure ModifyBankAccount(var BankAccount: Record "Bank Account")

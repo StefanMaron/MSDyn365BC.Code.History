@@ -114,7 +114,7 @@ page 5703 "Location Card"
                         Editable = false;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the address of the location on your preferred map website.';
 
                         trigger OnDrillDown()
@@ -326,12 +326,12 @@ page 5703 "Location Card"
                 }
                 group("Job Warehouse Handling")
                 {
-                    Caption = 'Job';
+                    Caption = 'Project';
                     field("Job Consump. Whse. Handling"; Rec."Job Consump. Whse. Handling")
                     {
-                        Caption = 'Job Consump. Whse. Handling';
+                        Caption = 'Project Consump. Whse. Handling';
                         ApplicationArea = Warehouse;
-                        ToolTip = 'Specifies the warehouse handling for consumption in job scenarios.';
+                        ToolTip = 'Specifies the warehouse handling for consumption in project scenarios.';
                         Enabled = JobPickWhseHandlingEnable;
                     }
                 }
@@ -522,12 +522,12 @@ page 5703 "Location Card"
                 }
                 group(Job)
                 {
-                    Caption = 'Job';
+                    Caption = 'Project';
                     field("To-Job Bin Code"; Rec."To-Job Bin Code")
                     {
                         ApplicationArea = Jobs, Warehouse;
                         Enabled = ToJobBinCodeEnable;
-                        ToolTip = 'Specifies the bin where an item will be put away or picked in warehouse and inventory processes at this location. For example, when you choose this location on a job planning line, this bin will be suggested.';
+                        ToolTip = 'Specifies the bin where an item will be put away or picked in warehouse and inventory processes at this location. For example, when you choose this location on a project planning line, this bin will be suggested.';
                     }
                 }
             }

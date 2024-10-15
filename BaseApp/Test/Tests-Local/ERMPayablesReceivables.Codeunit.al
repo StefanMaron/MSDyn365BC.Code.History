@@ -18,16 +18,12 @@ codeunit 142052 "ERM Payables/Receivables"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         AmountError: Label 'Amount must be equal.';
-        DimensionError: Label 'A dimension used in Gen. Journal Line';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
-        GLEntryError: Label 'Unexpected G/L entries amount.';
-        PostedDepositLinkErr: Label 'Posted Deposit is missing a link.';
         NothingToAdjustTxt: Label 'There is nothing to adjust.';
-        SingleHeaderAllowedErr: Label 'Only one %1 is allowed for each %2. You can use Deposit, Change Batch if you want to create a new Deposit.';
 
     [Test]
     [Scope('OnPrem')]
@@ -96,12 +92,12 @@ codeunit 142052 "ERM Payables/Receivables"
         LibraryVariableStorage.Enqueue(Vendor."No.");
         LibraryVariableStorage.Enqueue(BankAccount."No.");
         Commit();  // Commit required for open Payment Journal.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        PaymentJournal.SuggestVendorPayments.Invoke;
+        PaymentJournal.SuggestVendorPayments.Invoke();
 
         // Exercise.
-        PaymentJournal.Post.Invoke;  // Post.
+        PaymentJournal.Post.Invoke();  // Post.
 
         // Verify: Verify Vendor balance after post payment of remaining balance.
         Vendor.CalcFields("Balance (LCY)");
@@ -143,7 +139,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
         // Verify: Verify Vendor balance after post payment of remaining balance through Apply Entries.
         Vendor.CalcFields("Balance (LCY)");
-        Assert.AreNearlyEqual(0, Vendor."Balance (LCY)", LibraryERM.GetAmountRoundingPrecision, AmountError);
+        Assert.AreNearlyEqual(0, Vendor."Balance (LCY)", LibraryERM.GetAmountRoundingPrecision(), AmountError);
     end;
 
     [Test]
@@ -189,7 +185,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
         // Verify: Verify Customer balance after post payment of remaining balance through Apply Entries.
         Customer.CalcFields("Balance (LCY)");
-        Assert.AreNearlyEqual(0, Customer."Balance (LCY)", LibraryERM.GetAmountRoundingPrecision, AmountError);
+        Assert.AreNearlyEqual(0, Customer."Balance (LCY)", LibraryERM.GetAmountRoundingPrecision(), AmountError);
     end;
 
     [Test]
@@ -287,14 +283,14 @@ codeunit 142052 "ERM Payables/Receivables"
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATProdPostingGroup);
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; BankPaymentType: Option; Amount: Decimal; Type: Option; DocumentType: Option)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; Amount: Decimal; Type: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CreatePaymentGenJournal(
           GenJournalLine, AccountType, AccountNo, BalAccountNo, BankPaymentType, Amount, Type, DocumentType);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyfromVendorNo: Code[20]; No: Code[20]; Type: Option; Quantity: Decimal; DirectUnitCost: Decimal): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; BuyfromVendorNo: Code[20]; No: Code[20]; Type: Enum "Purchase Line Type"; Quantity: Decimal; DirectUnitCost: Decimal): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -307,7 +303,7 @@ codeunit 142052 "ERM Payables/Receivables"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Option; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -340,7 +336,7 @@ codeunit 142052 "ERM Payables/Receivables"
         DefaultDimension.Modify(true);
     end;
 
-    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -350,7 +346,7 @@ codeunit 142052 "ERM Payables/Receivables"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreatePaymentGenJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; BankPaymentType: Option; Amount: Decimal; Type: Option; DocumentType: Option)
+    local procedure CreatePaymentGenJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; Amount: Decimal; Type: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -389,32 +385,32 @@ codeunit 142052 "ERM Payables/Receivables"
     begin
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode; // Validate is not required.
-        GeneralLedgerSetup.Validate("Deposit Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        GeneralLedgerSetup.Validate("Bank Rec. Adj. Doc. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        GeneralLedgerSetup.Validate("Deposit Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        GeneralLedgerSetup.Validate("Bank Rec. Adj. Doc. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure CallCheckPreview(var CheckPreview: TestPage "Check Preview"; GenJournalLine: Record "Gen. Journal Line")
     begin
-        CheckPreview.OpenView;
+        CheckPreview.OpenView();
         CheckPreview.FILTER.SetFilter("Journal Template Name", GenJournalLine."Journal Template Name");
         CheckPreview.FILTER.SetFilter("Journal Batch Name", GenJournalLine."Journal Batch Name");
         CheckPreview.FILTER.SetFilter("Line No.", Format(GenJournalLine."Line No."));
-        CheckPreview.First;
+        CheckPreview.First();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalBatchesPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        GeneralJournalBatches.OK.Invoke;
+        GeneralJournalBatches.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -434,7 +430,7 @@ codeunit 142052 "ERM Payables/Receivables"
         SuggestVendorPayments.BalAccountType.SetValue(BalAccountType::"Bank Account");
         SuggestVendorPayments.BalAccountNo.SetValue(BankAccountNo);
         SuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [ConfirmHandler]

@@ -10,6 +10,7 @@ table 1103 "Cost Type"
 {
     Caption = 'Cost Type';
     DataCaptionFields = "No.", Name;
+    DataClassification = CustomerContent;
     DrillDownPageID = "Chart of Cost Types";
     LookupPageID = "Chart of Cost Types";
     Permissions =;
@@ -142,10 +143,10 @@ table 1103 "Cost Type"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Type No." = field("No."),
-                                                         "Cost Type No." = field(FILTER(Totaling)),
+                                                         "Cost Type No." = field(filter(Totaling)),
                                                          "Cost Center Code" = field("Cost Center Filter"),
                                                          "Cost Object Code" = field("Cost Object Filter"),
-                                                         "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                         "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -154,7 +155,7 @@ table 1103 "Cost Type"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Type No." = field("No."),
-                                                         "Cost Type No." = field(FILTER(Totaling)),
+                                                         "Cost Type No." = field(filter(Totaling)),
                                                          "Cost Center Code" = field("Cost Center Filter"),
                                                          "Cost Object Code" = field("Cost Object Filter"),
                                                          "Posting Date" = field("Date Filter")));
@@ -166,7 +167,7 @@ table 1103 "Cost Type"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Budget Entry".Amount where("Cost Type No." = field("No."),
-                                                                "Cost Type No." = field(FILTER(Totaling)),
+                                                                "Cost Type No." = field(filter(Totaling)),
                                                                 "Cost Center Code" = field("Cost Center Filter"),
                                                                 "Cost Object Code" = field("Cost Object Filter"),
                                                                 Date = field("Date Filter"),
@@ -206,7 +207,7 @@ table 1103 "Cost Type"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Type No." = field("No."),
-                                                         "Cost Type No." = field(FILTER(Totaling)),
+                                                         "Cost Type No." = field(filter(Totaling)),
                                                          "Cost Center Code" = field("Cost Center Filter"),
                                                          "Cost Object Code" = field("Cost Object Filter")));
             Caption = 'Balance';
@@ -235,7 +236,7 @@ table 1103 "Cost Type"
         field(47; "Debit Amount"; Decimal)
         {
             CalcFormula = sum("Cost Entry"."Debit Amount" where("Cost Type No." = field("No."),
-                                                                 "Cost Type No." = field(FILTER(Totaling)),
+                                                                 "Cost Type No." = field(filter(Totaling)),
                                                                  "Cost Center Code" = field("Cost Center Filter"),
                                                                  "Cost Object Code" = field("Cost Object Filter"),
                                                                  "Posting Date" = field("Date Filter")));
@@ -245,7 +246,7 @@ table 1103 "Cost Type"
         field(48; "Credit Amount"; Decimal)
         {
             CalcFormula = sum("Cost Entry"."Credit Amount" where("Cost Type No." = field("No."),
-                                                                  "Cost Type No." = field(FILTER(Totaling)),
+                                                                  "Cost Type No." = field(filter(Totaling)),
                                                                   "Cost Center Code" = field("Cost Center Filter"),
                                                                   "Cost Object Code" = field("Cost Object Filter"),
                                                                   "Posting Date" = field("Date Filter")));
@@ -268,7 +269,7 @@ table 1103 "Cost Type"
         {
             BlankNumbers = BlankNegAndZero;
             CalcFormula = sum("Cost Budget Entry".Amount where("Cost Type No." = field("No."),
-                                                                "Cost Type No." = field(FILTER(Totaling)),
+                                                                "Cost Type No." = field(filter(Totaling)),
                                                                 "Cost Center Code" = field("Cost Center Filter"),
                                                                 "Cost Object Code" = field("Cost Object Filter"),
                                                                 Date = field("Date Filter"),
@@ -280,7 +281,7 @@ table 1103 "Cost Type"
         {
             BlankNumbers = BlankNegAndZero;
             CalcFormula = - sum("Cost Budget Entry".Amount where("Cost Type No." = field("No."),
-                                                                 "Cost Type No." = field(FILTER(Totaling)),
+                                                                 "Cost Type No." = field(filter(Totaling)),
                                                                  "Cost Center Code" = field("Cost Center Filter"),
                                                                  "Cost Object Code" = field("Cost Object Filter"),
                                                                  Date = field("Date Filter"),
@@ -292,7 +293,7 @@ table 1103 "Cost Type"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry"."Additional-Currency Amount" where("Cost Type No." = field("No."),
-                                                                               "Cost Type No." = field(FILTER(Totaling)),
+                                                                               "Cost Type No." = field(filter(Totaling)),
                                                                                "Cost Center Code" = field("Cost Center Filter"),
                                                                                "Cost Object Code" = field("Cost Object Filter"),
                                                                                "Posting Date" = field("Date Filter")));
@@ -303,10 +304,10 @@ table 1103 "Cost Type"
         field(74; "Add. Currency Balance at Date"; Decimal)
         {
             CalcFormula = sum("Cost Entry"."Additional-Currency Amount" where("Cost Type No." = field("No."),
-                                                                               "Cost Type No." = field(FILTER(Totaling)),
+                                                                               "Cost Type No." = field(filter(Totaling)),
                                                                                "Cost Center Code" = field("Cost Center Filter"),
                                                                                "Cost Object Code" = field("Cost Object Filter"),
-                                                                               "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                               "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Add. Currency Balance at Date';
             FieldClass = FlowField;
         }

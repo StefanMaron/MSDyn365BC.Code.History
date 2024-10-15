@@ -8,7 +8,7 @@ using Microsoft.Projects.Project.Analysis;
 
 page 6310 "PBI Job Act. v. Budg. Price"
 {
-    Caption = 'PBI Job Act. v. Budg. Price';
+    Caption = 'PBI Project Act. v. Budg. Price';
     Editable = false;
     PageType = List;
     SourceTable = "Power BI Chart Buffer";
@@ -23,8 +23,8 @@ page 6310 "PBI Job Act. v. Budg. Price"
                 field("Measure No."; Rec."Measure No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Job No.';
-                    ToolTip = 'Specifies the job.';
+                    Caption = 'Project No.';
+                    ToolTip = 'Specifies the project.';
                 }
                 field("Measure Name"; Rec."Measure Name")
                 {

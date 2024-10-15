@@ -185,6 +185,7 @@ codeunit 1901 "Report Selection Mgt."
     begin
         OnBeforeInitReportSelectionJobs();
         InitReportSelection("Report Selection Usage"::JQ);
+        InitReportSelection("Report Selection Usage"::"Job Task Quote");
         OnAfterInitReportSelectionJobs();
     end;
 
@@ -323,6 +324,8 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::"V.Remittance", '1', REPORT::"Export Electronic Payments");
             "Report Selection Usage"::JQ:
                 InsertRepSelection("Report Selection Usage"::JQ, '1', Report::"Job Quote");
+            "Report Selection Usage"::"Job Task Quote":
+                InsertRepSelection("Report Selection Usage"::"Job Task Quote", '1', Report::"Job Task Quote");
             else
                 OnInitReportUsage(ReportUsage.AsInteger());
         end;

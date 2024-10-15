@@ -189,7 +189,7 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
             exit;
 
         if AmountType <> AmountType::Discount then
-            Case CurrPriceType of
+            case CurrPriceType of
                 CurrPriceType::Sale:
                     begin
                         ItemJournalLine."Unit Amount" := PriceListLine."Unit Price";

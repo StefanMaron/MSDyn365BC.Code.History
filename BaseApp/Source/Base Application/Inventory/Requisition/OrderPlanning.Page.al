@@ -38,7 +38,7 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Show Demand as';
                     Enabled = DemandOrderFilterCtrlEnable;
-                    OptionCaption = 'All Demand,Production Demand,Sales Demand,Service Demand,Job Demand,Assembly Demand';
+                    OptionCaption = 'All Demand,Production Demand,Sales Demand,Service Demand,Project Demand,Assembly Demand';
                     ToolTip = 'Specifies a filter to define which demand types you want to display in the Order Planning window.';
 
                     trigger OnValidate()
@@ -787,7 +787,7 @@ page 5522 "Order Planning"
         Text001: Label 'Sales';
         Text002: Label 'Production';
         Text003: Label 'Service';
-        Text004: Label 'Jobs';
+        Text004: Label 'Projects';
         StatusHideValue: Boolean;
         StatusText: Text[1024];
         DemandTypeHideValue: Boolean;

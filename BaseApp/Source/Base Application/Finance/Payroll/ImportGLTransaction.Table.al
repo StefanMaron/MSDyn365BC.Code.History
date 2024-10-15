@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 table 1661 "Import G/L Transaction"
 {
     Caption = 'Import G/L Transaction';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -42,7 +43,7 @@ table 1661 "Import G/L Transaction"
         }
         field(4; "G/L Account Name"; Text[100])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("G/L Account")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("G/L Account")));
             Caption = 'G/L Account Name';
             Editable = false;
             FieldClass = FlowField;

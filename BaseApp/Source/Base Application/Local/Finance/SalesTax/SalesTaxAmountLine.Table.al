@@ -9,6 +9,7 @@ using Microsoft.Finance.Currency;
 table 10011 "Sales Tax Amount Line"
 {
     Caption = 'Sales Tax Amount Line';
+    DataClassification = CustomerContent;
 
     fields
     {

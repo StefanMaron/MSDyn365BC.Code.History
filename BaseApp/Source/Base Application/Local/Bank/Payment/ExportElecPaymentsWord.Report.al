@@ -706,12 +706,10 @@ report 11383 "ExportElecPayments - Word"
                     BankAccount."No." := GenJournalBatch."Bal. Account No.";
                 end;
 
-            with BankAccount do begin
-                Get("No.");
-                TestField(Blocked, false);
-                TestField("Export Format");
-                TestField("Last Remittance Advice No.");
-            end;
+            BankAccount.Get(BankAccount."No.");
+            BankAccount.TestField(Blocked, false);
+            BankAccount.TestField("Export Format");
+            BankAccount.TestField("Last Remittance Advice No.");
         end;
 
         FormatAddress.Company(CompanyAddress, CompanyInformation)

@@ -24,8 +24,6 @@ codeunit 142070 "UT REP Sales Receivables"
         FilterStringCap: Label 'FilterString';
         FilterStringCustomerNoCap: Label 'FilterString2';
         ItemDescriptionCap: Label 'Item_Description';
-        SubTitleCap: Label 'SubTitle';
-        DateTitleCap: Label 'DateTitle';
 
     [Test]
     [HandlerFunctions('CustomerSalesStatisticsRequestPageHandler')]
@@ -39,14 +37,14 @@ codeunit 142070 "UT REP Sales Receivables"
 
         // Setup: Create Customer Ledger Entry without Sales and Profit.
         Initialize();
-        CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer);
+        CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer());
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");  // Enqueue used for CustomerSalesStatisticsTestReqPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Customer Sales Statistics");  // Open CustomerSalesStatisticsTestReqPageHandler.
 
         // Verify: Verify Sales and Profit on Report Customer Sales Statistics.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesCap, 0);
         LibraryReportDataset.AssertElementWithValueExists(ProfitsCap, 0);
     end;
@@ -63,7 +61,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
         // Setup: Create Customer Ledger Entry with Sales and Profit.
         Initialize();
-        CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer);
+        CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer());
         UpdateSalesLCYAndProfitLCYOnCustomerLedgerEntry(CustLedgerEntry);
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");  // Enqueue used for CustomerSalesStatisticsTestReqPageHandler.
 
@@ -71,7 +69,7 @@ codeunit 142070 "UT REP Sales Receivables"
         REPORT.Run(REPORT::"Customer Sales Statistics");  // Open CustomerSalesStatisticsTestReqPageHandler.
 
         // Verify: Verify Sales, Profit and Invoice Discounts on Report Customer Sales Statistics.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesCap, CustLedgerEntry."Sales (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(ProfitsCap, CustLedgerEntry."Profit (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('InvoiceDiscounts___1_', CustLedgerEntry."Inv. Discount (LCY)");
@@ -90,7 +88,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
         // Setup: Create Customer Ledger Entry and Detailed Customer Ledger Entry.
         Initialize();
-        CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer);
+        CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer());
         CreateDetailedCustomerLedgerEntry(
           CustLedgerEntry."Entry No.", CustLedgerEntry."Entry No.", DetailedCustLedgEntry."Entry Type"::"Payment Discount");
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Entry No.");  // Enqueue used for CashAppliedTestReqPageHandler.
@@ -100,7 +98,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
         // Verify: Verify Total Amount on Report Cash Applied.
         CustLedgerEntry.CalcFields("Amount (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalAmountCap, CustLedgerEntry."Amount (LCY)");
     end;
 
@@ -119,7 +117,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
         // Setup: Create Customer Ledger Entry, Create Detailed Customer Ledger Entry for multiple Customer Ledger Entry.
         Initialize();
-        CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer);
+        CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer());
         CreateDetailedCustomerLedgerEntry(
           CustLedgerEntry."Entry No.", CustLedgerEntry."Entry No.", DetailedCustLedgEntry."Entry Type"::Application);
         CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry2, CustLedgerEntry."Customer No.");
@@ -135,7 +133,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Verify: Verify Total Amount, Total Applied, Get Total Applied and GetTotalDiscounts on Report Cash Applied.
         TotalAppliedAmount := GetAmountFromDetailCustLedgerEntry(CustLedgerEntry2."Entry No.");
         CustLedgerEntry.CalcFields("Amount (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalAmountCap, CustLedgerEntry."Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('TotalApplied', -TotalAppliedAmount);
         LibraryReportDataset.AssertElementWithValueExists('GetTotalDiscounts', CustLedgerEntry2."Pmt. Disc. Given (LCY)");
@@ -155,7 +153,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Setup: Create Sales Document with Description.
         Initialize();
         CreateSalesBlanketOrder(SalesLine);
-        CreateCommentLineForBlanketSalesOrder(SalesLine."Document No.", LibraryUTUtility.GetNewCode);
+        CreateCommentLineForBlanketSalesOrder(SalesLine."Document No.", LibraryUTUtility.GetNewCode());
         Commit();  // Commit required since explicit Commit used on OnRun Trigger of COD313: Sales-Printed.
 
         // Exercise.
@@ -201,7 +199,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
         // Setup: Create Vendor with Vendor No. length is more than 10 Characters.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         LibraryVariableStorage.Enqueue(VendorNo);  // Enqueue required for VendorAccountDetailRequestPageHandler.
 
         // Exercise.
@@ -222,13 +220,13 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate Customer - OnAfterGetRecord trigger of Report ID - 10042.
         // Setup: Create Customer and Cust. Ledger Entry.
         Initialize();
-        CustomerNo := CreateCustomerLedgerEntryWithDimension;
+        CustomerNo := CreateCustomerLedgerEntryWithDimension();
 
         // Exercise.
         REPORT.Run(REPORT::"Customer Account Detail");  // Opens CustomerAccountDetailRequestPageHandler.
 
         // Verify: Verify Customer after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Customer__No__', CustomerNo);
     end;
 
@@ -243,13 +241,13 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate Comment Line - OnAfterGetRecord trigger of Report ID - 10043.
         // Setup: Create Comment Line.
         Initialize();
-        No := CreateCommentLine;
+        No := CreateCommentLine();
 
         // Exercise.
         REPORT.Run(REPORT::"Customer Comment List");  // Opens CustomerCommentListRequestPageHandler.
 
         // Verify: Verify Comment Line No. after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Comment_Line__No__', No);
     end;
 
@@ -264,14 +262,14 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate Customer - OnAfterGetRecord trigger of Report ID - 10044.
         // Setup: Create Customer.
         Initialize();
-        No := CreateCustomerWithDimension;
+        No := CreateCustomerWithDimension();
         LibraryVariableStorage.Enqueue(No);  // Enqueue required for CustomerLabelsRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Customer Labels NA");  // Opens CustomerLabelsRequestPageHandler.
 
         // Verify: Verify Customer after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Customer_No_', No);
     end;
 
@@ -296,7 +294,7 @@ codeunit 142070 "UT REP Sales Receivables"
         REPORT.Run(REPORT::"Sales Invoice (Pre-Printed)");  // Opens SalesInvoicePrePrintedRequestPageHandler.
 
         // Verify: Verify Sales Invoice Header No. After report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Sales_Invoice_Header___No__', SalesInvoiceLine."Document No.");
     end;
 
@@ -321,7 +319,7 @@ codeunit 142070 "UT REP Sales Receivables"
         REPORT.Run(REPORT::"Return Authorization");  // Opens ReturnAuthorizationRequestPageHandler.
 
         // Verify: Verify Sales Header No. After report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Sales_Header_No_', SalesLine."Document No.");
     end;
 
@@ -335,14 +333,14 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate Return Receipt Header - OnAfterGetRecord trigger of Report ID - 10082.
         // Setup: Create Return Receipt.
         Initialize();
-        No := CreateReturnReceipt;
+        No := CreateReturnReceipt();
         Commit();  // Codeunit 6661 Retrun Receipt Printed -  On Run trigger Calls Commit();
 
         // Exercise.
         REPORT.Run(REPORT::"Return Receipt");  // Opens ReturnReceiptRequestPageHandler.
 
         // Verify: Verify Retrun Receipt Header No. after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_ReturnReceiptHeader', No);
     end;
 
@@ -363,7 +361,7 @@ codeunit 142070 "UT REP Sales Receivables"
         REPORT.Run(REPORT::"Picking List by Order");  // Opens PickingListByOrderRequestPageHandler.
 
         // Verify: Verify Sales Header No. After report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Sales_Header_No_', SalesLine."Document No.");
     end;
 
@@ -388,7 +386,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
         // Verify: Verify Filters and Customer Balance is updated as Customer Balance (LCY) on Report Customer - Listing.
         Customer.CalcFields("Balance (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CustomerBalanceCap, Customer."Balance (LCY)");
     end;
 
@@ -415,7 +413,7 @@ codeunit 142070 "UT REP Sales Receivables"
         REPORT.Run(REPORT::"Customer Listing");  // Open CustomerListingPrintAmountsRequestPageHandler.
 
         // Verify: Verify Due Date Calculation of Payment Terms is updated on Report Customer - Listing.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'PaymentTerms__Due_Date_Calculation_', Format(PaymentTerms."Due Date Calculation"));
     end;
@@ -434,14 +432,14 @@ codeunit 142070 "UT REP Sales Receivables"
         // Setup.
         Initialize();
         CreateItem(Item);
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         CreateValueEntry(ValueEntry, Customer."No.", Item."No.");
 
         // Exercise.
         REPORT.Run(REPORT::"Customer/Item Statistics");  // Open CustomerItemStatisticsRequestPageHandler.
 
         // Verify: Verify Filters of Customer and Item Description is updated on report Customer/Item Statistics.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           FilterStringCap, StrSubstNo('%1: %2', Customer.FieldCaption("No."), Customer."No."));
         LibraryReportDataset.AssertElementWithValueExists(ItemDescriptionCap, Item.Description);
@@ -458,13 +456,13 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10048  Customer/Item Statistics for Value Entry without Item.
         // Setup.
         Initialize();
-        CreateValueEntry(ValueEntry, CreateCustomer, LibraryUTUtility.GetNewCode10);
+        CreateValueEntry(ValueEntry, CreateCustomer(), LibraryUTUtility.GetNewCode10());
 
         // Exercise.
         REPORT.Run(REPORT::"Customer/Item Statistics");  // Open CustomerItemStatisticsRequestPageHandler.
 
         // Verify: Verify Item Description is updated on Report Customer/Item Statistics.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemDescriptionCap, 'Invalid Item');
     end;
 
@@ -492,7 +490,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10049 Customer/Item Statistics by SalesPerson for Value Entry without Item.
         // Setup.
         Initialize();
-        OnAfterGetRecordCustItemStatbySalespers(LibraryUTUtility.GetNewCode10, 'Others');  // Use random value for Item No.
+        OnAfterGetRecordCustItemStatbySalespers(LibraryUTUtility.GetNewCode10(), 'Others');  // Use random value for Item No.
     end;
 
     local procedure OnAfterGetRecordCustItemStatbySalespers(ItemNo: Code[20]; ItemDescription: Text[100])
@@ -502,8 +500,8 @@ codeunit 142070 "UT REP Sales Receivables"
         ValueEntry: Record "Value Entry";
     begin
         // Create Customer, Value Entry and Sales Invoice Header.
-        Customer.Get(CreateCustomer);
-        UpdatePaymentTermsAndSalesPersonCodeOnCustomer(Customer, '', CreateSalespersonPurchaser);
+        Customer.Get(CreateCustomer());
+        UpdatePaymentTermsAndSalesPersonCodeOnCustomer(Customer, '', CreateSalespersonPurchaser());
         CreateValueEntry(ValueEntry, Customer."No.", ItemNo);
         LibraryVariableStorage.Enqueue(Customer."Salesperson Code");  // Enqueue required for CustItemStatsBySalespersRequestPageHandler.
 
@@ -511,7 +509,7 @@ codeunit 142070 "UT REP Sales Receivables"
         REPORT.Run(REPORT::"Cust./Item Stat. by Salespers.");  // Open CustItemStatsBySalespersRequestPageHandler.
 
         // Verify: Verify Filters and Item Description on Report Customer/Item Stat. By Salespers.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           FilterStringCap, StrSubstNo('%1: %2', SalespersonPurchaser.FieldCaption(Code), Customer."Salesperson Code"));
         LibraryReportDataset.AssertElementWithValueExists(
@@ -540,7 +538,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
         // Verify: Verify Filters, Customer Name, Remaining Amount (LCY) and Amount (LCY) is updated on Report Customer Register.
         CustLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'FilterString2', StrSubstNo('%1: %2', CustLedgerEntry.FieldCaption("Customer No."), CustLedgerEntry."Customer No."));
         LibraryReportDataset.AssertElementWithValueExists('Cust__Ledger_Entry__Customer_No__', CustLedgerEntry."Customer No.");
@@ -559,9 +557,9 @@ codeunit 142070 "UT REP Sales Receivables"
         CommentLine: Record "Comment Line";
     begin
         CommentLine."Table Name" := CommentLine."Table Name"::Customer;
-        CommentLine."No." := LibraryUTUtility.GetNewCode;
+        CommentLine."No." := LibraryUTUtility.GetNewCode();
         CommentLine."Line No." := LibraryRandom.RandInt(100);
-        CommentLine.Comment := LibraryUTUtility.GetNewCode;
+        CommentLine.Comment := LibraryUTUtility.GetNewCode();
         CommentLine.Insert();
         LibraryVariableStorage.Enqueue(CommentLine."No.");  // Enqueue required for CustomerCommentListRequestPageHandler.
         exit(CommentLine."No.");
@@ -584,14 +582,14 @@ codeunit 142070 "UT REP Sales Receivables"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
 
     local procedure CreateCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        CreateCustomerLedgerEntryOnDate(CustLedgerEntry, CreateCustomer, WorkDate());
+        CreateCustomerLedgerEntryOnDate(CustLedgerEntry, CreateCustomer(), WorkDate());
     end;
 
     local procedure CreateCustomerLedgerEntryOnDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date)
@@ -599,7 +597,7 @@ codeunit 142070 "UT REP Sales Receivables"
         CustLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Customer No." := CustomerNo;
-        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         CustLedgerEntry."Posting Date" := PostingDate;
         CustLedgerEntry."Due Date" := PostingDate;
         CustLedgerEntry.Open := true;
@@ -613,7 +611,7 @@ codeunit 142070 "UT REP Sales Receivables"
         Customer: Record Customer;
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        Customer.Get(CreateCustomerWithDimension);
+        Customer.Get(CreateCustomerWithDimension());
         CustLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Posting Date" := WorkDate();
@@ -640,14 +638,14 @@ codeunit 142070 "UT REP Sales Receivables"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Global Dimension 1 Code" := LibraryUTUtility.GetNewCode;
-        Customer."Global Dimension 2 Code" := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer."Global Dimension 1 Code" := LibraryUTUtility.GetNewCode();
+        Customer."Global Dimension 2 Code" := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
 
-    local procedure CreateDetailedCustomerLedgerEntry(CustLedgerEntryNo: Integer; AppliedCustLedgerEntryNo: Integer; EntryType: Option)
+    local procedure CreateDetailedCustomerLedgerEntry(CustLedgerEntryNo: Integer; AppliedCustLedgerEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -702,14 +700,14 @@ codeunit 142070 "UT REP Sales Receivables"
 
     local procedure CreateItem(var Item: Record Item)
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Description := Item."No.";
         Item.Insert();
     end;
 
     local procedure CreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
-        PaymentTerms.Code := LibraryUTUtility.GetNewCode10;
+        PaymentTerms.Code := LibraryUTUtility.GetNewCode10();
         Evaluate(PaymentTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         PaymentTerms."Due Date Calculation" := PaymentTerms."Due Date Calculation";
         PaymentTerms.Insert();
@@ -719,11 +717,11 @@ codeunit 142070 "UT REP Sales Receivables"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceHeader.Insert();
         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
         SalesInvoiceLine."Line No." := LibraryRandom.RandInt(100);
-        SalesInvoiceLine.Description := LibraryUTUtility.GetNewCode;
+        SalesInvoiceLine.Description := LibraryUTUtility.GetNewCode();
         SalesInvoiceLine.Insert();
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue required for SalesInvoicePrePrintedRequestPageHandler.
     end;
@@ -732,7 +730,7 @@ codeunit 142070 "UT REP Sales Receivables"
     var
         ReturnReceiptHeader: Record "Return Receipt Header";
     begin
-        ReturnReceiptHeader."No." := LibraryUTUtility.GetNewCode;
+        ReturnReceiptHeader."No." := LibraryUTUtility.GetNewCode();
         ReturnReceiptHeader.Insert();
         LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");  // Enqueue required for ReturnReceiptRequestPageHandler.
         exit(ReturnReceiptHeader."No.");
@@ -743,13 +741,13 @@ codeunit 142070 "UT REP Sales Receivables"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Blanket Order";
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Insert();
         LibraryVariableStorage.Enqueue(SalesHeader."No.");  // Enqueue required for SalesOrderTestRequestPageHandler,SalesBlanketOrderRequestPageHandler,SalesDocumentTestRequestPageHandler and SalesQuoteTestRequestPageHandler.
         CreateSalesLine(SalesLine, SalesHeader."No.");
     end;
 
-    local procedure CreateSalesCommentLine(DocumentType: Option; DocumentNo: Code[20]; DocumentLineNo: Integer; LineNo: Integer)
+    local procedure CreateSalesCommentLine(DocumentType: Enum "Sales Comment Document Type"; DocumentNo: Code[20]; DocumentLineNo: Integer; LineNo: Integer)
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
@@ -758,7 +756,7 @@ codeunit 142070 "UT REP Sales Receivables"
         SalesCommentLine."Document Line No." := DocumentLineNo;
         SalesCommentLine."Line No." := LineNo;
         SalesCommentLine.Comment := CommentLineTxt;  // Required more than 50 character to hit the code.
-        SalesCommentLine.Code := LibraryUTUtility.GetNewCode10;
+        SalesCommentLine.Code := LibraryUTUtility.GetNewCode10();
         SalesCommentLine."Print On Invoice" := true;
         SalesCommentLine."Print On Return Receipt" := true;
         SalesCommentLine."Print On Return Authorization" := true;
@@ -766,20 +764,20 @@ codeunit 142070 "UT REP Sales Receivables"
         SalesCommentLine.Insert();
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Location Code" := LibraryUTUtility.GetNewCode10;
-        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Location Code" := LibraryUTUtility.GetNewCode10();
+        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Status := SalesHeader.Status::Released;
         SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := LibraryRandom.RandInt(100);
-        SalesLine.Description := LibraryUTUtility.GetNewCode;
+        SalesLine.Description := LibraryUTUtility.GetNewCode();
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesLine.Insert();
@@ -791,8 +789,8 @@ codeunit 142070 "UT REP Sales Receivables"
         SalesLine."Document Type" := SalesLine."Document Type"::"Blanket Order";
         SalesLine."Document No." := DocumentNo;
         SalesLine.Type := SalesLine.Type::Item;
-        SalesLine."No." := LibraryUTUtility.GetNewCode;
-        SalesLine.Description := LibraryUTUtility.GetNewCode;
+        SalesLine."No." := LibraryUTUtility.GetNewCode();
+        SalesLine.Description := LibraryUTUtility.GetNewCode();
         SalesLine.Insert();
     end;
 
@@ -800,7 +798,7 @@ codeunit 142070 "UT REP Sales Receivables"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10;
+        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10();
         SalespersonPurchaser.Insert();
         exit(SalespersonPurchaser.Code);
     end;
@@ -824,7 +822,7 @@ codeunit 142070 "UT REP Sales Receivables"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -855,7 +853,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
     local procedure VerifyDataOnReport(ElementName: Text; ExpectedValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
     end;
 
@@ -867,7 +865,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(EntryNo);
         CashApplied."Cust. Ledger Entry".SetFilter("Entry No.", Format(EntryNo));
-        CashApplied.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CashApplied.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -882,7 +880,7 @@ codeunit 142070 "UT REP Sales Receivables"
         CustItemStatbySalespers."Salesperson/Purchaser".SetFilter(Code, Code);
         CustItemStatbySalespers.Customer.SetFilter("No.", No);
         CustItemStatbySalespers."Value Entry".SetFilter("Source No.", No);
-        CustItemStatbySalespers.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustItemStatbySalespers.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -893,7 +891,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerAccountDetail."Cust. Ledger Entry".SetFilter("Customer No.", CustomerNo);
-        CustomerAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -904,7 +902,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerCommentList."Comment Line".SetFilter("No.", No);
-        CustomerCommentList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerCommentList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -916,7 +914,7 @@ codeunit 142070 "UT REP Sales Receivables"
         LibraryVariableStorage.Dequeue(No);
         CustomerItemStatistics.Customer.SetFilter("No.", No);
         CustomerItemStatistics."Value Entry".SetFilter("Source No.", No);
-        CustomerItemStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerItemStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -927,7 +925,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerLabels.Customer.SetFilter("No.", No);
-        CustomerLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -938,7 +936,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerListing.Customer.SetFilter("No.", No);
-        CustomerListing.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerListing.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -949,7 +947,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerRegister."Cust. Ledger Entry".SetFilter("Customer No.", CustomerNo);
-        CustomerRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -961,7 +959,7 @@ codeunit 142070 "UT REP Sales Receivables"
         LibraryVariableStorage.Dequeue(No);
         CustomerSalesStatistics.Customer.SetFilter("No.", No);
         CustomerSalesStatistics.LengthOfPeriods.SetValue('');
-        CustomerSalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -972,7 +970,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         PickingListByOrder."Sales Header".SetFilter("No.", No);
-        PickingListByOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PickingListByOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -983,7 +981,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         ReturnAuthorization."Sales Header".SetFilter("No.", No);
-        ReturnAuthorization.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnAuthorization.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -994,7 +992,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         ReturnReceipt."Return Receipt Header".SetFilter("No.", No);
-        ReturnReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1005,7 +1003,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesBlanketOrder."Sales Header".SetFilter("No.", No);
-        SalesBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1016,7 +1014,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesInvoicePrePrinted."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoicePrePrinted.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoicePrePrinted.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1027,7 +1025,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         LibraryVariableStorage.Dequeue(No);
         VendorAccountDetail.Vendor.SetFilter("No.", No);
-        VendorAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -42,7 +42,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ClearApplEntryErr: Label 'Incorrect Appl. Item Entry clearing.';
         WrongInvoicedQtyErr: Label 'Quantity Invoiced is incorrect in %1.', Comment = '%1=Purch. Rcpt. Line table caption';
         WrongNoOfComponentEntriesErr: Label 'Wrong number of assembly component entries is shown in Item Tracing.';
-        WrongQtyForItemErr: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.', Comment = '%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No.';
+        WrongQtyForItemErr: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6, package number %7.', Comment = '%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No., %7 - Package No.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -281,7 +281,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         OpenItemTracingPage(ItemTracing, '', '', ItemLedgerEntry."Lot No.", TraceMethod::"Origin -> Usage");
 
         // Exercise.
-        ItemTracing.TraceOppositeFromLine.Invoke;
+        ItemTracing.TraceOppositeFromLine.Invoke();
 
         // Verify: Verify Item Tracing Page with Trace Opposite From Line Option.
         VerifyItemTracingLine(
@@ -305,7 +305,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Setup.
         Initialize();
-        Item.Get(CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)));
+        Item.Get(CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)));
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify(true);
 
@@ -350,7 +350,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(NewLocation);
 
-        Item.Get(CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)));
+        Item.Get(CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)));
         CreateAndPostPurchaseOrderWithIT(PurchaseLine, Item."No.", Location.Code, TrackingOption::AssignLotNo);
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.");
 
@@ -429,7 +429,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Initialize();
         ItemNo :=
           CreateTrackedItem(
-            LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(SNSpecific, LOTSpecific));
+            LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(SNSpecific, LOTSpecific));
         CreateItemJournalLineWithIT(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", TrackingOption, ItemNo, Quantity);
         PostOutputJournal(ItemJournalLine);
         FindItemLedgerEntry(ItemLedgerEntry, ItemNo);
@@ -489,7 +489,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Initialize();
         ItemNo :=
           CreateTrackedItem(
-            LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(SNSpecific, LOTSpecific));
+            LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(SNSpecific, LOTSpecific));
         CreateItemJournalLineWithIT(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", TrackingOption2, ItemNo, Quantity);
         PostOutputJournal(ItemJournalLine);
         CreateItemJournalLineWithIT(
@@ -569,7 +569,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Setup: Create Item, create Transfer Order and update Quantity on Item Tracking Line for same Lot No.
         Initialize();
-        Item.Get(CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)));  // TRUE for Lot Specific.
+        Item.Get(CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)));  // TRUE for Lot Specific.
         CreateLocationWithBin(Bin, Item."No.");
         CreateItemJournalLineWithIT(
           ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", TrackingOption::AssignLotNo, Item."No.",
@@ -887,7 +887,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         OpenItemTracingPage(ItemTracing, '', ItemLedgerEntry."Serial No.", '', TraceMethod::"Origin -> Usage");
 
         // Exercise.
-        ItemTracing.TraceOppositeFromLine.Invoke;
+        ItemTracing.TraceOppositeFromLine.Invoke();
 
         // Verify: Verify Item Tracing Page with Trace Opposite From Line Option.
         VerifyItemTracingLine(
@@ -912,7 +912,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Setup.
         Initialize();
         Item.Get(
-          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, false)));
+          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, false)));
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify(true);
 
@@ -958,7 +958,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(NewLocation);
 
         Item.Get(
-          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, false)));
+          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, false)));
         CreateAndPostPurchaseOrderWithIT(PurchaseLine, Item."No.", Location.Code, TrackingOption::AssignSerialLot);
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.");
 
@@ -1128,7 +1128,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Initialize();
         DocumentNo :=
           CreateAndPostPurchaseOrderWithIT(
-            PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)), '',
+            PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)), '',
             TrackingOption::AssignLotNo);
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", PurchaseLine."Buy-from Vendor No.");
@@ -1158,7 +1158,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Initialize();
         DocumentNo :=
           CreateAndPostPurchaseOrderWithIT(
-            PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)), '',
+            PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)), '',
             TrackingOption::AssignLotNo);
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.");
@@ -1650,7 +1650,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinOnJobJournal(JobJournal, JobJournalLine, BinCode);
 
         // Verify
-        Assert.AreEqual('', JobJournal.GetValidationError, 'Validation Error should not exist');
+        Assert.AreEqual('', JobJournal.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure ChangeBinWithLotITOnJobJournalS3(WhseTracking: Boolean; SignFactor: Integer)
@@ -1798,7 +1798,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinOnJobJournal(JobJournal, JobJournalLine, BinCode);
 
         // Verify
-        Assert.AreEqual('', JobJournal.GetValidationError, 'Validation Error should not exist');
+        Assert.AreEqual('', JobJournal.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure ChangeBinWithSerialITOnJobJournalS3(WhseTracking: Boolean; SignFactor: Integer)
@@ -1944,7 +1944,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinOnPurchaseLine(PurchaseOrder, PurchaseLine."Document No.", BinCode);
 
         // Verify
-        Assert.AreEqual('', PurchaseOrder.GetValidationError, 'Validation Error should not exist');
+        Assert.AreEqual('', PurchaseOrder.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure ChangeBinWithLotITOnPurchLineS3(WhseTracking: Boolean; SignFactor: Integer)
@@ -2089,7 +2089,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinOnPurchaseLine(PurchaseOrder, PurchaseLine."Document No.", BinCode);
 
         // Verify
-        Assert.AreEqual('', PurchaseOrder.GetValidationError, 'Validation Error should not exist');
+        Assert.AreEqual('', PurchaseOrder.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure ChangeBinWithSerialITOnPurchLineS3(WhseTracking: Boolean; SignFactor: Integer)
@@ -2236,7 +2236,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinOnProdOrderComponents(ProdOrderComponents, ProdOrderComp."Item No.", BinCode);
 
         // Verify
-        Assert.AreEqual('', ProdOrderComponents.GetValidationError, 'Validation Error should not exist');
+        Assert.AreEqual('', ProdOrderComponents.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure ChangeBinWithLotITOnProdOrderCompS3(WhseTracking: Boolean; SignFactor: Integer)
@@ -2382,7 +2382,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinOnProdOrderComponents(ProdOrderComponents, ProdOrderComp."Item No.", BinCode);
 
         // Verify
-        Assert.AreEqual('', ProdOrderComponents.GetValidationError, 'Validation Error should not exist');
+        Assert.AreEqual('', ProdOrderComponents.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure ChangeBinWithSerialITOnProdOrderCompS3(WhseTracking: Boolean; SignFactor: Integer)
@@ -2413,7 +2413,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Setup: Create and post Purchase Order, create and post Sales Order, create Sales Return Order using Get Posted Document Lines To Reverse.
         Initialize();
         CreateAndPostPurchaseOrderWithIT(
-          PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)), '',
+          PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)), '',
           TrackingOption::AssignLotNo);
 
         DocumentNo := CreateAndPostSalesOrderWithIT(SalesLine, PurchaseLine."No.", '', PurchaseLine.Quantity, true);
@@ -2423,7 +2423,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Exercise: Create Purchase Return Order and Reserve from Sales Return Order.
         CreatePurchaseOrderWithReservation(
-          PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateVendor,
+          PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateVendor(),
           PurchaseLine."No.", '', PurchaseLine.Quantity, true); // TRUE for Reserve.
 
         // Verify: Verify that Sales Return Order can be posted and verify the Posted Credit Memo.
@@ -2448,7 +2448,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Initialize();
         OldExactCostReversingMandatory := UpdateSalesReceivablesSetup(true); // Check the 'Exact Cost Reversing Mandatory' field.
         CreateAndPostPurchaseOrderWithIT(
-          PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)), '',
+          PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)), '',
           TrackingOption::AssignLotNo);
         DocumentNo := CreateAndPostSalesOrderWithIT(SalesLine, PurchaseLine."No.", '', PurchaseLine.Quantity, true);
         DocumentNo := CreateAndPostSaleReturnOrderByGetPostedDoc(SalesLine."Sell-to Customer No.", DocumentNo);
@@ -2480,7 +2480,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         OldExactCostReversingMandatory := UpdatePurchasesPayablesSetup(true); // check the 'Exact Cost Reversing Mandatory' field.
         DocumentNo :=
           CreateAndPostPurchaseOrderWithIT(
-            PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)), '',
+            PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)), '',
             TrackingOption::AssignLotNo);
         DocumentNo := CreateAndPostPurchReturnOrderByGetPostedDoc(PurchaseLine."Buy-from Vendor No.", DocumentNo);
 
@@ -2578,7 +2578,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Initialize();
         ItemNo :=
           CreateTrackedItem(
-            LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(false, true));
+            LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(false, true));
         with ItemJournalLine do begin
             CreateItemJournalLineWithIT(
               ItemJournalLine, "Entry Type"::"Positive Adjmt.", TrackingOption::AssignLotNo, ItemNo,
@@ -2616,7 +2616,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             SetApplFromToItemEntry(ReservationEntry, true);
 
             // [WHEN] ClearApplFromToItemEntry called.
-            ClearApplFromToItemEntry;
+            ClearApplFromToItemEntry();
 
             // [THEN] "Appl.-to Item Entry" set to zero, "Appl.-from Item Entry" rest as is.
             Assert.AreEqual(0, "Appl.-to Item Entry", ClearApplEntryErr);
@@ -2639,7 +2639,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             SetApplFromToItemEntry(ReservationEntry, false);
 
             // [WHEN] ClearApplFromToItemEntry called.
-            ClearApplFromToItemEntry;
+            ClearApplFromToItemEntry();
 
             // [THEN] "Appl.-from Item Entry" set to zero, "Appl.-to Item Entry" rest as is.
             Assert.AreEqual(1, "Appl.-to Item Entry", ClearApplEntryErr);
@@ -2936,12 +2936,12 @@ codeunit 137262 "SCM Invt Item Tracking III"
             ItemTracing.Quantity.AssertEquals(-1);
 
             // [THEN] No more component consumption entries are displayed.
-            Assert.IsFalse(ItemTracing.Next, WrongNoOfComponentEntriesErr);
+            Assert.IsFalse(ItemTracing.Next(), WrongNoOfComponentEntriesErr);
 
             ItemTracing.Close();
         end;
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2969,7 +2969,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [GIVEN] The assembly BOM for item "I" includes a resource as a component.
         LibraryAssembly.CreateAssemblyListComponent(
-          BOMComponent.Type::Resource, LibraryResource.CreateResourceNo, Item."No.", '', 0, LibraryRandom.RandInt(10), true);
+          BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), Item."No.", '', 0, LibraryRandom.RandInt(10), true);
 
         // [GIVEN] Sales order for item "I". Quantity = "Qty. to Assemble to Order" = "X".
         LibrarySales.CreateSalesDocumentWithItem(
@@ -2991,7 +2991,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [THEN] The item tracking entries are opened without an error.
         // [THEN] The quantity in the lot = "X".
-        Assert.AreEqual(SalesInvoiceLine.Quantity, LibraryVariableStorage.DequeueDecimal, '');
+        Assert.AreEqual(SalesInvoiceLine.Quantity, LibraryVariableStorage.DequeueDecimal(), '');
     end;
 
     [Test]
@@ -3009,7 +3009,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ItemJournalLine: Record "Item Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         SerialNo: Code[50];
     begin
         // [FEATURE] [UI] [Serial Item Tracking]
@@ -3019,7 +3019,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // [GIVEN] Location with Bin Mandatory and Require Shipment options with Shipment Bin Code
         // [GIVEN] Warehouse Employee for Location
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, true);
-        LibraryWarehouse.CreateBin(ShipmentBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(ShipmentBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
         Location.Validate("Shipment Bin Code", ShipmentBin.Code);
         Location.Modify(true);
         CreateWarehouseEmployee(Location.Code);
@@ -3029,10 +3029,10 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTrackingCode.Get(Item."Item Tracking Code");
         ItemTrackingCode.Validate("SN Warehouse Tracking", true);
         ItemTrackingCode.Modify(true);
-        SerialNo := NoSeriesManagement.GetNextNo(Item."Serial Nos.", WorkDate(), false);
+        SerialNo := NoSeries.PeekNextNo(Item."Serial Nos.");
 
         // [GIVEN] Bin for Location PickFromBin
-        LibraryWarehouse.CreateBin(PickFromBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(PickFromBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
 
         // [GIVEN] Positive adjustment for Item with quantity = 1 and serial no. = SN posted into PickFromBin at Location
         CreateItemJournalLineWithBin(ItemJournalLine, PickFromBin, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1);
@@ -3065,7 +3065,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [WHEN] Item Tracking Lines page closed at ItemTrackingLinesPageHandler
         // [THEN] Item Tracking Lines page closed with no errors
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3254,7 +3254,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [THEN] Verify that Error is thrown
         Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
-          TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), PurchaseLine."No.", 10, 2, '', LotNoWithTwoLots[2]));
+          TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), PurchaseLine."No.", 10, 2, '', LotNoWithTwoLots[2], ''));
     end;
 
     [Test]
@@ -3317,7 +3317,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [THEN] Verify that Error is thrown
         Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
-          TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), SalesLine."No.", 10, 2, '', LotNoWithTwoLots[2]));
+          TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), SalesLine."No.", 10, 2, '', LotNoWithTwoLots[2], ''));
     end;
 
     local procedure Initialize()
@@ -3378,7 +3378,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     local procedure ChangeBinOnJobJournal(var JobJournal: TestPage "Job Journal"; JobJournalLine: Record "Job Journal Line"; BinCode: Code[20])
     begin
         LibraryVariableStorage.Enqueue(JobJournalLine."Journal Template Name");
-        JobJournal.OpenEdit;
+        JobJournal.OpenEdit();
         JobJournal.CurrentJnlBatchName.SetValue(JobJournalLine."Journal Batch Name");
         JobJournal.FILTER.SetFilter("No.", JobJournalLine."No.");
         JobJournal."Bin Code".SetValue(BinCode);
@@ -3392,14 +3392,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinOnJobJournal(JobJournal, JobJournalLine, BinCode);
 
         if WhseTracking and (SignFactor > 0) then
-            Assert.IsTrue(StrPos(JobJournal.GetValidationError, ItemTrackingExistErr) > 0, 'Actual:' + JobJournal.GetValidationError)
+            Assert.IsTrue(StrPos(JobJournal.GetValidationError(), ItemTrackingExistErr) > 0, 'Actual:' + JobJournal.GetValidationError())
         else
-            Assert.AreEqual('', JobJournal.GetValidationError, 'Validation Error should not exist');
+            Assert.AreEqual('', JobJournal.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure ChangeBinOnPurchaseLine(var PurchaseOrder: TestPage "Purchase Order"; DocNo: Code[20]; BinCode: Code[20])
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", DocNo);
         PurchaseOrder.PurchLines."Bin Code".SetValue(BinCode);
         PurchaseOrder.PurchLines.Next(); // Trigger the item existing error
@@ -3412,14 +3412,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinOnPurchaseLine(PurchaseOrder, DocNo, BinCode);
 
         if WhseTracking and (SignFactor < 0) then
-            Assert.IsTrue(StrPos(PurchaseOrder.GetValidationError, ItemTrackingExistErr) > 0, 'Actual:' + PurchaseOrder.GetValidationError)
+            Assert.IsTrue(StrPos(PurchaseOrder.GetValidationError(), ItemTrackingExistErr) > 0, 'Actual:' + PurchaseOrder.GetValidationError())
         else
-            Assert.AreEqual('', PurchaseOrder.GetValidationError, 'Validation Error should not exist');
+            Assert.AreEqual('', PurchaseOrder.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure ChangeBinOnProdOrderComponents(var ProdOrderComponents: TestPage "Prod. Order Components"; ItemNo: Code[20]; BinCode: Code[20])
     begin
-        ProdOrderComponents.OpenEdit;
+        ProdOrderComponents.OpenEdit();
         ProdOrderComponents.FILTER.SetFilter("Item No.", ItemNo);
         ProdOrderComponents."Bin Code".SetValue(BinCode);
         ProdOrderComponents.Next(); // Trigger the item existing error
@@ -3433,9 +3433,9 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         if WhseTracking and (SignFactor > 0) then
             Assert.IsTrue(
-              StrPos(ProdOrderComponents.GetValidationError, ItemTrackingExistErr) > 0, 'Actual:' + ProdOrderComponents.GetValidationError)
+              StrPos(ProdOrderComponents.GetValidationError(), ItemTrackingExistErr) > 0, 'Actual:' + ProdOrderComponents.GetValidationError())
         else
-            Assert.AreEqual('', ProdOrderComponents.GetValidationError, 'Validation Error should not exist');
+            Assert.AreEqual('', ProdOrderComponents.GetValidationError(), 'Validation Error should not exist');
     end;
 
     local procedure CreateAndModifyItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
@@ -3448,7 +3448,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Item.Validate("Flushing Method", Item."Flushing Method"::"Pick + Backward");
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
@@ -3520,7 +3520,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     begin
         Item.Get(
           CreateTrackedItem(
-            LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(SNTracking, LotNoTracking)));
+            LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(SNTracking, LotNoTracking)));
         LibraryPatterns.MAKEAdditionalItemUOM(ItemUnitOfMeasure, Item."No.", QtyPerUOM);
     end;
 
@@ -3848,7 +3848,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, No, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
@@ -3887,7 +3887,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        Item.Get(CreateTrackedItem('', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, false)));
+        Item.Get(CreateTrackedItem('', LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, false)));
         ItemTrackingCode.Get(Item."Item Tracking Code");
         ItemTrackingCode.Validate("SN Warehouse Tracking", true);
         ItemTrackingCode.Modify(true);
@@ -4037,7 +4037,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     var
         Bin: Record Bin;
     begin
-        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), '', '');
         LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
         with BinContent do begin
             Validate(Default, IsDefault);
@@ -4056,7 +4056,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             "Lot Warehouse Tracking" := true;
             Modify();
         end;
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
@@ -4222,7 +4222,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     var
         ItemTrackingEntries: TestPage "Item Tracking Entries";
     begin
-        ItemTrackingEntries.OpenEdit;
+        ItemTrackingEntries.OpenEdit();
         ItemTrackingEntries.FILTER.SetFilter("Item No.", ItemNo);
         ItemTrackingEntries.FILTER.SetFilter("Document No.", DocumentNo);
         exit(ItemTrackingEntries."Lot No.".Value);
@@ -4234,16 +4234,16 @@ codeunit 137262 "SCM Invt Item Tracking III"
         I: Integer;
         OptionString: Option Serial,Lot;
     begin
-        ItemTrackingEntries.OpenEdit;
+        ItemTrackingEntries.OpenEdit();
         ItemTrackingEntries.FILTER.SetFilter("Item No.", ItemNo);
         ItemTrackingEntries.FILTER.SetFilter("Document No.", DocumentNo);
         I := 1;
         repeat
             case TrackingOption of
                 OptionString::Serial:
-                    Nos[I] := ItemTrackingEntries."Serial No.".Value;
+                    Nos[I] := ItemTrackingEntries."Serial No.".Value();
                 OptionString::Lot:
-                    Nos[I] := ItemTrackingEntries."Lot No.".Value;
+                    Nos[I] := ItemTrackingEntries."Lot No.".Value();
             end;
             I := I + 1;
         until ItemTrackingEntries.Next() = false;
@@ -4262,36 +4262,36 @@ codeunit 137262 "SCM Invt Item Tracking III"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
-        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
+        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     local procedure GetPostedDocToReverseOnSalesCreditMemo(No: Code[20])
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", No);
-        SalesCreditMemo.GetPostedDocumentLinesToReverse.Invoke;
+        SalesCreditMemo.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     local procedure GetPostedDocToReverseOnPurchReturnOrder(No: Code[20])
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", No);
-        PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
+        PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     local procedure GetPostedDocToReverseOnPurchCreditMemo(No: Code[20])
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", No);
-        PurchaseCreditMemo.GetPostedDocumentLinesToReverse.Invoke;
+        PurchaseCreditMemo.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     local procedure IncreaseItemInventoryWithBin(Bin: Record Bin; ItemNo: Code[20]; Quantity: Integer; TrackingOption: Option): Code[20]
@@ -4332,7 +4332,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemJournalLine: Record "Item Journal Line";
         ReservationEntry: Record "Reservation Entry";
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         SerialNo: Code[50];
     begin
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
@@ -4343,7 +4343,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemJournalLine.Validate("Bin Code", BinCode);
         ItemJournalLine.Modify(true);
 
-        SerialNo := NoSeriesManagement.GetNextNo(Item."Serial Nos.", WorkDate(), false);
+        SerialNo := NoSeries.PeekNextNo(Item."Serial Nos.");
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialLot);  // Enqueue value for ItemTrackingLinesPageHandler.
         ItemJnlLineReserve.CallItemTracking(ItemJournalLine, false);
 
@@ -4412,7 +4412,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Item.Get(
           CreateTrackedItem(
-            LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(SNSpecific, LotSpecific)));
+            LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(SNSpecific, LotSpecific)));
         CreateAndPostPurchaseOrderWithIT(PurchaseLine, Item."No.", Location.Code, TrackingOption);
 
         // Create and Post Transfer Order and Sales Order.
@@ -4430,7 +4430,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Create and post Item Journal Line with random Quantity, create and post Sales Order.
         CreateItemJournalLineWithIT(
           ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", TrackingOption::AssignLotNo,
-          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)),
+          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)),
           LibraryRandom.RandDec(10, 2));
         PostOutputJournal(ItemJournalLine);
     end;
@@ -4454,10 +4454,10 @@ codeunit 137262 "SCM Invt Item Tracking III"
             ModifyAll("Qty. to Invoice (Base)", 0);
             SetRange("Quantity Invoiced (Base)", 0);
             FindSet(true, false);
-            for I := 1 to LibraryVariableStorage.DequeueInteger do begin
+            for I := 1 to LibraryVariableStorage.DequeueInteger() do begin
                 Validate("Qty. to Invoice (Base)", "Quantity (Base)");
                 Modify(true);
-                if Next = 0 then
+                if Next() = 0 then
                     exit;
             end;
         end;
@@ -4541,9 +4541,9 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTrackingCode.Validate("Lot Warehouse Tracking", WhseTracking);
         ItemTrackingCode.Modify(true);
 
-        ItemNo := CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode.Code);
+        ItemNo := CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), ItemTrackingCode.Code);
         CreateLocationWithBin(Bin[1], ItemNo);
-        LibraryWarehouse.CreateBin(Bin[2], Bin[1]."Location Code", LibraryUtility.GenerateGUID, '', ''); // Use blank values for Unit Of Measure Code and Zone Code.
+        LibraryWarehouse.CreateBin(Bin[2], Bin[1]."Location Code", LibraryUtility.GenerateGUID(), '', ''); // Use blank values for Unit Of Measure Code and Zone Code.
 
         Qty[1] := LibraryRandom.RandIntInRange(10, 20);
         Qty[2] := LibraryRandom.RandInt(9);
@@ -4639,9 +4639,9 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTrackingCode.Validate("SN Warehouse Tracking", WhseTracking);
         ItemTrackingCode.Modify(true);
 
-        ItemNo := CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode.Code);
+        ItemNo := CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), ItemTrackingCode.Code);
         CreateLocationWithBin(Bin[1], ItemNo);
-        LibraryWarehouse.CreateBin(Bin[2], Bin[1]."Location Code", LibraryUtility.GenerateGUID, '', '');  // Use blank values for Unit Of Measure Code and Zone Code.
+        LibraryWarehouse.CreateBin(Bin[2], Bin[1]."Location Code", LibraryUtility.GenerateGUID(), '', '');  // Use blank values for Unit Of Measure Code and Zone Code.
 
         Qty := LibraryRandom.RandInt(10);
 
@@ -4660,7 +4660,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     begin
         Item.Get(
           CreateTrackedItem(
-            LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(SNSpecific, LotSpecific)));
+            LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(SNSpecific, LotSpecific)));
         CreateAndPostPurchaseOrderWithIT(PurchaseLine, Item."No.", '', TrackingOption);
         CreateAndPostSalesOrderWithIT(SalesLine, PurchaseLine."No.", '', PurchaseLine.Quantity, false);
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.");
@@ -4682,7 +4682,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Setup: Create Purchase Order with Item Tracking and Post.
         Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        Item.Get(CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)));
+        Item.Get(CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true)));
         Item.Validate("Costing Method", CostingMethod);
         Item.Modify(true);
         CreateAndPostPurchaseOrderWithIT(PurchaseLine, Item."No.", Location.Code, TrackingOption::AssignLotNo);
@@ -4725,18 +4725,18 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Setup: Create BOM structure 2 levels deep.
         Initialize();
         Item.Get(
-          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, true)));
+          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, true)));
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify(true);
 
         Item1.Get(
-          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, true)));
+          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, true)));
         Item1.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item1.Modify(true);
         CreateProdBOMWithOneComp(Item, Item1);
 
         Item2.Get(
-          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, true)));
+          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, true)));
         CreateProdBOMWithOneComp(Item1, Item2);
 
         // Purchase component with IT.
@@ -4864,13 +4864,13 @@ codeunit 137262 "SCM Invt Item Tracking III"
     var
         ShowComponents: Option No,"Item-tracked Only",All;
     begin
-        ItemTracing.OpenEdit;
+        ItemTracing.OpenEdit();
         ItemTracing.ItemNoFilter.SetValue(ItemNoFilter);
         ItemTracing.SerialNoFilter.SetValue(SerialNoFilter);
         ItemTracing.LotNoFilter.SetValue(LotNoFilter);
         ItemTracing.TraceMethod.SetValue(TraceMethod);
         ItemTracing.ShowComponents.SetValue(ShowComponents::All);
-        ItemTracing.Trace.Invoke;
+        ItemTracing.Trace.Invoke();
     end;
 
     local procedure UpdateItem(Item: Record Item; ProductionBOMHeaderNo: Code[20]; RoutingHeaderNo: Code[20])
@@ -4955,7 +4955,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             FindSet();
             repeat
                 Assert.AreEqual(Quantity, "Quantity Invoiced", StrSubstNo(WrongInvoicedQtyErr, TableCaption));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -4969,7 +4969,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             FindSet();
             repeat
                 Assert.AreEqual(Quantity, "Quantity Invoiced", StrSubstNo(WrongInvoicedQtyErr, TableCaption));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -5026,7 +5026,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTracing.FILTER.SetFilter("Location Code", ItemLedgerEntry."Location Code");
         ItemTracing.FILTER.SetFilter(Quantity, Format(ItemLedgerEntry.Quantity));
 
-        if ItemTracing.First then
+        if ItemTracing.First() then
             ActCount := 1;
 
         while ItemTracing.Next() do begin
@@ -5042,12 +5042,12 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Description: Text;
     begin
         ItemTracing.Expand(true);
-        ItemTracing.First;
+        ItemTracing.First();
 
         while ItemTracing.Next() do
-            if ItemTracing."Already Traced".AsBoolean then begin
+            if ItemTracing."Already Traced".AsBoolean() then begin
                 Description := Format(ItemTracing.Description);
-                ItemTracing."Go to Already-Traced History".Invoke;
+                ItemTracing."Go to Already-Traced History".Invoke();
                 ItemTracing."Already Traced".AssertEquals(false);
                 ItemTracing.Description.AssertEquals(Description);
                 exit;
@@ -5133,14 +5133,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
         Quantity: Variant;
         TrackingOptionValue: Option;
     begin
-        TrackingOptionValue := LibraryVariableStorage.DequeueInteger;
+        TrackingOptionValue := LibraryVariableStorage.DequeueInteger();
         case TrackingOptionValue of
             TrackingOption::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             TrackingOption::AssignSerialLot:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             TrackingOption::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             TrackingOption::SetQuantity:
                 begin
                     LibraryVariableStorage.Dequeue(Quantity);
@@ -5151,9 +5151,9 @@ codeunit 137262 "SCM Invt Item Tracking III"
             TrackingOption::SelectAndApplyToItemEntry:
                 SelectApplyToItemEntry(ItemTrackingLines);
             TrackingOption::SetEntriesToInvoice:
-                SelectTrackingEntriesToInvoice;
+                SelectTrackingEntriesToInvoice();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5162,7 +5162,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     var
         TrackingOptionWithTwoLotsValue: Option;
     begin
-        TrackingOptionWithTwoLotsValue := LibraryVariableStorage.DequeueInteger;
+        TrackingOptionWithTwoLotsValue := LibraryVariableStorage.DequeueInteger();
         case TrackingOptionWithTwoLotsValue of
             TrackingOptionWithTwoLots::AssignLotNoWithQtyToHandle:
                 begin
@@ -5218,14 +5218,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
                     ItemTrackingLines."Quantity (Base)".SetValue(4);
                 end;
         end;
-        ItemTrackingLines.OK.Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5233,7 +5233,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(true);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5241,14 +5241,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
     procedure EnterQuantityToCreatePageHandlerFalse(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(false);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedItemTrackingLinesModalPageHandler(var PostedItemTrackingLines: TestPage "Posted Item Tracking Lines")
     begin
-        LibraryVariableStorage.Enqueue(PostedItemTrackingLines.Quantity.AsDEcimal);
+        LibraryVariableStorage.Enqueue(PostedItemTrackingLines.Quantity.AsDecimal());
     end;
 
     [ModalPageHandler]
@@ -5259,7 +5259,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         PostedSalesDocumentLines.PostedInvoices.FILTER.SetFilter("Document No.", DocumentNo);
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5270,7 +5270,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         PostedPurchaseDocumentLines.PostedInvoices.FILTER.SetFilter("Document No.", DocumentNo);
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5281,15 +5281,15 @@ codeunit 137262 "SCM Invt Item Tracking III"
     begin
         LibraryVariableStorage.Dequeue(Name);
         JobJournalTemplateList.FILTER.SetFilter(Name, Name);
-        JobJournalTemplateList.OK.Invoke;
+        JobJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Auto Reserve".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -5302,8 +5302,8 @@ codeunit 137262 "SCM Invt Item Tracking III"
     [Scope('OnPrem')]
     procedure EnterQuantityToCreateChangeQtyPageHandler(var EnterQtyToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQtyToCreate.QtyToCreate.SetValue(LibraryVariableStorage.DequeueDecimal);
-        EnterQtyToCreate.OK.Invoke;
+        EnterQtyToCreate.QtyToCreate.SetValue(LibraryVariableStorage.DequeueDecimal());
+        EnterQtyToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5313,14 +5313,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
         I: Integer;
         TotalQtyToAssign: Integer;
     begin
-        ItemTrackingSummaryPage.First;
-        TotalQtyToAssign := LibraryVariableStorage.DequeueInteger;
+        ItemTrackingSummaryPage.First();
+        TotalQtyToAssign := LibraryVariableStorage.DequeueInteger();
         repeat
             I += 1;
             ItemTrackingSummaryPage."Selected Quantity".SetValue(I <= TotalQtyToAssign);
         until not ItemTrackingSummaryPage.Next();
 
-        ItemTrackingSummaryPage.OK.Invoke;
+        ItemTrackingSummaryPage.OK().Invoke();
     end;
 }
 

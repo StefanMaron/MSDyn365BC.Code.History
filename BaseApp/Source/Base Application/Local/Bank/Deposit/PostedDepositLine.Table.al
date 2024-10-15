@@ -21,6 +21,7 @@ table 10144 "Posted Deposit Line"
 {
     Caption = 'Posted Deposit Line';
     LookupPageID = "Posted Deposit Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

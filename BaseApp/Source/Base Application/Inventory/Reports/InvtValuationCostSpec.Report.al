@@ -220,14 +220,12 @@ report 5801 "Invt. Valuation - Cost Spec."
             EntryTypeDescription[i] := Format(ValueEntry."Entry Type");
         end;
 
-        with ValueEntry do begin
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Posting Date", 0D, ValuationDate);
-            SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-            SetFilter("Location Code", Item.GetFilter("Location Filter"));
-            SetFilter("Global Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
-            SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
-        end;
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Posting Date", 0D, ValuationDate);
+        ValueEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        ValueEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        ValueEntry.SetFilter("Global Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
+        ValueEntry.SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
     end;
 
     var
@@ -262,28 +260,27 @@ report 5801 "Invt. Valuation - Cost Spec."
         if IsPositive then
             PosQty := ItemLedgerEntry.Quantity;
 
-        with ItemApplnEntry do
-            if ItemLedgerEntry.Positive then begin
-                Reset();
-                SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
-                SetRange("Inbound Item Entry No.", ItemLedgerEntry."Entry No.");
-                SetFilter("Outbound Item Entry No.", '<>%1', 0);
-                SetRange("Posting Date", 0D, ValuationDate);
-                if Find('-') then
-                    repeat
-                        SumQty(RemainingQty, PosQty, "Outbound Item Entry No.", Quantity);
-                    until Next() = 0;
-            end else begin
-                Reset();
-                SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
-                SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
-                SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-                SetRange("Posting Date", 0D, ValuationDate);
-                if Find('-') then
-                    repeat
-                        SumQty(RemainingQty, PosQty, "Inbound Item Entry No.", -Quantity);
-                    until Next() = 0;
-            end;
+        if ItemLedgerEntry.Positive then begin
+            ItemApplnEntry.Reset();
+            ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
+            ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemLedgerEntry."Entry No.");
+            ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<>%1', 0);
+            ItemApplnEntry.SetRange("Posting Date", 0D, ValuationDate);
+            if ItemApplnEntry.Find('-') then
+                repeat
+                    SumQty(RemainingQty, PosQty, ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity);
+                until ItemApplnEntry.Next() = 0;
+        end else begin
+            ItemApplnEntry.Reset();
+            ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
+            ItemApplnEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
+            ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+            ItemApplnEntry.SetRange("Posting Date", 0D, ValuationDate);
+            if ItemApplnEntry.Find('-') then
+                repeat
+                    SumQty(RemainingQty, PosQty, ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity);
+                until ItemApplnEntry.Next() = 0;
+        end;
 
         if IsPositive then
             PosQty := RemainingQty;
@@ -306,19 +303,17 @@ report 5801 "Invt. Valuation - Cost Spec."
 
     local procedure CalcUnitCost(ItemLedgerEntry: Record "Item Ledger Entry")
     begin
-        with ValueEntry do begin
-            SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-            if Find('-') then
-                repeat
-                    if "Partial Revaluation" then
-                        SumUnitCost(TotalCostTotal["Entry Type".AsInteger() + 1],
-                          "Cost Amount (Actual)" + "Cost Amount (Expected)", "Valued Quantity")
-                    else
-                        SumUnitCost(TotalCostTotal["Entry Type".AsInteger() + 1],
-                          "Cost Amount (Actual)" + "Cost Amount (Expected)", ItemLedgerEntry.Quantity);
-                    NoOfEntries["Entry Type".AsInteger() + 1] := 1;
-                until Next() = 0;
-        end;
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        if ValueEntry.Find('-') then
+            repeat
+                if ValueEntry."Partial Revaluation" then
+                    SumUnitCost(TotalCostTotal[ValueEntry."Entry Type".AsInteger() + 1],
+                      ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", ValueEntry."Valued Quantity")
+                else
+                    SumUnitCost(TotalCostTotal[ValueEntry."Entry Type".AsInteger() + 1],
+                      ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", ItemLedgerEntry.Quantity);
+                NoOfEntries[ValueEntry."Entry Type".AsInteger() + 1] := 1;
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure CalcAvgCost()
@@ -336,24 +331,23 @@ report 5801 "Invt. Valuation - Cost Spec."
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do
-            case "Entry Type" of
-                "Entry Type"::Purchase,
-              "Entry Type"::"Positive Adjmt.",
-              "Entry Type"::Output,
-              "Entry Type"::"Assembly Output":
-                    exit(true);
-                "Entry Type"::Transfer:
-                    begin
-                        if not Positive then
-                            exit(false);
-                        ItemLedgEntry.CopyFilters(ItemLedgerEntry);
-                        ItemLedgEntry."Entry No." := "Entry No." - 1;
-                        exit(ItemLedgEntry.IsEmpty());
-                    end;
-                else
-                    exit(false)
-            end;
+        case ItemLedgerEntry."Entry Type" of
+            ItemLedgerEntry."Entry Type"::Purchase,
+              ItemLedgerEntry."Entry Type"::"Positive Adjmt.",
+              ItemLedgerEntry."Entry Type"::Output,
+              ItemLedgerEntry."Entry Type"::"Assembly Output":
+                exit(true);
+            ItemLedgerEntry."Entry Type"::Transfer:
+                begin
+                    if not ItemLedgerEntry.Positive then
+                        exit(false);
+                    ItemLedgEntry.CopyFilters(ItemLedgerEntry);
+                    ItemLedgEntry."Entry No." := ItemLedgerEntry."Entry No." - 1;
+                    exit(ItemLedgEntry.IsEmpty());
+                end;
+            else
+                exit(false)
+        end;
     end;
 
     local procedure SumUnitCost(var UnitCost: Decimal; CostAmount: Decimal; Quantity: Decimal)

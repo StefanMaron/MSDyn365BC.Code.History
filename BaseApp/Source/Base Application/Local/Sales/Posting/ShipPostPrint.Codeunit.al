@@ -31,20 +31,19 @@ codeunit 10012 "Ship-Post + Print"
 
     local procedure "Code"()
     begin
-        with SalesHeader do
-            if "Document Type" = "Document Type"::Order then begin
-                if not Confirm(Text1020001, false, "Document Type") then begin
-                    "Shipping No." := '-1';
-                    exit;
-                end;
-                Ship := true;
-                Invoice := false;
-                SalesPost.Run(SalesHeader);
-
-                SalesShptHeader."No." := "Last Shipping No.";
-                SalesShptHeader.SetRecFilter();
-                PrintReport(ReportSelection.Usage::"S.Shipment");
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            if not Confirm(Text1020001, false, SalesHeader."Document Type") then begin
+                SalesHeader."Shipping No." := '-1';
+                exit;
             end;
+            SalesHeader.Ship := true;
+            SalesHeader.Invoice := false;
+            SalesPost.Run(SalesHeader);
+
+            SalesShptHeader."No." := SalesHeader."Last Shipping No.";
+            SalesShptHeader.SetRecFilter();
+            PrintReport(ReportSelection.Usage::"S.Shipment");
+        end;
     end;
 
     local procedure PrintReport(ReportUsage: Enum "Report Selection Usage")

@@ -32,20 +32,18 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
         if IsPosted then
             exit;
 
-        with WhseReceiptLine do begin
-            if Find() then
-                if not HideDialog then
-                    if not Confirm(Text000, false) then
-                        exit;
+        if WhseReceiptLine.Find() then
+            if not HideDialog then
+                if not Confirm(Text000, false) then
+                    exit;
 
-            IsHandled := false;
-            OnAfterConfirmPost(WhseReceiptLine, IsHandled);
-            if not IsHandled then begin
-                WhsePostReceipt.Run(WhseReceiptLine);
-                OnAfterWhsePostReceiptRun(WhseReceiptLine, WhsePostReceipt);
-                WhsePostReceipt.GetResultMessage();
-                Clear(WhsePostReceipt);
-            end;
+        IsHandled := false;
+        OnAfterConfirmPost(WhseReceiptLine, IsHandled);
+        if not IsHandled then begin
+            WhsePostReceipt.Run(WhseReceiptLine);
+            OnAfterWhsePostReceiptRun(WhseReceiptLine, WhsePostReceipt);
+            WhsePostReceipt.GetResultMessage();
+            Clear(WhsePostReceipt);
         end;
     end;
 
@@ -56,6 +54,17 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
     begin
         BindSubscription(WhsePostReceiptYesNo);
         GenJnlPostPreview.Preview(WhsePostReceiptYesNo, WarehouseReceiptLine);
+    end;
+
+    procedure MessageIfPostingPreviewMultipleDocuments(var WarehouseReceiptHeaderToPreview: Record "Warehouse Receipt Header"; DocumentNo: Code[20])
+    var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        RecordRefToPreview: RecordRef;
+    begin
+        RecordRefToPreview.Open(Database::"Warehouse Receipt Header");
+        RecordRefToPreview.Copy(WarehouseReceiptHeaderToPreview);
+
+        GenJnlPostPreview.MessageIfPostingPreviewMultipleDocuments(RecordRefToPreview, DocumentNo);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]

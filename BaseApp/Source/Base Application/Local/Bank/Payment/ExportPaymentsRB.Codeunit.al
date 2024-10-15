@@ -77,70 +77,68 @@ codeunit 10091 "Export Payments (RB)"
         CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
-        with BankAccount do begin
-            LockTable();
-            Get(BankAccountNo);
-            TestField("Export Format", "Export Format"::CA);
-            TestField("Transit No.");
-            TestField("E-Pay Export File Path");
-            if "E-Pay Export File Path"[StrLen("E-Pay Export File Path")] <> '\' then
-                Error(ExportFilePathErr,
-                  FieldCaption("E-Pay Export File Path"),
-                  TableCaption,
-                  "No.");
-            TestField("Last E-Pay Export File Name");
-            TestField("Bank Acc. Posting Group");
-            TestField(Blocked, false);
-            TestField("Client No.");
-            TestField("Client Name");
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("Export Format", BankAccount."Export Format"::CA);
+        BankAccount.TestField("Transit No.");
+        BankAccount.TestField("E-Pay Export File Path");
+        if BankAccount."E-Pay Export File Path"[StrLen(BankAccount."E-Pay Export File Path")] <> '\' then
+            Error(ExportFilePathErr,
+              BankAccount.FieldCaption("E-Pay Export File Path"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        BankAccount.TestField("Last E-Pay Export File Name");
+        BankAccount.TestField("Bank Acc. Posting Group");
+        BankAccount.TestField(Blocked, false);
+        BankAccount.TestField("Client No.");
+        BankAccount.TestField("Client Name");
 
-            if GenJnlLine."Bank Payment Type" =
-               GenJnlLine."Bank Payment Type"::"Electronic Payment-IAT"
-            then begin
-                GenJnlLine.TestField("Transaction Code");
-                GenJnlLine.TestField("Company Entry Description");
-            end;
-
-            "Last E-Pay Export File Name" := IncStr("Last E-Pay Export File Name");
-            FileName := RBMgt.ServerTempFileName('');
-            if "Last ACH File ID Modifier" = '' then
-                "Last ACH File ID Modifier" := '1'
-            else begin
-                i := 1;
-                while (i < ArrayLen(ModifierValues)) and
-                      ("Last ACH File ID Modifier" <> ModifierValues[i])
-                do
-                    i := i + 1;
-                if i = ArrayLen(ModifierValues) then
-                    i := 1
-                else
-                    i := i + 1;
-                "Last ACH File ID Modifier" := ModifierValues[i];
-            end;
-            "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
-            Modify();
-
-            if Exists(FileName) then
-                Error(FileAlreadyExistsErr,
-                  FileName,
-                  FieldCaption("Last E-Pay Export File Name"),
-                  TableCaption,
-                  "No.");
-            ExportFile.TextMode(true);
-            ExportFile.WriteMode(true);
-            ExportFile.Create(FileName);
-
-            FileIsInProcess := true;
-            FileDate := Today;
-            NoOfRec := 0;
-            NoOfCustInfoRec := 0;
-            TotalFileDebit := 0;
-            TotalFileCredit := 0;
-            RecordLength := 152;
-            Transactions := 0;
-
-            WriteStartDataBlock(GenJnlLine);
+        if GenJnlLine."Bank Payment Type" =
+           GenJnlLine."Bank Payment Type"::"Electronic Payment-IAT"
+        then begin
+            GenJnlLine.TestField("Transaction Code");
+            GenJnlLine.TestField("Company Entry Description");
         end;
+
+        BankAccount."Last E-Pay Export File Name" := IncStr(BankAccount."Last E-Pay Export File Name");
+        FileName := RBMgt.ServerTempFileName('');
+        if BankAccount."Last ACH File ID Modifier" = '' then
+            BankAccount."Last ACH File ID Modifier" := '1'
+        else begin
+            i := 1;
+            while (i < ArrayLen(ModifierValues)) and
+                  (BankAccount."Last ACH File ID Modifier" <> ModifierValues[i])
+            do
+                i := i + 1;
+            if i = ArrayLen(ModifierValues) then
+                i := 1
+            else
+                i := i + 1;
+            BankAccount."Last ACH File ID Modifier" := ModifierValues[i];
+        end;
+        BankAccount."Last E-Pay File Creation No." := BankAccount."Last E-Pay File Creation No." + 1;
+        BankAccount.Modify();
+
+        if Exists(FileName) then
+            Error(FileAlreadyExistsErr,
+              FileName,
+              BankAccount.FieldCaption("Last E-Pay Export File Name"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        ExportFile.TextMode(true);
+        ExportFile.WriteMode(true);
+        ExportFile.Create(FileName);
+
+        FileIsInProcess := true;
+        FileDate := Today;
+        NoOfRec := 0;
+        NoOfCustInfoRec := 0;
+        TotalFileDebit := 0;
+        TotalFileCredit := 0;
+        RecordLength := 152;
+        Transactions := 0;
+
+        WriteStartDataBlock(GenJnlLine);
     end;
 
     local procedure WriteStartDataBlock(GenJnlLine: Record "Gen. Journal Line")
@@ -154,33 +152,39 @@ codeunit 10091 "Export Payments (RB)"
         if IsHandled then
             exit;
 
-        with BankAccount do begin
-            ExportPrnString(FileHeaderRec);
+        ExportPrnString(FileHeaderRec);
 
-            FileHeaderRec := '';
-            AddNumToPrnString(FileHeaderRec, NoOfRec, 1, 6);                              // Record Count
-            AddToPrnString(FileHeaderRec, 'A', 7, 1, Justification::Left, ' ');             // Record Type
-            AddToPrnString(FileHeaderRec, 'HDR', 8, 3, Justification::Left, ' ');           // Transaction Code
-            AddToPrnString(FileHeaderRec, "Client No.", 11, 10, Justification::Left, '0');  // Client Number
-            AddToPrnString(FileHeaderRec, "Client Name", 21, 30, Justification::Left, ' '); // Client Name
-            AddNumToPrnString(FileHeaderRec, "Last E-Pay File Creation No.", 51, 4);      // File Creation Number
-            AddNumToPrnString(FileHeaderRec, ExportEFTRB.JulianDate(FileDate), 55, 7);      // File Creation Date
-            if GenJnlLine."Currency Code" = '' then begin
-                GLSetup.Get();
-                CurrencyType := GLSetup."LCY Code";
-            end else
-                CurrencyType := GenJnlLine."Currency Code";
-            AddToPrnString(FileHeaderRec, CurrencyType, 62, 3, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, '1', 65, 1, Justification::Left, ' ');            // Input Type
-            AddToPrnString(FileHeaderRec, ' ', 66, 15, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, ' ', 81, 6, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, ' ', 87, 8, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, ' ', 95, 9, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, ' ', 104, 46, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, ' ', 150, 2, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, ' ', 152, 1, Justification::Left, ' ');
-            ExportPrnString(FileHeaderRec);
-        end;
+        FileHeaderRec := '';
+        AddNumToPrnString(FileHeaderRec, NoOfRec, 1, 6);
+        // Record Count
+        AddToPrnString(FileHeaderRec, 'A', 7, 1, Justification::Left, ' ');
+        // Record Type
+        AddToPrnString(FileHeaderRec, 'HDR', 8, 3, Justification::Left, ' ');
+        // Transaction Code
+        AddToPrnString(FileHeaderRec, BankAccount."Client No.", 11, 10, Justification::Left, '0');
+        // Client Number
+        AddToPrnString(FileHeaderRec, BankAccount."Client Name", 21, 30, Justification::Left, ' ');
+        // Client Name
+        AddNumToPrnString(FileHeaderRec, BankAccount."Last E-Pay File Creation No.", 51, 4);
+        // File Creation Number
+        AddNumToPrnString(FileHeaderRec, ExportEFTRB.JulianDate(FileDate), 55, 7);
+        // File Creation Date
+        if GenJnlLine."Currency Code" = '' then begin
+            GLSetup.Get();
+            CurrencyType := GLSetup."LCY Code";
+        end else
+            CurrencyType := GenJnlLine."Currency Code";
+        AddToPrnString(FileHeaderRec, CurrencyType, 62, 3, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, '1', 65, 1, Justification::Left, ' ');
+        // Input Type
+        AddToPrnString(FileHeaderRec, ' ', 66, 15, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, ' ', 81, 6, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, ' ', 87, 8, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, ' ', 95, 9, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, ' ', 104, 46, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, ' ', 150, 2, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, ' ', 152, 1, Justification::Left, ' ');
+        ExportPrnString(FileHeaderRec);
     end;
 
     procedure ExportElectronicPayment(GenJnlLine: Record "Gen. Journal Line"; PaymentAmount: Decimal; SettleDate: Date): Code[30]
@@ -199,16 +203,15 @@ codeunit 10091 "Export Payments (RB)"
             TotalFileCredit := TotalFileCredit + PaymentAmount
         else
             TotalFileDebit := TotalFileDebit + PaymentAmount;
-        with GenJnlLine do begin
-            if not DemandCredit then // for now, this is not supported for Canada
-                Error(DemandDebitErr,
-                  FieldCaption("Journal Template Name"), "Journal Template Name",
-                  FieldCaption("Journal Batch Name"), "Journal Batch Name",
-                  FieldCaption("Line No."), "Line No.");
+        if not DemandCredit then
+            // for now, this is not supported for Canada
+            Error(DemandDebitErr,
+              GenJnlLine.FieldCaption("Journal Template Name"), GenJnlLine."Journal Template Name",
+              GenJnlLine.FieldCaption("Journal Batch Name"), GenJnlLine."Journal Batch Name",
+              GenJnlLine.FieldCaption("Line No."), GenJnlLine."Line No.");
 
-            GetRecipientData(GenJnlLine);
-            WriteRecord(GenJnlLine, PaymentAmount, SettleDate);
-        end;
+        GetRecipientData(GenJnlLine);
+        WriteRecord(GenJnlLine, PaymentAmount, SettleDate);
 
         exit(GenerateFullTraceNoCode(TraceNo));
     end;
@@ -345,31 +348,29 @@ codeunit 10091 "Export Payments (RB)"
     var
         AcctType: Text[1];
     begin
-        with GenJournalLine do begin
-            if "Account Type" = "Account Type"::Vendor then begin
-                AcctType := 'V';
-                AcctNo := "Account No.";
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor then begin
+            AcctType := 'V';
+            AcctNo := GenJournalLine."Account No.";
+        end else
+            if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then begin
+                AcctType := 'C';
+                AcctNo := GenJournalLine."Account No.";
             end else
-                if "Account Type" = "Account Type"::Customer then begin
-                    AcctType := 'C';
-                    AcctNo := "Account No.";
+                if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Vendor then begin
+                    AcctType := 'V';
+                    AcctNo := GenJournalLine."Bal. Account No.";
                 end else
-                    if "Bal. Account Type" = "Bal. Account Type"::Vendor then begin
-                        AcctType := 'V';
-                        AcctNo := "Bal. Account No.";
+                    if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Customer then begin
+                        AcctType := 'C';
+                        AcctNo := GenJournalLine."Bal. Account No.";
                     end else
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then begin
-                            AcctType := 'C';
-                            AcctNo := "Bal. Account No.";
-                        end else
-                            Error(InvalidPaymentSpecErr,
-                              FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), Vendor.TableCaption(), Customer.TableCaption());
-            if AcctType = 'V' then
-                GetRecipientDataFromVendor(GenJournalLine)
-            else
-                if AcctType = 'C' then
-                    GetRecipientDataFromCustomer(GenJournalLine);
-        end;
+                        Error(InvalidPaymentSpecErr,
+                          GenJournalLine.FieldCaption("Account Type"), GenJournalLine.FieldCaption("Bal. Account Type"), Vendor.TableCaption(), Customer.TableCaption());
+        if AcctType = 'V' then
+            GetRecipientDataFromVendor(GenJournalLine)
+        else
+            if AcctType = 'C' then
+                GetRecipientDataFromCustomer(GenJournalLine);
     end;
 
     local procedure GetRecipientDataFromVendor(GenJournalLine: Record "Gen. Journal Line")
@@ -470,25 +471,23 @@ codeunit 10091 "Export Payments (RB)"
         ExportFullPathName: Text;
         TransmitFullPathName: Text;
     begin
-        with BankAccount do begin
-            Get(BankAccountNo);
-            TestField("E-Pay Export File Path");
-            if "E-Pay Export File Path"[StrLen("E-Pay Export File Path")] <> '\' then
-                Error(ExportFilePathErr,
-                  FieldCaption("E-Pay Export File Path"),
-                  TableCaption,
-                  "No.");
-            TestField("E-Pay Trans. Program Path");
-            if "E-Pay Trans. Program Path"[StrLen("E-Pay Trans. Program Path")] <> '\' then
-                Error(ExportFilePathErr,
-                  FieldCaption("E-Pay Trans. Program Path"),
-                  TableCaption,
-                  "No.");
-            ExportFullPathName := "E-Pay Export File Path" + FName;
-            TransmitFullPathName := "E-Pay Trans. Program Path" + FName;
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("E-Pay Export File Path");
+        if BankAccount."E-Pay Export File Path"[StrLen(BankAccount."E-Pay Export File Path")] <> '\' then
+            Error(ExportFilePathErr,
+              BankAccount.FieldCaption("E-Pay Export File Path"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        BankAccount.TestField("E-Pay Trans. Program Path");
+        if BankAccount."E-Pay Trans. Program Path"[StrLen(BankAccount."E-Pay Trans. Program Path")] <> '\' then
+            Error(ExportFilePathErr,
+              BankAccount.FieldCaption("E-Pay Trans. Program Path"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        ExportFullPathName := BankAccount."E-Pay Export File Path" + FName;
+        TransmitFullPathName := BankAccount."E-Pay Trans. Program Path" + FName;
 
-            Error(FileDoesNoteExistErr, FName);
-        end;
+        Error(FileDoesNoteExistErr, FName);
     end;
 
     local procedure WriteRecord(GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal; SettleDate: Date)
@@ -506,91 +505,100 @@ codeunit 10091 "Export Payments (RB)"
         if IsHandled then
             exit;
 
-        with GenJournalLine do begin
-            Transactions := Transactions + 1;
-            DetailRec := '';
-            TraceNo := NoOfRec;
-            AddNumToPrnString(DetailRec, NoOfRec, 1, 6);                                          // Record Count
-            AddToPrnString(DetailRec, 'C', 7, 1, Justification::Left, ' ');
-            AddToPrnString(DetailRec, "Transaction Code", 8, 3, Justification::Left, ' ');          // Transaction Code
-            AddToPrnString(DetailRec, BankAccount."Client No.", 11, 10, Justification::Left, '0');  // Client Number
-            AddToPrnString(DetailRec, ' ', 21, 1, Justification::Left, ' ');
-            AddToPrnString(DetailRec, AcctNo, 22, 19, Justification::Left, ' ');                    // Customer Number
-            AddNumToPrnString(DetailRec, PaymentsThisAcct, 41, 2);                                // Payment Number
-            if RecipientBankAcctCountryCode = 'CA' then begin
-                AddToPrnString(DetailRec, RecipientBankNo, 43, 4, Justification::Right, '0');        // Bank No.
-                AddToPrnString(DetailRec, RecipientTransitNo, 47, 5, Justification::Right, '0');     // Transit No.
-            end else
-                if RecipientBankAcctCountryCode = 'US' then
-                    AddToPrnString(DetailRec, RecipientTransitNo, 43, 9, Justification::Right, '0');
+        Transactions := Transactions + 1;
+        DetailRec := '';
+        TraceNo := NoOfRec;
+        AddNumToPrnString(DetailRec, NoOfRec, 1, 6);
+        // Record Count
+        AddToPrnString(DetailRec, 'C', 7, 1, Justification::Left, ' ');
+        AddToPrnString(DetailRec, GenJournalLine."Transaction Code", 8, 3, Justification::Left, ' ');
+        // Transaction Code
+        AddToPrnString(DetailRec, BankAccount."Client No.", 11, 10, Justification::Left, '0');
+        // Client Number
+        AddToPrnString(DetailRec, ' ', 21, 1, Justification::Left, ' ');
+        AddToPrnString(DetailRec, AcctNo, 22, 19, Justification::Left, ' ');
+        // Customer Number
+        AddNumToPrnString(DetailRec, PaymentsThisAcct, 41, 2);
+        // Payment Number
+        if RecipientBankAcctCountryCode = 'CA' then begin
+            AddToPrnString(DetailRec, RecipientBankNo, 43, 4, Justification::Right, '0');
+            // Bank No.
+            AddToPrnString(DetailRec, RecipientTransitNo, 47, 5, Justification::Right, '0');
+            // Transit No.
+        end else
+            if RecipientBankAcctCountryCode = 'US' then
+                AddToPrnString(DetailRec, RecipientTransitNo, 43, 9, Justification::Right, '0');
 
-            AddToPrnString(DetailRec, RecipientBankAcctNo, 52, 18, Justification::Left, ' ');
-            AddToPrnString(DetailRec, ' ', 70, 1, Justification::Left, ' ');
-            AddAmtToPrnString(DetailRec, PaymentAmount, 71, 10);                                  // Payment Amount
-            AddToPrnString(DetailRec, ' ', 81, 6, Justification::Left, ' ');
-            AddNumToPrnString(DetailRec, ExportEFTRB.JulianDate(SettleDate), 87, 7);                // Payment Date
-            AddToPrnString(DetailRec, AcctName, 94, 30, Justification::Left, ' ');                  // Customer Name
-            AddToPrnString(DetailRec, Format(AcctLanguage), 124, 1, Justification::Left, ' ');      // Language Code
-            AddToPrnString(DetailRec, ' ', 125, 1, Justification::Left, ' ');
-            AddToPrnString(DetailRec, BankAccount."Client Name", 126, 15, Justification::Left, ' ');// Client Name
-            if RecipientBankAcctCurrencyCode = '' then
-                AddToPrnString(DetailRec, CurrencyType, 141, 3, Justification::Left, ' ')
-            else
-                AddToPrnString(DetailRec, RecipientBankAcctCurrencyCode, 141, 3, Justification::Left, ' ');
-            AddToPrnString(DetailRec, ' ', 144, 1, Justification::Left, ' ');
-            if RecipientCountryCode = 'CA' then
-                AddToPrnString(DetailRec, 'CAN', 145, 3, Justification::Left, ' ')
-            else
-                if RecipientCountryCode = 'US' then
-                    AddToPrnString(DetailRec, 'USA', 145, 3, Justification::Left, ' ');
-            AddToPrnString(DetailRec, ' ', 148, 2, Justification::Left, ' ');
-            AddToPrnString(DetailRec, ' ', 150, 2, Justification::Left, ' ');
-            AddToPrnString(DetailRec, 'N', 152, 1, Justification::Left, ' ');                       // No Optional Records Follow
+        AddToPrnString(DetailRec, RecipientBankAcctNo, 52, 18, Justification::Left, ' ');
+        AddToPrnString(DetailRec, ' ', 70, 1, Justification::Left, ' ');
+        AddAmtToPrnString(DetailRec, PaymentAmount, 71, 10);
+        // Payment Amount
+        AddToPrnString(DetailRec, ' ', 81, 6, Justification::Left, ' ');
+        AddNumToPrnString(DetailRec, ExportEFTRB.JulianDate(SettleDate), 87, 7);
+        // Payment Date
+        AddToPrnString(DetailRec, AcctName, 94, 30, Justification::Left, ' ');
+        // Customer Name
+        AddToPrnString(DetailRec, Format(AcctLanguage), 124, 1, Justification::Left, ' ');
+        // Language Code
+        AddToPrnString(DetailRec, ' ', 125, 1, Justification::Left, ' ');
+        AddToPrnString(DetailRec, BankAccount."Client Name", 126, 15, Justification::Left, ' ');// Client Name
+        if RecipientBankAcctCurrencyCode = '' then
+            AddToPrnString(DetailRec, CurrencyType, 141, 3, Justification::Left, ' ')
+        else
+            AddToPrnString(DetailRec, RecipientBankAcctCurrencyCode, 141, 3, Justification::Left, ' ');
+        AddToPrnString(DetailRec, ' ', 144, 1, Justification::Left, ' ');
+        if RecipientCountryCode = 'CA' then
+            AddToPrnString(DetailRec, 'CAN', 145, 3, Justification::Left, ' ')
+        else
+            if RecipientCountryCode = 'US' then
+                AddToPrnString(DetailRec, 'USA', 145, 3, Justification::Left, ' ');
+        AddToPrnString(DetailRec, ' ', 148, 2, Justification::Left, ' ');
+        AddToPrnString(DetailRec, ' ', 150, 2, Justification::Left, ' ');
+        AddToPrnString(DetailRec, 'N', 152, 1, Justification::Left, ' ');
+        // No Optional Records Follow
+        ExportPrnString(DetailRec);
+        IATAddressInfo1Rec := '';
+        AddNumToPrnString(IATAddressInfo1Rec, NoOfRec, 1, 6);
+        AddToPrnString(IATAddressInfo1Rec, 'C', 7, 1, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo1Rec, 'AD1', 8, 3, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo1Rec, BankAccount."Client No.", 11, 10, Justification::Left, '0');
+        AddToPrnString(IATAddressInfo1Rec, CompanyInformation.Name, 21, 30, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo1Rec, CopyStr(CompanyInformation.Address, 1, 35) + ' ' +
+          CopyStr(CompanyInformation."Address 2", 1, 35), 51, 35, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo1Rec, CompanyInformation.City + '*' + CompanyInformation.County +
+          '\', 86, 35, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo1Rec, CompanyInformation."Country/Region Code" + '*' + CompanyInformation."Post Code" +
+          '\', 121, 32, Justification::Left, ' ');
 
-            ExportPrnString(DetailRec);
-            IATAddressInfo1Rec := '';
-            AddNumToPrnString(IATAddressInfo1Rec, NoOfRec, 1, 6);
-            AddToPrnString(IATAddressInfo1Rec, 'C', 7, 1, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo1Rec, 'AD1', 8, 3, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo1Rec, BankAccount."Client No.", 11, 10, Justification::Left, '0');
-            AddToPrnString(IATAddressInfo1Rec, CompanyInformation.Name, 21, 30, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo1Rec, CopyStr(CompanyInformation.Address, 1, 35) + ' ' +
-              CopyStr(CompanyInformation."Address 2", 1, 35), 51, 35, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo1Rec, CompanyInformation.City + '*' + CompanyInformation.County +
-              '\', 86, 35, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo1Rec, CompanyInformation."Country/Region Code" + '*' + CompanyInformation."Post Code" +
-              '\', 121, 32, Justification::Left, ' ');
+        ExportPrnString(IATAddressInfo1Rec);
+        NoOfCustInfoRec += 1;
 
-            ExportPrnString(IATAddressInfo1Rec);
-            NoOfCustInfoRec += 1;
+        IATAddressInfo2Rec := '';
+        AddNumToPrnString(IATAddressInfo2Rec, NoOfRec, 1, 6);
+        AddToPrnString(IATAddressInfo2Rec, 'C', 7, 1, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo2Rec, 'AD2', 8, 3, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo2Rec, BankAccount."Client No.", 11, 10, Justification::Left, '0');
+        AddToPrnString(IATAddressInfo2Rec, RecipientAddress, 21, 35, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo2Rec, RecipientCity + '*' + RecipientCounty + '\', 56, 35, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo2Rec, RecipientCountryCode + '*' + RecipientPostCode + '\', 91, 35, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo2Rec, Format(GenJournalLine."Transaction Type Code"), 126, 3, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo2Rec, GenJournalLine."Company Entry Description", 129, 10, Justification::Left, ' ');
+        AddToPrnString(IATAddressInfo2Rec, ' ', 139, 14, Justification::Left, ' ');
 
-            IATAddressInfo2Rec := '';
-            AddNumToPrnString(IATAddressInfo2Rec, NoOfRec, 1, 6);
-            AddToPrnString(IATAddressInfo2Rec, 'C', 7, 1, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo2Rec, 'AD2', 8, 3, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo2Rec, BankAccount."Client No.", 11, 10, Justification::Left, '0');
-            AddToPrnString(IATAddressInfo2Rec, RecipientAddress, 21, 35, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo2Rec, RecipientCity + '*' + RecipientCounty + '\', 56, 35, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo2Rec, RecipientCountryCode + '*' + RecipientPostCode + '\', 91, 35, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo2Rec, Format("Transaction Type Code"), 126, 3, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo2Rec, "Company Entry Description", 129, 10, Justification::Left, ' ');
-            AddToPrnString(IATAddressInfo2Rec, ' ', 139, 14, Justification::Left, ' ');
+        ExportPrnString(IATAddressInfo2Rec);
+        NoOfCustInfoRec += +1;
 
-            ExportPrnString(IATAddressInfo2Rec);
+        if (GenJournalLine."Payment Related Information 1" <> '') or (GenJournalLine."Payment Related Information 2" <> '') then begin
+            IATRemittanceRec := '';
+            AddNumToPrnString(IATRemittanceRec, NoOfRec, 1, 6);
+            AddToPrnString(IATRemittanceRec, 'C', 7, 1, Justification::Left, ' ');
+            AddToPrnString(IATRemittanceRec, 'REM', 8, 3, Justification::Left, ' ');
+            AddToPrnString(IATRemittanceRec, BankAccount."Client No.", 11, 10, Justification::Left, '0');
+            AddToPrnString(IATRemittanceRec, GenJournalLine."Payment Related Information 1", 21, 80, Justification::Left, ' ');
+            AddToPrnString(IATRemittanceRec, GenJournalLine."Payment Related Information 2", 101, 52, Justification::Left, ' ');
+
+            ExportPrnString(IATRemittanceRec);
             NoOfCustInfoRec += +1;
-
-            if ("Payment Related Information 1" <> '') or ("Payment Related Information 2" <> '') then begin
-                IATRemittanceRec := '';
-                AddNumToPrnString(IATRemittanceRec, NoOfRec, 1, 6);
-                AddToPrnString(IATRemittanceRec, 'C', 7, 1, Justification::Left, ' ');
-                AddToPrnString(IATRemittanceRec, 'REM', 8, 3, Justification::Left, ' ');
-                AddToPrnString(IATRemittanceRec, BankAccount."Client No.", 11, 10, Justification::Left, '0');
-                AddToPrnString(IATRemittanceRec, "Payment Related Information 1", 21, 80, Justification::Left, ' ');
-                AddToPrnString(IATRemittanceRec, "Payment Related Information 2", 101, 52, Justification::Left, ' ');
-
-                ExportPrnString(IATRemittanceRec);
-                NoOfCustInfoRec += +1;
-            end;
         end;
     end;
 

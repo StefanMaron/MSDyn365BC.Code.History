@@ -20,7 +20,8 @@ report 10211 "Job Actual to Budget (Price)"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Projects/Project/Reports/JobActualtoBudgetPrice.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Job Actual to Budget (Price)';
+    Caption = 'Project Actual to Budget (Price)';
+    AdditionalSearchTerms = 'Job Actual to Budget (Price)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -160,7 +161,7 @@ report 10211 "Job Actual to Budget (Price)"
                         trigger OnAfterGetRecord()
                         begin
                             Job.SetJobDiffBuff(
-                              JobDiffBuff, "Job No.", "Job Task"."Job Task No.", "Job Task"."Job Task Type", Type.AsInteger(), "No.",
+                              JobDiffBuff, "Job No.", "Job Task"."Job Task No.", "Job Task"."Job Task Type".AsInteger(), Type.AsInteger(), "No.",
                               "Location Code", "Variant Code", "Unit of Measure Code", "Work Type Code");
                             if JobDiffBuff.Find() then begin
                                 JobDiffBuff."Budgeted Quantity" := JobDiffBuff."Budgeted Quantity" + Quantity;
@@ -202,7 +203,7 @@ report 10211 "Job Actual to Budget (Price)"
                         trigger OnAfterGetRecord()
                         begin
                             Job.SetJobDiffBuff(
-                              JobDiffBuff, "Job No.", "Job Task"."Job Task No.", "Job Task"."Job Task Type", Type.AsInteger(), "No.",
+                              JobDiffBuff, "Job No.", "Job Task"."Job Task No.", "Job Task"."Job Task Type".AsInteger(), Type.AsInteger(), "No.",
                               "Location Code", "Variant Code", "Unit of Measure Code", "Work Type Code");
 
                             if JobDiffBuff.Find() then begin
@@ -323,22 +324,20 @@ report 10211 "Job Actual to Budget (Price)"
 
                         trigger OnAfterGetRecord()
                         begin
-                            with JobDiffBuff do begin
-                                case Number of
-                                    0:
-                                        exit;
-                                    1:
-                                        Find('-');
-                                    else
-                                        Next();
-                                end;
-
-                                Variance := "Line Amount" - "Budgeted Line Amount";
-                                if "Budgeted Line Amount" = 0 then
-                                    "Variance%" := 0
+                            case Number of
+                                0:
+                                    exit;
+                                1:
+                                    JobDiffBuff.Find('-');
                                 else
-                                    "Variance%" := 100 * Variance / "Budgeted Line Amount";
+                                    JobDiffBuff.Next();
                             end;
+
+                            Variance := JobDiffBuff."Line Amount" - JobDiffBuff."Budgeted Line Amount";
+                            if JobDiffBuff."Budgeted Line Amount" = 0 then
+                                "Variance%" := 0
+                            else
+                                "Variance%" := 100 * Variance / JobDiffBuff."Budgeted Line Amount";
 
                             if PrintToExcel then
                                 MakeExcelDataBody();
@@ -346,11 +345,9 @@ report 10211 "Job Actual to Budget (Price)"
 
                         trigger OnPreDataItem()
                         begin
-                            with JobDiffBuff do begin
-                                Reset();
-                                SetRange("Job No.", "Job Task"."Job No.");
-                                SetRange("Job Task No.", "Job Task"."Job Task No.");
-                            end;
+                            JobDiffBuff.Reset();
+                            JobDiffBuff.SetRange("Job No.", "Job Task"."Job No.");
+                            JobDiffBuff.SetRange("Job Task No.", "Job Task"."Job Task No.");
                             if "Job Task"."Job Task Type" in ["Job Task"."Job Task Type"::Heading, "Job Task"."Job Task Type"::"Begin-Total"] then
                                 SetRange(Number, 0, JobDiffBuff.Count)
                             else
@@ -362,7 +359,7 @@ report 10211 "Job Actual to Budget (Price)"
                     begin
                         JobDiffBuff.Reset();
 
-                        JobTaskTypeNo := "Job Task"."Job Task Type";
+                        JobTaskTypeNo := "Job Task"."Job Task Type".AsInteger();
                         PageGroupNo := NextPageGroupNo;
                         if "New Page" and ((JobTaskTypeNo = 1) or (JobTaskTypeNo = 3)) then
                             NextPageGroupNo := PageGroupNo + 1;
@@ -459,30 +456,30 @@ report 10211 "Job Actual to Budget (Price)"
         JobTaskFilter: Text;
         Variance: Decimal;
         "Variance%": Decimal;
-        Text000: Label 'Actual Price to Budget Price for Job %1';
+        Text000: Label 'Actual Price to Budget Price for Project %1';
         Text001: Label 'Budgeted Amounts are per the Budget';
         Text002: Label 'Budgeted Amounts are per the Contract';
         BudgetAmountsPer: Option Schedule,Contract;
         BudgetOptionText: Text[50];
         ActualAmountsPer: Option Usage,Invoices;
         ActualOptionText: Text[50];
-        Text003: Label 'Actual Amounts are per Job Usage';
+        Text003: Label 'Actual Amounts are per Project Usage';
         Text004: Label 'Actual Amounts are per Sales Invoices';
         PrintToExcel: Boolean;
-        Text005: Label 'When printing to Excel, you must select only one Job.';
+        Text005: Label 'When printing to Excel, you must select only one Project.';
         Text101: Label 'Data';
-        Text102: Label 'Job Actual to Budget (Price)';
+        Text102: Label 'Project Actual to Budget (Price)';
         Text103: Label 'Company Name';
         Text104: Label 'Report No.';
         Text105: Label 'Report Name';
         Text106: Label 'User ID';
         Text107: Label 'Date / Time';
-        Text108: Label 'Job Filters';
-        Text109: Label 'Job Task Filters';
+        Text108: Label 'Project Filters';
+        Text109: Label 'Project Task Filters';
         Text110: Label 'Variance';
         Text111: Label 'Percent Variance';
         Text112: Label 'Budget Option';
-        Text113: Label 'Job Information:';
+        Text113: Label 'Project Information:';
         Text114: Label 'Starting / Ending Dates';
         Text115: Label 'Actual Total Price';
         Text116: Label 'Actual Option';
@@ -491,15 +488,15 @@ report 10211 "Job Actual to Budget (Price)"
         NextPageGroupNo: Integer;
         JobTaskTypeNo: Integer;
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        Job_DescriptionCaptionLbl: Label 'Job Description';
+        Job_DescriptionCaptionLbl: Label 'Project Description';
         VarianceCaptionLbl: Label 'Variance';
         JobDiffBuff__Budgeted_Line_Amount_CaptionLbl: Label 'Budgeted Total Price';
         JobDiffBuff__Line_Amount_CaptionLbl: Label 'Actual Total Price';
         JobDiffBuff__No__CaptionLbl: Label 'No.';
         FORMAT_JobDiffBuff_Type_CaptionLbl: Label 'Type';
         Variance__CaptionLbl: Label 'Percent Variance';
-        PADSTR____2____Job_Task__Indentation_____Job_Task__Description_Control1480005CaptionLbl: Label 'Job Task Description';
-        Job_Task___Job_Task_No___Control1480006CaptionLbl: Label 'Job Task No.';
+        PADSTR____2____Job_Task__Indentation_____Job_Task__Description_Control1480005CaptionLbl: Label 'Project Task Description';
+        Job_Task___Job_Task_No___Control1480006CaptionLbl: Label 'Project Task No.';
         JobDiffBuff_DescriptionCaptionLbl: Label 'Description';
 
     procedure GetItemDescription(Type: Option Resource,Item,"G/L Account"; No: Code[20]): Text[50]

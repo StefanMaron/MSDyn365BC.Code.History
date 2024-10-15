@@ -276,7 +276,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
         Assert.IsFalse(
-          ServiceShipmentLine.FindFirst,
+          ServiceShipmentLine.FindFirst(),
           StrSubstNo(
             ServiceShipLineMustNotExist, ServiceShipmentLine.FieldCaption("Document No."), ServiceShipmentLine."Document No.",
             ServiceShipmentLine.FieldCaption("Line No."), ServiceShipmentLine."Line No.", ServiceShipmentLine.TableCaption()));
@@ -349,7 +349,7 @@ codeunit 136117 "Service Posting - Undo Ship"
 
         // 3. Verify: Error is generated on Undo Shipment after previous undone.
         asserterror UndoShipment(ServiceHeader."No.");
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
     end;
 
     [Test]
@@ -392,7 +392,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // 2. Exercise: Create Service Order, select Item Tracking for Service Line and Post it as Ship.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         CreateServiceLine(ServiceHeader, PurchaseLine."No.", PurchaseLine.Quantity, ServiceItemLine."Line No.");
 
@@ -432,7 +432,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // 2. Exercise: Create Service Order, select Lot No. for Service Line and Post it as Ship.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         CreateServiceLine(ServiceHeader, PurchaseLine."No.", PurchaseLine.Quantity, ServiceItemLine."Line No.");
 
@@ -570,7 +570,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         OpenItemTrackingLinesForPurchaseOrder(PurchaseHeader."No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         CreateServiceLine(ServiceHeader, PurchaseLine."No.", PurchaseLine.Quantity + LibraryRandom.RandInt(10), ServiceItemLine."Line No.");  // Use random for Quantity.
         UpdateQuantityToShipOnServiceLine(ServiceHeader."No.");
@@ -579,9 +579,9 @@ codeunit 136117 "Service Posting - Undo Ship"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
         // 2. Exercise: Open Posted Service Shipment page and perform Undo Shipment from it.
-        PostedServiceShipment.OpenView;
+        PostedServiceShipment.OpenView();
         PostedServiceShipment.FILTER.SetFilter("No.", FindServiceShipmentHeader(ServiceHeader."No."));
-        PostedServiceShipment.ServShipmentItemLines.ServiceShipmentLines.Invoke;
+        PostedServiceShipment.ServShipmentItemLines.ServiceShipmentLines.Invoke();
 
         // 3. Verify: Verify Service Line after Undo Shipment.
         VerifyQtyShippedAfterUndoShip(ServiceHeader."No.");
@@ -601,8 +601,8 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Item Tracking Code", ItemCategoryCode);
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -708,7 +708,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(
-              ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+              ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
         until ServiceItemLine.Next() = 0;
@@ -735,7 +735,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         // Create a new Service Order - Service Header, Service Item, Service Item Line.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         CreateServiceItemLine(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
     end;
@@ -744,7 +744,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         // Create a new Service Order - Service Header, Service Item, Service Item Line.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         CreateServiceItemLine(ServiceHeader);
         CreateServiceLineForResource(ServiceHeader);
         CreateServiceLineForCost(ServiceHeader);
@@ -786,18 +786,18 @@ codeunit 136117 "Service Posting - Undo Ship"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke;
+        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke();
     end;
 
     local procedure OpenServiceLinesPage(No: Code[20])
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
     end;
 
     local procedure SetupCostPostingInventory(AutomaticCostPosting: Boolean; ExpectedCostPostingToGL: Boolean)
@@ -807,7 +807,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         // Sometimes this function triggers a message and a confirm dialog
         // This is to make sure the corresponding handlers are always executed
         // (otherwise tests would fail)
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
 
         InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
@@ -819,7 +819,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         FindServiceLine(ServiceLine, ServiceLine."Document No.");
         repeat
-            ServiceLine.Validate("Qty. to Invoice", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Invoice", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -829,7 +829,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         FindServiceLine(ServiceLine, ServiceLine."Document No.");
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
-            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -1089,7 +1089,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     [Scope('OnPrem')]
     procedure UndoShipmentFromServiceShipmentLinesHandler(var PostedServiceShipmentLines: TestPage "Posted Service Shipment Lines")
     begin
-        PostedServiceShipmentLines.UndoShipment.Invoke;
+        PostedServiceShipmentLines.UndoShipment.Invoke();
     end;
 
     [ModalPageHandler]
@@ -1098,17 +1098,17 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         Commit();
         if SetHandler then
-            ItemTrackingLines."Assign Lot No.".Invoke
+            ItemTrackingLines."Assign Lot No.".Invoke()
         else
-            ItemTrackingLines."Select Entries".Invoke;
-        ItemTrackingLines.OK.Invoke;
+            ItemTrackingLines."Select Entries".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
         Commit();
     end;
 
@@ -1116,7 +1116,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     [Scope('OnPrem')]
     procedure ServiceLinesPageHandler(var ServiceLines: TestPage "Service Lines")
     begin
-        ServiceLines.ItemTrackingLines.Invoke;
+        ServiceLines.ItemTrackingLines.Invoke();
     end;
 
     [ModalPageHandler]
@@ -1125,10 +1125,10 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         Commit();
         if SetHandler then
-            ItemTrackingLines."Assign Serial No.".Invoke
+            ItemTrackingLines."Assign Serial No.".Invoke()
         else
-            ItemTrackingLines."Select Entries".Invoke;
-        ItemTrackingLines.OK.Invoke;
+            ItemTrackingLines."Select Entries".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1136,7 +1136,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(CreateNewLotNo);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ConfirmHandler]

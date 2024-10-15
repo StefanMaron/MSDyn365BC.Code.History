@@ -7,6 +7,7 @@ namespace Microsoft;
 table 10240 "B10 Adjustment"
 {
     Caption = 'B10 Adjustment';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -23,12 +23,12 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         // [SCENARIO] ClearBuffer() makes ChangeGlobalDimLogMgt clear
         Initialize();
 
-        MockChangeGlobalDimLogEntry;
+        MockChangeGlobalDimLogEntry();
         ChangeGlobalDimLogMgt.FillBuffer();
-        Assert.IsFalse(ChangeGlobalDimLogMgt.IsBufferClear, 'IsClear before ClearBuffer');
+        Assert.IsFalse(ChangeGlobalDimLogMgt.IsBufferClear(), 'IsClear before ClearBuffer');
 
         ChangeGlobalDimLogMgt.ClearBuffer();
-        Assert.IsTrue(ChangeGlobalDimLogMgt.IsBufferClear, 'IsClear after ClearBuffer');
+        Assert.IsTrue(ChangeGlobalDimLogMgt.IsBufferClear(), 'IsClear after ClearBuffer');
     end;
 
     [Test]
@@ -41,8 +41,8 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         // [SCENARIO] FillBuffer returns FALSE if table 483 is empty
         Initialize();
 
-        Assert.IsFalse(ChangeGlobalDimLogMgt.FillBuffer, 'FillBuffer');
-        Assert.IsTrue(ChangeGlobalDimLogMgt.IsBufferClear, 'IsBufferClear');
+        Assert.IsFalse(ChangeGlobalDimLogMgt.FillBuffer(), 'FillBuffer');
+        Assert.IsTrue(ChangeGlobalDimLogMgt.IsBufferClear(), 'IsBufferClear');
     end;
 
     [Test]
@@ -54,9 +54,9 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
     begin
         // [SCENARIO] FillBuffer returns TRUE if table 483 is not empty
         Initialize();
-        MockChangeGlobalDimLogEntry;
-        Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer, 'FillBuffer');
-        Assert.IsFalse(ChangeGlobalDimLogMgt.IsBufferClear, 'IsBufferClear');
+        MockChangeGlobalDimLogEntry();
+        Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer(), 'FillBuffer');
+        Assert.IsFalse(ChangeGlobalDimLogMgt.IsBufferClear(), 'IsBufferClear');
     end;
 
     [Test]
@@ -71,12 +71,12 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         // [SCENARIO] ExcludeTable removed table from the temp list
         Initialize();
         // [GIVEN] LogEntry for table "Customer"
-        TableID := MockChangeGlobalDimLogEntry;
-        Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer, 'FillBuffer');
+        TableID := MockChangeGlobalDimLogEntry();
+        Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer(), 'FillBuffer');
         // [WHEN] run ExcludeTable(21)
         ChangeGlobalDimLogMgt.ExcludeTable(TableID);
         // [THEN] Insert of a new customer is not blocked
-        Assert.IsTrue(Customer.Insert, 'customer should be inserted');
+        Assert.IsTrue(Customer.Insert(), 'customer should be inserted');
     end;
 
     [Test]
@@ -92,15 +92,15 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         // [SCENARIO] ChangeGlobalDimLogEntry.DELETE(TRUE) removes table from the temp list
         Initialize();
         // [GIVEN] LogEntry for table "Customer"
-        TableID := MockChangeGlobalDimLogEntry;
-        Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer, 'FillBuffer');
+        TableID := MockChangeGlobalDimLogEntry();
+        Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer(), 'FillBuffer');
         // [WHEN] ChangeGlobalDimLogEntry.DELETE(TRUE)
         ChangeGlobalDimLogEntry.Get(TableID);
         ChangeGlobalDimLogEntry.Delete(true);
 
         // [THEN] Insert of a new customer is not blocked
         ChangeGlobalDimLogEntry.Insert(); // to mock a block if TempBlockAllObjWithCaption contains Customer record
-        Assert.IsTrue(Customer.Insert, 'customer should be inserted');
+        Assert.IsTrue(Customer.Insert(), 'customer should be inserted');
     end;
 
     local procedure Initialize()

@@ -54,30 +54,6 @@ page 10129 "Posted Bank Rec. List"
             }
         }
     }
-#if not CLEAN21
-    actions
-    {
-        area(reporting)
-        {
-            action("Bank Reconciliation")
-            {
-                ObsoleteReason = 'Use the reports for W1 Bank Reconciliation instead. For example: Test Report, or Bank Statement Report';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-                ApplicationArea = Basic, Suite;
-                Caption = 'Bank Reconciliation';
-                Image = Worksheet;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = "Report";
-                RunObject = Report "Bank Reconciliation";
-                ToolTip = 'View the details of the posted bank reconciliation. ';
-            }
-        }
-        area(Promoted)
-        {
-        }
-    }
-#endif
 
     var
         NewPostedInBankStatementsNotificationMsg: Label 'Posted bank reconciliations are now kept in the Bank Account Statement List page.';

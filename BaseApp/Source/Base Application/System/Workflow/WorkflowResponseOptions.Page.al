@@ -192,7 +192,7 @@ page 1523 "Workflow Response Options"
                     group(Control18)
                     {
                         ShowCaption = false;
-                        Visible = NOT ShowApprovalLimitType;
+                        Visible = not ShowApprovalLimitType;
                         field("Workflow User Group Code"; Rec."Workflow User Group Code")
                         {
                             ApplicationArea = Suite;
@@ -280,7 +280,7 @@ page 1523 "Workflow Response Options"
                     group(Control32)
                     {
                         ShowCaption = false;
-                        Visible = NOT ApplyAllValues;
+                        Visible = not ApplyAllValues;
                         field(TableFieldApply; TableFieldCaption)
                         {
                             ApplicationArea = Suite;

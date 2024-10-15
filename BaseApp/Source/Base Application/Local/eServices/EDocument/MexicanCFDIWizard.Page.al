@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -267,7 +267,6 @@ page 27010 "Mexican CFDI Wizard"
                 trigger OnAction()
                 var
                     GuidedExperience: Codeunit "Guided Experience";
-                    Info: ModuleInfo;
                 begin
                     Finished := true;
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Mexican CFDI Wizard");
@@ -581,12 +580,11 @@ page 27010 "Mexican CFDI Wizard"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do
-            if FindFirst() then begin
-                "SAT Postal Code" := PostCode;
-                "SAT Tax Regime Classification" := TaxScheme;
-                Modify();
-            end;
+        if CompanyInformation.Get() then begin
+            CompanyInformation."SAT Postal Code" := PostCode;
+            CompanyInformation."SAT Tax Regime Classification" := TaxScheme;
+            CompanyInformation.Modify();
+        end;
     end;
 
     local procedure ConfirmCustomerConsent(): Boolean

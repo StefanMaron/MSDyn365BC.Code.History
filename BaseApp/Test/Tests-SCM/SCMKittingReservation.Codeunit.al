@@ -553,7 +553,7 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryVariableStorage.Enqueue(true);  // Enqueue for ReservationPageHandler.
         LibraryVariableStorage.Enqueue(ReservationMode::ReserveFromCurrentLine);  // Enqueue for ReservationPageHandler.
         CreateSalesOrder(
-          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, ComponentItemNo, Quantity / 4, LocationWhite.Code, true, false);  // Value required for Partial Reservation for Partial Quantity. Reserve as TRUE.
+          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime(), ComponentItemNo, Quantity / 4, LocationWhite.Code, true, false);  // Value required for Partial Reservation for Partial Quantity. Reserve as TRUE.
         CreatePickFromSalesOrder(SalesHeader2, ComponentItemNo, Quantity / 4, LocationWhite.Code);  // Value required for Partial Reservation for Partial Quantity.
         CreateAssemblyOrderAndUpdateLocationOnAssemblyLine(AssemblyLine, Item."No.", ComponentItem."No.", Quantity, LocationWhite.Code);
 
@@ -856,8 +856,8 @@ codeunit 137099 "SCM Kitting Reservation"
         Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);
         CreateItemTrackingCode(ItemTrackingCode);
         CreateAssemblyItemWithComponent(
-          Item, Item."Assembly Policy"::"Assemble-to-Order", Quantity, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode);
-        CreateSalesOrder(SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", Quantity + Quantity2, '', false, false);  // Greater Quantity Value Required for Sales Order.
+          Item, Item."Assembly Policy"::"Assemble-to-Order", Quantity, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode());
+        CreateSalesOrder(SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime(), Item."No.", Quantity + Quantity2, '', false, false);  // Greater Quantity Value Required for Sales Order.
         CreateAndPostItemJournalLine(Item."No.", SalesLine.Quantity, true);  // Use Tracking as TRUE.
         if QtyTrackedGreaterThanReservation then
             Quantity := Quantity2;
@@ -905,9 +905,9 @@ codeunit 137099 "SCM Kitting Reservation"
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemTrackingCode(ItemTrackingCode);
         CreateAssemblyItemWithComponent(
-          Item, Item."Assembly Policy"::"Assemble-to-Order", Quantity, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode);
+          Item, Item."Assembly Policy"::"Assemble-to-Order", Quantity, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode());
         CreateSalesOrder(
-          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", Quantity + LibraryRandom.RandDec(10, 2), '',
+          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime(), Item."No.", Quantity + LibraryRandom.RandDec(10, 2), '',
           false, false);  // Greater Quantity Value Required for Sales Order.
         CreatePurchaseOrder(PurchaseHeader, Item."No.", SalesLine.Quantity, Item."Base Unit of Measure", false);
         UpdateQuantityBaseOnReservationEntry(Item."No.", Quantity);
@@ -973,7 +973,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
         // Exercise: Click Get Warehouse Document in Pick Worksheet.
         LibraryVariableStorage.Enqueue(WarehouseShipmentHeader."No."); // Enqueue for PickSelectionPageHandler.
-        InvokeGetWarehouseDocumentOnPickWorksheet;
+        InvokeGetWarehouseDocumentOnPickWorksheet();
 
         // Verify: Verify Pick Worksheet Lines are correct.
         VerifyWarehouseWorksheetLines(WarehouseShipmentHeader."No.", AsmItem."No.");
@@ -1173,7 +1173,7 @@ codeunit 137099 "SCM Kitting Reservation"
         CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), CompItemNo, Qty, LocationWhite.Code, false, true);
 
         // [WHEN] Open reservation page for the sales line.
-        EnqueueValuesForConfirmHandler(LibraryInventory.GetReservConfirmText, true);
+        EnqueueValuesForConfirmHandler(LibraryInventory.GetReservConfirmText(), true);
         LibraryVariableStorage.Enqueue(Qty);
         LibraryVariableStorage.Enqueue(0);
         SalesLine.ShowReservation();
@@ -1264,8 +1264,8 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting Reservation");
 
         NoSeriesSetup();
-        CreateLocationSetup;
-        ItemJournalSetup;
+        CreateLocationSetup();
+        ItemJournalSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
@@ -1297,11 +1297,11 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        LibrarySales.SetOrderNoSeriesInSetup;
+        LibrarySales.SetOrderNoSeriesInSetup();
 
         AssemblySetup.Get();
-        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssemblySetup.Modify(true);
     end;
 
@@ -1404,7 +1404,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
     local procedure CreateAndPostItemJournalLineFromWhseAdjustment(Item: Record Item)
     begin
-        UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, LibraryUtility.GetGlobalNoSeriesCode());
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
@@ -1422,7 +1422,7 @@ codeunit 137099 "SCM Kitting Reservation"
     local procedure CreateAndReleaseAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; AssemblyItemNo: Code[20]; LocationCode: Code[10]; AssemblyItemQty: Decimal)
     begin
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, AssemblyItemNo, LocationCode, AssemblyItemQty, '');
+          AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime(), AssemblyItemNo, LocationCode, AssemblyItemQty, '');
         LibraryAssembly.ReleaseAO(AssemblyHeader);
     end;
 
@@ -1498,7 +1498,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         CreateItemTrackingCode(ItemTrackingCode);
         CreateAssemblyItem(KitItem, AssemblyPolicy, '', '');
-        CreateTrackedComponentItem(ComponentItem, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode);
+        CreateTrackedComponentItem(ComponentItem, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode());
         LibraryAssembly.CreateAssemblyListComponent(
           BOMComponent.Type::Item, ComponentItem."No.", KitItem."No.", '', BOMComponent."Resource Usage Type", Quantity, true);
         exit(ComponentItem."No.");
@@ -1520,7 +1520,7 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         DequeueVariable: Variant;
     begin
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, ItemNo, '', Quantity, '');  // Location Code, Variant Code as Blank.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime(), ItemNo, '', Quantity, '');  // Location Code, Variant Code as Blank.
         if UseTracking then begin
             LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);  // Enqueue for ItemTrackingLinesPageHandler.
             AssemblyHeader.OpenItemTrackingLines();
@@ -1550,7 +1550,7 @@ codeunit 137099 "SCM Kitting Reservation"
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemTrackingCode(ItemTrackingCode);
         CreateAssemblyItemWithComponent(
-          Item, Item."Assembly Policy"::"Assemble-to-Stock", Quantity, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode);
+          Item, Item."Assembly Policy"::"Assemble-to-Stock", Quantity, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode());
         LotNo := CreateAssemblyOrder(AssemblyHeader, Item."No.", Quantity * 2, UseTracking);  // Large Quantity Required for Assembly Order.
     end;
 
@@ -1588,11 +1588,11 @@ codeunit 137099 "SCM Kitting Reservation"
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemTrackingCode(ItemTrackingCode);
         CreateAssemblyItemWithComponent(
-          Item, Item."Assembly Policy"::"Assemble-to-Stock", Quantity, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode);
+          Item, Item."Assembly Policy"::"Assemble-to-Stock", Quantity, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode());
         CreateAssemblyOrder(AssemblyHeader, Item."No.", Quantity * 2, true);  // Large Quantity Required for Assembly Order. Use Tracking as TRUE.
         CreateAndPostItemJournalLine(Item."No.", AssemblyHeader.Quantity, true);  // Use Tracking as TRUE.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);  // Enqueue for ItemTrackingLinesPageHandler.
-        CreateSalesOrder(SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", AssemblyHeader.Quantity, '', false, true);  // Use Tracking as TRUE.
+        CreateSalesOrder(SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime(), Item."No.", AssemblyHeader.Quantity, '', false, true);  // Use Tracking as TRUE.
     end;
 
     local procedure CreateInitialSetupForSalesDocument(var Item: Record Item; var PurchaseHeader: Record "Purchase Header") ComponentItemNo: Code[20]
@@ -1661,7 +1661,7 @@ codeunit 137099 "SCM Kitting Reservation"
         DequeueVariable: Variant;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        PurchaseHeader.Validate("Order Date", CalculateDateUsingDefaultSafetyLeadTime);
+        PurchaseHeader.Validate("Order Date", CalculateDateUsingDefaultSafetyLeadTime());
         PurchaseHeader.Validate("Posting Date", PurchaseHeader."Order Date");
         PurchaseHeader.Modify(true);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, ItemNo, Quantity, UnitOfMeasureCode);
@@ -1747,13 +1747,13 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, SerialTracking, LotTracking);
         CreateAssemblyItemWithComponent(
           Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandDec(10, 2),
-          ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode);
+          ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode());
         UpdateOrderTrackingPolicyOnItem(Item, Item."Order Tracking Policy"::"Tracking Only");
 
         // Exercise: Create Sales Order, the Assembly Order will be generated.
         // Verify: No error pops up.
         CreateSalesOrder(
-          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", LibraryRandom.RandInt(10), '', false, false);
+          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime(), Item."No.", LibraryRandom.RandInt(10), '', false, false);
 
         // Verify: Reservation Entries are created.
         VerifyReservationEntry(
@@ -1793,7 +1793,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
     local procedure EnqueueValuesForHandlers(EnqueueConfirm: Boolean; EnqueueReservation: Boolean)
     begin
-        LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText());  // Enqueue for ConfirmHandler.
         LibraryVariableStorage.Enqueue(EnqueueConfirm);  // Enqueue for ConfirmHandler.
         LibraryVariableStorage.Enqueue(EnqueueReservation);  // Enqueue for ReservationPageHandler.
         LibraryVariableStorage.Enqueue(ReservationMode::ReserveFromCurrentLine);  // Enqueue for ReservationPageHandler.
@@ -1902,9 +1902,9 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         PickWorksheetTestPage: TestPage "Pick Worksheet";
     begin
-        PickWorksheetTestPage.Trap;
-        PickWorksheetTestPage.OpenEdit;
-        PickWorksheetTestPage."Get Warehouse Documents".Invoke;
+        PickWorksheetTestPage.Trap();
+        PickWorksheetTestPage.OpenEdit();
+        PickWorksheetTestPage."Get Warehouse Documents".Invoke();
         PickWorksheetTestPage.Close();
     end;
 
@@ -1921,12 +1921,12 @@ codeunit 137099 "SCM Kitting Reservation"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", DocumentNo);
         SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure PickAndPostPartialAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var PostedAssemblyHeader: Record "Posted Assembly Header"; QtyToAssemble: Decimal; QtyPicked: Decimal)
@@ -2060,7 +2060,7 @@ codeunit 137099 "SCM Kitting Reservation"
                 repeat
                     Validate("Qty. to Handle", QtyPicked);
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
         CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
     end;
@@ -2229,41 +2229,41 @@ codeunit 137099 "SCM Kitting Reservation"
         case TrackingAction of
             ItemTrackingMode::AssignLotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;
+                    ItemTrackingLines."Assign Lot No.".Invoke();
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
                 end;
             ItemTrackingMode::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             ItemTrackingMode::SetLotNo:
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhseItemTrackingLinePageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
-        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -2299,10 +2299,10 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         ReservationMode := DequeueVariable;
         if FindFirstRec then
-            Reservation.First;
+            Reservation.First();
         case ReservationMode of
             ReservationMode::ReserveFromCurrentLine:
-                Reservation."Reserve from Current Line".Invoke;
+                Reservation."Reserve from Current Line".Invoke();
             ReservationMode::Verify:
                 begin
                     LibraryVariableStorage.Dequeue(DequeueVariable);
@@ -2314,7 +2314,7 @@ codeunit 137099 "SCM Kitting Reservation"
                     VerifyReservationEntries(Reservation, PurchaseLineOrder, Quantity2);
                 end;
             ReservationMode::VerifyBlank:
-                Assert.IsFalse(Reservation.First, ReservationEntryShouldBeBlank);
+                Assert.IsFalse(Reservation.First(), ReservationEntryShouldBeBlank);
             ReservationMode::AvailableToReserve:
                 begin
                     LibraryVariableStorage.Dequeue(DequeueVariable);
@@ -2325,16 +2325,16 @@ codeunit 137099 "SCM Kitting Reservation"
                     Reservation.TotalAvailableQuantity.AssertEquals(Quantity2);
                 end;
         end;
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationModalPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.QtyAllocatedInWarehouse.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Reservation.TotalAvailableQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Reservation.OK.Invoke;
+        Reservation.QtyAllocatedInWarehouse.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation.TotalAvailableQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2347,7 +2347,7 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryVariableStorage.Dequeue(DocumentNo);
         PickSelectionTestPage.FILTER.SetFilter("Document Type", Format(WhsePickRequest."Document Type"::Shipment));
         PickSelectionTestPage.FILTER.SetFilter("Document No.", DocumentNo);
-        PickSelectionTestPage.OK.Invoke;
+        PickSelectionTestPage.OK().Invoke();
     end;
 }
 

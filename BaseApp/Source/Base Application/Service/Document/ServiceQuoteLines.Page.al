@@ -1,8 +1,10 @@
 ﻿namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Service.Setup;
@@ -416,6 +418,16 @@ page 5966 "Service Quote Lines"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Line"),
+                              "No." = field("Document No."),
+                              "Document Type" = field("Document Type"),
+                              "Line No." = field("Line No.");
+                Visible = false;
+            }
             part(Control1904739907; "Service Line FactBox")
             {
                 ApplicationArea = Service;
@@ -563,6 +575,23 @@ page 5966 "Service Quote Lines"
                         CurrPage.Update(true);
                     end;
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
             }
         }
         area(processing)
@@ -646,6 +675,20 @@ page 5966 "Service Quote Lines"
                         InsertTravelFee();
                     end;
                 }
+                action(SelectMultiItems)
+                {
+                    AccessByPermission = TableData Item = R;
+                    ApplicationArea = Service;
+                    Caption = 'Select items';
+                    Ellipsis = true;
+                    Image = NewItem;
+                    ToolTip = 'Add two or more items from the full list of available items.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.SelectMultipleItems();
+                    end;
+                }
                 action("Split &Resource Line")
                 {
                     ApplicationArea = Service;
@@ -689,6 +732,9 @@ page 5966 "Service Quote Lines"
                 actionref("Get Price_Promoted"; "Get Price")
                 {
                 }
+                actionref(SelectMultiItems_Promoted; SelectMultiItems)
+                {
+                }
             }
             group(Category_Line)
             {
@@ -701,6 +747,9 @@ page 5966 "Service Quote Lines"
                 {
                 }
                 actionref("Select Item &Substitution_Promoted"; "Select Item &Substitution")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }

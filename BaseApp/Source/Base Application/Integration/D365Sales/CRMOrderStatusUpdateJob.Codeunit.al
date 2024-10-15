@@ -6,6 +6,7 @@ namespace Microsoft.Integration.D365Sales;
 
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
+using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using System.Threading;
 
@@ -26,6 +27,8 @@ codeunit 5352 "CRM Order Status Update Job"
         OrderStatusReleasedTxt: Label 'The order status has changed to Released.';
         OrderShipmentCreatedTxt: Label 'A shipment has been created for the order.';
         OrderInvoiceCreatedTxt: Label 'An invoice has been created for the order.';
+        FailedToCreatePostErr: Label 'Failed to create a post on the entity wall of %1 with id %2.', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
 
     local procedure UpdateOrders(JobLogEntryNo: Integer)
     var
@@ -92,18 +95,31 @@ codeunit 5352 "CRM Order Status Update Job"
         if not CRMConnectionSetup."Is Enabled" then
             exit;
 
-        CRMPostBuffer.SetRange("Table ID", DATABASE::"Sales Header");
+        CRMPostBuffer.SetFilter("Table ID", Format(DATABASE::"Sales Header") + '|' + Format(Database::Customer));
         if not CRMPostBuffer.IsEmpty() then
             Result := true;
     end;
 
-    local procedure CreatePost(CRMSalesorder: Record "CRM Salesorder"; Message: Text)
+    [TryFunction]
+    local procedure TryCreatePost(var CRMSalesorder: Record "CRM Salesorder"; Message: Text)
     var
         CRMPost: Record "CRM Post";
     begin
         CRMPost.PostId := CreateGuid();
         CRMPost.RegardingObjectId := CRMSalesorder.SalesOrderId;
         CRMPost.RegardingObjectTypeCode := CRMPost.RegardingObjectTypeCode::salesorder;
+        CRMPost.Text := CopyStr(Message, 1, MaxStrLen(CRMPost.Text));
+        CRMPost.Insert();
+    end;
+
+    [TryFunction]
+    local procedure TryCreatePost(var CRMAccount: Record "CRM Account"; Message: Text)
+    var
+        CRMPost: Record "CRM Post";
+    begin
+        CRMPost.PostId := CreateGuid();
+        CRMPost.RegardingObjectId := CRMAccount.AccountId;
+        CRMPost.RegardingObjectTypeCode := CRMPost.RegardingObjectTypeCode::account;
         CRMPost.Text := CopyStr(Message, 1, MaxStrLen(CRMPost.Text));
         CRMPost.Insert();
     end;
@@ -125,12 +141,30 @@ codeunit 5352 "CRM Order Status Update Job"
         exit(true);
     end;
 
+    local procedure FindCoupledCRMAccount(var CRMAccount: Record "CRM Account"; Customer: Record Customer): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit(false);
+
+        if not CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId, CRMAccount.AccountId) then
+            exit(false);
+
+        if not CRMAccount.Find() then
+            exit(false);
+
+        exit(true);
+    end;
+
     [Scope('OnPrem')]
     procedure CreateStatusPostOnModifiedOrders() CreatedPosts: Integer
     var
         CRMPostBuffer: Record "CRM Post Buffer";
         TempCRMPostBuffer: Record "CRM Post Buffer" temporary;
     begin
+        CRMPostBuffer.ReadIsolation := CRMPostBuffer.ReadIsolation::ReadCommitted;
         CRMPostBuffer.SetRange("Table ID", DATABASE::"Sales Header");
         if not CRMPostBuffer.FindSet() then
             exit;
@@ -149,35 +183,72 @@ codeunit 5352 "CRM Order Status Update Job"
     local procedure ProcessCRMPostBufferEntry(var TempCRMPostBuffer: Record "CRM Post Buffer" temporary): Integer
     var
         CRMSalesorder: Record "CRM Salesorder";
+        CRMAccount: Record "CRM Account";
         SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        SalesHeaderFound: Boolean;
+        CustomerFound: Boolean;
     begin
         if TempCRMPostBuffer."Table ID" <> DATABASE::"Sales Header" then
-            exit(0);
+            if TempCRMPostBuffer."Table ID" <> Database::Customer then
+                exit(0);
 
-        if not SalesHeader.Get(TempCRMPostBuffer.RecId) then begin
+        if SalesHeader.Get(TempCRMPostBuffer.RecId) then
+            SalesHeaderFound := true
+        else
+            if Customer.Get(TempCRMPostBuffer.RecId) then
+                CustomerFound := true;
+
+        if not (CustomerFound or SalesHeaderFound) then begin
             DeleteCRMPostBufferEntry(TempCRMPostBuffer);
             exit(0);
         end;
 
-        if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
-            exit(0);
+        if SalesHeaderFound then begin
+            if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
+                exit(0);
 
-        if not FindCoupledCRMSalesOrder(CRMSalesorder, SalesHeader) then begin
+            if not FindCoupledCRMSalesOrder(CRMSalesorder, SalesHeader) then begin
+                DeleteCRMPostBufferEntry(TempCRMPostBuffer);
+                exit(0);
+            end;
+
+            case TempCRMPostBuffer.ChangeType of
+                TempCRMPostBuffer.ChangeType::SalesDocReleased:
+                    if not TryCreatePost(CRMSalesorder, OrderStatusReleasedTxt) then begin
+                        ClearLastError();
+                        Session.LogMessage('0000KOV', StrSubstNo(FailedToCreatePostErr, CRMSalesorder.TableCaption(), CRMSalesorder.OrderNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    end;
+                TempCRMPostBuffer.ChangeType::SalesShptHeaderCreated:
+                    if not TryCreatePost(CRMSalesorder, OrderShipmentCreatedTxt) then begin
+                        ClearLastError();
+                        Session.LogMessage('0000KOV', StrSubstNo(FailedToCreatePostErr, CRMSalesorder.TableCaption(), CRMSalesorder.OrderNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    end;
+                TempCRMPostBuffer.ChangeType::SalesInvHeaderCreated:
+                    if not TryCreatePost(CRMSalesorder, OrderInvoiceCreatedTxt) then begin
+                        ClearLastError();
+                        Session.LogMessage('0000KOV', StrSubstNo(FailedToCreatePostErr, CRMSalesorder.TableCaption(), CRMSalesorder.OrderNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    end;
+            end;
+
             DeleteCRMPostBufferEntry(TempCRMPostBuffer);
-            exit(0);
+            exit(1);
         end;
 
-        case TempCRMPostBuffer.ChangeType of
-            TempCRMPostBuffer.ChangeType::SalesDocReleased:
-                CreatePost(CRMSalesorder, OrderStatusReleasedTxt);
-            TempCRMPostBuffer.ChangeType::SalesShptHeaderCreated:
-                CreatePost(CRMSalesorder, OrderShipmentCreatedTxt);
-            TempCRMPostBuffer.ChangeType::SalesInvHeaderCreated:
-                CreatePost(CRMSalesorder, OrderInvoiceCreatedTxt);
-        end;
+        if CustomerFound then begin
+            if not FindCoupledCRMAccount(CRMAccount, Customer) then begin
+                DeleteCRMPostBufferEntry(TempCRMPostBuffer);
+                exit(0);
+            end;
 
-        DeleteCRMPostBufferEntry(TempCRMPostBuffer);
-        exit(1);
+            if not TryCreatePost(CRMAccount, TempCRMPostBuffer.Message) then begin
+                ClearLastError();
+                Session.LogMessage('0000M64', StrSubstNo(FailedToCreatePostErr, CRMAccount.TableCaption(), CRMAccount.AccountNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            end;
+
+            DeleteCRMPostBufferEntry(TempCRMPostBuffer);
+            exit(1);
+        end;
     end;
 
     local procedure DeleteCRMPostBufferEntry(var TempCRMPostBuffer: Record "CRM Post Buffer" temporary)

@@ -22,12 +22,11 @@ codeunit 952 "Time Sheet Chart Mgt."
 
     procedure OnOpenPage(var TimeSheetChartSetup: Record "Time Sheet Chart Setup")
     begin
-        with TimeSheetChartSetup do
-            if not Get(UserId) then begin
-                "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-                "Starting Date" := TimeSheetMgt.FindNearestTimeSheetStartDate(WorkDate());
-                Insert();
-            end;
+        if not TimeSheetChartSetup.Get(UserId) then begin
+            TimeSheetChartSetup."User ID" := CopyStr(UserId(), 1, MaxStrLen(TimeSheetChartSetup."User ID"));
+            TimeSheetChartSetup."Starting Date" := TimeSheetMgt.FindNearestTimeSheetStartDate(WorkDate());
+            TimeSheetChartSetup.Insert();
+        end;
     end;
 
     procedure UpdateData(var BusChartBuf: Record "Business Chart Buffer")
@@ -38,28 +37,26 @@ codeunit 952 "Time Sheet Chart Mgt."
     begin
         TimeSheetChartSetup.Get(UserId);
 
-        with BusChartBuf do begin
-            Initialize();
-            SetXAxis(Text001, "Data Type"::String);
+        BusChartBuf.Initialize();
+        BusChartBuf.SetXAxis(Text001, BusChartBuf."Data Type"::String);
 
-            AddColumns(BusChartBuf);
-            AddMeasures(BusChartBuf, TimeSheetChartSetup);
+        AddColumns(BusChartBuf);
+        AddMeasures(BusChartBuf, TimeSheetChartSetup);
 
-            if FindFirstMeasure(BusChartMapMeasure) then
-                repeat
-                    if FindFirstColumn(BusChartMapColumn) then
-                        repeat
-                            SetValue(
-                              BusChartMapMeasure.Name,
-                              BusChartMapColumn.Index,
-                              CalcAmount(
-                                TimeSheetChartSetup,
-                                BusChartMapColumn.Name,
-                                TimeSheetChartSetup.MeasureIndex2MeasureType(BusChartMapMeasure.Index)));
-                        until not NextColumn(BusChartMapColumn);
+        if BusChartBuf.FindFirstMeasure(BusChartMapMeasure) then
+            repeat
+                if BusChartBuf.FindFirstColumn(BusChartMapColumn) then
+                    repeat
+                        BusChartBuf.SetValue(
+                          BusChartMapMeasure.Name,
+                          BusChartMapColumn.Index,
+                          CalcAmount(
+                            TimeSheetChartSetup,
+                            BusChartMapColumn.Name,
+                            TimeSheetChartSetup.MeasureIndex2MeasureType(BusChartMapMeasure.Index)));
+                    until not BusChartBuf.NextColumn(BusChartMapColumn);
 
-                until not NextMeasure(BusChartMapMeasure);
-        end;
+            until not BusChartBuf.NextMeasure(BusChartMapMeasure);
     end;
 
     procedure DrillDown(var BusChartBuf: Record "Business Chart Buffer")
@@ -124,31 +121,29 @@ codeunit 952 "Time Sheet Chart Mgt."
 
     local procedure AddMeasures(var BusChartBuf: Record "Business Chart Buffer"; TimeSheetChartSetup: Record "Time Sheet Chart Setup")
     begin
-        with BusChartBuf do begin
-            case TimeSheetChartSetup."Show by" of
-                TimeSheetChartSetup."Show by"::Status:
-                    begin
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Open), '', "Chart Type"::StackedColumn);
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Submitted), '', "Chart Type"::StackedColumn);
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Rejected), '', "Chart Type"::StackedColumn);
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Approved), '', "Chart Type"::StackedColumn);
-                    end;
-                TimeSheetChartSetup."Show by"::Type:
-                    begin
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Resource), '', "Chart Type"::StackedColumn);
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Job), '', "Chart Type"::StackedColumn);
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Service), '', "Chart Type"::StackedColumn);
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Absence), '', "Chart Type"::StackedColumn);
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::"Assembly Order"), '', "Chart Type"::StackedColumn);
-                    end;
-                TimeSheetChartSetup."Show by"::Posted:
-                    begin
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Posted), '', "Chart Type"::StackedColumn);
-                        AddDecimalMeasure(GetMeasureCaption(MeasureType::"Not Posted"), '', "Chart Type"::StackedColumn);
-                    end;
-            end;
-            AddDecimalMeasure(GetMeasureCaption(MeasureType::Scheduled), '', "Chart Type"::Point);
+        case TimeSheetChartSetup."Show by" of
+            TimeSheetChartSetup."Show by"::Status:
+                begin
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Open), '', BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Submitted), '', BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Rejected), '', BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Approved), '', BusChartBuf."Chart Type"::StackedColumn);
+                end;
+            TimeSheetChartSetup."Show by"::Type:
+                begin
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Resource), '', BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Job), '', BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Service), '', BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Absence), '', BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::"Assembly Order"), '', BusChartBuf."Chart Type"::StackedColumn);
+                end;
+            TimeSheetChartSetup."Show by"::Posted:
+                begin
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Posted), '', BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::"Not Posted"), '', BusChartBuf."Chart Type"::StackedColumn);
+                end;
         end;
+        BusChartBuf.AddDecimalMeasure(GetMeasureCaption(MeasureType::Scheduled), '', BusChartBuf."Chart Type"::Point);
     end;
 
     procedure CalcAmount(TimeSheetChartSetup: Record "Time Sheet Chart Setup"; ResourceNo: Code[249]; MType: Integer): Decimal

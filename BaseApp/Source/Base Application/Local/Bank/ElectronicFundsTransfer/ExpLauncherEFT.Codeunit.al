@@ -340,11 +340,9 @@ codeunit 10320 "Exp. Launcher EFT"
 
     local procedure UpdateLastEPayExportFileName(BankAccount: Record "Bank Account")
     begin
-        with BankAccount do begin
-            "Last E-Pay Export File Name" := IncStr("Last E-Pay Export File Name");
-            Modify();
-            Commit();
-        end;
+        BankAccount."Last E-Pay Export File Name" := IncStr(BankAccount."Last E-Pay Export File Name");
+        BankAccount.Modify();
+        Commit();
     end;
 
     [Scope('OnPrem')]

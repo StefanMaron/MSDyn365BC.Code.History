@@ -128,14 +128,14 @@ codeunit 142066 "UT REP Sales Tax"
         TaxJurisdictionCode: Code[10];
     begin
         // Setup.
-        TaxJurisdictionCode := MockTaxJurisdiction;
+        TaxJurisdictionCode := MockTaxJurisdiction();
         EnqueueValuesForSalesTaxesCollected(TaxJurisdictionCode, IncludeSales, IncludePurchases, IncludeUseTax);
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Taxes Collected");
 
         // Verify: Verifying Sales Taxes Collected Report using different filter.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TaxInclusions', ExpectedText);
     end;
 
@@ -151,7 +151,7 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup.
         Initialize();
-        TaxJurisdictionCode := MockTaxJurisdiction;
+        TaxJurisdictionCode := MockTaxJurisdiction();
         EnqueueValuesForSalesTaxesCollected(TaxJurisdictionCode, false, false, false);
 
         // Exercise.
@@ -173,14 +173,14 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup.
         Initialize();
-        TaxJurisdictionCode := MockTaxJurisdiction;
+        TaxJurisdictionCode := MockTaxJurisdiction();
         LibraryVariableStorage.Enqueue(TaxJurisdictionCode);  // Enqueue value for SalesTaxJurisdictionListRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Tax Jurisdiction List");
 
         // Verify: Verifying Filters and Group Data values on Sales Tax Jurisdiction List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('JurisFilters', StrSubstNo('Code: %1', TaxJurisdictionCode));
         LibraryReportDataset.AssertElementWithValueExists('GroupData', false);
     end;
@@ -198,13 +198,13 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup.
         Initialize();
-        TaxAreaCode := MockTaxArea;
+        TaxAreaCode := MockTaxArea();
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Tax Area List");
 
         // Verify: Verifying filter values on Sales Tax Area List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           AreaFiltersCap, StrSubstNo(FilterValuesTxt, TaxArea.FieldCaption(Code), TaxAreaCode));
     end;
@@ -223,7 +223,7 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup.
         Initialize();
-        TaxAreaCode := MockTaxArea;
+        TaxAreaCode := MockTaxArea();
         CreateTaxDetailWithJurisdiction(TaxDetail);
         LibraryVariableStorage.Enqueue(TaxDetail."Tax Group Code");  // Enqueue value to use in SalesTaxesCollectedRequestPageHandler.
 
@@ -231,7 +231,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Sales Tax Detail by Area");
 
         // Verify: Verifying filter values on Sales Tax Detail by Area Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           AreaFiltersCap, StrSubstNo(FilterValuesTxt, TaxArea.FieldCaption(Code), TaxAreaCode));
         LibraryReportDataset.AssertElementWithValueExists(
@@ -249,7 +249,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Tax Jurisdiction - OnAfterGetRecord trigger of Report ID - 10323.
         // Setup: Create Tax Jurisdiction.
         Initialize();
-        TaxJurisdiction.Get(MockTaxJurisdiction);
+        TaxJurisdiction.Get(MockTaxJurisdiction());
 
         // Enqueue required for SalesTaxDetailListRequestPageHandler.
         LibraryVariableStorage.Enqueue(TaxJurisdiction.Code);
@@ -258,7 +258,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Sales Tax Detail List");  // Opens SalesTaxDetailListRequestPageHandler.
 
         // Verify: Verify Report to Jurisdiction after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'Tax_Jurisdiction_Report_to_Jurisdiction', TaxJurisdiction."Report-to Jurisdiction");
     end;
@@ -275,13 +275,13 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Tax Group - OnPreReport trigger of Report ID - 10324.
         // Setup: Create Tax Group.
         Initialize();
-        TaxGroupCode := MockTaxGroup;
+        TaxGroupCode := MockTaxGroup();
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Tax Group List");  // Opens SalesTaxGroupListRequestPageHandler.
 
         // Verify: Verify Filters that Tax Group is updated on Report Sales Tax Group List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'TaxGroupFilters', StrSubstNo(FilterValuesTxt, TaxGroup.FieldCaption(Code), TaxGroupCode));
     end;
@@ -296,13 +296,13 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // Purpose of the test is to validate Service Line - OnAftergetRecord trigger of Report ID - 5900.
         // Setup: Create Service Order with Currency and Currency Factor.
-        CreateServiceDocument(ServiceLine, CreateCurrencyAndExchangeRate, ServiceLine."Document Type"::Order, 1);
+        CreateServiceDocument(ServiceLine, CreateCurrencyAndExchangeRate(), ServiceLine."Document Type"::Order, 1);
 
         // Exercise.
         REPORT.Run(REPORT::"Service Order");  // Opens ServiceOrderRequestPageHandler.
 
         // Verify: Verify Unit Price after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ServiceOrderUnitPriceCap, ServiceLine."Unit Price");
     end;
 
@@ -322,7 +322,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Service Order");  // Opens ServiceOrderRequestPageHandler.
 
         // Verify: Verify Unit Price after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ServiceOrderUnitPriceCap, ServiceLine."Unit Price");
     end;
 
@@ -335,14 +335,14 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // Purpose of the test is to validate Service Line - OnAftergetRecord trigger of Report ID - 5902.
         // Setup: Create Service Quote with Currency and Currency Factor.
-        CreateServiceDocument(ServiceLine, CreateCurrencyAndExchangeRate, ServiceLine."Document Type"::Quote, 1);
+        CreateServiceDocument(ServiceLine, CreateCurrencyAndExchangeRate(), ServiceLine."Document Type"::Quote, 1);
         Commit();  // Codeunit 5905 Service-Printed OnRun Calls commit.
 
         // Exercise.
         REPORT.Run(REPORT::"Service Quote");  // Opens ServiceOrderRequestPageHandler.
 
         // Verify: Verify Unit Price after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ServiceQuoteUnitPriceCap, ServiceLine."Unit Price");
     end;
 
@@ -362,7 +362,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Service Quote");  // Opens ServiceOrderRequestPageHandler.
 
         // Verify: Verify Unit Price after report generation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ServiceQuoteUnitPriceCap, ServiceLine."Unit Price");
     end;
 
@@ -378,13 +378,13 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup.
         Initialize();
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateAndUpdateCurrency, '', '');  // Tax Area Code and Tax Group Code as blank.
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateAndUpdateCurrency(), '', '');  // Tax Area Code and Tax Group Code as blank.
 
         // Exercise.
         REPORT.Run(REPORT::"Purchase Document - Test");  // Opens PurchaseDocumentTestReqPageHandler;
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalTextCap, StrSubstNo(TotalCap, PurchaseHeader."Currency Code"));
     end;
 
@@ -403,7 +403,7 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup.
         Initialize();
-        LCYCode := UpdateVATInUseOnGLSetup;
+        LCYCode := UpdateVATInUseOnGLSetup();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxArea.Code, TaxGroupCode);  // Currency Code as blank.
 
@@ -411,7 +411,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Purchase Document - Test");  // Opens PurchaseDocumentTestReqPageHandler;
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalTextCap, StrSubstNo(TotalCap, LCYCode));
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control103', StrSubstNo(GeneralPostingSetupMsg, ' '));  // Using blank value to make the string as expected message string.
     end;
@@ -695,7 +695,7 @@ codeunit 142066 "UT REP Sales Tax"
         OnAfterGetRecordSalesHeaderSalesDocument(SalesHeader."Document Type"::"Blanket Order", REPORT::"Sales Blanket Order");
     end;
 
-    local procedure OnAfterGetRecordSalesHeaderSalesDocument(DocumentType: Option; ReportID: Option)
+    local procedure OnAfterGetRecordSalesHeaderSalesDocument(DocumentType: Enum "Sales Document Type"; ReportID: Option)
     var
         SalesHeader: Record "Sales Header";
         TaxArea: Record "Tax Area";
@@ -748,7 +748,7 @@ codeunit 142066 "UT REP Sales Tax"
         OnAfterGetRecordSalesLineSalesDocument(SalesHeader."Document Type"::"Blanket Order", REPORT::"Sales Blanket Order");
     end;
 
-    local procedure OnAfterGetRecordSalesLineSalesDocument(DocumentType: Option; ReportID: Option)
+    local procedure OnAfterGetRecordSalesLineSalesDocument(DocumentType: Enum "Sales Document Type"; ReportID: Option)
     var
         SalesHeader: Record "Sales Header";
         TaxArea: Record "Tax Area";
@@ -877,13 +877,13 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', '', CreateAndUpdateCurrency);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', '', CreateAndUpdateCurrency());
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Document - Test");  // Open SalesDocumentTestRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalTextCap, StrSubstNo(TotalCap, SalesHeader."Currency Code"));
     end;
 
@@ -902,7 +902,7 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup:
         Initialize();
-        LCYCode := UpdateVATInUseOnGLSetup;
+        LCYCode := UpdateVATInUseOnGLSetup();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, TaxArea.Code, TaxGroupCode, '');
 
@@ -910,7 +910,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Sales Document - Test");  // Open SalesDocumentTestRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalTextCap, StrSubstNo(TotalCap, LCYCode));
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control97', StrSubstNo(GeneralPostingSetupMsg, ' '));  // Using blank value to make the string as expected message string.
     end;
@@ -929,7 +929,7 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup.
         Initialize();
-        UpdateVATInUseOnGLSetup;
+        UpdateVATInUseOnGLSetup();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, true);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, TaxArea.Code, TaxGroupCode, '');
 
@@ -1011,7 +1011,7 @@ codeunit 142066 "UT REP Sales Tax"
         OnAfterGetRecordPurchaseHeaderPurchaseDocument(PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order (Pre-Printed)");
     end;
 
-    local procedure OnAfterGetRecordPurchaseHeaderPurchaseDocument(DocumentType: Option; ReportID: Option)
+    local procedure OnAfterGetRecordPurchaseHeaderPurchaseDocument(DocumentType: Enum "Purchase Document Type"; ReportID: Option)
     var
         PurchaseHeader: Record "Purchase Header";
         TaxArea: Record "Tax Area";
@@ -1063,7 +1063,7 @@ codeunit 142066 "UT REP Sales Tax"
           PurchaseHeader."Document Type"::Order, REPORT::"Purchase Order (Pre-Printed)", UnitPriceCap);
     end;
 
-    local procedure OnAfterGetRecordPurchaseLinePurchaseDocument(DocumentType: Option; ReportID: Option; AmountCaption: Text[30])
+    local procedure OnAfterGetRecordPurchaseLinePurchaseDocument(DocumentType: Enum "Purchase Document Type"; ReportID: Option; AmountCaption: Text[30])
     var
         PurchaseHeader: Record "Purchase Header";
         TaxArea: Record "Tax Area";
@@ -1187,7 +1187,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Setup: Create Purchase Blanket Order.
         Initialize();
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '', TaxArea.Code, LibraryUTUtility.GetNewCode10);  // Currrency Code as blank.
+          PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '', TaxArea.Code, LibraryUTUtility.GetNewCode10());  // Currrency Code as blank.
         Commit();  // Codeunit 317 (Purch.Header - Printed) Calls commit.
 
         // Exercise.
@@ -1212,7 +1212,7 @@ codeunit 142066 "UT REP Sales Tax"
 
         // Setup: Create a Sales Order with a tax detail, and set Unit Price.
         Initialize();
-        UpdateMissingVATPostingSetup; // VAT Bus. Posting Group and VAT Prod. Posting Group must be blank when Sales Liable is TRUE
+        UpdateMissingVATPostingSetup(); // VAT Bus. Posting Group and VAT Prod. Posting Group must be blank when Sales Liable is TRUE
 
         TaxBelowMaximum := CreateTaxAreaSetup(TaxAreacode, TaxGroupCode);
         CreateSalesDocumentWithTaxAreaSetup(
@@ -1225,7 +1225,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Verify: Verify Sales Invoice can be post successfully and Posted Invoice is correct.
         VerifyPostedSalesInvoice(
           DocumentNo, SalesLine.Type::Item, SalesLine.Quantity,
-          Round(SalesLine.Quantity * TaxBelowMaximum, LibraryERM.GetAmountRoundingPrecision));
+          Round(SalesLine.Quantity * TaxBelowMaximum, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     [Test]
@@ -1240,7 +1240,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [SCENARIO 122253] "Sales Document - Test" report prints several Sales Tax Amount lines with "Tax %" = "Tax Detail"."Tax Below Maximum"
         Initialize();
-        UpdateMissingVATPostingSetup;
+        UpdateMissingVATPostingSetup();
 
         // [GIVEN] Tax Area with several "Tax Detail" where "Tax Detail"."Tax Below Maximum" <> 0
         CreateTaxAreaMultipleSetup(TaxAreaCode, TaxGroupCode);
@@ -1268,7 +1268,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [SCENARIO 122253] "Purchase Document - Test" report prints several Sales Tax Amount lines with "Tax %" = "Tax Detail"."Tax Below Maximum"
         Initialize();
-        UpdateMissingVATPostingSetup;
+        UpdateMissingVATPostingSetup();
 
         // [GIVEN] Tax Area with several "Tax Detail" where "Tax Detail"."Tax Below Maximum" <> 0
         CreateTaxAreaMultipleSetup(TaxAreaCode, TaxGroupCode);
@@ -1305,7 +1305,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
 
         // [THEN] Report has fields added to W1 that are specific to NA.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagExists('TotalTaxLabel');
         LibraryReportDataset.AssertElementTagExists('TaxAmount');
         LibraryReportDataset.AssertElementTagExists('BreakdownTitle');
@@ -1325,19 +1325,19 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [SCENARIO] Run report Standard Purchase - Order to verify total fields are correct in NA environment.
         Initialize();
-        UpdateMissingVATPostingSetup;
+        UpdateMissingVATPostingSetup();
 
         TaxJurisdiction.Init();
         TaxJurisdiction.Code := 'Code1';
         TaxJurisdiction.Insert();
 
-        TaxGroupCode := CreateTaxGroup;
+        TaxGroupCode := CreateTaxGroup();
         LibraryERM.CreateTaxDetail(
           TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", 7.0);
         TaxDetail.Modify(true);
 
-        TaxAreaCode := CreateTaxArea;
+        TaxAreaCode := CreateTaxArea();
         CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
 
         // [GIVEN] A purchase header and line
@@ -1366,7 +1366,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
 
         // [THEN] Report has fields added to W1 that are specific to NA.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('TotalSubTotal', '260');
         LibraryReportDataset.AssertElementTagWithValueExists('TaxAmount', '16.45');
         LibraryReportDataset.AssertElementTagWithValueExists('TotalInvoiceDiscountAmount', '-25');
@@ -1498,7 +1498,7 @@ codeunit 142066 "UT REP Sales Tax"
         // [THEN] Report has been printed
         VerifyDataOnReport('No_ServiceInvHeader', ServiceInvoiceHeader."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1526,7 +1526,7 @@ codeunit 142066 "UT REP Sales Tax"
         // [THEN] Report has been printed
         VerifyDataOnReport('No_ServCrMemoHdr', ServiceCrMemoHeader."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1543,19 +1543,19 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [SCENARIO 437909] Run report Standard Purchase - Order to verify Total VAT is correct.
         Initialize();
-        UpdateMissingVATPostingSetup;
+        UpdateMissingVATPostingSetup();
 
         TaxJurisdiction.Init();
         TaxJurisdiction.Code := 'Code2';
         TaxJurisdiction.Insert();
 
-        TaxGroupCode := CreateTaxGroup;
+        TaxGroupCode := CreateTaxGroup();
         LibraryERM.CreateTaxDetail(
           TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", 7.0);
         TaxDetail.Modify(true);
 
-        TaxAreaCode := CreateTaxArea;
+        TaxAreaCode := CreateTaxArea();
         CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
 
         // [GIVEN] A purchase header and line
@@ -1584,7 +1584,7 @@ codeunit 142066 "UT REP Sales Tax"
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
 
         // [THEN] Verify Report has the TaxAmount value.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('TaxAmount', '16.45');
     end;
 
@@ -1677,7 +1677,7 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindSet();
         LibraryReportDataset.LoadDataSetFile();
-        Assert.AreEqual(ServiceInvoiceLine.Count, LibraryReportDataset.RowCount, IncorrectLineCountErr);
+        Assert.AreEqual(ServiceInvoiceLine.Count, LibraryReportDataset.RowCount(), IncorrectLineCountErr);
     end;
 
     local procedure Initialize()
@@ -1689,7 +1689,7 @@ codeunit 142066 "UT REP Sales Tax"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyExchangeRate.SetRange("Currency Code", CreateCurrencyAndExchangeRate);
+        CurrencyExchangeRate.SetRange("Currency Code", CreateCurrencyAndExchangeRate());
         CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate."Relational Exch. Rate Amount" := CurrencyExchangeRate."Exchange Rate Amount";
         CurrencyExchangeRate.Modify();
@@ -1701,7 +1701,7 @@ codeunit 142066 "UT REP Sales Tax"
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(100, 2);
@@ -1714,13 +1714,11 @@ codeunit 142066 "UT REP Sales Tax"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Tax Liable", true);
-            Validate("VAT Bus. Posting Group", '');
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Validate("Tax Liable", true);
+        Customer.Validate("VAT Bus. Posting Group", '');
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateVendorWithTaxAreaSetup(TaxAreaCode: Code[20]): Code[20]
@@ -1728,13 +1726,11 @@ codeunit 142066 "UT REP Sales Tax"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Tax Liable", true);
-            Validate("VAT Bus. Posting Group", '');
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Tax Area Code", TaxAreaCode);
+        Vendor.Validate("Tax Liable", true);
+        Vendor.Validate("VAT Bus. Posting Group", '');
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateItemWithTaxGroupCode(TaxGroupCode: Code[20]): Code[20]
@@ -1742,13 +1738,11 @@ codeunit 142066 "UT REP Sales Tax"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Tax Group Code", TaxGroupCode);
-            Validate("VAT Prod. Posting Group", '');
-            Validate("Last Direct Cost", LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate("Tax Group Code", TaxGroupCode);
+        Item.Validate("VAT Prod. Posting Group", '');
+        Item.Validate("Last Direct Cost", LibraryRandom.RandDec(1000, 2));
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreatePostedSalesCreditMemo(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]): Code[20]
@@ -1756,13 +1750,13 @@ codeunit 142066 "UT REP Sales Tax"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesCrMemoHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
+        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesCrMemoHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
         SalesCrMemoHeader."Tax Area Code" := TaxAreaCode;
         SalesCrMemoHeader.Insert();
         SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
         SalesCrMemoLine.Type := SalesCrMemoLine.Type::Item;
-        SalesCrMemoLine."No." := LibraryUTUtility.GetNewCode;
+        SalesCrMemoLine."No." := LibraryUTUtility.GetNewCode();
         SalesCrMemoLine."Tax Area Code" := TaxAreaCode;
         SalesCrMemoLine."Tax Group Code" := TaxGroupCode;
         SalesCrMemoLine."Tax Liable" := true;
@@ -1775,8 +1769,8 @@ codeunit 142066 "UT REP Sales Tax"
     var
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
-        ServiceCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceCrMemoHeader."Responsibility Center" := CreateResponsibilityCenter;
+        ServiceCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceCrMemoHeader."Responsibility Center" := CreateResponsibilityCenter();
         ServiceCrMemoHeader."Tax Area Code" := TaxAreaCode;
         ServiceCrMemoHeader.Insert();
         ServiceCrMemoLine."Document No." := ServiceCrMemoHeader."No.";
@@ -1789,13 +1783,13 @@ codeunit 142066 "UT REP Sales Tax"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesInvoiceHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesInvoiceHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceHeader."Tax Area Code" := TaxAreaCode;
         SalesInvoiceHeader.Insert();
         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
         SalesInvoiceLine.Type := SalesInvoiceLine.Type::Item;
-        SalesInvoiceLine."No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceLine."No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceLine."Tax Area Code" := TaxAreaCode;
         SalesInvoiceLine."Tax Group Code" := TaxGroupCode;
         SalesInvoiceLine."Tax Liable" := true;
@@ -1808,8 +1802,8 @@ codeunit 142066 "UT REP Sales Tax"
     var
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
-        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceInvoiceHeader."Responsibility Center" := CreateResponsibilityCenter;
+        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceInvoiceHeader."Responsibility Center" := CreateResponsibilityCenter();
         ServiceInvoiceHeader."Tax Area Code" := TaxAreaCode;
         ServiceInvoiceHeader.Insert();
         ServiceInvoiceLine."Document No." := ServiceInvoiceHeader."No.";
@@ -1822,13 +1816,13 @@ codeunit 142066 "UT REP Sales Tax"
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        PurchCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchCrMemoHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchCrMemoHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoHeader."Tax Area Code" := TaxAreaCode;
         PurchCrMemoHeader.Insert();
         PurchCrMemoLine."Document No." := PurchCrMemoHeader."No.";
         PurchCrMemoLine.Type := PurchCrMemoLine.Type::Item;
-        PurchCrMemoLine."No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoLine."No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoLine."Tax Area Code" := TaxAreaCode;
         PurchCrMemoLine."Tax Group Code" := TaxGroupCode;
         PurchCrMemoLine."Tax Liable" := true;
@@ -1842,13 +1836,13 @@ codeunit 142066 "UT REP Sales Tax"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchInvHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchInvHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode();
         PurchInvHeader."Tax Area Code" := TaxAreaCode;
         PurchInvHeader.Insert();
         PurchInvLine."Document No." := PurchInvHeader."No.";
         PurchInvLine.Type := PurchInvLine.Type::Item;
-        PurchInvLine."No." := LibraryUTUtility.GetNewCode;
+        PurchInvLine."No." := LibraryUTUtility.GetNewCode();
         PurchInvLine."Tax Area Code" := TaxAreaCode;
         PurchInvLine."Tax Group Code" := TaxGroupCode;
         PurchInvLine."Tax Liable" := true;
@@ -1857,14 +1851,14 @@ codeunit 142066 "UT REP Sales Tax"
         exit(PurchInvLine."No.");
     end;
 
-    local procedure CreatePurchaseLine(DocumentNo: Code[20]; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; DocumentType: Option): Decimal
+    local procedure CreatePurchaseLine(DocumentNo: Code[20]; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; DocumentType: Enum "Purchase Document Type"): Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseLine."Document Type" := DocumentType;
         PurchaseLine."Document No." := DocumentNo;
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine."No." := LibraryUTUtility.GetNewCode;
+        PurchaseLine."No." := LibraryUTUtility.GetNewCode();
         PurchaseLine.Quantity := LibraryRandom.RandDec(10, 2);
         PurchaseLine."Qty. to Receive" := PurchaseLine.Quantity;
         PurchaseLine."Qty. to Invoice" := PurchaseLine.Quantity;
@@ -1876,11 +1870,11 @@ codeunit 142066 "UT REP Sales Tax"
         exit(PurchaseLine."Line Amount");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; CurrencyCode: Code[10]; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]): Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]): Decimal
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Tax Area Code" := TaxAreaCode;
         PurchaseHeader."Currency Code" := CurrencyCode;
         PurchaseHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
@@ -1912,16 +1906,16 @@ codeunit 142066 "UT REP Sales Tax"
     var
         ResponsibilityCenter: Record "Responsibility Center";
     begin
-        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10;
+        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10();
         ResponsibilityCenter.Name := ResponsibilityCenter.Code;
         ResponsibilityCenter.Insert();
         exit(ResponsibilityCenter.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; CurrencyCode: Code[10]): Decimal
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; CurrencyCode: Code[10]): Decimal
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Tax Area Code" := TaxAreaCode;
         SalesHeader."Currency Code" := CurrencyCode;
         SalesHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
@@ -1930,7 +1924,7 @@ codeunit 142066 "UT REP Sales Tax"
         exit(CreateSalesLine(SalesHeader, TaxGroupCode));
     end;
 
-    local procedure CreateSalesDocumentWithTaxAreaSetup(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesDocumentWithTaxAreaSetup(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomerWithTaxAreaSetup(TaxAreaCode));
         LibrarySales.CreateSalesLine(
@@ -1957,12 +1951,12 @@ codeunit 142066 "UT REP Sales Tax"
         exit(SalesLine."Amount Including VAT");
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; DocumentType: Option; CurrencyFactor: Decimal)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; DocumentType: Enum "Service Document Type"; CurrencyFactor: Decimal)
     var
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader."Document Type" := DocumentType;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceHeader."Currency Factor" := CurrencyFactor;
         ServiceHeader.Insert();
         ServiceLine."Document Type" := DocumentType;
@@ -1980,10 +1974,10 @@ codeunit 142066 "UT REP Sales Tax"
         TaxDetail: Record "Tax Detail";
         TaxJurisdictionCode: Code[10];
     begin
-        TaxAreaCode := CreateTaxArea;
-        TaxJurisdictionCode := CreateTaxJurisdiction;
+        TaxAreaCode := CreateTaxArea();
+        TaxJurisdictionCode := CreateTaxJurisdiction();
         CreateTaxAreaLine(TaxAreaCode, TaxJurisdictionCode);
-        TaxGroupCode := CreateTaxGroup;
+        TaxGroupCode := CreateTaxGroup();
         exit(CreateTaxDetail(TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Excise Tax"));
     end;
 
@@ -1993,11 +1987,11 @@ codeunit 142066 "UT REP Sales Tax"
         TaxJurisdictionCode: Code[10];
         i: Integer;
     begin
-        TaxAreaCode := CreateTaxArea;
-        TaxGroupCode := CreateTaxGroup;
+        TaxAreaCode := CreateTaxArea();
+        TaxGroupCode := CreateTaxGroup();
 
         for i := 1 to LibraryRandom.RandIntInRange(3, 10) do begin
-            TaxJurisdictionCode := CreateTaxJurisdiction;
+            TaxJurisdictionCode := CreateTaxJurisdiction();
             CreateTaxAreaLine(TaxAreaCode, TaxJurisdictionCode);
             CreateTaxDetail(TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax");
         end;
@@ -2007,7 +2001,7 @@ codeunit 142066 "UT REP Sales Tax"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea."Country/Region" := Country;
         TaxArea.Insert();
         exit(TaxArea.Code);
@@ -2019,7 +2013,7 @@ codeunit 142066 "UT REP Sales Tax"
         TaxDetail: Record "Tax Detail";
     begin
         CreateTaxDetailWithJurisdiction(TaxDetail);
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea."Use External Tax Engine" := UseExternalTaxEngine;
         // TFS ID 387685: Check that TaxArea with maxstrlen Description doesn't raise StringOverflow
         TaxArea.Description := LibraryUtility.GenerateRandomXMLText(MaxStrLen(TaxArea.Description));
@@ -2034,10 +2028,10 @@ codeunit 142066 "UT REP Sales Tax"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10();
         TaxJurisdiction.Insert();
         TaxDetail."Tax Jurisdiction Code" := TaxJurisdiction.Code;
-        TaxDetail."Tax Group Code" := LibraryUTUtility.GetNewCode10;
+        TaxDetail."Tax Group Code" := LibraryUTUtility.GetNewCode10();
         TaxDetail."Tax Below Maximum" := LibraryRandom.RandDecInRange(5, 10, 2);
         TaxDetail.Insert();
     end;
@@ -2063,11 +2057,9 @@ codeunit 142066 "UT REP Sales Tax"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        with TaxJurisdiction do begin
-            Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo);
-            Modify(true);
-            exit(Code);
-        end;
+        TaxJurisdiction.Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Modify(true);
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure CreateTaxAreaLine(TaxAreaCode: Code[20]; TaxJurisdictionCode: Code[10])
@@ -2082,50 +2074,44 @@ codeunit 142066 "UT REP Sales Tax"
         TaxDetail: Record "Tax Detail";
     begin
         LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
-        with TaxDetail do begin
-            Validate("Tax Below Maximum", LibraryRandom.RandDec(100, 2) * 0.1);
-            Modify(true);
-            exit("Tax Below Maximum");
-        end;
+        TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandDec(100, 2) * 0.1);
+        TaxDetail.Modify(true);
+        exit(TaxDetail."Tax Below Maximum");
     end;
 
     local procedure MockTaxArea(): Code[20]
     var
         TaxArea: Record "Tax Area";
     begin
-        with TaxArea do begin
-            Init();
-            Code := LibraryUTUtility.GetNewCode;
-            Insert();
-            LibraryVariableStorage.Enqueue(Code);  // Enqueue value to use in SalesTaxAreaListRequestPageHandler.
-            exit(Code);
-        end;
+        TaxArea.Init();
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
+        TaxArea.Insert();
+        LibraryVariableStorage.Enqueue(TaxArea.Code);
+        // Enqueue value to use in SalesTaxAreaListRequestPageHandler.
+        exit(TaxArea.Code);
     end;
 
     local procedure MockTaxGroup(): Code[10]
     var
         TaxGroup: Record "Tax Group";
     begin
-        with TaxGroup do begin
-            Init();
-            Code := LibraryUTUtility.GetNewCode10;
-            Insert();
-            LibraryVariableStorage.Enqueue(Code);  // Enqueue required for SalesTaxGroupListRequestPageHandler.
-            exit(Code);
-        end;
+        TaxGroup.Init();
+        TaxGroup.Code := LibraryUTUtility.GetNewCode10();
+        TaxGroup.Insert();
+        LibraryVariableStorage.Enqueue(TaxGroup.Code);
+        // Enqueue required for SalesTaxGroupListRequestPageHandler.
+        exit(TaxGroup.Code);
     end;
 
     local procedure MockTaxJurisdiction(): Code[10]
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        with TaxJurisdiction do begin
-            Init();
-            Code := LibraryUTUtility.GetNewCode10;
-            "Report-to Jurisdiction" := Code;
-            Insert();
-            exit(Code);
-        end;
+        TaxJurisdiction.Init();
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10();
+        TaxJurisdiction."Report-to Jurisdiction" := TaxJurisdiction.Code;
+        TaxJurisdiction.Insert();
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure EnqueueValuesForSalesTaxesCollected("Code": Code[10]; IncludeSales: Boolean; IncludePurchase: Boolean; IncludeUseTax: Boolean)
@@ -2156,7 +2142,7 @@ codeunit 142066 "UT REP Sales Tax"
         TaxDetail.FindFirst();
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -2168,20 +2154,18 @@ codeunit 142066 "UT REP Sales Tax"
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
     begin
-        with VATPostingSetup do begin
-            SetRange("VAT Bus. Posting Group", '');
-            SetRange("VAT Prod. Posting Group", '');
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Sales Tax");
-            if IsEmpty() then begin
-                Init();
-                "VAT Calculation Type" := "VAT Calculation Type"::"Sales Tax";
-                "VAT %" := LibraryRandom.RandIntInRange(1, 25);
-                LibraryERM.CreateGLAccount(GLAccount);
-                "Sales VAT Account" := GLAccount."No.";
-                LibraryERM.CreateGLAccount(GLAccount);
-                "Purchase VAT Account" := GLAccount."No.";
-                Insert(true);
-            end;
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", '');
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Sales Tax");
+        if VATPostingSetup.IsEmpty() then begin
+            VATPostingSetup.Init();
+            VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Sales Tax";
+            VATPostingSetup."VAT %" := LibraryRandom.RandIntInRange(1, 25);
+            LibraryERM.CreateGLAccount(GLAccount);
+            VATPostingSetup."Sales VAT Account" := GLAccount."No.";
+            LibraryERM.CreateGLAccount(GLAccount);
+            VATPostingSetup."Purchase VAT Account" := GLAccount."No.";
+            VATPostingSetup.Insert(true);
         end;
     end;
 
@@ -2192,7 +2176,7 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
         ServiceCrMemoLine.FindFirst();
         ServiceCrMemoLine.Type := ServiceCrMemoLine.Type::Item;
-        ServiceCrMemoLine."No." := LibraryUTUtility.GetNewCode;
+        ServiceCrMemoLine."No." := LibraryUTUtility.GetNewCode();
         ServiceCrMemoLine.Modify();
         exit(ServiceCrMemoLine."No.");
     end;
@@ -2204,7 +2188,7 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
         ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.Type := ServiceInvoiceLine.Type::Item;
-        ServiceInvoiceLine."No." := LibraryUTUtility.GetNewCode;
+        ServiceInvoiceLine."No." := LibraryUTUtility.GetNewCode();
         ServiceInvoiceLine.Modify();
         exit(ServiceInvoiceLine."No.");
     end;
@@ -2219,7 +2203,7 @@ codeunit 142066 "UT REP Sales Tax"
         exit(GeneralLedgerSetup."LCY Code");
     end;
 
-    local procedure UpdateUnitPriceOnSalesLine(DocumentType: Option; DocumentNo: Code[20]; TaxGroupCode: Code[20]; UnitPrice: Decimal): Decimal
+    local procedure UpdateUnitPriceOnSalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; TaxGroupCode: Code[20]; UnitPrice: Decimal): Decimal
     var
         SalesLine: Record "Sales Line";
         TaxDetail: Record "Tax Detail";
@@ -2228,7 +2212,7 @@ codeunit 142066 "UT REP Sales Tax"
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
         FindTaxDetail(TaxDetail, SalesLine."Tax Area Code", TaxGroupCode);
-        exit(Round(SalesLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100, LibraryERM.GetAmountRoundingPrecision));
+        exit(Round(SalesLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure RunSalesDocumentTestReport(DocumentNo: Code[20])
@@ -2247,11 +2231,11 @@ codeunit 142066 "UT REP Sales Tax"
 
     local procedure VerifyDataOnReport(ElementName: Text; ExpectedValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
     end;
 
-    local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; LineType: Option; Qty: Decimal; AmtIncludingVAT: Decimal)
+    local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; LineType: Enum "Sales Line Type"; Qty: Decimal; AmtIncludingVAT: Decimal)
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
@@ -2268,14 +2252,12 @@ codeunit 142066 "UT REP Sales Tax"
     var
         TaxDetail: Record "Tax Detail";
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        with TaxDetail do begin
-            SetRange("Tax Group Code", TaxGroupCode);
-            FindSet();
-            repeat
-                LibraryReportDataset.AssertElementWithValueExists('SalesTaxAmountLine__Tax___', "Tax Below Maximum");
-            until Next = 0;
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
+        TaxDetail.FindSet();
+        repeat
+            LibraryReportDataset.AssertElementWithValueExists('SalesTaxAmountLine__Tax___', TaxDetail."Tax Below Maximum");
+        until TaxDetail.Next() = 0;
     end;
 
     local procedure CreateServiceContractLine(var ServiceContractLine: Record "Service Contract Line"; ServiceContractHeader: Record "Service Contract Header")
@@ -2373,7 +2355,7 @@ codeunit 142066 "UT REP Sales Tax"
         PurchaseDocumentTest."Purchase Header".SetFilter("No.", No);
         PurchaseDocumentTest.ReceiveShip.SetValue(true);
         PurchaseDocumentTest.Invoice.SetValue(true);
-        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2384,7 +2366,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseBlanketOrder."Purchase Header".SetFilter("No.", No);
-        PurchaseBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2395,7 +2377,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseCreditMemo."Purch. Cr. Memo Hdr.".SetFilter("No.", No);
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2406,7 +2388,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseInvoice."Purch. Inv. Header".SetFilter("No.", No);
-        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2417,7 +2399,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseOrder."Purchase Header".SetFilter("No.", No);
-        PurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2428,7 +2410,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseOrderPrePrinted."Purchase Header".SetFilter("No.", No);
-        PurchaseOrderPrePrinted.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseOrderPrePrinted.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2439,7 +2421,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseQuote."Purchase Header".SetFilter("No.", No);
-        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2450,7 +2432,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesBlanketOrder."Sales Header".SetFilter("No.", No);
-        SalesBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2461,7 +2443,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", No);
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2472,7 +2454,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2483,7 +2465,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2494,7 +2476,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesInvoicePrePrinted."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoicePrePrinted.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoicePrePrinted.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2505,7 +2487,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesOrder."Sales Header".SetFilter("No.", No);
-        SalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2516,7 +2498,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(Code);
         SalesTaxAreaList."Tax Area".SetFilter(Code, Code);
-        SalesTaxAreaList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxAreaList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2536,7 +2518,7 @@ codeunit 142066 "UT REP Sales Tax"
         SalesTaxesCollected.IncludeSales.SetValue(IncludeSales);
         SalesTaxesCollected.IncludePurchases.SetValue(IncludePurchase);
         SalesTaxesCollected.IncludeUseTax.SetValue(IncludeUseTax);
-        SalesTaxesCollected.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxesCollected.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2550,7 +2532,7 @@ codeunit 142066 "UT REP Sales Tax"
         LibraryVariableStorage.Dequeue(TaxGroupCode);
         SalesTaxDetailbyArea."Tax Area".SetFilter(Code, Code);
         SalesTaxDetailbyArea."Tax Detail".SetFilter("Tax Group Code", TaxGroupCode);
-        SalesTaxDetailbyArea.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxDetailbyArea.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2561,7 +2543,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(Code);
         SalesTaxJurisdictionList."Tax Jurisdiction".SetFilter(Code, Code);
-        SalesTaxJurisdictionList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxJurisdictionList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2572,7 +2554,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(TaxGroupCode);
         SalesTaxGroupList."Tax Group".SetFilter(Code, TaxGroupCode);
-        SalesTaxGroupList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxGroupList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2583,7 +2565,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(TaxJurisdictionCode);
         SalesTaxDetailList."Tax Jurisdiction".SetFilter(Code, TaxJurisdictionCode);
-        SalesTaxDetailList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxDetailList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2594,7 +2576,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesQuote."Sales Header".SetFilter("No.", No);
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2611,7 +2593,7 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceCreditMemoSalesTax.NumberOfCopies.SetValue(NumberOfCopies);
         ServiceCreditMemoSalesTax.PrintCompanyAddress.SetValue(PrintCompanyAddress);
         ServiceCreditMemoSalesTax."Service Cr.Memo Header".SetFilter("No.", No);
-        ServiceCreditMemoSalesTax.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceCreditMemoSalesTax.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2628,7 +2610,7 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceInvoiceSalesTax.NumberOfCopies.SetValue(NumberOfCopies);
         ServiceInvoiceSalesTax.PrintCompanyAddress.SetValue(PrintCompanyAddress);
         ServiceInvoiceSalesTax."Service Invoice Header".SetFilter("No.", No);
-        ServiceInvoiceSalesTax.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceInvoiceSalesTax.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2639,7 +2621,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceOrder."Service Header".SetFilter("No.", No);
-        ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2650,7 +2632,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceQuote."Service Header".SetFilter("No.", No);
-        ServiceQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2658,23 +2640,23 @@ codeunit 142066 "UT REP Sales Tax"
     procedure RHStandardPurchaseOrder(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
     begin
         StandardPurchaseOrder.LogInteraction.SetValue(false);
-        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceInvoiceTestRequestPageHandler(var ServiceInvoice: TestRequestPage "Service - Invoice")
     begin
-        ServiceInvoice."Service Invoice Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceInvoice."Service Invoice Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceCrMemoTestRequestPageHandler(var ServiceCreditMemo: TestRequestPage "Service - Credit Memo")
     begin
-        ServiceCreditMemo."Service Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceCreditMemo."Service Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

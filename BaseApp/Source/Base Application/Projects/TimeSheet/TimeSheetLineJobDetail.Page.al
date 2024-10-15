@@ -6,7 +6,7 @@ namespace Microsoft.Projects.TimeSheet;
 
 page 966 "Time Sheet Line Job Detail"
 {
-    Caption = 'Time Sheet Line Job Detail';
+    Caption = 'Time Sheet Line Project Detail';
     PageType = StandardDialog;
     SourceTable = "Time Sheet Line";
     SourceTableTemporary = true;
@@ -22,13 +22,13 @@ page 966 "Time Sheet Line Job Detail"
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
-                    ToolTip = 'Specifies the number for the job associated with the time sheet line.';
+                    ToolTip = 'Specifies the number for the project associated with the time sheet line.';
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
-                    ToolTip = 'Specifies the number for the job task associated with the time sheet line.';
+                    ToolTip = 'Specifies the number for the project task associated with the time sheet line.';
                 }
                 field(Description; Rec.Description)
                 {

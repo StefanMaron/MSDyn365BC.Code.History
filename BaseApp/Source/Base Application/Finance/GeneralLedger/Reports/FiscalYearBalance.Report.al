@@ -272,59 +272,54 @@ report 36 "Fiscal Year Balance"
                 Clear(ColumnValuesAsText);
                 Clear(ColumnValuesAsTot);
                 GLAccount2.Copy("G/L Account");
-                with GLAccount2 do begin
-                    // Opening Balance
-                    SetRange("Date Filter", 0D, ClosingDate(FYStartingDate - 1));
-                    CalcFields("Net Change");
-                    if "Net Change" > 0 then begin
-                        ColumnValuesAsText[1] := RoundAmount("Net Change");
-                        ColumnValuesAsTot[1] := "Net Change";
-                    end else begin
-                        ColumnValuesAsText[2] := RoundAmount(Abs("Net Change"));
-                        ColumnValuesAsTot[2] := Abs("Net Change");
-                    end;
-
-                    // Fiscal YTD
-                    if FYStartingDate <> PeriodStartingDate then begin
-                        SetRange("Date Filter", FYStartingDate, PeriodStartingDate - 1);
-                        CalcFields("Debit Amount", "Credit Amount");
-                        ColumnValuesAsText[3] := RoundAmount("Debit Amount");
-                        ColumnValuesAsTot[3] := "Debit Amount";
-                        ColumnValuesAsText[4] := RoundAmount("Credit Amount");
-                        ColumnValuesAsTot[4] := "Credit Amount";
-                    end;
-
-                    // This period
-                    SetRange("Date Filter", PeriodStartingDate, PeriodEndingDate);
-                    CalcFields("Debit Amount", "Credit Amount");
-                    ColumnValuesAsText[5] := RoundAmount("Debit Amount");
-                    ColumnValuesAsTot[5] := "Debit Amount";
-                    ColumnValuesAsText[6] := RoundAmount("Credit Amount");
-                    ColumnValuesAsTot[6] := "Credit Amount";
-
-                    // Fiscal Year Cumulative Balance
-                    SetRange("Date Filter", 0D, PeriodEndingDate);
-                    CalcFields("Balance at Date");
-                    case "Income/Balance" of
-                        "Income/Balance"::"Balance Sheet":
-                            if "Balance at Date" > 0 then begin
-                                ColumnValuesAsText[7] := RoundAmount("Balance at Date");
-                                ColumnValuesAsTot[7] := "Balance at Date";
-                            end
-                            else begin
-                                ColumnValuesAsText[8] := RoundAmount(Abs("Balance at Date"));
-                                ColumnValuesAsTot[8] := Abs("Balance at Date");
-                            end;
-                        "Income/Balance"::"Income Statement":
-                            if "Balance at Date" > 0 then begin
-                                ColumnValuesAsText[9] := RoundAmount("Balance at Date");
-                                ColumnValuesAsTot[9] := "Balance at Date";
-                            end
-                            else begin
-                                ColumnValuesAsText[10] := RoundAmount(Abs("Balance at Date"));
-                                ColumnValuesAsTot[10] := Abs("Balance at Date");
-                            end;
-                    end;
+                // Opening Balance
+                GLAccount2.SetRange("Date Filter", 0D, ClosingDate(FYStartingDate - 1));
+                GLAccount2.CalcFields("Net Change");
+                if GLAccount2."Net Change" > 0 then begin
+                    ColumnValuesAsText[1] := RoundAmount(GLAccount2."Net Change");
+                    ColumnValuesAsTot[1] := GLAccount2."Net Change";
+                end else begin
+                    ColumnValuesAsText[2] := RoundAmount(Abs(GLAccount2."Net Change"));
+                    ColumnValuesAsTot[2] := Abs(GLAccount2."Net Change");
+                end;
+                // Fiscal YTD
+                if FYStartingDate <> PeriodStartingDate then begin
+                    GLAccount2.SetRange("Date Filter", FYStartingDate, PeriodStartingDate - 1);
+                    GLAccount2.CalcFields("Debit Amount", "Credit Amount");
+                    ColumnValuesAsText[3] := RoundAmount(GLAccount2."Debit Amount");
+                    ColumnValuesAsTot[3] := GLAccount2."Debit Amount";
+                    ColumnValuesAsText[4] := RoundAmount(GLAccount2."Credit Amount");
+                    ColumnValuesAsTot[4] := GLAccount2."Credit Amount";
+                end;
+                // This period
+                GLAccount2.SetRange("Date Filter", PeriodStartingDate, PeriodEndingDate);
+                GLAccount2.CalcFields("Debit Amount", "Credit Amount");
+                ColumnValuesAsText[5] := RoundAmount(GLAccount2."Debit Amount");
+                ColumnValuesAsTot[5] := GLAccount2."Debit Amount";
+                ColumnValuesAsText[6] := RoundAmount(GLAccount2."Credit Amount");
+                ColumnValuesAsTot[6] := GLAccount2."Credit Amount";
+                // Fiscal Year Cumulative Balance
+                GLAccount2.SetRange("Date Filter", 0D, PeriodEndingDate);
+                GLAccount2.CalcFields("Balance at Date");
+                case GLAccount2."Income/Balance" of
+                    GLAccount2."Income/Balance"::"Balance Sheet":
+                        if GLAccount2."Balance at Date" > 0 then begin
+                            ColumnValuesAsText[7] := RoundAmount(GLAccount2."Balance at Date");
+                            ColumnValuesAsTot[7] := GLAccount2."Balance at Date";
+                        end
+                        else begin
+                            ColumnValuesAsText[8] := RoundAmount(Abs(GLAccount2."Balance at Date"));
+                            ColumnValuesAsTot[8] := Abs(GLAccount2."Balance at Date");
+                        end;
+                    GLAccount2."Income/Balance"::"Income Statement":
+                        if GLAccount2."Balance at Date" > 0 then begin
+                            ColumnValuesAsText[9] := RoundAmount(GLAccount2."Balance at Date");
+                            ColumnValuesAsTot[9] := GLAccount2."Balance at Date";
+                        end
+                        else begin
+                            ColumnValuesAsText[10] := RoundAmount(Abs(GLAccount2."Balance at Date"));
+                            ColumnValuesAsTot[10] := Abs(GLAccount2."Balance at Date");
+                        end;
                 end;
 
                 for I := 1 to 10 do

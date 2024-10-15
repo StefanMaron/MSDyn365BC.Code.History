@@ -24,8 +24,6 @@ codeunit 139301 "Assisted Company Setup Tests"
         IsEventSubscriptionInitialized: Boolean;
         FirstTestPageNameTxt: Label 'FIRST TEST Page';
         SecondTestPageNameTxt: Label 'SECOND TEST Page';
-        AccountingPeriodStartDateBlankErr: Label 'You have not specified a start date for the fiscal year. You must either specify a date in the Fiscal Year Start Date field or select the Skip for Now field.';
-        TestValidationCodeErr: Label 'TestValidation';
 
     [Test]
     [Scope('OnPrem')]
@@ -39,12 +37,12 @@ codeunit 139301 "Assisted Company Setup Tests"
         CompanyInformation.Get();
         CompanyInformation."Demo Company" := false;
         CompanyInformation.Modify();
-        Assert.IsFalse(CompanyInformationMgt.IsDemoCompany, 'IsDemoCompany should be FALSE');
+        Assert.IsFalse(CompanyInformationMgt.IsDemoCompany(), 'IsDemoCompany should be FALSE');
 
         CompanyInformation.Get();
         CompanyInformation."Demo Company" := true;
         CompanyInformation.Modify();
-        Assert.IsTrue(CompanyInformationMgt.IsDemoCompany, 'IsDemoCompany should be TRUE');
+        Assert.IsTrue(CompanyInformationMgt.IsDemoCompany(), 'IsDemoCompany should be TRUE');
     end;
 
     [Test]
@@ -155,7 +153,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         Initialize();
 
         // [WHEN] The user tries to enable the wizard
-        Companies.OpenEdit;
+        Companies.OpenEdit();
         Companies.FindFirstField(CompanyNameVar, CompanyName); // Company will be CRONUS in testruns
 
         // [THEN] An error is thrown if that company already is set up
@@ -185,7 +183,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         Company.Insert();
 
         // [WHEN] The user tries to enable the wizard
-        Companies.OpenEdit;
+        Companies.OpenEdit();
         Companies.FindFirstField(CompanyNameVar, NewCompanyName);
         Companies.EnableAssistedCompanySetup.SetValue(true);
 
@@ -243,7 +241,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [WHEN] The Assisted Company Setup wizard is run to the end but not finished
         RunWizardToCompletionAndTestEvents(AssistedCompanySetupWizard);
@@ -263,10 +261,10 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [WHEN] The Assisted Company Setup wizard is exited right away
-        AssistedCompanySetupWizard.Trap;
+        AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
         AssistedCompanySetupWizard.Close();
 
@@ -287,7 +285,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [GIVEN] A newly setup company
         BankAccount.Reset();
         BankAccount.DeleteAll();
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [WHEN] The Assisted Company Setup wizard is completed
         SetDemoCompany(false);
@@ -296,7 +294,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         BindSubscription(BankStatementProviderMock);
 
         RunWizardToCompletionAndTestEvents(AssistedCompanySetupWizard);
-        AssistedCompanySetupWizard.ActionFinish.Invoke;
+        AssistedCompanySetupWizard.ActionFinish.Invoke();
 
         // [THEN] Status of the setup step is set to Completed
         Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
@@ -306,7 +304,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         SetDemoCompany(true);
         BankAccount.DeleteAll();
     end;
-    
+
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -316,11 +314,11 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [WHEN] The Assisted Company Setup wizard is completed
         RunWizardToCompletionAndTestEvents(AssistedCompanySetupWizard);
-        AssistedCompanySetupWizard.ActionFinish.Invoke;
+        AssistedCompanySetupWizard.ActionFinish.Invoke();
 
         // [THEN] Status of the setup step is set to Completed
         Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
@@ -335,32 +333,32 @@ codeunit 139301 "Assisted Company Setup Tests"
         MyCompanyName: Text[30];
     begin
         // [GIVEN] A newly setup company
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [WHEN] The Assisted Company Setup wizard is completed
-        AssistedCompanySetupWizard.TRAP;
+        AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
 
-        MyCompanyName := GetRandomCompanyName;
+        MyCompanyName := GetRandomCompanyName();
 
         with AssistedCompanySetupWizard do begin
-            ActionNext.Invoke; // Start the wizard
-            ActionBack.Invoke; // Welcome page
-            ActionNext.Invoke; // Company's Address Information page
+            ActionNext.Invoke(); // Start the wizard
+            ActionBack.Invoke(); // Welcome page
+            ActionNext.Invoke(); // Company's Address Information page
             Name.SetValue(MyCompanyName);
-            ActionNext.Invoke; // Contact Information page
+            ActionNext.Invoke(); // Contact Information page
             if BankStatementProviderExist then
-                ActionNext.Invoke; // Online Bank Account Linking page
-            ActionNext.Invoke; // Bank Account Information page
-            ActionNext.Invoke; // Costing Method
-            ActionNext.Invoke; // That's it page
+                ActionNext.Invoke(); // Online Bank Account Linking page
+            ActionNext.Invoke(); // Bank Account Information page
+            ActionNext.Invoke(); // Costing Method
+            ActionNext.Invoke(); // That's it page
 
-            Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
-            ActionFinish.Invoke;
+            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
+            ActionFinish.Invoke();
         end;
 
         // [THEN] Company Display Name equals Company Name
-        Assert.AreEqual(MyCompanyName, CompanyProperty.DisplayName, 'Company Display Name should be equal to name set in wizard');
+        Assert.AreEqual(MyCompanyName, CompanyProperty.DisplayName(), 'Company Display Name should be equal to name set in wizard');
     end;
 
     [Test]
@@ -373,10 +371,10 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [WHEN] The Assisted Company Setup wizard is closed but closing is not confirmed
-        AssistedCompanySetupWizard.Trap;
+        AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
         AssistedCompanySetupWizard.Close();
 
@@ -398,12 +396,12 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [GIVEN] The company setup wizard is on the contact information page
-        AssistedCompanySetupWizard.Trap;
+        AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
 
         with AssistedCompanySetupWizard do begin
-            ActionNext.Invoke; // Company's Address Information page
-            ActionNext.Invoke; // Contact Information page
+            ActionNext.Invoke(); // Company's Address Information page
+            ActionNext.Invoke(); // Contact Information page
 
             // [WHEN] We set the phone number with an incorrect value
             // [THEN] There is an error
@@ -431,12 +429,12 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [GIVEN] The company setup wizard is on the contact information page
-        AssistedCompanySetupWizard.Trap;
+        AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
 
         with AssistedCompanySetupWizard do begin
-            ActionNext.Invoke; // Company's Address Information page
-            ActionNext.Invoke; // Contact Information page
+            ActionNext.Invoke(); // Company's Address Information page
+            ActionNext.Invoke(); // Contact Information page
 
             // [WHEN] We set the phone number with an incorrect value
             // [THEN] There is an error
@@ -491,7 +489,7 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         // [THEN] Bank Account Posting Group has a blank value
         Assert.AreEqual(
-          '', GetBankAccountPostingGroup(CompanyInformationMgt.GetCompanyBankAccount),
+          '', GetBankAccountPostingGroup(CompanyInformationMgt.GetCompanyBankAccount()),
           BankAccount.FieldCaption("Bank Acc. Posting Group"));
     end;
 
@@ -526,7 +524,7 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         // [GIVEN] Company Bank Account is set up, where "Bank Acc. Posting Group" = 'CHECKING'
         OriginalPostingGroup := 'CHECKING';
-        BankAccount."No." := CompanyInformationMgt.GetCompanyBankAccount;
+        BankAccount."No." := CompanyInformationMgt.GetCompanyBankAccount();
         BankAccount."Bank Acc. Posting Group" := OriginalPostingGroup;
         BankAccount.Insert();
 
@@ -548,7 +546,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         Assert.AreEqual(CompanyInformation.IBAN, BankAccount.IBAN, BankAccount.FieldCaption(IBAN));
         // [THEN] Bank Account Posting Group is still 'CHECKING'
         Assert.AreEqual(
-          OriginalPostingGroup, GetBankAccountPostingGroup(CompanyInformationMgt.GetCompanyBankAccount),
+          OriginalPostingGroup, GetBankAccountPostingGroup(CompanyInformationMgt.GetCompanyBankAccount()),
           BankAccount.FieldCaption("Bank Acc. Posting Group"));
     end;
 
@@ -566,11 +564,11 @@ codeunit 139301 "Assisted Company Setup Tests"
         CheckWizardVisibility(PAGE::"Approval Workflow Setup Wizard", true);
 
         // [WHEN] Only Basic Application Area is Enabled
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [THEN] Approval Workflow Setup Wizard is not visible in Assisted Setup
         CheckWizardVisibility(PAGE::"Approval Workflow Setup Wizard", false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -587,7 +585,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         CheckWizardVisibility(PAGE::"CRM Connection Setup Wizard", true);
 
         // [WHEN] Only Basic Application Area is Enabled
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         // [THEN] CRM Connection Setup Wizard is not visible in Assisted Setup
         CheckWizardVisibility(PAGE::"CRM Connection Setup Wizard", false);
     end;
@@ -600,12 +598,12 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         AssistedSetupPag: TestPage "Assisted Setup";
     begin
-        InitializeEventSubscription;
+        InitializeEventSubscription();
 
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
 
-        AssistedSetupPag.OpenView;
+        AssistedSetupPag.OpenView();
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
         AssistedSetupPag.Close();
@@ -619,12 +617,12 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         AssistedSetupPag: TestPage "Assisted Setup";
     begin
-        InitializeEventSubscription;
+        InitializeEventSubscription();
 
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
 
-        AssistedSetupPag.OpenView;
+        AssistedSetupPag.OpenView();
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
 
@@ -642,11 +640,11 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         AssistedSetupPag: TestPage "Assisted Setup";
     begin
-        InitializeEventSubscription;
+        InitializeEventSubscription();
 
         AssistedSetupTestLibrary.DeleteAll();
 
-        AssistedSetupPag.OpenView;
+        AssistedSetupPag.OpenView();
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         // [THEN] Assisted Setup has records
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
@@ -657,9 +655,9 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         AssistedSetupTestLibrary.DeleteAll();
 
-        AssistedSetupPag.OpenView;
+        AssistedSetupPag.OpenView();
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
-        Assert.IsFalse(AssistedSetupPag.First, 'Unexpected Inactive page within the filter, inactive page should have been deleted.');
+        Assert.IsFalse(AssistedSetupPag.First(), 'Unexpected Inactive page within the filter, inactive page should have been deleted.');
         AssistedSetupPag.Close();
     end;
 
@@ -672,35 +670,35 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupPag: TestPage "Assisted Setup";
         GuidedExperience: Codeunit "Guided Experience";
     begin
-        InitializeEventSubscription;
+        InitializeEventSubscription();
 
         AssistedSetupTestLibrary.DeleteAll();
 
-        AssistedSetupPag.OpenView;
+        AssistedSetupPag.OpenView();
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         // [THEN] Assisted Setup has records
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
-        AssistedSetupPag."Start Setup".Invoke;
+        AssistedSetupPag."Start Setup".Invoke();
         Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Item List"), 'Incorrect wizard status');
         AssistedSetupPag.Close();
     end;
 
     local procedure RunWizardToCompletionAndTestEvents(var AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard")
     begin
-        AssistedCompanySetupWizard.Trap;
+        AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
 
         with AssistedCompanySetupWizard do begin
-            ActionNext.Invoke; // Start the wizard
-            ActionBack.Invoke; // Welcome page
-            ActionNext.Invoke; // Company's Address Information page
-            ActionNext.Invoke; // Contact Information page
+            ActionNext.Invoke(); // Start the wizard
+            ActionBack.Invoke(); // Welcome page
+            ActionNext.Invoke(); // Company's Address Information page
+            ActionNext.Invoke(); // Contact Information page
             if BankStatementProviderExist then
-                ActionNext.Invoke; // Online Bank Account Linking page
-            ActionNext.Invoke; // Bank Account Information page
-            ActionNext.Invoke; // Costing Method
-            ActionNext.Invoke; // That's it page
-            Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
+                ActionNext.Invoke(); // Online Bank Account Linking page
+            ActionNext.Invoke(); // Bank Account Information page
+            ActionNext.Invoke(); // Costing Method
+            ActionNext.Invoke(); // That's it page
+            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
         end;
     end;
 
@@ -722,7 +720,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UT] [Assisted Company Setup]
         // [SCENARIO 273424] When CreateAccountingPeriod is called with <blank> StartDate in codeunit Assisted Company Setup then Accounting Periods are not created
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [GIVEN] New company with empty Accounting Period table
         AccountingPeriod.DeleteAll();
@@ -744,7 +742,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UT] [Assisted Company Setup]
         // [SCENARIO 273424] When CreateAccountingPeriod is called with <non-blank> StartDate in codeunit Assisted Company Setup then 13 Accounting Periods are created
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [GIVEN] New company with empty Accounting Period table
         AccountingPeriod.DeleteAll();
@@ -773,11 +771,11 @@ codeunit 139301 "Assisted Company Setup Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [GIVEN] Mock company "FROM" setup status "Completed"
-        CompanyFromName := GetRandomCompanyName;
+        CompanyFromName := GetRandomCompanyName();
         MockSetupStatusCompleted(CompanyFromName);
 
         // [WHEN] Function CopySaaSCompanySetupStatus for company "TO" is being run
-        CompanyToName := GetRandomCompanyName;
+        CompanyToName := GetRandomCompanyName();
         AssistedCompanySetupStatus.CopySaaSCompanySetupStatus(CompanyFromName, CompanyToName);
 
         // [THEN] AssistedCompanySetupStatus record is not created
@@ -803,11 +801,11 @@ codeunit 139301 "Assisted Company Setup Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Mock company "FROM" setup status "Completed"
-        CompanyFromName := GetRandomCompanyName;
+        CompanyFromName := GetRandomCompanyName();
         MockSetupStatusCompleted(CompanyFromName);
 
         // [WHEN] Function CopySaaSCompanySetupStatus for company "TO" is being run
-        CompanyToName := GetRandomCompanyName;
+        CompanyToName := GetRandomCompanyName();
         AssistedCompanySetupStatus.CopySaaSCompanySetupStatus(CompanyFromName, CompanyToName);
 
         // [THEN] AssistedCompanySetupStatus record is created with "Task ID" = NullGuid
@@ -835,12 +833,12 @@ codeunit 139301 "Assisted Company Setup Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Company "FROM" setup status empty
-        CompanyFromName := GetRandomCompanyName;
+        CompanyFromName := GetRandomCompanyName();
         if AssistedCompanySetupStatus.Get(CompanyFromName) then
             AssistedCompanySetupStatus.Delete();
 
         // [WHEN] Function CopySaaSCompanySetupStatus for company "TO" is being run
-        CompanyToName := GetRandomCompanyName;
+        CompanyToName := GetRandomCompanyName();
         AssistedCompanySetupStatus.CopySaaSCompanySetupStatus(CompanyFromName, CompanyToName);
 
         // [THEN] AssistedCompanySetupStatus record is not created
@@ -861,18 +859,18 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 298121] Post code can be picked with lookup
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [GIVEN] Post Code with Code = "CODE", City = "CITY", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] The company setup wizard is on the general information page
-        AssistedCompanySetupWizard.OpenEdit;
+        AssistedCompanySetupWizard.OpenEdit();
 
         // [WHEN] Post Code lookup is being choosen and created post code record picked
         LibraryVariableStorage.Enqueue(PostCode."Country/Region Code");
         LibraryVariableStorage.Enqueue(PostCode.Code);
-        AssistedCompanySetupWizard."Post Code".Lookup;
+        AssistedCompanySetupWizard."Post Code".Lookup();
 
         // [THEN] Company Wizard has Post Code = "CODE", City = "CITY", Country/Region Code = "CRC"
         AssistedCompanySetupWizard."Post Code".AssertEquals(PostCode.Code);
@@ -891,13 +889,13 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 298121] City and country code are copied from Post Code record when user enters existing post code
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [GIVEN] Post Code with Code = "CODE", City = "CITY", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] The company setup wizard is on the general information page
-        AssistedCompanySetupWizard.OpenEdit;
+        AssistedCompanySetupWizard.OpenEdit();
 
         // [WHEN] Post Code is being set to "CODE"
         AssistedCompanySetupWizard."Post Code".SetValue(PostCode.Code);
@@ -919,18 +917,18 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 298121] City can be picked with lookup
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [GIVEN] Post Code with Code = "CODE", City = "CITY", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] The company setup wizard is on the general information page
-        AssistedCompanySetupWizard.OpenEdit;
+        AssistedCompanySetupWizard.OpenEdit();
 
         // [WHEN] City lookup is being choosen and created post code record picked
         LibraryVariableStorage.Enqueue(PostCode."Country/Region Code");
         LibraryVariableStorage.Enqueue(PostCode.City);
-        AssistedCompanySetupWizard.City.Lookup;
+        AssistedCompanySetupWizard.City.Lookup();
 
         // [THEN] Company Wizard has Post Code = "CODE", City = "CITY", Country/Region Code = "CRC"
         AssistedCompanySetupWizard."Post Code".AssertEquals(PostCode.Code);
@@ -949,13 +947,13 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 298121] Post code and country code are copied from Post Code record when user enters existing city
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [GIVEN] Post Code with Code = "CODE", City = "CITY", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] The company setup wizard is on the general information page
-        AssistedCompanySetupWizard.OpenEdit;
+        AssistedCompanySetupWizard.OpenEdit();
 
         // [WHEN] City is being set to "CITY"
         AssistedCompanySetupWizard.City.SetValue(PostCode.City);
@@ -978,13 +976,13 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 298121] Post code and city are cleared when user changes country/region code
-        InitializeForWizard;
+        InitializeForWizard();
 
         // [GIVEN] Post Code with Code = "CODE", City = "CITY", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] The company setup wizard is on the general information page
-        AssistedCompanySetupWizard.OpenEdit;
+        AssistedCompanySetupWizard.OpenEdit();
 
         // [GIVEN] Post Code = "CODE", City = "CITY", Country/Region Code = "CRC"
         AssistedCompanySetupWizard.City.SetValue(PostCode.City);
@@ -1013,7 +1011,6 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         GLEntry: Record "G/L Entry";
         ConfigurationPackageFile: Record "Configuration Package File";
-        AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
     begin
         // Delete G/L Entries to mock a new company which isn't in use already
         GLEntry.DeleteAll();
@@ -1090,37 +1087,25 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Scope('OnPrem')]
     procedure ItemListHandler(var ItemList: TestPage "Item List")
     begin
-        ItemList.OK.Invoke;
-    end;
-
-    local procedure VerifyInventorySetup(var AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard"; CostingMethod: Enum "Costing Method")
-    var
-        InventorySetup: Record "Inventory Setup";
-    begin
-        InventorySetup.Get();
-        InventorySetup.TestField("Default Costing Method", CostingMethod);
-        InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
-        InventorySetup.TestField("Automatic Cost Posting", true);
-        InventorySetup.TestField("Average Cost Period", InventorySetup."Average Cost Period"::Day);
-        InventorySetup.TestField("Average Cost Calc. Type", InventorySetup."Average Cost Calc. Type"::Item);
+        ItemList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostCodeModalPageHandler(var PostCodes: TestPage "Post Codes")
     begin
-        PostCodes.FILTER.SetFilter("Country/Region Code", LibraryVariableStorage.DequeueText);
-        PostCodes.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        PostCodes.OK.Invoke;
+        PostCodes.FILTER.SetFilter("Country/Region Code", LibraryVariableStorage.DequeueText());
+        PostCodes.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        PostCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostCodeCityModalPageHandler(var PostCodes: TestPage "Post Codes")
     begin
-        PostCodes.FILTER.SetFilter("Country/Region Code", LibraryVariableStorage.DequeueText);
-        PostCodes.FILTER.SetFilter(City, LibraryVariableStorage.DequeueText);
-        PostCodes.OK.Invoke;
+        PostCodes.FILTER.SetFilter("Country/Region Code", LibraryVariableStorage.DequeueText());
+        PostCodes.FILTER.SetFilter(City, LibraryVariableStorage.DequeueText());
+        PostCodes.OK().Invoke();
     end;
 }
 

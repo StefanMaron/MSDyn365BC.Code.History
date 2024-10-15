@@ -16,7 +16,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
         Bin2: Record Bin;
         Bin3: Record Bin;
         LocationWithRequirePick: Record Location;
-        WarehouseEmployee: Record "Warehouse Employee";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
         LibraryResource: Codeunit "Library - Resource";
@@ -30,8 +29,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
-        ConfirmDialogLinkedJobJnlErr: Label 'Confirmation dialog should be shown if there exists a linked job journal line';
-        JobJournalPostConfirmQstLbl: Label 'Do you want to post the journal lines?';
         NothingToCreateMsg: Label 'nothing to create';
         SumValueUnequalErr: Label 'The actual value and the expected sum of filtered %1 %2 are not equal', Comment = '%1 = Item Ledger Entries, %2 = Quantity';
         FieldMustNotBeChangedErr: Label 'must not be changed when a %1 for this %2 exists: ';
@@ -415,7 +412,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
         JobTask: Record "Job Task";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
-        WarehouseEmployee: Record "Warehouse Employee";
         InventoryPickPage: TestPage "Inventory Pick";
         QtyInventory: Integer;
     begin
@@ -550,9 +546,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
-        WarehouseEmployee: Record "Warehouse Employee";
-        JobPlanningLinePage: TestPage "Job Planning Lines";
         QtyInventory: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
@@ -592,9 +585,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
-        JobPlanningLinePage: TestPage "Job Planning Lines";
         QtyInventory: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
@@ -847,7 +838,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
         Job: Record Job;
         JobTask: Record "Job Task";
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
-        WarehouseEmployee: Record "Warehouse Employee";
         NewLocation: Record Location;
         NewBin: Record Bin;
         NewBinContent: Record "Bin Content";
@@ -973,7 +963,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
     procedure PostPickUsesJobNoAsDocumentNoOnLedgerEntries()
     var
         Item: Record Item;
-        JobJournalLine: Record "Job Journal Line";
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1034,7 +1023,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
     procedure PostPickUsesDocumentNoOnPlanningLineAsDocumentNoOnLedgerEntries()
     var
         Item: Record Item;
-        JobJournalLine: Record "Job Journal Line";
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1124,7 +1112,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
 
         // [THEN] Warn user effects of linked job journal line.
         asserterror OpenRelatedJournalAndPost(JobPlanningLine);
-        Assert.ExpectedError('You cannot post usage for job number');
+        Assert.ExpectedError('You cannot post usage for project number');
     end;
 
     [Test]
@@ -1308,7 +1296,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         Assert.RecordCount(WarehouseActivityLinePick, 2);
 
         // [WHEN] Serial No. field is modified
-        WarehouseActivityLinePick.FindFirst;
+        WarehouseActivityLinePick.FindFirst();
         asserterror WarehouseActivityLinePick.Validate("Serial No.", ItemLedgerEntry."Serial No.");
 
         // [THEN] Error is thrown
@@ -1326,10 +1314,8 @@ codeunit 136317 "Inv. Pick On Job Planning"
         JobPlanningLine2: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        InventoryPickPage: TestPage "Inventory Pick";
         QtyInventory: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
@@ -1382,10 +1368,8 @@ codeunit 136317 "Inv. Pick On Job Planning"
         JobPlanningLine2: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        InventoryPickPage: TestPage "Inventory Pick";
         QtyInventory: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
@@ -1827,7 +1811,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
             DummyJobsSetup.Get();
             DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
             DummyJobsSetup."Apply Usage Link by Default" := true;
-            DummyJobsSetup."Job Nos." := LibraryJob.GetJobTestNoSeries;
+            DummyJobsSetup."Job Nos." := LibraryJob.GetJobTestNoSeries();
             DummyJobsSetup."Document No. Is Job No." := true;
             DummyJobsSetup.Modify();
             ReInitializeJobSetup := false;
@@ -1842,7 +1826,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
-        NoSeries.Get(LibraryJob.GetJobTestNoSeries);
+        NoSeries.Get(LibraryJob.GetJobTestNoSeries());
         NoSeries."Manual Nos." := true;
         NoSeries.Modify();
 
@@ -2183,12 +2167,11 @@ codeunit 136317 "Inv. Pick On Job Planning"
             JobTransferJobPlanLine.JobJournalBatchName.Value := JobJournalBatch.Name;
         end;
 
-        JobTransferJobPlanLine.OK.Invoke();
+        JobTransferJobPlanLine.OK().Invoke();
     end;
 
     local procedure CreateAndPostInvtAdjustmentWithSNTracking(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
-        ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
     begin
 

@@ -213,13 +213,12 @@ codeunit 142101 "Item Chrg. Upd. Doc. Ln. Gr."
         LibraryERM.SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
         GeneralPostingSetup.Modify(true);
 
-        ItemCharge.validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        ItemCharge.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         ItemCharge.Modify(false);
     end;
 
     local procedure VerifySalesLines(SalesShptDocNo: Code[20]; ReturnRcptDocNo: Code[20]; GenProdPostingGroupCode: Code[20])
     var
-        SalesLine: Record "Sales Line";
         SalesShipmentLine: Record "Sales Shipment Line";
         ReturnReceiptLine: Record "Return Receipt Line";
     begin
@@ -240,7 +239,6 @@ codeunit 142101 "Item Chrg. Upd. Doc. Ln. Gr."
 
     local procedure VerifyPurchaseLines(PurchRcptDocNo: Code[20]; ReturnShptDocNo: Code[20]; GenProdPostingGroupCode: Code[20])
     var
-        PurchaseLine: Record "Purchase Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         ReturnShipmentLine: Record "Return Shipment Line";
     begin

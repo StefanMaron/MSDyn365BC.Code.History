@@ -56,9 +56,9 @@ codeunit 144002 "Sales/Purchase Reports"
         REPORT.Run(REPORT::"Purchase Order Status");
 
         // Verify: Verify all amounts are in base currency on Purchase Order Status Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(ItemNo, PurchaseLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(OutstandingAmount, Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals(LineDiscountAmount, LineDiscAmt);
         LibraryReportDataset.AssertCurrentRowValueEquals(InvDiscountAmount, InvDiscAmt);
@@ -96,9 +96,9 @@ codeunit 144002 "Sales/Purchase Reports"
         REPORT.Run(REPORT::"Sales Order Status");
 
         // Verify: Verify all amounts are in base currency on Sales Order Status Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(ItemNo, SalesLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(OutstandingAmountSales, Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals(LineDiscountAmountSales, LineDiscAmt);
         LibraryReportDataset.AssertCurrentRowValueEquals(InvDiscountAmountSales, InvDiscAmt);
@@ -117,24 +117,23 @@ codeunit 144002 "Sales/Purchase Reports"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.CalculateInvoiceDiscount.Invoke;  // Invoke Calculate Invoice Discount.
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();  // Invoke Calculate Invoice Discount.
     end;
 
     local procedure CalcInvDiscountForSales(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
     end;
 
     local procedure CreateCurrency(): Code[10]
     var
         Currency: Record Currency;
-        GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
@@ -144,7 +143,7 @@ codeunit 144002 "Sales/Purchase Reports"
     local procedure CreateCustomerWithCurrency(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Currency Code", CreateCurrency);
+        Customer.Validate("Currency Code", CreateCurrency());
         Customer.Modify(true);
     end;
 
@@ -182,7 +181,7 @@ codeunit 144002 "Sales/Purchase Reports"
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Taken Random Quantity.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Taken Random Quantity.
         PurchaseLine.Validate("Line Discount %", LineDiscount);
         PurchaseLine.Modify(true);
     end;
@@ -192,7 +191,7 @@ codeunit 144002 "Sales/Purchase Reports"
         SalesHeader: Record "Sales Header";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Taken Random Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Taken Random Quantity.
         SalesLine.Validate("Line Discount %", LineDiscount);
         SalesLine.Modify(true);
     end;
@@ -200,7 +199,7 @@ codeunit 144002 "Sales/Purchase Reports"
     local procedure CreateVendorWithCurrency(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Currency Code", CreateCurrency);
+        Vendor.Validate("Currency Code", CreateCurrency());
         Vendor.Modify(true);
     end;
 
@@ -219,7 +218,7 @@ codeunit 144002 "Sales/Purchase Reports"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseOrderStatus.Item.SetFilter("No.", No);
-        PurchaseOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -230,7 +229,7 @@ codeunit 144002 "Sales/Purchase Reports"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesOrderStatus.Item.SetFilter("No.", No);
-        SalesOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -8,6 +8,7 @@ table 27020 "SAT MX Resources"
 {
     Caption = 'SAT MX Resources';
     DataPerCompany = false;
+    DataClassification = CustomerContent;
 
     fields
     {

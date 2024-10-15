@@ -5,14 +5,13 @@ codeunit 132566 "Read Master Data from Cache 2"
     var
         FileName: Text;
     begin
-        FileName := IdentifyCacheLocation;
+        FileName := IdentifyCacheLocation();
         ReadFileFromCache(TempBlob, FileName);
     end;
 
     var
         ImportFileQst: Label 'File is not available in the cache. Do you want to import it?';
         SetupTableMissingErr: Label '%1 is missing.', Comment = '%1=TableCaption';
-        UploadFileQst: Label 'File is not located on the server. Do you want to upload it?';
         TempBlob: Codeunit "Temp Blob";
 
     local procedure IdentifyCacheLocation(): Text
@@ -33,7 +32,7 @@ codeunit 132566 "Read Master Data from Cache 2"
     begin
         ReadFileInBase64Encoding.SetFileName(FileName);
 
-        if not ReadFileInBase64Encoding.Run then begin
+        if not ReadFileInBase64Encoding.Run() then begin
             DotNetExceptionHandler.Collect();
             ReadFileInBase64Encoding.GetTempBlob(TempBlob2);
             case true of

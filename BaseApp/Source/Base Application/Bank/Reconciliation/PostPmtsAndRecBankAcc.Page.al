@@ -22,12 +22,10 @@ page 417 "Post Pmts and Rec. Bank Acc."
                     BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
                 begin
                     Rec.Modify();
-                    with BankAccReconciliationLine do begin
-                        LinesExist(Rec);
-                        CalcSums("Statement Amount", Difference);
-                        TotalBalance := Rec."Balance Last Statement" + "Statement Amount";
-                        CurrPage.Update();
-                    end;
+                    BankAccReconciliationLine.LinesExist(Rec);
+                    BankAccReconciliationLine.CalcSums("Statement Amount", Difference);
+                    TotalBalance := Rec."Balance Last Statement" + BankAccReconciliationLine."Statement Amount";
+                    CurrPage.Update();
                 end;
             }
             field("Statement Ending Balance"; Rec."Statement Ending Balance")
@@ -67,11 +65,9 @@ page 417 "Post Pmts and Rec. Bank Acc."
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        with BankAccReconciliationLine do begin
-            LinesExist(Rec);
-            CalcSums("Statement Amount", Difference);
-            TotalBalance := Rec."Balance Last Statement" + "Statement Amount";
-        end;
+        BankAccReconciliationLine.LinesExist(Rec);
+        BankAccReconciliationLine.CalcSums("Statement Amount", Difference);
+        TotalBalance := Rec."Balance Last Statement" + BankAccReconciliationLine."Statement Amount";
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

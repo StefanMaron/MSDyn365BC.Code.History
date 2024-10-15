@@ -15,7 +15,6 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibrarySales: Codeunit "Library - Sales";
@@ -57,23 +56,23 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         FindAndUpdateWhseActivityPostingDate(
           WarehouseActivityHeader, WarehouseActivityLine,
           DATABASE::"Sales Line", SalesHeader."No.",
-          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate + 1);
+          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate() + 1);
         LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
 
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhseActivityPost.Preview(WarehouseActivityLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the pick is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -84,7 +83,6 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         SalesHeader: Record "Sales Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        Item: Record Item;
         Location: Record Location;
         Bin: Record Bin;
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -118,18 +116,18 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         FindAndUpdateWhseActivityPostingDate(
           WarehouseActivityHeader, WarehouseActivityLine,
           DATABASE::"Sales Line", SalesHeader."No.",
-          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate + 1);
+          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate() + 1);
         LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
 
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhseActivityPost.Preview(WarehouseActivityLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the pick is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
@@ -138,7 +136,7 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, WarehouseEntry.TableCaption(), 1);
 
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -185,23 +183,23 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         FindAndUpdateWhseActivityPostingDate(
           WarehouseActivityHeader, WarehouseActivityLine,
          Database::"Prod. Order Component", ProductionOrder."No.",
-          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate + 1);
+          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate() + 1);
         LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
 
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhseActivityPost.Preview(WarehouseActivityLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the pick is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -257,18 +255,18 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         FindAndUpdateWhseActivityPostingDate(
           WarehouseActivityHeader, WarehouseActivityLine,
          Database::"Prod. Order Component", ProductionOrder."No.",
-          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate + 1);
+          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate() + 1);
         LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
 
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhseActivityPost.Preview(WarehouseActivityLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the pick is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
@@ -276,7 +274,7 @@ codeunit 134778 "Test Invt. Pick Post Preview"
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, WarehouseEntry.TableCaption(), 1);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -428,18 +426,18 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         // [THEN] Inventory Pick lines are created
         FindAndUpdateWhseActivityPostingDate(
           WarehouseActivityHeader, WarehouseActivityLine, Database::Job, Job."No.",
-          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate + 1);
+          WarehouseActivityHeader.Type::"Invt. Pick", WorkDate() + 1);
         LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
 
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhseActivityPost.Preview(WarehouseActivityLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the pick is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
@@ -450,7 +448,7 @@ codeunit 134778 "Test Invt. Pick Post Preview"
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, WarehouseEntry.TableCaption(), 1);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     local procedure Initialize()
@@ -511,8 +509,8 @@ codeunit 134778 "Test Invt. Pick Post Preview"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-        Item.Validate("Item Tracking Code", CreateItemTrackingCode);
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Item Tracking Code", CreateItemTrackingCode());
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
@@ -586,14 +584,13 @@ codeunit 134778 "Test Invt. Pick Post Preview"
 
     local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateSalesDocumentWithLineLocation(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; LocationCode: Code[10]; BinCode: Code[10])
     var
         SalesLine: Record "Sales Line";
-        UserSetup: Record "User Setup";
         ItemJournalLine: Record "Item Journal Line";
         Item: Record Item;
     begin
@@ -634,7 +631,7 @@ codeunit 134778 "Test Invt. Pick Post Preview"
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
     begin
         Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
-        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger,
+        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger(),
           StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
     end;
 
@@ -643,7 +640,7 @@ codeunit 134778 "Test Invt. Pick Post Preview"
     procedure CreateInvtPickRequestPageHandler(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
     begin
         CreateInvtPutawayPickMvmt.CInvtPick.SetValue(true);
-        CreateInvtPutawayPickMvmt.OK.Invoke;
+        CreateInvtPutawayPickMvmt.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -664,10 +661,10 @@ codeunit 134778 "Test Invt. Pick Post Preview"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
     end;
 }
 

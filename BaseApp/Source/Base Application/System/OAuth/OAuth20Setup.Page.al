@@ -67,7 +67,7 @@ page 1140 "OAuth 2.0 Setup"
             group("Request Authorization Code")
             {
                 Caption = 'Request Authorization Code';
-                Visible = RequestAuthorizationCodeInvoked OR (Rec.Status = Rec.Status::Disabled) OR (Rec.Status = Rec.Status::Error);
+                Visible = RequestAuthorizationCodeInvoked or (Rec.Status = Rec.Status::Disabled) or (Rec.Status = Rec.Status::Error);
                 field("Enter Authorization Code"; ReceivedAuthorizationCode)
                 {
                     ApplicationArea = Basic, Suite;
@@ -130,7 +130,7 @@ page 1140 "OAuth 2.0 Setup"
                 RunObject = Page "Data Encryption Management";
                 RunPageMode = View;
                 ToolTip = 'Enable or disable data encryption. Data encryption helps make sure that unauthorized users cannot read business data.';
-                Visible = NOT IsSaas;
+                Visible = not IsSaas;
             }
             action(HttpLog)
             {

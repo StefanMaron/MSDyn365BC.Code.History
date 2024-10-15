@@ -4,6 +4,7 @@ table 7303 "Bin Type"
 {
     Caption = 'Bin Type';
     LookupPageID = "Bin Type List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -110,7 +111,7 @@ table 7303 "Bin Type"
         Text002: Label 'This combination already exists for %1 %2.';
         Text003: Label 'The %1 filter expression is too long.\Please use less Bin Types or shorter %1 Codes.';
 
-    local procedure CheckCombination(CalledByFieldNo: Integer)
+    protected procedure CheckCombination(CalledByFieldNo: Integer)
     var
         BinType: Record "Bin Type";
         IsHandled: Boolean;
@@ -157,20 +158,42 @@ table 7303 "Bin Type"
         end;
     end;
 
+#if not CLEAN24
+    [Obsolete('Replaced by procedure CreateBinTypeFilter(var BinTypeFilter: Text; BinTypeFieldNo: Integer)', '24.0')]
     procedure CreateBinTypeFilter(var BinTypeFilter: Text[250]; Type: Option Receive,Ship,"Put-away",Pick)
+    var
+        BinTypeFilter2: Text;
+    begin
+        case Type of
+            Type::Receive:
+                CreateBinTypeFilter(BinTypeFilter2, FieldNo(Receive));
+            Type::Ship:
+                CreateBinTypeFilter(BinTypeFilter2, FieldNo(Ship));
+            Type::"Put-away":
+                CreateBinTypeFilter(BinTypeFilter2, FieldNo("Put Away"));
+            Type::Pick:
+                CreateBinTypeFilter(BinTypeFilter2, FieldNo(Pick));
+        end;
+        BinTypeFilter := CopyStr(BinTypeFilter2, 1, MaxStrLen(BinTypeFilter));
+    end;
+#endif
+
+    procedure CreateBinTypeFilter(var BinTypeFilter: Text; BinTypeFieldNo: Integer)
     var
         BinType: Record "Bin Type";
     begin
         BinTypeFilter := '';
-        case Type of
-            Type::Receive:
+        case BinTypeFieldNo of
+            BinType.FieldNo(Receive):
                 BinType.SetRange(Receive, true);
-            Type::Ship:
+            BinType.FieldNo(Ship):
                 BinType.SetRange(Ship, true);
-            Type::"Put-away":
+            BinType.FieldNo("Put away"):
                 BinType.SetRange("Put Away", true);
-            Type::Pick:
+            BinType.FieldNo(Pick):
                 BinType.SetRange(Pick, true);
+            else
+                OnCreateBinTypeFilterElseCase(BinType, BinTypeFieldNo);
         end;
         if BinType.Find('-') then
             repeat
@@ -193,6 +216,11 @@ table 7303 "Bin Type"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckCombinationOnBeforeFindFirst(var RecBinType: Record "Bin Type"; var BinType: Record "Bin Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateBinTypeFilterElseCase(var BinType: Record "Bin Type"; BinTypeFieldNo: Integer)
     begin
     end;
 }

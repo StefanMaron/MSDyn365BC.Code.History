@@ -235,7 +235,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Return Order");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         OpenSalesRetOrdPage(SalesReturnOrder, SalesHeader);
-        SalesReturnOrder.Statistics.Invoke;  // Invoke to open Sales Order Statistics page.
+        SalesReturnOrder.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
 
         // Exercise: Post Sales Return Order.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -277,7 +277,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         Initialize();
 
         // Exercise.
-        JurisdictionCode := LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US;
+        JurisdictionCode := LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US();
 
         // Verify: Verify created Tax Jurisdiction exists.
         TaxJurisdiction.Get(JurisdictionCode);
@@ -571,7 +571,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         OpenSalesInvoicePage(SalesInvoice, SalesHeader);
-        SalesInvoice.Statistics.Invoke;  // Invoke to open Sales Order Statistics page.
+        SalesInvoice.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
 
         // Exercise: Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -602,7 +602,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         OpenSalesOrderPage(SalesOrder, SalesHeader);
-        SalesOrder.Statistics.Invoke;  // Invoke to open Sales Order Statistics page.
+        SalesOrder.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
 
         // Exercise.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -672,7 +672,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Verify Amount after posting Invoice using Sales Journal in G/L Entry using currency.
-        SetupForPostSalesJournal(GenJournalLine."Document Type"::Invoice, CreateCurrency, -LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount.
+        SetupForPostSalesJournal(GenJournalLine."Document Type"::Invoice, CreateCurrency(), -LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount.
     end;
 
     [Test]
@@ -682,7 +682,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Verify Amount after posting Credit Memo using Sales Journal in G/L Entry using currency.
-        SetupForPostSalesJournal(GenJournalLine."Document Type"::"Credit Memo", CreateCurrency, LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount.
+        SetupForPostSalesJournal(GenJournalLine."Document Type"::"Credit Memo", CreateCurrency(), LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount.
     end;
 
     [Test]
@@ -695,7 +695,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SetupForPostSalesJournal(GenJournalLine."Document Type"::Invoice, '', -LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount and Using blank for Currency Code.
     end;
 
-    local procedure SetupForPostSalesJournal(DocumentType: Option; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure SetupForPostSalesJournal(DocumentType: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         AmountLCY: Decimal;
@@ -722,7 +722,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // Verify G/L Entry after posting Payment applied with Invoice using Currency.
         SetupForApplyGenJournalLine(
-          GenJournalLine."Document Type"::Invoice, CreateCurrency, -LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount.
+          GenJournalLine."Document Type"::Invoice, CreateCurrency(), -LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount.
     end;
 
     [Test]
@@ -733,7 +733,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // Verify G/L Entry after posting Payment applied with Credit Memo using Currency.
         SetupForApplyGenJournalLine(
-          GenJournalLine."Document Type"::"Credit Memo", CreateCurrency, LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount.
+          GenJournalLine."Document Type"::"Credit Memo", CreateCurrency(), LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount.
     end;
 
     [Test]
@@ -747,7 +747,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
           GenJournalLine."Document Type"::Invoice, '', -LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Amount and Using blank for Currency Code.
     end;
 
-    local procedure SetupForApplyGenJournalLine(DocumentType: Option; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure SetupForApplyGenJournalLine(DocumentType: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         AmountLCY: Decimal;
@@ -788,7 +788,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesOrderPage(SalesOrder, SalesHeader);
 
         // Exercise.
-        SalesOrder.Statistics.Invoke;  // Invoke to open Sales Order Statistics page.
+        SalesOrder.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
 
         // Verify: Verify Tax Amount on Sales Order Statistics. Verification done in SalesOrderStatisticsPageHandler.
     end;
@@ -818,7 +818,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesOrderPage(SalesOrder, SalesHeader);
 
         // Exercise.
-        SalesOrder.Statistics.Invoke;  // Invoke to open Sales Order Statistics page.
+        SalesOrder.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
 
         // Verify: Verify values on Sales Tax Lines Subform Dyn page. Verification done in SalesTaxLinesSubformDynPageHandler.
     end;
@@ -892,7 +892,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesCrMemoPage(SalesCreditMemo, SalesHeader);
 
         // Exercise.
-        SalesCreditMemo.Statistics.Invoke;  // Invoke to open Sales Credit Memo Statistics page.
+        SalesCreditMemo.Statistics.Invoke();  // Invoke to open Sales Credit Memo Statistics page.
 
         // Verify: Verify Tax Amount on Sales Credit Memo Statistics page. Verification done in SalesOrderStatisticsPageHandler.
     end;
@@ -922,7 +922,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesCrMemoPage(SalesCreditMemo, SalesHeader);
 
         // Exercise.
-        SalesCreditMemo.Statistics.Invoke;  // Invoke to open Sales Credit Memo Statistics page.
+        SalesCreditMemo.Statistics.Invoke();  // Invoke to open Sales Credit Memo Statistics page.
 
         // Verify: Verify values on Sales Tax Lines Subform Dyn page. Verification done in SalesTaxLinesSubformDynPageHandler.
     end;
@@ -942,7 +942,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Setup: Create and post Sales Credit Memo.
         Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
-        SalesLine.Validate("Currency Code", CreateCurrency);
+        SalesLine.Validate("Currency Code", CreateCurrency());
         SalesLine.Modify(true);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         AmountLCY := LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesLine."Currency Code", '', WorkDate());
@@ -1079,7 +1079,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesQuotePage(SalesQuote, SalesHeader);
 
         // Exercise.
-        SalesQuote.Statistics.Invoke;
+        SalesQuote.Statistics.Invoke();
 
         // Verify: Verify Tax Amount on Sales Quote Statistics page. Verification done in SalesStatsPageHandler.
     end;
@@ -1110,7 +1110,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesOrderPage(SalesOrder, SalesHeaderOrder);
 
         // Exercise.
-        SalesOrder.Statistics.Invoke;  // Invoke to open Sales Order Statistics page.
+        SalesOrder.Statistics.Invoke();  // Invoke to open Sales Order Statistics page.
 
         // Verify: Verify Tax Amount on Sales Order Statistics. Verification done in SalesOrderStatisticsPageHandler.
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -1160,8 +1160,8 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Setup: Set Automatic Cost Posting to TRUE and create Sales Quote, Make Order and find Sales Order create after Make Order.
         Initialize();
-        ModifyInventorySetup;
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomerWithInvDisc);
+        ModifyInventorySetup();
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomerWithInvDisc());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(10));  // Using RANDOM value for Quantity.
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
@@ -1200,7 +1200,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenServiceOrderPage(ServiceHeader, ServiceOrder);
 
         // Exercise.
-        ServiceOrder.Statistics.Invoke;  // Invoke to open Service Order Statistics page.
+        ServiceOrder.Statistics.Invoke();  // Invoke to open Service Order Statistics page.
 
         // Verify: Verify values on Sales Tax Lines Subform Dyn page. Verification done in SalesTaxLinesSubformDynPageHandler.
     end;
@@ -1227,7 +1227,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenServiceCrMemoPage(ServiceHeader, ServiceCreditMemo);
 
         // Exercise.
-        ServiceCreditMemo.Statistics.Invoke;  // Invoke to open Service Order Statistics page.
+        ServiceCreditMemo.Statistics.Invoke();  // Invoke to open Service Order Statistics page.
 
         // Verify: Verify Tax Amount on Service Credit Memo Statistics page. Verification done in ServiceCrMemoStatisticsPageHandler.
     end;
@@ -1373,7 +1373,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] A Sales Order
         // [WHEN] The No. Vat Lines on the general tab is pressed.
         // [THEN] The Tax Amount is not editable.
-        SetupSalesVATLines;
+        SetupSalesVATLines();
     end;
 
     [Test]
@@ -1392,7 +1392,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] A Sales Order
         // [WHEN] The No. Vat Lines on the general tab is pressed.
         // [THEN] The Tax Amount is editable.
-        SetupSalesVATLines;
+        SetupSalesVATLines();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1411,7 +1411,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [WHEN] The No. Vat Lines on the invoicing tab is pressed.
         // [THEN] The Tax Amount is editable.
 
-        SetupSalesVATLines;
+        SetupSalesVATLines();
     end;
 
     [Test]
@@ -1431,7 +1431,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [WHEN] The No. Vat Lines on the invoicing tab is pressed.
         // [THEN] The Tax Amount is editable.
 
-        SetupSalesVATLines;
+        SetupSalesVATLines();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1445,7 +1445,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Shipping when Sales Order open.
         Initialize();
         LibraryVariableStorage.Enqueue(SalesNoOfLinesStatistics::Shipping);
-        SetupSalesVATLines;
+        SetupSalesVATLines();
     end;
 
     [Test]
@@ -1458,7 +1458,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Sales Tax Amount Field is Editable on Sales Tax Lines_Prepayment when Sales Order open.
         Initialize();
         EnqueueValuesInOrderStatistics(SalesNoOfLinesStatistics::Prepayment, true, 0, false);
-        SetupSalesVATLines;
+        SetupSalesVATLines();
     end;
 
     [Test]
@@ -1483,7 +1483,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesOrderPage(SalesOrder, SalesHeader);
 
         // Exercise: Open Sales Statistics.
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // Verify: Verify Tax Amount not editable on Sales Tax Lines_Shipping Tab after releasing.
     end;
@@ -1513,7 +1513,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesOrderPage(SalesOrder, SalesHeader);
 
         // After Releasing Sales Order update Tax Amount on Sales Tax Lines.
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // After Updating Tax Amount Reopen Sales Order.
         LibrarySales.ReopenSalesDocument(SalesHeader);
@@ -1521,7 +1521,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         EnqueueValuesInOrderStatistics(SalesNoOfLines::General, false, Amount, false);
 
         // Exercise: Open Sales Statistics.
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // Verify: Verify Tax Amount should be Updated Tax Amount after reopening Sales Tax Lines Subform Dyn page.
     end;
@@ -1536,7 +1536,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_General when Purchase Order open.
         Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::General);
-        SetupPurchaseVATLines;
+        SetupPurchaseVATLines();
     end;
 
     [Test]
@@ -1551,7 +1551,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::General);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        SetupPurchaseVATLines;
+        SetupPurchaseVATLines();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1565,7 +1565,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Invoice when Purchase Order open.
         Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Invoicing);
-        SetupPurchaseVATLines;
+        SetupPurchaseVATLines();
     end;
 
     [Test]
@@ -1580,7 +1580,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Invoicing);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        SetupPurchaseVATLines;
+        SetupPurchaseVATLines();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1594,7 +1594,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Shipping when Purchse Order open.
         Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Shipping);
-        SetupPurchaseVATLines;
+        SetupPurchaseVATLines();
     end;
 
     [Test]
@@ -1607,7 +1607,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Sales Tax Amount Field is Editable on Sales Tax Lines_Prepayment when Purchse Order open.
         Initialize();
         EnqueueValuesInOrderStatistics(PurchaseNoOfLinesOnStats::Prepayment, true, 0, false);
-        SetupPurchaseVATLines;
+        SetupPurchaseVATLines();
     end;
 
     [Test]
@@ -1633,7 +1633,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
 
         // Exercise: Open Purchase Statistics.
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
 
         // Verify: Verify Tax Amount not editable on Sales Tax Lines_Shipping Tab after releasing.
     end;
@@ -1664,7 +1664,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
 
         // After Releasing Purchase Order update Tax Amount on Sales Tax Lines.
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
 
         // After Updating Tax Amount Reopen Purchase Order.
         LibraryVariableStorage.Dequeue(Amount);
@@ -1672,7 +1672,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         EnqueueValuesInOrderStatistics(PurchaseNoOfLines::General, false, Amount, false);
 
         // Exercise: Open Purchase Statistics.
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
 
         // Verify: Verify Tax Amount should be Updated Tax Amount after reopening Sales Tax Lines Subform Dyn page.
     end;
@@ -1703,10 +1703,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify Tax Amount and Total
         TaxAmount := Round(SalesLine."Unit Price" * TaxBelowMaximum1 / 100 + SalesLine."Unit Price" * TaxBelowMaximum2 / 100);
-        Total := Round(LibraryReportDataset.Sum('VATAmount') / 2, LibraryERM.GetAmountRoundingPrecision);
+        Total := Round(LibraryReportDataset.Sum('VATAmount') / 2, LibraryERM.GetAmountRoundingPrecision());
 
-        Assert.AreEqual(TaxAmount, SumTaxAmountInTestReport, TaxAmountErr);
-        Assert.AreEqual(Total, SumTaxAmountInTestReport, TaxAmountNotEqualTotalErr);
+        Assert.AreEqual(TaxAmount, SumTaxAmountInTestReport(), TaxAmountErr);
+        Assert.AreEqual(Total, SumTaxAmountInTestReport(), TaxAmountNotEqualTotalErr);
     end;
 
     [Test]
@@ -1735,10 +1735,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify Tax Amount and Total
         TaxAmount := Round(SalesLine."Unit Price" * TaxBelowMaximum1 / 100) + Round(SalesLine."Unit Price" * TaxBelowMaximum2 / 100);
-        Total := Round(LibraryReportDataset.Sum('VATAmount') / 2, LibraryERM.GetAmountRoundingPrecision);
+        Total := Round(LibraryReportDataset.Sum('VATAmount') / 2, LibraryERM.GetAmountRoundingPrecision());
 
-        Assert.AreEqual(TaxAmount, SumTaxAmountInTestReport, TaxAmountErr);
-        Assert.AreEqual(Total, SumTaxAmountInTestReport, TaxAmountNotEqualTotalErr);
+        Assert.AreEqual(TaxAmount, SumTaxAmountInTestReport(), TaxAmountErr);
+        Assert.AreEqual(Total, SumTaxAmountInTestReport(), TaxAmountNotEqualTotalErr);
     end;
 
     [Test]
@@ -1763,7 +1763,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] 3 Tax Jurisdictions. Tax % = 3.35 in each Tax Jurisdiction.
         for i := 1 to 3 do begin
             CreateSalesTaxDetailWithCountry(
-              TaxDetail, LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US, TaxGroup.Code, 3.35);
+              TaxDetail, LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US(), TaxGroup.Code, 3.35);
             LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
         end;
 
@@ -1779,7 +1779,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         REPORT.Run(REPORT::"Sales Document - Test");
 
         // [THEN] Report contains "Tax Amount" = 10 * 0.0335 + 10 * 0.0335 + 10 * 0.0335 = 1.005 = 1.01.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Assert.AreEqual(
           -GetVATEntryAmount(LibrarySales.PostSalesDocument(SalesHeader, true, true)),
           LibraryReportDataset.Sum('SalesTaxAmountLine__Tax_Amount_'), TaxAmountErr);
@@ -1811,10 +1811,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify Tax Amount and Total
         TaxAmount := Round(PurchaseLine.Amount * TaxBelowMaximum1 / 100 + PurchaseLine.Amount * TaxBelowMaximum2 / 100);
-        Total := Round(LibraryReportDataset.Sum('VATAmount') / 2, LibraryERM.GetAmountRoundingPrecision);
+        Total := Round(LibraryReportDataset.Sum('VATAmount') / 2, LibraryERM.GetAmountRoundingPrecision());
 
-        Assert.AreEqual(TaxAmount, SumTaxAmountInTestReport, TaxAmountErr);
-        Assert.AreEqual(Total, SumTaxAmountInTestReport, TaxAmountNotEqualTotalErr);
+        Assert.AreEqual(TaxAmount, SumTaxAmountInTestReport(), TaxAmountErr);
+        Assert.AreEqual(Total, SumTaxAmountInTestReport(), TaxAmountNotEqualTotalErr);
     end;
 
     [Test]
@@ -1843,10 +1843,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify Tax Amount and Total
         TaxAmount := Round(PurchaseLine.Amount * TaxBelowMaximum1 / 100) + Round(PurchaseLine.Amount * TaxBelowMaximum2 / 100);
-        Total := Round(LibraryReportDataset.Sum('VATAmount') / 2, LibraryERM.GetAmountRoundingPrecision);
+        Total := Round(LibraryReportDataset.Sum('VATAmount') / 2, LibraryERM.GetAmountRoundingPrecision());
 
-        Assert.AreEqual(TaxAmount, SumTaxAmountInTestReport, TaxAmountErr);
-        Assert.AreEqual(Total, SumTaxAmountInTestReport, TaxAmountNotEqualTotalErr);
+        Assert.AreEqual(TaxAmount, SumTaxAmountInTestReport(), TaxAmountErr);
+        Assert.AreEqual(Total, SumTaxAmountInTestReport(), TaxAmountNotEqualTotalErr);
     end;
 
     [Test]
@@ -1871,7 +1871,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] 3 Tax Jurisdictions. Tax % = 3.35 in each Tax Jurisdiction.
         for i := 1 to 3 do begin
             CreateSalesTaxDetailWithCountry(
-              TaxDetail, LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US, TaxGroup.Code, 3.35);
+              TaxDetail, LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US(), TaxGroup.Code, 3.35);
             LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
         end;
 
@@ -1887,7 +1887,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         REPORT.Run(REPORT::"Purchase Document - Test");
 
         // [THEN] Report contains "Tax Amount" = 10 * 0.0335 + 10 * 0.0335 + 10 * 0.0335 = 1.005 = 1.01.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Assert.AreEqual(
           GetVATEntryAmount(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true)),
           LibraryReportDataset.Sum('SalesTaxAmountLine__Tax_Amount_'), TaxAmountErr);
@@ -1997,7 +1997,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Payment applied to Sales Invoice
         CreateAndPostGenJournalLineUsingApplication(
           GenJnlLine, DocNo, GenJnlLine."Account Type"::Customer, SalesHeader."Bill-to Customer No.",
-          LibraryERM.CreateGLAccountNo, '', GenJnlLine."Document Type"::Payment,
+          LibraryERM.CreateGLAccountNo(), '', GenJnlLine."Document Type"::Payment,
           GenJnlLine."Applies-to Doc. Type"::Invoice, -SalesLine."Line Amount");
 
         // [WHEN] Unapply Payment
@@ -2046,7 +2046,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Payment applied to Sales Invoice
         CreateAndPostGenJournalLineUsingApplication(
           GenJnlLine, DocNo, GenJnlLine."Account Type"::Vendor, PurchHeader."Pay-to Vendor No.",
-          LibraryERM.CreateGLAccountNo, '', GenJnlLine."Document Type"::Payment,
+          LibraryERM.CreateGLAccountNo(), '', GenJnlLine."Document Type"::Payment,
           GenJnlLine."Applies-to Doc. Type"::Invoice, PurchLine."Line Amount");
 
         // [WHEN] Unapply Payment
@@ -2194,14 +2194,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Order Invoice Subform page.
 
         // [WHEN] Sales Order Invoice Subform is opened in Edit mode.
-        SalesOrderInvoiceSubform.OpenEdit;
+        SalesOrderInvoiceSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          SalesOrderInvoiceSubform."Tax Area Code".Visible,
+          SalesOrderInvoiceSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesOrderInvoiceSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          SalesOrderInvoiceSubform."Tax Area Code".Editable,
+          SalesOrderInvoiceSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, SalesOrderInvoiceSubform."Tax Area Code".Caption));
     end;
 
@@ -2217,14 +2217,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Tax Lines Subform page.
 
         // [WHEN] Sales Tax Lines Subform is opened in Edit mode.
-        SalesTaxLinesSubform.OpenEdit;
+        SalesTaxLinesSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          SalesTaxLinesSubform."Tax Area Code".Visible,
+          SalesTaxLinesSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesTaxLinesSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          SalesTaxLinesSubform."Tax Area Code".Editable,
+          SalesTaxLinesSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, SalesTaxLinesSubform."Tax Area Code".Caption));
     end;
 
@@ -2240,14 +2240,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Tax Lines Serv. Subform page.
 
         // [WHEN] Sales Tax Lines Serv. Subform is opened in Edit mode.
-        SalesTaxLinesServSubform.OpenEdit;
+        SalesTaxLinesServSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          SalesTaxLinesServSubform."Tax Area Code".Visible,
+          SalesTaxLinesServSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesTaxLinesServSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          SalesTaxLinesServSubform."Tax Area Code".Editable,
+          SalesTaxLinesServSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, SalesTaxLinesServSubform."Tax Area Code".Caption));
     end;
 
@@ -2263,14 +2263,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Posted Sales Invoice Subform page.
 
         // [WHEN] Posted Sales Invoice Subform is opened in Edit mode.
-        PostedSalesInvoiceSubform.OpenEdit;
+        PostedSalesInvoiceSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible is set to TRUE and Editable is set to FALSE.
         Assert.IsTrue(
-          PostedSalesInvoiceSubform."Tax Area Code".Visible,
+          PostedSalesInvoiceSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PostedSalesInvoiceSubform."Tax Area Code".Caption));
         Assert.IsFalse(
-          PostedSalesInvoiceSubform."Tax Area Code".Editable,
+          PostedSalesInvoiceSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeNotEditableErr, PostedSalesInvoiceSubform."Tax Area Code".Caption));
     end;
 
@@ -2286,14 +2286,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Posted Sales Cr. Memo Subform page.
 
         // [WHEN] Posted Sales Cr. Memo Subform is opened in Edit mode.
-        PostedSalesCrMemoSubform.OpenEdit;
+        PostedSalesCrMemoSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible is set to TRUE and Editable is set to FALSE.
         Assert.IsTrue(
-          PostedSalesCrMemoSubform."Tax Area Code".Visible,
+          PostedSalesCrMemoSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PostedSalesCrMemoSubform."Tax Area Code".Caption));
         Assert.IsFalse(
-          PostedSalesCrMemoSubform."Tax Area Code".Editable,
+          PostedSalesCrMemoSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeNotEditableErr, PostedSalesCrMemoSubform."Tax Area Code".Caption));
     end;
 
@@ -2309,14 +2309,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Order Subform page.
 
         // [WHEN] Sales Order Subform is opened in Edit mode.
-        SalesOrderSubform.OpenEdit;
+        SalesOrderSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          SalesOrderSubform."Tax Area Code".Visible,
+          SalesOrderSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesOrderSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          SalesOrderSubform."Tax Area Code".Editable,
+          SalesOrderSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, SalesOrderSubform."Tax Area Code".Caption));
     end;
 
@@ -2332,14 +2332,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Invoice Subform page.
 
         // [WHEN] Sales Invoice Subform is opened in Edit mode.
-        SalesInvoiceSubform.OpenEdit;
+        SalesInvoiceSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          SalesInvoiceSubform."Tax Area Code".Visible,
+          SalesInvoiceSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesInvoiceSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          SalesInvoiceSubform."Tax Area Code".Editable,
+          SalesInvoiceSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, SalesInvoiceSubform."Tax Area Code".Caption));
     end;
 
@@ -2355,14 +2355,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Blanket Sales Order Subform page.
 
         // [WHEN] Blanket Sales Order Subform is opened in Edit mode.
-        BlanketSalesOrderSubform.OpenEdit;
+        BlanketSalesOrderSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          BlanketSalesOrderSubform."Tax Area Code".Visible,
+          BlanketSalesOrderSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, BlanketSalesOrderSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          BlanketSalesOrderSubform."Tax Area Code".Editable,
+          BlanketSalesOrderSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, BlanketSalesOrderSubform."Tax Area Code".Caption));
     end;
 
@@ -2378,14 +2378,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Order Archive Subform page.
 
         // [WHEN] Sales Order Archive Subform is opened in Edit mode.
-        SalesOrderArchiveSubform.OpenEdit;
+        SalesOrderArchiveSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible is set to TRUE and Editable is set to FALSE.
         Assert.IsTrue(
-          SalesOrderArchiveSubform."Tax Area Code".Visible,
+          SalesOrderArchiveSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesOrderArchiveSubform."Tax Area Code".Caption));
         Assert.IsFalse(
-          SalesOrderArchiveSubform."Tax Area Code".Editable,
+          SalesOrderArchiveSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeNotEditableErr, SalesOrderArchiveSubform."Tax Area Code".Caption));
     end;
 
@@ -2401,14 +2401,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Quote Archive Subform page.
 
         // [WHEN] Sales Quote Archive Subform is opened in Edit mode.
-        SalesQuoteArchiveSubform.OpenEdit;
+        SalesQuoteArchiveSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible is set to TRUE and Editable is set to FALSE.
         Assert.IsTrue(
-          SalesQuoteArchiveSubform."Tax Area Code".Visible,
+          SalesQuoteArchiveSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesQuoteArchiveSubform."Tax Area Code".Caption));
         Assert.IsFalse(
-          SalesQuoteArchiveSubform."Tax Area Code".Editable,
+          SalesQuoteArchiveSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeNotEditableErr, SalesQuoteArchiveSubform."Tax Area Code".Caption));
     end;
 
@@ -2424,14 +2424,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Return Order Subform page.
 
         // [WHEN] Sales Return Order Subform is opened in Edit mode.
-        SalesReturnOrderSubform.OpenEdit;
+        SalesReturnOrderSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          SalesReturnOrderSubform."Tax Area Code".Visible,
+          SalesReturnOrderSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesReturnOrderSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          SalesReturnOrderSubform."Tax Area Code".Editable,
+          SalesReturnOrderSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, SalesReturnOrderSubform."Tax Area Code".Caption));
     end;
 
@@ -2447,14 +2447,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Quote Subform page.
 
         // [WHEN] Sales Quote Subform is opened in Edit mode.
-        SalesQuoteSubform.OpenEdit;
+        SalesQuoteSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          SalesQuoteSubform."Tax Area Code".Visible,
+          SalesQuoteSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesQuoteSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          SalesQuoteSubform."Tax Area Code".Editable,
+          SalesQuoteSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, SalesQuoteSubform."Tax Area Code".Caption));
     end;
 
@@ -2470,14 +2470,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Sales Cr. Memo Subform page.
 
         // [WHEN] Sales Cr. Memo Subform is opened in Edit mode.
-        SalesCrMemoSubform.OpenEdit;
+        SalesCrMemoSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          SalesCrMemoSubform."Tax Area Code".Visible,
+          SalesCrMemoSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, SalesCrMemoSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          SalesCrMemoSubform."Tax Area Code".Editable,
+          SalesCrMemoSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, SalesCrMemoSubform."Tax Area Code".Caption));
     end;
 
@@ -2493,14 +2493,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Posted Purch. Invoice Subform page.
 
         // [WHEN] Posted Purch. Invoice Subform is opened in Edit mode.
-        PostedPurchInvoiceSubform.OpenEdit;
+        PostedPurchInvoiceSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible is set to TRUE and Editable is set to FALSE.
         Assert.IsTrue(
-          PostedPurchInvoiceSubform."Tax Area Code".Visible,
+          PostedPurchInvoiceSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PostedPurchInvoiceSubform."Tax Area Code".Caption));
         Assert.IsFalse(
-          PostedPurchInvoiceSubform."Tax Area Code".Editable,
+          PostedPurchInvoiceSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeNotEditableErr, PostedPurchInvoiceSubform."Tax Area Code".Caption));
     end;
 
@@ -2516,14 +2516,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Posted Purch. Cr. Memo Subform page.
 
         // [WHEN] Posted Purch. Cr. Memo Subform is opened in Edit mode.
-        PostedPurchCrMemoSubform.OpenEdit;
+        PostedPurchCrMemoSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible is set to TRUE and Editable is set to FALSE.
         Assert.IsTrue(
-          PostedPurchCrMemoSubform."Tax Area Code".Visible,
+          PostedPurchCrMemoSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PostedPurchCrMemoSubform."Tax Area Code".Caption));
         Assert.IsFalse(
-          PostedPurchCrMemoSubform."Tax Area Code".Editable,
+          PostedPurchCrMemoSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeNotEditableErr, PostedPurchCrMemoSubform."Tax Area Code".Caption));
     end;
 
@@ -2539,14 +2539,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Blanket Purchase Order Subform page.
 
         // [WHEN] Blanket Purchase Order Subform is opened in Edit mode.
-        BlanketPurchaseOrderSubform.OpenEdit;
+        BlanketPurchaseOrderSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          BlanketPurchaseOrderSubform."Tax Area Code".Visible,
+          BlanketPurchaseOrderSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, BlanketPurchaseOrderSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          BlanketPurchaseOrderSubform."Tax Area Code".Editable,
+          BlanketPurchaseOrderSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, BlanketPurchaseOrderSubform."Tax Area Code".Caption));
     end;
 
@@ -2562,14 +2562,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Purchase Quote Archive Subform page.
 
         // [WHEN] Purchase Quote Archive Subform is opened in Edit mode.
-        PurchaseQuoteArchiveSubform.OpenEdit;
+        PurchaseQuoteArchiveSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible is set to TRUE and Editable is set to FALSE.
         Assert.IsTrue(
-          PurchaseQuoteArchiveSubform."Tax Area Code".Visible,
+          PurchaseQuoteArchiveSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PurchaseQuoteArchiveSubform."Tax Area Code".Caption));
         Assert.IsFalse(
-          PurchaseQuoteArchiveSubform."Tax Area Code".Editable,
+          PurchaseQuoteArchiveSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeNotEditableErr, PurchaseQuoteArchiveSubform."Tax Area Code".Caption));
     end;
 
@@ -2585,14 +2585,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Purchase Order Archive Subform page.
 
         // [WHEN] Purchase Order Archive Subform is opened in Edit mode.
-        PurchaseOrderArchiveSubform.OpenEdit;
+        PurchaseOrderArchiveSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible is set to TRUE and Editable is set to FALSE.
         Assert.IsTrue(
-          PurchaseOrderArchiveSubform."Tax Area Code".Visible,
+          PurchaseOrderArchiveSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PurchaseOrderArchiveSubform."Tax Area Code".Caption));
         Assert.IsFalse(
-          PurchaseOrderArchiveSubform."Tax Area Code".Editable,
+          PurchaseOrderArchiveSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeNotEditableErr, PurchaseOrderArchiveSubform."Tax Area Code".Caption));
     end;
 
@@ -2608,14 +2608,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Purchase Order Subform page.
 
         // [WHEN] Purchase Order Subform is opened in Edit mode.
-        PurchaseOrderSubform.OpenEdit;
+        PurchaseOrderSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          PurchaseOrderSubform."Tax Area Code".Visible,
+          PurchaseOrderSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PurchaseOrderSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          PurchaseOrderSubform."Tax Area Code".Editable,
+          PurchaseOrderSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, PurchaseOrderSubform."Tax Area Code".Caption));
     end;
 
@@ -2631,14 +2631,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Purch. Invoice Subform page.
 
         // [WHEN] Purch. Invoice Subform is opened in Edit mode.
-        PurchInvoiceSubform.OpenEdit;
+        PurchInvoiceSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          PurchInvoiceSubform."Tax Area Code".Visible,
+          PurchInvoiceSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PurchInvoiceSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          PurchInvoiceSubform."Tax Area Code".Editable,
+          PurchInvoiceSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, PurchInvoiceSubform."Tax Area Code".Caption));
     end;
 
@@ -2654,14 +2654,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Purchase Return Order Subform page.
 
         // [WHEN] Purchase Return Order Subform is opened in Edit mode.
-        PurchaseReturnOrderSubform.OpenEdit;
+        PurchaseReturnOrderSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          PurchaseReturnOrderSubform."Tax Area Code".Visible,
+          PurchaseReturnOrderSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PurchaseReturnOrderSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          PurchaseReturnOrderSubform."Tax Area Code".Editable,
+          PurchaseReturnOrderSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, PurchaseReturnOrderSubform."Tax Area Code".Caption));
     end;
 
@@ -2677,14 +2677,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Purchase Quote Subform page.
 
         // [WHEN] Purchase Quote Subform is opened in Edit mode.
-        PurchaseQuoteSubform.OpenEdit;
+        PurchaseQuoteSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          PurchaseQuoteSubform."Tax Area Code".Visible,
+          PurchaseQuoteSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PurchaseQuoteSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          PurchaseQuoteSubform."Tax Area Code".Editable,
+          PurchaseQuoteSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, PurchaseQuoteSubform."Tax Area Code".Caption));
     end;
 
@@ -2700,14 +2700,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Purch. Cr. Memo Subform page.
 
         // [WHEN] Purch. Cr. Memo Subform is opened in Edit mode.
-        PurchCrMemoSubform.OpenEdit;
+        PurchCrMemoSubform.OpenEdit();
 
         // [THEN] "Tax Area Code" field's properties Visible and Editable are set to TRUE.
         Assert.IsTrue(
-          PurchCrMemoSubform."Tax Area Code".Visible,
+          PurchCrMemoSubform."Tax Area Code".Visible(),
           StrSubstNo(TaxAreaCodeVisibleErr, PurchCrMemoSubform."Tax Area Code".Caption));
         Assert.IsTrue(
-          PurchCrMemoSubform."Tax Area Code".Editable,
+          PurchCrMemoSubform."Tax Area Code".Editable(),
           StrSubstNo(TaxAreaCodeEditableErr, PurchCrMemoSubform."Tax Area Code".Caption));
     end;
 
@@ -2729,7 +2729,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         TaxDetail.Validate("Tax Above Maximum", 12.3456);
         TaxDetail.Modify(true);
 
-        TaxDetails.OpenEdit;
+        TaxDetails.OpenEdit();
         TaxDetails.FILTER.SetFilter("Tax Jurisdiction Code", TaxDetail."Tax Jurisdiction Code");
         TaxDetails."Tax Below Maximum".AssertEquals('12.3456');
         TaxDetails."Tax Above Maximum".AssertEquals('12.3456');
@@ -2750,7 +2750,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
 
         // [WHEN] page Tax Juridictions is opened in Edit mode.
-        TaxJurisdictions.OpenEdit;
+        TaxJurisdictions.OpenEdit();
 
         // [THEN] Go to created record. Set value with 4 decimal places. Check the value.
         TaxJurisdictions.FILTER.SetFilter(Code, TaxJurisdiction.Code);
@@ -2797,7 +2797,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [WHEN] Payment applied to Purchase Invoice
         CreateAndPostGenJournalLineUsingApplication(
           GenJnlLine, DocNo, GenJnlLine."Account Type"::Vendor, PurchHeader."Pay-to Vendor No.",
-          LibraryERM.CreateGLAccountNo, '', GenJnlLine."Document Type"::Payment,
+          LibraryERM.CreateGLAccountNo(), '', GenJnlLine."Document Type"::Payment,
           GenJnlLine."Applies-to Doc. Type"::Invoice, PurchLine."Line Amount");
 
         // [THEN] G/L Entry with tax will be posted to "Y" from "X"
@@ -2845,7 +2845,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Payment applied to Purchase Invoice
         CreateAndPostGenJournalLineUsingApplication(
           GenJnlLine, DocNo, GenJnlLine."Account Type"::Vendor, PurchHeader."Pay-to Vendor No.",
-          LibraryERM.CreateGLAccountNo, '', GenJnlLine."Document Type"::Payment,
+          LibraryERM.CreateGLAccountNo(), '', GenJnlLine."Document Type"::Payment,
           GenJnlLine."Applies-to Doc. Type"::Invoice, PurchLine."Line Amount");
 
         // [WHEN] Unapply Payment
@@ -2881,7 +2881,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PrepmntAmount := LibraryRandom.RandDec(ROUND(SalesLine.Amount, 1), 2);
         LibraryVariableStorage.Enqueue(PrepmntAmount);
         OpenSalesOrderPage(SalesOrder, SalesHeader);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // [THEN] Sales Line is updated
         SalesLine.SETRANGE("Document No.", SalesHeader."No.");
@@ -2900,7 +2900,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
             exit;
 
         LibraryERMCountryData.CreateVATData();
-        LibraryApplicationArea.EnablePremiumSetup;
+        LibraryApplicationArea.EnablePremiumSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -2922,7 +2922,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
     local procedure CreateGenJournalBatchWithAllowVATDifference(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, CreateGenJournalTemplateWithAllowVATDifference);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, CreateGenJournalTemplateWithAllowVATDifference());
         GenJournalBatch.Validate("Allow VAT Difference", true);
         GenJournalBatch.Modify(true);
     end;
@@ -2931,7 +2931,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplateName, GenJournalBatchName, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
     end;
 
     local procedure AdjustTaxPriceRoundingPrecision(var TaxDetail: Record "Tax Detail"; var Price: Decimal; var TaxAreaCode: Code[20])
@@ -2954,7 +2954,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         Price := (LibraryRandom.RandInt(1000) * 2 + 1) * RoundingPrecision;
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2963,7 +2963,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostGenJournalLineUsingApplication(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; AccountNo: Code[20]; CurrencyCode: Code[10]; Type: Option; AppliesToDocType: Option; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLineUsingApplication(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AccountNo: Code[20]; CurrencyCode: Code[10]; Type: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     begin
         CreateGenJournalLine(GenJournalLine, Type, BalAccountType, BalAccountNo, 0);
         GenJournalLine.Validate("Bal. Account No.", AccountNo);
@@ -2975,7 +2975,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndModifyServiceLine(var ServiceHeader: Record "Service Header"; DocumentType: Option): Decimal
+    local procedure CreateAndModifyServiceLine(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"): Decimal
     var
         ServiceLine: Record "Service Line";
         ServiceItemLine: Record "Service Item Line";
@@ -3077,7 +3077,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         TaxDetail: Record "Tax Detail";
         TaxAreaCode: Code[20];
@@ -3086,7 +3086,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         CreatePurchaseDocumentWithCertainTax(PurchaseLine, DocumentType, TaxDetail, TaxAreaCode);
     end;
 
-    local procedure CreatePurchaseDocumentWithCertainTax(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseDocumentWithCertainTax(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -3102,7 +3102,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
           LibraryRandom.RandInt(10));  // Using RANDOM value for Quantity.
     end;
 
-    local procedure CreateAndReleasePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; Quantity: Decimal; Cost: Decimal)
+    local procedure CreateAndReleasePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; Quantity: Decimal; Cost: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -3113,7 +3113,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseLine.Find();
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option): Decimal
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"): Decimal
     var
         TaxDetail: Record "Tax Detail";
         TaxAreaCode: Code[20];
@@ -3122,7 +3122,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         exit(CreateSalesDocumentWithCertainTax(SalesLine, DocumentType, TaxDetail, TaxAreaCode));
     end;
 
-    local procedure CreateSalesDocumentWithCertainTax(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]): Decimal
+    local procedure CreateSalesDocumentWithCertainTax(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]): Decimal
     var
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -3161,7 +3161,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateAndReleaseSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; Quantity: Decimal; Price: Decimal)
+    local procedure CreateAndReleaseSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; Quantity: Decimal; Price: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -3172,7 +3172,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesLine.Find();
     end;
 
-    local procedure CreateSalesDocumentWithTwoTaxAreaLines(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; Country: Option; Qty: Decimal; UnitPrice: Decimal): Code[20]
+    local procedure CreateSalesDocumentWithTwoTaxAreaLines(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; Country: Option; Qty: Decimal; UnitPrice: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
         TaxDetail: array[2] of Record "Tax Detail";
@@ -3192,7 +3192,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         exit(SalesHeader."No.");
     end;
 
-    local procedure CreatePurchaseDocumentWithTwoTaxAreaLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; Country: Option; Qty: Decimal; DirectUnitCost: Decimal): Code[20]
+    local procedure CreatePurchaseDocumentWithTwoTaxAreaLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; Country: Option; Qty: Decimal; DirectUnitCost: Decimal): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         TaxDetail: array[2] of Record "Tax Detail";
@@ -3212,21 +3212,21 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Bill-to Address", SalesHeader."Sell-to Customer No.");
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -3244,7 +3244,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         CreateGenJournalLineForTypeSalesTax(GenJournalLine, GenJournalBatch, AccountNo, GenJournalLine."GST/HST"::"Pension Rebate");
     end;
 
-    local procedure CreateGenJournalLineForTypeSalesTax(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; GSTHST: Option)
+    local procedure CreateGenJournalLineForTypeSalesTax(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; GSTHST: Enum "GST HST Tax Type")
     var
         GLAccount: Record "G/L Account";
     begin
@@ -3261,7 +3261,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option): Decimal
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"): Decimal
     var
         ServiceHeader: Record "Service Header";
         TaxDetail: Record "Tax Detail";
@@ -3307,7 +3307,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         i: Integer;
     begin
         TaxAreaCode := LibraryERMTax.CreateTaxAreaWithCountryRegion(Country);
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
         TaxBelowMaximum[1] := TaxBelowMaximum1;
         TaxBelowMaximum[2] := TaxBelowMaximum2;
         for i := 1 to 2 do begin
@@ -3326,8 +3326,8 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     local procedure CreateSalesTaxDetailWithTaxType(var TaxDetail: Record "Tax Detail"; TaxType: Option)
     begin
         LibraryERMTax.CreateTaxDetailWithTaxType(
-          TaxDetail, LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US,
-          LibraryERMTax.CreateTaxGroupCode, TaxType, LibraryRandom.RandInt(10), 0);
+          TaxDetail, LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US(),
+          LibraryERMTax.CreateTaxGroupCode(), TaxType, LibraryRandom.RandInt(10), 0);
     end;
 
     local procedure CreateSalesTaxDetailWithCountry(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxBelowMaximum: Decimal)
@@ -3375,9 +3375,9 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         TaxAreaCode := CreateTaxAreaLineWithTaxType(TaxDetail, TaxType);
         TaxJurisdiction.Get(TaxDetail."Tax Jurisdiction Code");
-        TaxJurisdiction.Validate("Unreal. Tax Acc. (Sales)", LibraryERM.CreateGLAccountNo);
-        TaxJurisdiction.Validate("Unreal. Tax Acc. (Purchases)", LibraryERM.CreateGLAccountNo);
-        TaxJurisdiction.Validate("Unreal. Rev. Charge (Purch.)", LibraryERM.CreateGLAccountNo);
+        TaxJurisdiction.Validate("Unreal. Tax Acc. (Sales)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Validate("Unreal. Tax Acc. (Purchases)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Validate("Unreal. Rev. Charge (Purch.)", LibraryERM.CreateGLAccountNo());
         TaxJurisdiction.Validate("Unrealized VAT Type", TaxJurisdiction."Unrealized VAT Type"::Percentage);
         TaxJurisdiction.Modify(true);
     end;
@@ -3416,7 +3416,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 
-    local procedure FindGenJournalTemplateAndBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure FindGenJournalTemplateAndBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -3440,7 +3440,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchLine.FindFirst();
     end;
 
-    local procedure FindCustUnapplicationTransactionNo(DocType: Option; DocNo: Code[20]): Integer
+    local procedure FindCustUnapplicationTransactionNo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -3454,7 +3454,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         end;
     end;
 
-    local procedure FindVendUnapplicationTransactionNo(DocType: Option; DocNo: Code[20]): Integer
+    local procedure FindVendUnapplicationTransactionNo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -3468,7 +3468,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         end;
     end;
 
-    local procedure GetPaymentDocType(DocumentType: Option): Integer
+    local procedure GetPaymentDocType(DocumentType: Enum "Gen. Journal Document Type"): Enum "Gen. Journal Document Type"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -3532,53 +3532,53 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
     local procedure OpenSalesRetOrdPage(var SalesReturnOrder: TestPage "Sales Return Order"; SalesHeader: Record "Sales Header")
     begin
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesInvoicePage(var SalesInvoice: TestPage "Sales Invoice"; SalesHeader: Record "Sales Header")
     begin
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesOrderPage(var SalesOrder: TestPage "Sales Order"; SalesHeader: Record "Sales Header")
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesCrMemoPage(var SalesCreditMemo: TestPage "Sales Credit Memo"; SalesHeader: Record "Sales Header")
     begin
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesQuotePage(var SalesQuote: TestPage "Sales Quote"; SalesHeader: Record "Sales Header")
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenServiceOrderPage(ServiceHeader: Record "Service Header"; var ServiceOrder: TestPage "Service Order")
     begin
-        ServiceOrder.OpenView;
+        ServiceOrder.OpenView();
         ServiceOrder.GotoRecord(ServiceHeader);
     end;
 
     local procedure OpenServiceCrMemoPage(ServiceHeader: Record "Service Header"; var ServiceCreditMemo: TestPage "Service Credit Memo")
     begin
-        ServiceCreditMemo.OpenView;
+        ServiceCreditMemo.OpenView();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
     end;
 
     local procedure OpenPurchaseOrderPage(var PurchaseOrder: TestPage "Purchase Order"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.GotoRecord(PurchaseHeader);
     end;
 
-    local procedure PostGenJournalLineUsingTaxSetup(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure PostGenJournalLineUsingTaxSetup(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10]; Amount: Decimal)
     var
         TaxDetail: Record "Tax Detail";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -3595,7 +3595,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure RunSalesDocumentTestReportWithTwoTaxAreaLines(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; CountryCode: Option; Qty: Decimal; UnitPrice: Decimal)
+    local procedure RunSalesDocumentTestReportWithTwoTaxAreaLines(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; CountryCode: Option; Qty: Decimal; UnitPrice: Decimal)
     var
         DocumentNo: Code[20];
     begin
@@ -3604,10 +3604,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
             SalesLine, DocumentType, TaxBelowMaximum1, TaxBelowMaximum2, CountryCode, Qty, UnitPrice);
 
         RunDocumentTestReport(DocumentType, DocumentNo, REPORT::"Sales Document - Test");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
     end;
 
-    local procedure RunPurchaseDocumentTestReportWithTwoTaxAreaLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; CountryCode: Option; Qty: Decimal; DirectUnitCost: Decimal)
+    local procedure RunPurchaseDocumentTestReportWithTwoTaxAreaLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; CountryCode: Option; Qty: Decimal; DirectUnitCost: Decimal)
     var
         DocumentNo: Code[20];
     begin
@@ -3616,10 +3616,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
             PurchaseLine, DocumentType, TaxBelowMaximum1, TaxBelowMaximum2, CountryCode, Qty, DirectUnitCost);
 
         RunDocumentTestReport(DocumentType, DocumentNo, REPORT::"Purchase Document - Test");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
     end;
 
-    local procedure RunDocumentTestReport(DocumentType: Option; DocumentNo: Code[20]; ReportType: Integer)
+    local procedure RunDocumentTestReport(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; ReportType: Integer)
     begin
         Commit(); // Required to run the report.
 
@@ -3628,7 +3628,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         REPORT.Run(ReportType);
     end;
 
-    local procedure SetupAndVerifyGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AccountNo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[10]; Type: Option; DocumentType: Option; Amount: Decimal; GLAmount: Decimal)
+    local procedure SetupAndVerifyGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AccountNo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[10]; Type: Enum "Gen. Journal Document Type"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; GLAmount: Decimal)
     begin
         CreateAndPostGenJournalLineUsingApplication(
           GenJournalLine, DocumentNo, GenJournalLine."Account Type"::Customer,
@@ -3654,7 +3654,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenSalesOrderPage(SalesOrder, SalesHeader);
 
         // Exercise: Invoke Sales Order Statistics.
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // Verify: Each page handler will determine the editability of Tax Amount.
     end;
@@ -3674,7 +3674,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
 
         // Exercise: Invoke Purchase Order Statistics.
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
 
         // Verify: Verify Tax Amount Field is not editable on Sales Tax Lines Subform Dyn page.
     end;
@@ -3739,7 +3739,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesLine.Modify(true);
     end;
 
-    local procedure UnapplyCustLedgerEntry(DocType: Option; DocNo: Code[20])
+    local procedure UnapplyCustLedgerEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -3747,7 +3747,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
-    local procedure UnapplyVendLedgerEntry(DocType: Option; DocNo: Code[20])
+    local procedure UnapplyVendLedgerEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -3840,10 +3840,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
+          VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), GLEntry."VAT Amount", GLEntry.TableCaption()));
     end;
 
@@ -3871,10 +3871,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
+          Amount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), VATEntry.Base, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption()));
     end;
 
@@ -3886,11 +3886,11 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
-    local procedure VerifyGSTHSTFieldOnJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; GSTHST: Option)
+    local procedure VerifyGSTHSTFieldOnJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; GSTHST: Enum "GST HST Tax Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -3900,7 +3900,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GenJournalLine.FindFirst();
     end;
 
-    local procedure VerifyGSTHSTFieldOnVATEntry(CustomerNo: Code[20]; GSTHST: Option)
+    local procedure VerifyGSTHSTFieldOnVATEntry(CustomerNo: Code[20]; GSTHST: Enum "GST HST Tax Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -3931,13 +3931,13 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesNoOfLine := SalesNoOfLinesStatistics;
         case SalesNoOfLine of
             SalesNoOfLine::General:
-                SalesOrderStats.NoOfVATLines_General.DrillDown;
+                SalesOrderStats.NoOfVATLines_General.DrillDown();
             SalesNoOfLine::Invoicing:
-                SalesOrderStats.NoOfVATLines_Invoicing.DrillDown;
+                SalesOrderStats.NoOfVATLines_Invoicing.DrillDown();
             SalesNoOfLine::Shipping:
-                SalesOrderStats.NoOfVATLines_Shipping.DrillDown;
+                SalesOrderStats.NoOfVATLines_Shipping.DrillDown();
             SalesNoOfLine::Prepayment:
-                SalesOrderStats.NoOfVATLines_Prepayment.DrillDown;
+                SalesOrderStats.NoOfVATLines_Prepayment.DrillDown();
         end;
     end;
 
@@ -3945,7 +3945,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Stats.")
     begin
-        LibraryVariableStorage.Enqueue(SalesOrderStatistics."VATAmount[2]".AsDEcimal); // Enqueue value for SalesOrderStatisticsHandler.
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics."VATAmount[2]".AsDecimal()); // Enqueue value for SalesOrderStatisticsHandler.
     end;
 
     [ModalPageHandler]
@@ -3962,7 +3962,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     [Scope('OnPrem')]
     procedure SalesOrderStatsPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
     begin
-        SalesOrderStats.NoOfVATLines_General.DrillDown;
+        SalesOrderStats.NoOfVATLines_General.DrillDown();
     end;
 
     [ModalPageHandler]
@@ -3982,8 +3982,8 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsChangePrepaymentPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
     begin
-        SalesOrderStats.PrepmtTotalAmount.SETVALUE(LibraryVariableStorage.DequeueDecimal);
-        SalesOrderStats.OK.INVOKE;
+        SalesOrderStats.PrepmtTotalAmount.SETVALUE(LibraryVariableStorage.DequeueDecimal());
+        SalesOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4009,7 +4009,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     [Scope('OnPrem')]
     procedure ServiceOrderStatsPageHandler(var ServiceOrderStats: TestPage "Service Order Stats.")
     begin
-        ServiceOrderStats."TempSalesTaxLine1.COUNT".DrillDown;  // Drilldown to open Service Tax Lines Subform Dyn page.
+        ServiceOrderStats."TempSalesTaxLine1.COUNT".DrillDown();  // Drilldown to open Service Tax Lines Subform Dyn page.
     end;
 
     [ModalPageHandler]
@@ -4047,13 +4047,13 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseNoOfLine := PurchaseNoOfLinesStatistics;
         case PurchaseNoOfLine of
             PurchaseNoOfLine::General:
-                PurchaseOrderStats.NoOfVATLines.DrillDown;
+                PurchaseOrderStats.NoOfVATLines.DrillDown();
             PurchaseNoOfLine::Invoicing:
-                PurchaseOrderStats.NoOfVATLines_Invoice.DrillDown;
+                PurchaseOrderStats.NoOfVATLines_Invoice.DrillDown();
             PurchaseNoOfLine::Shipping:
-                PurchaseOrderStats.NoOfVATLines_Shipping.DrillDown;
+                PurchaseOrderStats.NoOfVATLines_Shipping.DrillDown();
             PurchaseNoOfLine::Prepayment:
-                PurchaseOrderStats.NoOfVATLines_Prepayment.DrillDown;
+                PurchaseOrderStats.NoOfVATLines_Prepayment.DrillDown();
         end;
     end;
 
@@ -4076,9 +4076,9 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         TaxAmountEditableAsBoolean := TaxAmountEditable;
         if TaxAmountEditableAsBoolean then begin
             Assert.IsTrue(
-              SalesTaxLinesSubformDyn."Tax Amount".Editable, StrSubstNo(TaxAmountMsg, SalesTaxLinesSubformDyn."Tax Amount".Caption));
+              SalesTaxLinesSubformDyn."Tax Amount".Editable(), StrSubstNo(TaxAmountMsg, SalesTaxLinesSubformDyn."Tax Amount".Caption));
             if ChangeTaxAmountAsBoolean then begin
-                SalesTaxLinesSubformDyn."Tax Amount".SetValue(SalesTaxLinesSubformDyn."Tax Amount".AsDEcimal - TaxAmountAsDec);
+                SalesTaxLinesSubformDyn."Tax Amount".SetValue(SalesTaxLinesSubformDyn."Tax Amount".AsDecimal() - TaxAmountAsDec);
                 LibraryVariableStorage.Enqueue(SalesTaxLinesSubformDyn."Tax Amount".Value);
             end
         end else
@@ -4090,7 +4090,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     procedure SalesTaxLinesSubformNotEditableDynModalPageHandler(var SalesTaxLinesSubformDyn: TestPage "Sales Tax Lines Subform Dyn")
     begin
         Assert.IsFalse(
-          SalesTaxLinesSubformDyn."Tax Amount".Editable, StrSubstNo(TaxAmountMsg, SalesTaxLinesSubformDyn."Tax Amount".Caption));
+          SalesTaxLinesSubformDyn."Tax Amount".Editable(), StrSubstNo(TaxAmountMsg, SalesTaxLinesSubformDyn."Tax Amount".Caption));
     end;
 
     [ModalPageHandler]
@@ -4098,7 +4098,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     procedure SalesTaxLinesSubformEditableDynModalPageHandler(var SalesTaxLinesSubformDyn: TestPage "Sales Tax Lines Subform Dyn")
     begin
         Assert.IsTrue(
-          SalesTaxLinesSubformDyn."Tax Amount".Editable, StrSubstNo(TaxAmountMsg, SalesTaxLinesSubformDyn."Tax Amount".Caption));
+          SalesTaxLinesSubformDyn."Tax Amount".Editable(), StrSubstNo(TaxAmountMsg, SalesTaxLinesSubformDyn."Tax Amount".Caption));
     end;
 
     [PageHandler]
@@ -4120,7 +4120,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         DocumentType2 := DocumentType;
         SalesDocumentTest."Sales Header".SetFilter("Document Type", Format(DocumentType2));
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4136,7 +4136,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         DocumentType2 := DocumentType;
         PurchaseDocumentTest."Purchase Header".SetFilter("Document Type", Format(DocumentType2));
         PurchaseDocumentTest."Purchase Header".SetFilter("No.", No);
-        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', true, true)]

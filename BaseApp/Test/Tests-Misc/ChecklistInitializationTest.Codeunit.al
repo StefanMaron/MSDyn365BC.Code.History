@@ -16,7 +16,6 @@ codeunit 132606 "Checklist Initialization Test"
         ChecklistTestLibrary: Codeunit "Checklist Test Library";
         ChecklistSetupTestLibrary: Codeunit "Checklist Setup Test Library";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        CompanyTriggers: Codeunit "Company Triggers";
     begin
         // [GIVEN] The client type is set to Web
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
@@ -65,7 +64,6 @@ codeunit 132606 "Checklist Initialization Test"
         ChecklistTestLibrary: Codeunit "Checklist Test Library";
         ChecklistSetupTestLibrary: Codeunit "Checklist Setup Test Library";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        CompanyTriggers: Codeunit "Company Triggers";
         ChecklistInitializationTest: Codeunit "Checklist Initialization Test";
     begin
         // ensure there's only company of the current type in the system

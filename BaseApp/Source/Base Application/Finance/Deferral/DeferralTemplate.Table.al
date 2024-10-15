@@ -10,6 +10,7 @@ table 1700 "Deferral Template"
     Caption = 'Deferral Template';
     LookupPageID = "Deferral Template List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

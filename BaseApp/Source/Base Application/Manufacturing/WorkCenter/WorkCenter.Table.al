@@ -23,6 +23,7 @@ table 99000754 "Work Center"
     DrillDownPageID = "Work Center List";
     LookupPageID = "Work Center List";
     Permissions = TableData "Prod. Order Capacity Need" = rm;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -669,11 +670,28 @@ table 99000754 "Work Center"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Work Center Nos.");
-            NoSeriesMgt.InitSeries(MfgSetup."Work Center Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Work Center Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := MfgSetup."Work Center Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", MfgSetup."Work Center Nos.", 0D, "No.");
+            end;
+#endif
         end;
         DimMgt.UpdateDefaultDim(
           Database::"Work Center", "No.",
@@ -700,7 +718,6 @@ table 99000754 "Work Center"
         MfgCommentLine: Record "Manufacturing Comment Line";
         RtngLine: Record "Routing Line";
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         Window: Dialog;
         EntryCounter: Integer;
@@ -721,6 +738,7 @@ table 99000754 "Work Center"
 
     procedure AssistEdit(OldWorkCenter: Record "Work Center"): Boolean
     var
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -728,15 +746,13 @@ table 99000754 "Work Center"
         if IsHandled then
             exit;
 
-        with WorkCenter do begin
-            WorkCenter := Rec;
-            MfgSetup.Get();
-            MfgSetup.TestField("Work Center Nos.");
-            if NoSeriesMgt.SelectSeries(MfgSetup."Work Center Nos.", OldWorkCenter."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := WorkCenter;
-                exit(true);
-            end;
+        WorkCenter := Rec;
+        MfgSetup.Get();
+        MfgSetup.TestField("Work Center Nos.");
+        if NoSeries.LookupRelatedNoSeries(MfgSetup."Work Center Nos.", OldWorkCenter."No. Series", WorkCenter."No. Series") then begin
+            WorkCenter."No." := NoSeries.GetNextNo(WorkCenter."No. Series");
+            Rec := WorkCenter;
+            exit(true);
         end;
     end;
 
@@ -772,14 +788,6 @@ table 99000754 "Work Center"
 
         exit(AutoUpdate);
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by procedure GetBinForFlushingMethod()', '21.0')]
-    procedure GetBinCode(UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
-    begin
-        exit(GetBinCodeForFlushingMethod(UseFlushingMethod, FlushingMethod));
-    end;
-#endif
 
     procedure GetBinCodeForFlushingMethod(UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method") Result: Code[20]
     begin

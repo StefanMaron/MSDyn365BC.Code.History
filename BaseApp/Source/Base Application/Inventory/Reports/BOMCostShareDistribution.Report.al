@@ -216,111 +216,102 @@ report 5872 "BOM Cost Share Distribution"
     begin
         IsHandled := false;
         OnGenerateAvailTrendOnBeforeGenerateTreeForItem(Item, TempBOMBuffer, IsHandled);
-        If not IsHandled then
+        if not IsHandled then
             CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate(), 2);
 
-        with TempBOMBuffer do begin
-            if FindFirst() then
-                repeat
-                    IsKeepOnlyMfgOvhd := KeepOnlyMfgOvhdCost();
-                    IsTransferCostToMaterial := TransferCostToMaterial();
-                    NewOvhdCost := 0;
-                    NewMaterialCost := 0;
+        if TempBOMBuffer.FindFirst() then
+            repeat
+                IsKeepOnlyMfgOvhd := KeepOnlyMfgOvhdCost();
+                IsTransferCostToMaterial := TransferCostToMaterial();
+                NewOvhdCost := 0;
+                NewMaterialCost := 0;
 
-                    if IsKeepOnlyMfgOvhd then begin
-                        Description := CopyStr(FieldCaption("Single-Level Mfg. Ovhd Cost"), 1, MaxStrLen(Description));
-                        NewOvhdCost := "Single-Level Mfg. Ovhd Cost";
-                        RoundCosts(0);
-                        AddMfgOvhdCost(NewOvhdCost, NewOvhdCost);
+                if IsKeepOnlyMfgOvhd then begin
+                    TempBOMBuffer.Description := CopyStr(TempBOMBuffer.FieldCaption("Single-Level Mfg. Ovhd Cost"), 1, MaxStrLen(TempBOMBuffer.Description));
+                    NewOvhdCost := TempBOMBuffer."Single-Level Mfg. Ovhd Cost";
+                    TempBOMBuffer.RoundCosts(0);
+                    TempBOMBuffer.AddMfgOvhdCost(NewOvhdCost, NewOvhdCost);
+                end;
+
+                if IsTransferCostToMaterial then begin
+                    NewMaterialCost := TempBOMBuffer.CalcDirectCost() + TempBOMBuffer.CalcIndirectCost();
+                    TempBOMBuffer.RoundCosts(0);
+                    TempBOMBuffer.AddMaterialCost(NewMaterialCost, NewMaterialCost);
+                end;
+
+                if DeleteThisLine() then
+                    TempBOMBuffer.Delete()
+                else
+                    if IsKeepOnlyMfgOvhd or IsTransferCostToMaterial then begin
+                        TempBOMBuffer.CalcIndirectCost();
+                        TempBOMBuffer.CalcUnitCost();
+                        TempBOMBuffer.Modify();
                     end;
+            until TempBOMBuffer.Next() = 0;
+        MergeLinesWithSameTypeAndNo();
 
-                    if IsTransferCostToMaterial then begin
-                        NewMaterialCost := CalcDirectCost() + CalcIndirectCost();
-                        RoundCosts(0);
-                        AddMaterialCost(NewMaterialCost, NewMaterialCost);
-                    end;
-
-                    if DeleteThisLine() then
-                        Delete()
-                    else
-                        if IsKeepOnlyMfgOvhd or IsTransferCostToMaterial then begin
-                            CalcIndirectCost();
-                            CalcUnitCost();
-                            Modify();
-                        end;
-                until Next() = 0;
-            MergeLinesWithSameTypeAndNo();
-
-            exit(not IsEmpty);
-        end;
+        exit(not TempBOMBuffer.IsEmpty);
     end;
 
     local procedure KeepOnlyMfgOvhdCost(): Boolean
     begin
-        with TempBOMBuffer do begin
-            if Indentation = 0 then
-                exit(true);
-            if ShowLevelAs = ShowLevelAs::"First BOM Level" then
-                exit(false);
-            exit(not "Is Leaf");
-        end;
+        if TempBOMBuffer.Indentation = 0 then
+            exit(true);
+        if ShowLevelAs = ShowLevelAs::"First BOM Level" then
+            exit(false);
+        exit(not TempBOMBuffer."Is Leaf");
     end;
 
     local procedure TransferCostToMaterial(): Boolean
     begin
-        with TempBOMBuffer do begin
-            if ShowCostShareAs <> ShowCostShareAs::"Single-level" then
-                exit(false);
-            if Indentation = 0 then
-                exit(false);
-            if (Indentation = 1) and "Is Leaf" then
-                exit(false);
-            exit(true);
-        end;
+        if ShowCostShareAs <> ShowCostShareAs::"Single-level" then
+            exit(false);
+        if TempBOMBuffer.Indentation = 0 then
+            exit(false);
+        if (TempBOMBuffer.Indentation = 1) and TempBOMBuffer."Is Leaf" then
+            exit(false);
+        exit(true);
     end;
 
     local procedure DeleteThisLine(): Boolean
     begin
-        with TempBOMBuffer do begin
-            if Indentation = 0 then
-                exit("Single-Level Mfg. Ovhd Cost" = 0);
-            if ShowLevelAs = ShowLevelAs::"First BOM Level" then
-                exit(Indentation > 1);
-            if "Is Leaf" then
-                exit(false);
-            if ShowCostShareAs = ShowCostShareAs::"Single-level" then
-                exit("Single-Level Material Cost" = 0);
-            exit("Single-Level Mfg. Ovhd Cost" = 0);
-        end;
+        if TempBOMBuffer.Indentation = 0 then
+            exit(TempBOMBuffer."Single-Level Mfg. Ovhd Cost" = 0);
+        if ShowLevelAs = ShowLevelAs::"First BOM Level" then
+            exit(TempBOMBuffer.Indentation > 1);
+        if TempBOMBuffer."Is Leaf" then
+            exit(false);
+        if ShowCostShareAs = ShowCostShareAs::"Single-level" then
+            exit(TempBOMBuffer."Single-Level Material Cost" = 0);
+        exit(TempBOMBuffer."Single-Level Mfg. Ovhd Cost" = 0);
     end;
 
     local procedure MergeLinesWithSameTypeAndNo()
     var
         CopyOfBOMBuffer: Record "BOM Buffer";
     begin
-        with TempBOMBuffer do
-            if FindFirst() then
-                repeat
-                    if Indentation <> 0 then begin
-                        CopyOfBOMBuffer.Copy(TempBOMBuffer);
-                        SetRange(Type, Type);
-                        SetRange("No.", "No.");
-                        while Next() <> 0 do begin
-                            CopyOfBOMBuffer.AddMaterialCost("Single-Level Material Cost", "Rolled-up Material Cost");
-                            CopyOfBOMBuffer.AddCapacityCost("Single-Level Capacity Cost", "Rolled-up Capacity Cost");
-                            CopyOfBOMBuffer.AddSubcontrdCost("Single-Level Subcontrd. Cost", "Rolled-up Subcontracted Cost");
-                            CopyOfBOMBuffer.AddCapOvhdCost("Single-Level Cap. Ovhd Cost", "Rolled-up Capacity Ovhd. Cost");
-                            CopyOfBOMBuffer.AddMfgOvhdCost("Single-Level Mfg. Ovhd Cost", "Rolled-up Mfg. Ovhd Cost");
-                            CopyOfBOMBuffer.AddScrapCost("Single-Level Scrap Cost", "Rolled-up Scrap Cost");
-                            Delete();
-                        end;
-                        Copy(CopyOfBOMBuffer);
-                        CalcDirectCost();
-                        CalcIndirectCost();
-                        CalcUnitCost();
-                        Modify();
+        if TempBOMBuffer.FindFirst() then
+            repeat
+                if TempBOMBuffer.Indentation <> 0 then begin
+                    CopyOfBOMBuffer.Copy(TempBOMBuffer);
+                    TempBOMBuffer.SetRange(Type, TempBOMBuffer.Type);
+                    TempBOMBuffer.SetRange("No.", TempBOMBuffer."No.");
+                    while TempBOMBuffer.Next() <> 0 do begin
+                        CopyOfBOMBuffer.AddMaterialCost(TempBOMBuffer."Single-Level Material Cost", TempBOMBuffer."Rolled-up Material Cost");
+                        CopyOfBOMBuffer.AddCapacityCost(TempBOMBuffer."Single-Level Capacity Cost", TempBOMBuffer."Rolled-up Capacity Cost");
+                        CopyOfBOMBuffer.AddSubcontrdCost(TempBOMBuffer."Single-Level Subcontrd. Cost", TempBOMBuffer."Rolled-up Subcontracted Cost");
+                        CopyOfBOMBuffer.AddCapOvhdCost(TempBOMBuffer."Single-Level Cap. Ovhd Cost", TempBOMBuffer."Rolled-up Capacity Ovhd. Cost");
+                        CopyOfBOMBuffer.AddMfgOvhdCost(TempBOMBuffer."Single-Level Mfg. Ovhd Cost", TempBOMBuffer."Rolled-up Mfg. Ovhd Cost");
+                        CopyOfBOMBuffer.AddScrapCost(TempBOMBuffer."Single-Level Scrap Cost", TempBOMBuffer."Rolled-up Scrap Cost");
+                        TempBOMBuffer.Delete();
                     end;
-                until Next() = 0;
+                    TempBOMBuffer.Copy(CopyOfBOMBuffer);
+                    TempBOMBuffer.CalcDirectCost();
+                    TempBOMBuffer.CalcIndirectCost();
+                    TempBOMBuffer.CalcUnitCost();
+                    TempBOMBuffer.Modify();
+                end;
+            until TempBOMBuffer.Next() = 0;
     end;
 
     local procedure FindNextRecord(var BOMBuffer: Record "BOM Buffer"; Position: Integer): Boolean

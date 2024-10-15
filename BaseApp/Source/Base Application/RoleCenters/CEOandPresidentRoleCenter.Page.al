@@ -33,8 +33,12 @@ page 9019 "CEO and President Role Center"
     {
         area(rolecenter)
         {
+#if not CLEAN24
             group(Control1900724808)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control21; "Finance Performance")
                 {
@@ -52,6 +56,9 @@ page 9019 "CEO and President Role Center"
             }
             group(Control1900724708)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control24; "Cash Flow Forecast Chart")
                 {
@@ -90,6 +97,57 @@ page 9019 "CEO and President Role Center"
                     ApplicationArea = Basic, Suite;
                 }
             }
+#else
+            part(Control21; "Finance Performance")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control4; "Finance Performance")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part(Control1907692008; "My Customers")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control24; "Cash Flow Forecast Chart")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control27; "Sales Performance")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control28; "Sales Performance")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part(Control29; "Report Inbox Part")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control25; "My Job Queue")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part(Control1902476008; "My Vendors")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part(Control1905989608; "My Items")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            systempart(Control1901377608; MyNotes)
+            {
+                ApplicationArea = Basic, Suite;
+            }
+#endif
         }
     }
 

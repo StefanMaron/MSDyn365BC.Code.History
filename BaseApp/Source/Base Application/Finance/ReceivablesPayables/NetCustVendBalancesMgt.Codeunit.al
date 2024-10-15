@@ -146,7 +146,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
             VendLedgEntry.Copy(GlobalVendLedgEntry);
             CustLedgEntry.Copy(GlobalCustLedgEntry);
 
-            CASE NetBalancesParameters."Order of Suggestion" OF
+            case NetBalancesParameters."Order of Suggestion" of
                 "Net Cust/Vend Balances Order"::"Fin. Ch. Memo First":
                     CalcPartNetAmount(VendLedgEntry, CustLedgEntry, VendDocNetAmount, CustDocNetAmount, "Gen. Journal Document Type"::"Finance Charge Memo");
                 "Net Cust/Vend Balances Order"::"Invoices First":
@@ -164,13 +164,13 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
             VendNetAmount := NetAmount - VendDocNetAmount;
             CustNetAmount := NetAmount - CustDocNetAmount;
 
-            CASE true OF
-                (VendDocNetAmount = 0) AND (CustDocNetAmount = 0):
+            case true of
+                (VendDocNetAmount = 0) and (CustDocNetAmount = 0):
                     begin
                         SmallerNetAmount := MinDec(VendNetAmount, CustNetAmount);
                         NetBalances(GlobalVendLedgEntry, GlobalCustLedgEntry, VendorRemainingAmount, CustomerRemainingAmount, SmallerNetAmount);
                     end;
-                (VendDocNetAmount > 0) AND (CustDocNetAmount = 0):
+                (VendDocNetAmount > 0) and (CustDocNetAmount = 0):
                     begin
                         SmallerNetAmount := MinDec(VendDocNetAmount, CustNetAmount);
                         NetBalances(VendLedgEntry, GlobalCustLedgEntry, VendorRemainingAmount, CustomerRemainingAmount, SmallerNetAmount);
@@ -181,7 +181,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
                             NetBalances(GlobalVendLedgEntry, GlobalCustLedgEntry, VendorRemainingAmount, CustomerRemainingAmount, SmallerNetAmount);
                         end;
                     end;
-                (VendDocNetAmount = 0) AND (CustDocNetAmount > 0):
+                (VendDocNetAmount = 0) and (CustDocNetAmount > 0):
                     begin
                         SmallerNetAmount := MinDec(VendNetAmount, CustDocNetAmount);
                         NetBalances(GlobalVendLedgEntry, CustLedgEntry, VendorRemainingAmount, CustomerRemainingAmount, SmallerNetAmount);
@@ -193,7 +193,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
                         end;
                     end;
                 else
-                    CASE true OF
+                    case true of
                         VendDocNetAmount > CustDocNetAmount:
                             begin
                                 SmallerNetAmount := CustDocNetAmount;
@@ -303,10 +303,10 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
                 end;
                 if VendorRemainingAmount <= 0 then
                     VendLedgEntry.Next();
-            until (VendorRemainingAmount <= 0) OR (TempNetAmount <= 0);
+            until (VendorRemainingAmount <= 0) or (TempNetAmount <= 0);
         until (TempNetAmount <= 0);
 
-        if (TempNetAmount <= 0) AND (NetAmount <= 0) then begin
+        if (TempNetAmount <= 0) and (NetAmount <= 0) then begin
             if VendorRemainingAmount > 0 then begin
                 VendorGenJnlLine.Validate(Amount, VendorGenJnlLine.Amount - VendorRemainingAmount);
                 VendorGenJnlLine.Modify();

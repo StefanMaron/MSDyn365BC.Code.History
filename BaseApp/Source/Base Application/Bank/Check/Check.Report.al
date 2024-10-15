@@ -542,68 +542,68 @@ report 1401 Check
                         Decimals: Decimal;
                         CheckLedgEntryAmount: Decimal;
                     begin
-                        if not TestPrint then
-                            with GenJnlLine do begin
-                                CheckLedgEntry.Init();
-                                CheckLedgEntry."Bank Account No." := BankAcc2."No.";
-                                CheckLedgEntry."Posting Date" := "Posting Date";
-                                CheckLedgEntry."Document Type" := "Document Type";
-                                CheckLedgEntry."Document No." := UseCheckNo;
-                                CheckLedgEntry.Description := CheckToAddr[1];
-                                CheckLedgEntry."Bank Payment Type" := "Bank Payment Type";
-                                CheckLedgEntry."Bal. Account Type" := BalancingType;
-                                CheckLedgEntry."Bal. Account No." := BalancingNo;
-                                if FoundLast and AddedRemainingAmount then begin
-                                    if TotalLineAmount <= 0 then
-                                        Error(
-                                          Text020,
-                                          UseCheckNo, TotalLineAmount);
-                                    CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Printed;
-                                    CheckLedgEntry.Amount := TotalLineAmount;
-                                end else begin
-                                    CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Voided;
-                                    CheckLedgEntry.Amount := 0;
-                                end;
-                                CheckLedgEntry."Check Date" := "Posting Date";
-                                CheckLedgEntry."Check No." := UseCheckNo;
-                                CheckManagement.InsertCheck(CheckLedgEntry, RecordId);
+                        if not TestPrint then begin
+                            CheckLedgEntry.Init();
+                            CheckLedgEntry."Bank Account No." := BankAcc2."No.";
+                            CheckLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+                            CheckLedgEntry."Document Type" := GenJnlLine."Document Type";
+                            CheckLedgEntry."Document No." := UseCheckNo;
+                            CheckLedgEntry.Description := CheckToAddr[1];
+                            CheckLedgEntry."Bank Payment Type" := GenJnlLine."Bank Payment Type";
+                            CheckLedgEntry."Bal. Account Type" := BalancingType;
+                            CheckLedgEntry."Bal. Account No." := BalancingNo;
+                            if FoundLast and AddedRemainingAmount then begin
+                                if TotalLineAmount <= 0 then
+                                    Error(
+                                      Text020,
+                                      UseCheckNo, TotalLineAmount);
+                                CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Printed;
+                                CheckLedgEntry.Amount := TotalLineAmount;
+                            end else begin
+                                CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Voided;
+                                CheckLedgEntry.Amount := 0;
+                            end;
+                            CheckLedgEntry."Check Date" := GenJnlLine."Posting Date";
+                            CheckLedgEntry."Check No." := UseCheckNo;
+                            CheckManagement.InsertCheck(CheckLedgEntry, GenJnlLine.RecordId);
 
-                                if FoundLast and AddedRemainingAmount then begin
-                                    if BankAcc2."Currency Code" <> '' then
-                                        Currency.Get(BankAcc2."Currency Code")
+                            if FoundLast and AddedRemainingAmount then begin
+                                if BankAcc2."Currency Code" <> '' then
+                                    Currency.Get(BankAcc2."Currency Code")
+                                else
+                                    Currency.InitRoundingPrecision();
+                                CheckLedgEntryAmount := CheckLedgEntry.Amount;
+                                Decimals := CheckLedgEntry.Amount - Round(CheckLedgEntry.Amount, 1, '<');
+                                if StrLen(Format(Decimals)) < StrLen(Format(Currency."Amount Rounding Precision")) then
+                                    if Decimals = 0 then
+                                        CheckAmountText := Format(CheckLedgEntryAmount, 0, 0) +
+                                          CopyStr(Format(0.01), 2, 1) +
+                                          PadStr('', StrLen(Format(Currency."Amount Rounding Precision")) - 2, '0')
                                     else
-                                        Currency.InitRoundingPrecision();
-                                    CheckLedgEntryAmount := CheckLedgEntry.Amount;
-                                    Decimals := CheckLedgEntry.Amount - Round(CheckLedgEntry.Amount, 1, '<');
-                                    if StrLen(Format(Decimals)) < StrLen(Format(Currency."Amount Rounding Precision")) then
-                                        if Decimals = 0 then
-                                            CheckAmountText := Format(CheckLedgEntryAmount, 0, 0) +
-                                              CopyStr(Format(0.01), 2, 1) +
-                                              PadStr('', StrLen(Format(Currency."Amount Rounding Precision")) - 2, '0')
-                                        else
-                                            CheckAmountText := Format(CheckLedgEntryAmount, 0, 0) +
-                                              PadStr('', StrLen(Format(Currency."Amount Rounding Precision")) - StrLen(Format(Decimals)), '0')
-                                    else
-                                        CheckAmountText := Format(CheckLedgEntryAmount, 0, 0);
-                                    if CheckLanguage = 3084 then begin   // French
-                                        DollarSignBefore := '';
-                                        DollarSignAfter := Currency.Symbol;
-                                    end else begin
-                                        DollarSignBefore := Currency.Symbol;
-                                        DollarSignAfter := ' ';
-                                    end;
-                                    if not ChkTransMgt.FormatNoText(DescriptionLine, CheckLedgEntry.Amount, CheckLanguage, BankAcc2."Currency Code") then
-                                        Error(DescriptionLine[1]);
-                                    VoidText := '';
+                                        CheckAmountText := Format(CheckLedgEntryAmount, 0, 0) +
+                                          PadStr('', StrLen(Format(Currency."Amount Rounding Precision")) - StrLen(Format(Decimals)), '0')
+                                else
+                                    CheckAmountText := Format(CheckLedgEntryAmount, 0, 0);
+                                if CheckLanguage = 3084 then begin
+                                    // French
+                                    DollarSignBefore := '';
+                                    DollarSignAfter := Currency.Symbol;
                                 end else begin
-                                    Clear(CheckAmountText);
-                                    Clear(DescriptionLine);
-                                    TotalText := Text065;
-                                    DescriptionLine[1] := Text021;
-                                    DescriptionLine[2] := DescriptionLine[1];
-                                    VoidText := Text022;
+                                    DollarSignBefore := Currency.Symbol;
+                                    DollarSignAfter := ' ';
                                 end;
-                            end
+                                if not ChkTransMgt.FormatNoText(DescriptionLine, CheckLedgEntry.Amount, CheckLanguage, BankAcc2."Currency Code") then
+                                    Error(DescriptionLine[1]);
+                                VoidText := '';
+                            end else begin
+                                Clear(CheckAmountText);
+                                Clear(DescriptionLine);
+                                TotalText := Text065;
+                                DescriptionLine[1] := Text021;
+                                DescriptionLine[2] := DescriptionLine[1];
+                                VoidText := Text022;
+                            end;
+                        end
                         else begin
                             CheckLedgEntry.Init();
                             CheckLedgEntry."Bank Account No." := BankAcc2."No.";

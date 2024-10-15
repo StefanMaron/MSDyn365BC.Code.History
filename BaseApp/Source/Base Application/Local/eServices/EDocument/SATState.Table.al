@@ -9,6 +9,7 @@ table 27026 "SAT State"
     DataPerCompany = false;
     DrillDownPageID = "SAT States";
     LookupPageID = "SAT States";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1,4 +1,4 @@
-namespace Microsoft.Inventory.Reports;
+﻿namespace Microsoft.Inventory.Reports;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -265,7 +265,6 @@ report 10139 "Inventory Valuation"
         ShowVariants: Boolean;
         ShowLocations: Boolean;
         ShowACY: Boolean;
-        EndDate: Date;
         LastItemNo: Code[20];
         LastLocationCode: Code[10];
         LastVariantCode: Code[10];
@@ -288,6 +287,9 @@ report 10139 "Inventory Valuation"
         InventoryValue_Control34CaptionLbl: Label 'Inventory Value';
         UnitCost_Control33CaptionLbl: Label 'Unit Cost';
         Total_Inventory_ValueCaptionLbl: Label 'Total Inventory Value';
+
+    protected var
+        EndDate: Date;
 
     local procedure AdjustItemLedgEntryToAsOfDate(var ItemLedgerEntry: Record "Item Ledger Entry")
     var

@@ -11,6 +11,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
 using System.Utilities;
+using Microsoft.HumanResources.Employee;
 
 codeunit 48 PostingSetupManagement
 {
@@ -203,13 +204,6 @@ codeunit 48 PostingSetupManagement
         exit('7c2a2ca8-bdf7-4428-b520-ed17887ff30c');
     end;
 
-#if not CLEAN21
-    [Obsolete('Renamed to ConfirmPostingAfterWorkingDate', '21.0')]
-    procedure ConfirmPostingAfterCurrentCalendarDate(ConfirmQst: Text; PostingDate: Date): Boolean
-    begin
-        exit(ConfirmPostingAfterWorkingDate(ConfirmQst, PostingDate));
-    end;
-#endif
     procedure ConfirmPostingAfterWorkingDate(ConfirmQst: Text; PostingDate: Date): Boolean
     var
         AccountingPeriod: Record "Accounting Period";
@@ -381,6 +375,15 @@ codeunit 48 PostingSetupManagement
         RecRef: RecordRef;
     begin
         RecRef.GetTable(VendorPostingGroup);
+
+        LogContextFieldError(RecRef, FieldNumber);
+    end;
+
+    procedure LogEmplPostingGroupFieldError(EmployeePostingGroup: Record "Employee Posting Group"; FieldNumber: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(EmployeePostingGroup);
 
         LogContextFieldError(RecRef, FieldNumber);
     end;

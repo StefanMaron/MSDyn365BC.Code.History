@@ -10,7 +10,8 @@ using Microsoft.Warehouse.Structure;
 codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = rimd,
-                  TableData "Warehouse Register" = rimd;
+                  TableData "Warehouse Register" = rimd,
+                  TableData "Bin Content" = rimd;        
     TableNo = "Warehouse Journal Line";
 
     trigger OnRun()
@@ -37,32 +38,30 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     begin
         OnBeforeCode(WhseJnlLine, WhseEntryNo);
 
-        with WhseJnlLine do begin
-            if ("Qty. (Absolute)" = 0) and ("Qty. (Base)" = 0) and (not "Phys. Inventory") then
-                exit;
-            TestField("Item No.");
-            GetLocation("Location Code");
-            if WhseEntryNo = 0 then begin
-                GlobalWhseEntry.LockTable();
-                WhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
-            end;
-
-            OnCodeOnAfterGetLastEntryNo(WhseJnlLine);
-
-            OnMovement := false;
-            if "From Bin Code" <> '' then begin
-                OnCodeBeforeInitWhseEntryFromBinCode(WhseJnlLine, GlobalWhseEntry);
-                InitWhseEntry(GlobalWhseEntry, "From Zone Code", "From Bin Code", -1);
-                if "To Bin Code" <> '' then begin
-                    InsertWhseEntry(GlobalWhseEntry);
-                    OnMovement := true;
-                    InitWhseEntry(GlobalWhseEntry, "To Zone Code", "To Bin Code", 1);
-                end;
-            end else
-                InitWhseEntry(GlobalWhseEntry, "To Zone Code", "To Bin Code", 1);
-
-            InsertWhseEntry(GlobalWhseEntry);
+        if (WhseJnlLine."Qty. (Absolute)" = 0) and (WhseJnlLine."Qty. (Base)" = 0) and (not WhseJnlLine."Phys. Inventory") then
+            exit;
+        WhseJnlLine.TestField("Item No.");
+        GetLocation(WhseJnlLine."Location Code");
+        if WhseEntryNo = 0 then begin
+            GlobalWhseEntry.LockTable();
+            WhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
         end;
+
+        OnCodeOnAfterGetLastEntryNo(WhseJnlLine);
+
+        OnMovement := false;
+        if WhseJnlLine."From Bin Code" <> '' then begin
+            OnCodeBeforeInitWhseEntryFromBinCode(WhseJnlLine, GlobalWhseEntry);
+            InitWhseEntry(GlobalWhseEntry, WhseJnlLine."From Zone Code", WhseJnlLine."From Bin Code", -1);
+            if WhseJnlLine."To Bin Code" <> '' then begin
+                InsertWhseEntry(GlobalWhseEntry);
+                OnMovement := true;
+                InitWhseEntry(GlobalWhseEntry, WhseJnlLine."To Zone Code", WhseJnlLine."To Bin Code", 1);
+            end;
+        end else
+            InitWhseEntry(GlobalWhseEntry, WhseJnlLine."To Zone Code", WhseJnlLine."To Bin Code", 1);
+
+        InsertWhseEntry(GlobalWhseEntry);
 
         OnAfterCode(WhseJnlLine, WhseEntryNo, WhseReg);
     end;
@@ -244,31 +243,29 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         WhseJnlLine2: Record "Warehouse Journal Line";
         WhseJnlRegLine: Codeunit "Whse. Jnl.-Register Line";
     begin
-        with WhseEntry do begin
-            WhseJnlLine2 := WhseJnlLine;
-            GetBin(WhseJnlLine2."Location Code", Location."Adjustment Bin Code");
-            WhseJnlLine2.Quantity := 0;
-            WhseJnlLine2."Qty. (Base)" := WhseEntry2."Qty. (Base)" + "Qty. (Base)";
-            RegisterRoundResidualOnAfterGetBin(WhseJnlLine2, WhseEntry, WhseEntry2);
-            if WhseEntry2."Qty. (Base)" > Abs("Qty. (Base)") then begin
-                WhseJnlLine2."To Zone Code" := Bin."Zone Code";
-                WhseJnlLine2."To Bin Code" := Bin.Code;
-            end else begin
-                WhseJnlLine2."To Zone Code" := WhseJnlLine2."From Zone Code";
-                WhseJnlLine2."To Bin Code" := WhseJnlLine2."From Bin Code";
-                WhseJnlLine2."From Zone Code" := Bin."Zone Code";
-                WhseJnlLine2."From Bin Code" := Bin.Code;
-                WhseJnlLine2."Qty. (Base)" := -WhseJnlLine2."Qty. (Base)";
-            end;
-            WhseJnlLine2."Qty. (Absolute)" := 0;
-            WhseJnlLine2."Qty. (Absolute, Base)" := Abs(WhseJnlLine2."Qty. (Base)");
-            OnRegisterRoundResidualOnBeforeWhseJnlRegLineSetWhseRegister(WhseEntry, WhseEntry2, WhseJnlLine, WhseJnlLine2);
-            WhseJnlRegLine.SetWhseRegister(WhseReg);
-            WhseJnlRegLine.Run(WhseJnlLine2);
-            WhseJnlRegLine.GetWhseRegister(WhseReg);
-            WhseEntryNo := WhseReg."To Entry No." + 1;
-            "Entry No." := WhseReg."To Entry No." + 1;
+        WhseJnlLine2 := WhseJnlLine;
+        GetBin(WhseJnlLine2."Location Code", Location."Adjustment Bin Code");
+        WhseJnlLine2.Quantity := 0;
+        WhseJnlLine2."Qty. (Base)" := WhseEntry2."Qty. (Base)" + WhseEntry."Qty. (Base)";
+        RegisterRoundResidualOnAfterGetBin(WhseJnlLine2, WhseEntry, WhseEntry2);
+        if WhseEntry2."Qty. (Base)" > Abs(WhseEntry."Qty. (Base)") then begin
+            WhseJnlLine2."To Zone Code" := Bin."Zone Code";
+            WhseJnlLine2."To Bin Code" := Bin.Code;
+        end else begin
+            WhseJnlLine2."To Zone Code" := WhseJnlLine2."From Zone Code";
+            WhseJnlLine2."To Bin Code" := WhseJnlLine2."From Bin Code";
+            WhseJnlLine2."From Zone Code" := Bin."Zone Code";
+            WhseJnlLine2."From Bin Code" := Bin.Code;
+            WhseJnlLine2."Qty. (Base)" := -WhseJnlLine2."Qty. (Base)";
         end;
+        WhseJnlLine2."Qty. (Absolute)" := 0;
+        WhseJnlLine2."Qty. (Absolute, Base)" := Abs(WhseJnlLine2."Qty. (Base)");
+        OnRegisterRoundResidualOnBeforeWhseJnlRegLineSetWhseRegister(WhseEntry, WhseEntry2, WhseJnlLine, WhseJnlLine2);
+        WhseJnlRegLine.SetWhseRegister(WhseReg);
+        WhseJnlRegLine.Run(WhseJnlLine2);
+        WhseJnlRegLine.GetWhseRegister(WhseReg);
+        WhseEntryNo := WhseReg."To Entry No." + 1;
+        WhseEntry."Entry No." := WhseReg."To Entry No." + 1;
     end;
 
     local procedure InsertWhseEntry(var WhseEntry: Record "Warehouse Entry")
@@ -281,28 +278,26 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         if IsHandled then
             exit;
 
-        with WhseEntry do begin
-            GetItem("Item No.");
-            if ItemTrackingCode.Get(Item."Item Tracking Code") then
-                if ("Serial No." <> '') and
-                   ("Bin Code" <> Location."Adjustment Bin Code") and
-                   (Quantity > 0) and
-                   ItemTrackingCode."SN Specific Tracking"
-                then begin
-                    IsHandled := false;
-                    OnInsertWhseEntryOnBeforeCheckSerialNo(WhseEntry, IsHandled);
-                    if not IsHandled then
-                        if WMSMgt.SerialNoOnInventory("Location Code", "Item No.", "Variant Code", "Serial No.") then
-                            Error(Text001, "Serial No.");
-                end;
+        GetItem(WhseEntry."Item No.");
+        if ItemTrackingCode.Get(Item."Item Tracking Code") then
+            if (WhseEntry."Serial No." <> '') and
+               (WhseEntry."Bin Code" <> Location."Adjustment Bin Code") and
+               (WhseEntry.Quantity > 0) and
+               ItemTrackingCode."SN Specific Tracking"
+            then begin
+                IsHandled := false;
+                OnInsertWhseEntryOnBeforeCheckSerialNo(WhseEntry, IsHandled);
+                if not IsHandled then
+                    if WMSMgt.SerialNoOnInventory(WhseEntry."Location Code", WhseEntry."Item No.", WhseEntry."Variant Code", WhseEntry."Serial No.") then
+                        Error(Text001, WhseEntry."Serial No.");
+            end;
 
-            CheckExpiration(WhseEntry, ItemTrackingCode);
+        CheckExpiration(WhseEntry, ItemTrackingCode);
 
-            OnBeforeInsertWhseEntry(WhseEntry, WhseJnlLine);
-            Insert();
-            InsertWhseReg("Entry No.");
-            UpdateBinEmpty(WhseEntry);
-        end;
+        OnBeforeInsertWhseEntry(WhseEntry, WhseJnlLine);
+        WhseEntry.Insert();
+        InsertWhseReg(WhseEntry."Entry No.");
+        UpdateBinEmpty(WhseEntry);
 
         OnAfterInsertWhseEntry(WhseEntry, WhseJnlLine);
     end;
@@ -340,16 +335,15 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         if IsHandled then
             exit;
 
-        with NewWarehouseEntry do
-            if Quantity > 0 then
-                ModifyBinEmpty(false)
-            else begin
-                WarehouseEntry.SetCurrentKey("Bin Code", "Location Code");
-                WarehouseEntry.SetRange("Bin Code", "Bin Code");
-                WarehouseEntry.SetRange("Location Code", "Location Code");
-                WarehouseEntry.CalcSums("Qty. (Base)");
-                ModifyBinEmpty(WarehouseEntry."Qty. (Base)" = 0);
-            end;
+        if NewWarehouseEntry.Quantity > 0 then
+            ModifyBinEmpty(false)
+        else begin
+            WarehouseEntry.SetCurrentKey("Bin Code", "Location Code");
+            WarehouseEntry.SetRange("Bin Code", NewWarehouseEntry."Bin Code");
+            WarehouseEntry.SetRange("Location Code", NewWarehouseEntry."Location Code");
+            WarehouseEntry.CalcSums("Qty. (Base)");
+            ModifyBinEmpty(WarehouseEntry."Qty. (Base)" = 0);
+        end;
     end;
 
     local procedure ModifyBinEmpty(NewEmpty: Boolean)
@@ -368,31 +362,29 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         WhseIntegrationMgt: Codeunit "Whse. Integration Management";
     begin
         OnBeforeInsertToBinContent(WhseEntry);
-        with WhseEntry do begin
-            GetBinForBinContent(WhseEntry);
-            BinContent.Init();
-            BinContent."Location Code" := "Location Code";
-            BinContent."Zone Code" := "Zone Code";
-            BinContent."Bin Code" := "Bin Code";
-            BinContent.Dedicated := Bin.Dedicated;
-            BinContent."Bin Type Code" := Bin."Bin Type Code";
-            BinContent."Block Movement" := Bin."Block Movement";
-            BinContent."Bin Ranking" := Bin."Bin Ranking";
-            BinContent."Cross-Dock Bin" := Bin."Cross-Dock Bin";
-            BinContent."Warehouse Class Code" := Bin."Warehouse Class Code";
-            BinContent."Item No." := "Item No.";
-            BinContent."Variant Code" := "Variant Code";
-            BinContent."Unit of Measure Code" := "Unit of Measure Code";
-            BinContent."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            BinContent.Fixed := WhseIntegrationMgt.IsOpenShopFloorBin("Location Code", "Bin Code");
-            GetLocation("Location Code");
-            if not Location."Directed Put-away and Pick" then begin
-                CheckDefaultBin(WhseEntry, BinContent);
-                BinContent.Fixed := BinContent.Default;
-            end;
-            OnBeforeBinContentInsert(BinContent, WhseEntry);
-            BinContent.Insert();
+        GetBinForBinContent(WhseEntry);
+        BinContent.Init();
+        BinContent."Location Code" := WhseEntry."Location Code";
+        BinContent."Zone Code" := WhseEntry."Zone Code";
+        BinContent."Bin Code" := WhseEntry."Bin Code";
+        BinContent.Dedicated := Bin.Dedicated;
+        BinContent."Bin Type Code" := Bin."Bin Type Code";
+        BinContent."Block Movement" := Bin."Block Movement";
+        BinContent."Bin Ranking" := Bin."Bin Ranking";
+        BinContent."Cross-Dock Bin" := Bin."Cross-Dock Bin";
+        BinContent."Warehouse Class Code" := Bin."Warehouse Class Code";
+        BinContent."Item No." := WhseEntry."Item No.";
+        BinContent."Variant Code" := WhseEntry."Variant Code";
+        BinContent."Unit of Measure Code" := WhseEntry."Unit of Measure Code";
+        BinContent."Qty. per Unit of Measure" := WhseEntry."Qty. per Unit of Measure";
+        BinContent.Fixed := WhseIntegrationMgt.IsOpenShopFloorBin(WhseEntry."Location Code", WhseEntry."Bin Code");
+        GetLocation(WhseEntry."Location Code");
+        if not Location."Directed Put-away and Pick" then begin
+            CheckDefaultBin(WhseEntry, BinContent);
+            BinContent.Fixed := BinContent.Default;
         end;
+        OnBeforeBinContentInsert(BinContent, WhseEntry);
+        BinContent.Insert();
     end;
 
     local procedure GetBinForBinContent(var WhseEntry: Record "Warehouse Entry")
@@ -416,14 +408,13 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         if IsHandled then
             exit;
 
-        with WhseEntry do
-            if WMSMgt.CheckDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code") then begin
-                if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then begin
-                    DeleteDefaultBinContent("Item No.", "Variant Code", "Location Code");
-                    BinContent.Default := true;
-                end
-            end else
+        if WMSMgt.CheckDefaultBin(WhseEntry."Item No.", WhseEntry."Variant Code", WhseEntry."Location Code", WhseEntry."Bin Code") then begin
+            if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then begin
+                DeleteDefaultBinContent(WhseEntry."Item No.", WhseEntry."Variant Code", WhseEntry."Location Code");
                 BinContent.Default := true;
+            end
+        end else
+            BinContent.Default := true;
     end;
 
     procedure UpdateDefaultBinContent(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20])
@@ -473,31 +464,30 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     local procedure InsertWhseReg(WhseEntryNo: Integer)
     begin
-        with WhseJnlLine do
-            if WhseReg."No." = 0 then begin
-                WhseReg.LockTable();
-                if WhseReg.Find('+') then
-                    WhseReg."No." := WhseReg."No." + 1
-                else
-                    WhseReg."No." := 1;
-                WhseReg.Init();
+        if WhseReg."No." = 0 then begin
+            WhseReg.LockTable();
+            if WhseReg.Find('+') then
+                WhseReg."No." := WhseReg."No." + 1
+            else
+                WhseReg."No." := 1;
+            WhseReg.Init();
+            WhseReg."From Entry No." := WhseEntryNo;
+            WhseReg."To Entry No." := WhseEntryNo;
+            WhseReg."Creation Date" := Today;
+            WhseReg."Creation Time" := Time;
+            WhseReg."Journal Batch Name" := WhseJnlLine."Journal Batch Name";
+            WhseReg."Source Code" := WhseJnlLine."Source Code";
+            WhseReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(WhseJnlLine."User ID"));
+            WhseReg.Insert();
+        end else begin
+            if ((WhseEntryNo < WhseReg."From Entry No.") and (WhseEntryNo <> 0)) or
+               ((WhseReg."From Entry No." = 0) and (WhseEntryNo > 0))
+            then
                 WhseReg."From Entry No." := WhseEntryNo;
+            if WhseEntryNo > WhseReg."To Entry No." then
                 WhseReg."To Entry No." := WhseEntryNo;
-                WhseReg."Creation Date" := Today;
-                WhseReg."Creation Time" := Time;
-                WhseReg."Journal Batch Name" := "Journal Batch Name";
-                WhseReg."Source Code" := "Source Code";
-                WhseReg."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-                WhseReg.Insert();
-            end else begin
-                if ((WhseEntryNo < WhseReg."From Entry No.") and (WhseEntryNo <> 0)) or
-                   ((WhseReg."From Entry No." = 0) and (WhseEntryNo > 0))
-                then
-                    WhseReg."From Entry No." := WhseEntryNo;
-                if WhseEntryNo > WhseReg."To Entry No." then
-                    WhseReg."To Entry No." := WhseEntryNo;
-                WhseReg.Modify();
-            end;
+            WhseReg.Modify();
+        end;
     end;
 
     local procedure GetBin(LocationCode: Code[10]; BinCode: Code[20])
@@ -515,7 +505,14 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     local procedure GetItemDescription(ItemNo: Code[20]; Description2: Text[100]): Text[100]
+    var
+        WarehouseSetup: Record "Warehouse Setup";
     begin
+        WarehouseSetup.SetLoadFields("Copy Item Descr. to Entries");
+        WarehouseSetup.Get();
+        if WarehouseSetup."Copy Item Descr. to Entries" then
+            exit(Description2);
+
         GetItem(ItemNo);
         if Item.Description = Description2 then
             exit('');
@@ -706,7 +703,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteFromBinContentOnAfterClearTrackingFilters(VAR WarehouseEntry2: Record "Warehouse Entry"; var FromBinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnDeleteFromBinContentOnAfterClearTrackingFilters(var WarehouseEntry2: Record "Warehouse Entry"; var FromBinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 

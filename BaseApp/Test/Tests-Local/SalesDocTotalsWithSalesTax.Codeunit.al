@@ -51,15 +51,15 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         OriginalSalesLine := SalesLine;
         RoundingPrecision := 0.01;
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         SalesHeader.Get(OriginalSalesLine."Document Type", OriginalSalesLine."Document No.");
         OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
           0,
           PreAmounts);
         SalesInvoice.Close();
@@ -72,18 +72,18 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
         // [WHEN] User sets the Invoice Discount Amount
         SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         SalesInvoice.Close();
 
         // [THEN] Total amounts match Sales Header amounts
         // Reopen the window with the updated record
         OpenSalesInvoicePageView(SalesInvoice, SalesHeader);
 
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the CustInvoiceDiscountPct, TotalTax, and flowfields
@@ -122,7 +122,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", false);
         TaxDetail.Modify(true);
@@ -185,7 +185,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", false);
         TaxDetail.Modify(true);
@@ -254,7 +254,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a sales document with a sales line containing sales tax
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, TaxGroupCode, TaxPercentage, TaxAreaCode);
 
@@ -267,7 +267,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         SalesHeader.Get(OriginalSalesLine."Document Type", OriginalSalesLine."Document No.");
         OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
         SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         SalesInvoice.Close();
 
         // Reopen the window with the updated record
@@ -284,7 +284,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
           SalesHeader."Amount Including VAT", 0, SalesHeaderAmounts);
 
         // [WHEN] User posts the Sales Invoice
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         PostedSalesDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Invoice.
 
         // [THEN] Posted amounts should match the pre-posted amounts
@@ -330,15 +330,15 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         OriginalSalesLine := SalesLine;
         RoundingPrecision := 0.01;
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         SalesHeader.Get(OriginalSalesLine."Document Type", OriginalSalesLine."Document No.");
         OpenSalesCrMemoPageEdit(SalesCreditMemo, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCreditMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
+        SetCompareAmounts(SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCreditMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
           0,
           PreAmounts);
         SalesCreditMemo.Close();
@@ -351,18 +351,18 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
         // [WHEN] User sets the Invoice Discount Amount and Tax Group Code
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(
-          SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         SalesCreditMemo.Close();
 
         // [THEN] Total amounts match Sales Header amounts
         // Reopen the window with the updated record
         OpenSalesCrMemoPageView(SalesCreditMemo, SalesHeader);
 
-        SetCompareAmounts(SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCreditMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCreditMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCreditMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCreditMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the CustInvoiceDiscountPct, TotalTax, and flowfields
@@ -402,7 +402,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo", TaxGroupCode, TaxPercentage, TaxAreaCode);
 
         // Store away the line created, to pull back in later
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         OriginalSalesLine := SalesLine;
 
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -411,7 +411,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         SalesHeader.Get(OriginalSalesLine."Document Type", OriginalSalesLine."Document No.");
         OpenSalesCrMemoPageEdit(SalesCreditMemo, SalesHeader);
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(
-          SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         SalesCreditMemo.Close();
 
         // Reopen the window with the updated record
@@ -470,7 +470,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Quote, TaxGroupCode, TaxPercentage, TaxAreaCode);
 
         // Store away the line created, to pull back in later
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         OriginalSalesLine := SalesLine;
         RoundingPrecision := 0.01;
 
@@ -478,10 +478,10 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         OpenSalesQuotePageEdit(SalesQuote, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
           0,
           PreAmounts);
         SalesQuote.Close();
@@ -494,18 +494,18 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
         // [WHEN] User sets the Invoice Discount Amount and Tax Group Code
         SalesQuote.SalesLines."Invoice Discount Amount".SetValue(
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         SalesQuote.Close();
 
         // [THEN] Total amounts match Sales Header amounts
         // Reopen the window with the updated record
         OpenSalesQuotePageView(SalesQuote, SalesHeader);
 
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the CustInvoiceDiscountPct, TotalTax, and flowfields
@@ -647,7 +647,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         SalesInvoice."Tax Area Code".AssertEquals(TaxAreaCodeCust);
         Assert.AreNearlyEqual(
             SalesLine.Amount * TaxDetailCust."Tax Below Maximum" / 100,
-            SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision, '');
+            SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), '');
 
         // [WHEN] Change Ship-to back to "Alternate Shipping Address". Select Ship-to Address "SHA" in the Ship-to Address list.
         SalesInvoice.ShippingOptions.SetValue(ShipToOptions::"Alternate Shipping Address");
@@ -657,7 +657,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         SalesInvoice."Tax Area Code".AssertEquals(TaxAreaCodeAddr);
         Assert.AreNearlyEqual(
             SalesLine.Amount * TaxDetailAddr."Tax Below Maximum" / 100,
-            SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision, '');
+            SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -713,7 +713,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         SalesOrder."Tax Area Code".AssertEquals(TaxAreaCodeCust);
         Assert.AreNearlyEqual(
             SalesLine.Amount * TaxDetailCust."Tax Below Maximum" / 100,
-            SalesOrder.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision, '');
+            SalesOrder.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), '');
 
         // [WHEN] Change Ship-to back to "Alternate Shipping Address". Select Ship-to Address "SHA" in the Ship-to Address list.
         SalesOrder.ShippingOptions.SetValue(ShipToOptions::"Alternate Shipping Address");
@@ -723,7 +723,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         SalesOrder."Tax Area Code".AssertEquals(TaxAreaCodeAddr);
         Assert.AreNearlyEqual(
             SalesLine.Amount * TaxDetailAddr."Tax Below Maximum" / 100,
-            SalesOrder.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision, '');
+            SalesOrder.SalesLines."Total VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -908,9 +908,9 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     var
         CurrencyCode: Code[10];
     begin
-        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
         ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
-        LibraryERM.CreateExchangeRate(CurrencyCode, WORKDATE, ExchangeRate, ExchangeRate);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), ExchangeRate, ExchangeRate);
 
         Customer.Get(CreateCustomer(TaxAreaCode));
         Customer.Validate("Currency Code", CurrencyCode);
@@ -929,7 +929,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);
         TaxDetail.Modify(true);
     end;
@@ -958,7 +958,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
     local procedure CreateSalesTaxJurisdiction_CA(var TaxJurisdiction: Record "Tax Jurisdiction"; CalculateTaxOnTax: Boolean);
     begin
-        TaxJurisdiction.Get(CreateSalesTaxJurisdiction);
+        TaxJurisdiction.Get(CreateSalesTaxJurisdiction());
         TaxJurisdiction.Validate("Country/Region", TaxJurisdiction."Country/Region"::CA);
         TaxJurisdiction.Validate("Calculate Tax on Tax", CalculateTaxOnTax);
         TaxJurisdiction.Modify(true);
@@ -1072,13 +1072,13 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
     local procedure OpenSalesInvoicePageView(var SalesInvoice: TestPage "Sales Invoice"; SalesHeader: Record "Sales Header")
     begin
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesQuotePageView(var SalesQuote: TestPage "Sales Quote"; SalesHeader: Record "Sales Header")
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
     end;
 
@@ -1208,7 +1208,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", ExpenseCapitalize);
         TaxDetail.Modify(true);
@@ -1218,7 +1218,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     procedure ShipToAddressListModalPageHandler(var ShipToAddressList: TestPage "Ship-to Address List");
     begin
         ShipToAddressList.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
-        ShipToAddressList.OK.Invoke();
+        ShipToAddressList.OK().Invoke();
     end;
 
     [ConfirmHandler]

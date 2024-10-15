@@ -39,12 +39,12 @@ codeunit 6112 "Customer Data Migration Facade"
         InternalGenJournalLineNotSetErr: Label 'Internal Gen. Journal Line is not set. Create it first.';
         InternalCustomerPostingSetupNotSetErr: Label 'Internal Customer Posting Setup is not set. Create it first.';
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnMigrateCustomer(RecordIdToMigrate: RecordID)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnMigrateCustomerDimensions(RecordIdToMigrate: RecordID)
     begin
     end;
@@ -523,12 +523,12 @@ codeunit 6112 "Customer Data Migration Facade"
         exit(true);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnMigrateCustomerPostingGroups(RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnMigrateCustomerTransactions(RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
     begin
     end;

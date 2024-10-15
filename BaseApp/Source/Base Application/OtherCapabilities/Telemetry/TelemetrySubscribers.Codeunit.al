@@ -1,4 +1,4 @@
-namespace System.Telemetry;
+﻿namespace System.Telemetry;
 
 using System.Security.AccessControl;
 using System.Reflection;
@@ -62,9 +62,6 @@ codeunit 1351 "Telemetry Subscribers"
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
         FeatureManagementTok: Label 'Feature Management', Locked = true;
         BankAccountRecPostedWithBankAccCurrencyCodeMsg: Label 'Bank Account Reconciliation posted with CurrencyCode set to: %1', Locked = true;
-#if not CLEAN21
-        BankAccountRecAutoMatchMsg: Label 'Total number of lines in the bank statement: %1; Total number of automatches: %2', Locked = true;
-#endif
         BankAccountRecTextToAccountCountLbl: Label 'Number of lines where Text-To-Applied was used: %1', Locked = true;
         BankAccountRecTransferToGJMsg: Label 'Lines of Bank Statement to transfer to GJ: %1', Locked = true;
         PurchaseDocumentInformationLbl: Label 'Purchase document posted: %1', Locked = true;
@@ -428,7 +425,7 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    internal procedure SendTraceOnJobQueueEntryScheduledTaskCancelled(var JobQueueEntry: Record "Job Queue Entry")
+    internal procedure SendTraceOnJobQueueEntryScheduledTaskCancelled(var JobQueueEntry: Record "Job Queue Entry"; Success: Boolean)
     var
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
@@ -436,6 +433,7 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.SetGlobalLanguageToDefault();
 
         SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Dimensions.Add('JobQueueScheduledTaskExistedOnCancel', Format(Success));
         Telemetry.LogMessage('0000KZV',
                                 StrSubstNo(JobQueueEntryTaskCancelledTxt, Format(JobQueueEntry.ID, 0, 4)),
                                 Verbosity::Normal,
@@ -580,19 +578,11 @@ codeunit 1351 "Telemetry Subscribers"
     var
         BankAccount: Record "Bank Account";
     begin
-        with BankAccount do begin
-            Get(BankAccReconciliation."Bank Account No.");
-            Session.LogMessage('0000AHX', StrSubstNo(BankAccountRecPostedWithBankAccCurrencyCodeMsg, BankAccount."Currency Code"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
-        end;
+        BankAccount.Get(BankAccReconciliation."Bank Account No.");
+        Session.LogMessage(
+            '0000AHX', StrSubstNo(BankAccountRecPostedWithBankAccCurrencyCodeMsg, BankAccount."Currency Code"), Verbosity::Normal,
+            DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
     end;
-
-#if not CLEAN21
-    [EventSubscriber(ObjectType::Codeunit, codeunit::"Match Bank Rec. Lines", 'OnAfterMatchBankRecLinesMatchSingle', '', true, true)]
-    local procedure LogTelemetryOnAfterMatchBankRecLinesMatchSingle(CountMatchCandidates: Integer; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer")
-    begin
-        Session.LogMessage('0000AHZ', StrSubstNo(BankAccountRecAutoMatchMsg, CountMatchCandidates, TempBankStatementMatchingBuffer.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Page, Page::"Payment Reconciliation Journal", 'OnBeforeInvokePost', '', true, true)]
     local procedure LogTelemetryOnPaymentRecJournalOnBeforeInvokePost(BankAccReconciliation: Record "Bank Acc. Reconciliation")

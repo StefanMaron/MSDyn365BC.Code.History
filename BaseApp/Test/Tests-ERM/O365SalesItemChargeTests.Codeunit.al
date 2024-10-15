@@ -42,7 +42,7 @@
         AddItemLinesToSalesHeader(SalesHeader, RandAmountOfItemLines);
         AddItemChargeLinesToSalesHeader(SalesHeader, 1);
         // [WHEN] Post and create a corrective credit memo
-        SalesCreditMemo.Trap;
+        SalesCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(SalesHeader);
         // [THEN] Verify that the 'qty to assign' is not empty and is equal to the 'quantity' of the item charge.
         VerifyCorrectiveCreditMemoWithItemCharge(SalesCreditMemo);
@@ -72,7 +72,7 @@
         AddItemLinesToSalesHeader(SalesHeader, RandAmountOfItemLines);
         AddItemChargeLinesToSalesHeader(SalesHeader, RandAmountOfItemChargeLines);
         // [WHEN] Post and create a corrective credit memo.
-        SalesCreditMemo.Trap;
+        SalesCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(SalesHeader);
         // [THEN] Verify that the 'qty to assign' is not empty and is equal to the 'quantity' of the item charge.
         VerifyCorrectiveCreditMemoWithItemCharge(SalesCreditMemo);
@@ -97,7 +97,7 @@
         AddItemLinesToSalesHeader(SalesHeader, 50);
         AddItemChargeLinesToSalesHeader(SalesHeader, 1);
         // [WHEN] Post document, and create corrective credit memo
-        SalesCreditMemo.Trap;
+        SalesCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(SalesHeader);
         // [THEN] Verify that the 'qty to assign' is not empty and is equal to the 'quantity' of the item charge.
         VerifyCorrectiveCreditMemoWithItemCharge(SalesCreditMemo);
@@ -123,7 +123,7 @@
         AddItemLinesToSalesHeader(SalesHeader, 1);
         AddItemChargeLinesToSalesHeader(SalesHeader, 1);
         // [WHEN] Post document, and create corrective credit memo
-        SalesCreditMemo.Trap;
+        SalesCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(SalesHeader);
         // [THEN] Verify that the 'qty to assign' is not empty and is equal to the 'quantity' of the item charge.
         VerifyCorrectiveCreditMemoWithItemCharge(SalesCreditMemo);
@@ -154,7 +154,7 @@
         AddItemLinesToSalesHeader(SalesHeader, 1);
         AddItemChargeLinesToSalesHeader(SalesHeader, 1);
         // [WHEN] Post document, and create corrective credit memo
-        SalesCreditMemo.Trap;
+        SalesCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(SalesHeader);
         // [THEN] Verify that the 'qty to assign' is 0
         VerifyCorrectiveCreditMemoWithoutItemCharge(SalesCreditMemo);
@@ -287,7 +287,7 @@
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Sales Item Charge Tests");
 
-        LibraryApplicationArea.EnableItemChargeSetup;
+        LibraryApplicationArea.EnableItemChargeSetup();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Shipment on Invoice" := true;
@@ -310,14 +310,14 @@
     begin
         PostedDocNumber := LibrarySales.PostSalesDocument(SalesHeader, false, true);
         SalesInvoiceHeader.Get(PostedDocNumber);
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoice.CreateCreditMemo.Invoke; // Opens CorrectiveCreditMemoPageHandler
+        PostedSalesInvoice.CreateCreditMemo.Invoke(); // Opens CorrectiveCreditMemoPageHandler
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; UseRandomCurrency: Boolean)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("VAT Bus. Posting Group", '');
         SalesHeader.Modify(true);
 
@@ -328,9 +328,9 @@
     local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineType: Enum "Sales Line Type")
     begin
         LibrarySales.CreateSalesLineWithoutVAT(SalesLine, SalesHeader, SalesLineType, '', 1);
-        SalesLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
-        SalesLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive;
-        SalesLine.Validate("Unit Price", GenerateRandDecimalBetweenOneAndFive);
+        SalesLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive());
+        SalesLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive();
+        SalesLine.Validate("Unit Price", GenerateRandDecimalBetweenOneAndFive());
         SalesLine.Modify(true);
     end;
 
@@ -545,8 +545,8 @@
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
-        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke;
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -565,7 +565,7 @@
             ItemChargeAssignmentSales."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
         end;
 
-        ItemChargeAssignmentSales.OK.Invoke();
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -587,14 +587,14 @@
         LineNo := LibraryVariableStorage.DequeueInteger();
         SalesShipmentLine.Get(DocumentNo, LineNo);
         GetShipmentLines.GoToKey(SalesShipmentLine."Document No.", SalesShipmentLine."Line No.");
-        GetShipmentLines.OK.Invoke;
+        GetShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     procedure ItemChargeAssignmentSalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
         ItemChargeAssignmentSales."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 }
 

@@ -355,7 +355,9 @@ page 9302 "Sales Credit Memos"
                     Image = Allocations;
                     RunObject = Page "CFDI Relation Documents";
                     RunPageLink = "Document Table ID" = const(36),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No."),
                                   "Customer No." = field("Bill-to Customer No.");
                     ToolTip = 'View or add CFDI relation documents for the record.';
@@ -426,7 +428,7 @@ page 9302 "Sales Credit Memos"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -442,7 +444,7 @@ page 9302 "Sales Credit Memos"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -507,8 +509,11 @@ page 9302 "Sales Credit Memos"
 
                     trigger OnAction()
                     var
+                        SelectedSalesHeader: Record "Sales Header";
                         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
                     begin
+                        CurrPage.SetSelectionFilter(SelectedSalesHeader);
+                        SalesPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedSalesHeader, Rec."No.");
                         SalesPostYesNo.Preview(Rec);
                     end;
                 }

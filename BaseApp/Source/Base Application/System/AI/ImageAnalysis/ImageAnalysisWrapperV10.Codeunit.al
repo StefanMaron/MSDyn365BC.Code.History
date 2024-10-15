@@ -18,8 +18,7 @@ codeunit 2024 "Image Analysis Wrapper V1.0" implements "Image Analysis Provider"
         LastError: Text;
         HttpMessageHandler: DotNet HttpMessageHandler;
 
-    [NonDebuggable]
-    procedure InvokeAnalysis(var JSONManagement: Codeunit "JSON Management"; BaseUrl: Text; ImageAnalysisKey: Text; ImagePath: Text; ImageAnalysisTypes: List of [Enum "Image Analysis Type"]; LanguageId: Integer): Boolean
+    procedure InvokeAnalysis(var JSONManagement: Codeunit "JSON Management"; BaseUrl: Text; ImageAnalysisKey: SecretText; ImagePath: Text; ImageAnalysisTypes: List of [Enum "Image Analysis Type"]; LanguageId: Integer): Boolean
     begin
         if ImageAnalysisTypes.Count() > 1 then
             Error(OnlyOneAnalysisSupportedErr);
@@ -27,9 +26,8 @@ codeunit 2024 "Image Analysis Wrapper V1.0" implements "Image Analysis Provider"
         exit(TryInvokeAnalysisInternal(JSONManagement, BaseUrl, ImageAnalysisKey, ImagePath, ImageAnalysisTypes.Get(1)));
     end;
 
-    [NonDebuggable]
     [TryFunction]
-    local procedure TryInvokeAnalysisInternal(var JSONManagement: Codeunit "JSON Management"; BaseUrl: Text; ImageAnalysisKey: Text; ImagePath: Text; ImageAnalysisType: Enum "Image Analysis Type")
+    local procedure TryInvokeAnalysisInternal(var JSONManagement: Codeunit "JSON Management"; BaseUrl: Text; ImageAnalysisKey: SecretText; ImagePath: Text; ImageAnalysisType: Enum "Image Analysis Type")
     var
         FileManagement: Codeunit "File Management";
         HttpClient: DotNet HttpClient;
@@ -57,9 +55,9 @@ codeunit 2024 "Image Analysis Wrapper V1.0" implements "Image Analysis Provider"
 
         HttpRequestHeaders := HttpClient.DefaultRequestHeaders;
         if HasCustomVisionUri(BaseUrl) then
-            HttpRequestHeaders.TryAddWithoutValidation('Prediction-Key', ImageAnalysisKey)
+            AddRequestHeader(HttpRequestHeaders, 'Prediction-Key', ImageAnalysisKey)
         else begin
-            HttpRequestHeaders.TryAddWithoutValidation('Ocp-Apim-Subscription-Key', ImageAnalysisKey);
+            AddRequestHeader(HttpRequestHeaders, 'Ocp-Apim-Subscription-Key', ImageAnalysisKey);
             PostParameters := StrSubstNo(UrlPatternTxt, Format(ImageAnalysisType));
         end;
         HttpHeaderValueCollection := HttpRequestHeaders.Accept();
@@ -94,6 +92,12 @@ codeunit 2024 "Image Analysis Wrapper V1.0" implements "Image Analysis Provider"
                 LastError := StrSubstNo(CognitiveServicesErr, ComputerVisionApiTxt, MessageText, HttpResponseMessage.StatusCode);
             Error('');
         end;
+    end;
+
+    [NonDebuggable]
+    local procedure AddRequestHeader(var HttpRequestHeaders: DotNet HttpRequestHeaders; Name: Text; Value: SecretText)
+    begin
+        HttpRequestHeaders.TryAddWithoutValidation(Name, Value.Unwrap());
     end;
 
     procedure IsLanguageSupported(AnalysisTypes: List of [Enum "Image Analysis Type"]; LanguageId: Integer): Boolean

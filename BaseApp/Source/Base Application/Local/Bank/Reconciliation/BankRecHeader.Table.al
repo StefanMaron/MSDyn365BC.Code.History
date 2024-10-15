@@ -20,6 +20,7 @@ table 10120 "Bank Rec. Header"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -43,7 +44,7 @@ table 10120 "Bank Rec. Header"
 
             trigger OnValidate()
             begin
-                CalculateBalance;
+                CalculateBalance();
             end;
         }
         field(3; "Statement Date"; Date)

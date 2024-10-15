@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +20,9 @@ report 10115 "Vendor 1099 Magnetic Media"
     Caption = 'Vendor 1099 Magnetic Media';
     ProcessingOnly = true;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -654,33 +658,31 @@ report 10115 "Vendor 1099 Magnetic Media"
     begin
         // search for invoices paid off by this payment
         EntryAppMgt.GetAppliedVendorEntries(TempAppliedEntry, VendorNo, PeriodDate, true);
-        with TempAppliedEntry do begin
-            // search for invoices with 1099 amounts
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetFilter("IRS 1099 Amount", '<>0');
-            case FormType of
-                1:
-                    SetRange("IRS 1099 Code", 'MISC-', 'MISC-99');
-                2:
-                    SetRange("IRS 1099 Code", 'DIV-', 'DIV-99');
-                3:
-                    SetRange("IRS 1099 Code", 'INT-', 'INT-99');
-                4:
-                    SetRange("IRS 1099 Code", 'NEC-', 'NEC-99');
-            end;
-            if FindSet() then
-                repeat
-                    Calculate1099Amount(TempAppliedEntry, "Amount to Apply");
-                    if IRS1099Management.GetAdjustmentRec(IRS1099Adjustment, TempAppliedEntry) then begin
-                        TempIRS1099Adjustment := IRS1099Adjustment;
-                        if not TempIRS1099Adjustment.Find() then begin
-                            MagMediaManagement.UpdateLines(
-                              TempAppliedEntry, FormType, EndLine, "IRS 1099 Code", IRS1099Adjustment.Amount);
-                            TempIRS1099Adjustment.Insert();
-                        end;
-                    end;
-                until Next() = 0;
+        // search for invoices with 1099 amounts
+        TempAppliedEntry.SetFilter("Document Type", '%1|%2', TempAppliedEntry."Document Type"::Invoice, TempAppliedEntry."Document Type"::"Credit Memo");
+        TempAppliedEntry.SetFilter("IRS 1099 Amount", '<>0');
+        case FormType of
+            1:
+                TempAppliedEntry.SetRange("IRS 1099 Code", 'MISC-', 'MISC-99');
+            2:
+                TempAppliedEntry.SetRange("IRS 1099 Code", 'DIV-', 'DIV-99');
+            3:
+                TempAppliedEntry.SetRange("IRS 1099 Code", 'INT-', 'INT-99');
+            4:
+                TempAppliedEntry.SetRange("IRS 1099 Code", 'NEC-', 'NEC-99');
         end;
+        if TempAppliedEntry.FindSet() then
+            repeat
+                Calculate1099Amount(TempAppliedEntry, TempAppliedEntry."Amount to Apply");
+                if IRS1099Management.GetAdjustmentRec(IRS1099Adjustment, TempAppliedEntry) then begin
+                    TempIRS1099Adjustment := IRS1099Adjustment;
+                    if not TempIRS1099Adjustment.Find() then begin
+                        MagMediaManagement.UpdateLines(
+                          TempAppliedEntry, FormType, EndLine, TempAppliedEntry."IRS 1099 Code", IRS1099Adjustment.Amount);
+                        TempIRS1099Adjustment.Insert();
+                    end;
+                end;
+            until TempAppliedEntry.Next() = 0;
     end;
 
     procedure Calculate1099Amount(InvoiceEntry: Record "Vendor Ledger Entry"; AppliedAmount: Decimal)
@@ -1508,3 +1510,4 @@ report 10115 "Vendor 1099 Magnetic Media"
     end;
 }
 
+#endif

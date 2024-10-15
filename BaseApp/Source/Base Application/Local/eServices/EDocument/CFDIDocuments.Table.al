@@ -11,6 +11,7 @@ table 27005 "CFDI Documents"
 {
     Caption = 'CFDI Documents';
     DataCaptionFields = "No.";
+    DataClassification = CustomerContent;
 
     fields
     {

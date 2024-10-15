@@ -3,6 +3,7 @@ namespace Microsoft.CRM.Interaction;
 table 5122 "Interaction Template Setup"
 {
     Caption = 'Interaction Template Setup';
+    DataClassification = CustomerContent;
     ReplicateData = true;
 
     fields

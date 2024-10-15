@@ -318,7 +318,7 @@ page 6327 "Power BI Embed Setup Wizard"
         ParentPageContext: Text[30];
         StepOutOfRangeErr: Label 'Wizard step out of range.';
         NoLicenseErr: Label 'We could not check your license for Power BI. Make sure you have an active Power BI license for your user account.\\If you just activated a license, it might take a few minutes for Power BI to update.';
-        NoTokenForOnPremErr: Label 'We couldn''t connect to Power BI using your Microsoft Entra application. This typically happens when your Microsoft Entra application is not configured correctly to connect to %1. Run the "Set up Microsoft Entra ID" assisted setup again, and make sure your setup matches the documentation at https://aka.ms/bcpbi.', Comment = '%1=the product name, e.g. Business Central';
+        NoTokenForOnPremErr: Label 'We couldn''t connect to Power BI using your Microsoft Entra application. This typically happens when your Microsoft Entra application is not configured correctly to connect to %1. Run the "Set up Microsoft Entra ID" assisted setup again, and make sure your setup matches the documentation at https://aka.ms/bcpbi.';
         NoTablePermissionsErr: Label 'You do not have the necessary table permissions to access Power BI. Ask your system administrator for permissions, then run this page again.';
         AzureAppLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2150045', Locked = true;
         StepOutOfRangeTelemetryTxt: Label 'Step out of range from %1, Forward=%2', Locked = true;

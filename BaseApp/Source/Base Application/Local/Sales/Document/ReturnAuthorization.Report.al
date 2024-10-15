@@ -50,13 +50,11 @@ report 10081 "Return Authorization"
 
                     trigger OnAfterGetRecord()
                     begin
-                        with TempSalesLine do begin
-                            Init();
-                            "Document Type" := "Sales Header"."Document Type";
-                            "Document No." := "Sales Header"."No.";
-                            "Line No." := HighestLineNo + 10;
-                            HighestLineNo := "Line No.";
-                        end;
+                        TempSalesLine.Init();
+                        TempSalesLine."Document Type" := "Sales Header"."Document Type";
+                        TempSalesLine."Document No." := "Sales Header"."No.";
+                        TempSalesLine."Line No." := HighestLineNo + 10;
+                        HighestLineNo := TempSalesLine."Line No.";
                         if StrLen(Comment) <= MaxStrLen(TempSalesLine.Description) then begin
                             TempSalesLine.Description := Comment;
                             TempSalesLine."Description 2" := '';
@@ -93,13 +91,11 @@ report 10081 "Return Authorization"
 
                 trigger OnAfterGetRecord()
                 begin
-                    with TempSalesLine do begin
-                        Init();
-                        "Document Type" := "Sales Header"."Document Type";
-                        "Document No." := "Sales Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempSalesLine.Init();
+                    TempSalesLine."Document Type" := "Sales Header"."Document Type";
+                    TempSalesLine."Document No." := "Sales Header"."No.";
+                    TempSalesLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempSalesLine."Line No.";
                     if StrLen(Comment) <= MaxStrLen(TempSalesLine.Description) then begin
                         TempSalesLine.Description := Comment;
                         TempSalesLine."Description 2" := '';
@@ -117,13 +113,11 @@ report 10081 "Return Authorization"
 
                 trigger OnPreDataItem()
                 begin
-                    with TempSalesLine do begin
-                        Init();
-                        "Document Type" := "Sales Header"."Document Type";
-                        "Document No." := "Sales Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempSalesLine.Init();
+                    TempSalesLine."Document Type" := "Sales Header"."Document Type";
+                    TempSalesLine."Document No." := "Sales Header"."No.";
+                    TempSalesLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempSalesLine."Line No.";
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -323,22 +317,20 @@ report 10081 "Return Authorization"
                         trigger OnAfterGetRecord()
                         begin
                             OnLineNumber := OnLineNumber + 1;
-                            with TempSalesLine do begin
-                                if OnLineNumber = 1 then
-                                    Find('-')
-                                else
-                                    Next();
+                            if OnLineNumber = 1 then
+                                TempSalesLine.Find('-')
+                            else
+                                TempSalesLine.Next();
 
-                                if Type = Type::" " then begin
-                                    "No." := '';
-                                    "Unit of Measure" := '';
-                                    "Line Amount" := 0;
-                                    "Inv. Discount Amount" := 0;
-                                    Quantity := 0;
-                                end else
-                                    if Type = Type::"G/L Account" then
-                                        "No." := '';
-                            end;
+                            if TempSalesLine.Type = TempSalesLine.Type::" " then begin
+                                TempSalesLine."No." := '';
+                                TempSalesLine."Unit of Measure" := '';
+                                TempSalesLine."Line Amount" := 0;
+                                TempSalesLine."Inv. Discount Amount" := 0;
+                                TempSalesLine.Quantity := 0;
+                            end else
+                                if TempSalesLine.Type = TempSalesLine.Type::"G/L Account" then
+                                    TempSalesLine."No." := '';
                         end;
 
                         trigger OnPreDataItem()
@@ -381,8 +373,8 @@ report 10081 "Return Authorization"
                         CompanyInformation."Phone No." := RespCenter."Phone No.";
                         CompanyInformation."Fax No." := RespCenter."Fax No.";
                     end;
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if "Salesperson Code" = '' then
                     Clear(SalesPurchPerson)
@@ -490,7 +482,7 @@ report 10081 "Return Authorization"
         CompanyInformation: Record "Company Information";
         TempSalesLine: Record "Sales Line" temporary;
         RespCenter: Record "Responsibility Center";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         CompanyAddress: array[8] of Text[100];
         BillToAddress: array[8] of Text[100];
         ShipToAddress: array[8] of Text[100];

@@ -1,10 +1,10 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.RoleCenters;
 
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.Reports;
 using Microsoft.Pricing.Worksheet;
@@ -49,7 +49,7 @@ page 9079 "Role Center Page Dispatcher"
     local procedure GetPageReplacement(var AllObjWithCaption: Record AllObjWithCaption)
     begin
         case AllObjWithCaption."Object ID" of
-#if not CLEAN21
+#if not CLEAN23
             Page::"Purchase Prices",
             Page::"Purchase Line Discounts":
                 if IsExtendedPriceCalculationEnabled() then
@@ -77,7 +77,7 @@ page 9079 "Role Center Page Dispatcher"
     local procedure GetReportReplacement(var AllObjWithCaption: Record AllObjWithCaption)
     begin
         case AllObjWithCaption."Object ID" of
-#if not CLEAN21
+#if not CLEAN23
             Report::"Resource - Price List":
                 if IsExtendedPriceCalculationEnabled() then
                     AllObjWithCaption."Object ID" := Report::"Res. Price List";
@@ -98,7 +98,7 @@ page 9079 "Role Center Page Dispatcher"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure IsExtendedPriceCalculationEnabled(): Boolean;
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";

@@ -13,6 +13,7 @@ using System.Security.User;
 table 36623 "Credit Manager Cue"
 {
     Caption = 'Credit Manager Cue';
+    DataClassification = CustomerContent;
 
     fields
     {

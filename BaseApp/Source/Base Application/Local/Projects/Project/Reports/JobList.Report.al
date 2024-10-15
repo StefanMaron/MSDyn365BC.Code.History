@@ -14,7 +14,8 @@ report 10216 "Job List"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Projects/Project/Reports/JobList.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Job List';
+    Caption = 'Project List';
+    AdditionalSearchTerms = 'Job List';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -105,21 +106,19 @@ report 10216 "Job List"
 
             trigger OnPreDataItem()
             begin
-                with JobPlanningLine do begin
-                    case BudgetAmountsPer of
-                        BudgetAmountsPer::Schedule:
-                            begin
-                                SetCurrentKey("Job No.", "Job Task No.", "Schedule Line", "Planning Date");
-                                SetRange("Schedule Line", true);
-                            end;
-                        BudgetAmountsPer::Contract:
-                            begin
-                                SetCurrentKey("Job No.", "Job Task No.", "Contract Line", "Planning Date");
-                                SetRange("Contract Line", true);
-                            end;
-                    end;
-                    Job.CopyFilter("Planning Date Filter", "Planning Date");
+                case BudgetAmountsPer of
+                    BudgetAmountsPer::Schedule:
+                        begin
+                            JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Schedule Line", "Planning Date");
+                            JobPlanningLine.SetRange("Schedule Line", true);
+                        end;
+                    BudgetAmountsPer::Contract:
+                        begin
+                            JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Contract Line", "Planning Date");
+                            JobPlanningLine.SetRange("Contract Line", true);
+                        end;
                 end;
+                Job.CopyFilter("Planning Date Filter", JobPlanningLine."Planning Date");
             end;
         }
     }
@@ -174,7 +173,7 @@ report 10216 "Job List"
         BudgetOptionText: Text[50];
         Text001: Label 'Budgeted Amounts are per the Budget';
         Text002: Label 'Budgeted Amounts are per the Contract';
-        Job_ListCaptionLbl: Label 'Job List';
+        Job_ListCaptionLbl: Label 'Project List';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Customer_NameCaptionLbl: Label 'Customer Name';
         JobPlanningLine__Total_Cost__LCY__CaptionLbl: Label 'Budgeted Cost';

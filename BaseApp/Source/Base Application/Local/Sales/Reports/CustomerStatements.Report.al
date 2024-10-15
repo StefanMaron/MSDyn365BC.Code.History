@@ -321,6 +321,9 @@ report 10072 "Customer Statements"
                     column(TempCustLedgEntry__Posting_Date_; TempCustLedgEntry."Posting Date")
                     {
                     }
+                    column(TempCustLedgEntry__Document_Dat_; TempCustLedgEntry."Document Date")
+                    {
+                    }
                     column(GetTermsString_TempCustLedgEntry_; GetTermsString(TempCustLedgEntry))
                     {
                     }
@@ -487,8 +490,8 @@ report 10072 "Customer Statements"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 DebitBalance := 0;
                 CreditBalance := 0;
@@ -760,7 +763,7 @@ report 10072 "Customer Statements"
         SalesSetup: Record "Sales & Receivables Setup";
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         TempAppliedCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         FormatAddress: Codeunit "Format Address";
         EntryApplicationMgt: Codeunit "Entry Application Management";
@@ -841,21 +844,19 @@ report 10072 "Customer Statements"
         SalesInvHeader: Record "Sales Invoice Header";
         PaymentTerms: Record "Payment Terms";
     begin
-        with CustLedgerEntry do begin
-            if ("Document No." = '') or ("Document Type" <> "Document Type"::Invoice) then
-                exit('');
+        if (CustLedgerEntry."Document No." = '') or (CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice) then
+            exit('');
 
-            if SalesInvHeader.ReadPermission then
-                if SalesInvHeader.Get("Document No.") then begin
-                    if PaymentTerms.Get(SalesInvHeader."Payment Terms Code") then begin
-                        if PaymentTerms.Description <> '' then
-                            exit(PaymentTerms.Description);
+        if SalesInvHeader.ReadPermission then
+            if SalesInvHeader.Get(CustLedgerEntry."Document No.") then begin
+                if PaymentTerms.Get(SalesInvHeader."Payment Terms Code") then begin
+                    if PaymentTerms.Description <> '' then
+                        exit(PaymentTerms.Description);
 
-                        exit(SalesInvHeader."Payment Terms Code");
-                    end;
                     exit(SalesInvHeader."Payment Terms Code");
                 end;
-        end;
+                exit(SalesInvHeader."Payment Terms Code");
+            end;
 
         if Customer."Payment Terms Code" <> '' then begin
             if PaymentTerms.Get(Customer."Payment Terms Code") then begin
@@ -872,12 +873,10 @@ report 10072 "Customer Statements"
 
     local procedure InsertTemp(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        with TempCustLedgEntry do begin
-            if Get(CustLedgEntry."Entry No.") then
-                exit;
-            TempCustLedgEntry := CustLedgEntry;
-            Insert();
-        end;
+        if TempCustLedgEntry.Get(CustLedgEntry."Entry No.") then
+            exit;
+        TempCustLedgEntry := CustLedgEntry;
+        TempCustLedgEntry.Insert();
     end;
 
     local procedure MapOutputMethod()

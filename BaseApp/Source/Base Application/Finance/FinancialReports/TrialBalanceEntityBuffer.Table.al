@@ -6,6 +6,7 @@ table 5488 "Trial Balance Entity Buffer"
 {
     Caption = 'Trial Balance Entity Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -2,8 +2,10 @@
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Integration.FieldService;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
 using Microsoft.HumanResources.Reports;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
@@ -13,7 +15,6 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
-using System.Visualization;
 using Microsoft.Projects.Project.Reports;
 using Microsoft.Projects.Project.WIP;
 using Microsoft.Projects.Resources.Journal;
@@ -26,11 +27,13 @@ using Microsoft.RoleCenters;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+using Microsoft.Sales.Reports;
 using System.Automation;
 using System.Integration.PowerBI;
-using Microsoft.Foundation.Task;
 using System.Threading;
-using Microsoft.Sales.Reports;
+using Microsoft.Projects.Project.Archive;
+using System.Visualization;
+using Microsoft.Integration.Dataverse;
 
 page 9015 "Job Project Manager RC"
 {
@@ -68,17 +71,17 @@ page 9015 "Job Project Manager RC"
             part("Job Actual Price to Budget Price"; "Job Act to Bud Price Chart")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Actual Price to Budget Price';
+                Caption = 'Project Actual Price to Budget Price';
             }
             part("Job Profitability"; "Job Profitability Chart")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Profitability';
+                Caption = 'Project Profitability';
             }
             part("Job Actual Cost to Budget Cost"; "Job Act to Bud Cost Chart")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Actual Cost to Budget Cost';
+                Caption = 'Project Actual Cost to Budget Cost';
             }
             part(Control1907692008; "My Customers")
             {
@@ -102,17 +105,6 @@ page 9015 "Job Project Manager RC"
                 ApplicationArea = Jobs;
                 Visible = false;
             }
-#if not CLEAN21
-            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Jobs;
@@ -128,10 +120,10 @@ page 9015 "Job Project Manager RC"
             action(Jobs)
             {
                 ApplicationArea = Jobs;
-                Caption = 'Jobs';
+                Caption = 'Projects';
                 Image = Job;
                 RunObject = Page "Job List";
-                ToolTip = 'Define a project activity by creating a job card with integrated job tasks and job planning lines, structured in two layers. The job task enables you to set up job planning lines and to post consumption to the job. The job planning lines specify the detailed use of resources, items, and various general ledger expenses.';
+                ToolTip = 'Define a project activity by creating a project card with integrated project tasks and project planning lines, structured in two layers. The project task enables you to set up project planning lines and to post consumption to the project. The project planning lines specify the detailed use of resources, items, and various general ledger expenses.';
             }
             action(JobsOnOrder)
             {
@@ -147,7 +139,7 @@ page 9015 "Job Project Manager RC"
                 Caption = 'Planned and Quoted';
                 RunObject = Page "Job List";
                 RunPageView = where(Status = filter(Quote | Planning));
-                ToolTip = 'View all planned and quoted jobs.';
+                ToolTip = 'View all planned and quoted projects.';
             }
             action(JobsCompleted)
             {
@@ -155,7 +147,7 @@ page 9015 "Job Project Manager RC"
                 Caption = 'Completed';
                 RunObject = Page "Job List";
                 RunPageView = where(Status = filter(Completed));
-                ToolTip = 'View all completed jobs.';
+                ToolTip = 'View all completed projects.';
             }
             action(JobsUnassigned)
             {
@@ -163,14 +155,14 @@ page 9015 "Job Project Manager RC"
                 Caption = 'Unassigned';
                 RunObject = Page "Job List";
                 RunPageView = where("Person Responsible" = filter(''));
-                ToolTip = 'View all unassigned jobs.';
+                ToolTip = 'View all unassigned projects.';
             }
             action("Job Tasks")
             {
                 ApplicationArea = Suite;
-                Caption = 'Job Tasks';
+                Caption = 'Project Tasks';
                 RunObject = Page "Job Task List";
-                ToolTip = 'Define the various tasks involved in a job. You must create at least one job task per job because all posting refers to a job task. Having at least one job task in your job enables you to set up job planning lines and to post consumption to the job.';
+                ToolTip = 'Define the various tasks involved in a project. You must create at least one project task per project because all posting refers to a project task. Having at least one project task in your project enables you to set up project planning lines and to post consumption to the project.';
             }
             action(Customers)
             {
@@ -240,16 +232,16 @@ page 9015 "Job Project Manager RC"
             }
             group(Action2)
             {
-                Caption = 'Jobs';
+                Caption = 'Projects';
                 Image = Job;
                 ToolTip = 'Create, plan, and execute tasks in project management. ';
                 action(Action90)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Jobs';
+                    Caption = 'Projects';
                     Image = Job;
                     RunObject = Page "Job List";
-                    ToolTip = 'Define a project activity by creating a job card with integrated job tasks and job planning lines, structured in two layers. The job task enables you to set up job planning lines and to post consumption to the job. The job planning lines specify the detailed use of resources, items, and various general ledger expenses.';
+                    ToolTip = 'Define a project activity by creating a project card with integrated project tasks and project planning lines, structured in two layers. The project task enables you to set up project planning lines and to post consumption to the project. The project planning lines specify the detailed use of resources, items, and various general ledger expenses.';
                 }
                 action(Open)
                 {
@@ -265,7 +257,7 @@ page 9015 "Job Project Manager RC"
                     Caption = 'Planned and Quoted';
                     RunObject = Page "Job List";
                     RunPageView = where(Status = filter(Quote | Planning));
-                    ToolTip = 'Open the list of all planned and quoted jobs.';
+                    ToolTip = 'Open the list of all planned and quoted projects.';
                 }
                 action(JobsComplet)
                 {
@@ -273,7 +265,7 @@ page 9015 "Job Project Manager RC"
                     Caption = 'Completed';
                     RunObject = Page "Job List";
                     RunPageView = where(Status = filter(Completed));
-                    ToolTip = 'Open the list of all completed jobs.';
+                    ToolTip = 'Open the list of all completed projects.';
                 }
                 action(JobsUnassign)
                 {
@@ -281,61 +273,61 @@ page 9015 "Job Project Manager RC"
                     Caption = 'Unassigned';
                     RunObject = Page "Job List";
                     RunPageView = where("Person Responsible" = filter(''));
-                    ToolTip = 'Open the list of all unassigned jobs.';
+                    ToolTip = 'Open the list of all unassigned projects.';
                 }
                 action(Action3)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Job Tasks';
+                    Caption = 'Project Tasks';
                     RunObject = Page "Job Task List";
-                    ToolTip = 'Open the list of ongoing job tasks. Job tasks represent the actual work that is performed in a job, and they enable you to set up job planning lines and to post consumption to the job.';
+                    ToolTip = 'Open the list of ongoing project tasks. Project tasks represent the actual work that is performed in a project, and they enable you to set up project planning lines and to post consumption to the project.';
                 }
                 action("Job Registers")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Registers';
+                    Caption = 'Project Registers';
                     Image = JobRegisters;
                     RunObject = Page "Job Registers";
-                    ToolTip = 'View auditing details for all job ledger entries. Every time an entry is posted, a register is created in which you can see the first and last number of its entries in order to document when entries were posted.';
+                    ToolTip = 'View auditing details for all project ledger entries. Every time an entry is posted, a register is created in which you can see the first and last number of its entries in order to document when entries were posted.';
                 }
                 action("Job Planning Lines")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Planning Lines';
+                    Caption = 'Project Planning Lines';
                     RunObject = Page "Job Planning Lines";
-                    ToolTip = 'Open the list of ongoing job planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (budget) or you can specify what you actually agreed with your customer that he should pay for the job (billable).';
+                    ToolTip = 'Open the list of ongoing project planning lines for the project. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a project (budget) or you can specify what you actually agreed with your customer that he should pay for the project (billable).';
                 }
                 action(JobJournals)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Journals';
+                    Caption = 'Project Journals';
                     RunObject = Page "Job Journal Batches";
                     RunPageView = where(Recurring = const(false));
-                    ToolTip = 'Record job expenses or usage in the job ledger, either by reusing job planning lines or by manual entry.';
+                    ToolTip = 'Record project expenses or usage in the project ledger, either by reusing project planning lines or by manual entry.';
                 }
                 action(JobGLJournals)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job G/L Journals';
+                    Caption = 'Project G/L Journals';
                     RunObject = Page "General Journal Batches";
                     RunPageView = where("Template Type" = const(Jobs),
                                         Recurring = const(false));
-                    ToolTip = 'Record job expenses or usage in job accounts in the general ledger. For expenses or usage of type G/L Account, use the job G/L journal instead of the job journal.';
+                    ToolTip = 'Record project expenses or usage in project accounts in the general ledger. For expenses or usage of type G/L Account, use the project G/L journal instead of the project journal.';
                 }
                 action(RecurringJobJournals)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Recurring Job Journals';
+                    Caption = 'Recurring Project Journals';
                     RunObject = Page "Job Journal Batches";
                     RunPageView = where(Recurring = const(true));
-                    ToolTip = 'Reuse preset journal lines to record recurring job expenses or usage in the job ledger.';
+                    ToolTip = 'Reuse preset journal lines to record recurring project expenses or usage in the project ledger.';
                 }
             }
             group(Action91)
             {
                 Caption = 'Resources';
                 Image = Journals;
-                ToolTip = 'Manage the people or machines that are used to perform job tasks. ';
+                ToolTip = 'Manage the people or machines that are used to perform project tasks. ';
                 action(Action93)
                 {
                     ApplicationArea = Jobs;
@@ -356,7 +348,7 @@ page 9015 "Job Project Manager RC"
                     Caption = 'Resource Journals';
                     RunObject = Page "Resource Jnl. Batches";
                     RunPageView = where(Recurring = const(false));
-                    ToolTip = 'Post usage and sales of your resources for internal use and statistics. Use time sheet entries as input. Note that unlike with job journals, entries posted with resource journals are not posted to G/L accounts.';
+                    ToolTip = 'Post usage and sales of your resources for internal use and statistics. Use time sheet entries as input. Note that unlike with project journals, entries posted with resource journals are not posted to G/L accounts.';
                 }
                 action(RecurringResourceJournals)
                 {
@@ -459,7 +451,7 @@ page 9015 "Job Project Manager RC"
                 action(Action74)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Registers';
+                    Caption = 'Project Registers';
                     Image = JobRegisters;
                     RunObject = Page "Job Registers";
                     ToolTip = 'View auditing details for all item ledger entries. Every time an entry is posted, a register is created in which you can see the first and last number of its entries in order to document when entries were posted.';
@@ -480,6 +472,35 @@ page 9015 "Job Project Manager RC"
                     RunObject = Page "Resource Registers";
                     ToolTip = 'View auditing details for all resource ledger entries. Every time an entry is posted, a register is created in which you can see the first and last number of its entries in order to document when entries were posted.';
                 }
+                action("Archive Projects")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Archive Projects';
+                    RunObject = Page "Job Archive List";
+                }
+            }
+            group("Group15")
+            {
+                Caption = 'Dynamics 365 Field Service';
+                action("Bookable Resources - Dynamics 365 Field Service")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Bookable Resources - Dynamics 365 Field Service';
+                    RunObject = page "FS Bookable Resource List";
+                }
+                action("Customer Assets - Dynamics 365 Field Service")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Customer Assets - Dynamics 365 Field Service';
+                    RunObject = page "FS Customer Asset List";
+                }
+                action("Records Skipped For Synchronization")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Coupled Data Synchronization Errors';
+                    RunObject = page "CRM Skipped Records";
+                    AccessByPermission = TableData "CRM Integration Record" = R;
+                }
             }
         }
         area(processing)
@@ -491,29 +512,29 @@ page 9015 "Job Project Manager RC"
                 {
                     AccessByPermission = TableData Job = IMD;
                     ApplicationArea = Jobs;
-                    Caption = 'Job';
+                    Caption = 'Project';
                     Image = Job;
                     RunObject = Page "Job Creation Wizard";
                     RunPageMode = Create;
-                    ToolTip = 'Create a new job.';
+                    ToolTip = 'Create a new project.';
                 }
                 action("Job J&ournal")
                 {
                     AccessByPermission = TableData "Job Journal Template" = IMD;
                     ApplicationArea = Jobs;
-                    Caption = 'Job J&ournal';
+                    Caption = 'Project J&ournal';
                     Image = JobJournal;
                     RunObject = Page "Job Journal";
-                    ToolTip = 'Prepare to post a job activity to the job ledger.';
+                    ToolTip = 'Prepare to post a project activity to the project ledger.';
                 }
                 action("Job G/L &Journal")
                 {
                     AccessByPermission = TableData "Gen. Journal Template" = IMD;
                     ApplicationArea = Jobs;
-                    Caption = 'Job G/L &Journal';
+                    Caption = 'Project G/L &Journal';
                     Image = GLJournal;
                     RunObject = Page "Job G/L Journal";
-                    ToolTip = 'Prepare to post a job activity to the general ledger.';
+                    ToolTip = 'Prepare to post a project activity to the general ledger.';
                 }
                 action("R&esource Journal")
                 {
@@ -528,19 +549,19 @@ page 9015 "Job Project Manager RC"
                 {
                     AccessByPermission = TableData "Job Task" = IMD;
                     ApplicationArea = Jobs;
-                    Caption = 'Job &Create Sales Invoice';
+                    Caption = 'Project &Create Sales Invoice';
                     Image = CreateJobSalesInvoice;
                     RunObject = Report "Job Create Sales Invoice";
-                    ToolTip = 'Use a function to automatically create a sales invoice for one or more jobs.';
+                    ToolTip = 'Use a function to automatically create a sales invoice for one or more projects.';
                 }
                 action("Update Job I&tem Cost")
                 {
                     AccessByPermission = TableData Job = IMD;
                     ApplicationArea = Suite;
-                    Caption = 'Update Job I&tem Cost';
+                    Caption = 'Update Project I&tem Cost';
                     Image = "Report";
                     RunObject = Report "Update Job Item Cost";
-                    ToolTip = 'Use a function to automatically update the cost of items used in jobs.';
+                    ToolTip = 'Use a function to automatically update the cost of items used in projects.';
                 }
             }
             group(Reports)
@@ -548,7 +569,7 @@ page 9015 "Job Project Manager RC"
                 Caption = 'Reports';
                 group("Job Reports")
                 {
-                    Caption = 'Job Reports';
+                    Caption = 'Project Reports';
                     Image = ReferenceData;
                     action("Job List")
                     {
@@ -569,42 +590,42 @@ page 9015 "Job Project Manager RC"
                     action("Job &Analysis")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job &Analysis';
+                        Caption = 'Project &Analysis';
                         Image = "Report";
                         RunObject = Report "Job Analysis";
-                        ToolTip = 'Analyze your jobs. For example, you can create a report that shows you the scheduled prices, usage prices, and contract prices, and then compares the three sets of prices.';
+                        ToolTip = 'Analyze your projects. For example, you can create a report that shows you the scheduled prices, usage prices, and contract prices, and then compares the three sets of prices.';
                     }
                     action("Job Actual To &Budget (Cost)")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job Actual To &Budget (Cost)';
+                        Caption = 'Project Actual To &Budget (Cost)';
                         Image = "Report";
                         RunObject = Report "Job Actual to Budget (Cost)";
-                        ToolTip = 'Compare scheduled and usage amounts for selected jobs. All lines of the selected job show quantity, total cost, and line amount.';
+                        ToolTip = 'Compare scheduled and usage amounts for selected projects. All lines of the selected project show quantity, total cost, and line amount.';
                     }
                     action("Job Actual to Budget (Price)")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job Actual to Budget (Price)';
+                        Caption = 'Project Actual to Budget (Price)';
                         Image = "Report";
                         RunObject = Report "Job Actual to Budget (Price)";
-                        ToolTip = 'Compare the actual price of your jobs to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
+                        ToolTip = 'Compare the actual price of your projects to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
                     }
                     action("Job Cost Transaction Detail")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job Cost Transaction Detail';
+                        Caption = 'Project Cost Transaction Detail';
                         Image = "Report";
                         RunObject = Report "Job Cost Transaction Detail";
-                        ToolTip = 'List the details of your job transactions. The report includes the job number and description followed by a list of the transactions that occurred in the period you specify.';
+                        ToolTip = 'List the details of your project transactions. The report includes the project number and description followed by a list of the transactions that occurred in the period you specify.';
                     }
                     action("Job - Pla&nning Line")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job - Pla&nning Line';
+                        Caption = 'Project - Pla&nning Line';
                         Image = "Report";
                         RunObject = Report "Job - Planning Lines";
-                        ToolTip = 'Define job tasks to capture any information that you want to track for a job. You can use planning lines to add information such as what resources are required or to capture what items are needed to perform the job.';
+                        ToolTip = 'Define project tasks to capture any information that you want to track for a project. You can use planning lines to add information such as what resources are required or to capture what items are needed to perform the project.';
                     }
                     separator(Action16)
                     {
@@ -612,42 +633,42 @@ page 9015 "Job Project Manager RC"
                     action("Job Cost Su&ggested Billing")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job Cost Su&ggested Billing';
+                        Caption = 'Project Cost Su&ggested Billing';
                         Image = "Report";
                         RunObject = Report "Job Cost Suggested Billing";
-                        ToolTip = 'View a list of all jobs, grouped by customer, how much the customer has already been invoiced, and how much remains to be invoiced, that is, the suggested billing.';
+                        ToolTip = 'View a list of all projects, grouped by customer, how much the customer has already been invoiced, and how much remains to be invoiced, that is, the suggested billing.';
                     }
                     action("Customer Jobs (Cost)")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Customer Jobs (Cost)';
+                        Caption = 'Customer Projects (Cost)';
                         Image = "Report";
                         RunObject = Report "Customer Jobs (Cost)";
-                        ToolTip = 'View a list of all jobs, grouped by customer where you can compare the scheduled price, the percentage of completion, the invoiced price, and the percentage of invoiced amounts for each bill-to customer.';
+                        ToolTip = 'View a list of all projects, grouped by customer where you can compare the scheduled price, the percentage of completion, the invoiced price, and the percentage of invoiced amounts for each bill-to customer.';
                     }
                     action("Customer Jobs (Price)")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Customer Jobs (Price)';
+                        Caption = 'Customer Projects (Price)';
                         Image = "Report";
                         RunObject = Report "Customer Jobs (Price)";
-                        ToolTip = 'View jobs and job prices by customer. The report only includes jobs that are marked as completed.';
+                        ToolTip = 'View projects and project prices by customer. The report only includes projects that are marked as completed.';
                     }
                     action("Items per &Job")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Items per &Job';
+                        Caption = 'Items per &Project';
                         Image = "Report";
                         RunObject = Report "Items per Job";
-                        ToolTip = 'View which items are used for which jobs.';
+                        ToolTip = 'View which items are used for which projects.';
                     }
                     action("Jobs per &Item")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Jobs per &Item';
+                        Caption = 'Projects per &Item';
                         Image = "Report";
                         RunObject = Report "Jobs per Item";
-                        ToolTip = 'View on which job a specific item is used.';
+                        ToolTip = 'View on which project a specific item is used.';
                     }
                 }
                 group("Absence Reports")
@@ -702,10 +723,10 @@ page 9015 "Job Project Manager RC"
                     {
                         AccessByPermission = TableData "Time Sheet Line" = IMD;
                         ApplicationArea = Jobs;
-                        Caption = 'Manager Time Sheet by Job';
+                        Caption = 'Manager Time Sheet by Project';
                         Image = JobTimeSheet;
                         RunObject = Page "Manager Time Sheet by Job";
-                        ToolTip = 'Open the list of time sheets for which your name is filled into the Person Responsible field on the related job card.';
+                        ToolTip = 'Open the list of time sheets for which your name is filled into the Person Responsible field on the related project card.';
                     }
                     separator(Action5)
                     {
@@ -716,16 +737,16 @@ page 9015 "Job Project Manager RC"
                 }
                 group(WIP)
                 {
-                    Caption = 'Job Closing';
+                    Caption = 'Project Closing';
                     Image = Job;
-                    ToolTip = 'Perform various post-processing of jobs.';
+                    ToolTip = 'Perform various post-processing of projects.';
                     action("Job Calculate &WIP")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job Calculate &WIP';
+                        Caption = 'Project Calculate &WIP';
                         Image = CalculateWIP;
                         RunObject = Report "Job Calculate WIP";
-                        ToolTip = 'Calculate the general ledger entries needed to update or close the job.';
+                        ToolTip = 'Calculate the general ledger entries needed to update or close the project.';
                     }
                     action("Jo&b Post WIP to G/L")
                     {
@@ -733,15 +754,15 @@ page 9015 "Job Project Manager RC"
                         Caption = 'Jo&b Post WIP to G/L';
                         Image = PostOrder;
                         RunObject = Report "Job Post WIP to G/L";
-                        ToolTip = 'Post to the general ledger the entries calculated for your jobs.';
+                        ToolTip = 'Post to the general ledger the entries calculated for your projects.';
                     }
                     action("Job WIP")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Job WIP';
+                        Caption = 'Project WIP';
                         Image = WIP;
                         RunObject = Page "Job WIP Cockpit";
-                        ToolTip = 'Overview and track work in process for all of your projects. Each line contains information about a job, including calculated and posted WIP.';
+                        ToolTip = 'Overview and track work in process for all of your projects. Each line contains information about a project, including calculated and posted WIP.';
                     }
                 }
             }

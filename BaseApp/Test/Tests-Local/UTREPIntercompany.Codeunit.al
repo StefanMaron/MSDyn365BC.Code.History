@@ -64,7 +64,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Inventory Labels");  // Opens handler - InventoryLabelsRequestPageHandler.
 
         // Verify: Verify Item No, Item Shelf No and Labels Per Row on Report - Inventory Labels.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ItemNo_1_', Item."No.");
         LibraryReportDataset.AssertElementWithValueExists('ItemShelf_1_', Item."Shelf No.");
         LibraryReportDataset.AssertElementWithValueExists('LabelsPerRow', LabelsPerRow);
@@ -106,7 +106,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Item Comment List");  // Opens ItemCommentListRequestPageHandler.
 
         // Verify: Verify Item Description and Comment Line number on Report - Item Comment List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Item_Description', Description);
         LibraryReportDataset.AssertElementWithValueExists('Comment_Line__No__', ItemNo);
     end;
@@ -130,7 +130,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         // Purpose of the test is to validate Item Register - OnAfterGetRecord of Report ID - 10144 Item Register.
         Initialize();
-        OnAfterGetRecordSourceCodeItemRegister(LibraryRandom.RandDec(10, 2), LibraryUTUtility.GetNewCode10, 'Source Code: ');  // Value for Quantity, Source Code and Source Code text.
+        OnAfterGetRecordSourceCodeItemRegister(LibraryRandom.RandDec(10, 2), LibraryUTUtility.GetNewCode10(), 'Source Code: ');  // Value for Quantity, Source Code and Source Code text.
     end;
 
     local procedure OnAfterGetRecordSourceCodeItemRegister(Quantity: Decimal; SourceCode: Code[10]; SourceCodeText: Text)
@@ -139,7 +139,7 @@ codeunit 141010 "UT REP Intercompany"
         CostAmountActual: Decimal;
     begin
         // Setup: Create Item Ledger Entry, Item Register, Value Entry.
-        CreateItemLedgerEntry(ItemLedgerEntry, LibraryUTUtility.GetNewCode, Quantity, WorkDate());
+        CreateItemLedgerEntry(ItemLedgerEntry, LibraryUTUtility.GetNewCode(), Quantity, WorkDate());
         CreateItemRegister(ItemLedgerEntry."Entry No.", SourceCode);
         CostAmountActual := CreateValueEntry(ItemLedgerEntry);
 
@@ -147,7 +147,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Item Register");  // Opens handler - ItemRegisterRequestPageHandler.
 
         // Verify: Verify Source Code Text, Invoiced Quantity, and Cost Amount Actual on Report - Item Register.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Item_Ledger_Entry__Invoiced_Quantity_', ItemLedgerEntry."Invoiced Quantity");
         LibraryReportDataset.AssertElementWithValueExists('Item_Ledger_Entry__Cost_Amount__Actual__', CostAmountActual);
         LibraryReportDataset.AssertElementWithValueExists('SourceCodeText', SourceCodeText + SourceCode)
@@ -165,13 +165,13 @@ codeunit 141010 "UT REP Intercompany"
 
         // Setup: Create location.
         Initialize();
-        LocationCode := CreateLocation;
+        LocationCode := CreateLocation();
 
         // Exercise.
         REPORT.Run(REPORT::"Location List");  // Opens handler - LocationListRequestPageHandler.
 
         // Verify: Verify Location code and Location Name on Report - Location List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Location_Code', LocationCode);
         LibraryReportDataset.AssertElementWithValueExists('Location_Name', LocationCode);
     end;
@@ -213,7 +213,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Over Stock");
 
         // Verify: Verify Item No, Use Stock Keeping Unit and Quantity on Report - Over Stock.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNoLbl, ItemLedgerEntry."Item No.");
         LibraryReportDataset.AssertElementWithValueExists('UseSKU', UseStockKeepingUnit);
         LibraryReportDataset.AssertElementWithValueExists('QuantityOver', ItemLedgerEntry.Quantity);
@@ -243,7 +243,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Physical Inventory Count");  // Opens handler - PhysicalInventoryCountRequestPageHandler.
 
         // Verify: Verify Item Journal Template Name, Item Journal Batch Name and Item Shelf No on Report - Physical Inventory Count.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'Item_Journal_Batch_Journal_Template_Name', ItemJournalLine."Journal Template Name");
         LibraryReportDataset.AssertElementWithValueExists('Item_Journal_Line_Journal_Batch_Name', ItemJournalLine."Journal Batch Name");
@@ -273,10 +273,10 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Serial Number Status/Aging");  // Opens handler - SerialNumberStatusAgingRequestPageHandler.
 
         // Verify: Verify Item No, Unit Cost and Days Aged on Report - Serial Number Status/Aging.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNoLbl, ItemLedgerEntry."Item No.");
         LibraryReportDataset.AssertElementWithValueExists('UnitCost', CostAmountActual / ItemLedgerEntry.Quantity);
-        LibraryReportDataset.AssertElementWithValueExists('DaysAged', WorkDate - ItemLedgerEntry."Posting Date");
+        LibraryReportDataset.AssertElementWithValueExists('DaysAged', WorkDate() - ItemLedgerEntry."Posting Date");
     end;
 
     [Test]
@@ -291,7 +291,7 @@ codeunit 141010 "UT REP Intercompany"
 
         // Setup: Create Item Vendor. SETCURRENTKEY - Vendor No, Item No, Variant Code on table - Item Vendor.
         Initialize();
-        CreateItemVendor(ItemVendor, LibraryUTUtility.GetNewCode, CreateVendor);
+        CreateItemVendor(ItemVendor, LibraryUTUtility.GetNewCode(), CreateVendor());
         ItemVendor.SetCurrentKey("Vendor No.", "Item No.", "Variant Code");
         ItemVendor.SetRange("Vendor No.", ItemVendor."Vendor No.");
 
@@ -316,7 +316,7 @@ codeunit 141010 "UT REP Intercompany"
         // Setup: Create Item Vendor. SETCURRENTKEY - Item No, Variant Code, Vendor No on table - Item Vendor.
         Initialize();
         CreateItem(Item);
-        CreateItemVendor(ItemVendor, Item."No.", LibraryUTUtility.GetNewCode);
+        CreateItemVendor(ItemVendor, Item."No.", LibraryUTUtility.GetNewCode());
         ItemVendor.SetCurrentKey("Item No.", "Variant Code", "Vendor No.");
         ItemVendor.SetRange("Item No.", ItemVendor."Item No.");
 
@@ -391,7 +391,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         // Purpose of the test is to validate  OnPreReport Trigger Of Report ID - 10138 Inventory to G/L Reconcile.
         Initialize();
-        OnPreReportAdditionalReportingCurrency(REPORT::"Inventory to G/L Reconcile", CreateCurrency, true, ValuesAsOfLbl);  // Use Additional Reporting Currency - True
+        OnPreReportAdditionalReportingCurrency(REPORT::"Inventory to G/L Reconcile", CreateCurrency(), true, ValuesAsOfLbl);  // Use Additional Reporting Currency - True
     end;
 
     [Test]
@@ -402,7 +402,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         // Purpose of the test is to validate OnPreReport Trigger Of Report ID - 10139 Inventory Valuation.
         Initialize();
-        OnPreReportAdditionalReportingCurrency(REPORT::"Inventory Valuation", CreateCurrency, true, QuantitiesAndValuesLbl);  // Use Additional Reporting Currency - True
+        OnPreReportAdditionalReportingCurrency(REPORT::"Inventory Valuation", CreateCurrency(), true, QuantitiesAndValuesLbl);  // Use Additional Reporting Currency - True
     end;
 
     local procedure OnPreReportAdditionalReportingCurrency(ReportID: Integer; AdditionalReportingCurrency: Code[10]; UseAdditionalReportingCurrency: Boolean; ValuesAsOfText: Text)
@@ -422,7 +422,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(ReportID);  // Opens handler - InventoryToGLReconcileRequestPageHandler, InventoryValuationRequestPageHandler
 
         // Verify: Verify Addition Reporting Currency, Inventory value and Posting Date on Report - Inventory to G/L Reconcile or Inventory Valuation.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ShowACY', UseAdditionalReportingCurrency);
         LibraryReportDataset.AssertElementWithValueExists('InventoryValue', CostAmountActual);
         LibraryReportDataset.AssertElementWithValueExists(
@@ -450,7 +450,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Vendor Purchases by Item");  // Opens handler - VendorPurchasesByItemRequestPageHandler.
 
         // Verify:
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SubTitleLbl, 'All Purchases to Date');
         LibraryReportDataset.AssertElementWithValueExists(ItemNoLbl, ItemLedgerEntry."Item No.");
     end;
@@ -485,7 +485,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Vendor Purchases by Item");  // Opens handler - VendorPurchasesByItemMaximumPurchasesRequestPageHandler.
 
         // Verify: Verify Maximum Purchase Amount, Maximum Purchase Quantity and Source No on Report - Vendor Purchases by Item.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           PurchaseLbl, StrSubstNo('Items with Net Purchases of less than $%1', MaximumPurchaseAmount));
         LibraryReportDataset.AssertElementWithValueExists(
@@ -523,7 +523,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Vendor Purchases by Item");  // Opens handler - VendorPurchasesByItemMinimumPurchasesRequestPageHandler.
 
         // Verify: Verify Minimum Purchase Amount, Minimum Purchase Quantity and Source No on Report - Vendor Purchases by Item.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           PurchaseLbl, StrSubstNo('Items with Net Purchases of more than $%1', MinimumPurchaseAmount));
         LibraryReportDataset.AssertElementWithValueExists(
@@ -545,14 +545,14 @@ codeunit 141010 "UT REP Intercompany"
         // Setup: Create Item and Item Ledger Entry.
         Initialize();
         CreateItem(Item);
-        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate + 1);  // Calculated Posting date required on Report - Availability Projection.
+        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate() + 1);  // Calculated Posting date required on Report - Availability Projection.
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for AvailabilityProjectionRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Availability Projection");  // Opens handler - AvailabilityProjectionRequestPageHandler.
 
         // Verify: Verify Item No and Purchased Quantity.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNoLbl, ItemLedgerEntry."Item No.");
         LibraryReportDataset.AssertElementWithValueExists('QtyPurchased_2_', ItemLedgerEntry.Quantity);
     end;
@@ -571,7 +571,7 @@ codeunit 141010 "UT REP Intercompany"
         // Setup: Create Item, Create Item Variant, and Item Ledger Entry.
         Initialize();
         CreateItem(Item);
-        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate + 1);  // Calculated Posting date required on Report - Availability Projection.
+        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate() + 1);  // Calculated Posting date required on Report - Availability Projection.
         ItemLedgerEntry."Variant Code" := CreateItemVariant(Item."No.");
         ItemLedgerEntry.Modify();
         LibraryVariableStorage.Enqueue(true);  // Enqueue value for AvailabilityProjectionRequestPageHandler.
@@ -580,7 +580,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Availability Projection");  // Opens handler - AvailabilityProjectionRequestPageHandler.
 
         // Verify: Verify Item No, Purchased Quantity and Item Variant Code.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNoLbl, ItemLedgerEntry."Item No.");
         LibraryReportDataset.AssertElementWithValueExists('QtyPurchased_2__Control89', ItemLedgerEntry.Quantity);
         LibraryReportDataset.AssertElementWithValueExists('Item_Variant_Code', ItemLedgerEntry."Variant Code");
@@ -612,7 +612,7 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Item Transaction Detail");  // Opens handler - ItemTransactionDetailRequestPageHandler.
 
         // Verify: Verify Cost Amount Actual, Item Ledger Entry No and Quantity on Report - Item Transaction Detail.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Adjustment', CostAmountActual);
         LibraryReportDataset.AssertElementWithValueExists('Item_Ledger_Entry__Item_No__', ItemLedgerEntry."Item No.");
         LibraryReportDataset.AssertElementWithValueExists('Item_Ledger_Entry_Quantity', ItemLedgerEntry.Quantity);
@@ -650,7 +650,7 @@ codeunit 141010 "UT REP Intercompany"
 
         // Verify: Verify Variants show correctly on Report - Inventory to G/L Reconcial.
         // The Variant of the 1st line is VatiantCode, the 2nd line is VariantCode2, the 3rd line is blank.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyItemVariantOnInventoryToGLReconcileReport(VariantCode);
         VerifyItemVariantOnInventoryToGLReconcileReport(VariantCode2);
         VerifyItemVariantOnInventoryToGLReconcileReport('');
@@ -688,7 +688,7 @@ codeunit 141010 "UT REP Intercompany"
 
         // Verify: Verify Locations show correctly on Report - Inventory to G/L Reconcial.
         // The Location of Item2 should be blank.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyLocationOnInventoryToGLReconcileReport(Item2."No.", '');
     end;
 
@@ -708,8 +708,8 @@ codeunit 141010 "UT REP Intercompany"
         REPORT.Run(REPORT::"Inventory to G/L Reconcile");
 
         // [THEN] "As Of Date" field is visible on opened request page
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'The field is invisible.');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'The field is invisible.');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     local procedure Initialize()
@@ -731,17 +731,17 @@ codeunit 141010 "UT REP Intercompany"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
 
     local procedure CreateItem(var Item: Record Item)
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item."Item Tracking Code" := LibraryUTUtility.GetNewCode10;
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item."Item Tracking Code" := LibraryUTUtility.GetNewCode10();
         Item.Description := Item."No.";
-        Item."Shelf No." := LibraryUTUtility.GetNewCode10;
+        Item."Shelf No." := LibraryUTUtility.GetNewCode10();
         Item.Insert();
     end;
 
@@ -762,22 +762,22 @@ codeunit 141010 "UT REP Intercompany"
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
-        ItemJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        ItemJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         ItemJournalTemplate.Insert();
         ItemJournalBatch."Journal Template Name" := ItemJournalTemplate.Name;
-        ItemJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        ItemJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         ItemJournalBatch.Insert();
     end;
 
     local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Quantity: Decimal; PostingDate: Date)
     begin
-        ItemLedgerEntry."Entry No." := SelectItemLedgerEntryNo;
+        ItemLedgerEntry."Entry No." := SelectItemLedgerEntryNo();
         ItemLedgerEntry."Posting Date" := PostingDate;
         ItemLedgerEntry."Item No." := ItemNo;
         ItemLedgerEntry.Open := true;
         ItemLedgerEntry."Applied Entry to Adjust" := true;
         ItemLedgerEntry."Source Type" := ItemLedgerEntry."Source Type"::Vendor;
-        ItemLedgerEntry."Source No." := CreateVendor;
+        ItemLedgerEntry."Source No." := CreateVendor();
         ItemLedgerEntry.Quantity := Quantity;
         ItemLedgerEntry."Invoiced Quantity" := ItemLedgerEntry.Quantity;
         ItemLedgerEntry.Insert();
@@ -810,7 +810,7 @@ codeunit 141010 "UT REP Intercompany"
     var
         ItemRegister: Record "Item Register";
     begin
-        ItemRegister."No." := SelectItemRegisterNo;
+        ItemRegister."No." := SelectItemRegisterNo();
         ItemRegister."From Entry No." := FromEntryNo;
         ItemRegister."To Entry No." := ItemRegister."From Entry No.";
         ItemRegister."Source Code" := SourceCode;
@@ -823,7 +823,7 @@ codeunit 141010 "UT REP Intercompany"
         ItemVariant: Record "Item Variant";
     begin
         ItemVariant."Item No." := ItemNo;
-        ItemVariant.Code := LibraryUTUtility.GetNewCode10;
+        ItemVariant.Code := LibraryUTUtility.GetNewCode10();
         ItemVariant.Insert();
         exit(ItemVariant.Code);
     end;
@@ -839,7 +839,7 @@ codeunit 141010 "UT REP Intercompany"
     var
         Location: Record Location;
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Name := Location.Code;
         Location.Insert();
         LibraryVariableStorage.Enqueue(Location.Code);  // Enqueue value in LocationListRequestPageHandler.
@@ -851,7 +851,7 @@ codeunit 141010 "UT REP Intercompany"
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         StockkeepingUnit."Item No." := ItemNo;
-        StockkeepingUnit."Shelf No." := LibraryUTUtility.GetNewCode10;
+        StockkeepingUnit."Shelf No." := LibraryUTUtility.GetNewCode10();
         StockkeepingUnit.Insert();
         exit(StockkeepingUnit."Shelf No.");
     end;
@@ -860,7 +860,7 @@ codeunit 141010 "UT REP Intercompany"
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry."Entry No." := SelectValueEntryNo;
+        ValueEntry."Entry No." := SelectValueEntryNo();
         ValueEntry."Item Ledger Entry No." := ItemLedgerEntry."Entry No.";
         ValueEntry."Item No." := ItemLedgerEntry."Item No.";
         ValueEntry."Posting Date" := ItemLedgerEntry."Posting Date";
@@ -877,7 +877,7 @@ codeunit 141010 "UT REP Intercompany"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -992,7 +992,7 @@ codeunit 141010 "UT REP Intercompany"
 
     local procedure VerifyItemVendorSortOrder(SortingOrder: Text; ItemNo: Code[20]; VendorNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SubTitleLbl, SortingOrder);
         LibraryReportDataset.AssertElementWithValueExists('Item_Vendor__Item_No__', ItemNo);
         LibraryReportDataset.AssertElementWithValueExists('Item_Vendor__Vendor_No__', VendorNo);
@@ -1000,14 +1000,14 @@ codeunit 141010 "UT REP Intercompany"
 
     local procedure VerifyItemVariantOnInventoryToGLReconcileReport(VariantCode: Code[10])
     begin
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemLedgerEntry_VariantCode', VariantCode);
     end;
 
     local procedure VerifyLocationOnInventoryToGLReconcileReport(ItemNo: Code[20]; LocationCode: Code[10])
     begin
         LibraryReportDataset.SetRange('Item__No__', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemLedgerEntry_LocationCode', LocationCode);
     end;
 
@@ -1022,7 +1022,7 @@ codeunit 141010 "UT REP Intercompany"
         LibraryVariableStorage.Dequeue(NoOfLabelsPerRow);
         InventoryLabels.Item.SetFilter("No.", No);
         InventoryLabels.NoOfLabelsPerRow.SetValue(NoOfLabelsPerRow);
-        InventoryLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1033,7 +1033,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         LibraryVariableStorage.Dequeue(No);
         ItemCommentList."Comment Line".SetFilter("No.", Format(No));
-        ItemCommentList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemCommentList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1050,7 +1050,7 @@ codeunit 141010 "UT REP Intercompany"
         ItemRegister."Item Register".SetFilter("No.", Format(No));
         ItemRegister."Item Ledger Entry".SetFilter("Item No.", ItemNo);
         ItemRegister."Item Ledger Entry".SetFilter("Posting Date", Format(PostingDate));
-        ItemRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1061,7 +1061,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         LibraryVariableStorage.Dequeue(Code);
         LocationList.Location.SetFilter(Code, Code);
-        LocationList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LocationList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1078,7 +1078,7 @@ codeunit 141010 "UT REP Intercompany"
         OverStock.Item.SetFilter("No.", No);
         OverStock.Item.SetFilter("Date Filter", Format(DateFilter));
         OverStock.UseStockkeepingUnit.SetValue(UseStockkeepingUnit);
-        OverStock.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OverStock.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1092,7 +1092,7 @@ codeunit 141010 "UT REP Intercompany"
         LibraryVariableStorage.Dequeue(JournalBatchName);
         PhysicalInventoryCount."Item Journal Line".SetFilter("Journal Template Name", JournalTemplateName);
         PhysicalInventoryCount."Item Journal Line".SetFilter("Journal Batch Name", JournalBatchName);
-        PhysicalInventoryCount.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PhysicalInventoryCount.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1106,14 +1106,14 @@ codeunit 141010 "UT REP Intercompany"
         LibraryVariableStorage.Dequeue(DateFilter);
         SerialNumberStatusAging.Item.SetFilter("No.", No);
         SerialNumberStatusAging.Item.SetFilter("Date Filter", Format(DateFilter));
-        SerialNumberStatusAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SerialNumberStatusAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemVendorCatalogRequestPageHandler(var ItemVendorCatalog: TestRequestPage "Item/Vendor Catalog")
     begin
-        ItemVendorCatalog.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemVendorCatalog.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1121,7 +1121,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure InventoryToGLReconcileErrorRequestPageHandler(var InventoryToGLReconcile: TestRequestPage "Inventory to G/L Reconcile")
     begin
         FilterOnReportInventoryToGLReconcileRequestPage(InventoryToGLReconcile, true, false);  // Breakdown By Location - True.
-        InventoryToGLReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryToGLReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1136,7 +1136,7 @@ codeunit 141010 "UT REP Intercompany"
         LibraryVariableStorage.Dequeue(UseAdditionalReportingCurrency);
         InventoryToGLReconcile.Item.SetFilter("No.", No);
         InventoryToGLReconcile.UseAdditionalReportingCurrency.SetValue(UseAdditionalReportingCurrency);
-        InventoryToGLReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryToGLReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1155,15 +1155,15 @@ codeunit 141010 "UT REP Intercompany"
 
         FilterOnReportInventoryToGLReconcileRequestPage(InventoryToGLReconcile, BreakdownByLocation, BreakdownByVariants);
         InventoryToGLReconcile.Item.SetFilter("No.", StrSubstNo(ItemFilterTxt, No, No2));
-        InventoryToGLReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryToGLReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InventoryToGLReconcileRequestPageHandler3(var InventoryToGLReconcile: TestRequestPage "Inventory to G/L Reconcile")
     begin
-        LibraryVariableStorage.Enqueue(InventoryToGLReconcile.AsOfDate.Visible);
-        InventoryToGLReconcile.Cancel.Invoke;
+        LibraryVariableStorage.Enqueue(InventoryToGLReconcile.AsOfDate.Visible());
+        InventoryToGLReconcile.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1171,7 +1171,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure VendorPurchasesByItemRequestPageHandler(var VendorPurchasesByItem: TestRequestPage "Vendor Purchases by Item")
     begin
         FilterOnReportVendorPurchasesByItemRequestPage(VendorPurchasesByItem, false);  // Include Returns - False.
-        VendorPurchasesByItem.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPurchasesByItem.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1186,7 +1186,7 @@ codeunit 141010 "UT REP Intercompany"
         LibraryVariableStorage.Dequeue(MaxPurchaseQuantity);
         VendorPurchasesByItem.MaxPurchases.SetValue(MaxPurchaseAmount);
         VendorPurchasesByItem.MaxQty.SetValue(MaxPurchaseQuantity);
-        VendorPurchasesByItem.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPurchasesByItem.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1201,7 +1201,7 @@ codeunit 141010 "UT REP Intercompany"
         LibraryVariableStorage.Dequeue(MinPurchaseQuantity);
         VendorPurchasesByItem.MinPurchases.SetValue(MinPurchaseAmount);
         VendorPurchasesByItem.MinQty.SetValue(MinPurchaseQuantity);
-        VendorPurchasesByItem.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPurchasesByItem.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1218,7 +1218,7 @@ codeunit 141010 "UT REP Intercompany"
         AvailabilityProjection.Item.SetFilter("No.", No);
         AvailabilityProjection.Item.SetFilter("Date Filter", Format(DateFilter));
         AvailabilityProjection.BreakdownByVariant.SetValue(BreakdownByVariant);
-        AvailabilityProjection.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AvailabilityProjection.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1232,7 +1232,7 @@ codeunit 141010 "UT REP Intercompany"
         LibraryVariableStorage.Dequeue(DateFilter);
         ItemTransactionDetail.Item.SetFilter("No.", No);
         ItemTransactionDetail.Item.SetFilter("Date Filter", Format(DateFilter));
-        ItemTransactionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemTransactionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1240,7 +1240,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure InventoryValuationlErrorRequestPageHandler(var InventoryValuation: TestRequestPage "Inventory Valuation")
     begin
         FilterOnReportInventoryValuationRequestPage(InventoryValuation, true);  // Breakdown By Location - True.
-        InventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1255,7 +1255,7 @@ codeunit 141010 "UT REP Intercompany"
         LibraryVariableStorage.Dequeue(UseAdditionalReportingCurrency);
         InventoryValuation.Item.SetFilter("No.", No);
         InventoryValuation.UseAdditionalReportingCurrency.SetValue(UseAdditionalReportingCurrency);
-        InventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

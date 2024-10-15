@@ -9,6 +9,7 @@ using System.IO;
 table 10304 "ACH RB Detail"
 {
     Caption = 'ACH RB Detail';
+    DataClassification = CustomerContent;
 
     fields
     {

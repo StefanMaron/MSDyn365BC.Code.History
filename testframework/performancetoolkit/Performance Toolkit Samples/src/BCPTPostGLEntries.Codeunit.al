@@ -11,7 +11,6 @@ codeunit 149121 "BCPT Post G/L Entries"
     SingleInstance = true;
 
     trigger OnRun();
-    var
     begin
         PostGeneralJournal();
     end;
@@ -61,7 +60,7 @@ codeunit 149121 "BCPT Post G/L Entries"
     procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     var
         NoSeries: Record "No. Series";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesSingle: Codeunit "No. Series";
         DocumentNo: Code[20];
     begin
         Clear(GenJournalLine);
@@ -74,7 +73,7 @@ codeunit 149121 "BCPT Post G/L Entries"
         GenJournalLine.Insert(true);
         GenJournalLine.Validate("Posting Date", WorkDate());
         if NoSeries.Get(GenJournalBatch."No. Series") then
-            DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", GenJournalLine."Posting Date", false);
+            DocumentNo := NoSeriesSingle.GetNextNo(GenJournalBatch."No. Series", GenJournalLine."Posting Date", false);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.Validate("Account No.", SelectRandomGLAccount());

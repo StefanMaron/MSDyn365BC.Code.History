@@ -14,27 +14,17 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Assert: Codeunit Assert;
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRapidStart: Codeunit "Library - Rapid Start";
-        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IncorrectNumberOfTablesErr: Label 'Incorrect number of tables in package.';
         CannotUseDimensionsAsColumnsErr: Label 'You cannot use the Dimensions as Columns function for table %1.';
-        IncorrectDimensionsAsColumnsErr: Label 'Incorrect Dimensions as Columns export.';
-        IncorrectDefaultDimensionsErr: Label 'Incorrect Default Dimensions export.';
-        IncorrectDefaultDimensionsImportErr: Label 'Default Dimensions imported incorrectly from Excel.';
         DimensionSetIsNotCreatedErr: Label 'Dimension Set is not created.';
         DimensionValueCodeIsNotFoundErr: Label 'Dimension Value Code %1 for Dimension Set is not found.';
         DimensionValueIsCreatedForDimSetErr: Label 'Dimension Value with Code %1 and Value Code %2 for Dimension Set is created.';
-        IncorrectDimensionSetIDErr: Label 'Dimension Set ID is incorrect.';
         DimensionExpectedErr: Label 'The setup of Dimensions as Columns was canceled.';
         IncorrectDimPackageDataErr: Label 'Package Data were not updated when validate Dimension As Columns field.';
-        NewDimensionNotCreatedErr: Label 'Dimension was not created after applying package with new dimension. ';
-        ExportedDimensionCap: Label '%1 (%2)';
-        DimensionValueIdNotExistsErr: Label 'Errors for package with Dimension Value Id field not generated.';
         NonExistingDimValueExistsErr: Label 'Errors for package with non-existing dimension value is not generated.';
-        AutoincrementMsg: Label 'AutoIncrement field.';
         DimensionNotAppliedErr: Label 'Default dimension was not applied.';
         ConfigPackageMgt: Codeunit "Config. Package Management";
         IsInitialized: Boolean;
@@ -509,7 +499,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageField.FindSet();
         repeat
             ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
-            Assert.IsTrue(ConfigPackageData.FindFirst, IncorrectDimPackageDataErr);
+            Assert.IsTrue(ConfigPackageData.FindFirst(), IncorrectDimPackageDataErr);
         until ConfigPackageField.Next() = 0;
     end;
 
@@ -724,7 +714,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Scope('OnPrem')]
     procedure ImportPreviewModalPageHandler(var ConfigPackageImportPreview: TestPage "Config. Package Import Preview")
     begin
-        ConfigPackageImportPreview.Import.Invoke;
+        ConfigPackageImportPreview.Import.Invoke();
     end;
 
     [ModalPageHandler]

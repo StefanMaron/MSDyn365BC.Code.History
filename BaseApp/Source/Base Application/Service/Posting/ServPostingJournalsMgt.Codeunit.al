@@ -107,13 +107,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WarehouseShipmentLine do begin
-            SetRange("Source Type", DATABASE::"Service Line");
-            SetRange("Source Subtype", 1);
-            SetRange("Source No.", ServiceLine."Document No.");
-            SetRange("Source Line No.", ServiceLine."Line No.");
-            exit(not IsEmpty);
-        end;
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Service Line");
+        WarehouseShipmentLine.SetRange("Source Subtype", 1);
+        WarehouseShipmentLine.SetRange("Source No.", ServiceLine."Document No.");
+        WarehouseShipmentLine.SetRange("Source Line No.", ServiceLine."Line No.");
+        exit(not WarehouseShipmentLine.IsEmpty);
     end;
 
     local procedure GetLocation(LocationCode: Code[10]; var Location: Record Location)
@@ -142,164 +140,183 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             RemDiscAmt := 0;
         end;
 
-        with ItemJnlLine do begin
-            Init();
-            CopyFromServHeader(ServiceHeader);
-            CopyFromServLine(ServiceLine);
+        ItemJnlLine.Init();
+        ItemJnlLine.CopyFromServHeader(ServiceHeader);
+        ItemJnlLine.CopyFromServLine(ServiceLine);
 
-            CopyTrackingFromSpec(TrackingSpecification);
+        ItemJnlLine.CopyTrackingFromSpec(TrackingSpecification);
 
-            if QtyToBeShipped = 0 then begin
-                if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
-                    "Document Type" := "Document Type"::"Service Credit Memo"
-                else
-                    "Document Type" := "Document Type"::"Service Invoice";
-                if QtyToBeConsumed <> 0 then begin
-                    "Entry Type" := "Entry Type"::"Negative Adjmt.";
-                    "Document No." := ServShptLineDocNo;
-                    "External Document No." := '';
-                    "Document Type" := "Document Type"::"Service Shipment";
-                end else begin
-                    "Document No." := GenJnlLineDocNo;
-                    "External Document No." := GenJnlLineExtDocNo;
-                end;
-                "Posting No. Series" := ServiceHeader."Posting No. Series";
+        if GenJnlLineExtDocNo = '' then
+            GenJnlLineExtDocNo := ServiceHeader."External Document No.";
+
+        if QtyToBeShipped = 0 then begin
+            if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
+                ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Credit Memo"
+            else
+                ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Invoice";
+            if QtyToBeConsumed <> 0 then begin
+                ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::"Negative Adjmt.";
+                ItemJnlLine."Document No." := ServShptLineDocNo;
+                ItemJnlLine."External Document No." := '';
+                ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Shipment";
             end else begin
-                if ServiceLine."Document Type" <> ServiceLine."Document Type"::"Credit Memo" then begin
-                    "Document Type" := "Document Type"::"Service Shipment";
-                    "Document No." := ServShptHeader."No.";
-                    "Posting No. Series" := ServShptHeader."No. Series";
-                end;
-                if (QtyToBeInvoiced <> 0) or (QtyToBeConsumed <> 0) then begin
-                    if QtyToBeConsumed <> 0 then
-                        "Entry Type" := "Entry Type"::"Negative Adjmt.";
-                    "Invoice No." := GenJnlLineDocNo;
-                    "External Document No." := GenJnlLineExtDocNo;
-                    if "Document No." = '' then begin
-                        if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
-                            "Document Type" := "Document Type"::"Service Credit Memo"
-                        else
-                            "Document Type" := "Document Type"::"Service Invoice";
-                        "Document No." := GenJnlLineDocNo;
-                    end;
-                    "Posting No. Series" := ServiceHeader."Posting No. Series";
-                end;
-                if (QtyToBeConsumed <> 0) and ("Document No." = '') then
-                    "Document No." := ServShptLineDocNo;
+                ItemJnlLine."Document No." := GenJnlLineDocNo;
+                ItemJnlLine."External Document No." := GenJnlLineExtDocNo;
             end;
-
-            "Document Line No." := ServiceLine."Line No.";
-            Quantity := -QtyToBeShipped;
-            "Quantity (Base)" := -QtyToBeShippedBase;
-            if QtyToBeInvoiced <> 0 then begin
-                "Invoiced Quantity" := -QtyToBeInvoiced;
-                "Invoiced Qty. (Base)" := -QtyToBeInvoicedBase;
-            end else
-                if QtyToBeConsumed <> 0 then begin
-                    "Invoiced Quantity" := -QtyToBeConsumed;
-                    "Invoiced Qty. (Base)" := -QtyToBeConsumedBase;
-                end;
-            "Unit Cost" := ServiceLine."Unit Cost (LCY)";
-            "Source Currency Code" := ServiceHeader."Currency Code";
-            "Unit Cost (ACY)" := ServiceLine."Unit Cost";
-            "Value Entry Type" := "Value Entry Type"::"Direct Cost";
-            "Applies-from Entry" := ServiceLine."Appl.-from Item Entry";
-
-            if Invoice and (QtyToBeInvoiced <> 0) then begin
-                Amount := -(ServiceLine.Amount * (QtyToBeInvoiced / ServiceLine."Qty. to Invoice") - RemAmt);
-                if ServiceHeader."Prices Including VAT" then
-                    "Discount Amount" :=
-                      -((ServiceLine."Line Discount Amount" + ServiceLine."Inv. Discount Amount") / (1 + ServiceLine."VAT %" / 100) *
-                        (QtyToBeInvoiced / ServiceLine."Qty. to Invoice") - RemDiscAmt)
-                else
-                    "Discount Amount" :=
-                      -((ServiceLine."Line Discount Amount" + ServiceLine."Inv. Discount Amount") *
-                        (QtyToBeInvoiced / ServiceLine."Qty. to Invoice") - RemDiscAmt);
-            end else
-                if Consume and (QtyToBeConsumed <> 0) then begin
-                    Amount := -(ServiceLine.Amount * QtyToBeConsumed - RemAmt);
-                    "Discount Amount" :=
-                      -(ServiceLine."Line Discount Amount" * QtyToBeConsumed - RemDiscAmt);
-                end;
-
+            ItemJnlLine."Posting No. Series" := ServiceHeader."Posting No. Series";
+        end else begin
+            if ServiceLine."Document Type" <> ServiceLine."Document Type"::"Credit Memo" then begin
+                CheckItemBlocked(ItemJnlLine);
+                ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Shipment";
+                ItemJnlLine."Document No." := ServShptHeader."No.";
+                ItemJnlLine."Posting No. Series" := ServShptHeader."No. Series";
+            end;
             if (QtyToBeInvoiced <> 0) or (QtyToBeConsumed <> 0) then begin
-                RemAmt := Amount - Round(Amount);
-                RemDiscAmt := "Discount Amount" - Round("Discount Amount");
-                Amount := Round(Amount);
-                "Discount Amount" := Round("Discount Amount");
-            end else begin
-                if ServiceHeader."Prices Including VAT" then
-                    Amount :=
-                      -((QtyToBeShipped *
-                         ServiceLine."Unit Price" * (1 - ServiceLine."Line Discount %" / 100) / (1 + ServiceLine."VAT %" / 100)) - RemAmt)
-                else
-                    Amount :=
-                      -((QtyToBeShipped * ServiceLine."Unit Price" * (1 - ServiceLine."Line Discount %" / 100)) - RemAmt);
-                RemAmt := Amount - Round(Amount);
-                if ServiceHeader."Currency Code" <> '' then
-                    Amount :=
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          ServiceLine."Posting Date", ServiceHeader."Currency Code",
-                          Amount, ServiceHeader."Currency Factor"))
-                else
-                    Amount := Round(Amount);
-            end;
-
-            "Source Code" := SrcCode;
-            "Item Shpt. Entry No." := ItemLedgShptEntryNo;
-            "Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
-
-            if SalesSetup."Exact Cost Reversing Mandatory" and (ServiceLine.Type = ServiceLine.Type::Item) then
-                if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
-                    CheckApplFromItemEntry := ServiceLine.Quantity > 0
-                else
-                    CheckApplFromItemEntry := ServiceLine.Quantity < 0;
-
-            ShouldCreateWhseJnlLine := true;
-            OnPostItemJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine, ServiceHeader, ShouldCreateWhseJnlLine, ServShptHeader, ServiceLine, TempWhseJnlLine, WhsePosting);
-
-            if ShouldCreateWhseJnlLine and (ServiceLine."Location Code" <> '') and (ServiceLine.Type = ServiceLine.Type::Item) and ServiceLine.IsInventoriableItem() and (Quantity <> 0) then begin
-                GetLocation(ServiceLine."Location Code", Location);
-                if ((ServiceLine."Document Type" in [ServiceLine."Document Type"::Invoice, ServiceLine."Document Type"::"Credit Memo"]) and
-                    Location."Directed Put-away and Pick") or
-                   (Location."Bin Mandatory" and not IsWarehouseShipment(ServiceLine))
-                then begin
-                    CreateWhseJnlLine(ItemJnlLine, ServiceLine, TempWhseJnlLine, Location);
-                    WhsePosting := true;
+                if QtyToBeConsumed <> 0 then
+                    ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::"Negative Adjmt.";
+                ItemJnlLine."Invoice No." := GenJnlLineDocNo;
+                ItemJnlLine."External Document No." := GenJnlLineExtDocNo;
+                if ItemJnlLine."Document No." = '' then begin
+                    if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
+                        ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Credit Memo"
+                    else
+                        ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Invoice";
+                    ItemJnlLine."Document No." := GenJnlLineDocNo;
                 end;
+                ItemJnlLine."Posting No. Series" := ServiceHeader."Posting No. Series";
+            end;
+            if (QtyToBeConsumed <> 0) and (ItemJnlLine."Document No." = '') then
+                ItemJnlLine."Document No." := ServShptLineDocNo;
+        end;
+
+        ItemJnlLine."Document Line No." := ServiceLine."Line No.";
+        ItemJnlLine.Quantity := -QtyToBeShipped;
+        ItemJnlLine."Quantity (Base)" := -QtyToBeShippedBase;
+        if QtyToBeInvoiced <> 0 then begin
+            ItemJnlLine."Invoiced Quantity" := -QtyToBeInvoiced;
+            ItemJnlLine."Invoiced Qty. (Base)" := -QtyToBeInvoicedBase;
+        end else
+            if QtyToBeConsumed <> 0 then begin
+                ItemJnlLine."Invoiced Quantity" := -QtyToBeConsumed;
+                ItemJnlLine."Invoiced Qty. (Base)" := -QtyToBeConsumedBase;
+            end;
+        ItemJnlLine."Unit Cost" := ServiceLine."Unit Cost (LCY)";
+        ItemJnlLine."Source Currency Code" := ServiceHeader."Currency Code";
+        ItemJnlLine."Unit Cost (ACY)" := ServiceLine."Unit Cost";
+        ItemJnlLine."Value Entry Type" := ItemJnlLine."Value Entry Type"::"Direct Cost";
+        ItemJnlLine."Applies-from Entry" := ServiceLine."Appl.-from Item Entry";
+
+        if Invoice and (QtyToBeInvoiced <> 0) then begin
+            ItemJnlLine.Amount := -(ServiceLine.Amount * (QtyToBeInvoiced / ServiceLine."Qty. to Invoice") - RemAmt);
+            if ServiceHeader."Prices Including VAT" then
+                ItemJnlLine."Discount Amount" :=
+                  -((ServiceLine."Line Discount Amount" + ServiceLine."Inv. Discount Amount") / (1 + ServiceLine."VAT %" / 100) *
+                    (QtyToBeInvoiced / ServiceLine."Qty. to Invoice") - RemDiscAmt)
+            else
+                ItemJnlLine."Discount Amount" :=
+                  -((ServiceLine."Line Discount Amount" + ServiceLine."Inv. Discount Amount") *
+                    (QtyToBeInvoiced / ServiceLine."Qty. to Invoice") - RemDiscAmt);
+        end else
+            if Consume and (QtyToBeConsumed <> 0) then begin
+                ItemJnlLine.Amount := -(ServiceLine.Amount * QtyToBeConsumed - RemAmt);
+                ItemJnlLine."Discount Amount" :=
+                  -(ServiceLine."Line Discount Amount" * QtyToBeConsumed - RemDiscAmt);
             end;
 
-            if QtyToBeShippedBase <> 0 then
-                if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
-                    ServITRMgt.TransServLineToItemJnlLine(ServiceLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry)
-                else
-                    ServITRMgt.TransferReservToItemJnlLine(
-                      ServiceLine, ItemJnlLine, -QtyToBeShippedBase, CheckApplFromItemEntry);
+        if (QtyToBeInvoiced <> 0) or (QtyToBeConsumed <> 0) then begin
+            RemAmt := ItemJnlLine.Amount - Round(ItemJnlLine.Amount);
+            RemDiscAmt := ItemJnlLine."Discount Amount" - Round(ItemJnlLine."Discount Amount");
+            ItemJnlLine.Amount := Round(ItemJnlLine.Amount);
+            ItemJnlLine."Discount Amount" := Round(ItemJnlLine."Discount Amount");
+        end else begin
+            if ServiceHeader."Prices Including VAT" then
+                ItemJnlLine.Amount :=
+                  -((QtyToBeShipped *
+                     ServiceLine."Unit Price" * (1 - ServiceLine."Line Discount %" / 100) / (1 + ServiceLine."VAT %" / 100)) - RemAmt)
+            else
+                ItemJnlLine.Amount :=
+                  -((QtyToBeShipped * ServiceLine."Unit Price" * (1 - ServiceLine."Line Discount %" / 100)) - RemAmt);
+            RemAmt := ItemJnlLine.Amount - Round(ItemJnlLine.Amount);
+            if ServiceHeader."Currency Code" <> '' then
+                ItemJnlLine.Amount :=
+                  Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                      ServiceLine."Posting Date", ServiceHeader."Currency Code",
+                      ItemJnlLine.Amount, ServiceHeader."Currency Factor"))
+            else
+                ItemJnlLine.Amount := Round(ItemJnlLine.Amount);
+        end;
 
-            if CheckApplFromItemEntry then
-                ServiceLine.TestField("Appl.-from Item Entry");
+        ItemJnlLine."Source Code" := SrcCode;
+        ItemJnlLine."Item Shpt. Entry No." := ItemLedgShptEntryNo;
+        ItemJnlLine."Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
 
-            OnBeforePostItemJnlLine(
-              ItemJnlLine, ServShptHeader, ServiceLine, GenJnlLineDocNo,
-              QtyToBeShipped, QtyToBeShippedBase, QtyToBeInvoiced, QtyToBeInvoicedBase);
+        if SalesSetup."Exact Cost Reversing Mandatory" and (ServiceLine.Type = ServiceLine.Type::Item) then
+            if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
+                CheckApplFromItemEntry := ServiceLine.Quantity > 0
+            else
+                CheckApplFromItemEntry := ServiceLine.Quantity < 0;
 
-            ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+        ShouldCreateWhseJnlLine := true;
+        OnPostItemJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine, ServiceHeader, ShouldCreateWhseJnlLine, ServShptHeader, ServiceLine, TempWhseJnlLine, WhsePosting);
 
-            ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, '');
+        if ShouldCreateWhseJnlLine and (ServiceLine."Location Code" <> '') and (ServiceLine.Type = ServiceLine.Type::Item) and ServiceLine.IsInventoriableItem() and (ItemJnlLine.Quantity <> 0) then begin
+            GetLocation(ServiceLine."Location Code", Location);
+            if ((ServiceLine."Document Type" in [ServiceLine."Document Type"::Invoice, ServiceLine."Document Type"::"Credit Memo"]) and
+                Location."Directed Put-away and Pick") or
+               (Location."Bin Mandatory" and not IsWarehouseShipment(ServiceLine))
+            then begin
+                CreateWhseJnlLine(ItemJnlLine, ServiceLine, TempWhseJnlLine, Location);
+                WhsePosting := true;
+            end;
+        end;
 
-            if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification) then
-                ServITRMgt.InsertTempHandlngSpecification(DATABASE::"Service Line",
-                  ServiceLine, TempHandlingSpecification,
-                  TempTrackingSpecification, TempTrackingSpecificationInv,
-                  QtyToBeInvoiced <> 0);
+        if QtyToBeShippedBase <> 0 then
+            if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
+                ServITRMgt.TransServLineToItemJnlLine(ServiceLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry)
+            else
+                ServITRMgt.TransferReservToItemJnlLine(
+                  ServiceLine, ItemJnlLine, -QtyToBeShippedBase, CheckApplFromItemEntry);
 
-            if WhsePosting then
-                PostWhseJnlLines(TempWhseJnlLine, TempTrackingSpecification);
+        if CheckApplFromItemEntry then
+            ServiceLine.TestField("Appl.-from Item Entry");
 
-            OnAfterPostItemJnlLine(ServiceHeader, ItemJnlLine, TempHandlingSpecification);
+        OnBeforePostItemJnlLine(
+          ItemJnlLine, ServShptHeader, ServiceLine, GenJnlLineDocNo,
+          QtyToBeShipped, QtyToBeShippedBase, QtyToBeInvoiced, QtyToBeInvoicedBase);
 
-            exit("Item Shpt. Entry No.");
+        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+
+        ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, '');
+
+        if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification) then
+            ServITRMgt.InsertTempHandlngSpecification(DATABASE::"Service Line",
+              ServiceLine, TempHandlingSpecification,
+              TempTrackingSpecification, TempTrackingSpecificationInv,
+              QtyToBeInvoiced <> 0);
+
+        if WhsePosting then
+            PostWhseJnlLines(TempWhseJnlLine, TempTrackingSpecification);
+
+        OnAfterPostItemJnlLine(ServiceHeader, ItemJnlLine, TempHandlingSpecification);
+
+        exit(ItemJnlLine."Item Shpt. Entry No.");
+    end;
+
+    local procedure CheckItemBlocked(var ItemJournalLine: Record "Item Journal Line")
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+    begin
+        if ItemJournalLine."Item No." = '' then
+            exit;
+        Item.SetLoadFields(Blocked, "Service Blocked");
+        Item.Get(ItemJournalLine."Item No.");
+        ItemJournalLine.DisplayErrorIfItemIsBlocked(Item);
+        if ItemJournalLine."Variant Code" <> '' then begin
+            ItemVariant.SetLoadFields(Blocked, "Service Blocked");
+            ItemVariant.Get(ItemJournalLine."Item No.", ItemJournalLine."Variant Code");
+            ItemJournalLine.DisplayErrorIfItemVariantIsBlocked(ItemVariant);
         end;
     end;
 
@@ -308,28 +325,26 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         WMSMgmt: Codeunit "WMS Management";
         WhseMgt: Codeunit "Whse. Management";
     begin
-        with ServLine do begin
-            WMSMgmt.CheckAdjmtBin(Location, ItemJnlLine.Quantity, true);
-            WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
-            TempWhseJnlLine."Source Type" := DATABASE::"Service Line";
-            TempWhseJnlLine."Source Subtype" := "Document Type".AsInteger();
-            TempWhseJnlLine."Source Code" := SrcCode;
-            TempWhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
-            TempWhseJnlLine."Source No." := "Document No.";
-            TempWhseJnlLine."Source Line No." := "Line No.";
-            case "Document Type" of
-                "Document Type"::Order:
-                    TempWhseJnlLine."Reference Document" :=
-                      TempWhseJnlLine."Reference Document"::"Posted Shipment";
-                "Document Type"::Invoice:
-                    TempWhseJnlLine."Reference Document" :=
-                      TempWhseJnlLine."Reference Document"::"Posted S. Inv.";
-                "Document Type"::"Credit Memo":
-                    TempWhseJnlLine."Reference Document" :=
-                      TempWhseJnlLine."Reference Document"::"Posted S. Cr. Memo";
-            end;
-            TempWhseJnlLine."Reference No." := ItemJnlLine."Document No.";
+        WMSMgmt.CheckAdjmtBin(Location, ItemJnlLine.Quantity, true);
+        WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
+        TempWhseJnlLine."Source Type" := DATABASE::"Service Line";
+        TempWhseJnlLine."Source Subtype" := ServLine."Document Type".AsInteger();
+        TempWhseJnlLine."Source Code" := SrcCode;
+        TempWhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
+        TempWhseJnlLine."Source No." := ServLine."Document No.";
+        TempWhseJnlLine."Source Line No." := ServLine."Line No.";
+        case ServLine."Document Type" of
+            ServLine."Document Type"::Order:
+                TempWhseJnlLine."Reference Document" :=
+                  TempWhseJnlLine."Reference Document"::"Posted Shipment";
+            ServLine."Document Type"::Invoice:
+                TempWhseJnlLine."Reference Document" :=
+                  TempWhseJnlLine."Reference Document"::"Posted S. Inv.";
+            ServLine."Document Type"::"Credit Memo":
+                TempWhseJnlLine."Reference Document" :=
+                  TempWhseJnlLine."Reference Document"::"Posted S. Cr. Memo";
         end;
+        TempWhseJnlLine."Reference No." := ItemJnlLine."Document No.";
     end;
 
     local procedure PostWhseJnlLines(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -365,22 +380,20 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         GenJnlLine: Record "Gen. Journal Line";
         GLEntryNo: Integer;
     begin
-        with GenJnlLine do begin
-            InitNewLine(
-              ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", InvoicePostBuffer."Entry Description",
-              InvoicePostBuffer."Global Dimension 1 Code", InvoicePostBuffer."Global Dimension 2 Code",
-              InvoicePostBuffer."Dimension Set ID", ServiceHeader."Reason Code");
+        GenJnlLine.InitNewLine(
+            ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", InvoicePostBuffer."Entry Description",
+            InvoicePostBuffer."Global Dimension 1 Code", InvoicePostBuffer."Global Dimension 2 Code",
+            InvoicePostBuffer."Dimension Set ID", ServiceHeader."Reason Code");
 
-            CopyDocumentFields(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
+        GenJnlLine.CopyDocumentFields(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
 
-            CopyFromServiceHeader(ServiceHeader);
-            InvoicePostBuffer.CopyToGenJnlLine(GenJnlLine);
-            "Gen. Posting Type" := "Gen. Posting Type"::Sale;
+        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
+        InvoicePostBuffer.CopyToGenJnlLine(GenJnlLine);
+        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
 
-            OnBeforePostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GenJnlPostLine);
-            GLEntryNo := GenJnlPostLine.RunWithCheck(GenJnlLine);
-            OnAfterPostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
-        end;
+        OnBeforePostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GenJnlPostLine);
+        GLEntryNo := GenJnlPostLine.RunWithCheck(GenJnlLine);
+        OnAfterPostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
     end;
 #endif
 
@@ -390,38 +403,36 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            InitNewLine(
-              ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
-              ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
-              ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
+        GenJnlLine.InitNewLine(
+            ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
+            ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
+            ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
-            CopyDocumentFields(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
+        GenJnlLine.CopyDocumentFields(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
 
-            "Account Type" := "Account Type"::Customer;
-            "Account No." := ServiceHeader."Bill-to Customer No.";
-            CopyFromServiceHeader(ServiceHeader);
-            SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+        GenJnlLine."Account No." := ServiceHeader."Bill-to Customer No.";
+        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
+        GenJnlLine.SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
 
-            CopyFromServiceHeaderApplyTo(ServiceHeader);
-            CopyFromServiceHeaderPayment(ServiceHeader);
+        GenJnlLine.CopyFromServiceHeaderApplyTo(ServiceHeader);
+        GenJnlLine.CopyFromServiceHeaderPayment(ServiceHeader);
 
-            Amount := -TotalServiceLine."Amount Including VAT";
-            "Source Currency Amount" := -TotalServiceLine."Amount Including VAT";
-            "Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT";
-            "Sales/Purch. (LCY)" := -TotalServiceLineLCY.Amount;
-            "Profit (LCY)" := -(TotalServiceLineLCY.Amount - TotalServiceLineLCY."Unit Cost (LCY)");
-            "Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
-            "System-Created Entry" := true;
-            "Orig. Pmt. Disc. Possible" := -TotalServiceLine."Pmt. Discount Amount";
-            "Orig. Pmt. Disc. Possible(LCY)" :=
-              CurrExchRate.ExchangeAmtFCYToLCY(
-                ServiceHeader."Posting Date", ServiceHeader."Currency Code", -TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor");
+        GenJnlLine.Amount := -TotalServiceLine."Amount Including VAT";
+        GenJnlLine."Source Currency Amount" := -TotalServiceLine."Amount Including VAT";
+        GenJnlLine."Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT";
+        GenJnlLine."Sales/Purch. (LCY)" := -TotalServiceLineLCY.Amount;
+        GenJnlLine."Profit (LCY)" := -(TotalServiceLineLCY.Amount - TotalServiceLineLCY."Unit Cost (LCY)");
+        GenJnlLine."Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
+        GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Orig. Pmt. Disc. Possible" := -TotalServiceLine."Pmt. Discount Amount";
+        GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" :=
+          CurrExchRate.ExchangeAmtFCYToLCY(
+            ServiceHeader."Posting Date", ServiceHeader."Currency Code", -TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor");
 
-            OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine, GenJnlLineDocNo);
-            GenJnlPostLine.RunWithCheck(GenJnlLine);
-            OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
-        end;
+        OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine, GenJnlLineDocNo);
+        GenJnlPostLine.RunWithCheck(GenJnlLine);
+        OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
     end;
 #endif
 
@@ -437,39 +448,38 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         OnPostBalancingEntryOnBeforeFindCustLedgerEntry(ServiceHeader, CustLedgEntry, IsHandled);
         if not IsHandled then
             FindCustLedgEntry(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, CustLedgEntry);
-        with GenJnlLine do begin
-            InitNewLine(
-              ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
-              ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
-              ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
-            if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then
-                CopyDocumentFields("Document Type"::Refund, DocNo, ExtDocNo, SrcCode, '')
-            else
-                CopyDocumentFields("Document Type"::Payment, DocNo, ExtDocNo, SrcCode, '');
+        GenJnlLine.InitNewLine(
+            ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
+            ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
+            ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
-            "Account Type" := "Account Type"::Customer;
-            "Account No." := ServiceHeader."Bill-to Customer No.";
-            CopyFromServiceHeader(ServiceHeader);
-            SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
+        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then
+            GenJnlLine.CopyDocumentFields(GenJnlLine."Document Type"::Refund, DocNo, ExtDocNo, SrcCode, '')
+        else
+            GenJnlLine.CopyDocumentFields(GenJnlLine."Document Type"::Payment, DocNo, ExtDocNo, SrcCode, '');
 
-            SetApplyToDocNo(ServiceHeader, GenJnlLine, Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo);
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+        GenJnlLine."Account No." := ServiceHeader."Bill-to Customer No.";
+        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
+        GenJnlLine.SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
 
-            Amount := TotalServiceLine."Amount Including VAT" + CustLedgEntry."Remaining Pmt. Disc. Possible";
-            "Source Currency Amount" := Amount;
-            CustLedgEntry.CalcFields(Amount);
-            if CustLedgEntry.Amount = 0 then
-                "Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT"
-            else
-                "Amount (LCY)" :=
-                  TotalServiceLineLCY."Amount Including VAT" +
-                  Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
-            "Allow Zero-Amount Posting" := true;
+        SetApplyToDocNo(ServiceHeader, GenJnlLine, Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo);
 
-            OnBeforePostBalancingEntry(GenJnlLine, ServiceHeader, TotalServiceLine);
-            GenJnlPostLine.RunWithCheck(GenJnlLine);
-            OnAfterPostBalancingEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
-        end;
+        GenJnlLine.Amount := TotalServiceLine."Amount Including VAT" + CustLedgEntry."Remaining Pmt. Disc. Possible";
+        GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
+        CustLedgEntry.CalcFields(Amount);
+        if CustLedgEntry.Amount = 0 then
+            GenJnlLine."Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT"
+        else
+            GenJnlLine."Amount (LCY)" :=
+              TotalServiceLineLCY."Amount Including VAT" +
+              Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
+        GenJnlLine."Allow Zero-Amount Posting" := true;
+
+        OnBeforePostBalancingEntry(GenJnlLine, ServiceHeader, TotalServiceLine);
+        GenJnlPostLine.RunWithCheck(GenJnlLine);
+        OnAfterPostBalancingEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
     end;
 
     local procedure FindCustLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; var CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -483,13 +493,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 #if not CLEAN23
     local procedure SetApplyToDocNo(ServiceHeader: Record "Service Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
-        with GenJnlLine do begin
-            if ServiceHeader."Bal. Account Type" = ServiceHeader."Bal. Account Type"::"Bank Account" then
-                "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := ServiceHeader."Bal. Account No.";
-            "Applies-to Doc. Type" := DocType;
-            "Applies-to Doc. No." := DocNo;
-        end;
+        if ServiceHeader."Bal. Account Type" = ServiceHeader."Bal. Account Type"::"Bank Account" then
+            GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"Bank Account";
+        GenJnlLine."Bal. Account No." := ServiceHeader."Bal. Account No.";
+        GenJnlLine."Applies-to Doc. Type" := DocType;
+        GenJnlLine."Applies-to Doc. No." := DocNo;
     end;
 #endif
 
@@ -561,24 +569,22 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     var
         ResJnlLine: Record "Res. Journal Line";
     begin
-        with ResJnlLine do begin
-            Init();
-            OnPostResJnlLineOnAfterResJnlLineInit(ResJnlLine, EntryType, Qty);
-            CopyDocumentFields(DocNo, ExtDocNo, SrcCode, PostingNoSeries);
-            CopyFromServHeader(ServiceHeader);
-            CopyFromServLine(ServiceLine);
+        ResJnlLine.Init();
+        OnPostResJnlLineOnAfterResJnlLineInit(ResJnlLine, EntryType, Qty);
+        ResJnlLine.CopyDocumentFields(DocNo, ExtDocNo, SrcCode, PostingNoSeries);
+        ResJnlLine.CopyFromServHeader(ServiceHeader);
+        ResJnlLine.CopyFromServLine(ServiceLine);
 
-            "Entry Type" := EntryType;
-            Quantity := Qty;
-            "Unit Cost" := ServiceLine."Unit Cost (LCY)";
-            "Total Cost" := ServiceLine."Unit Cost (LCY)" * Quantity;
-            "Unit Price" := UnitPrice;
-            "Total Price" := TotalPrice;
+        ResJnlLine."Entry Type" := EntryType;
+        ResJnlLine.Quantity := Qty;
+        ResJnlLine."Unit Cost" := ServiceLine."Unit Cost (LCY)";
+        ResJnlLine."Total Cost" := ServiceLine."Unit Cost (LCY)" * ResJnlLine.Quantity;
+        ResJnlLine."Unit Price" := UnitPrice;
+        ResJnlLine."Total Price" := TotalPrice;
 
-            OnBeforeResJnlPostLine(ResJnlLine, ServiceHeader, ServiceLine);
-            ResJnlPostLine.RunWithCheck(ResJnlLine);
-            OnAfterPostResJnlLine(ServiceHeader, ResJnlLine);
-        end;
+        OnBeforeResJnlPostLine(ResJnlLine, ServiceHeader, ServiceLine);
+        ResJnlPostLine.RunWithCheck(ResJnlLine);
+        OnAfterPostResJnlLine(ServiceHeader, ResJnlLine);
     end;
 
     procedure InitServiceRegister(var NextServLedgerEntryNo: Integer; var NextWarrantyLedgerEntryNo: Integer)
@@ -673,98 +679,96 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         if IsHandled then
             exit(Result);
 
-        with ServLine do begin
-            if ("Job No." = '') or (QtyToBeConsumed = 0) then
-                exit(false);
+        if (ServLine."Job No." = '') or (QtyToBeConsumed = 0) then
+            exit(false);
 
-            TestField("Job Task No.");
-            Job.LockTable();
-            JobTask.LockTable();
-            Job.Get("Job No.");
-            JobTask.Get("Job No.", "Job Task No.");
+        ServLine.TestField(ServLine."Job Task No.");
+        Job.LockTable();
+        JobTask.LockTable();
+        Job.Get(ServLine."Job No.");
+        JobTask.Get(ServLine."Job No.", ServLine."Job Task No.");
 
-            JobJnlLine.Init();
-            JobJnlLine.DontCheckStdCost();
-            JobJnlLine.Validate("Job No.", "Job No.");
-            JobJnlLine.Validate("Job Task No.", "Job Task No.");
-            JobJnlLine.Validate("Line Type", "Job Line Type");
-            JobJnlLine.Validate("Posting Date", "Posting Date");
-            JobJnlLine."Job Posting Only" := true;
-            JobJnlLine."No." := "No.";
+        JobJnlLine.Init();
+        JobJnlLine.DontCheckStdCost();
+        JobJnlLine.Validate("Job No.", ServLine."Job No.");
+        JobJnlLine.Validate("Job Task No.", ServLine."Job Task No.");
+        JobJnlLine.Validate("Line Type", ServLine."Job Line Type");
+        JobJnlLine.Validate("Posting Date", ServLine."Posting Date");
+        JobJnlLine."Job Posting Only" := true;
+        JobJnlLine."No." := ServLine."No.";
 
-            case Type of
-                Type::"G/L Account":
+        case ServLine.Type of
+            ServLine.Type::"G/L Account":
+                JobJnlLine.Type := JobJnlLine.Type::"G/L Account";
+            ServLine.Type::Item:
+                JobJnlLine.Type := JobJnlLine.Type::Item;
+            ServLine.Type::Resource:
+                JobJnlLine.Type := JobJnlLine.Type::Resource;
+            ServLine.Type::Cost:
+                begin
+                    ServiceCost.SetRange(Code, ServLine."No.");
+                    ServiceCost.FindFirst();
                     JobJnlLine.Type := JobJnlLine.Type::"G/L Account";
-                Type::Item:
-                    JobJnlLine.Type := JobJnlLine.Type::Item;
-                Type::Resource:
-                    JobJnlLine.Type := JobJnlLine.Type::Resource;
-                Type::Cost:
-                    begin
-                        ServiceCost.SetRange(Code, "No.");
-                        ServiceCost.FindFirst();
-                        JobJnlLine.Type := JobJnlLine.Type::"G/L Account";
-                        JobJnlLine."No." := ServiceCost."Account No.";
-                    end;
-            end; // Case Type
-
-            OnPostJobJnlLineOnBeforeValidateNo(JobJnlLine, ServLine);
-
-            JobJnlLine.Validate("No.");
-            JobJnlLine.Description := Description;
-            JobJnlLine."Description 2" := "Description 2";
-            JobJnlLine."Variant Code" := "Variant Code";
-            JobJnlLine."Unit of Measure Code" := "Unit of Measure Code";
-            JobJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            JobJnlLine.Validate(Quantity, -QtyToBeConsumed);
-            JobJnlLine."Document No." := ServHeader."Shipping No.";
-            JobJnlLine."Service Order No." := "Document No.";
-            JobJnlLine."External Document No." := ServHeader."Shipping No.";
-            JobJnlLine."Posted Service Shipment No." := ServHeader."Shipping No.";
-            if Type = Type::Item then begin
-                Item.Get("No.");
-                if Item."Costing Method" = Item."Costing Method"::Standard then
-                    JobJnlLine.Validate("Unit Cost (LCY)", Item."Standard Cost")
-                else
-                    JobJnlLine.Validate("Unit Cost (LCY)", "Unit Cost (LCY)")
-            end else
-                JobJnlLine.Validate("Unit Cost (LCY)", "Unit Cost (LCY)");
-
-            Currency.Initialize("Currency Code");
-            Customer.Get("Customer No.");
-            if Customer."Prices Including VAT" then
-                Validate("Unit Price", Round("Unit Price" / (1 + ("VAT %" / 100)), Currency."Unit-Amount Rounding Precision"));
-
-            if "Currency Code" = Job."Currency Code" then
-                JobJnlLine.Validate("Unit Price", "Unit Price");
-            if "Currency Code" <> '' then begin
-                OnPostJobJnlLineOnBeforeCalcCurrencyFactor(ServLine, CurrExchRate);
-                CurrencyFactor := CurrExchRate.ExchangeRate("Posting Date", "Currency Code");
-                UnitPriceLCY :=
-                  Round(CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", "Unit Price", CurrencyFactor),
-                    Currency."Amount Rounding Precision");
-                JobJnlLine.Validate("Unit Price (LCY)", UnitPriceLCY);
-            end else
-                JobJnlLine.Validate("Unit Price (LCY)", "Unit Price");
-
-            JobJnlLine.Validate("Line Discount %", "Line Discount %");
-            JobJnlLine."Job Planning Line No." := "Job Planning Line No.";
-            JobJnlLine."Remaining Qty." := "Job Remaining Qty.";
-            JobJnlLine."Remaining Qty. (Base)" := "Job Remaining Qty. (Base)";
-            JobJnlLine."Location Code" := "Location Code";
-            JobJnlLine."Entry Type" := JobJnlLine."Entry Type"::Usage;
-            JobJnlLine."Posting Group" := "Posting Group";
-            JobJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            JobJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-            JobJnlLine."Customer Price Group" := "Customer Price Group";
-            SourceCodeSetup.Get();
-            JobJnlLine."Source Code" := SourceCodeSetup."Service Management";
-            JobJnlLine."Work Type Code" := "Work Type Code";
-            JobJnlLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            JobJnlLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-            JobJnlLine."Dimension Set ID" := "Dimension Set ID";
-            OnAfterTransferValuesToJobJnlLine(JobJnlLine, ServLine);
+                    JobJnlLine."No." := ServiceCost."Account No.";
+                end;
         end;
+        // Case Type
+        OnPostJobJnlLineOnBeforeValidateNo(JobJnlLine, ServLine);
+
+        JobJnlLine.Validate("No.");
+        JobJnlLine.Description := ServLine.Description;
+        JobJnlLine."Description 2" := ServLine."Description 2";
+        JobJnlLine."Variant Code" := ServLine."Variant Code";
+        JobJnlLine."Unit of Measure Code" := ServLine."Unit of Measure Code";
+        JobJnlLine."Qty. per Unit of Measure" := ServLine."Qty. per Unit of Measure";
+        JobJnlLine.Validate(Quantity, -QtyToBeConsumed);
+        JobJnlLine."Document No." := ServHeader."Shipping No.";
+        JobJnlLine."Service Order No." := ServLine."Document No.";
+        JobJnlLine."External Document No." := ServHeader."Shipping No.";
+        JobJnlLine."Posted Service Shipment No." := ServHeader."Shipping No.";
+        if ServLine.Type = ServLine.Type::Item then begin
+            Item.Get(ServLine."No.");
+            if Item."Costing Method" = Item."Costing Method"::Standard then
+                JobJnlLine.Validate("Unit Cost (LCY)", Item."Standard Cost")
+            else
+                JobJnlLine.Validate("Unit Cost (LCY)", ServLine."Unit Cost (LCY)")
+        end else
+            JobJnlLine.Validate("Unit Cost (LCY)", ServLine."Unit Cost (LCY)");
+
+        Currency.Initialize(ServLine."Currency Code");
+        Customer.Get(ServLine."Customer No.");
+        if Customer."Prices Including VAT" then
+            ServLine.Validate(ServLine."Unit Price", Round(ServLine."Unit Price" / (1 + (ServLine."VAT %" / 100)), Currency."Unit-Amount Rounding Precision"));
+
+        if ServLine."Currency Code" = Job."Currency Code" then
+            JobJnlLine.Validate("Unit Price", ServLine."Unit Price");
+        if ServLine."Currency Code" <> '' then begin
+            OnPostJobJnlLineOnBeforeCalcCurrencyFactor(ServLine, CurrExchRate);
+            CurrencyFactor := CurrExchRate.ExchangeRate(ServLine."Posting Date", ServLine."Currency Code");
+            UnitPriceLCY :=
+              Round(CurrExchRate.ExchangeAmtFCYToLCY(ServLine."Posting Date", ServLine."Currency Code", ServLine."Unit Price", CurrencyFactor),
+                Currency."Amount Rounding Precision");
+            JobJnlLine.Validate("Unit Price (LCY)", UnitPriceLCY);
+        end else
+            JobJnlLine.Validate("Unit Price (LCY)", ServLine."Unit Price");
+
+        JobJnlLine.Validate("Line Discount %", ServLine."Line Discount %");
+        JobJnlLine."Job Planning Line No." := ServLine."Job Planning Line No.";
+        JobJnlLine."Remaining Qty." := ServLine."Job Remaining Qty.";
+        JobJnlLine."Remaining Qty. (Base)" := ServLine."Job Remaining Qty. (Base)";
+        JobJnlLine."Location Code" := ServLine."Location Code";
+        JobJnlLine."Entry Type" := JobJnlLine."Entry Type"::Usage;
+        JobJnlLine."Posting Group" := ServLine."Posting Group";
+        JobJnlLine."Gen. Bus. Posting Group" := ServLine."Gen. Bus. Posting Group";
+        JobJnlLine."Gen. Prod. Posting Group" := ServLine."Gen. Prod. Posting Group";
+        JobJnlLine."Customer Price Group" := ServLine."Customer Price Group";
+        SourceCodeSetup.Get();
+        JobJnlLine."Source Code" := SourceCodeSetup."Service Management";
+        JobJnlLine."Work Type Code" := ServLine."Work Type Code";
+        JobJnlLine."Shortcut Dimension 1 Code" := ServLine."Shortcut Dimension 1 Code";
+        JobJnlLine."Shortcut Dimension 2 Code" := ServLine."Shortcut Dimension 2 Code";
+        JobJnlLine."Dimension Set ID" := ServLine."Dimension Set ID";
+        OnAfterTransferValuesToJobJnlLine(JobJnlLine, ServLine);
 
         JobJnlPostLine.RunWithCheck(JobJnlLine);
         exit(true);
@@ -784,7 +788,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         RemSalesTaxAmt: Decimal;
         RemSalesTaxSrcAmt: Decimal;
         UseDate: Date;
-        SalesTaxCalculate: Codeunit "Sales Tax Calculate";
     begin
         TaxLineCount := 0;
         RemSalesTaxAmt := 0;
