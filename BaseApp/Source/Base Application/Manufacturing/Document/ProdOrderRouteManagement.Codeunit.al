@@ -399,6 +399,19 @@ codeunit 99000772 "Prod. Order Route Management"
                     ProdOrderRtngLine.Modify(false);
                 end;
             until ProdOrderRtngLine.Next() = 0;
+
+        CheckProdOrderLine(ProdOrderLine);
+    end;
+
+    local procedure CheckProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdOrderLine(ProdOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
         Check(ProdOrderLine);
     end;
 
@@ -591,6 +604,11 @@ codeunit 99000772 "Prod. Order Route Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnNeedsCalculationOnBeforeFindProdOrderRtngLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }

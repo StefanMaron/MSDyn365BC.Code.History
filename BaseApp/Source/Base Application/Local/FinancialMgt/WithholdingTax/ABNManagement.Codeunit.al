@@ -23,16 +23,19 @@ codeunit 11600 "ABN Management"
 
     procedure CheckABN(ABN: Text[11]; Which: Option Customer,Vendor,Internal,Contact)
     var
-        Vendor: Record Vendor;
-        Customer: Record Customer;
-        Contact: Record Contact;
         CheckDigit: Integer;
         AbnDigit: array[11] of Integer;
         WeightFactor: array[11] of Integer;
         AbnWeightSum: Integer;
         i: Integer;
         j: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckABN(ABN, Which, IsHandled);
+        if IsHandled then
+            exit;
+
         if ABN = '' then
             exit;
 
@@ -63,6 +66,21 @@ codeunit 11600 "ABN Management"
         if AbnWeightSum mod CheckDigit <> 0 then
             Error(Text1450002);
 
+        CheckForDuplicates(ABN, Which);
+    end;
+
+    local procedure CheckForDuplicates(ABN: Text[11]; Which: Option Customer,Vendor,Internal,Contact)
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        Contact: Record Contact;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckForDuplicates(ABN, Which, IsHandled);
+        if IsHandled then
+            exit;
+
         case Which of
             Which::Vendor:
                 begin
@@ -90,6 +108,16 @@ codeunit 11600 "ABN Management"
                             Error('');
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckABN(ABN: Text[11]; Which: Option Customer,Vendor,Internal,Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckForDuplicates(ABN: Text[11]; Which: Option Customer,Vendor,Internal,Contact; var IsHandled: Boolean)
+    begin
     end;
 }
 

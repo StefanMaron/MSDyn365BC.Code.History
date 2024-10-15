@@ -61,6 +61,12 @@ page 7324 "Whse. Item Journal"
             repeater(Control1)
             {
                 ShowCaption = false;
+                field("Entry Type"; Rec."Entry Type")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the entry type of the line.';
+                    Visible = false;
+                }
                 field("Registering Date"; Rec."Registering Date")
                 {
                     ApplicationArea = Warehouse;

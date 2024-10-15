@@ -1407,7 +1407,13 @@ table 5080 "To-do"
     var
         ActivityStep: Record "Activity Step";
         TaskDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertActivityTask(Task2, ActivityCode, Attendee, IsHandled);
+        if IsHandled then
+            exit;
+
         TaskDate := Task2.Date;
         ActivityStep.SetRange("Activity Code", ActivityCode);
         if ActivityStep.Find('-') then begin
@@ -3260,6 +3266,11 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnStartWizardOnAfterInsert(var Todo: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertActivityTask(var Task: Record "To-Do"; ActivityCode: Code[10]; var Attendee: Record Attendee; var IsHandled: Boolean)
     begin
     end;
 }

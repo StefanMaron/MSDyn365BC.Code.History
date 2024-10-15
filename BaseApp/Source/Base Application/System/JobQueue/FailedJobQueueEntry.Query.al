@@ -21,6 +21,9 @@ query 472 "Failed Job Queue Entry"
             column(Earliest_Start_Date_Time; "Earliest Start Date/Time")
             {
             }
+            filter(UserID; "User ID")
+            {
+            }
             dataitem(Job_Queue_Log_Entry; "Job Queue Log Entry")
             {
                 DataItemLink = ID = Job_Queue_Entry.ID;

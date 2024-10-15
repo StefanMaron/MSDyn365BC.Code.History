@@ -250,7 +250,7 @@ codeunit 2750 "Universal Printer Setup"
             UniversalPrinterSettings.Validate(Landscape, IsLandscape(GetOrientation(PrinterPropValue)));
 
         if UniversalPrintGraphHelper.GetJsonKeyValue(PrinterDefaultsJsonObject, 'mediaSize', PrinterPropValue) then
-            UniversalPrinterSettings.Validate("Paper Size", GetPaperSize(PrinterPropValue));
+            UniversalPrinterSettings.Validate("Paper Size", UniversalPrintGraphHelper.GetPaperSizeFromUniversalPrintMediaSize(PrinterPropValue));
 
         if UniversalPrintGraphHelper.GetJsonKeyValue(PrinterDefaultsJsonObject, 'outputBin', PrinterPropValue) then
             UniversalPrinterSettings.Validate("Paper Tray", CopyStr(PrinterPropValue, 1, MaxStrLen(UniversalPrinterSettings."Paper Tray")));
@@ -282,21 +282,6 @@ codeunit 2750 "Universal Printer Setup"
         OrdinalValue := UniversalPrinterOrientation.Ordinals.Get(Index);
         UniversalPrinterOrientation := Enum::"Universal Printer Orientation".FromInteger(OrdinalValue);
         exit(UniversalPrinterOrientation);
-    end;
-
-    local procedure GetPaperSize(textValue: Text): Enum "Printer Paper Kind"
-    var
-        PrinterPaperKind: Enum "Printer Paper Kind";
-        OrdinalValue: Integer;
-        Index: Integer;
-    begin
-        Index := PrinterPaperKind.Names.IndexOf(textValue);
-        if Index = 0 then
-            exit(Enum::"Printer Paper Kind"::A4);
-
-        OrdinalValue := PrinterPaperKind.Ordinals.Get(Index);
-        PrinterPaperKind := Enum::"Printer Paper Kind".FromInteger(OrdinalValue);
-        exit(PrinterPaperKind);
     end;
 
     local procedure GetPaperTray(textValue: Text): Enum "Printer Paper Source Kind"

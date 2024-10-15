@@ -65,7 +65,7 @@ report 11608 "Create EFT File"
                 BankAcc.TestField("EFT Bank Code");
                 BankAcc.TestField("EFT BSB No.");
                 BankAcc.TestField("EFT Security No.");
-
+                OnGenJournalLinePostDataItemOnBeforeEFTRegisterInsert(EFTRegister, BankAcc);
                 EFTRegister.Insert();
                 EFTManagement.CreateFileFromEFTRegister(EFTRegister, EFTFileDescription, BankAcc);
             end;
@@ -173,6 +173,11 @@ report 11608 "Create EFT File"
         BalGenJournalLine.SetRange("Account Type", BalGenJournalLine."Account Type"::"Bank Account");
         BalGenJournalLine.FindFirst();
         exit(BalGenJournalLine."Account No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenJournalLinePostDataItemOnBeforeEFTRegisterInsert(var EFTRegister: Record "EFT Register"; var BankAccount: Record "Bank Account")
+    begin
     end;
 }
 
