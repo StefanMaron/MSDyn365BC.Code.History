@@ -604,6 +604,9 @@ table 5507 "Sales Cr. Memo Entity Buffer"
         if IsNullGuid("Customer Id") then
             exit(false);
 
+        if not GraphIntContact.IsUpdateContactIdEnabled() then
+            exit(false);
+
         Customer.SetRange(Id, "Customer Id");
         if not Customer.FindFirst then
             exit(false);
