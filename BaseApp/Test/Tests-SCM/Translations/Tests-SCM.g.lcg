@@ -5693,6 +5693,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Attributes - NamedType ItemAttributeValueNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3348869921 - NamedType 2205500150" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Name must have a value in Item Attribute: ID=0. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Attributes - NamedType MissingAttributeNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3348869921 - NamedType 1724590159" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This item attribute has been assigned to at least one item.\\Are you sure you want to rename it?]]></Val>

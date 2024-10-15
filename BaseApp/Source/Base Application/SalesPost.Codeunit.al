@@ -49,6 +49,7 @@
         ICGenJnlLineNo: Integer;
         LineCount: Integer;
         SavedHideProgressWindow: Boolean;
+        SkipInventoryAdjustment: Boolean;
     begin
         OnBeforePostSalesDoc(Rec, SuppressCommit, PreviewMode, HideProgressWindow);
         if not GuiAllowed then
@@ -161,8 +162,10 @@
         if ICGenJnlLineNo > 0 then
             PostICGenJnl();
 
-        OnRunOnBeforeMakeInventoryAdjustment(SalesHeader, SalesInvHeader, GenJnlPostLine, ItemJnlPostLine);
-        MakeInventoryAdjustment();
+        SkipInventoryAdjustment := false;
+        OnRunOnBeforeMakeInventoryAdjustment(SalesHeader, SalesInvHeader, GenJnlPostLine, ItemJnlPostLine, PreviewMode, SkipInventoryAdjustment);
+        if not SkipInventoryAdjustment then
+            MakeInventoryAdjustment();
 
         // Create Bills
         if PaymentMethod.Get(SalesHeader."Payment Method Code") then
@@ -907,10 +910,10 @@
                 PostInvoicePostBuffer(SalesHeader, TotalAmount)
             else begin
 #endif
-            GetInvoicePostingParameters();
-            InvoicePostingInterface.SetParameters(InvoicePostingParameters);
-            InvoicePostingInterface.SetTotalLines(TotalSalesLine, TotalSalesLineLCY);
-            InvoicePostingInterface.PostLines(SalesHeader, GenJnlPostLine, Window, TotalAmount);
+                GetInvoicePostingParameters();
+                InvoicePostingInterface.SetParameters(InvoicePostingParameters);
+                InvoicePostingInterface.SetTotalLines(TotalSalesLine, TotalSalesLineLCY);
+                InvoicePostingInterface.PostLines(SalesHeader, GenJnlPostLine, Window, TotalAmount);
 #if not CLEAN19
             end;
 #endif
@@ -2601,27 +2604,27 @@
                             InsertTrackingSpecification(SalesHeader);
                         end;
                     else begin
-                            UpdateAssociatedPurchaseOrder(TempDropShptPostBuffer, SalesHeader);
-                            if DropShipOrder then
-                                InsertTrackingSpecification(SalesHeader);
+                        UpdateAssociatedPurchaseOrder(TempDropShptPostBuffer, SalesHeader);
+                        if DropShipOrder then
+                            InsertTrackingSpecification(SalesHeader);
 
-                            ResetTempLines(TempSalesLine);
-                            TempSalesLine.SetFilter("Purch. Order Line No.", '<>0');
-                            if TempSalesLine.FindSet() then
-                                repeat
-                                    UpdateAssocLines(TempSalesLine);
-                                    TempSalesLine.Modify();
-                                until TempSalesLine.Next() = 0;
+                        ResetTempLines(TempSalesLine);
+                        TempSalesLine.SetFilter("Purch. Order Line No.", '<>0');
+                        if TempSalesLine.FindSet() then
+                            repeat
+                                UpdateAssocLines(TempSalesLine);
+                                TempSalesLine.Modify();
+                            until TempSalesLine.Next() = 0;
 
-                            ResetTempLines(TempSalesLine);
-                            TempSalesLine.SetFilter("Prepayment %", '<>0');
-                            if TempSalesLine.FindSet() then
-                                repeat
-                                    DecrementPrepmtAmtInvLCY(
-                                      TempSalesLine, TempSalesLine."Prepmt. Amount Inv. (LCY)", TempSalesLine."Prepmt. VAT Amount Inv. (LCY)");
-                                    TempSalesLine.Modify();
-                                until TempSalesLine.Next() = 0;
-                        end;
+                        ResetTempLines(TempSalesLine);
+                        TempSalesLine.SetFilter("Prepayment %", '<>0');
+                        if TempSalesLine.FindSet() then
+                            repeat
+                                DecrementPrepmtAmtInvLCY(
+                                  TempSalesLine, TempSalesLine."Prepmt. Amount Inv. (LCY)", TempSalesLine."Prepmt. VAT Amount Inv. (LCY)");
+                                TempSalesLine.Modify();
+                            until TempSalesLine.Next() = 0;
+                    end;
                 end;
                 UpdateAfterPosting(SalesHeader);
                 UpdateEmailParameters(SalesHeader);
@@ -6462,8 +6465,8 @@
 #if not CLEAN19
                     if not UseLegacyInvoicePosting() then begin
 #endif
-                    GetInvoicePostingParameters();
-                    InvoicePostingInterface.SetParameters(InvoicePostingParameters);
+                        GetInvoicePostingParameters();
+                        InvoicePostingInterface.SetParameters(InvoicePostingParameters);
 #if not CLEAN19
                     end;
 #endif
@@ -7008,11 +7011,11 @@
                         PostedSalesDocumentVariant := SalesCrMemoHeader;
                     end;
                 else begin
-                        IsHandled := false;
-                        OnGetPostedDocumentRecordElseCase(SalesHeader, PostedSalesDocumentVariant, IsHandled);
-                        if not IsHandled then
-                            Error(NotSupportedDocumentTypeErr, "Document Type");
-                    end;
+                    IsHandled := false;
+                    OnGetPostedDocumentRecordElseCase(SalesHeader, PostedSalesDocumentVariant, IsHandled);
+                    if not IsHandled then
+                        Error(NotSupportedDocumentTypeErr, "Document Type");
+                end;
             end;
     end;
 
@@ -7078,11 +7081,11 @@
                         SalesCrMemoHeader.SendProfile(DocumentSendingProfile);
                     end;
                 else begin
-                        IsHandled := false;
-                        OnSendPostedDocumentRecordElseCase(SalesHeader, DocumentSendingProfile, IsHandled);
-                        if not IsHandled then
-                            Error(NotSupportedDocumentTypeErr, "Document Type");
-                    end;
+                    IsHandled := false;
+                    OnSendPostedDocumentRecordElseCase(SalesHeader, DocumentSendingProfile, IsHandled);
+                    if not IsHandled then
+                        Error(NotSupportedDocumentTypeErr, "Document Type");
+                end;
             end;
     end;
 
@@ -8782,7 +8785,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeMakeInventoryAdjustment(var SalesHeader: Record "Sales Header"; SalesInvHeader: Record "Sales Invoice Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    local procedure OnRunOnBeforeMakeInventoryAdjustment(var SalesHeader: Record "Sales Header"; SalesInvHeader: Record "Sales Invoice Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; PreviewMode: Boolean; var SkipInventoryAdjustment: Boolean)
     begin
     end;
 
