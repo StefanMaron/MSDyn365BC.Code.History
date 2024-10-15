@@ -72,7 +72,7 @@
 
     local procedure CreateCapNeed(NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal; TimeType: Option "Setup Time","Run Time"; Direction: Option Forward,Backward)
     begin
-        InitProdOrderCapNeed(ProdOrder, ProdOrderRoutingLine, ProdOrderCapNeed, NeedDate, StartingTime, EndingTime, NeedQty);
+        InitProdOrderCapNeed(ProdOrder, ProdOrderRoutingLine, ProdOrderCapNeed, TimeType, NeedDate, StartingTime, EndingTime, NeedQty);
 
         ProdOrderCapNeed."Time Type" := TimeType;
         if TimeType = TimeType::"Run Time" then
@@ -110,7 +110,10 @@
             NextCapNeedLineNo, ConCurrCap, LotSize, FirstInBatch, Direction);
     end;
 
-    local procedure InitProdOrderCapNeed(ProdOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal)
+    local procedure InitProdOrderCapNeed(ProdOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; TimeType: Option "Setup Time","Run Time"; NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal)
+    var
+        ActuallyPostedTime: Decimal;
+        DistributedCapNeed: Decimal;
     begin
         ProdOrderCapNeed.Init();
         ProdOrderCapNeed.Status := ProdOrder.Status;
@@ -133,7 +136,11 @@
         ProdOrderCapNeed."Requested Only" := false;
         ProdOrderCapNeed.Active := true;
         if ProdOrder.Status <> ProdOrder.Status::Simulated then begin
-            ProdOrderCapNeed."Allocated Time" := NeedQty;
+            ActuallyPostedTime := CalcActuallyPostedCapacityTime(ProdOrderRoutingLine, TimeType);
+            DistributedCapNeed := CalcDistributedCapacityNeedForOperation(ProdOrderRoutingLine, TimeType);
+            ProdOrderCapNeed."Allocated Time" := NeedQty - ActuallyPostedTime + DistributedCapNeed;
+            if ProdOrderCapNeed."Allocated Time" < 0 then
+                ProdOrderCapNeed."Allocated Time" := 0;
             ProdOrderRoutingLine."Expected Capacity Need" :=
               ProdOrderRoutingLine."Expected Capacity Need" + ProdOrderCapNeed."Needed Time (ms)";
         end;
@@ -1129,7 +1136,7 @@
         end;
 
         MaxLotSize :=
-          ProdOrderQty *
+          ExpectedOperOutput *
           (1 + ProdOrderRoutingLine."Scrap Factor % (Accumulated)") *
           (1 + TotalScrap / 100) +
           ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)";
@@ -1803,6 +1810,43 @@
         if (ProdStartTime = 000000T) and ((CalendarEntryDate <> ProdStartDate) or IsForward) then
             exit(86400000);
         exit((86400000 + (ProdStartTime - 000000T) * CalcFactor) mod 86400000);
+    end;
+
+    local procedure CalcActuallyPostedCapacityTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Option "Setup Time","Run Time"): Decimal
+    var
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        with CapacityLedgerEntry do begin
+            SetCurrentKey(
+              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.",
+              "Operation No.", "Last Output Line");
+            SetRange("Order Type", "Order Type"::Production);
+            SetRange("Order No.", ProdOrderRoutingLine."Prod. Order No.");
+            SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+            SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+            SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+            CalcSums("Setup Time", "Run Time");
+            if TimeType = TimeType::"Setup Time" then
+                exit("Setup Time");
+            exit("Run Time");
+        end;
+    end;
+
+    local procedure CalcDistributedCapacityNeedForOperation(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Option "Setup Time","Run Time"): Decimal
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        with ProdOrderCapacityNeed do begin
+            SetRange(Status, ProdOrderRoutingLine.Status);
+            SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+            SetRange("Requested Only", false);
+            SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+            SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+            SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+            SetRange("Time Type", TimeType);
+            CalcSums("Needed Time", "Allocated Time");
+            exit("Needed Time" - "Allocated Time");
+        end;
     end;
 
     local procedure SetMaxDateTime(var ResultingDate: Date; var ResultingTime: Time; DateToCompare: Date; TimeToCompare: Time)

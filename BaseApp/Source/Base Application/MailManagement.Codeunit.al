@@ -247,7 +247,9 @@ codeunit 9520 "Mail Management"
     [Scope('OnPrem')]
     procedure IsGraphEnabled(): Boolean
     begin
-        exit(GraphMail.IsEnabled and GraphMail.HasConfiguration);
+        if GraphMail.IsEnabled() then
+            exit(GraphMail.HasConfiguration());
+        exit(false);
     end;
 
     procedure IsEnabled(): Boolean
