@@ -1432,6 +1432,62 @@ codeunit 137055 "SCM Warehouse Pick"
         WarehouseActivityLine.TestField("Bin Code", ShipBin.Code);
     end;
 
+    [Test]
+    procedure ShipmentBinIsNotIncludedInQtyInBreakbulk()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        QtyPer: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Breakbulk]
+        // [SCENARIO 413644] Shipment bin (and any other bin not in pick zone) is not included in calculation of quantity in breakbulk.
+        Initialize();
+        QtyPer := LibraryRandom.RandIntInRange(2, 10);
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Item with base unit of measure "PCS" and alternate unit of measure "BOX" = 8 "PCS".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPer);
+
+        // [GIVEN] Post 5 "BOX" to inventory.
+        // [GIVEN] Sales order for 40 "PCS", create warehouse shipment and pick, register the pick.
+        UpdateInventoryUsingWhseJournalWithUoM(Item, LocationWhite.Code, ItemUnitOfMeasure.Code, Qty);
+        CreateSalesOrder(SalesHeader, LocationWhite.Code, Item."No.", Qty * QtyPer);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        CreateWhseShipmentAndPick(SalesHeader);
+        RegisterWarehouseActivity(SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Post 5 "BOX" to inventory.
+        // [GIVEN] Sales order for 40 "PCS", create warehouse shipment and pick, do not register the pick.
+        UpdateInventoryUsingWhseJournalWithUoM(Item, LocationWhite.Code, ItemUnitOfMeasure.Code, Qty);
+        CreateSalesOrder(SalesHeader, LocationWhite.Code, Item."No.", Qty * QtyPer);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        CreateWhseShipmentAndPick(SalesHeader);
+
+        // [GIVEN] Post 5 "BOX" to inventory.
+        // [GIVEN] Sales order for 40 "PCS".
+        UpdateInventoryUsingWhseJournalWithUoM(Item, LocationWhite.Code, ItemUnitOfMeasure.Code, Qty);
+        CreateSalesOrder(SalesHeader, LocationWhite.Code, Item."No.", Qty * QtyPer);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create warehouse shipment and pick for the last sales order.
+        CreateWhseShipmentAndPick(SalesHeader);
+
+        // [THEN] Warehouse pick for 40 "PCS" is created.
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take,
+          LocationWhite.Code, SalesHeader."No.");
+        WarehouseActivityLine.SetRange("Breakbulk No.", 0);
+        WarehouseActivityLine.CalcSums("Qty. (Base)");
+        WarehouseActivityLine.TestField("Qty. (Base)", Qty * QtyPer);
+
+        // [THEN] The pick can be successfully registered.
+        RegisterWarehouseActivity(SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -1676,6 +1732,25 @@ codeunit 137055 "SCM Warehouse Pick"
         FindZone(Zone, LocationWhite.Code);
         LibraryWarehouse.FindBin(Bin, LocationWhite.Code, Zone.Code, 2);  // Find Bin of Index 2 in the Zone.
         UpdateInventoryUsingWhseAdjustmentPerZone(Item, LocationWhite.Code, Zone.Code, Bin.Code, Quantity);  // For large Quantity.
+    end;
+
+    local procedure UpdateInventoryUsingWhseJournalWithUoM(Item: Record Item; LocationCode: Code[10]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
+    var
+        Zone: Record Zone;
+        Bin: Record Bin;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        LibraryWarehouse.FindZone(Zone, LocationCode, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, LocationCode, Zone.Code, 1);
+        LibraryWarehouse.WarehouseJournalSetup(LocationCode, WarehouseJournalTemplate, WarehouseJournalBatch);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
+          LocationCode, Zone.Code, Bin.Code,
+          WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
+        WarehouseJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        WarehouseJournalLine.Modify(true);
+        CalculateAndPostWhseAdjustment(Item, LocationCode);
     end;
 
     local procedure CreateATOItemWithComponent(var AsmItem: Record Item; var CompItem: Record Item; QuantityPer: Decimal)

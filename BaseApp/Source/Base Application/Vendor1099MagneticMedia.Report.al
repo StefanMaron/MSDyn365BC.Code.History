@@ -731,10 +731,12 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt(GetFullMiscCode(11), FormType, EndLine), 12)) + // Fish purchased for resale
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo('                ') + // blank 16
           StrSubstNo(' ') + // Foreign Country Indicator
           StrSubstNo('#1######################################', Vendor.Name) +
           StrSubstNo('#1######################################', Vendor."Name 2") +
-          StrSubstNo('                                        ') + // blank 40
           StrSubstNo('#1######################################', Vendor.Address) +
           StrSubstNo('                                        ') + // blank 40
           StrSubstNo('#1######################################', Vendor.City) +
@@ -877,10 +879,12 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetAmt('INT-12', FormType, EndLine), 12)) +
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo('                ') + // blank 16
           StrSubstNo(' ') + // Foreign Country Indicator
           StrSubstNo('#1######################################', Vendor.Name) +
           StrSubstNo('#1######################################', Vendor."Name 2") +
-          StrSubstNo('                                        ') + // blank 40
           StrSubstNo('#1######################################', Vendor.Address) +
           StrSubstNo('                                        ') + // blank 40
           StrSubstNo('#1######################################', Vendor.City) +
@@ -933,10 +937,12 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          '                ' + // blank 16
           ' ' +
           StrSubstNo(GetHashTagStringWithLength(40), Vendor.Name) +
           StrSubstNo(GetHashTagStringWithLength(40), Vendor."Name 2") +
-          '                                        ' +
           StrSubstNo(GetHashTagStringWithLength(40), Vendor.Address) +
           '                                        ' +
           StrSubstNo(GetHashTagStringWithLength(40), Vendor.City) +
@@ -995,10 +1001,12 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal(GetFullMiscCode(11), FormType, EndLine), 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo('                                                  ') +
           StrSubstNo('                                                  ') +
           StrSubstNo('                                                  ') +
-          StrSubstNo('                                              ') +
+          StrSubstNo('          ') +
           StrSubstNo('#1######', MagMediaManagement.FormatAmount(SequenceNo, 8)) + // sequence number for all rec types
           StrSubstNo('                                                  ') +
           StrSubstNo('                                                  ') +
@@ -1100,10 +1108,12 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetTotal('INT-12', FormType, EndLine), 18)) +
           StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(0, 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo('                                                  ') +
           StrSubstNo('                                                  ') +
           StrSubstNo('                                                  ') +
-          StrSubstNo('                                              ') +
+          StrSubstNo('          ') +
           StrSubstNo('#1######', MagMediaManagement.FormatAmount(SequenceNo, 8)) + // sequence number for all rec types
           StrSubstNo('                                                  ') +
           StrSubstNo('                                                  ') +
@@ -1137,10 +1147,12 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           '                                                  ' +
           '                                                  ' +
           '                                                  ' +
-          '                                              ' +
+          '          ' +
           StrSubstNo(GetHashTagStringWithLength(8), MagMediaManagement.FormatAmount(SequenceNo, 8)) +
           '                                                  ' +
           '                                                  ' +

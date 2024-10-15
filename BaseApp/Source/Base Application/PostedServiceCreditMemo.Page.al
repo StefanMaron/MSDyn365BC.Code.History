@@ -451,6 +451,14 @@ page 5972 "Posted Service Credit Memo"
                 {
                     ToolTip = 'Specifies the number of times that this document has been sent electronically.';
                 }
+                field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                {
+                    ToolTip = 'Specifies the reason for the cancellation as a code.';
+                }
+                field("Substitution Document No."; "Substitution Document No.")
+                {
+                    ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
+                }
             }
         }
         area(factboxes)

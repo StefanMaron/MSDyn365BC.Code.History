@@ -1,7 +1,9 @@
-table 27017 "SAT Payment Term"
+﻿table 27017 "SAT Payment Term"
 {
     Caption = 'SAT Payment Term';
     DataPerCompany = false;
+    DrillDownPageID = "SAT Payment Terms";
+    LookupPageID = "SAT Payment Terms";
 
     fields
     {

@@ -1,7 +1,9 @@
-table 27013 "SAT Unit of Measure"
+﻿table 27013 "SAT Unit of Measure"
 {
     Caption = 'SAT Unit of Measure';
     DataPerCompany = false;
+    DrillDownPageID = "SAT Units Of Measure";
+    LookupPageID = "SAT Units Of Measure";
 
     fields
     {
