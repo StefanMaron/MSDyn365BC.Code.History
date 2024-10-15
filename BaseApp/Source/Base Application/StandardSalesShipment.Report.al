@@ -486,6 +486,9 @@ report 1308 "Standard Sales - Shipment"
                 var
                     EnvironmentInfo: Codeunit "Environment Information";
                 begin
+                    if not ShowCorrectionLines and Correction then
+                        CurrReport.Skip();
+
                     if Type = Type::"G/L Account" then
                         "No." := '';
 
