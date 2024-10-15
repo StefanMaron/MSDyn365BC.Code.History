@@ -2116,6 +2116,66 @@ codeunit 137161 "SCM Warehouse Orders"
         WarehouseEntry.TestField("Qty. (Base)", 0);
     end;
 
+    [Test]
+    procedure AvailQtyToPickOnPickWorksheetAfterItemReclassFromReceiveBin()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Bin: array[2] of Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Pick Worksheet] [Item Reclassification] [Receive] [Put-away]
+        // [SCENARIO 395134] Avail. Qty. to Pick on pick worksheet after the item has been received and moved from the receive bin before put-away.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Item and location.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create bin "B1" and set it as "Receipt Bin Code" at location.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Receipt Bin Code", Bin[1].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create bin "B2" and set it up as a default bin for the item.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin[2].Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        // [GIVEN] Create purchase order for 20 pcs, post warehouse receipt and register put-away.
+        // [GIVEN] 20 pcs are now in bin "B2".
+        CreateAndRegisterPartialPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", Qty, Location.Code, Qty);
+
+        // [GIVEN] Create purchase order for 20 pcs, post warehouse receipt and register put-away for 5 pcs.
+        // [GIVEN] 15 pcs are now in bin "B1", 25 pcs in bin "B2"
+        CreateAndRegisterPartialPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", Qty, Location.Code, Qty / 4);
+
+        // [GIVEN] Post reclassification journal line to move 5 pcs from "B1" to "B2".
+        // [GIVEN] 10 pcs are now in bin "B1", 30 pcs in bin "B2"
+        CreateAndPostItemReclassificationJournalLine(Bin[1], Bin[2], Item."No.", Qty / 4);
+
+        // [GIVEN] Sales order for 10 pcs. Release and create warehouse shipment.
+        CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", Qty / 2, Location.Code);
+        CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Open pick worksheet and pull the warehouse shipment.
+        GetWarehouseDocumentOnWarehouseWorksheetLine(
+          WhseWorksheetName, Location.Code, WarehouseShipmentHeader."No.", '''''');
+
+        // [THEN] A pick worksheet line shows "Qty. Avail. to Pick" = 30.
+        FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
+        Assert.AreEqual(Qty + Qty / 4 + Qty / 4, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Orders");

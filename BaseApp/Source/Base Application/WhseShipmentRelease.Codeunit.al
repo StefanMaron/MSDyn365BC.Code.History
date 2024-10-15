@@ -49,7 +49,8 @@
                         if AsmLine.FindSet then
                             repeat
                                 if AsmLine.CalcQtyToPickBase > 0 then
-                                    AsmLine.TestField("Bin Code");
+                                    if AsmLine.IsInventoriableItem() then
+                                        AsmLine.TestField("Bin Code");
                             until AsmLine.Next = 0;
                     end;
                 end;

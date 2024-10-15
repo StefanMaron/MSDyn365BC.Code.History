@@ -1404,6 +1404,40 @@ codeunit 137033 "SCM Item Journal"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure EntryTypeOutputCannotBeUsedOnItemJournalTemplateTypeItem()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [SCENARIO 202372] Unit Cost cannot be changed on item journal line for an item with Costing Method = Standard.
+        Initialize();
+
+        // prevent modal page handler requirement for some countries
+        ItemJournalTemplate.SetRange(Type, "Item Journal Template Type"::Item);
+        if ItemJournalTemplate.Count > 1 then
+            exit;
+
+        // [GIVEN] Item "I" with Costing Method = "Standard" and Unit Cost = "X".
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Standard);
+
+        // [GIVEN] Create output item journal line directly, as UI does not allow this entry type
+        CreateItemJournalLine(ItemJournalLine, Item."No.");
+        ItemJournalLine.Validate("Entry Type", "Item ledger Entry Type"::Output);
+        ItemJournalLine.Modify();
+
+        // [WHEN] Open Item Journal page and create new line
+        ItemJournal.OpenEdit();
+        ItemJournal.GotoRecord(ItemJournalLine);
+        ItemJournal.New();
+
+        // [THEN] Check if entry type in new line is Purchase
+        Assert.AreEqual(ItemJournal."Entry Type".AsInteger(), "Item Journal Entry Type"::Purchase.AsInteger(), 'Entry type should be Purchase.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -382,7 +382,8 @@ page 25 "Customer Ledger Entries"
             part(Control38; "Customer Details FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Customer No.");
+                SubPageLink = "No." = FIELD("Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             systempart(Control1900383207; Links)
             {

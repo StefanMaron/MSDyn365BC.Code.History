@@ -512,6 +512,12 @@ page 6641 "Purchase Return Order Subform"
                     ToolTip = 'Specifies the type of journal line that is created in the Job Planning Line table from this line.';
                     Visible = false;
                 }
+                field("Job Planning Line No."; "Job Planning Line No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the job planning line number to which the usage should be linked when the Job Journal is posted. You can only link to Job Planning Lines that have the Apply Usage Link option enabled.';
+                    Visible = false;
+                }
                 field("Deferral Code"; "Deferral Code")
                 {
                     ApplicationArea = PurchReturnOrder;

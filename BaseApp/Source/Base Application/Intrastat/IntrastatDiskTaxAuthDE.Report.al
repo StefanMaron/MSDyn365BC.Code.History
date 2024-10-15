@@ -19,18 +19,26 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                     if IsBlankedLine("Intrastat Jnl. Line") then
                         CurrReport.Skip();
 
-                    TestField("Tariff No.");
-                    TestField("Country/Region Code");
-                    TestField("Transaction Type");
-                    if CompanyInfo."Check Transport Method" then
-                        TestField("Transport Method");
-                    TestField(Area);
-                    if CompanyInfo."Check Transaction Specific." then
-                        TestField("Transaction Specification");
-                    if Type = Type::Receipt then
-                        TestField("Country/Region of Origin Code");
-                    if "Supplementary Units" then
-                        TestField(Quantity);
+#if CLEAN19
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Disk Tax Auth DE", true);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Disk Tax Auth DE", true)
+                    else begin
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transaction Type");
+                        if CompanyInfo."Check Transport Method" then
+                            TestField("Transport Method");
+                        TestField(Area);
+                        if CompanyInfo."Check Transaction Specific." then
+                            TestField("Transaction Specification");
+                        if Type = Type::Receipt then
+                            TestField("Country/Region of Origin Code");
+                        if "Supplementary Units" then
+                            TestField(Quantity);
+                    end;
+#endif
                     CompoundField :=
                       Format("Country/Region Code", 10) + Format(DelChr("Tariff No."), 10) +
                       Format("Transaction Type", 10) + Format("Transport Method", 10) +
@@ -182,6 +190,7 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                 TestField(Reported, false);
                 TestField("Currency Identifier");
                 IntraReferenceNo := "Statistics Period" + '000000';
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
 
             trigger OnPreDataItem()
@@ -270,6 +279,9 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         IntrastatJnlLine4.CopyFilters("Intrastat Jnl. Line");
         IntrastatExportMgtDACH.Initialize(CurrentDateTime());
         CompanyInfo.Get();
+#if not CLEAN19
+        if IntrastatSetup.Get() then;
+#endif
     end;
 
     var
@@ -277,6 +289,10 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         ItemIntrastatJnlLine: Record "Intrastat Jnl. Line";
         DeclarationIntrastatJnlLine: Record "Intrastat Jnl. Line";
         CompanyInfo: Record "Company Information";
+#if not CLEAN19
+        IntrastatSetup: Record "Intrastat Setup";
+#endif
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
         XMLDocument: DotNet XmlDocument;
         RootXMLNode: DotNet XmlNode;

@@ -2,7 +2,6 @@ codeunit 134199 "Mock Price Source - Location" implements "Price Source"
 {
     var
         Location: Record Location;
-        ParentErr: Label 'Parent Source No. must be blank for Location source type.';
 
     procedure GetNo(var PriceSource: Record "Price Source")
     begin
@@ -47,8 +46,7 @@ codeunit 134199 "Mock Price Source - Location" implements "Price Source"
 
     procedure VerifyParent(var PriceSource: Record "Price Source") Result: Boolean
     begin
-        if PriceSource."Parent Source No." <> '' then
-            Error(ParentErr);
+        Result := true; // requires parent
     end;
 
     procedure GetGroupNo(PriceSource: Record "Price Source"): Code[20];

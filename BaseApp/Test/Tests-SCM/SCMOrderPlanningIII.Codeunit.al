@@ -2117,6 +2117,92 @@ codeunit 137088 "SCM Order Planning - III"
           CreateDateTime(20200121D, PlanningLineEndTime + TimeShiftMs));
     end;
 
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderWithVendorNoModalPageHandler')]
+    procedure ExpectedReceiptDateOnPurchFromSalesSelectVendorFromItemVendor()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ItemVendor: Record "Item Vendor";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        LeadTimeFormula: DateFormula;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Sales] [Expected Receipt Date] [Item Vendor] [Lead Time]
+        // [SCENARIO 394956] Expected Receipt Date on purchase order addresses the shipment date of sales order when Lead Time is set up on Item Vendor Catalog and the user enters Vendor No. manually.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        Evaluate(LeadTimeFormula, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
+        ItemVendor.Validate("Lead Time Calculation", LeadTimeFormula);
+        ItemVendor.Modify(true);
+
+        CreateSalesOrder(SalesHeader, Item."No.", '', Qty, Qty);
+        FindSalesLine(SalesLine, SalesHeader, Item."No.");
+
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+        PurchaseLine.TestField("Expected Receipt Date", SalesLine."Shipment Date");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderLookupVendorNoModalPageHandler,ItemVendorCatalogModalPageHandler')]
+    procedure ExpectedReceiptDateOnPurchFromSalesLookupVendorFromItemVendor()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ItemVendor: Record "Item Vendor";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        LeadTimeFormula: DateFormula;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Sales] [Expected Receipt Date] [Item Vendor] [Lead Time]
+        // [SCENARIO 394956] Expected Receipt Date on purchase order addresses the shipment date of sales order when Lead Time is set up on Item Vendor Catalog and the user enters Vendor No. manually.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        Evaluate(LeadTimeFormula, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
+        ItemVendor.Validate("Lead Time Calculation", LeadTimeFormula);
+        ItemVendor.Modify(true);
+
+        CreateSalesOrder(SalesHeader, Item."No.", '', Qty, Qty);
+        FindSalesLine(SalesLine, SalesHeader, Item."No.");
+
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+        PurchaseLine.TestField("Expected Receipt Date", SalesLine."Shipment Date");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2970,6 +3056,27 @@ codeunit 137088 "SCM Order Planning - III"
         // Verify That Operation No. And Type Is same as on Routing Line.
         PlanningRouting."Operation No.".AssertEquals(RoutingLine."Operation No.");
         PlanningRouting.Type.AssertEquals(RoutingLine.Type);
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromSalesOrderWithVendorNoModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromSalesOrderLookupVendorNoModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.Lookup();
+        PurchOrderFromSalesOrder.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemVendorCatalogModalPageHandler(var ItemVendorCatalog: TestPage "Item Vendor Catalog")
+    begin
+        ItemVendorCatalog.FILTER.SetFilter("Vendor No.", LibraryVariableStorage.DequeueText());
+        ItemVendorCatalog.OK.Invoke();
     end;
 
     [ConfirmHandler]

@@ -220,6 +220,7 @@ codeunit 104100 "Upg Local Functionality"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForGLVATReconciliationTag);
     end;
 
+#if not CLEAN19
     procedure UpgradeCheckPartnerVATID()
     var
         CompanyInformation: Record "Company Information";
@@ -237,5 +238,6 @@ codeunit 104100 "Upg Local Functionality"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCheckPartnerVATIDTag());
     end;
+#endif
 }
 
