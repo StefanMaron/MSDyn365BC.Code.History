@@ -56,7 +56,7 @@ page 6420 "FS Connection Setup"
                     begin
                         CurrPage.Update(true);
                         if Rec."Is Enabled" then begin
-                            FeatureTelemetry.LogUptake('0000MB9', 'Dynamics 365 Field Service', Enum::"Feature Uptake Status"::"Set up");
+                            FeatureTelemetry.LogUptake('0000MB9', 'Dynamics 365 Field Service Integration', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000MBC', CRMConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
                             if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
@@ -364,7 +364,7 @@ page 6420 "FS Connection Setup"
         MultipleCompaniesDetected: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000MBA', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
-        FeatureTelemetry.LogUptake('0000MBB', 'Dynamics 365 Field Service', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000MBB', 'Dynamics 365 Field Service Integration', Enum::"Feature Uptake Status"::Discovered);
         Rec.EnsureCDSConnectionIsEnabled();
         Rec.EnsureCRMConnectionIsEnabled();
 

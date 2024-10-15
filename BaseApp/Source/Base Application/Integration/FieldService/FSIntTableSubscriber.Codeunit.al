@@ -203,6 +203,9 @@ codeunit 6405 "FS Int. Table. Subscriber"
         FSWorkOrderProduct: Record "FS Work Order Product";
         FSWorkOrderService: Record "FS Work Order Service";
         CRMIntegrationRecord: Record "CRM Integration Record";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        JobUsageLink: Record "Job Usage Link";
         SourceDestCode: Text;
     begin
         if not FSConnectionSetup.IsEnabled() then
@@ -232,6 +235,36 @@ codeunit 6405 "FS Int. Table. Subscriber"
                                 Commit();
                             end;
                     ConditionallyPostJobJournalLine(FSConnectionSetup, FSWorkOrderService, JobJournalLine);
+                end;
+            'Sales Invoice Header-CRM Invoice':
+                begin
+                    SourceRecordRef.SetTable(SalesInvoiceHeader);
+                    JobPlanningLineInvoice.ReadIsolation := JobPlanningLineInvoice.ReadIsolation::ReadCommitted;
+                    JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::"Posted Invoice");
+                    JobPlanningLineInvoice.SetRange("Document No.", SalesInvoiceHeader."No.");
+                    if JobPlanningLineInvoice.FindSet() then
+                        repeat
+                            JobUsageLink.SetRange("Job No.", JobPlanningLineInvoice."Job No.");
+                            JobUsageLink.SetRange("Job Task No.", JobPlanningLineInvoice."Job Task No.");
+                            JobUsageLink.SetRange("Line No.", JobPlanningLineInvoice."Job Planning Line No.");
+                            if JobUsageLink.FindFirst() then
+                                if not IsNullGuid(JobUsageLink."External Id") then
+                                    if FSWorkorderProduct.Get(JobUsageLink."External Id") then begin
+                                        FSWorkOrderProduct.QuantityInvoiced += JobPlanningLineInvoice."Quantity Transferred";
+                                        if not TryModifyWorkOrderProduct(FSWorkOrderProduct) then begin
+                                            Session.LogMessage('0000MMV', UnableToModifyWOPTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                                            ClearLastError();
+                                        end;
+                                    end
+                                    else
+                                        if FSWorkorderService.Get(JobUsageLink."External Id") then begin
+                                            FSWorkorderService.DurationInvoiced += (JobPlanningLineInvoice."Quantity Transferred" * 60);
+                                            if not TryModifyWorkOrderService(FSWorkOrderService) then begin
+                                                Session.LogMessage('0000MMW', UnableToModifyWOSTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                                                ClearLastError();
+                                            end;
+                                        end;
+                        until JobPlanningLineInvoice.Next() = 0;
                 end;
         end;
     end;
@@ -446,12 +479,7 @@ codeunit 6405 "FS Int. Table. Subscriber"
         JobsSetup: Record "Jobs Setup";
         Resource: Record Resource;
         FSBookableResource: Record "FS Bookable Resource";
-        FSWorkorderProduct: Record "FS Work Order Product";
-        FSWorkorderService: Record "FS Work Order Service";
         LastJobJournalLine: Record "Job Journal Line";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
-        JobUsageLink: Record "Job Usage Link";
         CRMProductName: Codeunit "CRM Product Name";
         NoSeries: Codeunit "No. Series";
         RecID: RecordId;
@@ -573,37 +601,6 @@ codeunit 6405 "FS Int. Table. Subscriber"
                         SetJobJournalLineTypesAndNo(FSConnectionSetup, SourceRecordRef, JobJournalLine);
                     end;
                     DestinationRecordRef.GetTable(JobJournalLine);
-                end;
-            'Sales Invoice Header-CRM Invoice':
-                begin
-                    SourceRecordRef.SetTable(SalesInvoiceHeader);
-                    JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::"Posted Invoice");
-                    JobPlanningLineInvoice.SetRange("Document No.", SalesInvoiceHeader."No.");
-                    if JobPlanningLineInvoice.FindSet() then
-                        repeat
-                            JobUsageLink.SetRange("Job No.", JobPlanningLineInvoice."Job No.");
-                            JobUsageLink.SetRange("Job Task No.", JobPlanningLineInvoice."Job Task No.");
-                            JobUsageLink.SetRange("Line No.", JobPlanningLineInvoice."Job Planning Line No.");
-                            if JobUsageLink.FindFirst() then
-                                if not IsNullGuid(JobUsageLink."External Id") then begin
-                                    if FSWorkorderProduct.Get(JobUsageLink."External Id") then begin
-                                        FSWorkOrderProduct.QuantityInvoiced += JobPlanningLineInvoice."Quantity Transferred";
-                                        if not TryModifyWorkOrderProduct(FSWorkOrderProduct) then begin
-                                            Session.LogMessage('0000MMV', UnableToModifyWOPTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                                            ClearLastError();
-                                        end;
-                                        exit;
-                                    end;
-
-                                    if FSWorkorderService.Get(JobUsageLink."External Id") then begin
-                                        FSWorkorderService.DurationInvoiced += (JobPlanningLineInvoice."Quantity Transferred" * 60);
-                                        if not TryModifyWorkOrderService(FSWorkOrderService) then begin
-                                            Session.LogMessage('0000MMW', UnableToModifyWOSTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                                            ClearLastError();
-                                        end;
-                                    end;
-                                end;
-                        until JobPlanningLineInvoice.Next() = 0;
                 end;
         end;
     end;
@@ -1088,8 +1085,8 @@ codeunit 6405 "FS Int. Table. Subscriber"
                 Database::"FS Bookable Resource",
                 Database::"FS Resource Pay Type"] then begin
             Session.LogMessage('0000M9F', 'Synching a field service entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
-            FeatureTelemetry.LogUsage('0000M9E', 'Field Service Integration', 'Entity synch');
-            FeatureTelemetry.LogUptake('0000M9D', 'Field Service Integration', Enum::"Feature Uptake Status"::Used);
+            FeatureTelemetry.LogUsage('0000M9E', 'Dynamics 365 Field Service Integration', 'Entity synch');
+            FeatureTelemetry.LogUptake('0000M9D', 'Dynamics 365 Field Service Integration', Enum::"Feature Uptake Status"::Used);
             exit;
         end;
     end;

@@ -692,6 +692,7 @@ table 900 "Assembly Header"
     trigger OnDelete()
     begin
         CheckIsNotAsmToOrder();
+        ConfirmDeletion();
 
         AssemblyHeaderReserve.DeleteLine(Rec);
         CalcFields("Reserved Qty. (Base)");
@@ -786,6 +787,7 @@ table 900 "Assembly Header"
         Text014: Label '%1 and %2';
         Text015: Label '%1 %2 is before %3 %4.', Comment = '%1 and %3 = Date Captions, %2 and %4 = Date Values';
         UpdateDimensionLineMsg: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+        ConfirmDeleteQst: Label 'The items have been picked. If you delete the Assembly Header, then the items will remain in the operation area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the Assembly Header?';
 
     protected var
         StatusCheckSuspended: Boolean;
@@ -921,6 +923,7 @@ table 900 "Assembly Header"
                 DATABASE::"Assembly Line", "Document Type".AsInteger(), "No.", HideValidationDialog);
             repeat
                 AssemblyLine.SuspendStatusCheck(true);
+                AssemblyLine.SuspendDeletionCheck(true);
                 AssemblyLine.Delete(true);
             until AssemblyLine.Next() = 0;
         end;
@@ -1981,6 +1984,22 @@ table 900 "Assembly Header"
             else
                 exit(Result::Partial);
         end;
+    end;
+
+    local procedure ConfirmDeletion()
+    var
+        AssemblyLine: Record "Assembly Line";
+        Confirmed: Boolean;
+    begin
+        AssemblyLine.SetRange("Document No.", "No.");
+        if AssemblyLine.FindSet() then
+            repeat
+                if AssemblyLine."Consumed Quantity" < AssemblyLine."Qty. Picked" then begin
+                    if not Confirm(ConfirmDeleteQst) then
+                        Error('');
+                    Confirmed := true;
+                end;
+            until (AssemblyLine.Next() = 0) or Confirmed;
     end;
 
     [IntegrationEvent(false, false)]

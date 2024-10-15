@@ -34,7 +34,7 @@ codeunit 5139 "Job Archive Management"
         MissingJobErr: Label 'Project %1 does not exist anymore.\It is not possible to restore the Project.', Comment = '%1 = Project No.';
         CompletedJobStatusErr: Label 'Status must not be Completed in order to restore the Project: No. = %1', Comment = '%1 = Project No.';
         JobLedgerEntryExistErr: Label 'Project Ledger Entries exist for Project No. %1.\It is not possible to restore the Project.', Comment = '%1 = Project No.';
-        SalesInvoiceExistErr: Label 'Outstanding Sales Invoice exist for Project No. %1.\It is not possible to restore the Project.', Comment = '%1 = Project No.';
+        SalesInvoiceExistErr: Label 'Outstanding Sales Invoice exists for Project No. %1.\It is not possible to restore the Project.', Comment = '%1 = Project No.';
 
     procedure AutoArchiveJob(var Job: Record Job)
     var

@@ -338,16 +338,21 @@ codeunit 5920 ServItemManagement
         ServItem."Warranty % (Parts)" := ServMgtSetup."Warranty Disc. % (Parts)";
         ServItem."Warranty % (Labor)" := ServMgtSetup."Warranty Disc. % (Labor)";
 
+        if not ItemTrackingCode.Get(Item."Item Tracking Code") then
+            ItemTrackingCode.Init();
+
         if TrackingLinesExist and (TempReservEntry."Warranty Date" <> 0D) then
-            WarrantyStartDate := TempReservEntry."Warranty Date"
+            if Format(ItemTrackingCode."Warranty Date Formula") <> '' then
+                WarrantyStartDate := CalcDate(StrSubstNo('<-%1>', ItemTrackingCode."Warranty Date Formula"), TempReservEntry."Warranty Date")
+            else
+                WarrantyStartDate := TempReservEntry."Warranty Date"
         else begin
             WarrantyStartDate := SalesHeader."Posting Date";
             if (WarrantyStartDate = 0D) and SalesLine."Drop Shipment" then
                 if PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, SalesLine."Purchase Order No.") then
                     WarrantyStartDate := PurchaseHeader."Posting Date";
         end;
-        if not ItemTrackingCode.Get(Item."Item Tracking Code") then
-            ItemTrackingCode.Init();
+
         CalcServiceWarrantyDates(
             ServItem, WarrantyStartDate, ItemTrackingCode."Warranty Date Formula", ServMgtSetup."Default Warranty Duration");
 

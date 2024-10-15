@@ -277,20 +277,20 @@ report 1016 "Job Quote"
             Type = RDLC;
             LayoutFile = './Projects/Project/Reports/JobQuote.rdlc';
             Caption = 'Project Quote (RDLC)';
-            Summary = 'The Job Quote (RDLC) provides a detailed layout.';
+            Summary = 'The Project Quote (RDLC) provides a detailed layout.';
         }
         layout("JobQuote.docx")
         {
             Type = Word;
             LayoutFile = './Projects/Project/JobQuote.docx';
             Caption = 'Project Quote (Word)';
-            Summary = 'The Job Quote (Word) provides a basic layout.';
+            Summary = 'The Project Quote (Word) provides a basic layout.';
         }
     }
 
     labels
     {
-        JobNoLbl = 'Job No.';
+        JobNoLbl = 'Project No.';
         JobDescriptionLbl = 'Description';
     }
 

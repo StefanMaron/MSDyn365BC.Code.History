@@ -837,7 +837,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
                 Round(GenJournalLine."Bal. Non-Ded. VAT Base" * VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision"))
         else
             GenJournalLine.Validate("Bal. Non-Ded. VAT Amount",
-                Round((GenJournalLine.Amount - GenJournalLine."Bal. VAT Base Amount") * GetBalNonDedVATPctFromGenJournalLine(GenJournalLine) / 100, Currency."Amount Rounding Precision"));
+                Round((-GenJournalLine."Bal. VAT Base Amount" - GenJournalLine.Amount) * GetBalNonDedVATPctFromGenJournalLine(GenJournalLine) / 100, Currency."Amount Rounding Precision"));
         if GenJournalLine."Currency Code" = '' then begin
             GenJournalLine.Validate("Bal. Non-Ded. VAT Base LCY", GenJournalLine."Bal. Non-Ded. VAT Base");
             GenJournalLine.Validate("Bal. Non-Ded. VAT Amount LCY", GenJournalLine."Bal. Non-Ded. VAT Amount");
@@ -1231,7 +1231,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
             exit(0);
         if not VATPostingSetup.Get(GenJournalLine."Bal. VAT Bus. Posting Group", GenJournalLine."Bal. VAT Prod. Posting Group") then
             exit(0);
-        exit(GetNonDeductibleVATPct(VATPostingSetup, GenJournalLine."Gen. Posting Type"));
+        exit(GetNonDeductibleVATPct(VATPostingSetup, GenJournalLine."Bal. Gen. Posting Type"));
     end;
 
     local procedure GetNonDedVATPctFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"): Decimal

@@ -1514,12 +1514,15 @@ page 256 "Payment Journal"
 
                     trigger OnAction()
                     var
+                        BackupRec: Record "Gen. Journal Line";
                         GenJournalAllocAccMgt: Codeunit "Gen. Journal Alloc. Acc. Mgt.";
                     begin
                         if (Rec."Account Type" <> Rec."Account Type"::"Allocation Account") and (Rec."Bal. Account Type" <> Rec."Bal. Account Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '') then
                             Error(ActionOnlyAllowedForAllocationAccountsErr);
 
-                        GenJournalAllocAccMgt.CreateLines(Rec);
+                        BackupRec.Copy(Rec);
+                        BackupRec.SetRecFilter();
+                        GenJournalAllocAccMgt.CreateLines(BackupRec);
                         Rec.Delete();
                         CurrPage.Update(false);
                     end;
@@ -2135,17 +2138,16 @@ page 256 "Payment Journal"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        GenJnlManagement: Codeunit GenJnlManagement;
+        DtaSetup: Record "DTA Setup";
+        VendLedgEntry: Record "Vendor Ledger Entry";
         CheckManagement: Codeunit CheckManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
+        ClientTypeManagement: Codeunit "Client Type Management";
         DtaMgt: Codeunit DtaMgt;
-	    ClientTypeManagement: Codeunit "Client Type Management";
-        ChangeExchangeRate: Page "Change Exchange Rate";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        AccName: Text[100];
-        BalAccName: Text[100];
+        ChangeExchangeRate: Page "Change Exchange Rate";
         GenJnlBatchApprovalStatus: Text[20];
         GenJnlLineApprovalStatus: Text[20];
         Balance: Decimal;
@@ -2159,8 +2161,6 @@ page 256 "Payment Journal"
         IsPostingGroupEditable: Boolean;
         StyleTxt: Text;
         OverdueWarningText: Text;
-        DtaSetup: Record "DTA Setup";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         Text90600: Label 'Exchange Rate adjustments are only possible for foreign currency payments via LCY accounts\or accounts corresponding to the original currency of payment. ';
         ExportAgainQst: Label 'One or more of the selected lines have already been exported. Do you want to export again?';
         EventFilter: Text;
@@ -2201,8 +2201,10 @@ page 256 "Payment Journal"
         GeneratingPaymentsMsg: Label 'Generating Payment file...';
         DTAFeatureUsageTxt: Label 'DTA Local CH Functionality', Locked = true;
         RunReportUsageTxt: Label 'RunReportWithCurrentRec, REPID=%1', Locked = true;
+        AmountToApplyMissMatchMsg: Label 'Amount assigned on Apply Entries (%1) is bigger then the amount on the line (%2). System will remove all related Applies-to ID. Do you want to proceed?', Comment = '%1 - Amount to apply, %2 - Amount on the line';
 
     protected var
+        GenJnlManagement: Codeunit GenJnlManagement;
         ShortcutDimCode: array[8] of Code[20];
         CurrentJnlBatchName: Code[10];
         DimVisible1: Boolean;
@@ -2214,6 +2216,8 @@ page 256 "Payment Journal"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         ApplyEntriesActionEnabled: Boolean;
+        AccName: Text[100];
+        BalAccName: Text[100];
 
     local procedure CheckForPmtJnlErrors()
     var
@@ -2278,7 +2282,7 @@ page 256 "Payment Journal"
         exit(GenJournalLine.FindSet());
     end;
 
-    protected procedure SetControlAppearanceFromBatch()
+    procedure SetControlAppearanceFromBatch()
     begin
         SetApprovalStateForBatch();
         BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
@@ -2392,14 +2396,14 @@ page 256 "Payment Journal"
         SmallestLineAmountToApply: Decimal;
         JournalAmount: Decimal;
         AmountToApply: Decimal;
-        AmountToApplyMissMatchMsg: Label 'Amount assigned on Apply Entries (%1) is bigger then the amount on the line (%2). System will remove all related Applies-to ID. Do you want to proceed?', Comment = '%1 - Amount to apply, %2 - Amount on the line';
     begin
         if Rec."Document Type" <> Rec."Document Type"::"Payment" then
             exit;
 
         if not (((xRec.Amount <> 0) and (xRec.Amount <> Rec.Amount) and (Rec.Amount <> 0))
             or ((xRec."Amount (LCY)" <> 0) and (xRec."Amount (LCY)" <> Rec."Amount (LCY)") and (Rec."Amount (LCY)" <> 0))) then
-            exit;
+            if AmountZeroConfirmation() then
+                exit;
 
         AmountToApply := 0;
         SmallestLineAmountToApply := 0;
@@ -2457,10 +2461,25 @@ page 256 "Payment Journal"
 
         case Rec."Account Type" of
             Rec."Account Type"::Customer:
-                CustEntrySetApplId.RemoveApplId(CustLedgEntryMarkedToApply, Rec."Applies-to ID");
+                begin
+                    CustEntrySetApplId.RemoveApplId(CustLedgEntryMarkedToApply, Rec."Applies-to ID");
+                    Rec.Validate("Applies-to ID", '');
+                end;
             Rec."Account Type"::Vendor:
-                VendEntrySetApplId.RemoveApplId(VendorLedgerEntryMarkedToApply, Rec."Applies-to ID");
+                begin
+                    VendEntrySetApplId.RemoveApplId(VendorLedgerEntryMarkedToApply, Rec."Applies-to ID");
+                    Rec.Validate("Applies-to ID", '');
+                end;
         end;
+    end;
+
+    local procedure AmountZeroConfirmation(): Boolean
+    begin
+        if (xRec."Applies-to ID" <> '') then
+            if not Confirm(AmountToApplyMissMatchMsg, false, xRec.Amount, Rec.Amount) then
+                Error('');
+
+        exit(true);
     end;
 
 #if not CLEAN22

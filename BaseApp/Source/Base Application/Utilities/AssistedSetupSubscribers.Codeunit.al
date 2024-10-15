@@ -170,7 +170,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupCopilotAICapabilitiesTitleTxt: Label 'Set up Copilot & AI capabilities';
         SetupCopilotAICapabilitiesShortTitleTxt: Label 'Set up Copilot & AI capabilities', MaxLength = 50;
         SetupCopilotAICapabilitiesDescriptionTxt: Label 'Set up Copilot & AI capabilities to unlock AI-powered experiences.';
-        SetupCopilotAICapabilitiesHelpTxt: Label 'https://aka.ms/bcai';
+        SetupCopilotAICapabilitiesHelpTxt: Label 'https://aka.ms/bcai', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     local procedure Initialize()
@@ -192,7 +192,7 @@ codeunit 1814 "Assisted Setup Subscribers"
             AssistedCompanySetup.AddAssistedCompanySetup();
 
         GuidedExperience.InsertAssistedSetup(SetupCopilotAICapabilitiesTitleTxt, SetupCopilotAICapabilitiesShortTitleTxt, SetupCopilotAICapabilitiesDescriptionTxt, 5, ObjectType::Page,
-            Page::"Copilot AI Capabilities", AssistedSetupGroup::GettingStarted, SetupCopilotAICapabilitiesHelpTxt, VideoCategory::GettingStarted, SetupCopilotAICapabilitiesTitleTxt);
+            Page::"Copilot AI Capabilities", AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, SetupCopilotAICapabilitiesHelpTxt);
 
         GuidedExperience.InsertAssistedSetup(VATSetupWizardTitleTxt, VATSetupWizardShortTitleTxt, VATSetupWizardDescriptionTxt, 15,
             ObjectType::Page, Page::"VAT Setup Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, VATSetupWizardLinkTxt);

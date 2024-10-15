@@ -71,7 +71,7 @@ codeunit 7233 "Master Data Management"
         CategoryTok: Label 'AL Master Data Management', Locked = true;
         DeletionConflictHandledRemoveCouplingTxt: Label 'Deletion conflict handled by removing the coupling to the deleted record.', Locked = true;
         DeletionConflictHandledRestoreRecordTxt: Label 'Deletion conflict handled by restoring the deleted record.', Locked = true;
-        ResetAllCustomIntegrationTableMappingsLbl: Label 'One or more of the selected integration table mappings is custom.\\Restoring the default table mapping for a custom table mapping will restore all custom table mappings to their default.\\Do you want to continue?';
+        ResetAllCustomIntegrationTableMappingsLbl: Label 'One or more of the selected integration table mappings is custom. \\To restore a custom table mapping, you must subscribe to the event OnBeforeResetTableMapping in codeunit "Master Data Mgt. Setup Default" and implement the defaults for each custom table mapping. \\Do you want to continue?';
         DeletedRecordWithZeroTableIdTxt: Label 'CRM Integration Record with zero Table ID has been deleted. Integration ID: %1, CRM ID: %2', Locked = true;
         AllRecordsMarkedAsSkippedTxt: Label 'All of selected %1 records are marked as skipped.', Comment = '%1 = table caption';
         RecordMarkedAsSkippedTxt: Label 'The %1 record is marked as skipped.', Comment = '%1 = table caption';
@@ -563,7 +563,7 @@ codeunit 7233 "Master Data Management"
         exit(MatchBasedCoupling(TableID, false, false, false));
     end;
 
-    internal procedure MatchBasedCoupling(TableID: Integer; SkipSettingCriteria: Boolean; IsFullSync: Boolean; InForeground: Boolean): Boolean
+    procedure MatchBasedCoupling(TableID: Integer; SkipSettingCriteria: Boolean; IsFullSync: Boolean; InForeground: Boolean): Boolean
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -927,9 +927,12 @@ codeunit 7233 "Master Data Management"
     internal procedure ResetIntTableMappingDefaultConfiguration(var IntegrationTableMapping: Record "Integration Table Mapping")
     var
         MasterDataManagementSetup: Record "Master Data Management Setup";
+        JobQueueEntry: Record "Job Queue Entry";
         MasterDataManagementSetupDefaults: Codeunit "Master Data Mgt. Setup Default";
         EnqueueJobQueEntries: Boolean;
         IsHandled: Boolean;
+        IsResettingCurrentMappingHandled: Boolean;
+        ShouldScheduleJobQueueEntry: Boolean;
     begin
         if MasterDataManagementSetup.Get() then
             EnqueueJobQueEntries := (MasterDataManagementSetup."Is Enabled") and (not MasterDataManagementSetup."Delay Job Scheduling");
@@ -996,12 +999,23 @@ codeunit 7233 "Master Data Management"
                     Database::"Dimension Value":
                         MasterDataManagementSetupDefaults.ResetDimensionValueMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
                     else begin
+                        ShouldScheduleJobQueueEntry := true;
+                        IsResettingCurrentMappingHandled := false;
                         OnBeforeHandleCustomIntegrationTableMapping(IsHandled, IntegrationTableMapping.Name);
-                        if not IsHandled then begin
+                        MasterDataManagementSetupDefaults.OnBeforeResetTableMapping(IntegrationTableMapping.Name, ShouldScheduleJobQueueEntry, IsResettingCurrentMappingHandled);
+                        if (not IsHandled) and (not IsResettingCurrentMappingHandled) then begin
                             if Confirm(ResetAllCustomIntegrationTableMappingsLbl) then
                                 if MasterDataManagementSetup.Get() then
                                     MasterDataManagementSetupDefaults.SetCustomIntegrationsTableMappings(MasterDataManagementSetup);
                             IsHandled := true;
+                        end;
+                        if ShouldScheduleJobQueueEntry and EnqueueJobQueEntries then begin
+                            JobQueueEntry.ReadIsolation := IsolationLevel::ReadCommitted;
+                            JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+                            JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
+                            JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
+                            if JobQueueEntry.IsEmpty() then
+                                MasterDataManagementSetupDefaults.RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 1, ShouldScheduleJobQueueEntry, 30);
                         end;
                     end;
                 end;
@@ -1990,7 +2004,8 @@ codeunit 7233 "Master Data Management"
             if not MasterDataMgtCoupling.FindRowFromIntegrationSystemID(IntegrationSystemId, 0, MasterDataMgtCoupling) then begin
                 // Find other coupling to the record
                 if MasterDataMgtCoupling2.FindIDFromRecordRef(RecordRef, ErrIntegrationSystemID) then
-                    Error(RecordRefAlreadyMappedErr, IntegrationTableUid, ErrIntegrationSystemID, RecordRef.Caption());
+                    if MasterDataMgtCoupling2."Local System ID" <> MasterDataMgtCoupling2."Integration System ID" then
+                        Error(RecordRefAlreadyMappedErr, IntegrationTableUid, ErrIntegrationSystemID, RecordRef.Caption());
 
                 MasterDataMgtCoupling.InsertRecord(IntegrationTableUid, SysId, RecordRef.Number());
                 IsHandled := true;
@@ -2391,5 +2406,12 @@ codeunit 7233 "Master Data Management"
     local procedure OnIsRecordRefModifiedAfterRecordLastSynch(var SourceRecordRef: RecordRef; LastModifiedOn: DateTime; var IsModified: Boolean; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnAfterSetIntegrationTableMappingFilterForInitialSynch(var IntegrationTableMappingFilter: Text)
+    begin
+        // append the names of the custom table mappings to the IntegrationTableMappingFilter: it is an 'or' filter, so concatenate the names by |
+    end;
+
 }
 

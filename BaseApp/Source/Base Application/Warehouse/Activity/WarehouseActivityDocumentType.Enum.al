@@ -15,5 +15,5 @@ enum 5769 "Warehouse Activity Document Type"
     value(5; "Production") { Caption = 'Production'; }
     value(6; "Movement Worksheet") { Caption = 'Movement Worksheet'; }
     value(8; "Assembly") { Caption = 'Assembly'; }
-    value(9; "Job") { Caption = 'Job'; }
+    value(9; "Job") { Caption = 'Project'; }
 }

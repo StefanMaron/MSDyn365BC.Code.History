@@ -264,6 +264,7 @@ codeunit 7237 "Master Data Mgt. Subscribers"
                 ThrowError := true;
                 IntegrationTableMapping.SetRange(Status, IntegrationTableMapping.Status::Enabled);
                 IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::"Master Data Management");
+                IntegrationTableMapping.SetRange("Delete After Synchronization", false);
                 IntegrationTableMapping.SetRange("Table ID", DestinationRecordRef.Number());
                 IntegrationTableMapping.SetRange("Integration Table ID", SourceFieldRef.Record().Number());
                 if IntegrationTableMapping.FindFirst() then begin
@@ -368,6 +369,9 @@ codeunit 7237 "Master Data Mgt. Subscribers"
             exit;
 
         RenameIfNeededOnBeforeModifyRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
+
+        if SourceRecordRef.Number() = Database::Item then
+            UpdateItemMediaSet(SourceRecordRef, DestinationRecordRef);
     end;
 
     internal procedure RenameIfNeededOnBeforeModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
@@ -682,7 +686,7 @@ codeunit 7237 "Master Data Mgt. Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeInsertRecord', '', false, false)]
-    local procedure HandleOnBeforeInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    local procedure HandleOnBeforeInsertRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -716,9 +720,102 @@ codeunit 7237 "Master Data Mgt. Subscribers"
                     if ConfigTemplateHeader.Get(ConfigTemplateCode) then
                         VendorTemplMgt.FillVendorKeyFromInitSeries(DestinationRecordRef, ConfigTemplateHeader);
             'Item-Item':
-                if ConfigTemplateCode <> '' then
-                    if ConfigTemplateHeader.Get(ConfigTemplateCode) then
-                        ItemTemplMgt.FillItemKeyFromInitSeries(DestinationRecordRef, ConfigTemplateHeader);
+                begin
+                    if ConfigTemplateCode <> '' then
+                        if ConfigTemplateHeader.Get(ConfigTemplateCode) then
+                            ItemTemplMgt.FillItemKeyFromInitSeries(DestinationRecordRef, ConfigTemplateHeader);
+
+                    UpdateItemMediaSet(SourceRecordRef, DestinationRecordRef);
+                end;
+        end;
+    end;
+
+    local procedure UpdateItemMediaSet(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        MasterDataManagementSetup: Record "Master Data Management Setup";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        SourceTenantMedia: Record "Tenant Media";
+        DestinationTenantMedia: Record "Tenant Media";
+        SourceItem: Record Item;
+        DestinationItem: Record Item;
+        MediaInStream: InStream;
+        MediaOutStream: OutStream;
+        DestinationItemMediaIds: List of [Guid];
+        MediaId: Guid;
+        i: Integer;
+        MediaItemInserted: Boolean;
+    begin
+        if not MasterDataManagementSetup.Get() then
+            exit;
+
+        if not MasterDataManagementSetup."Is Enabled" then
+            exit;
+
+        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::"Master Data Management");
+        IntegrationTableMapping.SetRange(Status, IntegrationTableMapping.Status::Enabled);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetRange("Table ID", Database::Item);
+        IntegrationTableMapping.SetRange("Integration Table ID", Database::Item);
+        if not IntegrationTableMapping.FindFirst() then
+            exit;
+
+        // exit if Picture field mapping is not enabled
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntegrationFieldMapping.SetRange("Field No.", DestinationItem.FieldNo(Picture));
+        IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
+        if IntegrationFieldMapping.IsEmpty() then
+            exit;
+
+        // if source item picture has media that are not in destination item picture media, add their ids
+        SourceRecordRef.SetTable(SourceItem);
+        DestinationRecordRef.SetTable(DestinationItem);
+        MasterDataManagementSetup.Get();
+        SourceItem.ChangeCompany(MasterDataManagementSetup."Company Name");
+
+        // remove all the media from Destination item
+        for i := 1 to DestinationItem.Picture.Count() do
+            DestinationItemMediaIds.Add(DestinationItem.Picture.Item(i));
+        foreach MediaId in DestinationItemMediaIds do
+            DestinationItem.Picture.Remove(MediaId);
+
+        // reinsert all media from source item to the destination item
+        for i := 1 to SourceItem.Picture.Count() do
+            if SourceTenantMedia.Get(SourceItem.Picture.Item(i)) then begin
+                SourceTenantMedia.CalcFields(Content);
+                SourceTenantMedia.Content.CreateInStream(MediaInStream);
+                DestinationTenantMedia.TransferFields(SourceTenantMedia, true);
+                DestinationTenantMedia.ID := CreateGuid();
+                DestinationTenantMedia."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DestinationTenantMedia."Company Name"));
+                DestinationTenantMedia.Content.CreateOutStream(MediaOutStream);
+                CopyStream(MediaOutStream, MediaInStream);
+                DestinationTenantMedia.Insert();
+                DestinationItem.Picture.Insert(DestinationTenantMedia.ID);
+                MediaItemInserted := true;
+            end;
+        if MediaItemInserted then
+            DestinationRecordRef.GetTable(DestinationItem);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterUnchangedRecordHandled', '', false, false)]
+    local procedure HandleOnAfterUnchangedRecordHandled(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        MasterDataManagement: Codeunit "Master Data Management";
+        SourceDestCode: Text;
+    begin
+        if not MasterDataManagement.IsEnabled() then
+            exit;
+
+        if IntegrationTableMapping.Type <> IntegrationTableMapping.Type::"Master Data Management" then
+            exit;
+
+        SourceDestCode := GetSourceDestCode(SourceRecordRef, DestinationRecordRef);
+        case SourceDestCode of
+            'Item-Item':
+                begin
+                    UpdateItemMediaSet(SourceRecordRef, DestinationRecordRef);
+                    DestinationRecordRef.Modify();
+                end;
         end;
     end;
 

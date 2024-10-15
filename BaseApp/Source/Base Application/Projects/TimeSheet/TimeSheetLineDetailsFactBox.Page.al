@@ -3,9 +3,11 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.TimeSheet;
-using Microsoft.Utilities;
+
 using Microsoft.HumanResources.Absence;
 using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Utilities;
 
 page 948 "TimeSheet Line Details FactBox"
 {
@@ -68,7 +70,14 @@ page 948 "TimeSheet Line Details FactBox"
                     Caption = 'Task Description';
                     ToolTip = 'Specifies a description of the project task.';
                 }
-
+                field(JobBudgetedQty; JobBudgetedQty)
+                {
+                    Editable = false;
+                    DecimalPlaces = 0 : 5;
+                    BlankZero = true;
+                    Caption = 'Budgeted Quantity';
+                    ToolTip = 'Specifies a resource budgeted qty. of the project task.';
+                }
             }
             group(AbsenceDetails)
             {
@@ -89,11 +98,15 @@ page 948 "TimeSheet Line Details FactBox"
     begin
         if not SkipOnAfterGetRecordUpdate then begin
             GlobalTimeSheetLine := Rec;
+            if Rec."Time Sheet No." <> TimeSheetHeader."No." then
+                if not TimeSheetHeader.Get(Rec."Time Sheet No.") then
+                    Clear(TimeSheetHeader);
             UpdateData();
         end;
     end;
 
     var
+        TimeSheetHeader: Record "Time Sheet Header";
         TimeSheetCommentLine: Record "Time Sheet Comment Line";
         TimeSheetCmtLineArchive: Record "Time Sheet Cmt. Line Archive";
         GlobalTimeSheetLine: Record "Time Sheet Line";
@@ -103,6 +116,7 @@ page 948 "TimeSheet Line Details FactBox"
         JobTask: Record "Job Task";
         WorkTypeCodeVisible, JobFieldsVisible, AbsenceCauseVisible, IsArchive, SkipOnAfterGetRecordUpdate : Boolean;
         CommentsFieldValue, WorkTypeDescription, JobName, JobTaskDescription, CauseOfAbsenceDescription : Text;
+        JobBudgetedQty: Decimal;
         ViewCommentTxt: Label 'View Comments';
 
     procedure SetSource(var TimeSheetLine: Record "Time Sheet Line"; IsArchiveLine: Boolean);
@@ -156,9 +170,12 @@ page 948 "TimeSheet Line Details FactBox"
     end;
 
     local procedure SetJobDetails()
+    var
+        JobPlanningLine: Record "Job Planning Line";
     begin
         JobName := '';
         JobTaskDescription := '';
+        JobBudgetedQty := 0;
         JobFieldsVisible := Rec."Job No." <> '';
 
         if Rec."Job No." = '' then
@@ -176,6 +193,20 @@ page 948 "TimeSheet Line Details FactBox"
             JobTask.Get(Rec."Job No.", Rec."Job Task No.");
 
         JobTaskDescription := JobTask.Description;
+
+        if TimeSheetHeader."Resource No." <> '' then begin
+            JobPlanningLine.SetLoadFields("Quantity (Base)");
+            JobPlanningLine.SetRange("Job No.", Rec."Job No.");
+            JobPlanningLine.SetRange("Job Task No.", Rec."Job Task No.");
+            JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Resource);
+            JobPlanningLine.SetRange("No.", TimeSheetHeader."Resource No.");
+            JobPlanningLine.SetFilter("Line Type", '%1|%2', JobPlanningLine."Line Type"::Budget, JobPlanningLine."Line Type"::"Both Budget and Billable");
+            JobPlanningLine.SetRange("Planning Date", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
+            if not JobPlanningLine.IsEmpty() then begin
+                JobPlanningLine.CalcSums("Quantity (Base)");
+                JobBudgetedQty := JobPlanningLine."Quantity (Base)";
+            end;
+        end;
     end;
 
     local procedure SetAbsenceDetails()
