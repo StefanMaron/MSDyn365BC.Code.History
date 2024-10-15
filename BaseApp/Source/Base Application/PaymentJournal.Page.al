@@ -241,24 +241,44 @@ page 256 "Payment Journal"
                     StyleExpr = HasPmtFileErr;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
+
+                    trigger OnValidate()
+                    begin
+                        CheckAmountMatchedToAppliedLines();
+                    end;
                 }
                 field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount in local currency (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
+
+                    trigger OnValidate()
+                    begin
+                        CheckAmountMatchedToAppliedLines();
+                    end;
                 }
                 field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = DebitCreditVisible;
+
+                    trigger OnValidate()
+                    begin
+                        CheckAmountMatchedToAppliedLines();
+                    end;
                 }
                 field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
+
+                    trigger OnValidate()
+                    begin
+                        CheckAmountMatchedToAppliedLines();
+                    end;
                 }
                 field("VAT Amount"; Rec."VAT Amount")
                 {
@@ -2131,6 +2151,86 @@ page 256 "Payment Journal"
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive();
+    end;
+
+    local procedure CheckAmountMatchedToAppliedLines()
+    var
+        VendorLedgerEntryMarkedToApply: Record "Vendor Ledger Entry";
+        CustLedgEntryMarkedToApply: Record "Cust. Ledger Entry";
+        CustEntrySetApplId: Codeunit "Cust. Entry-SetAppl.ID";
+        VendEntrySetApplId: Codeunit "Vend. Entry-SetAppl.ID";
+        SmallestLineAmountToApply: Decimal;
+        JournalAmount: Decimal;
+        AmountToApply: Decimal;
+        AmountToApplyMissMatchMsg: Label 'Amount assigned on Apply Entries (%1) is bigger then the amount on the line (%2). System will remove all related Applies-to ID. Do you want to proceed?', Comment = '%1 - Amount to apply, %2 - Amount on the line';
+    begin
+        if Rec."Document Type" <> Rec."Document Type"::"Payment" then
+            exit;
+
+        if not (((xRec.Amount <> 0) and (xRec.Amount <> Rec.Amount) and (Rec.Amount <> 0))
+            or ((xRec."Amount (LCY)" <> 0) and (xRec."Amount (LCY)" <> Rec."Amount (LCY)") and (Rec."Amount (LCY)" <> 0))) then
+            exit;
+
+        AmountToApply := 0;
+        SmallestLineAmountToApply := 0;
+
+        case Rec."Account Type" of
+            Rec."Account Type"::Customer:
+                begin
+                    JournalAmount := -Rec.Amount;
+                    CustLedgEntryMarkedToApply.Reset();
+                    CustLedgEntryMarkedToApply.SetLoadFields("Applies-to ID", "Amount to Apply", "Accepted Pmt. Disc. Tolerance", "Accepted Payment Tolerance");
+                    CustLedgEntryMarkedToApply.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
+                    CustLedgEntryMarkedToApply.SetRange("Customer No.", Rec."Account No.");
+                    CustLedgEntryMarkedToApply.SetRange("Applies-to ID", Rec."Applies-to ID");
+                    if CustLedgEntryMarkedToApply.FindSet() then
+                        repeat
+                            if SmallestLineAmountToApply = 0 then
+                                SmallestLineAmountToApply := CustLedgEntryMarkedToApply."Amount to Apply"
+                            else
+                                if SmallestLineAmountToApply > CustLedgEntryMarkedToApply."Amount to Apply" then
+                                    SmallestLineAmountToApply := CustLedgEntryMarkedToApply."Amount to Apply";
+                            AmountToApply += CustLedgEntryMarkedToApply."Amount to Apply";
+                        until CustLedgEntryMarkedToApply.Next() = 0;
+                end;
+            Rec."Account Type"::Vendor:
+                begin
+                    JournalAmount := Rec.Amount;
+                    VendorLedgerEntryMarkedToApply.Reset();
+                    VendorLedgerEntryMarkedToApply.SetLoadFields("Applies-to ID", "Amount to Apply");
+                    VendorLedgerEntryMarkedToApply.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
+                    VendorLedgerEntryMarkedToApply.SetRange("Vendor No.", Rec."Account No.");
+                    VendorLedgerEntryMarkedToApply.SetRange("Applies-to ID", Rec."Applies-to ID");
+                    if VendorLedgerEntryMarkedToApply.FindSet() then
+                        repeat
+                            if SmallestLineAmountToApply = 0 then
+                                SmallestLineAmountToApply := -VendorLedgerEntryMarkedToApply."Amount to Apply"
+                            else
+                                if SmallestLineAmountToApply > -VendorLedgerEntryMarkedToApply."Amount to Apply" then
+                                    SmallestLineAmountToApply := -VendorLedgerEntryMarkedToApply."Amount to Apply";
+                            AmountToApply -= VendorLedgerEntryMarkedToApply."Amount to Apply";
+                        until VendorLedgerEntryMarkedToApply.Next() = 0;
+                end;
+        end;
+
+        if AmountToApply = 0 then
+            exit;
+
+        if AmountToApply <= JournalAmount then
+            exit;
+
+        if (AmountToApply - JournalAmount) < SmallestLineAmountToApply then
+            exit;
+
+        if not Confirm(AmountToApplyMissMatchMsg, false, AmountToApply, JournalAmount) then
+            Error('');
+
+        case Rec."Account Type" of
+            Rec."Account Type"::Customer:
+                CustEntrySetApplId.RemoveApplId(CustLedgEntryMarkedToApply, Rec."Applies-to ID");
+            Rec."Account Type"::Vendor:
+                VendEntrySetApplId.RemoveApplId(VendorLedgerEntryMarkedToApply, Rec."Applies-to ID");
+        end;
     end;
 
     [IntegrationEvent(true, false)]
