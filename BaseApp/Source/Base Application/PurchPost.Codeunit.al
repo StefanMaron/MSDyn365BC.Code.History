@@ -277,7 +277,6 @@
         WhseReceive: Boolean;
         WhseShip: Boolean;
         InvtPickPutaway: Boolean;
-        PositiveWhseEntrycreated: Boolean;
         PrepAmountToDeductToBigErr: Label 'The total %1 cannot be more than %2.', Comment = '%1 = Prepmt Amt to Deduct, %2 = Max Amount';
         PrepAmountToDeductToSmallErr: Label 'The total %1 must be at least %2.', Comment = '%1 = Prepmt Amt to Deduct, %2 = Max Amount';
         UnpostedInvoiceDuplicateQst: Label 'An unposted invoice for order %1 exists. To avoid duplicate postings, delete order %1 or invoice %2.\Do you still want to post order %1?', Comment = '%1 = Order No.,%2 = Invoice No.';
@@ -1251,19 +1250,24 @@
     local procedure PostItemJnlLineWhseLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseTrackingSpecification: Record "Tracking Specification" temporary; PurchLine: Record "Purchase Line"; PostBefore: Boolean)
     var
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
+        PositiveWhseEntryCreated: Boolean;
     begin
         ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempWhseTrackingSpecification, false);
         if TempWhseJnlLine2.Find('-') then
             repeat
+                PositiveWhseEntryCreated := false;
                 if PurchLine.IsCreditDocType and (PurchLine.Quantity > 0) or
                    PurchLine.IsInvoiceDocType and (PurchLine.Quantity < 0)
                 then
-                    CreatePositiveEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore);
+                    PositiveWhseEntryCreated := CreatePositiveEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore);
+
                 WhseJnlPostLine.Run(TempWhseJnlLine2);
-                if RevertWarehouseEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore) then begin
-                    WhseJnlPostLine.Run(TempWhseJnlLine2);
-                    OnPostItemJnlLineWhseLineOnAfterPostRevert(TempWhseJnlLine2, PurchLine);
-                end;
+
+                if not PositiveWhseEntryCreated then
+                    if RevertWarehouseEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore) then begin
+                        WhseJnlPostLine.Run(TempWhseJnlLine2);
+                        OnPostItemJnlLineWhseLineOnAfterPostRevert(TempWhseJnlLine2, PurchLine);
+                    end;
             until TempWhseJnlLine2.Next() = 0;
         TempWhseTrackingSpecification.DeleteAll();
     end;
@@ -5340,7 +5344,7 @@
         if IsHandled then
             exit(Result);
 
-        if PostJobConsumptionBeforePurch or (JobNo = '') or PositiveWhseEntrycreated then
+        if PostJobConsumptionBeforePurch or (JobNo = '') then
             exit(false);
 
         TempWhseJnlLine."Entry Type" := TempWhseJnlLine."Entry Type"::"Negative Adjmt.";
@@ -5353,19 +5357,21 @@
         exit(true);
     end;
 
-    local procedure CreatePositiveEntry(WhseJnlLine: Record "Warehouse Journal Line"; JobNo: Code[20]; PostJobConsumptionBeforePurch: Boolean)
+    local procedure CreatePositiveEntry(WhseJnlLine: Record "Warehouse Journal Line"; JobNo: Code[20]; PostJobConsumptionBeforePurch: Boolean): Boolean
     begin
-        if PostJobConsumptionBeforePurch or (JobNo <> '') then begin
-            WhseJnlLine.Quantity := -WhseJnlLine.Quantity;
-            WhseJnlLine."Qty. (Base)" := -WhseJnlLine."Qty. (Base)";
-            WhseJnlLine."Qty. (Absolute)" := -WhseJnlLine."Qty. (Absolute)";
-            WhseJnlLine."To Bin Code" := WhseJnlLine."From Bin Code";
-            WhseJnlLine."From Bin Code" := '';
+        if not PostJobConsumptionBeforePurch and (JobNo = '') then
+            exit(false);
 
-            OnCreatePositiveOnBeforeWhseJnlPostLine(WhseJnlLine);
-            WhseJnlPostLine.Run(WhseJnlLine);
-            PositiveWhseEntrycreated := true;
-        end;
+        WhseJnlLine.Quantity := -WhseJnlLine.Quantity;
+        WhseJnlLine."Qty. (Base)" := -WhseJnlLine."Qty. (Base)";
+        WhseJnlLine."Qty. (Absolute)" := -WhseJnlLine."Qty. (Absolute)";
+        WhseJnlLine."To Bin Code" := WhseJnlLine."From Bin Code";
+        WhseJnlLine."From Bin Code" := '';
+
+        OnCreatePositiveOnBeforeWhseJnlPostLine(WhseJnlLine);
+        WhseJnlPostLine.Run(WhseJnlLine);
+
+        exit(true);
     end;
 
     local procedure UpdateIncomingDocument(IncomingDocNo: Integer; PostingDate: Date; GenJnlLineDocNo: Code[20])
