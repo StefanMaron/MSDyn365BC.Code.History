@@ -1071,6 +1071,7 @@ codeunit 1255 "Match Bank Payments"
         TotalCount: Integer;
         TextMatchCount: Integer;
         FinalText: Text;
+        IsHandled: Boolean;
     begin
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Payment Application");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
@@ -1081,7 +1082,10 @@ codeunit 1255 "Match Bank Payments"
         MatchedCount := BankAccReconciliationLine.Count();
 
         FinalText := StrSubstNo(MatchSummaryMsg, MatchedCount, TotalCount);
-        Message(FinalText);
+        IsHandled := false;
+        OnShowMatchSummaryOnAfterSetFinalText(BankAccReconciliation, FinalText, IsHandled);
+        if not IsHandled then
+            Message(FinalText);
 
         BankAccReconciliationLine.SetRange("Match Confidence", BankAccReconciliationLine."Match Confidence"::"High - Text-to-Account Mapping");
         TextMatchCount := BankAccReconciliationLine.Count();
@@ -1494,6 +1498,11 @@ codeunit 1255 "Match Bank Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitVendorLedgerEntriesMatchingBufferSetFilter(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowMatchSummaryOnAfterSetFinalText(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; FinalText: Text; var IsHandled: Boolean)
     begin
     end;
 }

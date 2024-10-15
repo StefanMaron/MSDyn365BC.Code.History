@@ -232,6 +232,7 @@ codeunit 330 ReqJnlManagement
             end;
 
         LastReqLine := ReqLine;
+        OnAfterGetDescriptionAndRcptName(ReqLine, Description, BuyFromVendorName);
     end;
 
     procedure SetUpNewLine(var ReqLine: Record "Requisition Line"; LastReqLine: Record "Requisition Line")
@@ -241,6 +242,11 @@ codeunit 330 ReqJnlManagement
         ReqLine."Order Date" := LastReqLine."Order Date";
 
         OnAfterSetUpNewLine(ReqLine, LastReqLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDescriptionAndRcptName(var ReqLine: Record "Requisition Line"; var Description: Text[100]; var BuyFromVendorName: Text[100])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

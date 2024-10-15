@@ -213,6 +213,8 @@ report 99000756 "Detailed Calculation"
                 var
                     UOMFactor: Decimal;
                 begin
+                    CostTotal := 0;
+
                     while ProdBOMLine[Level].Next = 0 do begin
                         Level := Level - 1;
                         if Level < 1 then
@@ -269,7 +271,6 @@ report 99000756 "Detailed Calculation"
                     if Item."Production BOM No." = '' then
                         CurrReport.Break();
 
-                    Clear(CostTotal);
                     Level := 1;
 
                     ProdBOMHeader.Get(PBOMNoList[Level]);

@@ -561,6 +561,43 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                             {
                                 textelement(CdtrRefInf)
                                 {
+                                    textelement(CdtrRefInf_Tp)
+                                    {
+                                        XmlName = 'Tp';
+
+                                        textelement(CdtrRefInf_CdOrPrtry)
+                                        {
+                                            XmlName = 'CdOrPrtry';
+
+                                            textelement(CdtrRefInf_CdOrPrtry_Cd)
+                                            {
+                                                XmlName = 'Cd';
+
+                                                trigger OnBeforePassVariable()
+                                                begin
+                                                    if CdtrRefInf_CdOrPrtry_Cd = '' then
+                                                        currXMLport.Skip();
+                                                end;
+                                            }
+                                            textelement(CdtrRefInf_CdOrPrtry_Prtry)
+                                            {
+                                                XmlName = 'Prtry';
+
+                                                trigger OnBeforePassVariable()
+                                                begin
+                                                    if CdtrRefInf_CdOrPrtry_Prtry = '' then
+                                                        currXMLport.Skip();
+                                                end;
+                                            }
+                                        }
+
+                                        trigger OnBeforePassVariable()
+                                        begin
+                                            if (CdtrRefInf_CdOrPrtry_Cd = '') and (CdtrRefInf_CdOrPrtry_Prtry = '') then
+                                                currXMLport.Skip();
+                                        end;
+                                    }
+
                                     textelement(rmtstrdref)
                                     {
                                         XmlName = 'Ref';
@@ -573,8 +610,11 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
                                     trigger OnBeforePassVariable()
                                     begin
-                                        if (not SwissExport) or (RemittanceText2 = '') or (rmtstrdref = '') then
+                                        if (not SwissExport) or (RemittanceText2 = '') or (rmtstrdref = '') or
+                                           SwissExport and (PaymentExportData."Swiss Payment Type" <> PaymentExportData."Swiss Payment Type"::"3")
+                                        then
                                             currXMLport.Skip();
+
                                         AddtlRmtInf := RemittanceText2;
                                     end;
                                 }
@@ -709,15 +749,29 @@ xmlport 1000 "SEPA CT pain.001.001.03"
     begin
         RmtStrdRef := '';
         if SwissExport then begin
-                RmtStrdRef := RemittanceText1;
+            if PaymentExportData."Swiss Payment Type" in [PaymentExportData."Swiss Payment Type"::"2.1",
+                                                          PaymentExportData."Swiss Payment Type"::"2.2"]
+            then begin
+                RemittanceText1 := '';
+                exit;
+            end;
+
+            RmtStrdRef := RemittanceText1;
             RemittanceText1 := '';
             if PaymentExportData."Swiss Payment Type" = PaymentExportData."Swiss Payment Type"::"1" then
                 remittancetext2 := ''
             else
                 if PaymentExportData."Payment Reference" = '' then
                     rmtstrdref := ''
-                else
+                else begin
                     rmtstrdref := PaymentExportData."Payment Reference";
+                    if (STRLEN(DELCHR(RmtStrdRef)) = 27) and
+                       (PaymentExportData."Swiss Payment Type" <> PaymentExportData."Swiss Payment Type"::"5")
+                    then
+                        CdtrRefInf_CdOrPrtry_Prtry := 'QRR'
+                    else
+                        CdtrRefInf_CdOrPrtry_Cd := 'SCOR';
+                end;
         end;
     end;
 }

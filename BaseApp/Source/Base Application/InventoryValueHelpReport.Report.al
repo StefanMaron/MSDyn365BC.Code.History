@@ -220,7 +220,7 @@ report 11517 "Inventory Value (Help Report)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateTempItemStatisticsBuffer(var TempItemStatisticsBuffer: Record "Item Statistics Buffer"; var ValueEntry: Record "Value Entry"; ValueEntry2: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry");
+    local procedure OnBeforeUpdateTempItemStatisticsBuffer(var TempItemStatisticsBuffer: Record "Item Statistics Buffer"; var ValueEntry: Record "Value Entry"; var ValueEntry2: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry");
     begin
     end;
 }

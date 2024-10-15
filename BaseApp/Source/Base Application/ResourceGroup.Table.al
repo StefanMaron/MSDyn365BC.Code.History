@@ -23,7 +23,7 @@ table 152 "Resource Group"
         }
         field(23; Capacity; Decimal)
         {
-            CalcFormula = Sum ("Res. Capacity Entry".Capacity WHERE("Resource Group No." = FIELD("No."),
+            CalcFormula = Sum("Res. Capacity Entry".Capacity WHERE("Resource Group No." = FIELD("No."),
                                                                     Date = FIELD("Date Filter")));
             Caption = 'Capacity';
             DecimalPlaces = 0 : 5;
@@ -31,7 +31,7 @@ table 152 "Resource Group"
         }
         field(24; "Qty. on Order (Job)"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line"."Quantity (Base)" WHERE(Status = CONST(Order),
+            CalcFormula = Sum("Job Planning Line"."Quantity (Base)" WHERE(Status = CONST(Order),
                                                                            "Schedule Line" = CONST(true),
                                                                            Type = CONST(Resource),
                                                                            "Resource Group No." = FIELD("No."),
@@ -43,7 +43,7 @@ table 152 "Resource Group"
         }
         field(25; "Qty. Quoted (Job)"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line"."Quantity (Base)" WHERE(Status = CONST(Quote),
+            CalcFormula = Sum("Job Planning Line"."Quantity (Base)" WHERE(Status = CONST(Quote),
                                                                            "Schedule Line" = CONST(true),
                                                                            Type = CONST(Resource),
                                                                            "Resource Group No." = FIELD("No."),
@@ -61,7 +61,7 @@ table 152 "Resource Group"
         }
         field(27; "Usage (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Res. Ledger Entry".Quantity WHERE("Entry Type" = CONST(Usage),
+            CalcFormula = Sum("Res. Ledger Entry".Quantity WHERE("Entry Type" = CONST(Usage),
                                                                   Chargeable = FIELD("Chargeable Filter"),
                                                                   "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                   "Resource Group No." = FIELD("No."),
@@ -74,7 +74,7 @@ table 152 "Resource Group"
         field(28; "Usage (Cost)"; Decimal)
         {
             AutoFormatType = 2;
-            CalcFormula = Sum ("Res. Ledger Entry"."Total Cost" WHERE("Entry Type" = CONST(Usage),
+            CalcFormula = Sum("Res. Ledger Entry"."Total Cost" WHERE("Entry Type" = CONST(Usage),
                                                                       Chargeable = FIELD("Chargeable Filter"),
                                                                       "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                       "Resource Group No." = FIELD("No."),
@@ -86,7 +86,7 @@ table 152 "Resource Group"
         field(29; "Usage (Price)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Res. Ledger Entry"."Total Price" WHERE("Entry Type" = CONST(Usage),
+            CalcFormula = Sum("Res. Ledger Entry"."Total Price" WHERE("Entry Type" = CONST(Usage),
                                                                        Chargeable = FIELD("Chargeable Filter"),
                                                                        "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                        "Resource Group No." = FIELD("No."),
@@ -97,7 +97,7 @@ table 152 "Resource Group"
         }
         field(30; "Sales (Qty.)"; Decimal)
         {
-            CalcFormula = - Sum ("Res. Ledger Entry".Quantity WHERE("Entry Type" = CONST(Sale),
+            CalcFormula = - Sum("Res. Ledger Entry".Quantity WHERE("Entry Type" = CONST(Sale),
                                                                    "Resource Group No." = FIELD("No."),
                                                                    "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                    "Posting Date" = FIELD("Date Filter")));
@@ -109,7 +109,7 @@ table 152 "Resource Group"
         field(31; "Sales (Cost)"; Decimal)
         {
             AutoFormatType = 2;
-            CalcFormula = - Sum ("Res. Ledger Entry"."Total Cost" WHERE("Entry Type" = CONST(Sale),
+            CalcFormula = - Sum("Res. Ledger Entry"."Total Cost" WHERE("Entry Type" = CONST(Sale),
                                                                        "Resource Group No." = FIELD("No."),
                                                                        "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                        "Posting Date" = FIELD("Date Filter")));
@@ -120,7 +120,7 @@ table 152 "Resource Group"
         field(32; "Sales (Price)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Res. Ledger Entry"."Total Price" WHERE("Entry Type" = CONST(Sale),
+            CalcFormula = - Sum("Res. Ledger Entry"."Total Price" WHERE("Entry Type" = CONST(Sale),
                                                                         "Resource Group No." = FIELD("No."),
                                                                         "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                         "Posting Date" = FIELD("Date Filter")));
@@ -157,14 +157,14 @@ table 152 "Resource Group"
         }
         field(36; "No. of Resources Assigned"; Integer)
         {
-            CalcFormula = Count (Resource WHERE("Resource Group No." = FIELD("No.")));
+            CalcFormula = Count(Resource WHERE("Resource Group No." = FIELD("No.")));
             Caption = 'No. of Resources Assigned';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5900; "Qty. on Service Order"; Decimal)
         {
-            CalcFormula = Sum ("Service Order Allocation"."Allocated Hours" WHERE(Posted = CONST(false),
+            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE(Posted = CONST(false),
                                                                                   "Resource Group No." = FIELD("No."),
                                                                                   "Allocation Date" = FIELD("Date Filter"),
                                                                                   Status = CONST(Active)));
@@ -187,21 +187,10 @@ table 152 "Resource Group"
     }
 
     trigger OnDelete()
-    var
-        ResCost: Record "Resource Cost";
-        ResPrice: Record "Resource Price";
     begin
         ResCapacityEntry.SetCurrentKey("Resource Group No.");
         ResCapacityEntry.SetRange("Resource Group No.", "No.");
         ResCapacityEntry.DeleteAll();
-
-        ResCost.SetRange(Type, ResCost.Type::"Group(Resource)");
-        ResCost.SetRange(Code, "No.");
-        ResCost.DeleteAll();
-
-        ResPrice.SetRange(Type, ResPrice.Type::"Group(Resource)");
-        ResPrice.SetRange(Code, "No.");
-        ResPrice.DeleteAll();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Resource Group");
         CommentLine.SetRange("No.", "No.");

@@ -246,18 +246,42 @@ codeunit 11518 "Swiss QR-Bill Mgt."
     local procedure EncodeUmlautChars(InString: Text) OutString: Text
     var
         SwissQRBillSetup: Record "Swiss QR-Bill Setup";
+        GermanChars: Text;
+        GermanPrintable: Text;
+        FrenchItalianChars: Text;
+        FrenchItalianPrintable: Text;
         i: Integer;
     begin
+        GermanChars := 'ÄäÖöÜüẞß';
+        GermanPrintable := 'AaOoUuSs';
+        FrenchItalianChars := 'ÆÂÀæàâÉÈÊËéèêëÇçÙÛùûŸÿÏÎÌïîìŒÔÒÓœôòó';
+        FrenchItalianPrintable := 'AAAaaaEEEEeeeeCcUUuuYyIIIiiiOOOOoooo';
+
         SwissQRBillSetup.Get();
         case SwissQRBillSetup."Umlaut Chars Encode Mode" of
             SwissQRBillSetup."Umlaut Chars Encode Mode"::Remove:
-                exit(DelChr(InString, '=', 'ÄäÖöÜüß'));
+                begin
+                    OutString := DelChr(InString, '=', GermanChars);
+                    OutString := DelChr(OutString, '=', FrenchItalianChars);
+                end;
             SwissQRBillSetup."Umlaut Chars Encode Mode"::Single:
-                exit(ConvertStr(InString, 'ÄäÖöÜüß', 'AaOoUus'));
+                begin
+                    OutString := ConvertStr(InString, GermanChars, GermanPrintable);
+                    OutString := ConvertStr(OutString, FrenchItalianChars, FrenchItalianPrintable);
+                end;
             SwissQRBillSetup."Umlaut Chars Encode Mode"::Double:
-                for i := 1 to StrLen(InString) do
-                    OutString += ConvertUmlautCharsToDoubleChars(InString[i])
+                begin
+                    for i := 1 to StrLen(InString) do
+                        OutString += ConvertUmlautCharsToDoubleChars(InString[i]);
+                    OutString := ConvertStr(OutString, FrenchItalianChars, FrenchItalianPrintable);
+                end;
         end;
+
+        // special char convert
+        OutString := ConvertStr(OutString, '–—‘’“”«»„', '--''''"""""');
+
+        // remove remaining non-printable chars
+        exit(RemoveNonPrintableChars(OutString));
     end;
 
     local procedure ConvertUmlautCharsToDoubleChars(InChar: Char) ConvertedChar: Text
@@ -275,11 +299,30 @@ codeunit 11518 "Swiss QR-Bill Mgt."
                 ConvertedChar := 'Ue';
             'ü':
                 ConvertedChar := 'ue';
+            'ẞ':
+                ConvertedChar := 'Ss';
             'ß':
                 ConvertedChar := 'ss';
+            'Æ':
+                ConvertedChar := 'AE';
+            'æ':
+                ConvertedChar := 'ae';
+            'Œ':
+                ConvertedChar := 'OE';
+            'œ':
+                ConvertedChar := 'oe';
             else
                 ConvertedChar := InChar;
         end;
+    end;
+
+    local procedure RemoveNonPrintableChars(InText: Text) OutText: Text
+    var
+        i: Integer;
+    begin
+        for i := 1 to StrLen(InText) do
+            if InText[i] <= 126 then
+                OutText += InText[i];
     end;
 
     internal procedure GetNextReferenceNo(ReferenceType: Enum "Swiss QR-Bill Payment Reference Type"; UpdateLastUsed: Boolean): Code[50]
@@ -444,22 +487,22 @@ codeunit 11518 "Swiss QR-Bill Mgt."
 
     internal procedure GetLanguageIdENU(): Integer
     begin
-        exit(1033);
+        exit(1033); // en-us
     end;
 
     internal procedure GetLanguageIdDEU(): Integer
     begin
-        exit(1031);
+        exit(2055); // de-ch
     end;
 
     internal procedure GetLanguageIdFRA(): Integer
     begin
-        exit(1036);
+        exit(4108); // fr-ch
     end;
 
     internal procedure GetLanguageIdITA(): Integer
     begin
-        exit(1040);
+        exit(2064); // it-ch
     end;
 
     internal procedure GetLanguagesIdDEU(): Text

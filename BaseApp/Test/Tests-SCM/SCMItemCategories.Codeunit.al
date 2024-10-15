@@ -2106,6 +2106,47 @@ codeunit 137414 "SCM Item Categories"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AttributeWithDateTypeConservesValue()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemCategory: Record "Item Category";
+        ItemCategoryCard: TestPage "Item Category Card";
+        Date: Date;
+    begin
+        // [FEATURE] [Item Attribute]
+        // [SCENARIO 356977] When user enters a new value in attribute of type date in Item Category card, closes page and reopens - the value is there.
+
+        // [GIVEN] Item attribute of type date
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Date, '');
+
+        // [GIVEN] Item category
+        LibraryInventory.CreateItemCategory(ItemCategory);
+
+        // [GIVEN] Item category card page was open
+        ItemCategoryCard.OpenEdit();
+        ItemCategoryCard.FILTER.SetFilter(Code, ItemCategory.Code);
+
+        // [GIVEN] Attribute was added to the category with value = 10-01-2021
+        Date := LibraryRandom.RandDate(20);
+        ItemCategoryCard.Attributes."Attribute Name".SetValue(ItemAttribute.Name);
+        ItemCategoryCard.Attributes.Value.SetValue(Date);
+
+        // [GIVEN] Page was closed
+        ItemCategoryCard.Close();
+
+        // [WHEN] Page was open again
+        ItemCategoryCard.OpenEdit();
+        ItemCategoryCard.FILTER.SetFilter(Code, ItemCategory.Code);
+
+        // [THEN] Attribute still has value 10-01-2021
+        ItemCategoryCard.Attributes.Value.AssertEquals(Date);
+
+        // Cleanup
+        ItemCategoryCard.Close();
+    end;
+
     local procedure CreatePairOfItemAttributeValues(var Item: Record Item; var ItemAttributeValue: array[2] of Record "Item Attribute Value"; Type: Option)
     var
         ItemAttribute: Record "Item Attribute";

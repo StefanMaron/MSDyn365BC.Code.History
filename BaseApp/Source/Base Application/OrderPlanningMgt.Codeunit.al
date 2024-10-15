@@ -1,6 +1,5 @@
 codeunit 5522 "Order Planning Mgt."
 {
-
     trigger OnRun()
     begin
     end;
@@ -128,8 +127,9 @@ codeunit 5522 "Order Planning Mgt."
                     ReqLine.TransferFromUnplannedDemand(TempUnplannedDemand);
                     ReqLine.SetSupplyQty("Quantity (Base)", "Needed Qty. (Base)");
                     ReqLine.SetSupplyDates("Demand Date");
-                    OnInsertDemandLinesOnBeforeReqLineInsert(ReqLine);
+                    OnInsertDemandLinesOnBeforeReqLineInsert(ReqLine, TempUnplannedDemand);
                     ReqLine.Insert();
+                    OnInsertDemandLinesOnAfterReqLineInsert(ReqLine, TempUnplannedDemand);
 
                     if Item."No." <> "Item No." then
                         Item.Get("Item No.");
@@ -193,7 +193,9 @@ codeunit 5522 "Order Planning Mgt."
             "Replenishment System" := "Replenishment System"::" ";
             "Line No." := "Line No." + 10000;
             "User ID" := UserId;
+            OnInsertDemandHeaderOnBeforeReqLineInsert(UnplannedDemand, ReqLine);
             Insert;
+            OnInsertDemandHeaderOnAfterReqLineInsert(UnplannedDemand, ReqLine);
         end;
     end;
 
@@ -516,7 +518,22 @@ codeunit 5522 "Order Planning Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertDemandLinesOnBeforeReqLineInsert(var RequisitionLine: Record "Requisition Line")
+    local procedure OnInsertDemandHeaderOnAfterReqLineInsert(UnplannedDemand: Record "Unplanned Demand"; var ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDemandHeaderOnBeforeReqLineInsert(UnplannedDemand: Record "Unplanned Demand"; var ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDemandLinesOnAfterReqLineInsert(var RequisitionLine: Record "Requisition Line"; var UnplannedDemand: Record "Unplanned Demand")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDemandLinesOnBeforeReqLineInsert(var RequisitionLine: Record "Requisition Line"; var UnplannedDemand: Record "Unplanned Demand")
     begin
     end;
 }

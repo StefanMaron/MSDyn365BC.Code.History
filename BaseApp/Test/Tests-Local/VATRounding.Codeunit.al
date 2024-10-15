@@ -15,6 +15,7 @@ codeunit 144000 "VAT Rounding"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
         WrongAmtInclVATInCrMemoErr: Label 'Wrong total amount including VAT in Credit Memo %1.';
         NonZeroCustLedgEntryErr: Label 'Expected Customer Ledger Entry with Amount = 0.';
@@ -250,6 +251,47 @@ codeunit 144000 "VAT Rounding"
         Assert.AreEqual(ExpectedAmount, SalesInvoiceHeader.Amount, 'Wrong amount.');
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderRoundingAfterOpenedStatistic()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Quantity: Integer;
+        UnitPrice: Decimal;
+        AmountInclVAT: Decimal;
+    begin
+        // [SCENARIO 356058] Run Statistic page for Sales Order with rounding in Totals and enabled "Apply Inv. Round. Amt. To VAT" option
+        Initialize();
+
+        // [GIVEN] Setup the rounding rule and "Apply Inv. Round. Amt. To VAT" to true
+        UpdateGLSetup(LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 2), 0);
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 2));
+        UpdateSalesSetup(true);
+
+        // [GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        Quantity := LibraryRandom.RandInt(10);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, Quantity);
+        UnitPrice := LibraryRandom.RandDecInDecimalRange(5, 10, 2);
+
+        // [GIVEN] Calculate "VAT %" for need a rounding for "Amount Including VAT"
+        AmountInclVAT := Round(Quantity * UnitPrice * (1 + LibraryRandom.RandDecInDecimalRange(5, 10, 2) / 100), 1);
+        AmountInclVAT += LibraryRandom.RandDecInDecimalRange(0.01, 0.05, 2);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("VAT %", (AmountInclVAT / (UnitPrice * Quantity) - 1) * 100);
+        SalesLine.Validate("Amount Including VAT", AmountInclVAT);
+        SalesLine.Modify(true);
+
+        // [WHEN] Open Statistic Page
+        SalesHeader.OpenSalesOrderStatistics();
+
+        // [THEN] Amount and "VAT amount" in Statistic page are equal to amount and "VAT amount" in "Sales line"
+        SalesLine.TestField(Amount, LibraryVariableStorage.DequeueDecimal);
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, SalesLine."Amount Including VAT" - SalesLine.Amount, '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -453,6 +495,15 @@ codeunit 144000 "VAT Rounding"
             TestField("VAT Amount", ExpectedVATAmount);
             TestField("Amount Including VAT", ExpectedAmtInclVAT);
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics.LineAmountGeneral.Value);
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics.VATAmount.Value);
+        SalesOrderStatistics.OK.Invoke();
     end;
 }
 

@@ -93,6 +93,7 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     procedure CreateFromSalesOrder(SalesHeader: Record "Sales Header")
     begin
+        OnBeforeCreateFromSalesOrder(SalesHeader);
         ShowResult(CreateFromSalesOrderHideDialog(SalesHeader));
     end;
 
@@ -512,6 +513,11 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateFromOutbndTransferOrder(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateFromSalesOrder(var SalesHeader: Record "Sales Header")
     begin
     end;
 

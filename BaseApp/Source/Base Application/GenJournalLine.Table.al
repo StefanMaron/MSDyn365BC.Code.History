@@ -94,7 +94,7 @@ table 81 "Gen. Journal Line"
             begin
                 if "Account No." <> xRec."Account No." then begin
                     ClearAppliedAutomatically;
-                    Validate("Job No.", '');
+                    BlankJobNo(FieldNo("Account No."));
                 end;
 
                 if xRec."Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"IC Partner"] then
@@ -319,7 +319,7 @@ table 81 "Gen. Journal Line"
 
             trigger OnValidate()
             begin
-                Validate("Job No.", '');
+                BlankJobNo(FieldNo("Bal. Account No."));
 
                 if xRec."Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor,
                                                 "Bal. Account Type"::"IC Partner"]
@@ -2086,7 +2086,7 @@ table 81 "Gen. Journal Line"
 
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine();
-                    CopyDimensionsFromJobTaskLine;
+                    CopyDimensionsFromJobTaskLine();
                     UpdatePricesFromJobJnlLine();
                 end;
             end;
@@ -2964,6 +2964,18 @@ table 81 "Gen. Journal Line"
           (("Bal. Account No." = '') or not "System-Created Entry"));
     end;
 
+    local procedure BlankJobNo(CurrentFieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeBlankJobNo(Rec, CurrentFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Job No.", '');
+    end;
+
     procedure UpdateLineBalance()
     begin
         "Debit Amount" := 0;
@@ -3320,6 +3332,8 @@ table 81 "Gen. Journal Line"
                     "Source No." := '';
                 end;
         end;
+
+        OnAfterUpdateSource(Rec, CurrFieldNo);
     end;
 
     local procedure CheckGLAcc(GLAcc: Record "G/L Account")
@@ -4110,8 +4124,12 @@ table 81 "Gen. Journal Line"
     procedure CreateTempJobJnlLine()
     var
         TmpJobJnlOverallCurrencyFactor: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateTempJobJnlLine(TempJobJnlLine, Rec, xRec, CurrFieldNo);
+        IsHandled := false;
+        OnBeforeCreateTempJobJnlLine(TempJobJnlLine, Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
 
         TestField("Posting Date");
         Clear(TempJobJnlLine);
@@ -5093,7 +5111,14 @@ table 81 "Gen. Journal Line"
     end;
 
     local procedure CopyDimensionsFromJobTaskLine()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyDimensionsFromJobTaskLine(TempJobJnlLine, Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Dimension Set ID" := TempJobJnlLine."Dimension Set ID";
         "Shortcut Dimension 1 Code" := TempJobJnlLine."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := TempJobJnlLine."Shortcut Dimension 2 Code";
@@ -6615,7 +6640,7 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTempJobJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
+    local procedure OnBeforeCreateTempJobJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -6720,6 +6745,11 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeBlankJobNo(GenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDirectPosting(var GLAccount: Record "G/L Account"; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -6731,6 +6761,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDimensionsFromJobTaskLine(TempJobJnlLine: Record "Job Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6978,12 +7013,12 @@ table 81 "Gen. Journal Line"
         case "Applies-to Doc. Type" of
             "Applies-to Doc. Type"::Payment:
                 "Document Type" := "Document Type"::Invoice;
-            "Applies-to Doc. Type"::"Credit Memo":
+        "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
-            "Applies-to Doc. Type"::Invoice,
+        "Applies-to Doc. Type"::Invoice,
           "Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
-        end;
+    end;
     end;
 
     procedure UpdateAccountID()
@@ -7224,6 +7259,11 @@ table 81 "Gen. Journal Line"
 	
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDeferrals(GenJournalLine: Record "Gen. Journal Line"; var ReturnValue: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
     begin
     end;
 }

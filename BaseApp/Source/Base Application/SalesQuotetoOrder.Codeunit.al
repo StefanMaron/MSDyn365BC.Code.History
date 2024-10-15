@@ -102,6 +102,7 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Insert(true);
+            OnAfterInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
 
             SalesOrderHeader."Order Date" := "Order Date";
             if "Posting Date" <> 0D then
@@ -117,6 +118,8 @@ codeunit 86 "Sales-Quote to Order"
             OnBeforeModifySalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Modify();
         end;
+
+        OnAfterCreateSalesHeader(SalesOrderHeader, SalesHeader);
     end;
 
     local procedure ArchiveSalesQuote(var SalesHeader: Record "Sales Header")
@@ -200,6 +203,7 @@ codeunit 86 "Sales-Quote to Order"
             TempOpportunityEntry."Calcd. Current Value (LCY)" := TempOpportunityEntry.GetSalesDocValue(SalesHeader);
             TempOpportunityEntry."Cancel Old To Do" := true;
             TempOpportunityEntry."Wizard Step" := 1;
+            OnBeforeTempOpportunityEntryInsert(TempOpportunityEntry);
             TempOpportunityEntry.Insert();
             TempOpportunityEntry.SetRange("Action Taken", TempOpportunityEntry."Action Taken"::Won);
             PAGE.RunModal(PAGE::"Close Opportunity", TempOpportunityEntry);
@@ -312,6 +316,11 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertSalesOrderHeader(var SalesOrderHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertAllSalesOrderLines(var SalesOrderLine: Record "Sales Line"; SalesQuoteHeader: Record "Sales Header")
     begin
     end;
@@ -337,12 +346,22 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempOpportunityEntryInsert(var TempOpportunityEntry: Record "Opportunity Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferQuoteToOrderLinesOnAfterSetFilters(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateSalesHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -307,6 +307,11 @@ report 730 "Copy Item"
         OnAfterCopyItem(SourceItem, TargetItem);
     end;
 
+    procedure AfterCopyItem(SourceItem: Record Item; var TargetItem: Record Item)
+    begin
+        OnAfterCopyItem(SourceItem, TargetItem);
+    end;
+
     [Scope('OnPrem')]
     procedure SetItem(var Item2: Record Item)
     begin

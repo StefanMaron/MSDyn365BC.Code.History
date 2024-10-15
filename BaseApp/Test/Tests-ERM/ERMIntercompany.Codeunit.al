@@ -1823,6 +1823,39 @@ codeunit 134151 "ERM Intercompany"
         Assert.RecordIsEmpty(ICPartner);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoicePostCorrectlyWithFullSizeYourReference()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 355257] Post Purchase order with "IC Direction" = Incoming and "Your Reference" length = 35 
+        // [SCENARIO 355257] and "Your Reference" with max length greater than length of Order No
+        Initialize();
+
+        // [GIVEN] Create Purchase Invoice with "IC Direction" = Incoming, "Vendor Order No."
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader."IC Direction" := PurchaseHeader."IC Direction"::Incoming;
+        PurchaseHeader."Vendor Order No." :=
+          CopyStr(LibraryRandom.RandText(MaxStrLen(PurchaseHeader."Vendor Order No.")), 1, MaxStrLen(PurchaseHeader."Vendor Order No."));
+
+        // [GIVEN] Set "Your Reference" to max length
+        PurchaseHeader."Your Reference" :=
+          CopyStr(LibraryRandom.RandText(MaxStrLen(PurchaseHeader."Your Reference")), 1, MaxStrLen(PurchaseHeader."Your Reference"));
+        LibraryLowerPermissions.SetOutsideO365Scope();
+
+        // [WHEN] Post Purchase Document
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] The Document posted correctly
+        PurchInvHeader.Get(DocumentNo);
+
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
