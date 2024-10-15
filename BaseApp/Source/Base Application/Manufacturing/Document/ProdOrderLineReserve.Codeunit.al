@@ -223,7 +223,6 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         if not FindReservEntry(OldProdOrderLine, OldReservationEntry) then
             exit;
 
-        OldReservationEntry.Lock();
         OnTransferPOLineToItemJnlLineOnBeforeHandleItemTrackingOutput(OldProdOrderLine, NewItemJournalLine, OldReservationEntry, IsHandled);
         if IsHandled then
             exit;

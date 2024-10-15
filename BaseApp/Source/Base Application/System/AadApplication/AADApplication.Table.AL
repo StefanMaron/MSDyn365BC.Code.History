@@ -34,16 +34,19 @@ table 9012 "AAD Application"
             begin
                 if xRec.State = state then
                     exit;
-                If not UserExists() and (Rec.State = Rec.State::Enabled) then begin
+                if not UserExists() and (Rec.State = Rec.State::Enabled) then begin
                     Rec.TestField(Description);
                     ConfirmQuestion := StrSubstNo(UserNameCannotbeChangedQst, Rec.Description);
-                    if "Client Id" <> AADApplicationSetup.GetD365BCForVEAppId() then begin
-                        If ConfirmManagement.GetResponseOrDefault(ConfirmQuestion, true) then
+
+                    if ("Client Id" in [AADApplicationSetup.GetD365BCForVEAppId(),
+                                        AADApplicationSetup.GetPowerPagesAnonymousAppId(),
+                                        AADApplicationSetup.GetPowerPagesAuthenticatedAppId()]) then
+                        CreateUserFromAADApplication()
+                    else
+                        if ConfirmManagement.GetResponseOrDefault(ConfirmQuestion, true) then
                             CreateUserFromAADApplication()
                         else
                             error('');
-                    end else
-                        CreateUserFromAADApplication()
                 end;
                 User.Get("User Id");
                 ErrorTxt := StrSubstNo(NoPermissionToChangeUserErr, SuperPermissionSetTxt, SECURITYPermissionSetTxt);

@@ -85,6 +85,10 @@ table 346 "Reservation Wksh. Line"
             Caption = 'Sell-to Customer Name';
             TableRelation = Customer.Name;
         }
+        field(26; Priority; Integer)
+        {
+            Caption = 'Priority';
+        }
         field(29; Description; Text[100])
         {
             Caption = 'Description';
@@ -305,7 +309,7 @@ table 346 "Reservation Wksh. Line"
         }
         key(Key3; "Journal Batch Name", "Item No.", "Variant Code", "Location Code")
         {
-
+            IncludedFields = Priority;
         }
     }
 
