@@ -30,6 +30,10 @@ page 9022 "Business Manager Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Intercompany Activities"; "Intercompany Activities")
+            {
+                ApplicationArea = Intercompany;
+            }
             part(Control46; "Team Member Activities No Msgs")
             {
                 ApplicationArea = Suite;
@@ -63,6 +67,20 @@ page 9022 "Business Manager Role Center"
             {
                 AccessByPermission = TableData "Report Inbox" = IMD;
                 ApplicationArea = Suite;
+            }
+            part(PowerBIEmbeddedReportPart2; "Power BI Embedded Report Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+                SubPageView = where(Context = const('Power BI Part II'));
+                Visible = false;
+            }
+            part(PowerBIEmbeddedReportPart3; "Power BI Embedded Report Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+                SubPageView = where(Context = const('Power BI Part III'));
+                Visible = false;
             }
 #if not CLEAN21
             part(Control98; "Power BI Report Spinner Part")
@@ -266,71 +284,6 @@ page 9022 "Business Manager Role Center"
                     }
                 }
             }
-#if not CLEAN19
-            group(Setup)
-            {
-                Caption = 'Setup';
-                Image = Setup;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Setup is no longer shown in this page.';
-                ObsoleteTag = '19.0';
-
-                action("Company Settings")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Company Settings';
-                    Image = CompanyInformation;
-                    RunObject = Page "Company Information";
-                    ToolTip = 'Enter the company name, address, and bank information that will be inserted on your business documents.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("Assisted Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assisted Setup';
-                    Image = QuestionaireSetup;
-                    RunObject = Page "Assisted Setup";
-                    ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                group("Services & Extensions")
-                {
-                    Caption = 'Services & Extensions';
-                    Image = ServiceSetup;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-
-                    action(Extensions)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Extensions';
-                        Image = NonStockItemSetup;
-                        RunObject = Page "Extension Management";
-                        ToolTip = 'Install Extensions for greater functionality of the system.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Setup is no longer shown in this page.';
-                        ObsoleteTag = '19.0';
-                    }
-                    action("Service Connections")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Service Connections';
-                        Image = ServiceTasks;
-                        RunObject = Page "Service Connections";
-                        ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Setup is no longer shown in this page.';
-                        ObsoleteTag = '19.0';
-                    }
-                }
-            }
-#endif
         }
         area(reporting)
         {
@@ -519,6 +472,7 @@ page 9022 "Business Manager Role Center"
                     RunObject = Page "Financial Reports";
                     ToolTip = 'Get insight into the financial data stored in your chart of accounts. Financial reports analyze figures in G/L accounts, and compare general ledger entries with general ledger budget entries. For example, you can view the general ledger entries as percentages of the budget entries. Financial reports provide the data for core financial statements and views, such as the Cash Flow chart.';
                 }
+#if not CLEAN22
                 action("Intrastat Journals")
                 {
                     ApplicationArea = BasicEU;
@@ -527,7 +481,11 @@ page 9022 "Business Manager Role Center"
                     PromotedCategory = Process;
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
+#endif
                 action("Sales Budgets")
                 {
                     ApplicationArea = SalesBudget;
@@ -869,6 +827,13 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Posted Sales Return Receipts';
                     RunObject = Page "Posted Return Receipts";
                     ToolTip = 'Open the list of posted sales return receipts.';
+                }
+                action("Posted Sales Shipments")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted Sales Shipments';
+                    RunObject = Page "Posted Sales Shipments";
+                    ToolTip = 'Open the list of posted sales shipments.';
                 }
                 action("Issued Reminders")
                 {

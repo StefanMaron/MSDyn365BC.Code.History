@@ -76,7 +76,7 @@ codeunit 2800 "Native - Setup APIs"
             if Get(UserId) then
                 exit;
             if Get() then begin
-                "User ID" := UserId;
+                "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
                 Insert(true);
                 Commit();
                 exit;

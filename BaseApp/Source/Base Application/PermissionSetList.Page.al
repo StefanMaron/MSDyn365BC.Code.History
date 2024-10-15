@@ -25,13 +25,13 @@ page 9851 "Permission Set List"
                     Editable = false;
                     ToolTip = 'Specifies the permission set.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

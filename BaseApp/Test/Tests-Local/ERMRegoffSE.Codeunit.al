@@ -234,7 +234,7 @@ codeunit 144050 "ERM Regoff SE"
           CompanyBoardDirectorCap, Format(CompanyBoardDirectorValue2),
           CompanyAddressCap, Format(CompanyInformation."Post Code" + ' ' + CompanyInformation.City));
     end;
-
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure SIEUpdateShortcutDimensionForNotLinkedSIEDimension()
@@ -337,6 +337,7 @@ codeunit 144050 "ERM Regoff SE"
         SIEDimension2.Find();
         SIEDimension2.TestField(ShortCutDimNo, 5);
     end;
+#endif
 
     local procedure Initialize()
     begin

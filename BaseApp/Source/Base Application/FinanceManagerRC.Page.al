@@ -129,9 +129,14 @@ page 8901 "Finance Manager Role Center"
                         }
                     }
                 }
+#if not CLEAN22
                 group("Group62")
                 {
                     Caption = 'SIE';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'SIE related functionality was moved to the Standard Import Export (SIE) extension';
+
                     action("SIE Import")
                     {
                         ApplicationArea = Basic, Suite;
@@ -154,6 +159,7 @@ page 8901 "Finance Manager Role Center"
                         Tooltip = 'Open the SIE Dimensions page.';
                     }
                 }
+#endif
                 group("Group3")
                 {
                     Caption = 'Intercompany';
@@ -242,13 +248,18 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Recurring General Journal";
                         Tooltip = 'Open the Recurring General Journals page.';
                     }
+#if not CLEAN22
                     action("Intrastat Journals")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Intrastat Journals';
                         RunObject = page "Intrastat Journal";
                         Tooltip = 'Open the Intrastat Journals page.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                     action("General Journals2")
                     {
                         ApplicationArea = Intercompany;
@@ -474,12 +485,16 @@ page 8901 "Finance Manager Role Center"
                     group("Group10")
                     {
                         Caption = 'Miscellaneous';
+#if not CLEAN22
                         action("Intrastat - Checklist")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Checklist';
                             RunObject = report "Intrastat - Checklist";
                             Tooltip = 'Run the Intrastat - Checklist report.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '22.0';
+                            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                         }
                         action("Intrastat - Form")
                         {
@@ -487,7 +502,11 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Intrastat - Form';
                             RunObject = report "Intrastat - Form";
                             Tooltip = 'Run the Intrastat - Form report.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '22.0';
+                            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                         }
+#endif
                         action("Foreign Currency Balance")
                         {
                             ApplicationArea = Basic, Suite;
@@ -2342,13 +2361,18 @@ page 8901 "Finance Manager Role Center"
                 group("Group57")
                 {
                     Caption = 'Intrastat';
+#if not CLEAN22
                     action("Intrastat Setup")
                     {
                         ApplicationArea = BasicEU;
                         Caption = 'Intrastat Setup';
                         RunObject = page "Intrastat Setup";
                         Tooltip = 'Open the Intrastat Setup page.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                     action("Tariff Numbers")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2391,13 +2415,18 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Areas";
                         Tooltip = 'Open the Areas page.';
                     }
+#if not CLEAN22
                     action("Intrastat Journal Templates")
                     {
                         ApplicationArea = BasicEU;
                         Caption = 'Intrastat Journal Templates';
                         RunObject = page "Intrastat Journal Templates";
                         Tooltip = 'Open the Intrastat Journal Templates page.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                 }
                 group("Group58")
                 {
@@ -2509,13 +2538,19 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Gen. Product Posting Groups";
                         Tooltip = 'Open the General Product Posting Groups page.';
                     }
+#if not CLEAN22
                     action("Automatic Acc. Groups")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Automatic Acc. Groups';
                         RunObject = page "Automatic Acc. List";
                         Tooltip = 'Open the Automatic Acc. Groups page.';
+                        Visible = false;
+                        ObsoleteReason = 'Moved to Automatic Account Codes app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                     action("Customer Posting Groups")
                     {
                         ApplicationArea = Basic, Suite;

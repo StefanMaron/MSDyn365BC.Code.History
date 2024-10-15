@@ -17,7 +17,7 @@ page 9183 "Generic Chart Setup"
                     NotBlank = true;
                     ToolTip = 'Specifies the unique ID of the chart.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the chart.';

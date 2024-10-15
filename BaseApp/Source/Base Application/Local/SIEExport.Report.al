@@ -1,9 +1,13 @@
+#if not CLEAN22
 report 11207 "SIE Export"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'SIE Export';
     ProcessingOnly = true;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Use Audit File Export Document with the SIE format selected in the Standard Import Export (SIE) extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     dataset
     {
@@ -612,3 +616,4 @@ report 11207 "SIE Export"
     end;
 }
 
+#endif

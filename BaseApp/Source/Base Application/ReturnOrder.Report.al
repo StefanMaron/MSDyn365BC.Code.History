@@ -887,7 +887,7 @@ report 6641 "Return Order"
 
     local procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(22) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Return Ord. Cnfrmn.") <> '';
     end;
 
     local procedure IsReportInPreviewMode(): Boolean

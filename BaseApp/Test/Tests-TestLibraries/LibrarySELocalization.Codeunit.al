@@ -8,6 +8,8 @@ codeunit 143001 "Library - SE Localization"
     var
         LibraryUtility: Codeunit "Library - Utility";
 
+#if not CLEAN22
+    [Obsolete('Moved to Automatic Account Codes app.','22')]
     [Scope('OnPrem')]
     procedure CreateAutomaticAccountHeader(var AutomaticAccHeader: Record "Automatic Acc. Header")
     begin
@@ -16,7 +18,10 @@ codeunit 143001 "Library - SE Localization"
           "No.", LibraryUtility.GenerateRandomCode(AutomaticAccHeader.FieldNo("No."), DATABASE::"Automatic Acc. Header"));
         AutomaticAccHeader.Insert(true);
     end;
+#endif
 
+#if not CLEAN22
+    [Obsolete('Moved to Automatic Account Codes app.','22')]
     [Scope('OnPrem')]
     procedure CreateAutomaticAccountLine(var AutomaticAccLine: Record "Automatic Acc. Line"; AutomaticAccNo: Code[10])
     var
@@ -28,5 +33,6 @@ codeunit 143001 "Library - SE Localization"
         AutomaticAccLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecordRef, AutomaticAccLine.FieldNo("Line No.")));
         AutomaticAccLine.Insert(true);
     end;
+#endif
 }
 

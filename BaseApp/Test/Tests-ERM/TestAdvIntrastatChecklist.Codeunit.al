@@ -1,7 +1,11 @@
+#if not CLEAN22
 codeunit 134194 "Test Adv. Intrastat Checklist"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -431,9 +435,6 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
     begin
         if not IntrastatSetup.Get() then
             IntrastatSetup.Insert();
-#if not CLEAN19
-        IntrastatSetup."Use Advanced Checklist" := true;
-#endif
         IntrastatSetup."Report Receipts" := true;
         IntrastatSetup."Report Shipments" := true;
         IntrastatSetup.Modify();
@@ -610,4 +611,4 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         IntrastatMakeDiskTaxAuth.OK().Invoke();
     end;
 }
-
+#endif

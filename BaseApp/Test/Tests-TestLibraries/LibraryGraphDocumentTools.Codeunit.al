@@ -18,6 +18,7 @@ codeunit 130619 "Library - Graph Document Tools"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryPurchase: Codeunit "Library - Purchase";
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         LineDetailsFieldNameTxt: Label 'lineDetails';
@@ -700,10 +701,10 @@ codeunit 130619 "Library - Graph Document Tools"
             SalesLine.Type::" ":
                 Assert.AreEqual('', objectDetailsTxt, 'Object details text should be blank for comments');
             else begin
-                    GraphMgtComplexTypes.ParseDocumentLineObjectDetailsFromJSON(objectDetailsTxt, No, Name, Description);
-                    Assert.AreEqual(SalesLine."No.", No, 'Wrong no. value');
-                    Assert.AreEqual(SalesLine.Description, Name, 'Wrong name value');
-                end;
+                GraphMgtComplexTypes.ParseDocumentLineObjectDetailsFromJSON(objectDetailsTxt, No, Name, Description);
+                Assert.AreEqual(SalesLine."No.", No, 'Wrong no. value');
+                Assert.AreEqual(SalesLine.Description, Name, 'Wrong name value');
+            end;
         end;
     end;
 
@@ -772,10 +773,10 @@ codeunit 130619 "Library - Graph Document Tools"
             PurchaseLine.Type::" ":
                 Assert.AreEqual('', objectDetailsTxt, 'Object details text should be blank for comments');
             else begin
-                    GraphMgtComplexTypes.ParseDocumentLineObjectDetailsFromJSON(objectDetailsTxt, No, Name, Description);
-                    Assert.AreEqual(PurchaseLine."No.", No, 'Wrong no. value');
-                    Assert.AreEqual(PurchaseLine.Description, Name, 'Wrong name value');
-                end;
+                GraphMgtComplexTypes.ParseDocumentLineObjectDetailsFromJSON(objectDetailsTxt, No, Name, Description);
+                Assert.AreEqual(PurchaseLine."No.", No, 'Wrong no. value');
+                Assert.AreEqual(PurchaseLine.Description, Name, 'Wrong name value');
+            end;
         end;
     end;
 
@@ -812,14 +813,13 @@ codeunit 130619 "Library - Graph Document Tools"
     var
         Item: Record Item;
         GLAccount: Record "G/L Account";
-        IntegrationManagement: Codeunit "Integration Management";
         itemId: Text;
         accountId: Text;
         ExpectedItemId: Text;
         ExpectedAccountId: Text;
         BlankGuid: Guid;
     begin
-        ExpectedItemId := IntegrationManagement.GetIdWithoutBrackets(BlankGuid);
+        ExpectedItemId := GraphMgtGeneralTools.GetIdWithoutBrackets(BlankGuid);
         ExpectedAccountId := ExpectedItemId;
 
         VerifyIdsSet(JObject, itemId, accountId);
@@ -828,13 +828,13 @@ codeunit 130619 "Library - Graph Document Tools"
             SalesLine.Type::Item:
                 begin
                     Item.Get(SalesLine."No.");
-                    ExpectedItemId := IntegrationManagement.GetIdWithoutBrackets(Item.SystemId);
+                    ExpectedItemId := GraphMgtGeneralTools.GetIdWithoutBrackets(Item.SystemId);
                     Assert.AreNotEqual(ExpectedAccountId, ExpectedItemId, 'Account and Item Id cannot be same');
                 end;
             SalesLine.Type::"G/L Account":
                 begin
                     GLAccount.Get(SalesLine."No.");
-                    ExpectedAccountId := IntegrationManagement.GetIdWithoutBrackets(GLAccount.SystemId);
+                    ExpectedAccountId := GraphMgtGeneralTools.GetIdWithoutBrackets(GLAccount.SystemId);
                     Assert.AreNotEqual(ExpectedAccountId, ExpectedItemId, 'Account and Item Id cannot be same');
                 end;
         end;
@@ -848,14 +848,13 @@ codeunit 130619 "Library - Graph Document Tools"
     var
         Item: Record Item;
         GLAccount: Record "G/L Account";
-        IntegrationManagement: Codeunit "Integration Management";
         itemId: Text;
         accountId: Text;
         ExpectedItemId: Text;
         ExpectedAccountId: Text;
         BlankGuid: Guid;
     begin
-        ExpectedItemId := IntegrationManagement.GetIdWithoutBrackets(BlankGuid);
+        ExpectedItemId := GraphMgtGeneralTools.GetIdWithoutBrackets(BlankGuid);
         ExpectedAccountId := ExpectedItemId;
 
         VerifyIdsSet(JObject, itemId, accountId);
@@ -864,13 +863,13 @@ codeunit 130619 "Library - Graph Document Tools"
             PurchaseLine.Type::Item:
                 begin
                     Item.Get(PurchaseLine."No.");
-                    ExpectedItemId := IntegrationManagement.GetIdWithoutBrackets(Item.SystemId);
+                    ExpectedItemId := GraphMgtGeneralTools.GetIdWithoutBrackets(Item.SystemId);
                     Assert.AreNotEqual(ExpectedAccountId, ExpectedItemId, 'Account and Item Id cannot be same');
                 end;
             PurchaseLine.Type::"G/L Account":
                 begin
                     GLAccount.Get(PurchaseLine."No.");
-                    ExpectedAccountId := IntegrationManagement.GetIdWithoutBrackets(GLAccount.SystemId);
+                    ExpectedAccountId := GraphMgtGeneralTools.GetIdWithoutBrackets(GLAccount.SystemId);
                     Assert.AreNotEqual(ExpectedAccountId, ExpectedItemId, 'Account and Item Id cannot be same');
                 end;
         end;

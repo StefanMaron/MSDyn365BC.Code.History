@@ -31,7 +31,7 @@ codeunit 1283 "Export Generic XML"
                         DataExchTableFilter.CalcFields("Table Filters");
                         DataExch."Table Filters" := DataExchTableFilter."Table Filters";
                     end else
-                    	DataExch."Table Filters" := Rec."Table Filters";
+                        DataExch."Table Filters" := Rec."Table Filters";
                     DataExch.Insert(true);
 
                     OnBeforeProcessDataExc(DataExch, IsHandled);

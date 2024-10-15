@@ -1,4 +1,4 @@
-﻿codeunit 136217 "Marketing Defaulting"
+codeunit 136217 "Marketing Defaulting"
 {
     Subtype = Test;
     TestPermissions = Disabled;

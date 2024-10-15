@@ -1,6 +1,14 @@
 table 11207 "SIE Dimension"
 {
     Caption = 'SIE Dimension';
+    ObsoleteReason = 'Replaced by Dimension SIE table of Standard Import Export (SIE) extension';
+#if CLEAN22
+    ObsoleteState = Removed;
+    ObsoleteTag = '25.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+#endif
 
     fields
     {

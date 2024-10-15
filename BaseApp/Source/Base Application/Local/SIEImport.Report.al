@@ -1,9 +1,13 @@
+#if not CLEAN22
 report 11208 "SIE Import"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'SIE Import';
     ProcessingOnly = true;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Replaced by Import SIE report of Standard Import Export (SIE) extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     dataset
     {
@@ -238,7 +242,14 @@ report 11208 "SIE Import"
         }
 
         trigger OnOpenPage()
+        var
+            FeatureKeyManagement: Codeunit "Feature Key Management";
         begin
+            if FeatureKeyManagement.IsSIEAuditFileExportEnabled() then begin
+                Report.Run(5314); // report 5314 "Import SIE"
+                Error('');
+            end;
+
             FeatureTelemetry.LogUptake('0001P9B', SieeTok, Enum::"Feature Uptake Status"::Discovered);
             OnActivateForm();
         end;
@@ -448,15 +459,15 @@ report 11208 "SIE Import"
                     8:
                         GenJnlLine.ValidateShortcutDimCode(8, Dim2)
                     else begin
-                            DimensionManagement.GetDimensionSet(TempDimSetEntry, GenJnlLine."Dimension Set ID");
-                            TempDimSetEntry.Init();
-                            TempDimSetEntry."Dimension Code" := SieDimension."Dimension Code";
-                            TempDimSetEntry."Dimension Value Code" := Dim2;
-                            DimensionValue.Get(SieDimension."Dimension Code", Dim2);
-                            TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
-                            TempDimSetEntry.Insert();
-                            GenJnlLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimSetEntry);
-                        end;
+                        DimensionManagement.GetDimensionSet(TempDimSetEntry, GenJnlLine."Dimension Set ID");
+                        TempDimSetEntry.Init();
+                        TempDimSetEntry."Dimension Code" := SieDimension."Dimension Code";
+                        TempDimSetEntry."Dimension Value Code" := Dim2;
+                        DimensionValue.Get(SieDimension."Dimension Code", Dim2);
+                        TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+                        TempDimSetEntry.Insert();
+                        GenJnlLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimSetEntry);
+                    end;
                 end;
         end;
     end;
@@ -511,3 +522,4 @@ report 11208 "SIE Import"
     end;
 }
 
+#endif

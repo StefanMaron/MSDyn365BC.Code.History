@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 11208 "Automatic Acc. List"
 {
     ApplicationArea = Basic, Suite;
@@ -7,6 +8,9 @@ page 11208 "Automatic Acc. List"
     PageType = List;
     SourceTable = "Automatic Acc. Header";
     UsageCategory = Lists;
+    ObsoleteReason = 'Moved to Automatic Account Codes app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -20,7 +24,7 @@ page 11208 "Automatic Acc. List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the automatic account group number in this field.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies an appropriate description of the automatic account group in this field.';
@@ -36,11 +40,16 @@ page 11208 "Automatic Acc. List"
     trigger OnOpenPage()
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        FeatureKeyManagemnt: Codeunit "Feature Key Management";
     begin
         FeatureTelemetry.LogUptake('0001P8Z', AccTok, Enum::"Feature Uptake Status"::Discovered);
+        if FeatureKeyManagemnt.IsAutomaticAccountCodesEnabled() then begin
+            Page.Run(4852); // page 4852 "Automatic Account List"
+            Error('');
+        end;
     end;
 
     var
         AccTok: Label 'SE Automatic Account', Locked = true;
 }
-
+#endif

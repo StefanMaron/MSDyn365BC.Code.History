@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 11212 "SIE Dimensions"
 {
     ApplicationArea = Basic, Suite;
@@ -6,6 +7,9 @@ page 11212 "SIE Dimensions"
     PageType = List;
     SourceTable = "SIE Dimension";
     UsageCategory = Lists;
+    ObsoleteReason = 'Replaced by Dimensions SIE page of the Standard Import Export (SIE) extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -20,7 +24,7 @@ page 11212 "SIE Dimensions"
                     Editable = "Dimension CodeEditable";
                     ToolTip = 'Specifies a dimension code.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     Editable = NameEditable;
@@ -53,7 +57,14 @@ page 11212 "SIE Dimensions"
     end;
 
     trigger OnOpenPage()
+    var
+        FeatureKeyManagement: Codeunit "Feature Key Management";
     begin
+        if FeatureKeyManagement.IsSIEAuditFileExportEnabled() then begin
+            Page.Run(5315); // page 5315 "Dimensions SIE"
+            Error('');
+        end;
+
         if CurrPage.LookupMode then begin
             "Dimension CodeEditable" := false;
             NameEditable := false;
@@ -70,3 +81,4 @@ page 11212 "SIE Dimensions"
         "SIE DimensionEditable": Boolean;
 }
 
+#endif

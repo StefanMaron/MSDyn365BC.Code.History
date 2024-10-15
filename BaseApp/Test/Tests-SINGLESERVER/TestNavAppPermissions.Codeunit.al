@@ -1,3 +1,5 @@
+#if not CLEAN22
+// Replaced by the Test App Permissions codeunit
 codeunit 134611 "Test Nav App Permissions"
 {
     Subtype = Test;
@@ -844,3 +846,4 @@ codeunit 134611 "Test Nav App Permissions"
         Assert.Fail('Newly created tenant permission set not found.');
     end;
 }
+#endif

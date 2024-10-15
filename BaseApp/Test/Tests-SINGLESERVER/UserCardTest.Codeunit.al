@@ -550,6 +550,7 @@ codeunit 132903 UserCardTest
         Assert.AreEqual('', User."Exchange Identifier", 'Expected the Exchange Identifier to be cleared when invoking the action');
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('UserGroupsPageHandler')]
     [Scope('OnPrem')]
@@ -575,6 +576,7 @@ codeunit 132903 UserCardTest
         // [THEN] Created user group code "UserGroup" passed to the User Group Code field
         UserCardPage.UserGroups.UserGroupCode.AssertEquals(UserGroup.Code);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandlerAnsYes')]
@@ -677,6 +679,7 @@ codeunit 132903 UserCardTest
         User.DeleteAll();
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('UserLookupHandler')]
     [Scope('OnPrem')]
@@ -753,6 +756,7 @@ codeunit 132903 UserCardTest
         User.Delete(true);
         LibraryVariableStorage.AssertEmpty;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandlerAnsNo,DisableUserMessageHandler')]
@@ -822,6 +826,7 @@ codeunit 132903 UserCardTest
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure UserGroupEmptyDefaultProfileIDValidation()
@@ -851,6 +856,7 @@ codeunit 132903 UserCardTest
 
         // [THEN] No error thrown (validation succeeds)
     end;
+#endif
 
     local procedure AddUserHelper(UserName: Code[50])
     var
@@ -1029,6 +1035,7 @@ codeunit 132903 UserCardTest
         UserCardPage.Close();
     end;
 
+#if not CLEAN22
     local procedure VerifyUserGroupMemberAdded(UserGroupCode: Code[20])
     var
         User: Record User;
@@ -1040,6 +1047,7 @@ codeunit 132903 UserCardTest
         UserGroupMember.SetRange("User Group Code", UserGroupCode);
         Assert.RecordIsNotEmpty(UserGroupMember);
     end;
+#endif
 
     local procedure CreateSuperUser(): Guid
     var
@@ -1054,6 +1062,7 @@ codeunit 132903 UserCardTest
         exit(User."User Security ID");
     end;
 
+#if not CLEAN22
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UserGroupsPageHandler(var UserGroups: TestPage "User Groups")
@@ -1061,6 +1070,7 @@ codeunit 132903 UserCardTest
         UserGroups.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         UserGroups.OK.Invoke;
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

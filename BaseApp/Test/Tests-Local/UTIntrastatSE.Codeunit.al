@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144022 "UT Intrastat SE"
 {
     // [FEATURE] [Intrastat] [UT]
@@ -18,6 +19,9 @@ codeunit 144022 "UT Intrastat SE"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -371,23 +375,6 @@ codeunit 144022 "UT Intrastat SE"
         IntrastatJournal.Close();
     end;
 
-    local procedure RunIntrastatMakeDiskTaxAuth(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FileName: Text)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
-    begin
-        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
-        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
-        IntrastatJnlBatch.SetRecFilter();
-        IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type);
-        Commit();
-        IntrastatMakeDiskTaxAuth.InitializeRequest(FileName);
-        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlBatch);
-        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
-        IntrastatMakeDiskTaxAuth.UseRequestPage(false);
-        IntrastatMakeDiskTaxAuth.Run();
-    end;
-
     local procedure VerifyExportedTotalWeight(FileName: Text; ExpectedWeight: Decimal)
     var
         File: File;
@@ -427,4 +414,4 @@ codeunit 144022 "UT Intrastat SE"
         IntrastatChecklist.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

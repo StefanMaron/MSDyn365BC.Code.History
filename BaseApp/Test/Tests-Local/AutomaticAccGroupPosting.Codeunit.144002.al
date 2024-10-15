@@ -1,9 +1,13 @@
+#if not CLEAN22
 codeunit 144002 "Automatic Acc. Group Posting"
 {
     // // [FEATURE] [Automatic Acc. Group]
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to Automatic Account Codes app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -1442,4 +1446,5 @@ codeunit 144002 "Automatic Acc. Group Posting"
         end;
     end;
 }
+#endif
 

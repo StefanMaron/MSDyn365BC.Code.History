@@ -20,9 +20,6 @@ permissionset 5807 "D365 PURCH DOC, EDIT"
                   tabledata "G/L Account" = R,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "Item Charge" = R,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Reference" = R,
                   tabledata "Item Tracing Buffer" = Rimd,

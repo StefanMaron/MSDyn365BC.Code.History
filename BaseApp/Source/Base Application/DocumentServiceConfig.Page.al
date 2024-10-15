@@ -27,7 +27,7 @@ page 9551 "Document Service Config"
                     Caption = 'Service ID';
                     ToolTip = 'Specifies a unique code for the service that you use for document storage and usage.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';

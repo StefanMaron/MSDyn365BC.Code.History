@@ -1110,7 +1110,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee.Delete(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -2617,7 +2617,7 @@ codeunit 137305 "SCM Warehouse Reports"
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateItemWithSalesPrice(var SalesPrice: Record "Sales Price")
     var
         Item: Record Item;
@@ -3200,7 +3200,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Reply := true;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListRequestPageHandler(var PriceList: TestRequestPage "Price List")

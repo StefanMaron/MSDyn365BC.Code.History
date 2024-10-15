@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144023 "SE Feature Bugs"
 {
     // 1. Test to verify Gen. Journal Line after Suggest Vendor Payment with Always Including Credit Memo as True.
@@ -712,3 +713,4 @@ codeunit 144023 "SE Feature Bugs"
     end;
 }
 
+#endif

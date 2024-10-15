@@ -16,6 +16,8 @@ codeunit 143002 "ERM Dimension Subscriber - SE"
         CountOfTablesIgnored += 3;
     end;
 
+#if not CLEAN22
+    [Obsolete('Moved to Automatic Account Codes app.', '22')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal', '', false, false)]
     local procedure VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(var TempAllObj: Record AllObj temporary; DimSetID: Integer; GlobalDim1ValueCode: Code[20]; GlobalDim2ValueCode: Code[20])
     var
@@ -28,5 +30,6 @@ codeunit 143002 "ERM Dimension Subscriber - SE"
           AutomaticAccLine.FieldNo("Shortcut Dimension 1 Code"), AutomaticAccLine.FieldNo("Shortcut Dimension 2 Code"),
           DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
     end;
+#endif
 }
 
