@@ -1281,6 +1281,10 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
             repeat
                 TempVATEntry.Init();
                 TempVATEntry := VATEntry;
+                if TempVATEntry."Original VAT Entry No. CZL" <> 0 then begin
+                    TempVATEntry.Base := TempVATEntry."Original VAT Base CZL";
+                    TempVATEntry.Amount := TempVATEntry."Original VAT Amount CZL";
+                end;
                 OnBeforeInsertTempVATEntryForForPeriod(TempVATEntry);
                 TempVATEntry.Insert();
             until VATEntry.Next() = 0;

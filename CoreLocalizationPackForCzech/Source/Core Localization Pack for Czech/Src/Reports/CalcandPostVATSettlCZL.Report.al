@@ -115,10 +115,24 @@ report 11971 "Calc. and Post VAT Settl. CZL"
             column(AmountCaption; "VAT Entry".FieldCaption(Amount))
             {
             }
+#if not CLEAN25
             column(UnrealizedBaseCaption; "VAT Entry".FieldCaption("Unrealized Base"))
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                ObsoleteTag = '25.0';
             }
             column(UnrealizedAmountCaption; "VAT Entry".FieldCaption("Unrealized Amount"))
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                ObsoleteTag = '25.0';
+            }
+#endif
+            column(OriginalVATBaseCaption; "VAT Entry".FieldCaption("Original VAT Base CZL"))
+            {
+            }
+            column(OriginalVATAmountCaption; "VAT Entry".FieldCaption("Original VAT Amount CZL"))
             {
             }
             column(VATCalculationCaption; "VAT Entry".FieldCaption("VAT Calculation Type"))
@@ -135,7 +149,7 @@ report 11971 "Calc. and Post VAT Settl. CZL"
             }
             dataitem(Advance; "Integer")
             {
-                DataItemTableView = sorting(Number);
+                DataItemTableView = sorting(Number) where(Number = filter(1 .. 2));
                 dataitem("Closing G/L and VAT Entry"; "Integer")
                 {
                     DataItemTableView = sorting(Number);
@@ -192,22 +206,56 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                         column(UserID_VATEntry; "User ID")
                         {
                         }
+#if not CLEAN25
                         column(UnrealizedAmount_VATEntry; "Unrealized Amount")
                         {
                             AutoFormatExpression = GetCurrency();
                             AutoFormatType = 1;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                            ObsoleteTag = '25.0';
                         }
                         column(UnrealizedBase_VATEntry; "Unrealized Base")
                         {
                             AutoFormatExpression = GetCurrency();
                             AutoFormatType = 1;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                            ObsoleteTag = '25.0';
                         }
                         column(AddCurrUnrlzdAmt_VATEntry; "Add.-Currency Unrealized Amt.")
                         {
                             AutoFormatExpression = GetCurrency();
                             AutoFormatType = 1;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                            ObsoleteTag = '25.0';
                         }
                         column(AddCurrUnrlzdBas_VATEntry; "Add.-Currency Unrealized Base")
+                        {
+                            AutoFormatExpression = GetCurrency();
+                            AutoFormatType = 1;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                            ObsoleteTag = '25.0';
+                        }
+#endif
+                        column(OriginalVATAmount_VATEntry; "Original VAT Amount CZL")
+                        {
+                            AutoFormatExpression = GetCurrency();
+                            AutoFormatType = 1;
+                        }
+                        column(OriginalVATBase_VATEntry; "Original VAT Base CZL")
+                        {
+                            AutoFormatExpression = GetCurrency();
+                            AutoFormatType = 1;
+                        }
+                        column(OriginalVATAmountACY_VATEntry; "Additional-Currency Amount" + "Non-Deductible VAT Amount ACY")
+                        {
+                            AutoFormatExpression = GetCurrency();
+                            AutoFormatType = 1;
+                        }
+                        column(OriginalVATBaseACY_VATEntry; "Additional-Currency Base" + "Non-Deductible VAT Base ACY")
                         {
                             AutoFormatExpression = GetCurrency();
                             AutoFormatType = 1;
@@ -296,6 +344,8 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                                 "VAT Reporting Date" := "VAT Date CZL";
 #pragma warning restore AL0432
 #endif
+                            if "Original VAT Entry No. CZL" <> 0 then
+                                Base := CalcDeductibleVATBaseCZL();
                         end;
 
                         trigger OnPreDataItem()
@@ -376,7 +426,10 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                             VATEntry2: Record "VAT Entry";
                         begin
                             // Calculate amount and base
-                            VATEntry.CalcSums(Base, Amount, "Additional-Currency Base", "Additional-Currency Amount");
+                            VATEntry.CalcSums(
+                                Base, Amount,
+                                "Additional-Currency Base", "Additional-Currency Amount",
+                                "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
                             ReversingEntry := false;
 
                             // Balancing entries to VAT accounts
@@ -386,7 +439,9 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                                 GenJournalLine."Use Tax" := VATEntry."Use Tax";
                             end;
                             CheckVATAccountNo(VATEntry, "VAT Posting Setup", TaxJurisdiction);
-                            CreateGenJnlLine(GenJournalLine, GetVATAccountNo(VATEntry, "VAT Posting Setup", TaxJurisdiction));
+                            CreateGenJnlLine(
+                                GenJournalLine, GetVATAccountNo(VATEntry, "VAT Posting Setup", TaxJurisdiction),
+                                VATEntry.Amount, VATEntry."Additional-Currency Amount");
                             SetVatPostingSetupToGenJnlLine(GenJournalLine, "VAT Posting Setup");
                             CopyAmounts(GenJournalLine, VATEntry);
                             OnCloseVATEntriesOnBeforePostGenJnlLine(GenJournalLine, VATEntry, "VAT Posting Setup", VATAmount, VATAmountAddCurr);
@@ -404,10 +459,15 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                                     case VATType of
                                         VATEntry.Type::Purchase:
                                             begin
-                                                CreateGenJnlLine(SecondGenJournalLine, "VAT Posting Setup".GetRevChargeAccount(false));
+                                                CreateGenJnlLine(SecondGenJournalLine,
+                                                    "VAT Posting Setup".GetRevChargeAccount(false),
+                                                    VATEntry.Amount + VATEntry."Non-Deductible VAT Amount",
+                                                    VATEntry."Additional-Currency Amount" + VATEntry."Non-Deductible VAT Amount ACY");
                                                 SetVatPostingSetupToGenJnlLine(SecondGenJournalLine, "VAT Posting Setup");
                                                 if PostSettlement then
                                                     PostGenJnlLine(SecondGenJournalLine);
+                                                VATAmount -= VATEntry."Non-Deductible VAT Amount";
+                                                VATAmountAddCurr -= VATEntry."Non-Deductible VAT Amount ACY";
                                                 ReversingEntry := true;
                                             end;
                                     end;
@@ -415,7 +475,9 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                                     case VATType of
                                         VATEntry.Type::Purchase:
                                             if VATEntry."Use Tax" then begin
-                                                CreateGenJnlLine(SecondGenJournalLine, TaxJurisdiction."Reverse Charge (Purchases)");
+                                                CreateGenJnlLine(
+                                                    SecondGenJournalLine, TaxJurisdiction."Reverse Charge (Purchases)",
+                                                    VATEntry.Amount, VATEntry."Additional-Currency Amount");
                                                 SecondGenJournalLine."Tax Area Code" := TaxJurisdiction.Code;
                                                 SecondGenJournalLine."Use Tax" := VATEntry."Use Tax";
                                                 if PostSettlement then
@@ -532,10 +594,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                         FindFirstEntry := true;
                     end;
                 }
-                trigger OnPreDataItem()
-                begin
-                    Setrange(Number, 1);
-                end;
             }
             trigger OnPostDataItem()
             begin
@@ -841,7 +899,7 @@ report 11971 "Calc. and Post VAT Settl. CZL"
         GenJournalLine."Source Curr. VAT Base Amount" := -VATEntry."Additional-Currency Base";
     end;
 
-    local procedure CreateGenJnlLine(var CreatedGenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
+    local procedure CreateGenJnlLine(var CreatedGenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AmountACY: Decimal)
     begin
         Clear(CreatedGenJournalLine);
         CreatedGenJournalLine."System-Created Entry" := true;
@@ -878,9 +936,9 @@ report 11971 "Calc. and Post VAT Settl. CZL"
         CreatedGenJournalLine."Source Code" := SourceCodeSetup."VAT Settlement";
         CreatedGenJournalLine."VAT Posting" := CreatedGenJournalLine."VAT Posting"::"Manual VAT Entry";
         CreatedGenJournalLine."Account No." := AccountNo;
-        CreatedGenJournalLine.Amount := VATEntry.Amount;
+        CreatedGenJournalLine.Amount := Amount;
         CreatedGenJournalLine."Source Currency Code" := GeneralLedgerSetup."Additional Reporting Currency";
-        CreatedGenJournalLine."Source Currency Amount" := VATEntry."Additional-Currency Amount";
+        CreatedGenJournalLine."Source Currency Amount" := AmountACY;
     end;
 
     local procedure SetVatPostingSetupToGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")

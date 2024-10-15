@@ -410,6 +410,8 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
         if not VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group") then
             exit;
         VATEntry."VAT Identifier CZL" := VATPostingSetup."VAT Identifier";
+        if VATEntry."Non-Deductible VAT %" <> 0 then
+            VATEntry."Original VAT Entry No. CZL" := VATEntry."Entry No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterInitVAT', '', false, false)]

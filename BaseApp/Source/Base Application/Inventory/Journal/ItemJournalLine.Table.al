@@ -4836,6 +4836,7 @@ table 83 "Item Journal Line"
                 if TempTrackingSpecification."Serial No." <> '' then begin
                     "Serial No." := TempTrackingSpecification."Serial No.";
                     "Lot No." := TempTrackingSpecification."Lot No.";
+                    "Package No." := TempTrackingSpecification."Package No.";
                     "Expiration Date" := TempTrackingSpecification."Expiration Date";
                 end;
             TrackingType::"Lot No.":

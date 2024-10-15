@@ -21,7 +21,6 @@ using Microsoft.CostAccounting.Reports;
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance;
-using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Currency;
@@ -34,7 +33,9 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
@@ -936,6 +937,22 @@ page 31210 "Accountant CZ Role Center CZL"
                     RunObject = report "Calc. and Post VAT Settlement";
                     Ellipsis = true;
                     ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account. For every VAT posting group, the batch job finds all the VAT entries in the VAT Entry table that are included in the filters in the definition window.';
+                }
+                action("Non-Deductible VAT Setup CZL")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Non-Deductible VAT Setup';
+                    Image = VATPostingSetup;
+                    RunObject = page "Non-Deductible VAT Setup CZL";
+                    ToolTip = 'Set up VAT coefficient correction.';
+                }
+                action("VAT Coeff. Correction CZL")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'VAT Coefficient Correction';
+                    Image = AdjustVATExemption;
+                    RunObject = report "VAT Coeff. Correction CZL";
+                    ToolTip = 'The report recalculate the value of non-deductible VAT according to settlement coeffiecient on VAT entries.';
                 }
             }
             group(History)

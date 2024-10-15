@@ -8,6 +8,15 @@ using Microsoft.Finance.GeneralLedger.Journal;
 
 codeunit 11741 "VAT Entry Handler CZL"
 {
+    [EventSubscriber(ObjectType::Table, Database::"VAT Entry", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure CalcOriginalVATAmountsOnBeforeInsertEvent(var Rec: Record "VAT Entry")
+    begin
+        if Rec.IsTemporary() then
+            exit;
+        Rec."Original VAT Base CZL" := Rec.CalcOriginalVATBaseCZL();
+        Rec."Original VAT Amount CZL" := Rec.CalcOriginalVATAmountCZL();
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"VAT Entry", 'OnBeforeValidateEvent', 'EU 3-Party Trade', false, false)]
     local procedure UpdateEU3PartyIntermedRoleOnBeforeEU3PartyTradeValidate(var Rec: Record "VAT Entry")
     begin

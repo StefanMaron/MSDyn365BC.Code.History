@@ -184,7 +184,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDrillDownOnBeforeRunPage(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnDrillDownOnBeforeRunPage(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

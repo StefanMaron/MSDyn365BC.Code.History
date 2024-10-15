@@ -746,7 +746,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         Window: Dialog;
     begin
         Window.Open(CountingRecordsMsg);
-        ItemLedgEntry.SetLoadFields("Serial No.", "Lot No.");
+        ItemLedgEntry.SetLoadFields("Serial No.", "Lot No.", "Package No.");
         ItemLedgEntry.SetCurrentKey("Order Type", "Job No.", "Order Line No.", "Entry Type");
         ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::" ");
         ItemLedgEntry.SetRange("Job No.", ID);

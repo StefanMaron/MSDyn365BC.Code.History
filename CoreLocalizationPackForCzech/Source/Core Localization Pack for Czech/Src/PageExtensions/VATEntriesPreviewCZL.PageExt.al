@@ -96,16 +96,52 @@ pageextension 11759 "VAT Entries Preview CZL" extends "VAT Entries Preview"
                 ToolTip = 'Specifies whether the entry was part of a 3-party intermediate role.';
             }
         }
+        addlast(Control1)
+        {
+            field("Deductible VAT Base CZL"; Rec.CalcDeductibleVATBaseCZL())
+            {
+                Caption = 'Deductible VAT Base';
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the VAT base increased by the amount of unapplied input VAT.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Original VAT Base CZL"; Rec."Original VAT Base CZL")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the VAT base of the entry before the deduction by the coefficient.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Original VAT Amount CZL"; Rec."Original VAT Amount CZL")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the VAT amount of the entry before the deduction by the coefficient.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Non-Deductible VAT % CZL"; Rec."Non-Deductible VAT %")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the percentage of non-deductible VAT applied to the entry.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Original VAT Entry No. CZL"; Rec."Original VAT Entry No. CZL")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies Entry No. of VAT Entry to which the current VAT Entry relates. If the value in the field is non-zero then the entry has been posted in relation to non-deductible VAT. If the value in the field ''Original Entry No.'' is the same as ''Entry No.'' then the entry has been created by posting the primary document. If the numbers do not match then it is posting of the difference between advance and settlement coefficient at the end of the accounting period.';
+                Visible = NonDeductibleVATVisible;
+            }
+        }
     }
     trigger OnOpenPage()
     begin
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
 #if not CLEAN22
         ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
 #endif
     end;
 
     var
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
 #if not CLEAN22
 #pragma warning disable AL0432
@@ -114,4 +150,5 @@ pageextension 11759 "VAT Entries Preview CZL" extends "VAT Entries Preview"
         ReplaceVATDateEnabled: Boolean;
 #endif
         VATDateEnabled: Boolean;
+        NonDeductibleVATVisible: Boolean;
 }

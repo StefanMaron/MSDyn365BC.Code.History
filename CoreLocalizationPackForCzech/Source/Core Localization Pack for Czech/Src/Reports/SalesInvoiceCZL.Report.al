@@ -32,10 +32,9 @@ using System.Text;
 
 report 31189 "Sales Invoice CZL"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Src/Reports/SalesInvoice.rdl';
     Caption = 'Sales Invoice';
     PreviewMode = PrintLayout;
+    DefaultRenderingLayout = "SalesInvoice.rdl";
     WordMergeDataItem = "Sales Invoice Header";
 
     dataset
@@ -692,6 +691,25 @@ report 31189 "Sales Invoice CZL"
             LogInteractionEnable := LogInteraction;
         end;
     }
+
+    rendering
+    {
+        layout("SalesInvoice.rdl")
+        {
+            Type = RDLC;
+            LayoutFile = './Src/Reports/SalesInvoice.rdl';
+            Caption = 'Sales Invoice (RDL)';
+            Summary = 'The Sales Invoice (RDL) provides a detailed layout.';
+        }
+        layout("SalesInvoiceEmail.docx")
+        {
+            Type = Word;
+            LayoutFile = './Src/Reports/SalesInvoiceEmail.docx';
+            Caption = 'Sales Invoice Email (Word)';
+            Summary = 'The Sales Invoice Email (Word) provides an email body layout.';
+        }
+    }
+
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then

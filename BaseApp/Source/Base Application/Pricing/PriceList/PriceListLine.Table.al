@@ -903,7 +903,14 @@ table 7001 "Price List Line"
     end;
 
     procedure CopyFilteredLinesToTemporaryBuffer(var TempPriceListLine: Record "Price List Line" temporary) Copied: Boolean;
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyFilteredLinesToTemporaryBuffer(Rec, TempPriceListLine, Copied, IsHandled);
+        if IsHandled then
+            exit;
+
         if FindSet() then
             repeat
                 TempPriceListLine := Rec;
@@ -1049,6 +1056,8 @@ table 7001 "Price List Line"
 
         VerifySource();
         TestField("Asset Type");
+        if "Asset Type" = "Asset Type"::Item then
+            TestField("Asset No.");
 
         OnAfterVerify(Rec);
     end;
@@ -1254,6 +1263,11 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFilteredLinesToTemporaryBuffer(var TempPriceListLine: Record "Price List Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCopyFilteredLinesToTemporaryBuffer(var PriceListLine: Record "Price List Line"; var TempPriceListLine: Record "Price List Line" temporary; var Copied: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

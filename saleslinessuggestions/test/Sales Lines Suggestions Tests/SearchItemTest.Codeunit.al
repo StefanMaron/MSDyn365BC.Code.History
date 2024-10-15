@@ -21,6 +21,8 @@ codeunit 139780 "Search Item Test"
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryService: Codeunit "Library - Service";
         NoSuggestionGeneratedErr: Label 'There are no suggestions for this description. Please rephrase it.';
         DescriptionIsIncorrectErr: Label 'Description is incorrect!';
         QuantityIsIncorrectErr: Label 'Quantity is incorrect!';
@@ -589,6 +591,46 @@ codeunit 139780 "Search Item Test"
         // Handled in EvaluateSearchItemForMultipleItems
     end;
 
+    [Test]
+    [HandlerFunctions('InvokeGenerateAndCheckItemsFound')]
+    procedure ExtendedTextIsInsertedOnSalesOrderLinesOnInsertSuggestedLines()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        SalesLineAISuggestions: Page "Sales Line AI Suggestions";
+        UserInput: Text;
+        ItemExtText: Text[100];
+    begin
+        // [SCENARIO 525387] Verify Extended Text is added on Sales Order line on insert suggested lines
+        Initialize();
+
+        // [GIVEN] Find Item and set Automatic Ext. Text for Item
+        Item.FindFirst();
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+
+        // [GIVEN] Create Item Extended Text
+        CreateItemExtendedText(Item."No.", ItemExtText);
+
+        // [GIVEN] Create user input
+        UserInput := GlobalUserInput;
+        UserInput += '5 quantity of ' + Item."No." + '; ';
+
+        LibraryVariableStorage.Enqueue(UserInput);
+        LibraryVariableStorage.Enqueue(1);
+
+        EnqueueOneItemAndQty(Item.Description, 5);
+        EnqueueOneItemAndQty(Item.Description, 5);
+        EnqueueOneItemAndQty(ItemExtText, 0);
+
+        // [WHEN] User input is given to the AI suggestions
+        // [THEN] AI suggestions should one sales lines, it is handled in the handler function 'InvokeGenerateAndCheckItemsFound'
+        CreateNewSalesOrderAndRunSalesLineAISuggestionsPage(SalesHeader, SalesLineAISuggestions);
+
+        // [THEN] One line is inserted in the sales line
+        CheckSalesLineContent(SalesHeader."No.");
+    end;
+
     local procedure CreateSalesOrderWithSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         Customer: Record Customer;
@@ -686,6 +728,18 @@ codeunit 139780 "Search Item Test"
     begin
         LibraryVariableStorage.Enqueue(ItemDesc);
         LibraryVariableStorage.Enqueue(Qty);
+    end;
+
+    local procedure CreateItemExtendedText(ItemNo: Code[20]; var ExtText: Text[100])
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+    begin
+        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
+        ExtendedTextLine.Modify(true);
+        ExtText := ExtendedTextLine.Text;
     end;
 
     [ModalPageHandler]

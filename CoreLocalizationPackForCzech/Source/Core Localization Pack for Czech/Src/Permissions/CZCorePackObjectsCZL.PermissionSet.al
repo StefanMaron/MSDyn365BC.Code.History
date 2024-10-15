@@ -82,6 +82,8 @@
                   codeunit "Job Journal Line Handler CZL" = X,
                   codeunit "Job Transfer Line Handler CZL" = X,
                   codeunit "Navigate Handler CZL" = X,
+                  codeunit "Non-Deductible VAT CZL" = X,
+                  codeunit "Non-Deductible VAT Handler CZL" = X,
                   codeunit "Phys.In.Order Line Handler CZL" = X,
                   codeunit "Posted Invt. Rcpt.-Printed CZL" = X,
                   codeunit "Posted Invt. Shpt.-Printed CZL" = X,
@@ -198,6 +200,7 @@
                   page "Inv. G/L Reconciliation CZL" = X,
                   page "Inv. - G/L Recon. Matrix CZL" = X,
                   page "Invt. Movement Templates CZL" = X,
+                  page "Non-Deductible VAT Setup CZL" = X,
                   page "Registration Log CZL" = X,
                   page "Registration Log Details CZL" = X,
                   page "Registration No. Check CZL" = X,
@@ -333,6 +336,7 @@
                   report "Unreliable Payer Get All CZL" = X,
                   report "Unreliable Payer List CZL" = X,
                   report "User Setup List CZL" = X,
+                  report "VAT Coeff. Correction CZL" = X,
                   report "VAT Ctrl. Report Get Ent. CZL" = X,
                   report "VAT Ctrl. Report - Test CZL" = X,
                   report "VAT Documents List CZL" = X,
@@ -377,6 +381,7 @@
 #pragma warning restore AL0432
 #endif
                   table "Invt. Movement Template CZL" = X,
+                  table "Non-Deductible VAT Setup CZL" = X,
                   table "Registration Log CZL" = X,
                   table "Registration Log Detail CZL" = X,
                   table "Reg. No. Service Config CZL" = X,

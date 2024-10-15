@@ -99,7 +99,10 @@ codeunit 5763 "Whse.-Post Shipment"
     begin
         WhseShptLine.SetCurrentKey(WhseShptLine."No.");
         WhseShptLine.SetRange("No.", WhseShptLine."No.");
-        OnBeforeCheckWhseShptLines(WhseShptLine, WhseShptHeader, Invoice, SuppressCommit);
+        IsHandled := false;
+        OnBeforeCheckWhseShptLines(WhseShptLine, WhseShptHeader, Invoice, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
         WhseShptLine.SetFilter("Qty. to Ship", '>0');
         OnRunOnAfterWhseShptLineSetFilters(WhseShptLine);
         if WhseShptLine.Find('-') then
@@ -863,8 +866,10 @@ codeunit 5763 "Whse.-Post Shipment"
             ServiceInvHeader.PrintRecords(false);
 
         ServiceShptHeader.MarkedOnly(true);
-        if not ServiceShptHeader.IsEmpty() then
+        if not ServiceShptHeader.IsEmpty() then begin
             ServiceShptHeader.PrintRecords(false);
+            OnPrintDocumentsOnAfterPrintServiceShipment(ServiceShptHeader."No.");
+        end;
     end;
 
     procedure PostUpdateWhseDocuments(var WhseShptHeaderParam: Record "Warehouse Shipment Header")
@@ -1460,7 +1465,13 @@ codeunit 5763 "Whse.-Post Shipment"
     var
         ServLine: Record "Service Line";
         ModifyLine: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandleServiceLine(WhseShptLine, ServLine, ModifyLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ServLine.SetRange("Document Type", WhseShptLine."Source Subtype");
         ServLine.SetRange("Document No.", WhseShptLine."Source No.");
         if ServLine.Find('-') then
@@ -1950,7 +1961,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; Invoice: Boolean; var SuppressCommit: Boolean)
+    local procedure OnBeforeCheckWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; Invoice: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -2165,6 +2176,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPrintDocumentsOnAfterPrintServiceShipment(ServiceShipmentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentHeaderOnBeforeReopenPurchHeader(var WhseShptLine: Record "Warehouse Shipment Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
@@ -2296,6 +2312,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterWhseShptLineSetFilters(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleServiceLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ServiceLine: Record "Service Line"; var ModifyLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

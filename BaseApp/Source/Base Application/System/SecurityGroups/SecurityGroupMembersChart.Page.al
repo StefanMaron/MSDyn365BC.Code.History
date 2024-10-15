@@ -55,14 +55,14 @@ page 9858 "Security Group Members Chart"
         IsChartAddInReady: Boolean;
         UsersTxt: Label 'Users';
         SecurityGroupTxt: Label 'Security Group';
-        XValueStringLbl: Label 'XValueString';
+        XValueStringTok: Label 'XValueString', Locked = true;
 
     local procedure GetSecurityGroupCode(Point: JsonObject): Text[249]
     var
         Token: JsonToken;
         XValueString: Text[249];
     begin
-        Point.Get(XValueStringLbl, Token);
+        Point.Get(XValueStringTok, Token);
         XValueString := CopyStr(Token.AsValue().AsText(), 1, 249);
         exit(XValueString);
     end;

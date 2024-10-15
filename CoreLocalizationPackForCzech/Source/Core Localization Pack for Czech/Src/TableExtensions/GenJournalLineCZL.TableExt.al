@@ -36,6 +36,7 @@ tableextension 11723 "Gen. Journal Line CZL" extends "Gen. Journal Line"
                     if CurrFieldNo = Rec.FieldNo("VAT Reporting Date") then
                         Rec.TestField("VAT Reporting Date", Rec."Posting Date");
                 Rec."Original Doc. VAT Date CZL" := Rec."VAT Reporting Date";
+                Validate("VAT %");
             end;
         }
         field(11712; "VAT Delay CZL"; Boolean)
@@ -212,6 +213,7 @@ tableextension 11723 "Gen. Journal Line CZL" extends "Gen. Journal Line"
                     if CurrFieldNo = FieldNo("VAT Date CZL") then
                         TestField("VAT Date CZL", "Posting Date");
                 "Original Doc. VAT Date CZL" := "VAT Date CZL";
+                Validate("VAT %");
             end;
 #endif
         }

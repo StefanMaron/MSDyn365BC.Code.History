@@ -2,10 +2,12 @@ namespace System.Environment.Configuration;
 
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Reporting;
+using System.Reflection;
 
 codeunit 5409 "Feature - Report Selection" implements "Feature Data Update"
 {
     Permissions = TableData "Feature Data Update Status" = rm;
+    TableNo = "Tenant Report Layout";
 
     // The Data upgrade codeunit for Platform Based Report Selection
     var
@@ -74,20 +76,30 @@ codeunit 5409 "Feature - Report Selection" implements "Feature Data Update"
             InsertDocumentEntry(Database::"Custom Report Layout", CustomReportLayout.TableCaption(), NoOfNonUpdatedLayouts);
     end;
 
-    internal procedure MigrateCustomReportLayouts()
+    procedure MigrateCustomReportLayouts()
     var
-        CustomReportLayout: Record "Custom Report Layout";
+        NonFilteredCustomReportLayout: Record "Custom Report Layout";
+    begin
+        MigrateCustomReportLayouts(NonFilteredCustomReportLayout);
+    end;
+
+    procedure MigrateCustomReportLayouts(var CustomReportLayout: Record "Custom Report Layout")
+    var
         TenantReportLayout: Record "Tenant Report Layout";
         ReportLayoutSelection: Record "Report Layout Selection";
+        ReportMetadata: Record "Report Metadata";
         TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
         InStreamLayout: Instream;
+        ProgressDlg: Dialog;
     begin
+        ProgressDlg.Open('#1#########################################');
         CustomReportLayout.SetRange("Built-In", false);
         if CustomReportLayout.FindSet() then
             repeat
+                ProgressDlg.Update(1, CustomReportLayout.Code + ' - ' + CustomReportLayout.Description);
                 TenantReportLayout.Init();
                 CustomReportLayout.CalcFields(Layout);
-                if CustomReportLayout.Layout.HasValue then begin
+                if ReportMetadata.Get(CustomReportLayout."Report ID") and CustomReportLayout.Layout.HasValue then begin
                     CustomReportLayout.Layout.CreateInStream(InStreamLayout);
                     TenantReportLayout.Layout.ImportStream(InStreamLayout, CustomReportLayout.Description);
 
@@ -110,22 +122,23 @@ codeunit 5409 "Feature - Report Selection" implements "Feature Data Update"
                     if (CustomReportLayout."File Extension" <> '') and (TenantReportLayout."Layout Format" = TenantReportLayout."Layout Format"::Custom) then
                         TenantReportLayout."MIME Type" := 'reportlayout/' + CustomReportLayout."File Extension";
 
-                    if TenantReportLayout.Insert() then; // Might have been added earlier
-
-                    ReportLayoutSelection.SetRange("Report ID", CustomReportLayout."Report ID");
-                    ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayout.Code);
-                    if ReportLayoutSelection.FindSet(true) then
-                        repeat
-                            TenantReportLayoutSelection.Init();
-                            TenantReportLayoutSelection."App ID" := TenantReportLayout."App ID";
-                            TenantReportLayoutSelection."Company Name" := TenantReportLayout."Company Name";
-                            TenantReportLayoutSelection."Layout Name" := TenantReportLayout.Name;
-                            TenantReportLayoutSelection."Report ID" := TenantReportLayout."Report ID";
-                            if TenantReportLayoutSelection.Insert() then
-                                if ReportLayoutSelection.Delete() then;
-                        until ReportLayoutSelection.Next() = 0;
+                    if TenantReportLayout.Insert() then begin
+                        ReportLayoutSelection.SetRange("Report ID", CustomReportLayout."Report ID");
+                        ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayout.Code);
+                        if ReportLayoutSelection.FindSet(true) then
+                            repeat
+                                TenantReportLayoutSelection.Init();
+                                TenantReportLayoutSelection."App ID" := TenantReportLayout."App ID";
+                                TenantReportLayoutSelection."Company Name" := TenantReportLayout."Company Name";
+                                TenantReportLayoutSelection."Layout Name" := TenantReportLayout.Name;
+                                TenantReportLayoutSelection."Report ID" := TenantReportLayout."Report ID";
+                                if TenantReportLayoutSelection.Insert() then
+                                    if ReportLayoutSelection.Delete() then;
+                            until ReportLayoutSelection.Next() = 0;
+                    end;
                 end;
             until CustomReportLayout.Next() = 0;
+        ProgressDlg.Close();
     end;
 
     local procedure InsertDocumentEntry(TableID: Integer; TableName: Text; RecordCount: Integer)

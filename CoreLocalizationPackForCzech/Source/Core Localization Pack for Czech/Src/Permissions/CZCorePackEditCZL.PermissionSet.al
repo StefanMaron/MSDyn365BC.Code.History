@@ -37,6 +37,7 @@
 #pragma warning restore AL0432
 #endif
                   tabledata "Invt. Movement Template CZL" = IMD,
+                  tabledata "Non-Deductible VAT Setup CZL" = IMD,
                   tabledata "Reg. No. Service Config CZL" = IMD,
                   tabledata "Registration Log CZL" = IMD,
                   tabledata "Registration Log Detail CZL" = IMD,

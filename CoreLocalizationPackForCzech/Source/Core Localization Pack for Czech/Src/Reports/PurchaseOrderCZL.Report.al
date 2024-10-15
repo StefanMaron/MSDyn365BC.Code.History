@@ -25,10 +25,9 @@ using System.Utilities;
 
 report 31185 "Purchase Order CZL"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Src/Reports/PurchaseOrder.rdl';
     Caption = 'Purchase Order';
     PreviewMode = PrintLayout;
+    DefaultRenderingLayout = "PurchaseOrder.rdl";
     WordMergeDataItem = "Purchase Header";
 
     dataset
@@ -532,6 +531,25 @@ report 31185 "Purchase Order CZL"
             LogInteractionEnable := LogInteraction;
         end;
     }
+
+    rendering
+    {
+        layout("PurchaseOrder.rdl")
+        {
+            Type = RDLC;
+            LayoutFile = './Src/Reports/PurchaseOrder.rdl';
+            Caption = 'Purchase Order (RDL)';
+            Summary = 'The Purchase Order (RDL) provides a detailed layout.';
+        }
+        layout("PurchaseOrderEmail.docx")
+        {
+            Type = Word;
+            LayoutFile = './Src/Reports/PurchaseOrderEmail.docx';
+            Caption = 'Purchase Order Email (Word)';
+            Summary = 'The Purchase Order Email (Word) provides an email body layout.';
+        }
+    }
+
     trigger OnInitReport()
     begin
         PurchasesPayablesSetup.Get();

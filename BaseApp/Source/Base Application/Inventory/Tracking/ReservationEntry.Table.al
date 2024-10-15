@@ -271,7 +271,7 @@ table 337 "Reservation Entry"
         }
         key(Key2; "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date")
         {
-            IncludedFields = "Quantity (Base)", "Qty. to Handle (Base)", "Serial No.", "Lot No.", "Package No.", "Item No.", Quantity;
+            IncludedFields = "Quantity (Base)", "Qty. to Handle (Base)", "Serial No.", "Lot No.", "Package No.", "Item No.", Quantity, "Untracked Surplus";
         }
         key(Key3; "Item No.", "Variant Code", "Location Code")
         {
@@ -279,7 +279,7 @@ table 337 "Reservation Entry"
         }
         key(Key4; "Item No.", "Variant Code", "Location Code", "Reservation Status", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.", "Package No.")
         {
-            IncludedFields = "Source Type", "Source Subtype", "Quantity (Base)";
+            IncludedFields = "Source Type", "Source Subtype", "Quantity (Base)", "Untracked Surplus";
         }
         key(Key9; "Source Type", "Source Subtype", "Source ID", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.")
         {

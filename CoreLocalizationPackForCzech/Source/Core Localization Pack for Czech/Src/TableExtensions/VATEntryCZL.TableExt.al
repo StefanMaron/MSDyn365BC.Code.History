@@ -48,6 +48,24 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
             Editable = false;
             DataClassification = CustomerContent;
         }
+        field(11730; "Original VAT Base CZL"; Decimal)
+        {
+            Caption = 'Original VAT Base';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+        field(11731; "Original VAT Amount CZL"; Decimal)
+        {
+            Caption = 'Original VAT Amount';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+        field(11732; "Original VAT Entry No. CZL"; Integer)
+        {
+            Caption = 'Original VAT Entry No.';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
         field(11781; "Registration No. CZL"; Text[20])
         {
             Caption = 'Registration No.';
@@ -90,6 +108,14 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
             DataClassification = CustomerContent;
         }
     }
+
+    keys
+    {
+        key(OriginalVATEntryNoCZL; "Original VAT Entry No. CZL")
+        {
+        }
+    }
+
     var
         VATStmtPeriodSelectionNotSupportedErr: Label 'VAT statement report period selection %1 is not supported.', Comment = '%1 = VAT Statement Report Period Selection';
         VATStmtReportSelectionNotSupportedErr: Label 'VAT statement report selection %1 is not supported.', Comment = '%1 = VAT Statement Report Selection';
@@ -236,6 +262,28 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
                 TempVATEntry := Rec;
                 TempVATEntry.Insert();
             until Next() = 0;
+    end;
+
+    internal procedure FindLastByOriginalVATEntryCZL(OriginalVATEntryNo: Integer): Boolean
+    begin
+        SetCurrentKey("Original VAT Entry No. CZL");
+        SetRange("Original VAT Entry No. CZL", OriginalVATEntryNo);
+        exit(FindLast());
+    end;
+
+    procedure CalcDeductibleVATBaseCZL(): Decimal
+    begin
+        exit("Original VAT Base CZL" + "Non-Deductible VAT Amount");
+    end;
+
+    internal procedure CalcOriginalVATBaseCZL(): Decimal
+    begin
+        exit(Base + "Non-Deductible VAT Base");
+    end;
+
+    internal procedure CalcOriginalVATAmountCZL(): Decimal
+    begin
+        exit(Amount + "Non-Deductible VAT Amount");
     end;
 
     [IntegrationEvent(false, false)]

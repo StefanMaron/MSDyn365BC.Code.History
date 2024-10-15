@@ -17,7 +17,7 @@ enum 847 "Cash Flow Source Type"
     value(9; "Fixed Assets Disposal") { Caption = 'Fixed Assets Disposal'; }
     value(10; "Service Orders") { Caption = 'Service Orders'; }
     value(11; "G/L Budget") { Caption = 'G/L Budget'; }
-    value(14; "Job") { Caption = 'Job'; }
+    value(14; "Job") { Caption = 'Project'; }
     value(15; "Tax") { Caption = 'Tax'; }
     value(16; "Azure AI") { Caption = 'Azure AI'; }
 }

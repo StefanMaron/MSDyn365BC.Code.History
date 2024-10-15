@@ -58,6 +58,11 @@ page 565 "CrossIntercompany Modify Setup"
                     Importance = Additional;
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies the client secret of the Microsoft Entra authentication application.';
+                    trigger OnValidate()
+                    begin
+                        if ClientSecret <> ClientSecretTok then
+                            ClientSecretModified := true;
+                    end;
                 }
                 field(TokenEndpoint; TokenEndpoint)
                 {
@@ -77,6 +82,8 @@ page 565 "CrossIntercompany Modify Setup"
         }
     }
 
+
+#if not CLEAN25
     actions
     {
         area(Processing)
@@ -87,6 +94,10 @@ page 565 "CrossIntercompany Modify Setup"
                 Caption = 'Test Connection';
                 ToolTip = 'Test the connection to the partner''s company to check whether authentication is correctly set up.';
                 Image = InteractionTemplateSetup;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved logic to OnClosePage.';
+                ObsoleteTag = '25.0';
                 trigger OnAction()
                 var
                     CrossIntercompanyConnector: Codeunit "CrossIntercompany Connector";
@@ -99,19 +110,58 @@ page 565 "CrossIntercompany Modify Setup"
             }
         }
     }
+#endif
 
     trigger OnOpenPage()
     begin
         PopulatePartnerSensibleDetails();
+        ClientSecretModified := false;
+    end;
+    
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        TempICPartner: Record "IC Partner" temporary;
+    begin
+        if CloseAction <> CloseAction::OK then
+            exit(true);
+
+        SaveConfigurationToTemporaryPartner(TempICPartner);
+        if not AreNewConnectionDetailsValid(TempICPartner) then begin
+            Message(GetLastErrorText());
+            exit(false);
+        end;
+
+        Rec."Connection Url Key" := TempICPartner."Connection Url Key";
+        Rec."Company Id Key" := TempICPartner."Company Id Key";
+        Rec."Client Id Key" := TempICPartner."Client Id Key";
+        Rec."Client Secret Key" := TempICPartner."Client Secret Key";
+        Rec."Token Endpoint Key" := TempICPartner."Token Endpoint Key";
+        Rec."Redirect Url Key" := TempICPartner."Redirect Url Key";
+        Rec.Modify(true);
+        exit(true);
+    end;
+
+    [TryFunction]
+    local procedure AreNewConnectionDetailsValid(var TempICPartner: Record "IC Partner" temporary)
+    var
+        CrossIntercompanyConnector: Codeunit "CrossIntercompany Connector";
+    begin
+        CrossIntercompanyConnector.TestICPartnerSetup(TempICPartner);
+        CrossIntercompanyConnector.FinishICPartnerSetup(TempICPartner);
     end;
 
     var
         [NonDebuggable]
-        ConnectionUrl, ClientSecret, TokenEndpoint, RedirectUrl : Text;
-        [NonDebuggable]
+	    ClientSecret: Text;
+        ClientSecretModified: Boolean;
+        ConnectionUrl, TokenEndpoint, RedirectUrl : Text;
         CompanyId, ClientId : Guid;
+
+#if not CLEAN25
         SuccesfulConnectionMsg: Label 'Connection to the partner''s company was successful.';
         FailedConnectionErr: Label 'Connection to the partner''s company failed.';
+#endif
+        ClientSecretTok: Label '*********', Locked = true;
 
     [NonDebuggable]
     local procedure PopulatePartnerSensibleDetails()
@@ -125,8 +175,36 @@ page 565 "CrossIntercompany Modify Setup"
             CompanyId := Rec.GetSecret(Rec."Company Id Key");
         if Rec.GetSecret(Rec."Client Id Key") <> '' then
             ClientId := Rec.GetSecret(Rec."Client Id Key");
-        ClientSecret := Rec.GetSecret(Rec."Client Secret Key");
+        ClientSecret := ClientSecretTok;
         TokenEndpoint := Rec.GetSecret(Rec."Token Endpoint Key");
         RedirectUrl := Rec.GetSecret(Rec."Redirect Url Key");
+    end;
+
+    local procedure SaveConfigurationToTemporaryPartner(var TempICPartner: Record "IC Partner" temporary)
+    var
+        ICPartnerChangeMonitor: Codeunit "IC Partner Change Monitor";
+    begin
+        ICPartnerChangeMonitor.CheckHasPermissionsToChangeSensitiveFields();
+        TempICPartner.Reset();
+
+        TempICPartner.Code := Rec.Code;
+        TempICPartner.Name := Rec.Name;
+        TempICPartner."Inbox Details" := Rec."Inbox Details";
+        TempICPartner."Connection Url Key" := TempICPartner.SetSecret(TempICPartner."Connection Url Key", ConnectionUrl);
+        TempICPartner."Company Id Key" := TempICPartner.SetSecret(TempICPartner."Company Id Key", Format(CompanyId));
+        TempICPartner."Client Id Key" := TempICPartner.SetSecret(TempICPartner."Client Id Key", Format(ClientId));
+        TempICPartner."Token Endpoint Key" := TempICPartner.SetSecret(TempICPartner."Token Endpoint Key", TokenEndpoint);
+        TempICPartner."Redirect Url Key" := TempICPartner.SetSecret(TempICPartner."Redirect Url Key", RedirectUrl);
+        TempICPartner."Token Expiration Time" := CurrentDateTime;
+
+        if ClientSecretModified then
+            TempICPartner."Client Secret Key" := TempICPartner.SetSecret(TempICPartner."Client Secret Key", ClientSecret)
+        else
+            TempICPartner."Client Secret Key" := Rec."Client Secret Key";
+
+        TempICPartner."Inbox Type" := Enum::Microsoft.Intercompany.Partner."IC Partner Inbox Type"::Database;
+        TempICPartner."Data Exchange Type" := Enum::"IC Data Exchange Type"::API;
+
+        TempICPartner.Insert();
     end;
 }

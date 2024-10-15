@@ -268,7 +268,7 @@ pageextension 11744 "Posted Purchase Invoice CZL" extends "Posted Purchase Invoi
                 }
             }
         }
-        movebefore("EU 3-Party Intermed. Role CZL"; "EU 3 Party Trade")
+        movebefore("EU 3-Party Intermed. Role CZL"; "EU 3rd Party Trade")
     }
 
     actions

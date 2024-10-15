@@ -7,6 +7,7 @@ namespace Microsoft.Sales.Document;
 using Microsoft.Finance.Currency;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.History;
+using Microsoft.Sales.Setup;
 
 table 5809 "Item Charge Assignment (Sales)"
 {
@@ -56,10 +57,15 @@ table 5809 "Item Charge Assignment (Sales)"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                SalesReceivablesSetup: Record "Sales & Receivables Setup";
             begin
+                SalesReceivablesSetup.Get();
                 SalesLine.Get("Document Type", "Document No.", "Document Line No.");
                 if Rec."Qty. to Assign" <> xRec."Qty. to Assign" then
-                    SalesLine.TestField("Qty. to Invoice");
+                    if SalesReceivablesSetup."Default Quantity to Ship" <> SalesReceivablesSetup."Default Quantity to Ship"::Blank then
+                        SalesLine.TestField("Qty. to Invoice");
+
                 TestField("Applies-to Doc. Line No.");
                 if ("Qty. to Assign" <> 0) and ("Applies-to Doc. Type" = "Document Type") then
                     if SalesLineInvoiced() then

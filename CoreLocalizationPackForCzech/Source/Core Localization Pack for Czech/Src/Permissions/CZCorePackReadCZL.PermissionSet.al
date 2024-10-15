@@ -37,6 +37,7 @@
 #pragma warning restore AL0432
 #endif
                   tabledata "Invt. Movement Template CZL" = R,
+                  tabledata "Non-Deductible VAT Setup CZL" = R,
                   tabledata "Reg. No. Service Config CZL" = R,
                   tabledata "Registration Log CZL" = R,
                   tabledata "Registration Log Detail CZL" = R,

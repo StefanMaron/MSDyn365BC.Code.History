@@ -29,10 +29,9 @@ using System.Utilities;
 
 report 31190 "Sales Credit Memo CZL"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Src/Reports/SalesCreditMemo.rdl';
     Caption = 'Sales Credit Memo';
     PreviewMode = PrintLayout;
+    DefaultRenderingLayout = "SalesCreditMemo.rdl";
     WordMergeDataItem = "Sales Cr.Memo Header";
 
     dataset
@@ -614,6 +613,25 @@ report 31190 "Sales Credit Memo CZL"
             LogInteractionEnable := LogInteraction;
         end;
     }
+
+    rendering
+    {
+        layout("SalesCreditMemo.rdl")
+        {
+            Type = RDLC;
+            LayoutFile = './Src/Reports/SalesCreditMemo.rdl';
+            Caption = 'Sales Credit Memo (RDL)';
+            Summary = 'The Sales Credit Memo (RDL) provides a detailed layout.';
+        }
+        layout("SalesCreditMemoEmail.docx")
+        {
+            Type = Word;
+            LayoutFile = './Src/Reports/SalesCreditMemoEmail.docx';
+            Caption = 'Sales Credit Memo Email (Word)';
+            Summary = 'The Sales Credit Memo Email (Word) provides an email body layout.';
+        }
+    }
+
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then

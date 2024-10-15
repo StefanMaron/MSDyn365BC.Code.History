@@ -96,7 +96,7 @@ table 11732 "Cash Document Header CZP"
                 end;
 
                 "Document Date" := "Posting Date";
-                "VAT Date" := "Posting Date";
+                Validate("VAT Date", "Posting Date");
             end;
         }
         field(7; Amount; Decimal)
@@ -221,6 +221,11 @@ table 11732 "Cash Document Header CZP"
         {
             Caption = 'VAT Date';
             DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                UpdateCashDocumentLinesByFieldNo(FieldNo("VAT Date"), CurrFieldNo <> 0);
+            end;
         }
         field(38; "Created Date"; Date)
         {
@@ -962,6 +967,8 @@ table 11732 "Cash Document Header CZP"
                         CashDocumentLineCZP."Salespers./Purch. Code" := "Salespers./Purch. Code";
                     FieldNo("Responsibility Center"):
                         CashDocumentLineCZP."Responsibility Center" := "Responsibility Center";
+                    FieldNo("VAT Date"):
+                        CashDocumentLineCZP.UpdateAmounts();
                 end;
                 CashDocumentLineCZP.Modify(true);
             until CashDocumentLineCZP.Next() = 0;

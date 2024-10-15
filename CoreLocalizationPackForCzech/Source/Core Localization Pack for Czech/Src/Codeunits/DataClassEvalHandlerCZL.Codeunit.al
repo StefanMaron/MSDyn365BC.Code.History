@@ -257,6 +257,7 @@ codeunit 11710 "Data Class. Eval. Handler CZL"
 #pragma warning restore AL0432
 #endif
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Invt. Movement Template CZL");
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"Non-Deductible VAT Setup CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Registration Log CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Registration Log Detail CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Reg. No. Service Config CZL");
@@ -904,6 +905,7 @@ codeunit 11710 "Data Class. Eval. Handler CZL"
         DataClassificationMgt.SetFieldToNormal(Database::"Source Code Setup", SourceCodeSetup.FieldNo("VAT LCY Correction CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"Source Code Setup", SourceCodeSetup.FieldNo("Close Balance Sheet CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"Source Code Setup", SourceCodeSetup.FieldNo("Open Balance Sheet CZL"));
+        DataClassificationMgt.SetFieldToNormal(Database::"Source Code Setup", SourceCodeSetup.FieldNo("VAT Coeff. Correction CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"Stockkeeping Unit", StockkeepingUnit.FieldNo("Gen. Prod. Posting Group CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"Tariff Number", TariffNumber.FieldNo("Statement Code CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"Tariff Number", TariffNumber.FieldNo("VAT Stat. UoM Code CZL"));
@@ -979,6 +981,9 @@ codeunit 11710 "Data Class. Eval. Handler CZL"
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("VAT Settlement No. CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("VAT Delay CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("VAT Identifier CZL"));
+        DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("Original VAT Base CZL"));
+        DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("Original VAT Amount CZL"));
+        DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("Original VAT Entry No. CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("Registration No. CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("Tax Registration No. CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Entry", VATEntry.FieldNo("EU 3-Party Intermed. Role CZL"));

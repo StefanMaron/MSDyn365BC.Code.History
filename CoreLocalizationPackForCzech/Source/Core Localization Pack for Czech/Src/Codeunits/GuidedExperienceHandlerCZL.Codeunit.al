@@ -7,6 +7,7 @@ namespace System.Environment.Configuration;
 using Microsoft.Bank.Setup;
 using Microsoft.Finance;
 using Microsoft.Finance.Registration;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Foundation.Company;
 #if not CLEAN22
@@ -45,6 +46,7 @@ codeunit 11747 "Guided Experience Handler CZL"
         RegisterEETServiceSetup();
         RegisterEETBusinessPremises();
         RegisterEETCashRegisters();
+        RegisterNonDeductibleVATSetup();
 #if not CLEAN22
         RegisterStatisticIndications();
         RegisterSpecificMovements();
@@ -210,6 +212,16 @@ codeunit 11747 "Guided Experience Handler CZL"
     begin
         GuidedExperience.InsertManualSetup(EETCashRegisterNameTxt, EETCashRegisterNameTxt, EETCashRegisterDescriptionTxt,
           2, ObjectType::Page, Page::"EET Cash Registers CZL", ManualSetupCategory::"EET CZL", EETCashRegisterKeywordsTxt);
+    end;
+
+    local procedure RegisterNonDeductibleVATSetup()
+    var
+        NonDeductibleVATNameTxt: Label 'Non-Deductible VAT Setup';
+        NonDeductibleVATDescriptionTxt: Label 'Set up Non-Deductible VAT.';
+        NonDeductibleVATKeywordsTxt: Label 'VAT, Finance';
+    begin
+        GuidedExperience.InsertManualSetup(NonDeductibleVATNameTxt, NonDeductibleVATNameTxt, NonDeductibleVATDescriptionTxt,
+          2, ObjectType::Page, Page::"Non-Deductible VAT Setup CZL", ManualSetupCategory::Finance, NonDeductibleVATKeywordsTxt);
     end;
 #if not CLEAN22
 #pragma warning disable AL0432

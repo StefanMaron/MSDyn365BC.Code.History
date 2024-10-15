@@ -117,6 +117,8 @@ table 31273 "Compensation Line CZC"
                             CustLedgerEntry.SetRange(Open, true);
                             CustLedgerEntry.SetRange(Prepayment, false);
                             CustLedgerEntry.SetRange("Compensation Amount (LCY) CZC", 0);
+                            CustLedgerEntry.SetRange("On Hold", '');
+                            OnSourceEntryNoLookupOnAfterCustLedgerEntryFilter(CustLedgerEntry);
                             if CustLedgerEntry.FindSet() then
                                 repeat
                                     if not CustLedgerEntry.RelatedToAdvanceLetterCZL() then
@@ -137,6 +139,8 @@ table 31273 "Compensation Line CZC"
                             VendorLedgerEntry.SetRange(Open, true);
                             VendorLedgerEntry.SetRange(Prepayment, false);
                             VendorLedgerEntry.SetRange("Compensation Amount (LCY) CZC", 0);
+                            VendorLedgerEntry.SetRange("On Hold", '');
+                            OnSourceEntryNoLookupOnAfterCustLedgerEntryFilter(CustLedgerEntry);
                             if VendorLedgerEntry.FindSet() then
                                 repeat
                                     if not VendorLedgerEntry.RelatedToAdvanceLetterCZL() then
@@ -158,7 +162,6 @@ table 31273 "Compensation Line CZC"
             var
                 CustLedgerEntry: Record "Cust. Ledger Entry";
                 VendorLedgerEntry: Record "Vendor Ledger Entry";
-                RelatedToAdvanceLetterErr: Label '%1 %2 is related to Advance Letter.', Comment = '%1 = Ledger Entry TableCaption, %2 = Ledger Entry No.';
             begin
                 case "Source Type" of
                     "Source Type"::Customer:
@@ -166,13 +169,7 @@ table 31273 "Compensation Line CZC"
                             if not CustLedgerEntry.Get("Source Entry No.") then
                                 Clear(CustLedgerEntry);
                             CustLedgerEntry.CalcFields(Amount, "Remaining Amount", "Amount (LCY)", "Remaining Amt. (LCY)", "Compensation Amount (LCY) CZC");
-                            if CustLedgerEntry."Entry No." <> 0 then begin
-                                CustLedgerEntry.TestField(Open, true);
-                                CustLedgerEntry.TestField(Prepayment, false);
-                                if CustLedgerEntry.RelatedToAdvanceLetterCZL() then
-                                    Error(RelatedToAdvanceLetterErr, CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No.");
-                            end;
-                            CustLedgerEntry.TestField("Compensation Amount (LCY) CZC", 0);
+                            CheckCustLedgerEntry(CustLedgerEntry);
                             "Source No." := CustLedgerEntry."Customer No.";
                             "Posting Group" := CustLedgerEntry."Customer Posting Group";
                             Description := CustLedgerEntry.Description;
@@ -193,13 +190,7 @@ table 31273 "Compensation Line CZC"
                             if not VendorLedgerEntry.Get("Source Entry No.") then
                                 Clear(VendorLedgerEntry);
                             VendorLedgerEntry.CalcFields(Amount, "Remaining Amount", "Amount (LCY)", "Remaining Amt. (LCY)", "Compensation Amount (LCY) CZC");
-                            if VendorLedgerEntry."Entry No." <> 0 then begin
-                                VendorLedgerEntry.TestField(Open, true);
-                                VendorLedgerEntry.TestField(Prepayment, false);
-                                if VendorLedgerEntry.RelatedToAdvanceLetterCZL() then
-                                    Error(RelatedToAdvanceLetterErr, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No.");
-                            end;
-                            VendorLedgerEntry.TestField("Compensation Amount (LCY) CZC", 0);
+                            CheckVendorLedgerEntry(VendorLedgerEntry);
                             "Source No." := VendorLedgerEntry."Vendor No.";
                             "Posting Group" := VendorLedgerEntry."Vendor Posting Group";
                             Description := VendorLedgerEntry.Description;
@@ -440,6 +431,7 @@ table 31273 "Compensation Line CZC"
         MustBeLessErr: Label '%1 must be less than %2.', Comment = '%1 = FieldCaption, %2 = FieldCaption';
         DateMustBeLessOrEqualErr: Label 'must be less or equal to %1', Comment = '%1 = Posting Date';
         DimensionSetCaptionTok: Label '%1 %2', Comment = '%1 = Compensation No., %2 = Line No.', Locked = true;
+        RelatedToAdvanceLetterErr: Label '%1 %2 is related to Advance Letter.', Comment = '%1 = Ledger Entry TableCaption, %2 = Ledger Entry No.';
 
     procedure ShowDimensions()
     begin
@@ -634,5 +626,58 @@ table 31273 "Compensation Line CZC"
                         CrossApplicationMgtCZL.OnGetSuggestedAmountForVendLedgerEntry(VendorLedgerEntry, TempCrossApplicationBufferCZL,
                                                                                       Database::"Compensation Line CZC", Rec."Compensation No.", Rec."Line No.");
         end;
+    end;
+
+    local procedure CheckCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCustLedgerEntry(Rec, CustLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CustLedgerEntry."Entry No." = 0 then
+            exit;
+        CustLedgerEntry.TestField(Open, true);
+        CustLedgerEntry.TestField(Prepayment, false);
+        CustLedgerEntry.TestField("On Hold", '');
+        CustLedgerEntry.TestField("Compensation Amount (LCY) CZC", 0);
+        if CustLedgerEntry.RelatedToAdvanceLetterCZL() then
+            Error(RelatedToAdvanceLetterErr, CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No.");
+    end;
+
+    local procedure CheckVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckVendorLedgerEntry(Rec, VendorLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if VendorLedgerEntry."Entry No." = 0 then
+            exit;
+        VendorLedgerEntry.TestField(Open, true);
+        VendorLedgerEntry.TestField(Prepayment, false);
+        VendorLedgerEntry.TestField("On Hold", '');
+        VendorLedgerEntry.TestField("Compensation Amount (LCY) CZC", 0);
+        if VendorLedgerEntry.RelatedToAdvanceLetterCZL() then
+            Error(RelatedToAdvanceLetterErr, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSourceEntryNoLookupOnAfterCustLedgerEntryFilter(CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustLedgerEntry(CompensationLineCZC: Record "Compensation Line CZC"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVendorLedgerEntry(CompensationLineCZC: Record "Compensation Line CZC"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
     end;
 }

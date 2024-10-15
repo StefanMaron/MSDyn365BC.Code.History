@@ -261,6 +261,26 @@ report 11 "G/L - VAT Reconciliation"
                                         Amount1 := ConditionalAdd(VATEntry."Unrealized Base", VATEntry."Add.-Currency Unrealized Base");
                                         VAT := ConditionalAdd(VATEntry."Unrealized Amount", VATEntry."Add.-Currency Unrealized Amt.");
                                     end;
+                                VATStmtLine2."Amount Type"::"Non-Deductible Base", VATStmtLine2."Amount Type"::"Non-Deductible Amount":
+                                    begin
+                                        VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Base ACY", "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                        Amount1 := ConditionalAdd(VATEntry."Non-Deductible VAT Base", VATEntry."Non-Deductible VAT Base ACY");
+                                        VAT := ConditionalAdd(VATEntry."Non-Deductible VAT Amount", VATEntry."Non-Deductible VAT Amount ACY");
+                                    end;
+                                VATStmtLine2."Amount Type"::"Full Base", VATStmtLine2."Amount Type"::"Full Amount":
+                                    begin
+                                        VATEntry.CalcSums(
+                                            Base, "Additional-Currency Base", Amount, "Additional-Currency Amount",
+                                            "Non-Deductible VAT Base", "Non-Deductible VAT Base ACY", "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                        Amount1 :=
+                                            ConditionalAdd(
+                                                VATEntry.Base + VATEntry."Non-Deductible VAT Base",
+                                                VATEntry."Additional-Currency Base" + VATEntry."Non-Deductible VAT Base ACY");
+                                        VAT :=
+                                            ConditionalAdd(
+                                                VATEntry.Amount + VATEntry."Non-Deductible VAT Amount",
+                                                VATEntry."Additional-Currency Amount" + VATEntry."Non-Deductible VAT Amount ACY");
+                                    end;
                             end;
                         end;
 

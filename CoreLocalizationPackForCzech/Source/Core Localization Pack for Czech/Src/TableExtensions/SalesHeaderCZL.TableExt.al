@@ -37,7 +37,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
                     TestField("VAT Reporting Date", "Posting Date");
                 CheckCurrencyExchangeRateCZL("VAT Reporting Date");
 
-                NeedUpdateVATCurrencyFactor := "Currency Code" <> '';
+                NeedUpdateVATCurrencyFactor := ("Currency Code" <> '') and ("VAT Reporting Date" <> xRec."VAT Reporting Date");
                 OnValidateVATDateOnBeforeCheckNeedUpdateVATCurrencyFactorCZL(Rec, IsConfirmedCZL, NeedUpdateVATCurrencyFactor, xRec);
                 if NeedUpdateVATCurrencyFactor then begin
                     UpdateVATCurrencyFactorCZL();

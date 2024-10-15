@@ -1842,6 +1842,12 @@ table 11733 "Cash Document Line CZP"
         GenJournalLine."Currency Code" := CashDocumentHeaderCZP."Currency Code";
         GenJournalLine."Currency Factor" := CashDocumentHeaderCZP."Currency Factor";
         GenJournalLine."Posting Date" := CashDocumentHeaderCZP."Posting Date";
+        GenJournalLine."VAT Reporting Date" := CashDocumentHeaderCZP."VAT Date";
+#if not CLEAN22
+#pragma warning disable AL0432
+        GenJournalLine."VAT Date CZL" := CashDocumentHeaderCZP."VAT Date";
+#pragma warning restore AL0432
+#endif
         GenJournalLine.Amount := "Amount Including VAT";
         GenJournalLine."VAT Amount" := "VAT Amount";
         GenJournalLine."VAT Base Amount" := "VAT Base Amount";

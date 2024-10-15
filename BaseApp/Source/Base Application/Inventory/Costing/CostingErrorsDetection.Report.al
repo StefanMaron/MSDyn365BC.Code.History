@@ -437,7 +437,7 @@ report 5810 "Costing Errors Detection"
         ItemApplEntry: Record "Item Application Entry";
         Item2: Record Item;
         TempItem: Record Item temporary;
-        ErrorText: array[20] of Text[250];
+        ErrorText: array[20] of Text;
         ErrorGroupIndex: Integer;
         ErrorIndex: Integer;
         BasicDataTest: Boolean;
@@ -498,7 +498,7 @@ report 5810 "Costing Errors Detection"
         NegativeEntryNoOnILEErr: Label 'Entry No. on Item Ledger Entry must not be less or equal than zero.';
         ItemNoBlankErr: Label 'Item No. must not be blank.';
 
-    local procedure ShowCaption(): Text[50]
+    local procedure ShowCaption(): Text
     begin
         case ErrorGroupIndex of
             0:
@@ -886,7 +886,7 @@ report 5810 "Costing Errors Detection"
             AddError(ItemNoBlankErr, ItemNo);
     end;
 
-    local procedure AddError(ErrorMessage: Text[250]; ItemNo: Code[20])
+    local procedure AddError(ErrorMessage: Text; ItemNo: Code[20])
     begin
         ErrorText[ErrorIndex] := ErrorMessage;
         ErrorIndex := ErrorIndex + 1;

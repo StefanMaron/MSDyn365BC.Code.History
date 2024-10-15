@@ -1017,6 +1017,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
         SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ";
         NoSeriesBatch: Codeunit "No. Series - Batch";
         NextEntryNo: Integer;
+        GetDocNoFromNoSeries: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1032,7 +1033,9 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             exit;
         end;
 
-        if AdvancePostingParametersCZZ."Document No." = '' then begin
+        GetDocNoFromNoSeries := AdvancePostingParametersCZZ."Document No." = '';
+
+        if GetDocNoFromNoSeries then begin
             AdvanceLetterTemplateCZZ.Get(SalesAdvLetterHeaderCZZ."Advance Letter Code");
             AdvanceLetterTemplateCZZ.TestField("Advance Letter Cr. Memo Nos.");
             AdvancePostingParametersCZZ."Document No." :=
@@ -1050,7 +1053,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
                     SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, GenJnlPostLine, AdvancePostingParametersCZZ);
             until SalesAdvLetterEntryCZZ.Next() = 0;
 
-        if (NextEntryNo <> 0) and (NextEntryNo <> GenJnlPostLine.GetNextEntryNo()) then
+        if GetDocNoFromNoSeries and (NextEntryNo <> GenJnlPostLine.GetNextEntryNo()) then
             NoSeriesBatch.SaveState();
 
         SalesAdvLetterManagementCZZ.CancelInitEntry(SalesAdvLetterHeaderCZZ, AdvancePostingParametersCZZ."Posting Date", false);
@@ -1112,7 +1115,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             GenJournalLine.SetCurrencyFactor(
                 AdvancePostingParametersCZZ."Currency Code", AdvancePostingParametersCZZ."Currency Factor");
             GenJournalLine.Amount := RemainingAmount;
-            GenJournalLine."Amount (LCY)" := RemainingAmountLCY;
+            GenJournalLine."Amount (LCY)" := Round(RemainingAmount / GenJournalLine."Currency Factor");
             if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
                 CustLedgerEntry.SetApplication('', SalesAdvLetterEntryCZZ."Sales Adv. Letter No.");
                 GenJournalLine."Applies-to ID" := CustLedgerEntry."Applies-to ID";
@@ -1139,6 +1142,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             TempSalesAdvLetterEntryCZZGlob.CopyFromGenJnlLine(GenJournalLine);
             TempSalesAdvLetterEntryCZZGlob."Entry Type" := "Advance Letter Entry Type CZZ"::Close;
             TempSalesAdvLetterEntryCZZGlob."Sales Adv. Letter No." := SalesAdvLetterHeaderCZZ."No.";
+            TempSalesAdvLetterEntryCZZGlob."Amount (LCY)" := RemainingAmountLCY;
             EntryNo := TempSalesAdvLetterEntryCZZGlob.InsertNewEntry(not AdvancePostingParametersCZZ."Temporary Entries Only");
         end;
 
@@ -1170,7 +1174,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             GenJournalLine.SetCurrencyFactor(
                 AdvancePostingParametersCZZ."Currency Code", AdvancePostingParametersCZZ."Currency Factor");
             GenJournalLine.Amount := -RemainingAmount;
-            GenJournalLine."Amount (LCY)" := -RemainingAmountLCY;
+            GenJournalLine."Amount (LCY)" := -Round(RemainingAmount / GenJournalLine."Currency Factor");
             GenJournalLine."Variable Symbol CZL" := SalesAdvLetterHeaderCZZ."Variable Symbol";
             if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
                 OnPostAdvanceLetterEntryClosingOnBeforePostBalance(
@@ -1532,6 +1536,9 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
 
             // Post exchange rate of VAT Amount
             InitGenJournalLine(SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingParametersCZZ, GenJournalLine);
+            GenJournalLine."Shortcut Dimension 1 Code" := SalesAdvLetterHeaderCZZ."Shortcut Dimension 1 Code";
+            GenJournalLine."Shortcut Dimension 2 Code" := SalesAdvLetterHeaderCZZ."Shortcut Dimension 2 Code";
+            GenJournalLine."Dimension Set ID" := SalesAdvLetterHeaderCZZ."Dimension Set ID";
             GenJournalLine.Correction := true;
             if VATAmount < 0 then
                 GenJournalLine."Account No." := CurrencyGlob.GetRealizedLossesAccount()
@@ -1623,6 +1630,9 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
 
             // Post unrealized exchange rate
             InitGenJournalLine(SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingParametersCZZ, GenJournalLine);
+            GenJournalLine."Shortcut Dimension 1 Code" := SalesAdvLetterHeaderCZZ."Shortcut Dimension 1 Code";
+            GenJournalLine."Shortcut Dimension 2 Code" := SalesAdvLetterHeaderCZZ."Shortcut Dimension 2 Code";
+            GenJournalLine."Dimension Set ID" := SalesAdvLetterHeaderCZZ."Dimension Set ID";
             if VATAmount > 0 then
                 GenJournalLine."Account No." := CurrencyGlob.GetUnrealizedLossesAccount()
             else

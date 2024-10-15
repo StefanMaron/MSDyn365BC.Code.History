@@ -14,5 +14,5 @@ enum 264 "Intrastat Source Type"
 
     value(0; "") { Caption = ''; }
     value(1; "Item Entry") { Caption = 'Item Entry'; }
-    value(2; "Job Entry") { Caption = 'Job Entry'; }
+    value(2; "Job Entry") { Caption = 'Project Entry'; }
 }

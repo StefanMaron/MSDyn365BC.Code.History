@@ -3,9 +3,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Ledger;
-#if not CLEAN22
+
 using Microsoft.Finance.VAT.Calculation;
-#endif
 
 pageextension 11755 "VAT Entries CZL" extends "VAT Entries"
 {
@@ -95,16 +94,51 @@ pageextension 11755 "VAT Entries CZL" extends "VAT Entries"
                 ToolTip = 'Specifies a code to group various VAT posting setups with similar attributes, for example VAT percentage.';
                 Visible = false;
             }
+            field("Deductible VAT Base CZL"; Rec.CalcDeductibleVATBaseCZL())
+            {
+                Caption = 'Deductible VAT Base';
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the VAT base increased by the amount of unapplied input VAT.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Original VAT Base CZL"; Rec."Original VAT Base CZL")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the VAT base of the entry before the deduction by the coefficient.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Original VAT Amount CZL"; Rec."Original VAT Amount CZL")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the VAT amount of the entry before the deduction by the coefficient.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Non-Deductible VAT % CZL"; Rec."Non-Deductible VAT %")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the percentage of non-deductible VAT applied to the entry.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Original VAT Entry No. CZL"; Rec."Original VAT Entry No. CZL")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies Entry No. of VAT Entry to which the current VAT Entry relates. If the value in the field is non-zero then the entry has been posted in relation to non-deductible VAT. If the value in the field ''Original Entry No.'' is the same as ''Entry No.'' then the entry has been created by posting the primary document. If the numbers do not match then it is posting of the difference between advance and settlement coefficient at the end of the accounting period.';
+                Visible = NonDeductibleVATVisible;
+            }
         }
     }
-#if not CLEAN22
     trigger OnOpenPage()
     begin
+#if not CLEAN22
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
+#endif
+        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
     end;
 
     var
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+#if not CLEAN22
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
 #pragma warning disable AL0432
         ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
@@ -112,4 +146,5 @@ pageextension 11755 "VAT Entries CZL" extends "VAT Entries"
         ReplaceVATDateEnabled: Boolean;
         VATDateEnabled: Boolean;
 #endif
+        NonDeductibleVATVisible: Boolean;
 }

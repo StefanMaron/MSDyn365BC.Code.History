@@ -33,11 +33,10 @@ using System.Text;
 
 report 31018 "Sales - Invoice with Adv. CZZ"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Src/Reports/SalesInvoiceWithAdv.rdl';
     Caption = 'Sales - Invoice with Advance';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = "SalesInvoicewithAdv.rdl";
     ApplicationArea = Basic, Suite;
     WordMergeDataItem = "Sales Invoice Header";
 
@@ -714,6 +713,24 @@ report 31018 "Sales - Invoice with Adv. CZZ"
             InitLogInteraction();
             LogInteractionEnable := LogInteract;
         end;
+    }
+
+    rendering
+    {
+        layout("SalesInvoicewithAdv.rdl")
+        {
+            Type = RDLC;
+            LayoutFile = './Src/Reports/SalesInvoicewithAdv.rdl';
+            Caption = 'Sales Invoice with Advance (RDL)';
+            Summary = 'The Sales Invoice with Advance (RDL) provides a detailed layout.';
+        }
+        layout("SalesInvoicewithAdvEmail.docx")
+        {
+            Type = Word;
+            LayoutFile = './Src/Reports/SalesInvoicewithAdvEmail.docx';
+            Caption = 'Sales Invoice with Advance Email (Word)';
+            Summary = 'The Sales Invoice with Advance Email (Word) provides an email body layout.';
+        }
     }
 
     trigger OnPreReport()
