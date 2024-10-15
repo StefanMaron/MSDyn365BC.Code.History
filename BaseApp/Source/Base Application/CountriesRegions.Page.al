@@ -108,6 +108,15 @@ page 10 "Countries/Regions"
                     RunPageLink = "Country/Region Code" = FIELD(Code);
                     ToolTip = 'Specify that the tax registration number for an account, such as a customer, corresponds to the standard format for tax registration numbers in an account''s country/region.';
                 }
+                action(Translations)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Translations';
+                    Image = Translations;
+                    ToolTip = 'Opens a window in which you can define the translations for the name of the selected country/region.';
+                    RunObject = Page "Country/Region Translations";
+                    RunPageLink = "Country/Region Code" = field(Code);
+                }
                 action(CustomAddressFormat)
                 {
                     ApplicationArea = Basic, Suite;
@@ -140,8 +149,17 @@ page 10 "Countries/Regions"
             group(Category_Process)
             {
                 Caption = 'Process';
-
                 actionref(CustomAddressFormat_Promoted; CustomAddressFormat)
+                {
+                }
+            }
+            group("Category_Country/Region")
+            {
+                Caption = 'Country/Region';
+                actionref("VAT Reg. No. Formats_Promoted"; "VAT Reg. No. Formats")
+                {
+                }
+                actionref(Translations_Promoted; Translations)
                 {
                 }
             }

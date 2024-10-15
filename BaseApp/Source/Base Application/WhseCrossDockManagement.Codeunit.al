@@ -603,7 +603,6 @@ codeunit 5780 "Whse. Cross-Dock Management"
         ProdOrderComp.SetRange("Variant Code", VariantCode);
         ProdOrderComp.SetRange("Location Code", LocationCode);
         ProdOrderComp.SetRange("Due Date", 0D, CrossDockDate);
-        ProdOrderComp.SetRange("Flushing Method", "Flushing Method"::Manual);
         ProdOrderComp.SetRange("Planning Level Code", 0);
         ProdOrderComp.SetFilter("Remaining Qty. (Base)", '>0');
         if ProdOrderComp.Find('-') then

@@ -3263,6 +3263,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Country/Region UT - NamedType NumericErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2601346234 - Method 3499773886 - NamedType 714490399" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Address Array at position %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Country/Region Position]D;]A;(LookupHint=Codeunit Country/Region UT - Method FormatAddressWithCountryRegionTranslationTest - NamedType WrongValueInAddressArrayErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2673893642 - NamedType 2162765942" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Only the City, Post Code, and County fields can be used.]]></Val>
