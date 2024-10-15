@@ -77,7 +77,6 @@ table 99000771 "Production BOM Header"
 
             trigger OnValidate()
             var
-                Item: Record Item;
                 ProdBOMLineRec: Record "Production BOM Line";
                 PlanningAssignment: Record "Planning Assignment";
                 MfgSetup: Record "Manufacturing Setup";
@@ -87,10 +86,8 @@ table 99000771 "Production BOM Header"
                 if (Status <> xRec.Status) and (Status = Status::Certified) then begin
                     ProdBOMLineRec.SetLoadFields(Type, "No.", "Variant Code");
                     ProdBOMLineRec.SetRange("Production BOM No.", "No.");
-                    while ProdBOMLineRec.Next() <> 0 do begin
-                        if Item.IsVariantMandatory(ProdBOMLineRec.Type = ProdBOMLineRec.Type::Item, ProdBOMLineRec."No.") then
-                            ProdBOMLineRec.TestField("Variant Code");
-                    end;
+                    while ProdBOMLineRec.Next() <> 0 do
+                        CheckVariantIfMandatory(ProdBOMLineRec);
                     MfgSetup.LockTable();
                     MfgSetup.Get();
                     ProdBOMCheck.ProdBOMLineCheck("No.", '');
@@ -224,8 +221,27 @@ table 99000771 "Production BOM Header"
         end;
     end;
 
+    local procedure CheckVariantIfMandatory(var ProductionBOMLine: Record "Production BOM Line")
+    var
+        Item: Record Item;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckVariantIfMandatory(Rec, xRec, ProductionBOMLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Item.IsVariantMandatory(ProductionBOMLine.Type = ProductionBOMLine.Type::Item, ProductionBOMLine."No.") then
+            ProductionBOMLine.TestField("Variant Code");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAsistEdit(var ProductionBOMHeader: Record "Production BOM Header"; OldProductionBOMHeader: Record "Production BOM Header"; var SeriesSelected: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVariantIfMandatory(var ProductionBOMHeader: Record "Production BOM Header"; xProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; var IsHandled: Boolean)
     begin
     end;
 
