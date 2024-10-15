@@ -35,6 +35,7 @@ codeunit 136145 "Service Contracts II"
         ConfirmLaterPostingDateQst: Label 'The posting date is later than the work date.\\Confirm that this is the correct date.';
         ConfirmLaterInvoiceToDateQst: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
         NextPlannedServiceDateConfirmQst: Label 'The Next Planned Service Date field is empty on one or more service contract lines, and service orders cannot be created automatically. Do you want to continue?';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
     [Test]
     [HandlerFunctions('ServiceContractTemplateListHandler,CreateContractServiceOrdersRequestPageHandler,CreateContractInvoicesRequestPageHandler,YesConfirmHandler,MessageHandler')]
@@ -1452,6 +1453,238 @@ codeunit 136145 "Service Contracts II"
         ServiceDocumentRegister.SetRange("Source Document Type", "Service Source Document Type"::Contract);
         ServiceDocumentRegister.SetRange("Destination Document Type", "Service Destination Document Type"::Invoice);
         Assert.RecordIsNotEmpty(ServiceDocumentRegister);
+    end;
+
+    [Test]
+    [HandlerFunctions('SignContractYesConfirmHandler,CreateContractInvoicesDiffDatesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateServContractInvoicesPartMonthForPrepaidServContractWithExpDate()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceLine: Record "Service Line";
+        ContractStartingDate: Date;
+        ContractExpirationDate: Date;
+        FullContractLineAmount: Decimal;
+        FirstMonthAmount: Decimal;
+        LastMonthAmount: Decimal;
+    begin
+        // [SCENARIO 479307] Create a service invoice by report "Create Service Contract Invoices" in case the starting date of the prepaid contract is not the first day of the month and the expiration date is set.
+        Initialize();
+
+        // [GIVEN] Create the contract's starting date and expiration date.
+        ContractStartingDate := LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 10, 20);
+        ContractExpirationDate := CalcDate('<6M-1D>', ContractStartingDate);
+
+        // [GIVEN] Create a service contract with an invoice period of "Year".
+        CreateServiceContractWithLine(
+            ServiceContractHeader,
+            ServiceContractLine,
+            ContractStartingDate,
+            ContractExpirationDate,
+            ServiceContractHeader."Invoice Period"::Year,
+            true);
+
+        // [GIVEN] Sign a contract.
+        SignContract(ServiceContractHeader);
+
+        // [GIVEN] Save a contract amount , the first and last month's contract amount.
+        FullContractLineAmount := CalcContractLineAmount(
+            ServiceContractLine."Line Amount",
+            ServiceContractLine."Starting Date",
+            ServiceContractHeader."Expiration Date");
+
+        FirstMonthAmount := CalcContractLineAmount(
+            ServiceContractLine."Line Amount",
+            ServiceContractLine."Starting Date",
+            ServiceContractHeader."Next Invoice Period Start" - 1);
+
+        LastMonthAmount := CalcContractLineAmount(
+            ServiceContractLine."Line Amount",
+            CalcDate('<-CM>', ContractExpirationDate),
+            ContractExpirationDate);
+
+        // [WHEN] Run the report "Create Service Contract Invoices" on Service Contract.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
+        LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
+        RunCreateContractInvoices();
+
+        // [VERIFY] Verify the amount of service line for the first month of the contract.
+        VerifyFirstServiceLineForServiceContractLine(
+            ServiceContractHeader."Contract No.",
+            ServiceContractLine."Service Item No.",
+            GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
+            WorkDate(),
+            ServiceContractHeader."Starting Date",
+            CalcDate('<CM>', ServiceContractHeader."Starting Date"),
+            FirstMonthAmount);
+
+        // [VERIFY] Verify the amount and count of service line.
+        VerifyServContractLineAmountSplitByPeriod(
+            ServiceContractHeader."Contract No.",
+            ServiceContractLine."Service Item No.",
+            GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
+            WorkDate(),
+            LibraryRandom.RandIntInRange(7, 7),
+            FullContractLineAmount);
+
+        // [WHEN] Filter Service Line.
+        FilterServiceLine(
+            ServiceLine,
+            ServiceContractHeader."Contract No.",
+            GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
+            WorkDate());
+
+        // [VERIFY] Verify the amount of service line for the last month of the contract.
+        ServiceLine.FindLast();
+        Assert.AreEqual(
+            ServiceLine.Amount,
+            LastMonthAmount,
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                ServiceLine.FieldCaption(Amount),
+                LastMonthAmount,
+                ServiceLine.TableCaption()));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SignContractYesConfirmHandler,CreateContractInvoicesDiffDatesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateServContractInvoicesPartMonthForPrepaidServContractWithoutExpDate()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceLine: Record "Service Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ContractStartingDate: Date;
+        FirstMonthAmount: Decimal;
+        LastMonthAmount: Decimal;
+    begin
+        // [SCENARIO 479307] Create a service invoice by report "Create Service Contract Invoices" in case the starting date of the prepaid contract is not the first day of the month and the expiration date is blank.
+        Initialize();
+
+        // [GIVEN] Get General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := 0.1;
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Create the contract's starting date.
+        ContractStartingDate := LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 10, 20);
+
+        // [GIVEN] Create a service contract with an invoice period of "Year".
+        CreateServiceContractWithLine(
+            ServiceContractHeader,
+            ServiceContractLine,
+            ContractStartingDate,
+            ServiceContractHeader."Expiration Date",
+            ServiceContractHeader."Invoice Period"::Year,
+            true);
+
+        // [GIVEN] Sign a contract.
+        SignContract(ServiceContractHeader);
+
+        // [GIVEN] Save a first and last month's contract amount.
+        FirstMonthAmount := CalcContractLineAmount(
+            ServiceContractLine."Line Amount",
+            ServiceContractLine."Starting Date",
+            ServiceContractHeader."Next Invoice Period Start" - 1);
+
+        LastMonthAmount := CalcContractLineAmount(
+            ServiceContractLine."Line Amount",
+            CalcDate('<1Y-CM>', ServiceContractLine."Starting Date"),
+            CalcDate('<1Y+CM>', ServiceContractLine."Starting Date"));
+
+        // [WHEN] Run the report "Create Service Contract Invoices" on Service Contract.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
+        LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
+        RunCreateContractInvoices();
+
+        // [VERIFY] Verify the amount of service line for the first month of the contract.
+        VerifyFirstServiceLineForServiceContractLine(
+            ServiceContractHeader."Contract No.",
+            ServiceContractLine."Service Item No.",
+            GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
+            WorkDate(),
+            ServiceContractHeader."Starting Date",
+            CalcDate('<CM>', ServiceContractHeader."Starting Date"),
+            FirstMonthAmount);
+
+        // [WHEN] Filter Service Line.
+        FilterServiceLine(
+            ServiceLine,
+            ServiceContractHeader."Contract No.",
+            GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
+            WorkDate());
+
+        // [VERIFY] Verify the amount of service line for the last month of the contract.
+        ServiceLine.FindLast();
+        Assert.AreEqual(
+            Round(ServiceLine.Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)"),
+            Round(LastMonthAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)"),
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                ServiceLine.FieldCaption(Amount),
+                LastMonthAmount,
+                ServiceLine.TableCaption()));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SignContractYesConfirmHandler,CreateContractInvoicesDiffDatesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateServContractInvoicesForPrepaidServContractWithoutExpDateAndPeriodQuarterly()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ContractStartingDate: Date;
+        FirstMonthAmount: Decimal;
+    begin
+        // [SCENARIO 479307] Create a service invoice by report "Create Service Contract Invoices" in case the starting date of the prepaid contract is not the first day of the month and the expiration date is blank.
+        Initialize();
+
+        // [GIVEN] Create the contract's starting date.
+        ContractStartingDate := LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 10, 20);
+
+        // [GIVEN] Create a service contract with an invoice period of "Quarter".
+        CreateServiceContractWithLine(
+            ServiceContractHeader,
+            ServiceContractLine,
+            ContractStartingDate,
+            ServiceContractHeader."Expiration Date",
+            ServiceContractHeader."Invoice Period"::Quarter,
+            true);
+
+        // [GIVEN] Sign a contract.
+        SignContract(ServiceContractHeader);
+
+        // [GIVEN] Save a first month contract amount.
+        FirstMonthAmount := CalcContractLineAmount(
+            ServiceContractLine."Line Amount",
+            ServiceContractLine."Starting Date",
+            ServiceContractHeader."Next Invoice Period Start" - 1);
+
+        // [WHEN] Run the report "Create Service Contract Invoices" on Service Contract.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
+        LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
+        RunCreateContractInvoices();
+
+        // [VERIFY] Verify the amount of service line for the first month of the contract.
+        VerifyFirstServiceLineForServiceContractLine(
+            ServiceContractHeader."Contract No.",
+            ServiceContractLine."Service Item No.",
+            GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
+            WorkDate(),
+            ServiceContractHeader."Starting Date",
+            CalcDate('<CM>', ServiceContractHeader."Starting Date"),
+            FirstMonthAmount);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
