@@ -142,7 +142,9 @@ codeunit 134157 "ERM Posting Rounding"
         VerifyGLEntry(DocumentNo, GLAccountNo[4], -5477.48);
         VerifyGLEntry(DocumentNo, GetCustomerReceivablesAccountNo(SalesHeader."Customer Posting Group"), 40626.15);
     end;
+#endif
 
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure InvoicePostBuffer_Update_ZeroRounding()
@@ -495,7 +497,7 @@ codeunit 134157 "ERM Posting Rounding"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure MockTempInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; NewAmount: Decimal; NewAmountACY: Decimal; NewVATAmount: Decimal; NewVATAmountACY: Decimal; NewVATBaseAmount: Decimal; NewVATBaseAmountACY: Decimal)
     begin
         with TempInvoicePostBuffer do begin
@@ -554,7 +556,7 @@ codeunit 134157 "ERM Posting Rounding"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure VerifyInvoicePostBufferAmounts(InvoicePostBuffer: Record "Invoice Post. Buffer"; ExpAmount: Decimal; ExpAmountACY: Decimal; ExpVATAmount: Decimal; ExpVATAmountACY: Decimal; ExpVATBaseAmount: Decimal; ExpVATBaseAmountACY: Decimal)
     begin
         with InvoicePostBuffer do begin

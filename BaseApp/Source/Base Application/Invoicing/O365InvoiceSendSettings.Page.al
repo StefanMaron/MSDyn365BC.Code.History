@@ -21,7 +21,7 @@ page 2132 "O365 Invoice Send Settings"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(Title; Title)
+                field(Title; Rec.Title)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                 }
@@ -49,7 +49,7 @@ page 2132 "O365 Invoice Send Settings"
 
                 trigger OnAction()
                 begin
-                    OpenPage();
+                    Rec.OpenPage();
                 end;
             }
         }
@@ -57,9 +57,9 @@ page 2132 "O365 Invoice Send Settings"
 
     trigger OnAfterGetCurrRecord()
     begin
-        if Title = EmailAccountTitleTxt then begin
-            "Page ID" := PAGE::"Graph Mail Setup";
-            Description := GetEmailAccountDescription();
+        if Rec.Title = EmailAccountTitleTxt then begin
+            Rec."Page ID" := PAGE::"Graph Mail Setup";
+            Rec.Description := GetEmailAccountDescription();
         end;
     end;
 
@@ -80,10 +80,10 @@ page 2132 "O365 Invoice Send Settings"
 
     local procedure InsertMenuItems()
     begin
-        InsertPageMenuItem(PAGE::"Graph Mail Setup", EmailAccountTitleTxt, GetEmailAccountDescription());
-        InsertPageMenuItem(PAGE::"O365 Email CC and BCC Settings", CCAndBCCTitleTxt, CCAndBCCDescriptionTxt);
-        InsertPageMenuItem(PAGE::"O365 Default Invoice Email Msg", InvoiceEmailMessageTxt, InvoiceEmailMessageDescriptionTxt);
-        InsertPageMenuItem(PAGE::"O365 Default Quote Email Msg", QuoteEmailMessageTxt, QuoteEmailMessageDescriptionTxt);
+        Rec.InsertPageMenuItem(PAGE::"Graph Mail Setup", EmailAccountTitleTxt, GetEmailAccountDescription());
+        Rec.InsertPageMenuItem(PAGE::"O365 Email CC and BCC Settings", CCAndBCCTitleTxt, CCAndBCCDescriptionTxt);
+        Rec.InsertPageMenuItem(PAGE::"O365 Default Invoice Email Msg", InvoiceEmailMessageTxt, InvoiceEmailMessageDescriptionTxt);
+        Rec.InsertPageMenuItem(PAGE::"O365 Default Quote Email Msg", QuoteEmailMessageTxt, QuoteEmailMessageDescriptionTxt);
     end;
 
     local procedure GetEmailAccountDescription(): Text[80]
@@ -94,12 +94,12 @@ page 2132 "O365 Invoice Send Settings"
         GraphMail: Codeunit "Graph Mail";
     begin
         if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
-            exit(CopyStr(EmailAccount."Email Address", 1, MaxStrLen(Description)));
+            exit(CopyStr(EmailAccount."Email Address", 1, MaxStrLen(Rec.Description)));
 
         if GraphMail.IsEnabled() and GraphMail.HasConfiguration() then
             if GraphMailSetup.Get() then
                 if GraphMailSetup."Sender Email" <> '' then
-                    exit(CopyStr(GraphMailSetup."Sender Email", 1, MaxStrLen(Description)));
+                    exit(CopyStr(GraphMailSetup."Sender Email", 1, MaxStrLen(Rec.Description)));
 
         exit(EmailAccountDescriptionTxt);
     end;

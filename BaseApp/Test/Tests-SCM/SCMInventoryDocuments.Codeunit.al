@@ -463,7 +463,7 @@ codeunit 137140 "SCM Inventory Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler,NotCopiedAppliesValuesMessageHandler')]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler')]
     [Scope('OnPrem')]
     procedure CopyInvReceiptFromPostedInvReceiptWithItemTrackedLines()
     var
@@ -509,6 +509,119 @@ codeunit 137140 "SCM Inventory Documents"
         // [WHEN] [THAN] Coping from posted Inventory Receipt with NewFillAppliesFields = true will be done without error
         CopyInvtDocMgt.SetProperties(true, false, false, false, true);
         CopyInvtDocMgt.CopyItemDoc(Enum::"Invt. Doc. Document Type From"::"Posted Receipt", InvtRcptHeader."No.", InvtDocumentHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyCorrectionInvReceiptFromPostedInvReceiptWithItemTrackedLines()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SNTrackedItem: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        InvtRcptHeader: Record "Invt. Receipt Header";
+        CopyInvtDocMgt: Codeunit "Copy Invt. Document Mgt.";
+    begin
+        // [FEATURE] [Inventory Receipt] [Item Tracking] [Copy Document]
+        // [SCENARIO 474794] Posting correction inventory receipt with multiple serial nos. for posted inventory receipt 
+
+        Initialize();
+
+        // [GIVEN] Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Serial No. tracked item and item without tracking.
+        CreateSNTrackedItem(SNTrackedItem);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create item receipt, with 2 lines, assign 5 serial nos. to the line with tracking.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", LibraryRandom.RandInt(100), LibraryRandom.RandInt(10));
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, SNTrackedItem."No.", LibraryRandom.RandInt(100), LibraryRandom.RandInt(10));
+        LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
+        InvtDocumentLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post the item receipt.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [GIVEN] Find posted Inventory Receipt.
+        InvtRcptHeader.SetRange("Receipt No.", InvtDocumentHeader."No.");
+        InvtRcptHeader.FindLast();
+
+        // [GIVEN] Init new Inventory Receipt.
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := InvtDocumentHeader."Document Type"::Receipt;
+        InvtDocumentHeader.InitRecord();
+        InvtDocumentHeader.Insert(true);
+
+        // [GIVEN] Update inventory receipt with location and correction.
+        InvtDocumentHeader.Validate("Location Code", Location.Code);
+        InvtDocumentHeader.Validate("Correction", true);
+        InvtDocumentHeader.Modify();
+
+        // [WHEN]  Coping lines from posted Inventory Receipt with item tracking data and apllies values 
+        CopyInvtDocMgt.SetProperties(false, true, false, false, true);
+        CopyInvtDocMgt.SetCopyItemTracking(true);
+        CopyInvtDocMgt.CopyItemDoc(Enum::"Invt. Doc. Document Type From"::"Posted Receipt", InvtRcptHeader."No.", InvtDocumentHeader);
+
+        // [THEN] Posting should be done without error
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyInvShipmentFromPostedInvReceiptWithItemTrackedLines()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SNTrackedItem: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        InvtRcptHeader: Record "Invt. Receipt Header";
+        CopyInvtDocMgt: Codeunit "Copy Invt. Document Mgt.";
+    begin
+        // [FEATURE] [Inventory Receipt] [Inventory Shipment] [Item Tracking] [Copy Document]
+        // [SCENARIO 474794] Posting inventory receipt with multiple serial nos.
+
+        Initialize();
+
+        // [GIVEN] Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Serial No. tracked item and item without tracking.
+        CreateSNTrackedItem(SNTrackedItem);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create item receipt, with 2 lines, assign 5 serial nos. to the line with tracking.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", LibraryRandom.RandInt(100), LibraryRandom.RandInt(10));
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, SNTrackedItem."No.", LibraryRandom.RandInt(100), LibraryRandom.RandInt(10));
+        LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
+        InvtDocumentLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post the item receipt.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [GIVEN] Find posted Inventory Receipt.
+        InvtRcptHeader.SetRange("Receipt No.", InvtDocumentHeader."No.");
+        InvtRcptHeader.FindLast();
+
+        // [GIVEN] Init new Inventory Receipt.
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := InvtDocumentHeader."Document Type"::Shipment;
+        InvtDocumentHeader.InitRecord();
+        InvtDocumentHeader.Insert(true);
+
+        // [WHEN] Coping lines from posted Inventory Receipt with item tracking data and apllies values
+        CopyInvtDocMgt.SetProperties(true, false, false, false, true);
+        CopyInvtDocMgt.SetCopyItemTracking(true);
+        CopyInvtDocMgt.CopyItemDoc(Enum::"Invt. Doc. Document Type From"::"Posted Receipt", InvtRcptHeader."No.", InvtDocumentHeader);
+
+        // [THEN] Posting should be done without error
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
     end;
 
     [MessageHandler]

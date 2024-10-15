@@ -356,28 +356,6 @@
         BusinessUnit.Insert(true);
     end;
 
-    procedure CreateBankRecHeader(var BankRecHeader: Record "Bank Rec. Header"; BankAccountNo: Code[20])
-    begin
-        BankRecHeader.Init();
-        BankRecHeader.Validate("Bank Account No.", BankAccountNo);
-        BankRecHeader.Validate("Statement Date", WorkDate());
-        BankRecHeader.Insert(true);
-    end;
-
-    procedure CreateBankRecLine(var BankRecLine: Record "Bank Rec. Line"; BankRecHeader: Record "Bank Rec. Header")
-    var
-        RecRef: RecordRef;
-    begin
-        BankRecLine.Init();
-        BankRecLine.Validate("Bank Account No.", BankRecHeader."Bank Account No.");
-        BankRecLine.Validate("Statement No.", BankRecHeader."Statement No.");
-        BankRecLine.Validate("Record Type", BankRecLine."Record Type"::Adjustment);
-        RecRef.GetTable(BankRecLine);
-        BankRecLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, BankRecLine.FieldNo("Line No.")));
-        Commit(); // Commit required for update Document No.
-        BankRecLine.Insert(true);
-    end;
-
     procedure CreateBankCommentLine(var BankCommentLine: Record "Bank Comment Line"; BankAccountNo: Code[20]; No: Code[20])
     var
         RecRef: RecordRef;
@@ -2512,7 +2490,7 @@
         AdjustAddReportingCurrency.Run();
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     // Old Adjust Exchange Rates
     procedure RunAdjustExchangeRatesSimple(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
     begin

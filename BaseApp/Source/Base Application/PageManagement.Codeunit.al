@@ -1,3 +1,35 @@
+﻿namespace Microsoft.Utilities;
+
+using Microsoft.Bank.Reconciliation;
+using Microsoft.CashFlow.Setup;
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+#if not CLEAN21
+using Microsoft.FixedAssets.Journal;
+#endif
+using Microsoft.Foundation.Company;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Intercompany.Journal;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Purchases.Analysis;
+using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Analysis;
+using Microsoft.Sales.Archive;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using System.Automation;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.User;
+
 codeunit 700 "Page Management"
 {
 
@@ -134,51 +166,51 @@ codeunit 700 "Page Management"
             exit(CardPageID);
 
         case RecRef.Number of
-            DATABASE::"Gen. Journal Template":
+            Database::"Gen. Journal Template":
                 exit(PAGE::"General Journal Templates");
-            DATABASE::"Company Information":
+            Database::"Company Information":
                 exit(PAGE::"Company Information");
-            DATABASE::"Sales Header":
+            Database::"Sales Header":
                 exit(GetSalesHeaderPageID(RecRef));
-            DATABASE::"Purchase Header":
+            Database::"Purchase Header":
                 exit(GetPurchaseHeaderPageID(RecRef));
-            DATABASE::"Service Header":
+            Database::"Service Header":
                 exit(GetServiceHeaderPageID(RecRef));
-            DATABASE::"Service Contract Header":
+            Database::"Service Contract Header":
                 exit(GetServiceContractHeaderPageID(RecRef));
-            DATABASE::"Gen. Journal Batch":
+            Database::"Gen. Journal Batch":
                 exit(GetGenJournalBatchPageID(RecRef));
-            DATABASE::"Gen. Journal Line":
+            Database::"Gen. Journal Line":
                 exit(GetGenJournalLinePageID(RecRef));
-            DATABASE::"User Setup":
+            Database::"User Setup":
                 exit(PAGE::"User Setup");
-            DATABASE::"General Ledger Setup":
+            Database::"General Ledger Setup":
                 exit(PAGE::"General Ledger Setup");
-            DATABASE::"Sales Header Archive":
+            Database::"Sales Header Archive":
                 exit(GetSalesHeaderArchivePageID(RecRef));
-            DATABASE::"Purchase Header Archive":
+            Database::"Purchase Header Archive":
                 exit(GetPurchaseHeaderArchivePageID(RecRef));
-            DATABASE::"Res. Journal Line":
+            Database::"Res. Journal Line":
                 exit(PAGE::"Resource Journal");
-            DATABASE::"Job Journal Line":
+            Database::"Job Journal Line":
                 exit(PAGE::"Job Journal");
-            DATABASE::"Item Analysis View":
+            Database::"Item Analysis View":
                 exit(GetAnalysisViewPageID(RecRef));
-            DATABASE::"Purchases & Payables Setup":
+            Database::"Purchases & Payables Setup":
                 exit(PAGE::"Purchases & Payables Setup");
-            DATABASE::"Approval Entry":
+            Database::"Approval Entry":
                 exit(GetApprovalEntryPageID(RecRef));
-            DATABASE::"Doc. Exch. Service Setup":
+            Database::"Doc. Exch. Service Setup":
                 exit(PAGE::"Doc. Exch. Service Setup");
-            DATABASE::"Incoming Documents Setup":
+            Database::"Incoming Documents Setup":
                 exit(PAGE::"Incoming Documents Setup");
-            DATABASE::"Text-to-Account Mapping":
+            Database::"Text-to-Account Mapping":
                 exit(PAGE::"Text-to-Account Mapping Wksh.");
-            DATABASE::"Cash Flow Setup":
+            Database::"Cash Flow Setup":
                 exit(PAGE::"Cash Flow Setup");
-            DATABASE::"Sales Invoice Header":
+            Database::"Sales Invoice Header":
                 exit(PAGE::"Posted Sales Invoice");
-            DATABASE::"Production Order":
+            Database::"Production Order":
                 exit(GetProductionOrderPageID(RecRef));
             Database::User:
                 exit(Page::"User Card");
@@ -203,9 +235,9 @@ codeunit 700 "Page Management"
             exit(PageID);
 
         case RecRef.Number of
-            DATABASE::"Sales Header":
+            Database::"Sales Header":
                 exit(GetSalesHeaderListPageID(RecRef));
-            DATABASE::"Purchase Header":
+            Database::"Purchase Header":
                 exit(GetPurchaseHeaderListPageID(RecRef));
         end;
         exit(0);
@@ -331,8 +363,10 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Cash Receipt Journal");
             GenJournalTemplate.Type::Payments:
                 exit(PAGE::"Payment Journal");
+#if not CLEAN21                
             GenJournalTemplate.Type::Assets:
                 exit(PAGE::"Fixed Asset G/L Journal");
+#endif
             GenJournalTemplate.Type::Intercompany:
                 exit(PAGE::"IC General Journal");
             GenJournalTemplate.Type::Jobs:
@@ -545,6 +579,6 @@ codeunit 700 "Page Management"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyPageID(TableID: Integer; PageID: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
-    end;    
+    end;
 }
 

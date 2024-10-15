@@ -1,3 +1,10 @@
+﻿namespace Microsoft.Utilities;
+
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using System.Environment.Configuration;
+using System.Security.AccessControl;
+
 table 1670 "Option Lookup Buffer"
 {
     Caption = 'Option Lookup Buffer';
@@ -67,12 +74,12 @@ table 1670 "Option Lookup Buffer"
             "Lookup Type"::Permissions:
                 FillBufferInternal(DATABASE::Permission, Permission.FieldNo("Read Permission"), 0, LookupType);
             else begin
-                    IsHandled := false;
-                    OnFillBufferLookupTypeCase(LookupType, IsHandled, TableNo, FieldNo, RelationFieldNo);
-                    if not IsHandled then
-                        Error(UnsupportedTypeErr);
-                    FillBufferInternal(TableNo, FieldNo, RelationFieldNo, LookupType);
-                end;
+                IsHandled := false;
+                OnFillBufferLookupTypeCase(LookupType, IsHandled, TableNo, FieldNo, RelationFieldNo);
+                if not IsHandled then
+                    Error(UnsupportedTypeErr);
+                FillBufferInternal(TableNo, FieldNo, RelationFieldNo, LookupType);
+            end;
         end;
     end;
 
@@ -93,11 +100,11 @@ table 1670 "Option Lookup Buffer"
                 "Lookup Type"::Permissions:
                     OptionType := Format(Permission."Read Permission");
                 else begin
-                        IsHandled := false;
-                        OnAutoCOmpleteOptionLookupTypeCase(LookupType, OptionType, IsHandled);
-                        if not IsHandled then
-                            exit(false);
-                    end;
+                    IsHandled := false;
+                    OnAutoCOmpleteOptionLookupTypeCase(LookupType, OptionType, IsHandled);
+                    if not IsHandled then
+                        exit(false);
+                end;
             end;
 
         SetRange("Option Caption");

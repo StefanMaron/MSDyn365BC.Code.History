@@ -40,6 +40,8 @@ codeunit 137034 "SCM Production Journal"
         LocationWithDirectedPutAwayAndPickErr: Label 'You cannot use a Bin Code because location %1 is set up with Directed Put-away and Pick.', Comment = '%1: Field(Code)';
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
         BOMFixedQtyCalcFormulaErr: Label 'BOM Fixed Quantity Calculation Formula should be used to calculate the values.';
+        FieldMustBeEmptyErr: Label '%1 must be empty', Comment = '%1 - Field Caption';
+        DescriptionMustBeSame: Label 'Description must be same.';
 
     [Test]
     [HandlerFunctions('JournalReservePageHandler')]
@@ -1442,6 +1444,8 @@ codeunit 137034 "SCM Production Journal"
         // Add yourselves as Warehouse Employee to location L1
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
+        Location.Validate("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"Inventory Put-away");
         Location.Modify(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
@@ -1654,6 +1658,81 @@ codeunit 137034 "SCM Production Journal"
         // [THEN] Item variant = "V", bin code = "B" on the output journal line.
         ItemJournalLine.TestField("Variant Code", ItemVariant.Code);
         ItemJournalLine.TestField("Bin Code", Bin.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDescriptionAndDescription2OnProdOrderWithItemVariant()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [SCENARIO 479958] Description/Description 2 are not updated when user selects variant code: Prod Order Header
+        Initialize();
+
+        // [GIVEN] Create Item with Item Variant. 
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        ItemVariant."Description 2" := LibraryUtility.GenerateRandomText(20);
+        ItemVariant.Modify(true);
+
+        // [THEN] Production Order with Item Variant
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            Item."No.",
+            LibraryRandom.RandDec(10, 2));
+
+        ProductionOrder.Validate("Variant Code", ItemVariant.Code);
+        ProductionOrder.Modify(true);
+
+        // [VERIFY] Verify: Description/Description 2 of "Production Order" should be equal to "Item Variant" Description/Description 2
+        Assert.AreEqual(ItemVariant.Description, ProductionOrder.Description, DescriptionMustBeSame);
+        Assert.AreEqual(ItemVariant."Description 2", ProductionOrder."Description 2", DescriptionMustBeSame);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyVariantCodeClearedWhenSelectingNewItemOnReleasedProductionOrder()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        ItemVariant: Record "Item Variant";
+        ProductionOrder: Record "Production Order";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ProdOrderNo: Code[20];
+    begin
+        // [SCENARIO 479957] When user select item, previously selected variant code is no cleared: assembly header, prod order header
+        Initialize();
+
+        // [GIVEN] Create Item with Item Variant and also add Description 2 on Item Variant
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [THEN] Production Order with Item Variant
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            Item."No.",
+            LibraryRandom.RandDec(10, 2));
+
+        ProductionOrder.Validate("Variant Code", ItemVariant.Code);
+        ProductionOrder.Modify(true);
+
+        // [WHEN] Open Released Production Order Page and change Item to I2
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        ReleasedProductionOrder."Source No.".SetValue(Item2."No.");
+        ProdOrderNo := Format(ReleasedProductionOrder."No.");
+        ReleasedProductionOrder.Close();
+
+        // [VERIFY] Verify: Changing Item No. on "Released Production Order" should be cleared the "Variant Code" field value
+        ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderNo);
+        Assert.AreEqual('', ProductionOrder."Variant Code", StrSubstNo(FieldMustBeEmptyErr, ProductionOrder.FieldCaption("Variant Code")));
     end;
 
     local procedure Initialize()

@@ -190,7 +190,7 @@ codeunit 142062 "ERM Misc. Report III"
         FieldMustBeVisibleInAreaErr: Label 'Field %1 must be visible in %2.';
         TestFieldNotFoundErr: Label 'TestFieldNotFound';
         RemitAddressShouldExistErr: Label 'Remit Address Name should exist in the Positive Pay Export File.';
-        RemitToCodeMissingErr: Label 'Remit-To Code missing on payment journal line.';        
+        RemitToCodeMissingErr: Label 'Remit-To Code missing on payment journal line.';
         SalesCommentToMatch: Label 'HighDescriptionToPrint';
         RowMustExist: Label 'Row must exist.';
 
@@ -690,37 +690,6 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryReportDataset.SetRange('No_SalesInvHeader', DocumentNo);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('TempPostedAsmLineQuantity', QtyPer * Qty);
-    end;
-
-    [HandlerFunctions('GenJournalBatchesPageHandler,ConfirmHandler,DepositRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure CheckTotalDepositReport()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Deposit: Report Deposit;
-        DocumentNo: Code[20];
-        TotalDepositAmount: Decimal;
-    begin
-        // [SCENARIO 376193] Totals should be showing and correct in Deposit report after applying
-        Initialize();
-
-        // [GIVEN] Deposit with one line applying to posted sales invoice
-        // [GIVEN] Total Deposit Amount = "X"
-        UpdateGLSetupDepositNos;
-        DocumentNo := CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, true);
-        TotalDepositAmount := CreateAndPostDepositWithApplyDoc(DocumentNo, SalesLine."Sell-to Customer No.");
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
-        Commit();
-
-        // [WHEN] Invoke Deposit report
-        Deposit.Run();
-
-        // [THEN] Field of total = "X"
-        LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValueOnWorksheet(
-          17, 12, LibraryReportValidation.FormatDecimalValue(TotalDepositAmount), '1');
     end;
 
     [Test]
@@ -2410,48 +2379,6 @@ codeunit 142062 "ERM Misc. Report III"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-    end;
-
-    local procedure CreateAndPostDepositWithApplyDoc(DocumentNo: Code[20]; CustomerNo: Code[20]): Decimal
-    var
-        DepositHeader: Record "Deposit Header";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        CreateGenJournalBatch(GenJournalBatch);
-        LibrarySales.CreateDepositHeader(DepositHeader, GenJournalBatch);
-        DepositHeader.Validate("Bank Account No.", LibraryERM.CreateBankAccountNo);
-        DepositHeader.Modify(true);
-        LibraryERM.CreateGeneralJnlLine(GenJournalLine, DepositHeader."Journal Template Name", DepositHeader."Journal Batch Name",
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
-          -LibraryRandom.RandInt(1000));
-        ApplyCustLedgerEntry(DocumentNo, GenJournalLine."Document No.");
-        DepositHeader.CalcFields("Total Deposit Lines");
-        DepositHeader."Total Deposit Amount" := DepositHeader."Total Deposit Lines";
-        DepositHeader.Modify();
-        LibraryVariableStorage.Enqueue(DepositHeader."No.");
-        LibrarySales.PostDepositDocument(DepositHeader);
-        exit(DepositHeader."Total Deposit Amount");
-    end;
-
-    local procedure ApplyCustLedgerEntry(DocumentNo: Code[20]; GenJnlLineNo: Code[20])
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-    begin
-        CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst();
-        CustLedgerEntry."Applies-to Doc. No." := GenJnlLineNo;
-        CustLedgerEntry.CalcFields("Remaining Amount");
-        CustLedgerEntry.Modify();
-        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
-    end;
-
     local procedure EnqueueValuesForReport(VendorNo: Text; OptionValue: Option)
     begin
         LibraryVariableStorage.Enqueue(VendorNo);  // Enqueue values for TopVendorListRequestPageHandler.
@@ -3360,19 +3287,6 @@ codeunit 142062 "ERM Misc. Report III"
     procedure GenJournalBatchesPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
     begin
         GeneralJournalBatches.OK.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure DepositRequestPageHandler(var Deposit: TestRequestPage Deposit)
-    var
-        DepositNo: Variant;
-        FileName: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(DepositNo);
-        LibraryVariableStorage.Dequeue(FileName);
-        Deposit."Posted Deposit Header".SetFilter("No.", DepositNo);
-        Deposit.SaveAsExcel(FileName);
     end;
 
     [ConfirmHandler]

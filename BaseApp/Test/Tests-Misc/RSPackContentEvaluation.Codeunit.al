@@ -23,7 +23,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         ItemNoSeriesTok: Label 'ITEM';
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         SalesReturnReceiptTok: Label 'S-RCPT';
-        NOVATTok: Label 'NO VAT';
+        ZEROTaxTok: Label 'ZERO';
         NONTAXABLETok: Label 'NonTAXABLE';
         xBANKTxt: Label 'BANK';
         XSALESTok: Label 'SALES';
@@ -100,7 +100,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO] There are 2 Gen. Posting groups, where Product Group code is 'NO VAT'
         // [WHEN] Find "Gen. Posting Setup" records
         // [THEN] There are 3 groups, where "Gen. Prod. Posting Group" = 'NOVAT'
-        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", NOVATTok);
+        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", ZEROTaxTok);
         Assert.RecordCount(GeneralPostingSetup, 3);
         // [THEN] first, where "Gen. Bus. Posting Group" is blank
         GeneralPostingSetup.FindFirst();
@@ -751,7 +751,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         InteractionTemplateSetup.TestField("Sales Cr. Memo");
         InteractionTemplateSetup.TestField("Sales Invoices");
         InteractionTemplateSetup.TestField("Sales Ord. Cnfrmn.");
-		InteractionTemplateSetup.TestField("Sales Draft Invoices");
+        InteractionTemplateSetup.TestField("Sales Draft Invoices");
         InteractionTemplateSetup.TestField("Sales Shpt. Note");
         InteractionTemplateSetup.TestField("Sales Quotes");
     end;
@@ -934,17 +934,17 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
         Initialize();
 
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUE');
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUE');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'StandardSalesQuoteBlue.docx');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'StandardSalesInvoiceBlueSimple.docx');
     end;
 
-    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
+    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutName: Text[250])
     var
-        ReportLayoutSelection: Record "Report Layout Selection";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
     begin
-        ReportLayoutSelection.SetRange("Report ID", ReportID);
-        ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayoutCode);
-        Assert.RecordIsNotEmpty(ReportLayoutSelection);
+        TenantReportLayoutSelection.SetRange("Report ID", ReportID);
+        TenantReportLayoutSelection.SetRange("Layout Name", CustomReportLayoutName);
+        Assert.RecordIsNotEmpty(TenantReportLayoutSelection);
     end;
 
     local procedure ValidateNoSeriesExists(NoSeriesCode: Code[20])

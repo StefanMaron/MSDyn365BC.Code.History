@@ -1,3 +1,9 @@
+namespace Microsoft.Finance.SalesTax;
+
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Foundation.Company;
+using System.Utilities;
+
 report 24 "Sales Taxes Collected"
 {
     DefaultLayout = RDLC;
@@ -10,7 +16,7 @@ report 24 "Sales Taxes Collected"
     {
         dataitem(ReportToJurisdiction; "Tax Jurisdiction")
         {
-            DataItemTableView = SORTING("Report-to Jurisdiction");
+            DataItemTableView = sorting("Report-to Jurisdiction");
 
             trigger OnAfterGetRecord()
             begin
@@ -40,10 +46,10 @@ report 24 "Sales Taxes Collected"
         }
         dataitem(CurReportTo; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             dataitem("Tax Jurisdiction"; "Tax Jurisdiction")
             {
-                DataItemTableView = SORTING(Code);
+                DataItemTableView = sorting(Code);
                 RequestFilterFields = "Code", "Report-to Jurisdiction", "Tax Group Filter", "Date Filter";
                 column(Title; Title)
                 {
@@ -147,8 +153,8 @@ report 24 "Sales Taxes Collected"
                 }
                 dataitem("VAT Entry"; "VAT Entry")
                 {
-                    DataItemLink = "Tax Jurisdiction Code" = FIELD(Code), "Tax Group Used" = FIELD("Tax Group Filter"), "Posting Date" = FIELD("Date Filter");
-                    DataItemTableView = SORTING("Tax Jurisdiction Code", "Tax Group Used", "Tax Type", "Use Tax", "Posting Date") WHERE("Tax Type" = FILTER("Sales and Use Tax" | "Sales Tax Only" | "Use Tax Only"));
+                    DataItemLink = "Tax Jurisdiction Code" = field(Code), "Tax Group Used" = field("Tax Group Filter"), "Posting Date" = field("Date Filter");
+                    DataItemTableView = sorting("Tax Jurisdiction Code", "Tax Group Used", "Tax Type", "Use Tax", "Posting Date") where("Tax Type" = filter("Sales and Use Tax" | "Sales Tax Only" | "Use Tax Only"));
                     column(TaxGroupCodeUsed; FieldCaption("Tax Group Code") + ': ' + "Tax Group Used")
                     {
                     }

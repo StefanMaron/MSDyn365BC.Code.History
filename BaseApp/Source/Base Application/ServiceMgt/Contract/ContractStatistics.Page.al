@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Service.Ledger;
+
 page 6059 "Contract Statistics"
 {
     Caption = 'Contract Statistics';
@@ -346,41 +350,41 @@ page 6059 "Contract Statistics"
     begin
         ClearAll();
         ServLedgerEntry.Reset();
-        ServLedgerEntry.SetRange("Service Contract No.", "Contract No.");
+        ServLedgerEntry.SetRange("Service Contract No.", Rec."Contract No.");
         ServLedgerEntry.SetRange("Entry Type", ServLedgerEntry."Entry Type"::Sale);
-        SetRange("Type Filter", "Type Filter"::"Service Contract");
-        CalcFields(
+        Rec.SetRange("Type Filter", Rec."Type Filter"::"Service Contract");
+        Rec.CalcFields(
           "Contract Invoice Amount", "Contract Prepaid Amount", "Contract Cost Amount",
           "Contract Discount Amount");
 
-        Income[4] := "Contract Invoice Amount";
-        TotalDiscount[4] := "Contract Discount Amount";
-        TotalCost[4] := "Contract Cost Amount";
+        Income[4] := Rec."Contract Invoice Amount";
+        TotalDiscount[4] := Rec."Contract Discount Amount";
+        TotalCost[4] := Rec."Contract Cost Amount";
         ProfitAmount[4] := Income[4] - TotalCost[4];
         ProfitAmountPercent[4] := CalcPercentage(ProfitAmount[4], Income[4]);
 
         Income[5] := Income[5] + Income[4];
-        PrepaidIncome := "Contract Prepaid Amount";
+        PrepaidIncome := Rec."Contract Prepaid Amount";
 
         TotalCost[5] := TotalCost[5] + TotalCost[4];
         TotalDiscount[5] := TotalDiscount[5] + TotalDiscount[4];
         for i := 1 to 3 do begin
             if i = 3 then
-                SetFilter("Type Filter", '%1|%2', "Type Filter"::"Service Cost", "Type Filter"::"G/L Account")
+                Rec.SetFilter("Type Filter", '%1|%2', Rec."Type Filter"::"Service Cost", Rec."Type Filter"::"G/L Account")
             else
-                SetRange("Type Filter", i);
+                Rec.SetRange("Type Filter", i);
             ServLedgerEntry.SetRange(Type, i);
             if ServLedgerEntry.FindSet() then
                 repeat
                     OnAfterGetRecordOnBeforeCalcTotalDiscount(ServLedgerEntry);
                     TotalDiscount[i] := TotalDiscount[i] - ServLedgerEntry."Discount Amount";
                 until ServLedgerEntry.Next() = 0;
-            CalcFields("Contract Invoice Amount", "Contract Discount Amount", "Contract Cost Amount");
+            Rec.CalcFields("Contract Invoice Amount", "Contract Discount Amount", "Contract Cost Amount");
 
-            Income[i] := "Contract Invoice Amount";
-            Income[5] := Income[5] + "Contract Invoice Amount";
+            Income[i] := Rec."Contract Invoice Amount";
+            Income[5] := Income[5] + Rec."Contract Invoice Amount";
 
-            TotalCost[i] := "Contract Cost Amount";
+            TotalCost[i] := Rec."Contract Cost Amount";
             TotalCost[5] := TotalCost[5] + TotalCost[i];
 
             TotalDiscount[5] := TotalDiscount[5] + TotalDiscount[i];
@@ -402,7 +406,7 @@ page 6059 "Contract Statistics"
 
         TotalProfitPct := CalcPercentage(TotalProfit, TotalIncome);
 
-        SetRange("Type Filter");
+        Rec.SetRange("Type Filter");
     end;
 
     var

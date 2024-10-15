@@ -1,3 +1,15 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Posting;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Period;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using System.Security.User;
+
 codeunit 1720 "Deferral Utilities"
 {
 
@@ -474,7 +486,7 @@ codeunit 1720 "Deferral Utilities"
     begin
         if not DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
             // Need to create the header record.
-            DeferralHeader."Deferral Doc. Type" := "Deferral Document Type".FromInteger(DeferralDocType);
+            DeferralHeader."Deferral Doc. Type" := Enum::"Deferral Document Type".FromInteger(DeferralDocType);
             DeferralHeader."Gen. Jnl. Template Name" := GenJnlTemplateName;
             DeferralHeader."Gen. Jnl. Batch Name" := GenJnlBatchName;
             DeferralHeader."Document Type" := DocumentType;

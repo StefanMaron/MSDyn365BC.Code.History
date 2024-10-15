@@ -1,3 +1,17 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using System;
+using System.DateTime;
+using System.Reflection;
+using System.Text;
+using Microsoft.API.Upgrade;
+
 codeunit 5470 "Graph Collection Mgt - Item"
 {
 
@@ -17,7 +31,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
     procedure InsertItemFromSalesDocument(var Item: Record Item; var TempFieldSet: Record "Field" temporary; UnitOfMeasureJSON: Text)
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        RecRef: RecordRef;
+        RecordRef: RecordRef;
         ItemModified: Boolean;
     begin
         If IsNullGuid(Item.SystemId) then
@@ -27,19 +41,18 @@ codeunit 5470 "Graph Collection Mgt - Item"
 
         UpdateOrCreateItemUnitOfMeasureFromSalesDocument(UnitOfMeasureJSON, Item, TempFieldSet, ItemModified);
 
-        RecRef.GetTable(Item);
-        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, Item."Last DateTime Modified");
-        RecRef.SetTable(Item);
+        RecordRef.GetTable(Item);
+        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecordRef, TempFieldSet, Item."Last DateTime Modified");
+        RecordRef.SetTable(Item);
 
         Item.Modify(true);
     end;
 
-    [Obsolete('This procedure will become obsolete after the end of API v1.0 support', '17.0')]
     [Scope('Cloud')]
     procedure InsertItem(var Item: Record Item; var TempFieldSet: Record "Field" temporary; BaseUnitOfMeasureJSON: Text)
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        RecRef: RecordRef;
+        RecordRef: RecordRef;
     begin
         If IsNullGuid(Item.SystemId) then
             Item.Insert(true)
@@ -48,12 +61,11 @@ codeunit 5470 "Graph Collection Mgt - Item"
 
         ProcessComplexTypes(
           Item,
-          BaseUnitOfMeasureJSON
-          );
+          BaseUnitOfMeasureJSON);
 
-        RecRef.GetTable(Item);
-        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, Item."Last DateTime Modified");
-        RecRef.SetTable(Item);
+        RecordRef.GetTable(Item);
+        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecordRef, TempFieldSet, Item."Last DateTime Modified");
+        RecordRef.SetTable(Item);
 
         Item.Modify(true);
     end;
@@ -73,11 +85,11 @@ codeunit 5470 "Graph Collection Mgt - Item"
     procedure ModifyItem(var Item: Record Item; var TempFieldSet: Record "Field" temporary)
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        RecRef: RecordRef;
+        RecordRef: RecordRef;
     begin
-        RecRef.GetTable(Item);
-        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, Item."Last DateTime Modified");
-        RecRef.SetTable(Item);
+        RecordRef.GetTable(Item);
+        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecordRef, TempFieldSet, Item."Last DateTime Modified");
+        RecordRef.SetTable(Item);
 
         Item.Modify(true);
     end;
@@ -179,7 +191,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         PreviousUnitOfMeasureJSONString: Text;
         PreviousUOMCode: Code[10];
         HasUOMConversions: Boolean;
-        BaseUnitOfMeasureCode: Code[20];
+        BaseUnitOfMeasureCode: Code[10];
     begin
         if UnitOfMeasureJSONString = '' then
             exit;
@@ -273,7 +285,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, UOMComplexTypeSymbol(), UnitOfMeasure.Symbol);
     end;
 
-    local procedure ParseJSONToItemUnitOfMeasure(UnitOfMeasureJSONString: Text; var Item: Record Item; var TempItemUnitOfMeasure: Record "Item Unit of Measure" temporary; var UnitOfMeasure: Record "Unit of Measure"; var BaseUnitOfMeasureCode: Code[20]): Boolean
+    local procedure ParseJSONToItemUnitOfMeasure(UnitOfMeasureJSONString: Text; var Item: Record Item; var TempItemUnitOfMeasure: Record "Item Unit of Measure" temporary; var UnitOfMeasure: Record "Unit of Measure"; var BaseUnitOfMeasureCode: Code[10]): Boolean
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         JSONManagement: Codeunit "JSON Management";
@@ -299,7 +311,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
 
         GraphMgtGeneralTools.GetMandatoryStringPropertyFromJObject(
           JsonObject, UOMConversionComplexTypeToUnitOfMeasure(), BaseUnitOfMeasureTxt);
-        BaseUnitOfMeasureCode := CopyStr(BaseUnitOfMeasureTxt, 1, 20);
+        BaseUnitOfMeasureCode := CopyStr(BaseUnitOfMeasureTxt, 1, 10);
 
         GraphMgtGeneralTools.GetMandatoryStringPropertyFromJObject(
           JsonObject, UOMConversionComplexTypeFromToConversionRate(), FromToConversionRateTxt);
@@ -358,7 +370,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
     procedure SetLastDateTimeModified()
     var
         Item: Record Item;
-        DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
+        DotNetDateTimeOffset: Codeunit DotNet_DateTimeOffset;
         CombinedDateTime: DateTime;
     begin
         Item.SetRange("Last DateTime Modified", 0DT);
@@ -367,7 +379,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
 
         repeat
             CombinedDateTime := CreateDateTime(Item."Last Date Modified", Item."Last Time Modified");
-            Item."Last DateTime Modified" := DotNet_DateTimeOffset.ConvertToUtcDateTime(CombinedDateTime);
+            Item."Last DateTime Modified" := DotNetDateTimeOffset.ConvertToUtcDateTime(CombinedDateTime);
             Item.Modify();
         until Item.Next() = 0;
     end;
@@ -440,7 +452,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         APIDataUpgrade: Codeunit "API Data Upgrade";
         RecordCount: Integer;
     begin
-        if not Item.FindSet(true, false) then
+        if not Item.FindSet(true) then
             exit;
 
         repeat

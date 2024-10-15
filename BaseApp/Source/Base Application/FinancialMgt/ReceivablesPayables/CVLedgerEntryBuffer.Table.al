@@ -1,4 +1,22 @@
-﻿table 382 "CV Ledger Entry Buffer"
+﻿namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
+using System.Security.AccessControl;
+
+table 382 "CV Ledger Entry Buffer"
 {
     Caption = 'CV Ledger Entry Buffer';
     ReplicateData = false;
@@ -49,14 +67,14 @@
         }
         field(13; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }
         field(14; "Remaining Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Amount';
             DataClassification = SystemMetadata;
@@ -114,14 +132,14 @@
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(24; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(25; "Salesperson Code"; Code[20])
         {
@@ -134,8 +152,6 @@
             Caption = 'User ID';
             DataClassification = SystemMetadata;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(28; "Source Code"; Code[10])
         {
@@ -175,7 +191,7 @@
         }
         field(39; "Original Pmt. Disc. Possible"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Original Pmt. Disc. Possible';
             DataClassification = SystemMetadata;
@@ -210,7 +226,7 @@
         }
         field(46; "Closed by Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Closed by Amount';
             DataClassification = SystemMetadata;
@@ -245,15 +261,15 @@
         {
             Caption = 'Bal. Account No.';
             DataClassification = SystemMetadata;
-            TableRelation = IF ("Bal. Account Type" = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF ("Bal. Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Bal. Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Bal. Account Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
+            else
+            if ("Bal. Account Type" = const(Customer)) Customer
+            else
+            if ("Bal. Account Type" = const(Vendor)) Vendor
+            else
+            if ("Bal. Account Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(53; "Transaction No."; Integer)
         {
@@ -268,7 +284,7 @@
         }
         field(58; "Debit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
@@ -276,7 +292,7 @@
         }
         field(59; "Credit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
@@ -372,7 +388,7 @@
         }
         field(77; "Remaining Pmt. Disc. Possible"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Pmt. Disc. Possible';
             DataClassification = SystemMetadata;
@@ -404,7 +420,7 @@
         }
         field(84; "Amount to Apply"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Apply';
             DataClassification = SystemMetadata;
@@ -578,6 +594,8 @@
           CurrExchRate.ExchangeAmount("Remaining Pmt. Disc. Possible", FromCurrencyCode, ToCurrencyCode, PostingDate);
         "Amount to Apply" :=
           CurrExchRate.ExchangeAmount("Amount to Apply", FromCurrencyCode, ToCurrencyCode, PostingDate);
+
+        OnAfterRecalculateAmounts(Rec, FromCurrencyCode, ToCurrencyCode, PostingDate);
     end;
 
     procedure SetClosedFields(EntryNo: Integer; PostingDate: Date; NewAmount: Decimal; AmountLCY: Decimal; CurrencyCode: Code[10]; CurrencyAmount: Decimal)
@@ -589,6 +607,20 @@
         "Closed by Currency Code" := CurrencyCode;
         "Closed by Currency Amount" := CurrencyAmount;
         OnAfterSetClosedFields(Rec);
+    end;
+
+    procedure GetPmtDiscountDate(ReferenceDate: Date) PmtDiscountDate: Date
+    begin
+        PmtDiscountDate := "Pmt. Discount Date";
+
+        OnAfterGetPmtDiscountDate(Rec, ReferenceDate, PmtDiscountDate);
+    end;
+
+    procedure GetRemainingPmtDiscPossible(ReferenceDate: Date) RemainingPmtDiscPossible: Decimal
+    begin
+        RemainingPmtDiscPossible := "Remaining Pmt. Disc. Possible";
+
+        OnAfterGetRemainingPmtDiscPossible(Rec, ReferenceDate, RemainingPmtDiscPossible);
     end;
 
     [IntegrationEvent(false, false)]
@@ -608,6 +640,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetClosedFields(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPmtDiscountDate(CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; ReferenceDate: Date; var PmtDiscountDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRemainingPmtDiscPossible(CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; ReferenceDate: Date; var RemainingPmtDiscPossible: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecalculateAmounts(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; PostingDate: Date)
     begin
     end;
 }

@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using System.Visualization;
+
 table 762 "Account Schedules Chart Setup"
 {
     Caption = 'Account Schedules Chart Setup';

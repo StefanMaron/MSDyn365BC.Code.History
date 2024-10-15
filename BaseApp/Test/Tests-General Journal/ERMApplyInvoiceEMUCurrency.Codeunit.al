@@ -80,7 +80,7 @@
 
         PostedDocumentNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency);
         ModifyExchangeRate(SalesHeader."Currency Code");
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRates(SalesHeader."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), PostedDocumentNo, false);
 #else
         LibraryERM.RunExchRateAdjustment(SalesHeader."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), PostedDocumentNo, false);

@@ -20,7 +20,7 @@ codeunit 138300 "RS Pack Content - Standard"
         TransReceiptNoSeriesTok: Label 'T-RCPT';
         TransOrderNoSeriesTok: Label 'T-ORD';
         ItemNoSeriesTok: Label 'ITEM';
-        NOVATTok: Label 'NO VAT';
+        ZEROTaxTok: Label 'ZERO';
         NONTAXABLETok: Label 'NonTAXABLE';
 
     [Test]
@@ -76,7 +76,7 @@ codeunit 138300 "RS Pack Content - Standard"
         // [SCENARIO] There are 2 Gen. Posting groups, where Product Group code is 'NO TAX'
         // [WHEN] Find "Gen. Posting Setup" records
         // [THEN] There are 2 groups, where "Gen. Prod. Posting Group" = 'NOTAX'
-        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", NOVATTok);
+        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", ZEROTaxTok);
         Assert.RecordCount(GeneralPostingSetup, 3);
         // [THEN] first, where "Gen. Bus. Posting Group" is blank
         GeneralPostingSetup.FindFirst();
@@ -426,17 +426,17 @@ codeunit 138300 "RS Pack Content - Standard"
     procedure ReportLayoutSelections()
     begin
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUE');
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUE');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'StandardSalesQuoteBlue.docx');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'StandardSalesInvoiceBlueSimple.docx');
     end;
 
-    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
+    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutName: Text[250])
     var
-        ReportLayoutSelection: Record "Report Layout Selection";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
     begin
-        ReportLayoutSelection.SetRange("Report ID", ReportID);
-        ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayoutCode);
-        Assert.RecordIsNotEmpty(ReportLayoutSelection);
+        TenantReportLayoutSelection.SetRange("Report ID", ReportID);
+        TenantReportLayoutSelection.SetRange("Layout Name", CustomReportLayoutName);
+        Assert.RecordIsNotEmpty(TenantReportLayoutSelection);
     end;
 
     local procedure ValidateNoSeriesExists(NoSeriesCode: Code[20])

@@ -48,33 +48,33 @@ page 2156 "O365 Cust. Invoice Discount"
         CustInvoiceDisc.SetRange(Code, CustomerCode);
         if CustInvoiceDisc.FindSet() then
             repeat
-                Init();
-                Code := CustInvoiceDisc.Code;
-                "Line No." += 10000;
-                "Minimum Amount" := CustInvoiceDisc."Minimum Amount";
-                "Discount %" := CustInvoiceDisc."Discount %";
-                Insert();
+                Rec.Init();
+                Rec.Code := CustInvoiceDisc.Code;
+                Rec."Line No." += 10000;
+                Rec."Minimum Amount" := CustInvoiceDisc."Minimum Amount";
+                Rec."Discount %" := CustInvoiceDisc."Discount %";
+                Rec.Insert();
             until CustInvoiceDisc.Next() = 0;
-        FilterGroup(2);
-        SetRange(Code, CustomerCode);
-        FilterGroup(0);
+        Rec.FilterGroup(2);
+        Rec.SetRange(Code, CustomerCode);
+        Rec.FilterGroup(0);
     end;
 
     local procedure UpdateCustInvDiscount()
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
-        CustInvoiceDisc.SetRange(Code, Code);
+        CustInvoiceDisc.SetRange(Code, Rec.Code);
         CustInvoiceDisc.DeleteAll();
 
-        Reset();
-        if FindSet() then
+        Rec.Reset();
+        if Rec.FindSet() then
             repeat
-                CustInvoiceDisc.Code := Code;
-                CustInvoiceDisc."Minimum Amount" := "Minimum Amount";
-                CustInvoiceDisc."Discount %" := "Discount %";
+                CustInvoiceDisc.Code := Rec.Code;
+                CustInvoiceDisc."Minimum Amount" := Rec."Minimum Amount";
+                CustInvoiceDisc."Discount %" := Rec."Discount %";
                 CustInvoiceDisc.Insert();
-            until Next() = 0;
+            until Rec.Next() = 0;
     end;
 }
 #endif

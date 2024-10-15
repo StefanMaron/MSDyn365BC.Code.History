@@ -1,3 +1,19 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Assembly.Document;
+using Microsoft.HumanResources.Absence;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
+using Microsoft.Service.Document;
+using Microsoft.Utilities;
+using System.Security.User;
+
 table 951 "Time Sheet Line"
 {
     Caption = 'Time Sheet Line';
@@ -70,7 +86,7 @@ table 951 "Time Sheet Line"
         field(7; "Job Task No."; Code[20])
         {
             Caption = 'Job Task No.';
-            TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
             trigger OnValidate()
             begin
@@ -138,7 +154,7 @@ table 951 "Time Sheet Line"
         field(13; "Service Order No."; Code[20])
         {
             Caption = 'Service Order No.';
-            TableRelation = IF (Posted = CONST(false)) "Service Header"."No." WHERE("Document Type" = CONST(Order));
+            TableRelation = if (Posted = const(false)) "Service Header"."No." where("Document Type" = const(Order));
 
             trigger OnValidate()
             var
@@ -161,8 +177,8 @@ table 951 "Time Sheet Line"
         }
         field(15; "Total Quantity"; Decimal)
         {
-            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("Time Sheet No."),
-                                                                  "Time Sheet Line No." = FIELD("Line No.")));
+            CalcFormula = sum("Time Sheet Detail".Quantity where("Time Sheet No." = field("Time Sheet No."),
+                                                                  "Time Sheet Line No." = field("Line No.")));
             Caption = 'Total Quantity';
             Editable = false;
             FieldClass = FlowField;
@@ -176,7 +192,7 @@ table 951 "Time Sheet Line"
         {
             Caption = 'Assembly Order No.';
             Editable = false;
-            TableRelation = IF (Posted = CONST(false)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order));
+            TableRelation = if (Posted = const(false)) "Assembly Header"."No." where("Document Type" = const(Order));
         }
         field(19; "Assembly Order Line No."; Integer)
         {
@@ -207,8 +223,8 @@ table 951 "Time Sheet Line"
         }
         field(26; Comment; Boolean)
         {
-            CalcFormula = Exist("Time Sheet Comment Line" WHERE("No." = FIELD("Time Sheet No."),
-                                                                 "Time Sheet Line No." = FIELD("Line No.")));
+            CalcFormula = exist("Time Sheet Comment Line" where("No." = field("Time Sheet No."),
+                                                                 "Time Sheet Line No." = field("Line No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;

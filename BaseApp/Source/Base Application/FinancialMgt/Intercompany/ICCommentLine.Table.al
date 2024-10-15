@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany.Comment;
+
+using Microsoft.Intercompany.Partner;
+using Microsoft.Intercompany.Setup;
+
 table 424 "IC Comment Line"
 {
     Caption = 'IC Comment Line';

@@ -1,10 +1,23 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Sales.Document;
+using System.Environment.Configuration;
+using System.Threading;
+using System.Utilities;
+
 codeunit 5355 "CRM Notes Synch Job"
 {
     TableNo = "Job Queue Entry";
 
     trigger OnRun()
     begin
-        UpdateOrders(GetLastLogEntryNo());
+        UpdateOrders(Rec.GetLastLogEntryNo());
     end;
 
     var

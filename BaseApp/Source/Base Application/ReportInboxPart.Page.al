@@ -1,3 +1,8 @@
+namespace Microsoft.EServices.EDocument;
+
+using System.Integration;
+using System.Threading;
+
 page 681 "Report Inbox Part"
 {
     Caption = 'Report Inbox';
@@ -8,8 +13,8 @@ page 681 "Report Inbox Part"
     PageType = ListPart;
     RefreshOnActivate = true;
     SourceTable = "Report Inbox";
-    SourceTableView = SORTING("User ID", "Created Date-Time")
-                      ORDER(Descending);
+    SourceTableView = sorting("User ID", "Created Date-Time")
+                      order(Descending);
 
     layout
     {
@@ -21,13 +26,13 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Read;
+                    StyleExpr = NOT Rec.Read;
                     ToolTip = 'Specifies the name of the report.';
                     Visible = false;
 
                     trigger OnDrillDown()
                     begin
-                        ShowReport();
+                        Rec.ShowReport();
                         CurrPage.Update();
                     end;
                 }
@@ -35,12 +40,12 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Read;
+                    StyleExpr = NOT Rec.Read;
                     ToolTip = 'Specifies the description of the scheduled report that was processed from the job queue.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowReport();
+                        Rec.ShowReport();
                         CurrPage.Update();
                     end;
                 }
@@ -48,7 +53,7 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Read;
+                    StyleExpr = NOT Rec.Read;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                     Visible = false;
                 }
@@ -56,14 +61,14 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Read;
+                    StyleExpr = NOT Rec.Read;
                     ToolTip = 'Specifies the date and time that the scheduled report was processed from the job queue.';
                 }
                 field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Read;
+                    StyleExpr = NOT Rec.Read;
                     ToolTip = 'Specifies the object ID of the report.';
                     Visible = false;
                 }
@@ -71,7 +76,7 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Read;
+                    StyleExpr = NOT Rec.Read;
                     ToolTip = 'Specifies the output type of the scheduled report.';
                 }
             }
@@ -142,7 +147,7 @@ page 681 "Report Inbox Part"
 
                 trigger OnAction()
                 begin
-                    ShowReport();
+                    Rec.ShowReport();
                     CurrPage.Update();
                 end;
             }
@@ -224,19 +229,19 @@ page 681 "Report Inbox Part"
     var
         DocumentSharing: Codeunit "Document Sharing";
     begin
-        ShareOptionsEnabled := (not ("Report Name" = '')) and (DocumentSharing.ShareEnabled());
+        ShareOptionsEnabled := (not (Rec."Report Name" = '')) and (DocumentSharing.ShareEnabled());
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        ActionsEnabled := not IsEmpty();
-        exit(Find(Which));
+        ActionsEnabled := not Rec.IsEmpty();
+        exit(Rec.Find(Which));
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange("User ID", UserId);
-        SetAutoCalcFields();
+        Rec.SetRange("User ID", UserId);
+        Rec.SetAutoCalcFields();
         ShowAll := true;
         UpdateVisibility();
     end;
@@ -252,10 +257,10 @@ page 681 "Report Inbox Part"
     local procedure UpdateVisibility()
     begin
         if ShowAll then
-            SetRange(Read)
+            Rec.SetRange(Read)
         else
-            SetRange(Read, false);
-        ActionsEnabled := FindFirst();
+            Rec.SetRange(Read, false);
+        ActionsEnabled := Rec.FindFirst();
         CurrPage.Update(false);
     end;
 }

@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.SalesTax;
+
 page 469 "Tax Area List"
 {
     ApplicationArea = SalesTax;
@@ -15,7 +17,7 @@ page 469 "Tax Area List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code you want to assign to this tax area. You can enter up to 20 characters, both numbers and letters. It is a good idea to enter a code that is easy to remember.';

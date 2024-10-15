@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
+
 page 541 "Account Type Default Dim."
 {
     Caption = 'Account Type Default Dim.';
@@ -38,7 +44,7 @@ page 541 "Account Type Default Dim."
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies how default dimensions and their values must be used.';
                 }
-                field(AllowedValues; "Allowed Values Filter")
+                field(AllowedValues; Rec."Allowed Values Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension values that can be used for the selected account.';
@@ -47,7 +53,7 @@ page 541 "Account Type Default Dim."
                     var
                         DimMgt: Codeunit DimensionManagement;
                     begin
-                        TestField("Value Posting", "Value Posting"::"Code Mandatory");
+                        Rec.TestField("Value Posting", Rec."Value Posting"::"Code Mandatory");
                         DimMgt.OpenAllowedDimValuesPerAccount(Rec);
                         CurrPage.Update();
                     end;
@@ -92,7 +98,7 @@ page 541 "Account Type Default Dim."
 
     local procedure TableIDOnAfterValidate()
     begin
-        CalcFields("Table Caption");
+        Rec.CalcFields("Table Caption");
     end;
 }
 

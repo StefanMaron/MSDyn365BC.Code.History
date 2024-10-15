@@ -1,19 +1,27 @@
-#if not CLEAN21
+﻿#if not CLEAN21
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace System.Security.AccessControl;
+
+using System.Reflection;
+
 report 10313 "License Permissions"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './LicensePermissions.rdlc';
-    
+
     Caption = 'License Permissions';
     ObsoleteReason = 'This report is being replaced with report 8313 Get License Permissions, which is available in W1.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
-    
+
     dataset
     {
         dataitem("Permission Range"; "Permission Range")
         {
-            DataItemTableView = SORTING("Object Type", Index);
+            DataItemTableView = sorting("Object Type", Index);
             RequestFilterFields = "Object Type";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
@@ -99,7 +107,7 @@ report 10313 "License Permissions"
         }
         dataitem("License Information"; "License Information")
         {
-            DataItemTableView = SORTING("Line No.");
+            DataItemTableView = sorting("Line No.");
             column(USERID_Control12; UserId)
             {
             }

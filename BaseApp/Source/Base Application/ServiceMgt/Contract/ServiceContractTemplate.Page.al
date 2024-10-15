@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Dimension;
+
 page 6055 "Service Contract Template"
 {
     Caption = 'Service Contract Template';
@@ -18,7 +22,7 @@ page 6055 "Service Contract Template"
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEdit(Rec);
+                        Rec.AssistEdit(Rec);
                     end;
                 }
                 field(Description; Rec.Description)
@@ -76,7 +80,7 @@ page 6055 "Service Contract Template"
                     Caption = 'Contract Increase Text';
                     ToolTip = 'Specifies all billable prices for the job task, expressed in the local currency.';
                 }
-                field(Prepaid; Prepaid)
+                field(Prepaid; Rec.Prepaid)
                 {
                     ApplicationArea = Service;
                     Enabled = PrepaidEnable;
@@ -149,8 +153,8 @@ page 6055 "Service Contract Template"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(5968),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(5968),
+                                  "No." = field("No.");
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
                 }
@@ -160,8 +164,8 @@ page 6055 "Service Contract Template"
                     Caption = 'Service Dis&counts';
                     Image = Discount;
                     RunObject = Page "Contract/Service Discounts";
-                    RunPageLink = "Contract Type" = CONST(Template),
-                                  "Contract No." = FIELD("No.");
+                    RunPageLink = "Contract Type" = const(Template),
+                                  "Contract No." = field("No.");
                     ToolTip = 'View or edit the discounts that you grant for the contract on spare parts in particular service item groups, the discounts on resource hours for resources in particular resource groups, and the discounts on particular service costs.';
                 }
             }
@@ -185,15 +189,13 @@ page 6055 "Service Contract Template"
     end;
 
     var
-        [InDataSet]
         PrepaidEnable: Boolean;
-        [InDataSet]
         InvoiceAfterServiceEnable: Boolean;
 
     local procedure ActivateFields()
     begin
-        PrepaidEnable := (not "Invoice after Service" or Prepaid);
-        InvoiceAfterServiceEnable := (not Prepaid or "Invoice after Service");
+        PrepaidEnable := (not Rec."Invoice after Service" or Rec.Prepaid);
+        InvoiceAfterServiceEnable := (not Rec.Prepaid or Rec."Invoice after Service");
     end;
 
     local procedure InvoiceafterServiceOnAfterVali()

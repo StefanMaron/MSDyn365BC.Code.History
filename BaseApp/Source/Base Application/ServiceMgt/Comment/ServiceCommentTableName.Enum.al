@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Comment;
+
 enum 5918 "Service Comment Table Name"
 {
     Extensible = true;

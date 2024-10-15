@@ -736,52 +736,6 @@ codeunit 2110 "O365 Sales Initial Setup"
         PaymentMethod.ModifyAll("Bal. Account No.", '');
     end;
 
-#if not CLEAN20
-    [Obsolete('This procedure will be deprecated', '19.0')]
-    procedure EnsureConfigurationTemplatateSelectionRuleExists(TableId: Integer)
-    var
-        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ExpectedCode: Code[10];
-    begin
-        ConfigTmplSelectionRules.SetRange("Table ID", TableId);
-        if ConfigTmplSelectionRules.FindFirst() then
-            exit;
-
-        if not GetO365SalesInitialSetup() then
-            exit;
-
-        ConfigTmplSelectionRules.Validate("Table ID", TableId);
-
-        case TableId of
-            DATABASE::Item:
-                begin
-                    ConfigTmplSelectionRules.Validate("Page ID", PAGE::"Item Entity");
-                    ExpectedCode := O365SalesInitialSetup."Default Item Template";
-                end;
-            DATABASE::Customer:
-                begin
-                    ConfigTmplSelectionRules.Validate("Page ID", PAGE::"Customer Entity");
-                    ExpectedCode := O365SalesInitialSetup."Default Customer Template";
-                end;
-            else
-                exit;
-        end;
-
-        if ExpectedCode = '' then
-            exit;
-
-        ConfigTemplateHeader.SetRange("Table ID", TableId);
-        ConfigTemplateHeader.SetRange(Code, ExpectedCode);
-        if not ConfigTemplateHeader.FindFirst() then
-            exit;
-
-        ConfigTmplSelectionRules.Validate("Template Code", ExpectedCode);
-        ConfigTmplSelectionRules.Insert(true);
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostSalesDoc', '', false, false)]
     local procedure BlockSendingTestInvoices(var SalesHeader: Record "Sales Header")
     begin

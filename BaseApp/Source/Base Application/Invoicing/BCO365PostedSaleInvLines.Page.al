@@ -77,7 +77,7 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
                     ToolTip = 'Specifies the VAT group code for this item.';
                     Visible = IsUsingVAT;
                 }
-                field(LineAmountInclVAT; GetLineAmountInclVAT())
+                field(LineAmountInclVAT; Rec.GetLineAmountInclVAT())
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
@@ -112,15 +112,15 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         TaxSetup: Record "Tax Setup";
     begin
-        UpdatePriceDescription();
+        Rec.UpdatePriceDescription();
         UpdateCurrencyFormat();
-        if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
+        if VATProductPostingGroup.Get(Rec."VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description
         else
             Clear(VATProductPostingGroup);
-        LineQuantity := Quantity;
+        LineQuantity := Rec.Quantity;
         if TaxSetup.Get() then
-            Taxable := "Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
+            Taxable := Rec."Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
         ShowOnlyOnBrick := false;
     end;
 
@@ -147,7 +147,7 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CurrencySymbol: Text[10];
     begin
-        SalesInvoiceHeader.Get("Document No.");
+        SalesInvoiceHeader.Get(Rec."Document No.");
         if SalesInvoiceHeader."Currency Code" = '' then begin
             GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol();

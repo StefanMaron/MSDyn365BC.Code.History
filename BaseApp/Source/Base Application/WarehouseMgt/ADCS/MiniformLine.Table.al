@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using System.Reflection;
+
 table 7701 "Miniform Line"
 {
     Caption = 'Miniform Line';

@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 764 "Acc. Sched. Chart Matrix"
 {
     Caption = 'Acc. Sched. Chart Matrix';
@@ -222,7 +224,7 @@ page 764 "Acc. Sched. Chart Matrix"
     var
         AccSchedLine: Record "Acc. Schedule Line";
     begin
-        if AccSchedLine.Get("Account Schedule Name", "Account Schedule Line No.") then begin
+        if AccSchedLine.Get(Rec."Account Schedule Name", Rec."Account Schedule Line No.") then begin
             AccSchedLineRowNo := AccSchedLine."Row No.";
             AccSchedLineDescription := AccSchedLine.Description;
             GetChartTypes();
@@ -231,7 +233,7 @@ page 764 "Acc. Sched. Chart Matrix"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindSet());
+        exit(Rec.FindSet());
     end;
 
     var
@@ -245,16 +247,16 @@ page 764 "Acc. Sched. Chart Matrix"
 
     procedure SetFilters(AccountSchedulesChartSetup: Record "Account Schedules Chart Setup")
     begin
-        Reset();
+        Rec.Reset();
 
         AccountSchedulesChartSetup.SetLinkToLines(Rec);
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
-                if FindFirst() then
-                    SetRange("Column Layout Line No.", "Column Layout Line No.");
+                if Rec.FindFirst() then
+                    Rec.SetRange("Column Layout Line No.", Rec."Column Layout Line No.");
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
-                SetRange("Column Layout Line No.", 0);
+                Rec.SetRange("Column Layout Line No.", 0);
         end;
         UpdateColumnCaptions(AccountSchedulesChartSetup);
     end;
@@ -288,18 +290,18 @@ page 764 "Acc. Sched. Chart Matrix"
         AccSchedChartSetupLine2: Record "Acc. Sched. Chart Setup Line";
         i: Integer;
     begin
-        AccountSchedulesChartSetup.Get("User ID", Name);
+        AccountSchedulesChartSetup.Get(Rec."User ID", Rec.Name);
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
                 for i := 1 to MaxColumns do
-                    if AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", ColumnLineNos[i]) then
+                    if AccSchedChartSetupLine.Get(Rec."User ID", Rec.Name, Rec."Account Schedule Line No.", ColumnLineNos[i]) then
                         ChartType[i] := AccSchedChartSetupLine."Chart Type".AsInteger();
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
                 begin
-                    AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", 0);
+                    AccSchedChartSetupLine.Get(Rec."User ID", Rec.Name, Rec."Account Schedule Line No.", 0);
                     if AccSchedChartSetupLine."Chart Type" <> AccSchedChartSetupLine."Chart Type"::" " then
                         for i := 1 to MaxColumns do
-                            if AccSchedChartSetupLine2.Get("User ID", Name, 0, ColumnLineNos[i]) then
+                            if AccSchedChartSetupLine2.Get(Rec."User ID", Rec.Name, 0, ColumnLineNos[i]) then
                                 ChartType[i] := AccSchedChartSetupLine2."Chart Type".AsInteger()
                             else
                                 for i := 1 to MaxColumns do
@@ -307,9 +309,9 @@ page 764 "Acc. Sched. Chart Matrix"
                 end;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
                 begin
-                    AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", 0);
+                    AccSchedChartSetupLine.Get(Rec."User ID", Rec.Name, Rec."Account Schedule Line No.", 0);
                     for i := 1 to MaxColumns do begin
-                        AccSchedChartSetupLine2.Get("User ID", Name, 0, ColumnLineNos[i]);
+                        AccSchedChartSetupLine2.Get(Rec."User ID", Rec.Name, 0, ColumnLineNos[i]);
                         if AccSchedChartSetupLine2."Chart Type" <> AccSchedChartSetupLine2."Chart Type"::" " then
                             ChartType[i] := AccSchedChartSetupLine."Chart Type".AsInteger()
                         else
@@ -329,14 +331,14 @@ page 764 "Acc. Sched. Chart Matrix"
         if ColumnNo > MaxColumns then
             Error(Text001);
 
-        AccountSchedulesChartSetup.Get("User ID", Name);
+        AccountSchedulesChartSetup.Get(Rec."User ID", Rec.Name);
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
-                AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", ColumnLineNos[ColumnNo]);
+                AccSchedChartSetupLine.Get(Rec."User ID", Rec.Name, Rec."Account Schedule Line No.", ColumnLineNos[ColumnNo]);
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
-                AccSchedChartSetupLine.Get("User ID", Name, 0, ColumnLineNos[ColumnNo]);
+                AccSchedChartSetupLine.Get(Rec."User ID", Rec.Name, 0, ColumnLineNos[ColumnNo]);
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
-                AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", 0);
+                AccSchedChartSetupLine.Get(Rec."User ID", Rec.Name, Rec."Account Schedule Line No.", 0);
         end;
         AccSchedChartSetupLine.Validate("Chart Type", ChartType[ColumnNo]);
         AccSchedChartSetupLine.Modify();

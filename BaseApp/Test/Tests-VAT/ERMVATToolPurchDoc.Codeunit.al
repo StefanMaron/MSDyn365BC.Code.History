@@ -26,7 +26,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         LibraryService: Codeunit "Library - Service";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
-        GroupFilter: Label '%1|%2';
+        GroupFilter: Label '%1|%2', Locked = true;
 
     local procedure Initialize()
     var
@@ -1126,7 +1126,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         // [THEN] Blanket Purchase Order has 3 lines. Extended text line is attached to Purchase Line with 'VPPG2' VAT Posting Group
         LibraryPurchase.FindFirstPurchLine(PurchLine, PurchHeader);
-        
+
         PurchLine.TestField(Quantity, 8);
         PurchLine.TestField("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
         PurchLine.Next();

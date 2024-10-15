@@ -2772,7 +2772,7 @@
         StrConvMangement: Codeunit StringConversionManagement;
         EFTUSOutputFileFormatErr: Label 'Error in EFT US file output';
         Expected, Actual : Text;
-        ValueAsDateTime: DateTime;
+        ValueAsDateTime, CreationDateTime : DateTime;
         Pos: Integer;
     begin
         Pos := 1;
@@ -2800,7 +2800,8 @@
         Actual := ReadText(Line, Pos, 6);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Evaluate(ValueAsDateTime, Format(TempACHUSHeader."File Creation Time", 0, 9), 9);
+        CreationDateTime := CreateDateTime(Today(), TempACHUSHeader."File Creation Time");
+        Evaluate(ValueAsDateTime, Format(CreationDateTime, 0, 9), 9);
         Expected := Format(ValueAsDateTime, 0, '<Hours24,2><Minutes,2>');
         Actual := ReadText(Line, Pos, 4);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
@@ -4428,7 +4429,6 @@
         EntryName: Text;
         EntryList: List of [Text];
         FileName: Text;
-        EntryLength: Integer;
     begin
         ZipFile.Open(ZipFileName);
         ZipFile.CreateInStream(ZipInStream);
@@ -4439,7 +4439,7 @@
             FileNames.Add(FileName);
             ExtractedFile.Create(FileName);
             ExtractedFile.CreateOutStream(FileOutStream);
-            DataCompression.ExtractEntry(EntryName, FileOutStream, EntryLength);
+            DataCompression.ExtractEntry(EntryName, FileOutStream);
             ExtractedFile.Close();
         end;
         ZipFile.Close();

@@ -8,10 +8,8 @@ codeunit 130232 "Test Proxy Notif. Mgt. Ext."
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Test Proxy Notification Mgt.", 'OnCheckIgnoringNotification', '', false, false)]
     local procedure SetIgnoreOnCheckIgnoringNotification(NotificationID: Guid; var Ignore: Boolean)
-    var
-        O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
     begin
-        Ignore := O365SalesInvoiceMgmt.GetTaxNotificationID = NotificationID;
+        Ignore := true;
     end;
 }
 

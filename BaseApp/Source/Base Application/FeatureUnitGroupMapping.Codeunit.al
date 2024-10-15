@@ -1,4 +1,12 @@
 #if not CLEAN21
+namespace System.Environment.Configuration;
+
+using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.UOM;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
+
 codeunit 5401 "Feature - Unit Group Mapping" implements "Feature Data Update"
 {
     ObsoleteState = Pending;

@@ -1,0 +1,4499 @@
+﻿namespace Microsoft.Warehouse.Activity;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Warehouse.Availability;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.InternalDocument;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Tracking;
+using Microsoft.Warehouse.Worksheet;
+using System.Telemetry;
+
+codeunit 7312 "Create Pick"
+{
+    Permissions = TableData "Whse. Item Tracking Line" = rimd;
+
+    trigger OnRun()
+    begin
+    end;
+
+    var
+        CurrWarehouseActivityHeader: Record "Warehouse Activity Header";
+        CurrWarehouseShipmentLine: Record "Warehouse Shipment Line";
+        CurrWhseInternalPickLine: Record "Whse. Internal Pick Line";
+        CurrProdOrderComponentLine: Record "Prod. Order Component";
+        CurrAssemblyLine: Record "Assembly Line";
+        CurrJobPlanningLine: Record "Job Planning Line";
+        CurrWhseWorksheetLine: Record "Whse. Worksheet Line";
+        CurrLocation: Record Location;
+        CurrItem: Record Item;
+        CurrBin: Record Bin;
+        CurrBinType: Record "Bin Type";
+        CurrStockkeepingUnit: Record "Stockkeeping Unit";
+        CreatePickParameters: Record "Create Pick Parameters";
+        SourceWhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        WarehouseSetup: Record "Warehouse Setup";
+        WhseSetupLocation: Record Location;
+        TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
+        TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary;
+        TempTotalWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary;
+        TempWarehousePickSummary: Record "Warehouse Pick Summary" temporary;
+        WhseManagement: Codeunit "Whse. Management";
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SourceSubType: Option;
+        SourceNo: Code[20];
+        ShippingAgentCode: Code[10];
+        ShippingAgentServiceCode: Code[10];
+        ShipmentMethodCode: Code[10];
+        TransferRemQtyToPickBase: Decimal;
+        TempNo: Integer;
+        BreakbulkNo: Integer;
+        TempLineNo: Integer;
+        SourceType: Integer;
+        SourceLineNo: Integer;
+        SourceSubLineNo: Integer;
+        IsMovementWorksheet: Boolean;
+        LastWhseItemTrkgLineNo: Integer;
+        WhseItemTrkgLineCount: Integer;
+        WhseItemTrkgExists: Boolean;
+        CrossDock: Boolean;
+        ReservationExists: Boolean;
+        ReservedForItemLedgEntry: Boolean;
+        CalledFromPickWksh: Boolean;
+        CalledFromMoveWksh: Boolean;
+        CalledFromWksh: Boolean;
+        ReqFEFOPick: Boolean;
+        HasExpiredItems: Boolean;
+        CannotBeHandledReasons: array[20] of Text;
+        TotalQtyPickedBase: Decimal;
+        SaveSummary: Boolean;
+        SummaryPageMessage: Text;
+        NothingToHandleErr: Label 'Nothing to handle. %1.', Comment = '%1 = reason in text';
+        NothingToHandleWithoutReasonErr: Label 'There is nothing to handle.';
+        BinIsNotForPickTxt: Label 'The quantity to be picked is in bin %1, which is not set up for picking', Comment = '%1: Field("Bin Code")';
+        BinIsForReceiveOrShipTxt: Label 'The quantity to be picked is in bin %1, which is set up for receiving or shipping', Comment = '%1: Field("Bin Code")';
+        QtyReservedNotFromInventoryTxt: Label 'The quantity to be picked is not in inventory yet. You must first post the supply from which the source document is reserved';
+        ValidValuesIfSNDefinedErr: Label 'Field %1 can only have values -1, 0 or 1 when serial no. is defined. Current value is %2.', Comment = '%1 = field name, %2 = field value';
+        BinPolicyTelemetryCategoryTok: Label 'Bin Policy', Locked = true;
+        DefaultBinPickPolicyTelemetryTok: Label 'Default Bin Pick Policy in used for warehouse pick.', Locked = true;
+        RankingBinPickPolicyTelemetryTok: Label 'Bin Ranking Bin Pick Policy in used for warehouse pick.', Locked = true;
+        ProdAsmJobWhseHandlingTelemetryCategoryTok: Label 'Prod/Asm/Job Whse. Handling', Locked = true;
+        ProdAsmJobWhseHandlingTelemetryTok: Label 'Prod/Asm/Job Whse. Handling in used for warehouse pick.', Locked = true;
+
+    procedure CreateTempLine(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal; var TotalQtytoPick: Decimal; var TotalQtytoPickBase: Decimal)
+    begin
+        CreateTempLine(LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, ToBinCode, QtyPerUnitofMeasure, 0, 0, TotalQtytoPick, TotalQtytoPickBase);
+    end;
+
+    procedure CreateTempLine(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal; QtyRoundingPrecision: Decimal; QtyRoundingPrecisionBase: Decimal; var TotalQtytoPick: Decimal; var TotalQtytoPickBase: Decimal)
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        QtyToPick: Decimal;
+        RemTrackedQtyToPick: Decimal;
+        i: Integer;
+        RemTrackedQtyToPickBase: Decimal;
+        QtyToPickBase: Decimal;
+        QtyToTrackBase: Decimal;
+        TotalItemTrackedQtyToPick: Decimal;
+        TotalItemTrackedQtyToPickBase: Decimal;
+        NewQtyToHandle: Decimal;
+        IsHandled: Boolean;
+    begin
+        TotalQtyPickedBase := 0;
+        GetLocation(LocationCode);
+
+        InitCalculationSummary(LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, TotalQtytoPick, TotalQtytoPickBase);
+
+        if CheckReservationAndUpdateQtyToPick(LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, QtyPerUnitofMeasure, TotalQtytoPick, TotalQtytoPickBase) then
+            exit;
+
+        RemTrackedQtyToPick := TotalQtytoPick;
+        RemTrackedQtyToPickBase := TotalQtytoPickBase;
+        ItemTrackingManagement.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+
+        ReqFEFOPick := false;
+        HasExpiredItems := false;
+        if PickAccordingToFEFO(LocationCode, WhseItemTrackingSetup) or PickStrictExpirationPosting(ItemNo, WhseItemTrackingSetup) then begin
+            QtyToTrackBase := RemTrackedQtyToPickBase;
+            if UndefinedItemTrkg(QtyToTrackBase) then begin
+                CreateTempItemTrkgLines(ItemNo, VariantCode, QtyToTrackBase, true);
+                CreateTempItemTrkgLines(ItemNo, VariantCode, TransferRemQtyToPickBase, false);
+            end;
+        end;
+
+        if TotalQtytoPickBase <> 0 then begin
+            TempWhseItemTrackingLine.Reset();
+            TempWhseItemTrackingLine.SetFilter("Qty. to Handle", '<> 0');
+            if TempWhseItemTrackingLine.Find('-') then begin // First create pick lines for the tracked items
+                repeat
+                    if TempWhseItemTrackingLine."Qty. to Handle (Base)" <> 0 then begin
+                        if TempWhseItemTrackingLine."Qty. to Handle (Base)" > RemTrackedQtyToPickBase then begin
+                            TempWhseItemTrackingLine."Qty. to Handle (Base)" := RemTrackedQtyToPickBase;
+                            OnBeforeTempWhseItemTrackingLineModifyOnAfterAssignRemQtyToPickBase(TempWhseItemTrackingLine);
+                            TempWhseItemTrackingLine.Modify();
+                        end;
+                        NewQtyToHandle :=
+                          Round(RemTrackedQtyToPick / RemTrackedQtyToPickBase * TempWhseItemTrackingLine."Qty. to Handle (Base)", UnitOfMeasureManagement.QtyRndPrecision());
+                        if TempWhseItemTrackingLine."Qty. to Handle" <> NewQtyToHandle then begin
+                            TempWhseItemTrackingLine."Qty. to Handle" := NewQtyToHandle;
+                            OnBeforeTempWhseItemTrackingLineModify(TempWhseItemTrackingLine);
+                            TempWhseItemTrackingLine.Modify();
+                        end;
+
+                        QtyToPick := TempWhseItemTrackingLine."Qty. to Handle";
+                        QtyToPickBase := TempWhseItemTrackingLine."Qty. to Handle (Base)";
+                        TotalItemTrackedQtyToPick += QtyToPick;
+                        TotalItemTrackedQtyToPickBase += QtyToPickBase;
+
+                        CreateTempLine(
+                            LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, ToBinCode,
+                            QtyPerUnitofMeasure, QtyRoundingPrecision, QtyRoundingPrecisionBase, QtyToPick, TempWhseItemTrackingLine, QtyToPickBase, WhseItemTrackingSetup);
+                        RemTrackedQtyToPickBase -= TempWhseItemTrackingLine."Qty. to Handle (Base)" - QtyToPickBase;
+                        RemTrackedQtyToPick -= TempWhseItemTrackingLine."Qty. to Handle" - QtyToPick;
+                    end;
+                until (TempWhseItemTrackingLine.Next() = 0) or (RemTrackedQtyToPickBase <= 0);
+
+                RemTrackedQtyToPick := Minimum(RemTrackedQtyToPick, TotalQtytoPick - TotalItemTrackedQtyToPick);
+                RemTrackedQtyToPickBase := Minimum(RemTrackedQtyToPickBase, TotalQtytoPickBase - TotalItemTrackedQtyToPickBase);
+                TotalQtytoPick := RemTrackedQtyToPick;
+                TotalQtytoPickBase := RemTrackedQtyToPickBase;
+
+                SaveTempItemTrkgLines();
+                Clear(TempWhseItemTrackingLine);
+                WhseItemTrkgExists := false;
+            end;
+
+            IsHandled := false;
+            OnCreateTempLineOnAfterCreateTempLineWithItemTracking(TotalQtytoPickBase, HasExpiredItems, LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, ToBinCode, QtyPerUnitofMeasure, TempWarehouseActivityLine, TempLineNo, IsHandled);
+            if not IsHandled then
+                if TotalQtytoPickBase <> 0 then //TotalQtytoPickBase can be less than 0 if the item has been reserved for more than the available qty in the warehouse
+                    if not HasExpiredItems then
+                        if WhseItemTrackingSetup."Serial No. Required" then begin
+                            IsHandled := false;
+                            OnCreateTempLineOnBeforeCreateTempLineForSerialNo(
+                                LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, ToBinCode, QtyPerUnitofMeasure,
+                                TotalQtytoPick, TotalQtytoPickBase, TempWhseItemTrackingLine, WhseItemTrackingSetup, IsHandled);
+                            if IsHandled then
+                                exit;
+
+                            for i := 1 to TotalQtytoPickBase do begin
+                                QtyToPickBase := 1;
+                                QtyToPick := UnitOfMeasureManagement.RoundQty(QtyToPickBase / QtyPerUnitofMeasure, QtyRoundingPrecision);
+                                CreateTempLine(
+                                    LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, ToBinCode, QtyPerUnitofMeasure,
+                                    QtyRoundingPrecision, QtyRoundingPrecisionBase, QtyToPick, TempWhseItemTrackingLine, QtyToPickBase, WhseItemTrackingSetup);
+                            end;
+                            TotalQtytoPick := 0;
+                            TotalQtytoPickBase := 0;
+                        end else
+                            CreateTempLine(
+                                LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, ToBinCode, QtyPerUnitofMeasure,
+                                QtyRoundingPrecision, QtyRoundingPrecisionBase, TotalQtytoPick, TempWhseItemTrackingLine, TotalQtytoPickBase, WhseItemTrackingSetup);
+        end;
+
+        FinalizeCalculationSummary(); // Insert the warehouse pick calculation summary line
+
+        OnAfterCreateTempLine(LocationCode, ToBinCode, ItemNo, VariantCode, UnitofMeasureCode, QtyPerUnitofMeasure);
+    end;
+
+    local procedure CheckReservationAndUpdateQtyToPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; FromBinCode: Code[20]; QtyPerUnitofMeasure: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal): Boolean;
+    var
+        QtyBaseMaxAvailToPick: Decimal;
+        IsHandled: Boolean;
+    begin
+        ReservationExists := false;
+        IsHandled := false;
+        OnCreateTempLineOnBeforeCheckReservation(SourceType, SourceNo, SourceLineNo, QtyBaseMaxAvailToPick, IsHandled, LocationCode, ItemNo);
+        if not IsHandled then
+            if IsReservationExists(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo) then begin
+                if CurrLocation."Directed Put-away and Pick" then
+                    QtyBaseMaxAvailToPick := CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPick(LocationCode, ItemNo, VariantCode)
+                else
+                    QtyBaseMaxAvailToPick :=
+                        CalcAvailableQty(ItemNo, VariantCode) -
+                        CalcPickQtyAssigned(LocationCode, ItemNo, VariantCode, UnitOfMeasureCode, FromBinCode, TempWhseItemTrackingLine);
+
+                OnCreateTempLineOnAfterCalcQtyBaseMaxAvailToPick(QtyBaseMaxAvailToPick, LocationCode, ItemNo, VariantCode);
+
+                // Reduce the TotalQtyToPick based on the max available quantity to pick and existing reservations.
+                CheckReservation(
+                    QtyBaseMaxAvailToPick, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, CurrLocation."Always Create Pick Line",
+                    QtyPerUnitofMeasure, TotalQtyToPick, TotalQtyToPickBase);
+
+                if not CurrLocation."Always Create Pick Line" then
+                    if TotalQtyToPickBase = 0 then
+                        exit(true); //TotalQtyToPickBase is modified and Error reason is enqueued in procedure CheckReservation(...)
+            end;
+
+        OnAfterCreateTempLineCheckReservation(
+            LocationCode, ItemNo, VariantCode, UnitofMeasureCode, QtyPerUnitofMeasure, TotalQtytoPick, TotalQtytoPickBase,
+            SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, LastWhseItemTrkgLineNo, TempWhseItemTrackingLine, CurrWarehouseShipmentLine);
+    end;
+
+    local procedure CreateTempLine(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal;
+        QtyRoundingPrecision: Decimal; QtyRoundingPrecisionBase: Decimal; var TotalQtytoPick: Decimal; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary; var TotalQtytoPickBase: Decimal;
+        WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        QtytoPick: Decimal;
+        QtytoPickBase: Decimal;
+        QtyAvailableBase: Decimal;
+        IsHandled: Boolean;
+        FirstBinCode: Code[20];
+    begin
+        GetLocation(LocationCode);
+        if CurrLocation."Bin Mandatory" then begin
+            if not CurrLocation."Directed Put-away and Pick" then begin
+                QtyAvailableBase :=
+                    CalcAvailableQty(ItemNo, VariantCode) -
+                    CalcPickQtyAssigned(LocationCode, ItemNo, VariantCode, UnitofMeasureCode, '', TempWhseItemTrackingLine2);
+
+                if QtyAvailableBase > 0 then begin
+                    if TotalQtytoPickBase > QtyAvailableBase then
+                        TotalQtytoPickBase := QtyAvailableBase;
+                    CalcBWPickBin(
+                        LocationCode, ItemNo, VariantCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtyRoundingPrecision, QtyRoundingPrecisionBase,
+                        TotalQtytoPick, TotalQtytoPickBase, TempWhseItemTrackingLine2, WhseItemTrackingSetup);
+                end;
+
+                if (TotalQtytoPick > 0) and CurrLocation."Always Create Pick Line" then begin
+                    TotalQtytoPickBase := UnitOfMeasureManagement.CalcBaseQty(TotalQtytoPick, QtyPerUnitofMeasure);
+                    UpdateQuantitiesToPick(
+                        TotalQtytoPick,
+                        QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
+                        QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
+                        TotalQtytoPick, TotalQtytoPickBase);
+
+                    CreateTempActivityLine(
+                        LocationCode, '', UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, 1, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+                    CreateTempActivityLine(
+                        LocationCode, ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, 2, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+                end;
+                exit;
+            end;
+
+            IsHandled := false;
+            OnCreateTempLine2OnBeforeDirectedPutAwayAndPick(
+                LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, ToBinCode, QtyPerUnitofMeasure,
+                TotalQtytoPick, TotalQtytoPickBase, TempWhseItemTrackingLine2, CreatePickParameters."Whse. Document", IsHandled,
+                ReservationExists, ReservedForItemLedgEntry, TempWarehouseActivityLine, TempLineNo);
+            if IsHandled then
+                exit;
+
+            if IsMovementWorksheet and (FromBinCode <> '') then begin
+                InsertTempActivityLineFromMovWkshLine(
+                    LocationCode, ItemNo, VariantCode, FromBinCode, QtyPerUnitofMeasure,
+                    TotalQtytoPick, TempWhseItemTrackingLine2, TotalQtytoPickBase,
+                    QtyRoundingPrecision, QtyRoundingPrecisionBase);
+                exit;
+            end;
+
+            if (ReservationExists and ReservedForItemLedgEntry) or not ReservationExists then begin
+                if CurrLocation."Use Cross-Docking" then
+                    CalcPickBin(
+                        LocationCode, ItemNo, VariantCode, UnitofMeasureCode, ToBinCode, QtyPerUnitofMeasure,
+                        QtyRoundingPrecision, QtyRoundingPrecisionBase, TotalQtytoPick, TempWhseItemTrackingLine2, true,
+                        TotalQtytoPickBase, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+                if TotalQtytoPickBase > 0 then
+                    CalcPickBin(
+                        LocationCode, ItemNo, VariantCode, UnitofMeasureCode, ToBinCode, QtyPerUnitofMeasure,
+                        QtyRoundingPrecision, QtyRoundingPrecisionBase, TotalQtytoPick, TempWhseItemTrackingLine2, false,
+                        TotalQtytoPickBase, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+            end;
+            if (TotalQtytoPickBase > 0) and CurrLocation."Always Create Pick Line" then begin
+                UpdateQuantitiesToPick(
+                    TotalQtytoPickBase,
+                    QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
+                    QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
+                    TotalQtytoPick, TotalQtytoPickBase);
+
+                FirstBinCode := '';
+                OnBeforeCreateTempActivityLineWithoutBinCode(FirstBinCode);
+                CreateTempActivityLine(
+                    LocationCode, FirstBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, 1, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+                CreateTempActivityLine(
+                    LocationCode, ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, 2, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+            end;
+            exit;
+        end;
+
+        QtyAvailableBase :=
+            CalcAvailableQty(ItemNo, VariantCode) -
+            CalcPickQtyAssigned(LocationCode, ItemNo, VariantCode, UnitofMeasureCode, '', TempWhseItemTrackingLine2);
+        OnCreateTempLineOnBeforeUpdateQuantitesToPick(QtyAvailableBase, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, TotalQtytoPick, TotalQtytoPickBase);
+        if QtyAvailableBase > 0 then begin
+            UpdateQuantitiesToPick(
+                QtyAvailableBase,
+                QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
+                QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
+                TotalQtytoPick, TotalQtytoPickBase);
+
+            CreateTempActivityLine(LocationCode, '', UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, 0, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+        end;
+    end;
+
+    local procedure InsertTempActivityLineFromMovWkshLine(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; FromBinCode: Code[20]; QtyPerUnitofMeasure: Decimal; var TotalQtytoPick: Decimal; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary; var TotalQtyToPickBase: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
+    var
+        FromBinContent: Record "Bin Content";
+        FromItemUnitOfMeasure: Record "Item Unit of Measure";
+        FromQtyToPick: Decimal;
+        FromQtyToPickBase: Decimal;
+        ToQtyToPick: Decimal;
+        ToQtyToPickBase: Decimal;
+        QtyAvailableBase: Decimal;
+    begin
+        QtyAvailableBase := TotalQtyToPickBase;
+
+        if CurrWhseWorksheetLine."From Unit of Measure Code" <> CurrWhseWorksheetLine."Unit of Measure Code" then begin
+            FromBinContent.Get(
+              LocationCode, FromBinCode, ItemNo, VariantCode, CurrWhseWorksheetLine."From Unit of Measure Code");
+            FromBinContent.SetFilterOnUnitOfMeasure();
+            FromBinContent.CalcFields("Quantity (Base)", "Pick Quantity (Base)", "Negative Adjmt. Qty. (Base)");
+
+            QtyAvailableBase :=
+              FromBinContent."Quantity (Base)" - FromBinContent."Pick Quantity (Base)" -
+              FromBinContent."Negative Adjmt. Qty. (Base)" -
+              CalcPickQtyAssigned(
+                LocationCode, ItemNo, VariantCode,
+                CurrWhseWorksheetLine."From Unit of Measure Code",
+                CurrWhseWorksheetLine."From Bin Code", TempWhseItemTrackingLine2);
+
+            FromItemUnitOfMeasure.Get(ItemNo, FromBinContent."Unit of Measure Code");
+
+            BreakbulkNo := BreakbulkNo + 1;
+        end;
+
+        UpdateQuantitiesToPick(
+          QtyAvailableBase,
+          CurrWhseWorksheetLine."Qty. per From Unit of Measure", FromQtyToPick, FromQtyToPickBase,
+          QtyPerUnitofMeasure, ToQtyToPick, ToQtyToPickBase,
+          TotalQtytoPick, TotalQtyToPickBase);
+        CreateBreakBulkTempLines(
+          CurrWhseWorksheetLine."Location Code",
+          CurrWhseWorksheetLine."From Unit of Measure Code",
+          CurrWhseWorksheetLine."Unit of Measure Code",
+          FromBinCode,
+          CurrWhseWorksheetLine."To Bin Code",
+          CurrWhseWorksheetLine."Qty. per From Unit of Measure",
+          CurrWhseWorksheetLine."Qty. per Unit of Measure",
+          BreakbulkNo,
+          ToQtyToPick, ToQtyToPickBase, FromQtyToPick, FromQtyToPickBase, QtyRndPrec, QtyRndPrecBase);
+
+        TotalQtyToPickBase := 0;
+        TotalQtytoPick := 0;
+    end;
+
+    local procedure CalcMaxQty(var QtytoHandle: Decimal; QtyOutstanding: Decimal; var QtytoHandleBase: Decimal; QtyOutstandingBase: Decimal; ActionType: Enum "Warehouse Action Type")
+    var
+        WarehouseActivityLine2: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine2.Copy(TempWarehouseActivityLine);
+        with TempWarehouseActivityLine do begin
+            SetCurrentKey(
+              "Whse. Document No.", "Whse. Document Type", "Activity Type", "Whse. Document Line No.");
+            SetRange("Whse. Document Type", "Whse. Document Type");
+            SetRange("Whse. Document No.", "Whse. Document No.");
+            SetRange("Activity Type", "Activity Type");
+            SetRange("Whse. Document Line No.", "Whse. Document Line No.");
+            SetRange("Source Type", "Source Type");
+            SetRange("Source Subtype", "Source Subtype");
+            SetRange("Source No.", "Source No.");
+            SetRange("Source Line No.", "Source Line No.");
+            SetRange("Source Subline No.", "Source Subline No.");
+            SetRange("Action Type", ActionType);
+            SetRange("Breakbulk No.", 0);
+            OnCalcMaxQtyOnAfterTempWhseActivLineSetFilters(TempWarehouseActivityLine);
+            if Find('-') then
+                if ("Action Type" <> "Action Type"::Take) or (WarehouseActivityLine2."Unit of Measure Code" = TempWarehouseActivityLine."Unit of Measure Code") then begin
+                    CalcSums(Quantity);
+                    if QtyOutstanding < Quantity + QtytoHandle then
+                        QtytoHandle := QtyOutstanding - Quantity;
+                    if QtytoHandle < 0 then
+                        QtytoHandle := 0;
+                    CalcSums("Qty. (Base)");
+                    if QtyOutstandingBase < "Qty. (Base)" + QtytoHandleBase then
+                        QtytoHandleBase := QtyOutstandingBase - "Qty. (Base)";
+                    if QtytoHandleBase < 0 then
+                        QtytoHandleBase := 0;
+                end;
+        end;
+        TempWarehouseActivityLine.Copy(WarehouseActivityLine2);
+    end;
+
+    local procedure CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    var
+        DummyWhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        exit(CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPick(LocationCode, ItemNo, VariantCode, DummyWhseItemTrackingSetup));
+    end;
+
+    local procedure CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    var
+        BinTypeFilter: Option ExcludeReceive,ExcludeShip,OnlyPickBins;
+    begin
+        if CalledFromMoveWksh then
+            exit(CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPickWithBinTypeFilter(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, BinTypeFilter::ExcludeReceive))
+        else
+            exit(CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPickWithBinTypeFilter(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, BinTypeFilter::OnlyPickBins));
+    end;
+
+    local procedure CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPickWithBinTypeFilter(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; BinTypeFilter: Option ExcludeReceive,ExcludeShip,OnlyPickBins): Decimal
+    var
+        BinContent: Record "Bin Content";
+        CalcPickableQtyFromWhseEntry: Query CalcPickableQtyFromWhseEntry;
+        CalcOutstandQtyOnWhseActLine: Query CalcOutstandQtyOnWhseActLine;
+        QtyInBinNotBlockedNotDedicated: Decimal;
+        QtyAssignedInWhseActLinesNotBlockedNotDedicated: Decimal;
+        QtyWithBlockedItemTracking: Decimal;
+        QtyInWhse: Decimal;
+        MaxPickableQty: Decimal;
+    begin
+        GetLocation(LocationCode);
+        if not CurrLocation."Directed Put-away and Pick" then
+            exit;
+
+        // Filters to exclude or include bin types depending on the BinTypeFilter parameter
+        case BinTypeFilter of
+            BinTypeFilter::ExcludeReceive:
+                begin
+                    CalcPickableQtyFromWhseEntry.SetFilter(Bin_Type_Code, '<>%1', GetBinTypeFilter(0));
+                    CalcOutstandQtyOnWhseActLine.SetFilter(Bin_Type_Code, '<>%1', GetBinTypeFilter(0));
+                end;
+            BinTypeFilter::ExcludeShip:
+                begin
+                    CalcPickableQtyFromWhseEntry.SetFilter(Bin_Type_Code, '<>%1', GetBinTypeFilter(1));
+                    CalcOutstandQtyOnWhseActLine.SetFilter(Bin_Type_Code, '<>%1', GetBinTypeFilter(1));
+                end;
+            BinTypeFilter::OnlyPickBins:
+                begin
+                    CalcPickableQtyFromWhseEntry.SetFilter(Bin_Type_Code, GetBinTypeFilter(3));
+                    CalcOutstandQtyOnWhseActLine.SetFilter(Bin_Type_Code, GetBinTypeFilter(3));
+                end;
+        end;
+
+        // Summing up Warehouse Entry
+        CalcPickableQtyFromWhseEntry.SetRange(Location_Code, LocationCode);
+        CalcPickableQtyFromWhseEntry.SetRange(Item_No_, ItemNo);
+        CalcPickableQtyFromWhseEntry.SetRange(Variant_Code, VariantCode);
+        CalcPickableQtyFromWhseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup);
+        CalcPickableQtyFromWhseEntry.Open();
+        if CalcPickableQtyFromWhseEntry.Read() then
+            QtyInBinNotBlockedNotDedicated := CalcPickableQtyFromWhseEntry.TotalPickableQtyBase;
+        CalcPickableQtyFromWhseEntry.Close();
+
+        // Summing up Warehouse Activity Lines to include active outstanding quantity on the pick lines
+        CalcOutstandQtyOnWhseActLine.SetRange(Action_Type, Enum::"Warehouse Action Type"::" ", Enum::"Warehouse Action Type"::Take);
+        CalcOutstandQtyOnWhseActLine.SetRange(Activity_Type, Enum::"Warehouse Activity Type"::Pick);
+        CalcOutstandQtyOnWhseActLine.SetRange(Location_Code, LocationCode);
+        CalcOutstandQtyOnWhseActLine.SetRange(Item_No_, ItemNo);
+        CalcOutstandQtyOnWhseActLine.SetRange(Variant_Code, VariantCode);
+        CalcOutstandQtyOnWhseActLine.SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup);
+
+        CalcOutstandQtyOnWhseActLine.Open();
+        if CalcOutstandQtyOnWhseActLine.Read() then
+            QtyAssignedInWhseActLinesNotBlockedNotDedicated := CalcOutstandQtyOnWhseActLine.TotalWhseActLineQtyOutstandingBase;
+        CalcOutstandQtyOnWhseActLine.Close();
+
+        // If item tracking required and bins are not blocked for outbound, then remove the tracked quantity that is blocked.
+        if WhseItemTrackingSetup.TrackingRequired() then begin
+            BinContent.SetCurrentKey("Location Code", "Item No.", "Variant Code");
+            BinContent.SetRange("Location Code", LocationCode);
+            BinContent.SetRange("Item No.", ItemNo);
+            BinContent.SetRange("Variant Code", VariantCode);
+            BinContent.SetRange(Dedicated, false);
+            BinContent.SetRange("Block Movement", BinContent."Block Movement"::" ", BinContent."Block Movement"::Inbound);
+            BinContent.SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup);
+            BinContent.ReadIsolation := IsolationLevel::ReadUncommitted;
+            if BinContent.FindSet() then
+                repeat
+                    QtyWithBlockedItemTracking += BinContent.CalcQtyWithBlockedItemTracking();
+                until BinContent.Next() = 0;
+        end;
+
+        MaxPickableQty := Maximum(0, QtyInBinNotBlockedNotDedicated - QtyWithBlockedItemTracking - QtyAssignedInWhseActLinesNotBlockedNotDedicated);
+
+        if CalledFromMoveWksh then begin
+            UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(0, QtyInBinNotBlockedNotDedicated, QtyWithBlockedItemTracking, QtyAssignedInWhseActLinesNotBlockedNotDedicated, BinTypeFilter);
+            exit(MaxPickableQty);
+        end
+        else begin
+            // QtyInBinNotBlockedNotDedicated might not be in the inventory yet when using Adjustment bins, so we need to take the minimum of QtyInBinNotBlockedNotDedicated and QtyInWhse (which includes adjustment bins).
+            QtyInWhse := SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, '', '', false);
+            UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(QtyInWhse, QtyInBinNotBlockedNotDedicated, QtyWithBlockedItemTracking, QtyAssignedInWhseActLinesNotBlockedNotDedicated, BinTypeFilter);
+            exit(Minimum(QtyInWhse, MaxPickableQty));
+        end;
+    end;
+
+    local procedure CalcBWPickBin(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; QtyRoundingPrecision: Decimal; QtyRoundingPrecisionBase: Decimal;
+        var TotalQtyToPick: Decimal; var TotalQtytoPickBase: Decimal; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        WhseSource2: Option;
+        ToBinCode: Code[20];
+        IsHandled: Boolean;
+    begin
+        // Basic warehousing
+        IsHandled := false;
+        OnBeforeCalcBWPickBin(TotalQtyToPick, TotalQtytoPickBase, TempWhseItemTrackingLine2, TempWarehouseActivityLine, WhseItemTrkgExists, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (CreatePickParameters."Whse. Document" = CreatePickParameters."Whse. Document"::Shipment) and CurrWarehouseShipmentLine."Assemble to Order" then
+            WhseSource2 := CreatePickParameters."Whse. Document"::Assembly
+        else
+            WhseSource2 := CreatePickParameters."Whse. Document";
+
+        if TotalQtytoPickBase > 0 then
+            case WhseSource2 of
+                CreatePickParameters."Whse. Document"::"Pick Worksheet":
+                    ToBinCode := CurrWhseWorksheetLine."To Bin Code";
+                CreatePickParameters."Whse. Document"::Shipment:
+                    ToBinCode := CurrWarehouseShipmentLine."Bin Code";
+                CreatePickParameters."Whse. Document"::Production:
+                    ToBinCode := CurrProdOrderComponentLine."Bin Code";
+                CreatePickParameters."Whse. Document"::Assembly:
+                    ToBinCode := CurrAssemblyLine."Bin Code";
+                CreatePickParameters."Whse. Document"::Job:
+                    ToBinCode := CurrJobPlanningLine."Bin Code";
+            end;
+
+        RunFindBWPickBinLoop(
+            LocationCode, ItemNo, VariantCode,
+            ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtyRoundingPrecision, QtyRoundingPrecisionBase,
+            TotalQtyToPick, TotalQtytoPickBase, TempWhseItemTrackingLine2, WhseItemTrackingSetup);
+    end;
+
+    local procedure RunFindBWPickBinLoop(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20];
+        UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal;
+        var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        DefaultBin: Boolean;
+        CrossDockBin: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunFindBWPickBinLoop(LocationCode, ItemNo, VariantCode, ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure,
+            TotalQtyToPick, TotalQtytoPickBase, TempWhseItemTrackingLine2, WhseItemTrackingSetup, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetLocation(LocationCode);
+
+        if (SourceType = Database::"Prod. Order Component") and (CurrLocation.Code <> '') then begin
+            FeatureTelemetry.LogUsage('0000KT5', ProdAsmJobWhseHandlingTelemetryCategoryTok, ProdAsmJobWhseHandlingTelemetryTok);
+            if not (CurrLocation."Prod. Consump. Whse. Handling" in [CurrLocation."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", CurrLocation."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)"]) then
+                exit;
+        end;
+
+        if (SourceType = Database::"Assembly Line") and (CurrLocation.Code <> '') then begin
+            FeatureTelemetry.LogUsage('0000KT6', ProdAsmJobWhseHandlingTelemetryCategoryTok, ProdAsmJobWhseHandlingTelemetryTok);
+            if not (CurrLocation."Asm. Consump. Whse. Handling" in [CurrLocation."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", CurrLocation."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)"]) then
+                exit;
+        end;
+
+        if (SourceType = Database::"Job Planning Line") and (CurrLocation.Code <> '') then begin
+            FeatureTelemetry.LogUsage('0000KT7', ProdAsmJobWhseHandlingTelemetryCategoryTok, ProdAsmJobWhseHandlingTelemetryTok);
+            if not (CurrLocation."Job Consump. Whse. Handling" in [CurrLocation."Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)", CurrLocation."Job Consump. Whse. Handling"::"Warehouse Pick (optional)"]) then
+                exit;
+        end;
+
+        // This is what creates the lines
+        case CurrLocation."Pick Bin Policy" of
+            CurrLocation."Pick Bin Policy"::"Default Bin":
+                begin
+                    FeatureTelemetry.LogUsage('0000KP9', BinPolicyTelemetryCategoryTok, DefaultBinPickPolicyTelemetryTok);
+                    for CrossDockBin := true downto false do
+                        for DefaultBin := true downto false do
+                            if TotalQtytoPickBase > 0 then
+                                FindBWPickBin(
+                                  LocationCode, ItemNo, VariantCode,
+                                  ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtyRndPrec, QtyRndPrecBase, DefaultBin, CrossDockBin,
+                                  TotalQtyToPick, TotalQtytoPickBase, TempWhseItemTrackingLine2, WhseItemTrackingSetup);
+                end;
+            CurrLocation."Pick Bin Policy"::"Bin Ranking":
+                begin
+                    FeatureTelemetry.LogUsage('0000KPA', BinPolicyTelemetryCategoryTok, RankingBinPickPolicyTelemetryTok);
+                    for CrossDockBin := true downto false do
+                        if TotalQtytoPickBase > 0 then
+                            FindBWPickBin(
+                              LocationCode, ItemNo, VariantCode,
+                              ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtyRndPrec, QtyRndPrecBase, DefaultBin, CrossDockBin,
+                              TotalQtyToPick, TotalQtytoPickBase, TempWhseItemTrackingLine2, WhseItemTrackingSetup, false);
+                end;
+            else
+                OnCreatePutawayForPostedWhseReceiptLine(LocationCode, ItemNo, VariantCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtyRndPrec, QtyRndPrecBase, TotalQtyToPick, TotalQtytoPickBase);
+        end;
+    end;
+
+    local procedure FindBWPickBin(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal;
+        QtyRoundingPrecision: Decimal; QtyRoundingPrecisionBase: Decimal; DefaultBin: Boolean; CrossDockBin: Boolean; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal;
+        var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        FindBWPickBin(LocationCode, ItemNo, VariantCode, ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtyRoundingPrecision, QtyRoundingPrecisionBase,
+                      DefaultBin, CrossDockBin, TotalQtyToPick, TotalQtyToPickBase, TempWhseItemTrackingLine2, WhseItemTrackingSetup, true);
+    end;
+
+    local procedure FindBWPickBin(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal;
+        QtyRoundingPrecision: Decimal; QtyRoundingPrecisionBase: Decimal; DefaultBin: Boolean; CrossDockBin: Boolean; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal;
+        var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup"; UserDefaultBin: Boolean)
+    var
+        FromBinContent: Record "Bin Content";
+        QtyAvailableBase: Decimal;
+        QtyToPickBase: Decimal;
+        QtytoPick: Decimal;
+        BinCodeFilterText: Text[250];
+        IsSetCurrentKeyHandled: Boolean;
+        IsHandled: Boolean;
+        EndLoop: Boolean;
+    begin
+        IsSetCurrentKeyHandled := false;
+        OnBeforeFindBWPickBin(FromBinContent, IsSetCurrentKeyHandled);
+        if not IsSetCurrentKeyHandled then
+            // Bins are always sorted by 'Bin Ranking', its the filtering on 'Cross-Dock Bin' and 'Default' that includes or excludes a Bin
+            if CrossDockBin or (CurrLocation."Pick Bin Policy" = CurrLocation."Pick Bin Policy"::"Bin Ranking") then begin
+                FromBinContent.SetCurrentKey(
+                  "Location Code", "Item No.", "Variant Code", "Cross-Dock Bin", "Qty. per Unit of Measure", "Bin Ranking");
+                FromBinContent.Ascending(false);
+            end else
+                FromBinContent.SetCurrentKey(Default, "Location Code", "Item No.", "Variant Code", "Bin Code");
+
+        with FromBinContent do begin
+            if UserDefaultBin then
+                SetRange(Default, DefaultBin);
+            SetRange("Cross-Dock Bin", CrossDockBin);
+            SetRange("Location Code", LocationCode);
+            SetRange("Item No.", ItemNo);
+            SetRange("Variant Code", VariantCode);
+            GetLocation(LocationCode);
+            IsHandled := false;
+            OnBeforeSetBinCodeFilter(BinCodeFilterText, LocationCode, ItemNo, VariantCode, ToBinCode, IsHandled, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo);
+            if not IsHandled then begin
+                if CurrLocation."Require Pick" and (CurrLocation."Shipment Bin Code" <> '') then
+                    AddToFilterText(BinCodeFilterText, '&', '<>', CurrLocation."Shipment Bin Code");
+                if CurrLocation."Require Put-away" and (CurrLocation."Receipt Bin Code" <> '') then
+                    AddToFilterText(BinCodeFilterText, '&', '<>', CurrLocation."Receipt Bin Code");
+                if ToBinCode <> '' then
+                    AddToFilterText(BinCodeFilterText, '&', '<>', ToBinCode);
+
+                OnFindBWPickBinOnBeforeApplyBinCodeFilter(BinCodeFilterText);
+                if BinCodeFilterText <> '' then
+                    SetFilter("Bin Code", BinCodeFilterText);
+                if WhseItemTrkgExists then begin
+                    WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine2);
+                    SetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(WhseItemTrackingSetup);
+                end;
+            end;
+
+            IsHandled := false;
+            OnFindBWPickBinOnBeforeFromBinContentFindSet(FromBinContent, SourceType, TotalQtyPickedBase, TotalQtyToPickBase, IsHandled, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, LocationCode, ItemNo, VariantCode, ToBinCode);
+            if not IsHandled then
+                if FindSet() then // Loop that creates activity lines
+                    repeat
+                        QtyAvailableBase :=
+                            CalcQtyAvailToPick(0) -
+                            CalcPickQtyAssigned(LocationCode, ItemNo, VariantCode, '', "Bin Code", TempWhseItemTrackingLine2);
+
+                        OnCalcAvailQtyOnFindBWPickBin(
+                            ItemNo, VariantCode,
+                            WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
+                            TempWhseItemTrackingLine2."Serial No.", TempWhseItemTrackingLine2."Lot No.", "Location Code", "Bin Code",
+                            SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtyToPickBase, QtyAvailableBase);
+
+                        if QtyAvailableBase > 0 then begin
+                            IsHandled := false;
+                            OnFindBWPickBinOnBeforeSetQtyAvailableBaseForSerialNo(FromBinContent, QtyAvailableBase, IsHandled);
+                            if not IsHandled then
+                                if WhseItemTrackingSetup."Serial No. Required" then
+                                    QtyAvailableBase := 1;
+
+                            UpdateQuantitiesToPick(
+                                QtyAvailableBase,
+                                QtyPerUnitofMeasure, QtytoPick, QtyToPickBase,
+                                QtyPerUnitofMeasure, QtytoPick, QtyToPickBase,
+                                TotalQtyToPick, TotalQtyToPickBase);
+
+                            CreateTempActivityLine(
+                                LocationCode, "Bin Code", UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtyToPickBase, 1, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+                            CreateTempActivityLine(
+                                LocationCode, ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtyToPickBase, 2, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+                        end;
+                        EndLoop := false;
+                        IsHandled := false;
+                        OnFindBWPickBinOnBeforeEndLoop(FromBinContent, TotalQtyToPickBase, EndLoop, IsHandled, QtytoPick, QtyToPickBase);
+                        if not IsHandled then
+                            EndLoop := (Next() = 0) or (TotalQtyToPickBase = 0);
+                    until EndLoop;
+        end;
+    end;
+
+    local procedure CalcPickBin(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal;
+        QtyRoundingPrecision: Decimal; QtyRoundingPrecisionBase: Decimal; var TotalQtytoPick: Decimal; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary;
+        IsCrossDock: Boolean; var TotalQtytoPickBase: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        IsHandled: Boolean;
+    begin
+        // Directed put-away and pick
+        IsHandled := false;
+        OnBeforeCalcPickBin(
+            TempWarehouseActivityLine, TotalQtytoPick, TotalQtytoPickBase, TempWhseItemTrackingLine2,
+            IsCrossDock, WhseItemTrkgExists, CreatePickParameters."Whse. Document",
+            LocationCode, ItemNo, VariantCode, UnitofMeasureCode, ToBinCode, QtyPerUnitofMeasure, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TotalQtytoPickBase > 0 then begin
+            ItemTrackingManagement.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+            OnCalcPickBinOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, LocationCode);
+            FindPickBin(
+                LocationCode, ItemNo, VariantCode, UnitofMeasureCode,
+                ToBinCode, QtyRoundingPrecision, QtyRoundingPrecisionBase, TempWarehouseActivityLine, TotalQtytoPick, TempWhseItemTrackingLine2, IsCrossDock, TotalQtytoPickBase, WhseItemTrackingSetup);
+            if (TotalQtytoPickBase > 0) and CurrLocation."Allow Breakbulk" then begin
+                FindBreakBulkBin(
+                    LocationCode, ItemNo, VariantCode, UnitofMeasureCode, ToBinCode,
+                    QtyPerUnitofMeasure, TempWarehouseActivityLine, TotalQtytoPick, TempWhseItemTrackingLine2, IsCrossDock,
+                    TotalQtytoPickBase, WhseItemTrackingSetup, QtyRndPrec, QtyRndPrecBase);
+                if TotalQtytoPickBase > 0 then
+                    FindSmallerUOMBin(
+                        LocationCode, ItemNo, VariantCode, UnitofMeasureCode, ToBinCode,
+                        QtyPerUnitofMeasure, TotalQtytoPick, TempWhseItemTrackingLine2, IsCrossDock, TotalQtytoPickBase, WhseItemTrackingSetup, QtyRndPrec, QtyRndPrecBase);
+            end;
+        end;
+    end;
+
+    local procedure BinContentBlocked(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]): Boolean
+    var
+        BinContent: Record "Bin Content";
+    begin
+        BinContent.Get(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode);
+        if BinContent."Block Movement" in [BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All] then
+            exit(true);
+    end;
+
+    local procedure BreakBulkPlacingExists(var TempBinContent: Record "Bin Content" temporary; ItemNo: Code[20]; LocationCode: Code[10]; UOMCode: Code[10]; VariantCode: Code[10]; IsCrossDock: Boolean; WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
+    var
+        BinContent2: Record "Bin Content";
+        WarehouseActivityLine2: Record "Warehouse Activity Line";
+    begin
+        TempBinContent.Reset();
+        TempBinContent.DeleteAll();
+        BinContent2.SetCurrentKey(BinContent2."Location Code", BinContent2."Item No.", BinContent2."Variant Code", BinContent2."Cross-Dock Bin", BinContent2."Qty. per Unit of Measure", BinContent2."Bin Ranking");
+        BinContent2.SetRange(BinContent2."Location Code", LocationCode);
+        BinContent2.SetRange(BinContent2."Item No.", ItemNo);
+        BinContent2.SetRange(BinContent2."Variant Code", VariantCode);
+        BinContent2.SetRange(BinContent2."Cross-Dock Bin", IsCrossDock);
+        OnBreakBulkPlacingExistsOnAfterBinContent2SetFilters(BinContent2);
+        if IsMovementWorksheet then
+            BinContent2.SetFilter(BinContent2."Bin Ranking", '<%1', CurrBin."Bin Ranking");
+        if WhseItemTrkgExists then begin
+            WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+            BinContent2.SetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(WhseItemTrackingSetup);
+        end;
+        BinContent2.Ascending(false);
+
+        WarehouseActivityLine2.Copy(TempWarehouseActivityLine);
+        with TempWarehouseActivityLine do begin
+            SetRange("Location Code", LocationCode);
+            SetRange("Item No.", ItemNo);
+            SetRange("Variant Code", VariantCode);
+            SetRange("Unit of Measure Code", UOMCode);
+            SetRange("Action Type", "Action Type"::Place);
+            SetFilter("Breakbulk No.", '<>0');
+            SetRange("Bin Code");
+            if WhseItemTrkgExists then begin
+                WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+                SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup);
+            end;
+            if FindFirst() then
+                repeat
+                    BinContent2.SetRange("Bin Code", "Bin Code");
+                    BinContent2.SetRange("Unit of Measure Code", UOMCode);
+                    if BinContent2.IsEmpty() then begin
+                        BinContent2.SetRange("Unit of Measure Code");
+                        if BinContent2.FindFirst() then begin
+                            TempBinContent := BinContent2;
+                            TempBinContent.Validate("Unit of Measure Code", UOMCode);
+                            if TempBinContent.Insert() then;
+                        end;
+                    end;
+                until Next() = 0;
+        end;
+        TempWarehouseActivityLine.Copy(WarehouseActivityLine2);
+        exit(not TempBinContent.IsEmpty);
+    end;
+
+    local procedure FindPickBin(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; ToBinCode: Code[20];
+        QtyRndPrec: Decimal; QtyRndPrecBase: Decimal; var TempWarehouseActivityLine2: Record "Warehouse Activity Line" temporary; var TotalQtytoPick: Decimal; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary;
+        IsCrossDock: Boolean; var TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        FromBinContent: Record "Bin Content";
+        FromQtyToPick: Decimal;
+        FromQtyToPickBase: Decimal;
+        ToQtyToPick: Decimal;
+        ToQtyToPickBase: Decimal;
+        TotalAvailQtyToPickBase: Decimal;
+        AvailableQtyBase: Decimal;
+        BinIsForPick: Boolean;
+        BinIsForReplenishment: Boolean;
+        IsHandled: Boolean;
+    begin
+        // Directed put-away and pick
+        GetBin(LocationCode, ToBinCode);
+        GetLocation(LocationCode);
+
+        WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine2);
+
+        IsHandled := false;
+        OnBeforeFindPickBin(
+            LocationCode, ItemNo, VariantCode, UnitofMeasureCode, ToBinCode, QtyRndPrec, QtyRndPrecBase,
+            TempWarehouseActivityLine2, TotalQtytoPick, TempWhseItemTrackingLine2, IsCrossDock, TotalQtytoPickBase,
+            WhseItemTrackingSetup, IsMovementWorksheet, WhseItemTrkgExists, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GetBinContent(
+            FromBinContent, ItemNo, VariantCode, UnitofMeasureCode, LocationCode, ToBinCode, IsCrossDock,
+            IsMovementWorksheet, WhseItemTrkgExists, false, false, WhseItemTrackingSetup, TotalQtytoPick, TotalQtytoPickBase)
+        then begin
+            TotalAvailQtyToPickBase :=
+                CalcTotalAvailQtyToPick(
+                    LocationCode, ItemNo, VariantCode, TempWhseItemTrackingLine2,
+                    SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, false);
+            if TotalAvailQtyToPickBase < 0 then
+                TotalAvailQtyToPickBase := 0;
+
+            OnFindPickBinOnBeforeStartFromBinContentLoop(TempWhseItemTrackingLine2, TotalAvailQtyToPickBase);
+            repeat
+                BinIsForPick := UseForPick(FromBinContent) and (not IsMovementWorksheet);
+                BinIsForReplenishment := UseForReplenishment(FromBinContent) and IsMovementWorksheet;
+                if FromBinContent."Bin Code" <> ToBinCode then
+                    CalcBinAvailQtyToPick(AvailableQtyBase, FromBinContent, TempWarehouseActivityLine2, WhseItemTrackingSetup);
+                if BinIsForPick or BinIsForReplenishment then begin
+                    if TotalAvailQtyToPickBase < AvailableQtyBase then
+                        AvailableQtyBase := TotalAvailQtyToPickBase;
+
+                    if TotalQtytoPickBase < AvailableQtyBase then
+                        AvailableQtyBase := TotalQtytoPickBase;
+
+                    OnCalcAvailQtyOnFindPickBin2(
+                        ItemNo, VariantCode,
+                        WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
+                        TempWhseItemTrackingLine2."Lot No.", TempWhseItemTrackingLine2."Serial No.",
+                        FromBinContent."Location Code", FromBinContent."Bin Code",
+                        SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, AvailableQtyBase);
+
+                    if AvailableQtyBase > 0 then begin
+                        ToQtyToPickBase := CalcQtyToPickBase(FromBinContent, TempWarehouseActivityLine);
+                        if AvailableQtyBase > ToQtyToPickBase then
+                            AvailableQtyBase := ToQtyToPickBase;
+
+                        IsHandled := false;
+                        OnFindPickBinOnBeforeUpdateQuantitesAndCreateActivityLines(FromBinContent, TempWarehouseActivityLine, ToQtyToPick, ToQtyToPickBase, AvailableQtyBase, IsHandled);
+                        if not IsHandled then begin
+                            UpdateQuantitiesToPick(
+                                AvailableQtyBase,
+                                FromBinContent."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase,
+                                FromBinContent."Qty. per Unit of Measure", ToQtyToPick, ToQtyToPickBase,
+                                TotalQtytoPick, TotalQtytoPickBase);
+
+                            CreateTempActivityLine(
+                                LocationCode, FromBinContent."Bin Code", UnitofMeasureCode, FromBinContent."Qty. per Unit of Measure",
+                                FromQtyToPick, FromQtyToPickBase, 1, 0, QtyRndPrec, QtyRndPrecBase);
+                            CreateTempActivityLine(
+                                LocationCode, ToBinCode, UnitofMeasureCode, FromBinContent."Qty. per Unit of Measure",
+                                ToQtyToPick, ToQtyToPickBase, 2, 0, QtyRndPrec, QtyRndPrecBase);
+                        end;
+
+                        TotalAvailQtyToPickBase := TotalAvailQtyToPickBase - ToQtyToPickBase;
+                        OnFindPickBinOnAfterUpdateTotalAvailQtyToPickBase(TempWhseItemTrackingLine2, TotalAvailQtyToPickBase, ToQtyToPick, ToQtyToPickBase);
+                    end;
+                end else
+                    EnqueueCannotBeHandledReason(
+                        GetMessageForUnhandledQtyDueToBin(
+                            BinIsForPick, BinIsForReplenishment, IsMovementWorksheet,
+                            AvailableQtyBase, FromBinContent));
+            until (FromBinContent.Next() = 0) or (TotalQtytoPickBase = 0);
+        end;
+    end;
+
+    local procedure GetBinContent(
+        var FromBinContent: Record "Bin Content";
+        ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; LocationCode: Code[10]; ToBinCode: Code[20];
+        IsCrossDock: Boolean; IsMovementWorksheet2: Boolean; WhseItemTrackingExists: Boolean; BreakbulkBins: Boolean; SmallerUOMBins: Boolean;
+        WhseItemTrackingSetup: Record "Item Tracking Setup"; TotalQtytoPick: Decimal; TotalQtytoPickBase: Decimal): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetBinContent(
+            FromBinContent, ItemNo, VariantCode, UnitofMeasureCode, LocationCode, ToBinCode, IsCrossDock, IsMovementWorksheet2,
+            WhseItemTrackingExists, BreakbulkBins, SmallerUOMBins, WhseItemTrackingSetup, TotalQtytoPick, TotalQtytoPickBase,
+            Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(
+            FromBinContent.GetBinContent(
+                ItemNo, VariantCode, UnitofMeasureCode, LocationCode, ToBinCode, IsCrossDock,
+                IsMovementWorksheet2, WhseItemTrackingExists, WhseItemTrackingSetup));
+    end;
+
+    local procedure FindBreakBulkBin(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToUOMCode: Code[10]; ToBinCode: Code[20]; ToQtyPerUOM: Decimal;
+        var TempWarehouseActivityLine2: Record "Warehouse Activity Line" temporary; var TotalQtytoPick: Decimal; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary;
+        IsCrossDock: Boolean; var TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
+    var
+        FromItemUnitOfMeasure: Record "Item Unit of Measure";
+        FromBinContent: Record "Bin Content";
+        TotalAvailQtyToPickBase: Decimal;
+    begin
+        // Directed put-away and pick
+        GetBin(LocationCode, ToBinCode);
+
+        TotalAvailQtyToPickBase :=
+          CalcTotalAvailQtyToPick(
+            LocationCode, ItemNo, VariantCode, TempWhseItemTrackingLine2,
+            SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, 0, false);
+
+        if TotalAvailQtyToPickBase < 0 then
+            TotalAvailQtyToPickBase := 0;
+
+        if not CurrLocation."Always Create Pick Line" then begin
+            if TotalAvailQtyToPickBase = 0 then
+                exit;
+
+            if TotalAvailQtyToPickBase < TotalQtytoPickBase then begin
+                TotalQtytoPickBase := TotalAvailQtyToPickBase;
+                TotalQtytoPick := Round(TotalQtytoPickBase / ToQtyPerUOM, UnitOfMeasureManagement.QtyRndPrecision());
+            end;
+        end;
+
+        WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine2);
+
+        FromItemUnitOfMeasure.SetCurrentKey("Item No.", "Qty. per Unit of Measure");
+        FromItemUnitOfMeasure.SetRange("Item No.", ItemNo);
+        FromItemUnitOfMeasure.SetFilter("Qty. per Unit of Measure", '>=%1', ToQtyPerUOM);
+        FromItemUnitOfMeasure.SetFilter(Code, '<>%1', ToUOMCode);
+        if FromItemUnitOfMeasure.Find('-') then
+            repeat
+                if GetBinContent(
+                    FromBinContent, ItemNo, VariantCode, FromItemUnitOfMeasure.Code, LocationCode, ToBinCode, IsCrossDock,
+                    IsMovementWorksheet, WhseItemTrkgExists, true, false, WhseItemTrackingSetup, TotalQtytoPick, TotalQtytoPickBase)
+                then
+                    repeat
+                        if (FromBinContent."Bin Code" <> ToBinCode) and
+                            ((UseForPick(FromBinContent) and (not IsMovementWorksheet)) or
+                            (UseForReplenishment(FromBinContent) and IsMovementWorksheet))
+                        then
+                            if FindBreakBulkBinPerBinContent(FromItemUnitOfMeasure, FromBinContent, ItemNo, VariantCode, ToUOMCode, ToBinCode, ToQtyPerUOM,
+                                TempWarehouseActivityLine2, TotalQtytoPick, TempWhseItemTrackingLine2, TotalQtytoPickBase, WhseItemTrackingSetup, QtyRndPrec, QtyRndPrecBase)
+                            then
+                                exit;
+                    until FromBinContent.Next() = 0;
+            until FromItemUnitOfMeasure.Next() = 0;
+    end;
+
+    local procedure FindBreakBulkBinPerBinContent(FromItemUnitOfMeasure: Record "Item Unit of Measure"; var FromBinContent: Record "Bin Content"; ItemNo: Code[20]; VariantCode: Code[10]; ToUOMCode: Code[10]; ToBinCode: Code[20]; ToQtyPerUOM: Decimal;
+        var TempWarehouseActivityLine2: Record "Warehouse Activity Line" temporary; var TotalQtytoPick: Decimal; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary;
+        var TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal) StopProcessing: Boolean
+    var
+        QtyAvailableBase: Decimal;
+        FromQtyToPick: Decimal;
+        FromQtyToPickBase: Decimal;
+        ToQtyToPick: Decimal;
+        ToQtyToPickBase: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindBreakBulkBinPerBinContent(
+            FromBinContent, ItemNo, VariantCode, WhseItemTrackingSetup, WhseItemTrkgExists, TempWhseItemTrackingLine2,
+             SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, QtyAvailableBase,
+             StopProcessing, IsHandled);
+        if IsHandled then
+            exit(StopProcessing);
+
+        // Check and use bulk that has previously been broken
+        QtyAvailableBase := CalcBinAvailQtyInBreakbulk(TempWarehouseActivityLine2, FromBinContent, ToUOMCode, WhseItemTrackingSetup);
+
+        OnCalcAvailQtyOnFindBreakBulkBin(
+            true, ItemNo, VariantCode,
+            WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
+            TempWhseItemTrackingLine2."Lot No.", TempWhseItemTrackingLine2."Serial No.",
+            FromBinContent."Location Code", FromBinContent."Bin Code",
+            SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, QtyAvailableBase,
+            WhseItemTrackingSetup);
+
+        if QtyAvailableBase > 0 then begin
+            UpdateQuantitiesToPick(
+                QtyAvailableBase,
+                ToQtyPerUOM, FromQtyToPick, FromQtyToPickBase,
+                ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase,
+                TotalQtytoPick, TotalQtytoPickBase);
+
+            CreateBreakBulkTempLines(
+                FromBinContent."Location Code", ToUOMCode, ToUOMCode,
+                FromBinContent."Bin Code", ToBinCode, ToQtyPerUOM, ToQtyPerUOM,
+                0, FromQtyToPick, FromQtyToPickBase, ToQtyToPick, ToQtyToPickBase, QtyRndPrec, QtyRndPrecBase);
+        end;
+
+        if TotalQtytoPickBase <= 0 then
+            exit(true);
+
+        // Now break bulk and use
+        QtyAvailableBase := CalcBinAvailQtyToBreakbulk(TempWarehouseActivityLine2, FromBinContent, WhseItemTrackingSetup);
+
+        OnCalcAvailQtyOnFindBreakBulkBin(
+            false, ItemNo, VariantCode,
+            WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
+            TempWhseItemTrackingLine2."Lot No.", TempWhseItemTrackingLine2."Serial No.",
+            FromBinContent."Location Code", FromBinContent."Bin Code",
+            SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, QtyAvailableBase,
+            WhseItemTrackingSetup);
+
+        if QtyAvailableBase > 0 then begin
+            FromItemUnitOfMeasure.Get(ItemNo, FromBinContent."Unit of Measure Code");
+            UpdateQuantitiesToPick(
+                QtyAvailableBase,
+                FromItemUnitOfMeasure."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase,
+                ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase,
+                TotalQtytoPick, TotalQtytoPickBase);
+
+            BreakbulkNo := BreakbulkNo + 1;
+            CreateBreakBulkTempLines(
+                FromBinContent."Location Code", FromBinContent."Unit of Measure Code", ToUOMCode,
+                FromBinContent."Bin Code", ToBinCode, FromItemUnitOfMeasure."Qty. per Unit of Measure", ToQtyPerUOM,
+                BreakbulkNo, ToQtyToPick, ToQtyToPickBase, FromQtyToPick, FromQtyToPickBase,
+                QtyRndPrec, QtyRndPrecBase);
+        end;
+        if TotalQtytoPickBase <= 0 then
+            exit(true);
+    end;
+
+    local procedure FindSmallerUOMBin(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; ToBinCode: Code[20]; QtyPerUnitOfMeasure: Decimal;
+        var TotalQtytoPick: Decimal; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary;
+        IsCrossDock: Boolean; var TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        FromBinContent: Record "Bin Content";
+        TempFromBinContent: Record "Bin Content" temporary;
+        FromQtyToPick: Decimal;
+        FromQtyToPickBase: Decimal;
+        ToQtyToPick: Decimal;
+        ToQtyToPickBase: Decimal;
+        QtyAvailableBase: Decimal;
+        TotalAvailQtyToPickBase: Decimal;
+    begin
+        // Directed put-away and pick
+        TotalAvailQtyToPickBase :=
+          CalcTotalAvailQtyToPick(
+            LocationCode, ItemNo, VariantCode, TempWhseItemTrackingLine2,
+            SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, 0, false);
+
+        if TotalAvailQtyToPickBase < 0 then
+            TotalAvailQtyToPickBase := 0;
+
+        if not CurrLocation."Always Create Pick Line" then begin
+            if TotalAvailQtyToPickBase = 0 then
+                exit;
+
+            if TotalAvailQtyToPickBase < TotalQtytoPickBase then begin
+                TotalQtytoPickBase := TotalAvailQtyToPickBase;
+                ItemUnitOfMeasure.Get(ItemNo, UnitofMeasureCode);
+                TotalQtytoPick := Round(TotalQtytoPickBase / ItemUnitOfMeasure."Qty. per Unit of Measure", UnitOfMeasureManagement.QtyRndPrecision());
+            end;
+        end;
+
+        GetBin(LocationCode, ToBinCode);
+
+        WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine2);
+
+        ItemUnitOfMeasure.SetCurrentKey("Item No.", "Qty. per Unit of Measure");
+        ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
+        ItemUnitOfMeasure.SetFilter("Qty. per Unit of Measure", '<%1', QtyPerUnitOfMeasure);
+        ItemUnitOfMeasure.SetFilter(Code, '<>%1', UnitofMeasureCode);
+        ItemUnitOfMeasure.Ascending(false);
+        if ItemUnitOfMeasure.Find('-') then
+            repeat
+                if GetBinContent(
+                    FromBinContent, ItemNo, VariantCode, ItemUnitOfMeasure.Code, LocationCode, ToBinCode, IsCrossDock,
+                    IsMovementWorksheet, WhseItemTrkgExists, false, true, WhseItemTrackingSetup, TotalQtytoPick, TotalQtytoPickBase)
+                then
+                    repeat
+                        if (FromBinContent."Bin Code" <> ToBinCode) and
+                            ((UseForPick(FromBinContent) and (not IsMovementWorksheet)) or
+                            (UseForReplenishment(FromBinContent) and IsMovementWorksheet))
+                        then begin
+                            CalcBinAvailQtyFromSmallerUOM(QtyAvailableBase, FromBinContent, false, WhseItemTrackingSetup);
+
+                            OnCalcAvailQtyOnFindSmallerUOMBin(
+                                false, ItemNo, VariantCode,
+                                WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
+                                TempWhseItemTrackingLine2."Lot No.", TempWhseItemTrackingLine2."Serial No.",
+                                FromBinContent."Location Code", FromBinContent."Bin Code",
+                                SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, QtyAvailableBase,
+                                WhseItemTrackingSetup);
+
+                            if QtyAvailableBase > 0 then begin
+                                UpdateQuantitiesToPick(
+                                    QtyAvailableBase,
+                                    ItemUnitOfMeasure."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase,
+                                    QtyPerUnitOfMeasure, ToQtyToPick, ToQtyToPickBase,
+                                    TotalQtytoPick, TotalQtytoPickBase);
+
+                                CreateTempActivityLine(
+                                    LocationCode, FromBinContent."Bin Code", FromBinContent."Unit of Measure Code",
+                                    ItemUnitOfMeasure."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase, 1, 0, QtyRndPrec, QtyRndPrecBase);
+                                CreateTempActivityLine(
+                                    LocationCode, ToBinCode, UnitofMeasureCode,
+                                    QtyPerUnitOfMeasure, ToQtyToPick, ToQtyToPickBase, 2, 0, QtyRndPrec, QtyRndPrecBase);
+
+                                TotalAvailQtyToPickBase := TotalAvailQtyToPickBase - ToQtyToPickBase;
+                            end;
+                        end;
+                    until (FromBinContent.Next() = 0) or (TotalQtytoPickBase = 0);
+
+                if TotalQtytoPickBase > 0 then
+                    if BreakBulkPlacingExists(TempFromBinContent, ItemNo, LocationCode, ItemUnitOfMeasure.Code, VariantCode, IsCrossDock, WhseItemTrackingSetup) then
+                        repeat
+                            if (TempFromBinContent."Bin Code" <> ToBinCode) and
+                                ((UseForPick(TempFromBinContent) and (not IsMovementWorksheet)) or
+                                (UseForReplenishment(TempFromBinContent) and IsMovementWorksheet))
+                            then begin
+                                CalcBinAvailQtyFromSmallerUOM(QtyAvailableBase, TempFromBinContent, true, WhseItemTrackingSetup);
+
+                                OnCalcAvailQtyOnFindSmallerUOMBin(
+                                    true, ItemNo, VariantCode,
+                                    WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
+                                    TempWhseItemTrackingLine2."Lot No.", TempWhseItemTrackingLine2."Serial No.",
+                                    TempFromBinContent."Location Code", TempFromBinContent."Bin Code",
+                                    SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, QtyAvailableBase,
+                                    WhseItemTrackingSetup);
+
+                                if QtyAvailableBase > 0 then begin
+                                    UpdateQuantitiesToPick(
+                                        QtyAvailableBase,
+                                        ItemUnitOfMeasure."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase,
+                                        QtyPerUnitOfMeasure, ToQtyToPick, ToQtyToPickBase,
+                                        TotalQtytoPick, TotalQtytoPickBase);
+
+                                    CreateTempActivityLine(
+                                        LocationCode, TempFromBinContent."Bin Code", TempFromBinContent."Unit of Measure Code",
+                                        ItemUnitOfMeasure."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase, 1, 0);
+                                    CreateTempActivityLine(
+                                        LocationCode, ToBinCode, UnitofMeasureCode,
+                                        QtyPerUnitOfMeasure, ToQtyToPick, ToQtyToPickBase, 2, 0);
+                                    TotalAvailQtyToPickBase := TotalAvailQtyToPickBase - ToQtyToPickBase;
+                                end;
+                            end;
+                        until (TempFromBinContent.Next() = 0) or (TotalQtytoPickBase = 0);
+            until (ItemUnitOfMeasure.Next() = 0) or (TotalQtytoPickBase = 0);
+    end;
+
+    local procedure FindWhseActivLine(var TempWarehouseActivityLine2: Record "Warehouse Activity Line" temporary; Location: Record Location; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]): Boolean
+    begin
+        TempWarehouseActivityLine2.SetRange("Location Code", TempWarehouseActivityLine2."Location Code");
+        if Location."Bin Mandatory" then
+            TempWarehouseActivityLine2.SetRange("Action Type", TempWarehouseActivityLine2."Action Type"::Take)
+        else
+            TempWarehouseActivityLine2.SetRange("Action Type", TempWarehouseActivityLine2."Action Type"::" ");
+
+        if not TempWarehouseActivityLine2.Find('-') then begin
+            OnAfterFindWhseActivLine(FirstWhseDocNo, LastWhseDocNo);
+            exit(false);
+        end;
+
+        exit(true);
+    end;
+
+    procedure CalcBinAvailQtyToPick(var QtyToPickBase: Decimal; var BinContent: Record "Bin Content"; var TempWarehouseActivityLine2: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        AvailableQtyBase: Decimal;
+    begin
+        TempWarehouseActivityLine2.Reset();
+        TempWarehouseActivityLine2.SetCurrentKey(
+          TempWarehouseActivityLine2."Item No.", TempWarehouseActivityLine2."Bin Code", TempWarehouseActivityLine2."Location Code", TempWarehouseActivityLine2."Action Type",
+          TempWarehouseActivityLine2."Variant Code", TempWarehouseActivityLine2."Unit of Measure Code", TempWarehouseActivityLine2."Breakbulk No.");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Item No.", BinContent."Item No.");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Bin Code", BinContent."Bin Code");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Location Code", BinContent."Location Code");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Unit of Measure Code", BinContent."Unit of Measure Code");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Variant Code", BinContent."Variant Code");
+        if WhseItemTrkgExists then
+            TempWarehouseActivityLine2.SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup);
+
+        if CurrLocation."Allow Breakbulk" then begin
+            TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Action Type", TempWarehouseActivityLine2."Action Type"::Place);
+            TempWarehouseActivityLine2.SetFilter(TempWarehouseActivityLine2."Breakbulk No.", '<>0');
+            TempWarehouseActivityLine2.CalcSums(TempWarehouseActivityLine2."Qty. (Base)");
+            AvailableQtyBase := TempWarehouseActivityLine2."Qty. (Base)";
+        end;
+
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Action Type", TempWarehouseActivityLine2."Action Type"::Take);
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Breakbulk No.", 0);
+        TempWarehouseActivityLine2.CalcSums(TempWarehouseActivityLine2."Qty. (Base)");
+
+        QtyToPickBase := BinContent.CalcQtyAvailToPick(AvailableQtyBase - TempWarehouseActivityLine2."Qty. (Base)");
+    end;
+
+    local procedure CalcBinAvailQtyToBreakbulk(var TempWarehouseActivityLine2: Record "Warehouse Activity Line"; var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyToPickBase: Decimal
+    begin
+        BinContent.SetFilterOnUnitOfMeasure();
+        BinContent.CalcFields(BinContent."Quantity (Base)", BinContent."Pick Quantity (Base)", BinContent."Negative Adjmt. Qty. (Base)");
+        QtyToPickBase := BinContent."Quantity (Base)" - BinContent."Pick Quantity (Base)" - BinContent."Negative Adjmt. Qty. (Base)";
+        if QtyToPickBase <= 0 then
+            exit(0);
+
+        TempWarehouseActivityLine2.SetCurrentKey(TempWarehouseActivityLine2."Item No.",
+                                                 TempWarehouseActivityLine2."Bin Code",
+                                                 TempWarehouseActivityLine2."Location Code",
+                                                 TempWarehouseActivityLine2."Action Type",
+                                                 TempWarehouseActivityLine2."Variant Code",
+                                                 TempWarehouseActivityLine2."Unit of Measure Code",
+                                                 TempWarehouseActivityLine2."Breakbulk No.");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Action Type", TempWarehouseActivityLine2."Action Type"::Take);
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Location Code", BinContent."Location Code");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Bin Code", BinContent."Bin Code");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Item No.", BinContent."Item No.");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Unit of Measure Code", BinContent."Unit of Measure Code");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Variant Code", BinContent."Variant Code");
+        if WhseItemTrkgExists then
+            TempWarehouseActivityLine2.SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup)
+        else
+            TempWarehouseActivityLine2.ClearTrackingFilter();
+
+        TempWarehouseActivityLine2.ClearSourceFilter();
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Breakbulk No.");
+        TempWarehouseActivityLine2.CalcSums(TempWarehouseActivityLine2."Qty. (Base)");
+        QtyToPickBase := QtyToPickBase - TempWarehouseActivityLine2."Qty. (Base)";
+        exit(QtyToPickBase);
+    end;
+
+    local procedure CalcBinAvailQtyInBreakbulk(var TempWarehouseActivityLine2: Record "Warehouse Activity Line"; var BinContent: Record "Bin Content"; ToUOMCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyToPickBase: Decimal
+    begin
+        if (CreatePickParameters."Max No. of Source Doc." > 1) or (CreatePickParameters."Max No. of Lines" <> 0) then
+            exit(0);
+
+        TempWarehouseActivityLine2.SetCurrentKey(TempWarehouseActivityLine2."Item No.",
+                                                 TempWarehouseActivityLine2."Bin Code",
+                                                 TempWarehouseActivityLine2."Location Code",
+                                                 TempWarehouseActivityLine2."Action Type",
+                                                 TempWarehouseActivityLine2."Variant Code",
+                                                 TempWarehouseActivityLine2."Unit of Measure Code",
+                                                 TempWarehouseActivityLine2."Breakbulk No.");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Action Type", TempWarehouseActivityLine2."Action Type"::Take);
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Location Code", BinContent."Location Code");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Bin Code", BinContent."Bin Code");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Item No.", BinContent."Item No.");
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Unit of Measure Code", ToUOMCode);
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Variant Code", BinContent."Variant Code");
+        if WhseItemTrkgExists then
+            TempWarehouseActivityLine2.SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup)
+        else
+            TempWarehouseActivityLine2.ClearTrackingFilter();
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Breakbulk No.", 0);
+        TempWarehouseActivityLine2.CalcSums(TempWarehouseActivityLine2."Qty. (Base)");
+        QtyToPickBase := TempWarehouseActivityLine2."Qty. (Base)";
+
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Action Type", TempWarehouseActivityLine2."Action Type"::Place);
+        TempWarehouseActivityLine2.SetFilter(TempWarehouseActivityLine2."Breakbulk No.", '<>0');
+        TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."No.", Format(TempNo));
+        if CreatePickParameters."Max No. of Source Doc." = 1 then begin
+            TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Source Type", CurrWhseWorksheetLine."Source Type");
+            TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Source Subtype", CurrWhseWorksheetLine."Source Subtype");
+            TempWarehouseActivityLine2.SetRange(TempWarehouseActivityLine2."Source No.", CurrWhseWorksheetLine."Source No.");
+        end;
+        TempWarehouseActivityLine2.CalcSums(TempWarehouseActivityLine2."Qty. (Base)");
+        QtyToPickBase := TempWarehouseActivityLine2."Qty. (Base)" - QtyToPickBase;
+        exit(QtyToPickBase);
+    end;
+
+    local procedure CalcBinAvailQtyFromSmallerUOM(var AvailableQtyBase: Decimal; var BinContent: Record "Bin Content"; AllowInitialZero: Boolean; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        BinContent.SetFilterOnUnitOfMeasure();
+        BinContent.CalcFields(BinContent."Quantity (Base)", BinContent."Pick Quantity (Base)", BinContent."Negative Adjmt. Qty. (Base)");
+        AvailableQtyBase := BinContent."Quantity (Base)" - BinContent."Pick Quantity (Base)" - BinContent."Negative Adjmt. Qty. (Base)";
+        if (AvailableQtyBase < 0) or ((AvailableQtyBase = 0) and (not AllowInitialZero)) then
+            exit;
+
+        TempWarehouseActivityLine.SetCurrentKey(TempWarehouseActivityLine."Item No.",
+                                                TempWarehouseActivityLine."Bin Code",
+                                                TempWarehouseActivityLine."Location Code",
+                                                TempWarehouseActivityLine."Action Type",
+                                                TempWarehouseActivityLine."Variant Code",
+                                                TempWarehouseActivityLine."Unit of Measure Code",
+                                                TempWarehouseActivityLine."Breakbulk No.");
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Item No.", BinContent."Item No.");
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Bin Code", BinContent."Bin Code");
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Location Code", BinContent."Location Code");
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Action Type", TempWarehouseActivityLine."Action Type"::Take);
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Variant Code", BinContent."Variant Code");
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Unit of Measure Code", BinContent."Unit of Measure Code");
+        if WhseItemTrkgExists then
+            TempWarehouseActivityLine.SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup)
+        else
+            TempWarehouseActivityLine.ClearTrackingFilter();
+        TempWarehouseActivityLine.CalcSums(TempWarehouseActivityLine."Qty. (Base)");
+        AvailableQtyBase := AvailableQtyBase - TempWarehouseActivityLine."Qty. (Base)";
+
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Action Type", TempWarehouseActivityLine."Action Type"::Place);
+        TempWarehouseActivityLine.SetFilter(TempWarehouseActivityLine."Breakbulk No.", '<>0');
+        TempWarehouseActivityLine.CalcSums(TempWarehouseActivityLine."Qty. (Base)");
+        AvailableQtyBase := AvailableQtyBase + TempWarehouseActivityLine."Qty. (Base)";
+        TempWarehouseActivityLine.Reset();
+    end;
+
+    local procedure CreateBreakBulkTempLines(LocationCode: Code[10]; FromUOMCode: Code[10]; ToUOMCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20]; FromQtyPerUOM: Decimal; ToQtyPerUOM: Decimal; BreakbulkNo2: Integer; ToQtyToPick: Decimal; ToQtyToPickBase: Decimal; FromQtyToPick: Decimal; FromQtyToPickBase: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
+    var
+        QtyToBreakBulk: Decimal;
+    begin
+        // Directed put-away and pick
+        if FromUOMCode <> ToUOMCode then begin
+            CreateTempActivityLine(
+              LocationCode, FromBinCode, FromUOMCode, FromQtyPerUOM, FromQtyToPick, FromQtyToPickBase, 1, BreakbulkNo2, QtyRndPrec, QtyRndPrecBase);
+
+            if FromQtyToPickBase = ToQtyToPickBase then
+                QtyToBreakBulk := ToQtyToPick
+            else
+                QtyToBreakBulk := Round(FromQtyToPick * FromQtyPerUOM / ToQtyPerUOM, UnitOfMeasureManagement.QtyRndPrecision());
+            CreateTempActivityLine(
+              LocationCode, FromBinCode, ToUOMCode, ToQtyPerUOM, QtyToBreakBulk, FromQtyToPickBase, 2, BreakbulkNo2, QtyRndPrec, QtyRndPrecBase);
+        end;
+        CreateTempActivityLine(LocationCode, FromBinCode, ToUOMCode, ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase, 1, 0, QtyRndPrec, QtyRndPrecBase);
+        CreateTempActivityLine(LocationCode, ToBinCode, ToUOMCode, ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase, 2, 0, QtyRndPrec, QtyRndPrecBase);
+    end;
+
+    procedure CreateWhseDocument(var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; ShowError: Boolean)
+    var
+        OldNo: Code[20];
+        OldSourceNo: Code[20];
+        OldLocationCode: Code[10];
+        OldBinCode: Code[20];
+        OldZoneCode: Code[10];
+        NoOfLines: Integer;
+        NoOfSourceDoc: Integer;
+        CreateNewHeader: Boolean;
+        WhseDocCreated: Boolean;
+        IsHandled: Boolean;
+        CannotHandleReason: Text;
+    begin
+        TempWarehouseActivityLine.Reset();
+        if not TempWarehouseActivityLine.Find('-') then begin
+            OnCreateWhseDocumentOnBeforeShowError(ShowError);
+            if ShowError then
+                if CanSaveSummary() then begin
+                    CannotHandleReason := DequeueCannotBeHandledReason();
+                    if CannotHandleReason = '' then
+                        SetSummaryPageMessage(NothingToHandleWithoutReasonErr, false)
+                    else
+                        SetSummaryPageMessage(StrSubstNo(NothingToHandleErr, CannotHandleReason), false);
+                end
+                else
+                    Error(NothingToHandleErr, DequeueCannotBeHandledReason());
+            exit;
+        end;
+
+        IsHandled := false;
+        OnBeforeCreateWhseDocument(TempWarehouseActivityLine, CreatePickParameters."Whse. Document", IsHandled);
+        if IsHandled then
+            exit;
+
+        LockTables();
+
+        if IsMovementWorksheet then
+            TempWarehouseActivityLine.SetRange("Activity Type", TempWarehouseActivityLine."Activity Type"::Movement)
+        else
+            TempWarehouseActivityLine.SetRange("Activity Type", TempWarehouseActivityLine."Activity Type"::Pick);
+
+        NoOfLines := 0;
+        NoOfSourceDoc := 0;
+
+        repeat
+            GetLocation(TempWarehouseActivityLine."Location Code");
+            if not FindWhseActivLine(TempWarehouseActivityLine, CurrLocation, FirstWhseDocNo, LastWhseDocNo) then
+                exit;
+
+            if CreatePickParameters."Per Bin" then
+                TempWarehouseActivityLine.SetRange("Bin Code", TempWarehouseActivityLine."Bin Code");
+            if CreatePickParameters."Per Zone" then
+                TempWarehouseActivityLine.SetRange("Zone Code", TempWarehouseActivityLine."Zone Code");
+
+            OnCreateWhseDocumentOnAfterSetFiltersBeforeLoop(TempWarehouseActivityLine, CreatePickParameters."Per Bin", CreatePickParameters."Per Zone");
+
+            repeat
+                IsHandled := false;
+                CreateNewHeader := false;
+                OnCreateWhseDocumentOnBeforeCreateDocAndLine(TempWarehouseActivityLine, IsHandled, CreateNewHeader);
+                if IsHandled then begin
+                    if CreateNewHeader then begin
+                        CreateWhseActivHeader(
+                          TempWarehouseActivityLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
+                          NoOfSourceDoc, NoOfLines, WhseDocCreated);
+                        CreateWhseDocLine();
+                    end else
+                        CreateNewWhseDoc(OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo, NoOfSourceDoc, NoOfLines, WhseDocCreated);
+                end else
+                    if CreatePickParameters."Per Bin" then begin
+                        if TempWarehouseActivityLine."Bin Code" <> OldBinCode then begin
+                            CreateWhseActivHeader(
+                              TempWarehouseActivityLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
+                              NoOfSourceDoc, NoOfLines, WhseDocCreated);
+                            CreateWhseDocLine();
+                        end else
+                            CreateNewWhseDoc(
+                              OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo,
+                              NoOfSourceDoc, NoOfLines, WhseDocCreated);
+                    end else
+                        if CreatePickParameters."Per Zone" then
+                            if TempWarehouseActivityLine."Zone Code" <> OldZoneCode then begin
+                                CreateWhseActivHeader(
+                                  TempWarehouseActivityLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
+                                  NoOfSourceDoc, NoOfLines, WhseDocCreated);
+                                CreateWhseDocLine();
+                            end else
+                                CreateNewWhseDoc(
+                                  OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo,
+                                  NoOfSourceDoc, NoOfLines, WhseDocCreated)
+                        else
+                            CreateNewWhseDoc(
+                              OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo,
+                              NoOfSourceDoc, NoOfLines, WhseDocCreated);
+
+                OldZoneCode := TempWarehouseActivityLine."Zone Code";
+                OldBinCode := TempWarehouseActivityLine."Bin Code";
+                OldNo := TempWarehouseActivityLine."No.";
+                OldSourceNo := TempWarehouseActivityLine."Source No.";
+                OldLocationCode := TempWarehouseActivityLine."Location Code";
+                OnCreateWhseDocumentOnAfterSaveOldValues(TempWarehouseActivityLine, CurrWarehouseActivityHeader, LastWhseDocNo);
+            until TempWarehouseActivityLine.Next() = 0;
+            OnCreateWhseDocumentOnBeforeClearFilters(TempWarehouseActivityLine, CurrWarehouseActivityHeader);
+            TempWarehouseActivityLine.SetRange("Bin Code");
+            TempWarehouseActivityLine.SetRange("Zone Code");
+            TempWarehouseActivityLine.SetRange("Location Code");
+            TempWarehouseActivityLine.SetRange("Action Type");
+            OnCreateWhseDocumentOnAfterSetFiltersAfterLoop(TempWarehouseActivityLine);
+            if not TempWarehouseActivityLine.Find('-') then begin
+                OnAfterCreateWhseDocument(FirstWhseDocNo, LastWhseDocNo, CreatePickParameters);
+                exit;
+            end;
+
+        until false;
+    end;
+
+    local procedure CreateNewWhseDoc(OldNo: Code[20]; OldSourceNo: Code[20]; OldLocationCode: Code[10]; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; var NoOfSourceDoc: Integer; var NoOfLines: Integer; var WhseDocCreated: Boolean)
+    begin
+        OnBeforeCreateNewWhseDoc(
+          TempWarehouseActivityLine, OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo, NoOfSourceDoc, NoOfLines, WhseDocCreated);
+
+        if (TempWarehouseActivityLine."No." <> OldNo) or
+           (TempWarehouseActivityLine."Location Code" <> OldLocationCode)
+        then begin
+            CreateWhseActivHeader(
+              TempWarehouseActivityLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
+              NoOfSourceDoc, NoOfLines, WhseDocCreated);
+            CreateWhseDocLine();
+        end else begin
+            NoOfLines := NoOfLines + 1;
+            if TempWarehouseActivityLine."Source No." <> OldSourceNo then
+                NoOfSourceDoc := NoOfSourceDoc + 1;
+            if (CreatePickParameters."Max No. of Source Doc." > 0) and (NoOfSourceDoc > CreatePickParameters."Max No. of Source Doc.") then
+                CreateWhseActivHeader(
+                  TempWarehouseActivityLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
+                  NoOfSourceDoc, NoOfLines, WhseDocCreated);
+            if (CreatePickParameters."Max No. of Lines" > 0) and (NoOfLines > CreatePickParameters."Max No. of Lines") then
+                CreateWhseActivHeader(
+                  TempWarehouseActivityLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
+                  NoOfSourceDoc, NoOfLines, WhseDocCreated);
+            CreateWhseDocLine();
+        end;
+    end;
+
+    local procedure CreateWhseActivHeader(LocationCode: Code[10]; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; var NoOfSourceDoc: Integer; var NoOfLines: Integer; var WhseDocCreated: Boolean)
+    begin
+        CurrWarehouseActivityHeader.Init();
+        CurrWarehouseActivityHeader."No." := '';
+        if CreatePickParameters."Whse. Document Type" = CreatePickParameters."Whse. Document Type"::Movement then
+            CurrWarehouseActivityHeader.Type := CurrWarehouseActivityHeader.Type::Movement
+        else
+            CurrWarehouseActivityHeader.Type := CurrWarehouseActivityHeader.Type::Pick;
+        CurrWarehouseActivityHeader."Location Code" := LocationCode;
+        if CreatePickParameters."Assigned ID" <> '' then
+            CurrWarehouseActivityHeader.Validate("Assigned User ID", CreatePickParameters."Assigned ID");
+        CurrWarehouseActivityHeader."Sorting Method" := CreatePickParameters."Sorting Method";
+        CurrWarehouseActivityHeader."Breakbulk Filter" := CreatePickParameters."Breakbulk Filter";
+        OnBeforeWhseActivHeaderInsert(CurrWarehouseActivityHeader, TempWarehouseActivityLine, CreatePickParameters, CurrWarehouseShipmentLine);
+        CurrWarehouseActivityHeader.Insert(true);
+        OnCreateWhseActivHeaderOnAfterWhseActivHeaderInsert(CurrWarehouseActivityHeader, TempWarehouseActivityLine, CreatePickParameters);
+
+        NoOfLines := 1;
+        NoOfSourceDoc := 1;
+
+        if not WhseDocCreated then begin
+            FirstWhseDocNo := CurrWarehouseActivityHeader."No.";
+            WhseDocCreated := true;
+        end;
+        LastWhseDocNo := CurrWarehouseActivityHeader."No.";
+    end;
+
+    local procedure CreateWhseDocLine()
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        LineNo: Integer;
+        IsHandled: Boolean;
+    begin
+        TempWarehouseActivityLine.SetRange("Breakbulk No.", 0);
+        TempWarehouseActivityLine.Find('-');
+        WarehouseActivityLine.SetRange("Activity Type", CurrWarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", CurrWarehouseActivityHeader."No.");
+        if WarehouseActivityLine.FindLast() then
+            LineNo := WarehouseActivityLine."Line No."
+        else
+            LineNo := 0;
+
+        ItemTrackingManagement.GetWhseItemTrkgSetup(TempWarehouseActivityLine."Item No.", WhseItemTrackingSetup);
+        OnCreateWhseDocLineOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, TempWarehouseActivityLine);
+
+        LineNo := LineNo + 10000;
+        WarehouseActivityLine.Init();
+        WarehouseActivityLine := TempWarehouseActivityLine;
+        WarehouseActivityLine."No." := CurrWarehouseActivityHeader."No.";
+        if not (WarehouseActivityLine."Whse. Document Type" in [
+                                                        WarehouseActivityLine."Whse. Document Type"::"Internal Pick",
+                                                        WarehouseActivityLine."Whse. Document Type"::"Movement Worksheet"])
+        then
+            WarehouseActivityLine."Source Document" := WhseManagement.GetWhseActivSourceDocument(WarehouseActivityLine."Source Type", WarehouseActivityLine."Source Subtype");
+
+        IsHandled := false;
+        OnBeforeCreateWhseDocTakeLine(WarehouseActivityLine, CurrLocation, IsHandled);
+        if not IsHandled then
+            if CurrLocation."Bin Mandatory" and (not WhseItemTrackingSetup."Serial No. Required") then
+                CreateWhseDocTakeLine(WarehouseActivityLine, LineNo)
+            else
+                TempWarehouseActivityLine.Delete();
+
+        if WarehouseActivityLine."Qty. (Base)" <> 0 then begin
+            WarehouseActivityLine."Line No." := LineNo;
+            ProcessDoNotFillQtytoHandle(WarehouseActivityLine);
+            OnBeforeWhseActivLineInsert(WarehouseActivityLine, CurrWarehouseActivityHeader);
+            WarehouseActivityLine.Insert();
+            OnAfterWhseActivLineInsert(WarehouseActivityLine);
+        end;
+
+        if CurrLocation."Bin Mandatory" then
+            CreateWhseDocPlaceLine(WarehouseActivityLine.Quantity, WarehouseActivityLine."Qty. (Base)", LineNo);
+
+        OnAfterCreateWhseDocLine(WarehouseActivityLine);
+    end;
+
+    local procedure CreateWhseDocTakeLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var LineNo: Integer)
+    var
+        WarehouseActivityLine2: Record "Warehouse Activity Line";
+        WarehouseActivityLine3: Record "Warehouse Activity Line";
+        TempWarehouseActivityLine2: Record "Warehouse Activity Line" temporary;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateWhseDocTakeLineProcedure(WarehouseActivityLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TempWarehouseActivityLine2.Copy(TempWarehouseActivityLine);
+        TempWarehouseActivityLine.SetCurrentKey(
+          "Whse. Document No.", "Whse. Document Type", "Activity Type", "Whse. Document Line No.", "Action Type");
+        TempWarehouseActivityLine.Delete();
+
+        TempWarehouseActivityLine.SetRange("Whse. Document Type", TempWarehouseActivityLine2."Whse. Document Type");
+        TempWarehouseActivityLine.SetRange("Whse. Document No.", TempWarehouseActivityLine2."Whse. Document No.");
+        TempWarehouseActivityLine.SetRange("Activity Type", TempWarehouseActivityLine2."Activity Type");
+        TempWarehouseActivityLine.SetRange("Whse. Document Line No.", TempWarehouseActivityLine2."Whse. Document Line No.");
+        TempWarehouseActivityLine.SetRange("Action Type", TempWarehouseActivityLine2."Action Type"::Take);
+        TempWarehouseActivityLine.SetSourceFilter(
+          TempWarehouseActivityLine2."Source Type", TempWarehouseActivityLine2."Source Subtype", TempWarehouseActivityLine2."Source No.",
+          TempWarehouseActivityLine2."Source Line No.", TempWarehouseActivityLine2."Source Subline No.", false);
+        TempWarehouseActivityLine.SetRange("No.", TempWarehouseActivityLine2."No.");
+        TempWarehouseActivityLine.SetFilter("Line No.", '>%1', TempWarehouseActivityLine2."Line No.");
+        TempWarehouseActivityLine.SetRange("Bin Code", TempWarehouseActivityLine2."Bin Code");
+        TempWarehouseActivityLine.SetRange("Unit of Measure Code", WarehouseActivityLine."Unit of Measure Code");
+        TempWarehouseActivityLine.SetRange("Zone Code");
+        TempWarehouseActivityLine.SetRange("Breakbulk No.", 0);
+        TempWarehouseActivityLine.SetTrackingFilterFromWhseActivityLine(TempWarehouseActivityLine2);
+        OnCreateWhseDocTakeLineOnAfterSetFilters(TempWarehouseActivityLine, TempWarehouseActivityLine2, WarehouseActivityLine);
+        if TempWarehouseActivityLine.Find('-') then begin
+            repeat
+                WarehouseActivityLine.Quantity := WarehouseActivityLine.Quantity + TempWarehouseActivityLine.Quantity;
+            until TempWarehouseActivityLine.Next() = 0;
+            TempWarehouseActivityLine.DeleteAll();
+            WarehouseActivityLine.Validate(Quantity);
+        end;
+
+        // insert breakbulk lines
+        if CurrLocation."Directed Put-away and Pick" then begin
+            TempWarehouseActivityLine.ClearSourceFilter();
+            TempWarehouseActivityLine.SetRange("Line No.");
+            TempWarehouseActivityLine.SetRange("Unit of Measure Code");
+            TempWarehouseActivityLine.SetFilter("Breakbulk No.", '<>0');
+            if TempWarehouseActivityLine.Find('-') then
+                repeat
+                    WarehouseActivityLine2.Init();
+                    WarehouseActivityLine2 := TempWarehouseActivityLine;
+                    WarehouseActivityLine2."No." := CurrWarehouseActivityHeader."No.";
+                    WarehouseActivityLine2."Line No." := LineNo;
+                    WarehouseActivityLine2."Source Document" := WarehouseActivityLine."Source Document";
+
+                    ProcessDoNotFillQtytoHandle(WarehouseActivityLine2);
+                    OnCreateWhseDocTakeLineOnBeforeWhseActivLineInsert(WarehouseActivityLine2, CurrWarehouseActivityHeader, TempWarehouseActivityLine);
+                    WarehouseActivityLine2.Insert();
+                    OnAfterWhseActivLineInsert(WarehouseActivityLine2);
+
+                    TempWarehouseActivityLine.Delete();
+                    LineNo := LineNo + 10000;
+
+                    WarehouseActivityLine3.Copy(TempWarehouseActivityLine);
+                    TempWarehouseActivityLine.SetRange("Action Type", TempWarehouseActivityLine."Action Type"::Place);
+                    TempWarehouseActivityLine.SetRange("Line No.");
+                    TempWarehouseActivityLine.SetRange("Breakbulk No.", TempWarehouseActivityLine."Breakbulk No.");
+                    TempWarehouseActivityLine.Find('-');
+
+                    WarehouseActivityLine2.Init();
+                    WarehouseActivityLine2 := TempWarehouseActivityLine;
+                    WarehouseActivityLine2."No." := CurrWarehouseActivityHeader."No.";
+                    WarehouseActivityLine2."Line No." := LineNo;
+                    WarehouseActivityLine2."Source Document" := WarehouseActivityLine."Source Document";
+
+                    ProcessDoNotFillQtytoHandle(WarehouseActivityLine2);
+
+                    WarehouseActivityLine2."Original Breakbulk" :=
+                      WarehouseActivityLine."Qty. (Base)" = WarehouseActivityLine2."Qty. (Base)";
+                    if CreatePickParameters."Breakbulk Filter" then
+                        WarehouseActivityLine2.Breakbulk := WarehouseActivityLine2."Original Breakbulk";
+                    OnCreateWhseDocTakeLineOnBeforeWhseActivLine2Insert(WarehouseActivityLine2, CurrWarehouseActivityHeader, TempWarehouseActivityLine);
+                    WarehouseActivityLine2.Insert();
+                    OnAfterWhseActivLineInsert(WarehouseActivityLine2);
+
+                    TempWarehouseActivityLine.Delete();
+                    LineNo := LineNo + 10000;
+
+                    TempWarehouseActivityLine.Copy(WarehouseActivityLine3);
+                    WarehouseActivityLine."Original Breakbulk" := WarehouseActivityLine2."Original Breakbulk";
+                    if CreatePickParameters."Breakbulk Filter" then
+                        WarehouseActivityLine.Breakbulk := WarehouseActivityLine."Original Breakbulk";
+                until TempWarehouseActivityLine.Next() = 0;
+        end;
+
+        TempWarehouseActivityLine.Copy(TempWarehouseActivityLine2);
+    end;
+
+    local procedure CreateWhseDocPlaceLine(PickQty: Decimal; PickQtyBase: Decimal; var LineNo: Integer)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        TempWarehouseActivityLine2: Record "Warehouse Activity Line" temporary;
+        TempWarehouseActivityLine3: Record "Warehouse Activity Line" temporary;
+    begin
+        TempWarehouseActivityLine2.Copy(TempWarehouseActivityLine);
+        TempWarehouseActivityLine.SetCurrentKey(
+          "Whse. Document No.", "Whse. Document Type", "Activity Type", "Whse. Document Line No.", "Action Type");
+        TempWarehouseActivityLine.SetRange("Whse. Document No.", TempWarehouseActivityLine2."Whse. Document No.");
+        TempWarehouseActivityLine.SetRange("Whse. Document Type", TempWarehouseActivityLine2."Whse. Document Type");
+        TempWarehouseActivityLine.SetRange("Activity Type", TempWarehouseActivityLine2."Activity Type");
+        TempWarehouseActivityLine.SetRange("Whse. Document Line No.", TempWarehouseActivityLine2."Whse. Document Line No.");
+        TempWarehouseActivityLine.SetRange("Source Subline No.", TempWarehouseActivityLine2."Source Subline No.");
+        TempWarehouseActivityLine.SetRange("No.", TempWarehouseActivityLine2."No.");
+        TempWarehouseActivityLine.SetRange("Action Type", TempWarehouseActivityLine2."Action Type"::Place);
+        TempWarehouseActivityLine.SetFilter("Line No.", '>%1', TempWarehouseActivityLine2."Line No.");
+        TempWarehouseActivityLine.SetRange("Bin Code");
+        TempWarehouseActivityLine.SetRange("Zone Code");
+        TempWarehouseActivityLine.SetRange("Item No.", TempWarehouseActivityLine2."Item No.");
+        TempWarehouseActivityLine.SetRange("Variant Code", TempWarehouseActivityLine2."Variant Code");
+        TempWarehouseActivityLine.SetRange("Breakbulk No.", 0);
+        TempWarehouseActivityLine.SetTrackingFilterFromWhseActivityLine(TempWarehouseActivityLine2);
+        OnCreateWhseDocPlaceLineOnAfterSetFilters(TempWarehouseActivityLine, TempWarehouseActivityLine2, LineNo);
+        if TempWarehouseActivityLine.Find('-') then
+            repeat
+                LineNo := LineNo + 10000;
+                WarehouseActivityLine.Init();
+                WarehouseActivityLine := TempWarehouseActivityLine;
+                OnCreateWhseDocPlaceLineOnAfterTransferTempWhseActivLineToWhseActivLine(WarehouseActivityLine, TempWarehouseActivityLine, PickQty, PickQtyBase);
+
+                with WarehouseActivityLine do
+                    if (PickQty * "Qty. per Unit of Measure") <> PickQtyBase then
+                        PickQty := UnitOfMeasureManagement.RoundQty(PickQtyBase / "Qty. per Unit of Measure", "Qty. Rounding Precision");
+
+                PickQtyBase := PickQtyBase - WarehouseActivityLine."Qty. (Base)";
+                PickQty := PickQty - WarehouseActivityLine.Quantity;
+
+                WarehouseActivityLine."No." := CurrWarehouseActivityHeader."No.";
+                WarehouseActivityLine."Line No." := LineNo;
+
+                if not (WarehouseActivityLine."Whse. Document Type" in [
+                                                                WarehouseActivityLine."Whse. Document Type"::"Internal Pick",
+                                                                WarehouseActivityLine."Whse. Document Type"::"Movement Worksheet"])
+                then
+                    WarehouseActivityLine."Source Document" := WhseManagement.GetWhseActivSourceDocument(WarehouseActivityLine."Source Type", WarehouseActivityLine."Source Subtype");
+
+                TempWarehouseActivityLine.Delete();
+                if PickQtyBase > 0 then begin
+                    TempWarehouseActivityLine3.Copy(TempWarehouseActivityLine);
+                    TempWarehouseActivityLine.SetRange(
+                      "Unit of Measure Code", WarehouseActivityLine."Unit of Measure Code");
+                    TempWarehouseActivityLine.SetFilter("Line No.", '>%1', TempWarehouseActivityLine."Line No.");
+                    TempWarehouseActivityLine.SetRange("No.", TempWarehouseActivityLine2."No.");
+                    TempWarehouseActivityLine.SetRange("Bin Code", WarehouseActivityLine."Bin Code");
+                    OnCreateWhseDocPlaceLineOnAfterTempWhseActivLineSetFilters(TempWarehouseActivityLine, WarehouseActivityLine);
+                    if TempWarehouseActivityLine.Find('-') then
+                        repeat
+                            if TempWarehouseActivityLine."Qty. (Base)" >= PickQtyBase then begin
+                                WarehouseActivityLine.Quantity := WarehouseActivityLine.Quantity + PickQty;
+                                WarehouseActivityLine."Qty. (Base)" := WarehouseActivityLine."Qty. (Base)" + PickQtyBase;
+                                TempWarehouseActivityLine.Quantity -= PickQty;
+                                TempWarehouseActivityLine."Qty. (Base)" -= PickQtyBase;
+                                TempWarehouseActivityLine.Modify();
+                                PickQty := 0;
+                                PickQtyBase := 0;
+                            end else begin
+                                WarehouseActivityLine.Quantity := WarehouseActivityLine.Quantity + TempWarehouseActivityLine.Quantity;
+                                WarehouseActivityLine."Qty. (Base)" := WarehouseActivityLine."Qty. (Base)" + TempWarehouseActivityLine."Qty. (Base)";
+                                PickQty := PickQty - TempWarehouseActivityLine.Quantity;
+                                PickQtyBase := PickQtyBase - TempWarehouseActivityLine."Qty. (Base)";
+                                TempWarehouseActivityLine.Delete();
+                            end;
+                        until (TempWarehouseActivityLine.Next() = 0) or (PickQtyBase = 0)
+                    else
+                        if TempWarehouseActivityLine.Delete() then;
+                    TempWarehouseActivityLine.Copy(TempWarehouseActivityLine3);
+                end;
+
+                if WarehouseActivityLine.Quantity > 0 then begin
+                    TempWarehouseActivityLine3 := WarehouseActivityLine;
+                    ValidateWhseActivLineQtyFIeldsFromCreateWhseDocPlaceLine(WarehouseActivityLine, TempWarehouseActivityLine3);
+
+                    ProcessDoNotFillQtytoHandle(WarehouseActivityLine);
+                    OnCreateWhseDocPlaceLineOnBeforeWhseActivLineInsert(WarehouseActivityLine);
+                    WarehouseActivityLine.Insert();
+                    OnAfterWhseActivLineInsert(WarehouseActivityLine);
+                end;
+            until (TempWarehouseActivityLine.Next() = 0) or (PickQtyBase = 0);
+
+        TempWarehouseActivityLine.Copy(TempWarehouseActivityLine2);
+    end;
+
+    local procedure ProcessDoNotFillQtytoHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+        if CreatePickParameters."Do Not Fill Qty. to Handle" then begin
+            WarehouseActivityLine."Qty. to Handle" := 0;
+            WarehouseActivityLine."Qty. to Handle (Base)" := 0;
+            WarehouseActivityLine.Cubage := 0;
+            WarehouseActivityLine.Weight := 0;
+        end;
+
+        OnAfterProcessDoNotFillQtytoHandle(WarehouseActivityLine, TempWarehouseActivityLine);
+    end;
+
+    local procedure ValidateWhseActivLineQtyFIeldsFromCreateWhseDocPlaceLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; TempWarehouseActivityLine3: Record "Warehouse Activity Line" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateWhseActivLineQtyFIeldsFromCreateWhseDocPlaceLine(WarehouseActivityLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        WarehouseActivityLine.Validate(Quantity);
+        WarehouseActivityLine."Qty. (Base)" := TempWarehouseActivityLine3."Qty. (Base)";
+        WarehouseActivityLine."Qty. Outstanding (Base)" := TempWarehouseActivityLine3."Qty. (Base)";
+        WarehouseActivityLine."Qty. to Handle (Base)" := TempWarehouseActivityLine3."Qty. (Base)";
+    end;
+
+    local procedure AssignSpecEquipment(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]): Code[10]
+    begin
+        if (BinCode <> '') and
+           (CurrLocation."Special Equipment" =
+            CurrLocation."Special Equipment"::"According to Bin")
+        then begin
+            GetBin(LocationCode, BinCode);
+            if CurrBin."Special Equipment Code" <> '' then
+                exit(CurrBin."Special Equipment Code");
+
+            GetSKU(LocationCode, ItemNo, VariantCode);
+            if CurrStockkeepingUnit."Special Equipment Code" <> '' then
+                exit(CurrStockkeepingUnit."Special Equipment Code");
+
+            GetItem(ItemNo);
+            exit(CurrItem."Special Equipment Code");
+        end;
+        GetSKU(LocationCode, ItemNo, VariantCode);
+        if CurrStockkeepingUnit."Special Equipment Code" <> '' then
+            exit(CurrStockkeepingUnit."Special Equipment Code");
+
+        GetItem(ItemNo);
+        if CurrItem."Special Equipment Code" <> '' then
+            exit(CurrItem."Special Equipment Code");
+
+        GetBin(LocationCode, BinCode);
+        exit(CurrBin."Special Equipment Code");
+    end;
+
+    local procedure CalcAvailableQty(ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    var
+        AvailableQtyBase: Decimal;
+        LineReservedQty: Decimal;
+        QtyReservedOnPickShip: Decimal;
+        QtyOnDedicatedBins: Decimal;
+        WhseSource2: Option;
+    begin
+        // For locations with pick/ship and without directed put-away and pick
+        GetItem(ItemNo);
+        AvailableQtyBase := WarehouseAvailabilityMgt.CalcInvtAvailQty(CurrItem, CurrLocation, VariantCode, TempWarehouseActivityLine);
+        OnCalcAvailableQtyOnAfterCalcAvailableQtyBase(CurrItem, CurrLocation, VariantCode, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, AvailableQtyBase);
+
+        if (CreatePickParameters."Whse. Document" = CreatePickParameters."Whse. Document"::Shipment) and CurrWarehouseShipmentLine."Assemble to Order" then
+            WhseSource2 := CreatePickParameters."Whse. Document"::Assembly
+        else
+            WhseSource2 := CreatePickParameters."Whse. Document";
+
+        case WhseSource2 of
+            CreatePickParameters."Whse. Document"::"Pick Worksheet",
+            CreatePickParameters."Whse. Document"::"Movement Worksheet":
+                LineReservedQty :=
+                  WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                    CurrWhseWorksheetLine."Source Type", CurrWhseWorksheetLine."Source Subtype", CurrWhseWorksheetLine."Source No.",
+                    CurrWhseWorksheetLine."Source Line No.", CurrWhseWorksheetLine."Source Subline No.", true, TempWarehouseActivityLine);
+            CreatePickParameters."Whse. Document"::Shipment:
+                LineReservedQty :=
+                  WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                    CurrWarehouseShipmentLine."Source Type", CurrWarehouseShipmentLine."Source Subtype", CurrWarehouseShipmentLine."Source No.",
+                    CurrWarehouseShipmentLine."Source Line No.", 0, true, TempWarehouseActivityLine);
+            CreatePickParameters."Whse. Document"::Production:
+                LineReservedQty :=
+                  WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                    Database::"Prod. Order Component", CurrProdOrderComponentLine.Status, CurrProdOrderComponentLine."Prod. Order No.",
+                    CurrProdOrderComponentLine."Prod. Order Line No.", CurrProdOrderComponentLine."Line No.", true, TempWarehouseActivityLine);
+            CreatePickParameters."Whse. Document"::Assembly:
+                LineReservedQty :=
+                  WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                    Database::"Assembly Line", CurrAssemblyLine."Document Type", CurrAssemblyLine."Document No.",
+                    CurrAssemblyLine."Line No.", 0, true, TempWarehouseActivityLine);
+            CreatePickParameters."Whse. Document"::Job:
+                LineReservedQty :=
+                  WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                    Database::Job, Enum::"Job Planning Line Status"::Order, CurrJobPlanningLine."Job No.",
+                    CurrJobPlanningLine."Job Contract Entry No.",
+                    CurrJobPlanningLine."Line No.", true, TempWarehouseActivityLine);
+        end;
+
+        QtyReservedOnPickShip := WarehouseAvailabilityMgt.CalcReservQtyOnPicksShips(CurrLocation.Code, ItemNo, VariantCode, TempWarehouseActivityLine);
+        QtyOnDedicatedBins := WarehouseAvailabilityMgt.CalcQtyOnDedicatedBins(CurrLocation.Code, ItemNo, VariantCode);
+
+        exit(AvailableQtyBase + LineReservedQty + QtyReservedOnPickShip - QtyOnDedicatedBins);
+    end;
+
+    local procedure CalcPickQtyAssigned(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; BinCode: Code[20]; var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary) PickQtyAssigned: Decimal
+    var
+        WarehouseActivityLine2: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine2.Copy(TempWarehouseActivityLine);
+        TempWarehouseActivityLine.Reset();
+        TempWarehouseActivityLine.SetCurrentKey(
+          TempWarehouseActivityLine."Item No.", TempWarehouseActivityLine."Bin Code", TempWarehouseActivityLine."Location Code", TempWarehouseActivityLine."Action Type", TempWarehouseActivityLine."Variant Code",
+          TempWarehouseActivityLine."Unit of Measure Code", TempWarehouseActivityLine."Breakbulk No.", TempWarehouseActivityLine."Activity Type", TempWarehouseActivityLine."Lot No.", TempWarehouseActivityLine."Serial No.");
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Item No.", ItemNo);
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Location Code", LocationCode);
+        if CurrLocation."Bin Mandatory" then begin
+            TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Action Type", TempWarehouseActivityLine."Action Type"::Take);
+            if BinCode <> '' then
+                TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Bin Code", BinCode)
+            else
+                TempWarehouseActivityLine.SetFilter(TempWarehouseActivityLine."Bin Code", '<>%1', '');
+        end else begin
+            TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Action Type", TempWarehouseActivityLine."Action Type"::" ");
+            TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Bin Code", '');
+        end;
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Variant Code", VariantCode);
+        if UOMCode <> '' then
+            TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Unit of Measure Code", UOMCode);
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Activity Type", TempWarehouseActivityLine."Activity Type");
+        TempWarehouseActivityLine.SetRange(TempWarehouseActivityLine."Breakbulk No.", 0);
+        if WhseItemTrkgExists then
+            TempWarehouseActivityLine.SetTrackingFilterFromWhseItemTrackingLineIfNotBlank(TempWhseItemTrackingLine2);
+        OnCalcQtyOutstandingBaseAfterSetFilters(TempWarehouseActivityLine, TempWhseItemTrackingLine2, LocationCode, ItemNo, VariantCode, UOMCode, BinCode);
+        TempWarehouseActivityLine.CalcSums(TempWarehouseActivityLine."Qty. Outstanding (Base)");
+        PickQtyAssigned := TempWarehouseActivityLine."Qty. Outstanding (Base)";
+        TempWarehouseActivityLine.Copy(WarehouseActivityLine2);
+        exit(PickQtyAssigned);
+    end;
+
+    local procedure CalcQtyAssignedToPick(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetCurrentKey(
+          WarehouseActivityLine."Item No.", WarehouseActivityLine."Location Code", WarehouseActivityLine."Activity Type", WarehouseActivityLine."Bin Type Code",
+          WarehouseActivityLine."Unit of Measure Code", WarehouseActivityLine."Variant Code", WarehouseActivityLine."Breakbulk No.", WarehouseActivityLine."Action Type");
+
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Item No.", ItemNo);
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Location Code", LocationCode);
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Variant Code", VariantCode);
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Breakbulk No.", 0);
+        WarehouseActivityLine.SetFilter(WarehouseActivityLine."Action Type", '%1|%2', WarehouseActivityLine."Action Type"::" ", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetFilter(WarehouseActivityLine."Bin Code", BinCode);
+        WarehouseActivityLine.SetTrackingFilterFromWhseItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
+        OnCalcQtyAssignedToPickOnAfterSetFilters(WarehouseActivityLine, WhseItemTrackingSetup);
+        WarehouseActivityLine.CalcSums(WarehouseActivityLine."Qty. Outstanding (Base)");
+
+        exit(WarehouseActivityLine."Qty. Outstanding (Base)" + CalcBreakbulkOutstdQty(WarehouseActivityLine, WhseItemTrackingSetup));
+    end;
+
+    local procedure UseForPick(FromBinContent: Record "Bin Content") IsForPick: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUseForPick(FromBinContent, IsForPick, IsHandled);
+        if IsHandled then
+            exit(IsForPick);
+
+        if FromBinContent."Block Movement" in [FromBinContent."Block Movement"::Outbound, FromBinContent."Block Movement"::All] then
+            exit(false);
+
+        GetBinType(FromBinContent."Bin Type Code");
+        exit(CurrBinType.Pick);
+    end;
+
+    local procedure UseForReplenishment(FromBinContent: Record "Bin Content"): Boolean
+    begin
+        if FromBinContent."Block Movement" in [FromBinContent."Block Movement"::Outbound, FromBinContent."Block Movement"::All] then
+            exit(false);
+
+        GetBinType(FromBinContent."Bin Type Code");
+        exit(not (CurrBinType.Receive or CurrBinType.Ship));
+    end;
+
+    local procedure GetLocation(LocationCode: Code[10])
+    begin
+        if LocationCode = '' then
+            CurrLocation := WhseSetupLocation
+        else
+            if CurrLocation.Code <> LocationCode then
+                CurrLocation.Get(LocationCode);
+
+        OnAfterGetLocation(LocationCode);
+    end;
+
+    local procedure GetBinType(BinTypeCode: Code[10])
+    begin
+        if BinTypeCode = '' then
+            CurrBinType.Init()
+        else
+            if CurrBinType.Code <> BinTypeCode then
+                CurrBinType.Get(BinTypeCode);
+    end;
+
+    local procedure GetBin(LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        if (CurrBin."Location Code" <> LocationCode) or
+           (CurrBin.Code <> BinCode)
+        then
+            if not CurrBin.Get(LocationCode, BinCode) then
+                Clear(CurrBin);
+    end;
+
+    local procedure GetItem(ItemNo: Code[20])
+    begin
+        if CurrItem."No." <> ItemNo then
+            CurrItem.Get(ItemNo);
+    end;
+
+    local procedure GetSKU(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Boolean
+    begin
+        if (CurrStockkeepingUnit."Location Code" <> LocationCode) or
+           (CurrStockkeepingUnit."Item No." <> ItemNo) or
+           (CurrStockkeepingUnit."Variant Code" <> VariantCode)
+        then
+            if not CurrStockkeepingUnit.Get(LocationCode, ItemNo, VariantCode) then begin
+                Clear(CurrStockkeepingUnit);
+                exit(false)
+            end;
+        exit(true);
+    end;
+
+    procedure SetParameters(NewCreatePickParameters: Record "Create Pick Parameters")
+    begin
+        CreatePickParameters := NewCreatePickParameters;
+        if CreatePickParameters."Per Bin" then
+            CreatePickParameters."Per Zone" := false
+        else
+            CreatePickParameters."Per Zone" := NewCreatePickParameters."Per Zone";
+        WarehouseSetup.Get();
+        WhseSetupLocation.GetLocationSetup('', WhseSetupLocation);
+        Clear(TempWarehouseActivityLine);
+        LastWhseItemTrkgLineNo := 0;
+        IsMovementWorksheet := CreatePickParameters."Whse. Document" = CreatePickParameters."Whse. Document"::"Movement Worksheet";
+
+        OnAfterSetParameters(CreatePickParameters);
+    end;
+
+    procedure SetWhseWkshLine(WhseWorksheetLine2: Record "Whse. Worksheet Line"; TempNo2: Integer)
+    begin
+        CurrWhseWorksheetLine := WhseWorksheetLine2;
+        TempNo := TempNo2;
+        SetSource(
+            WhseWorksheetLine2."Source Type", WhseWorksheetLine2."Source Subtype", WhseWorksheetLine2."Source No.",
+            WhseWorksheetLine2."Source Line No.", WhseWorksheetLine2."Source Subline No.");
+
+        OnAfterSetWhseWkshLine(CurrWhseWorksheetLine);
+    end;
+
+    procedure SetWhseShipment(WarehouseShipmentLine2: Record "Warehouse Shipment Line"; TempNo2: Integer; ShippingAgentCode2: Code[10]; ShippingAgentServiceCode2: Code[10]; ShipmentMethodCode2: Code[10])
+    begin
+        CurrWarehouseShipmentLine := WarehouseShipmentLine2;
+        TempNo := TempNo2;
+        ShippingAgentCode := ShippingAgentCode2;
+        ShippingAgentServiceCode := ShippingAgentServiceCode2;
+        ShipmentMethodCode := ShipmentMethodCode2;
+        SetSource(WarehouseShipmentLine2."Source Type", WarehouseShipmentLine2."Source Subtype", WarehouseShipmentLine2."Source No.", WarehouseShipmentLine2."Source Line No.", 0);
+
+        OnAfterSetWhseShipment(CurrWarehouseShipmentLine, TempNo2, ShippingAgentCode2, ShippingAgentServiceCode2, ShipmentMethodCode2);
+    end;
+
+    procedure SetWhseInternalPickLine(WhseInternalPickLine2: Record "Whse. Internal Pick Line"; TempNo2: Integer)
+    begin
+        CurrWhseInternalPickLine := WhseInternalPickLine2;
+        TempNo := TempNo2;
+
+        OnAfterSetWhseInternalPickLine(CurrWhseInternalPickLine);
+    end;
+
+    procedure SetProdOrderCompLine(ProdOrderComponentLine2: Record "Prod. Order Component"; TempNo2: Integer)
+    begin
+        CurrProdOrderComponentLine := ProdOrderComponentLine2;
+        TempNo := TempNo2;
+        SetSource(
+            Database::"Prod. Order Component", ProdOrderComponentLine2.Status, ProdOrderComponentLine2."Prod. Order No.",
+            ProdOrderComponentLine2."Prod. Order Line No.", ProdOrderComponentLine2."Line No.");
+
+        OnAfterSetProdOrderCompLine(CurrProdOrderComponentLine);
+    end;
+
+    procedure SetAssemblyLine(AssemblyLine2: Record "Assembly Line"; TempNo2: Integer)
+    begin
+        CurrAssemblyLine := AssemblyLine2;
+        TempNo := TempNo2;
+        SetSource(Database::"Assembly Line", AssemblyLine2."Document Type", AssemblyLine2."Document No.", AssemblyLine2."Line No.", 0);
+
+        OnAfterSetAssemblyLine(CurrAssemblyLine);
+    end;
+
+    procedure SetJobPlanningLine(JobPlanningLine2: Record "Job Planning Line")
+    begin
+        CurrJobPlanningLine := JobPlanningLine2;
+        TempNo := 1;
+        SetSource(
+          Database::"Job Planning Line", Enum::"Job Planning Line Status"::Order,
+          JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", JobPlanningLine2."Line No.");
+    end;
+
+    procedure SetTempWhseItemTrkgLine(SourceID: Code[20]; SrcType: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10])
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        TempWhseItemTrackingLine.DeleteAll();
+        TempWhseItemTrackingLine.Init();
+        WhseItemTrkgLineCount := 0;
+        WhseItemTrkgExists := false;
+        WhseItemTrackingLine.Reset();
+        WhseItemTrackingLine.SetCurrentKey(
+          "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
+          "Source Prod. Order Line", "Source Ref. No.", "Location Code");
+        WhseItemTrackingLine.SetRange("Source ID", SourceID);
+        WhseItemTrackingLine.SetRange("Source Type", SrcType);
+        WhseItemTrackingLine.SetRange("Source Batch Name", SourceBatchName);
+        WhseItemTrackingLine.SetRange("Source Prod. Order Line", SourceProdOrderLine);
+        WhseItemTrackingLine.SetRange("Source Ref. No.", SourceRefNo);
+        WhseItemTrackingLine.SetRange("Location Code", LocationCode);
+        if WhseItemTrackingLine.Find('-') then
+            repeat
+                if WhseItemTrackingLine."Qty. to Handle (Base)" > 0 then
+                    CopyToTempWhseItemTrkgLine(WhseItemTrackingLine);
+            until WhseItemTrackingLine.Next() = 0;
+
+        OnAfterCreateTempWhseItemTrackingLines(TempWhseItemTrackingLine);
+
+        SetSourceWhseItemTrkgLine(SourceID, SrcType, SourceBatchName, SourceProdOrderLine, SourceRefNo);
+    end;
+
+    procedure SetTempWhseItemTrkgLineFromBuffer(var TempWhseItemTrackingLineBuffer: Record "Whse. Item Tracking Line" temporary; SourceID: Code[20]; SrcType: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10])
+    begin
+        TempWhseItemTrackingLine.DeleteAll();
+        TempWhseItemTrackingLine.Init();
+        WhseItemTrkgLineCount := 0;
+        WhseItemTrkgExists := false;
+
+        TempWhseItemTrackingLineBuffer.Reset();
+        TempWhseItemTrackingLineBuffer.SetSourceFilter(SrcType, 0, SourceID, SourceRefNo, true);
+        TempWhseItemTrackingLineBuffer.SetSourceFilter(SourceBatchName, SourceProdOrderLine);
+        TempWhseItemTrackingLineBuffer.SetRange("Location Code", LocationCode);
+        if TempWhseItemTrackingLineBuffer.FindSet() then
+            repeat
+                CopyToTempWhseItemTrkgLine(TempWhseItemTrackingLineBuffer);
+            until TempWhseItemTrackingLineBuffer.Next() = 0;
+
+        SetSourceWhseItemTrkgLine(SourceID, SrcType, SourceBatchName, SourceProdOrderLine, SourceRefNo);
+    end;
+
+    local procedure CopyToTempWhseItemTrkgLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyToTempWhseItemTrkgLine(WhseItemTrackingLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TempWhseItemTrackingLine := WhseItemTrackingLine;
+        TempWhseItemTrackingLine."Entry No." := LastWhseItemTrkgLineNo + 1;
+        OnCopyToTempWhseItemTrkgLineOnBeforeTempWhseItemTrackingLineInsert(TempWhseItemTrackingLine);
+        TempWhseItemTrackingLine.Insert();
+        LastWhseItemTrkgLineNo := TempWhseItemTrackingLine."Entry No.";
+        WhseItemTrkgExists := true;
+        WhseItemTrkgLineCount += 1;
+    end;
+
+    local procedure SetSourceWhseItemTrkgLine(SourceID: Code[20]; SrcType: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer)
+    begin
+        SourceWhseItemTrackingLine.Init();
+        SourceWhseItemTrackingLine."Source Type" := SrcType;
+        SourceWhseItemTrackingLine."Source ID" := SourceID;
+        SourceWhseItemTrackingLine."Source Batch Name" := SourceBatchName;
+        SourceWhseItemTrackingLine."Source Prod. Order Line" := SourceProdOrderLine;
+        SourceWhseItemTrackingLine."Source Ref. No." := SourceRefNo;
+
+        OnAfterSetSourceWhseItemTrkgLine(TempWhseItemTrackingLine, LastWhseItemTrkgLineNo);
+    end;
+
+    procedure SaveTempItemTrkgLines()
+    var
+        i: Integer;
+    begin
+        if WhseItemTrkgLineCount = 0 then
+            exit;
+
+        i := 0;
+        TempWhseItemTrackingLine.Reset();
+        if TempWhseItemTrackingLine.Find('-') then
+            repeat
+                TempTotalWhseItemTrackingLine := TempWhseItemTrackingLine;
+                TempTotalWhseItemTrackingLine.Insert();
+                i += 1;
+            until (TempWhseItemTrackingLine.Next() = 0) or (i = WhseItemTrkgLineCount);
+    end;
+
+    procedure ReturnTempItemTrkgLines(var TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary)
+    begin
+        if TempTotalWhseItemTrackingLine.Find('-') then
+            repeat
+                TempWhseItemTrackingLine2 := TempTotalWhseItemTrackingLine;
+                TempWhseItemTrackingLine2.Insert();
+            until TempTotalWhseItemTrackingLine.Next() = 0;
+    end;
+
+    local procedure CreateTempItemTrkgLines(ItemNo: Code[20]; VariantCode: Code[10]; TotalQtyToPickBase: Decimal; HasExpiryDate: Boolean)
+    var
+        EntrySummary: Record "Entry Summary";
+        DummyEntrySummary2: Record "Entry Summary";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        WhseItemTrackingFEFO: Codeunit "Whse. Item Tracking FEFO";
+        TotalAvailQtyToPickBase: Decimal;
+        RemQtyToPickBase: Decimal;
+        QtyToPickBase: Decimal;
+        QtyTracked: Decimal;
+        FromBinContentQty: Decimal;
+        QtyCanBePicked: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateTempItemTrkgLines(CurrLocation, ItemNo, VariantCode, TotalQtyToPickBase, HasExpiryDate, IsHandled, WhseItemTrackingFEFO, CurrWarehouseShipmentLine, CurrWhseWorksheetLine);
+        if IsHandled then
+            exit;
+
+        if not HasExpiryDate then
+            if TotalQtyToPickBase <= 0 then
+                exit;
+
+        WhseItemTrackingFEFO.SetSource(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo);
+        WhseItemTrackingFEFO.SetCalledFromMovementWksh(CalledFromMoveWksh);
+        WhseItemTrackingFEFO.CreateEntrySummaryFEFO(CurrLocation, ItemNo, VariantCode, HasExpiryDate);
+
+        RemQtyToPickBase := TotalQtyToPickBase;
+        if HasExpiryDate then
+            TransferRemQtyToPickBase := TotalQtyToPickBase;
+        if WhseItemTrackingFEFO.FindFirstEntrySummaryFEFO(EntrySummary) then begin
+            ReqFEFOPick := true;
+            repeat
+                if ((EntrySummary."Expiration Date" <> 0D) and HasExpiryDate) or
+                   ((EntrySummary."Expiration Date" = 0D) and (not HasExpiryDate))
+                then begin
+                    WhseItemTrackingSetup.CopyTrackingFromEntrySummary(EntrySummary);
+                    QtyTracked := ItemTrackedQuantity(WhseItemTrackingSetup);
+                    OnCreateTempItemTrkgLinesOnAfterCalcQtyTracked(EntrySummary, TempWhseItemTrackingLine, QtyTracked);
+
+                    if not ((EntrySummary."Serial No." <> '') and (QtyTracked > 0)) then begin
+                        WhseItemTrackingLine.CopyTrackingFromEntrySummary(EntrySummary);
+                        TotalAvailQtyToPickBase :=
+                            CalcTotalAvailQtyToPick(
+                                CurrLocation.Code, ItemNo, VariantCode, WhseItemTrackingLine,
+                                SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, 0, HasExpiryDate);
+
+                        OnCreateTempItemTrkgLinesOnBeforeGetFromBinContentQty(EntrySummary, ItemNo, VariantCode, TotalAvailQtyToPickBase);
+                        if CalledFromWksh and (CurrWhseWorksheetLine."From Bin Code" <> '') then begin
+                            FromBinContentQty :=
+                                GetFromBinContentQty(
+                                    CurrWhseWorksheetLine."Location Code", CurrWhseWorksheetLine."From Bin Code", CurrWhseWorksheetLine."Item No.",
+                                    CurrWhseWorksheetLine."Variant Code", CurrWhseWorksheetLine."From Unit of Measure Code", WhseItemTrackingLine);
+                            if TotalAvailQtyToPickBase > FromBinContentQty then
+                                TotalAvailQtyToPickBase := FromBinContentQty;
+                        end;
+
+                        QtyCanBePicked :=
+                            CalcQtyCanBePicked(CurrLocation.Code, ItemNo, VariantCode, EntrySummary, CalledFromMoveWksh);
+                        TotalAvailQtyToPickBase := Minimum(TotalAvailQtyToPickBase, QtyCanBePicked);
+
+                        TotalAvailQtyToPickBase := TotalAvailQtyToPickBase - QtyTracked;
+                        QtyToPickBase := 0;
+
+                        OnBeforeInsertTempItemTrkgLine(EntrySummary, RemQtyToPickBase, TotalAvailQtyToPickBase);
+
+                        if TotalAvailQtyToPickBase > 0 then
+                            if TotalAvailQtyToPickBase >= RemQtyToPickBase then begin
+                                QtyToPickBase := RemQtyToPickBase;
+                                RemQtyToPickBase := 0
+                            end else begin
+                                QtyToPickBase := TotalAvailQtyToPickBase;
+                                RemQtyToPickBase := RemQtyToPickBase - QtyToPickBase;
+                            end;
+
+                        OnCreateTempItemTrkgLinesOnBeforeCheckQtyToPickBase(EntrySummary, ItemNo, VariantCode, CurrLocation.Code, TotalAvailQtyToPickBase, QtyToPickBase);
+                        if QtyToPickBase > 0 then
+                            InsertTempItemTrkgLine(CurrLocation.Code, ItemNo, VariantCode, EntrySummary, QtyToPickBase);
+                    end;
+                end;
+            until not WhseItemTrackingFEFO.FindNextEntrySummaryFEFO(EntrySummary) or (RemQtyToPickBase = 0);
+            if HasExpiryDate then
+                TransferRemQtyToPickBase := RemQtyToPickBase;
+        end;
+        if not HasExpiryDate then
+            if RemQtyToPickBase > 0 then
+                if CurrLocation."Always Create Pick Line" then
+                    InsertTempItemTrkgLine(CurrLocation.Code, ItemNo, VariantCode, DummyEntrySummary2, RemQtyToPickBase);
+        if not HasExpiredItems then begin
+            HasExpiredItems := WhseItemTrackingFEFO.GetHasExpiredItems();
+            EnqueueCannotBeHandledReason(WhseItemTrackingFEFO.GetResultMessageForExpiredItem());
+        end;
+    end;
+
+    procedure ItemTrackedQuantity(WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    var
+        QtyToHandleBase: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeItemTrackedQuantity(TempWhseItemTrackingLine, WhseItemTrackingSetup, QtyToHandleBase, IsHandled);
+        if IsHandled then
+            exit(QtyToHandleBase);
+
+        with TempWhseItemTrackingLine do begin
+            Reset();
+            if not WhseItemTrackingSetup.TrackingExists() then
+                if IsEmpty() then
+                    exit(0);
+
+            if WhseItemTrackingSetup."Serial No." <> '' then begin
+                SetTrackingKey();
+                SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
+                if IsEmpty() then
+                    exit(0);
+
+                exit(1);
+            end;
+
+            if WhseItemTrackingSetup."Lot No." <> '' then begin
+                SetTrackingKey();
+                SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
+                if IsEmpty() then
+                    exit(0);
+            end;
+
+            IsHandled := false;
+            OnItemTrackedQuantityOnAfterCheckIfEmpty(TempWhseItemTrackingLine, WhseItemTrackingSetup, IsHandled);
+            if IsHandled then
+                exit(0);
+
+            SetCurrentKey(
+              "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
+              "Source Prod. Order Line", "Source Ref. No.", "Location Code");
+
+            if WhseItemTrackingSetup."Lot No." <> '' then
+                SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
+            OnItemTrackedQuantityOnAfterSetFilters(TempWhseItemTrackingLine, WhseItemTrackingSetup);
+            CalcSums("Qty. to Handle (Base)");
+            exit("Qty. to Handle (Base)");
+        end;
+    end;
+
+    procedure InsertTempItemTrkgLine(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; EntrySummary: Record "Entry Summary"; QuantityBase: Decimal)
+    begin
+        TempWhseItemTrackingLine.Init();
+        TempWhseItemTrackingLine."Entry No." := LastWhseItemTrkgLineNo + 1;
+        TempWhseItemTrackingLine."Location Code" := LocationCode;
+        TempWhseItemTrackingLine."Item No." := ItemNo;
+        TempWhseItemTrackingLine."Variant Code" := VariantCode;
+        TempWhseItemTrackingLine.CopyTrackingFromEntrySummary(EntrySummary);
+        TempWhseItemTrackingLine."Expiration Date" := EntrySummary."Expiration Date";
+        TempWhseItemTrackingLine."Source ID" := SourceWhseItemTrackingLine."Source ID";
+        TempWhseItemTrackingLine."Source Type" := SourceWhseItemTrackingLine."Source Type";
+        TempWhseItemTrackingLine."Source Batch Name" := SourceWhseItemTrackingLine."Source Batch Name";
+        TempWhseItemTrackingLine."Source Prod. Order Line" := SourceWhseItemTrackingLine."Source Prod. Order Line";
+        TempWhseItemTrackingLine."Source Ref. No." := SourceWhseItemTrackingLine."Source Ref. No.";
+        TempWhseItemTrackingLine.Validate(TempWhseItemTrackingLine."Quantity (Base)", QuantityBase);
+        OnBeforeTempWhseItemTrkgLineInsert(TempWhseItemTrackingLine, SourceWhseItemTrackingLine, EntrySummary);
+        TempWhseItemTrackingLine.Insert();
+        LastWhseItemTrkgLineNo := TempWhseItemTrackingLine."Entry No.";
+        WhseItemTrkgExists := true;
+    end;
+
+    local procedure TransferItemTrkgFields(var WarehouseActivityLine2: Record "Warehouse Activity Line"; TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary)
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        EntriesExist: Boolean;
+    begin
+        if WhseItemTrkgExists then begin
+            if TempWhseItemTrackingLine2."Serial No." <> '' then
+                ValidateQtyForSN(TempWhseItemTrackingLine2);
+            WarehouseActivityLine2.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine2);
+            WarehouseActivityLine2."Warranty Date" := TempWhseItemTrackingLine2."Warranty Date";
+            if TempWhseItemTrackingLine2.TrackingExists() then begin
+                WarehouseActivityLine2."Expiration Date" := ItemTrackingManagement.ExistingExpirationDate(WarehouseActivityLine2, false, EntriesExist);
+                if not EntriesExist then
+                    WarehouseActivityLine2."Expiration Date" := TempWhseItemTrackingLine2."Expiration Date";
+            end;
+            OnAfterTransferItemTrkgFields(WarehouseActivityLine2, TempWhseItemTrackingLine2, EntriesExist);
+        end else begin
+            ItemTrackingManagement.GetWhseItemTrkgSetup(TempWhseItemTrackingLine2."Item No.", WhseItemTrackingSetup);
+            if WhseItemTrackingSetup."Serial No. Required" then
+                WarehouseActivityLine2.ValidateQtyWhenSNDefined();
+        end;
+    end;
+
+    local procedure ValidateQtyForSN(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQtyForSN(WhseItemTrackingLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not (WhseItemTrackingLine."Quantity (Base)" in [-1, 0, 1]) then
+            Error(ValidValuesIfSNDefinedErr, WhseItemTrackingLine.FieldCaption("Quantity (Base)"), WhseItemTrackingLine."Quantity (Base)");
+
+        if not (WhseItemTrackingLine."Qty. to Handle (Base)" in [-1, 0, 1]) then
+            Error(ValidValuesIfSNDefinedErr, WhseItemTrackingLine.FieldCaption("Qty. to Handle (Base)"), WhseItemTrackingLine."Qty. to Handle (Base)");
+    end;
+
+    procedure SetSource(SourceType2: Integer; SourceSubType2: Option; SourceNo2: Code[20]; SourceLineNo2: Integer; SourceSubLineNo2: Integer)
+    begin
+        SourceType := SourceType2;
+        SourceSubType := SourceSubType2;
+        SourceNo := SourceNo2;
+        SourceLineNo := SourceLineNo2;
+        SourceSubLineNo := SourceSubLineNo2;
+    end;
+
+    local procedure FindReservationEntries(var ReservationEntry: Record "Reservation Entry"; SrcType: Integer; SrcSubType: Option; SrcNo: Code[20]; SrcLineNo: Integer; SrcSubLineNo: Integer): Boolean
+    begin
+        SetFiltersOnReservEntry(ReservationEntry, SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo);
+        exit(ReservationEntry.FindSet());
+    end;
+
+    local procedure IsReservationExists(SrcType: Integer; SrcSubType: Option; SrcNo: Code[20]; SrcLineNo: Integer; SrcSubLineNo: Integer): Boolean
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        SetFiltersOnReservEntry(ReservationEntry, SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo);
+        exit(not ReservationEntry.IsEmpty());
+    end;
+
+    procedure CheckReservation(QtyBaseAvailToPick: Decimal; SrcType: Integer; SrcSubType: Option; SrcNo: Code[20]; SrcLineNo: Integer; SrcSubLineNo: Integer; AlwaysCreatePickLine: Boolean; QtyPerUnitOfMeasure: Decimal; var Quantity: Decimal; var QuantityBase: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+        Quantity2: Decimal;
+        QuantityBase2: Decimal;
+        QtyBaseResvdNotOnILE: Decimal;
+        QtyResvdNotOnILE: Decimal;
+        SrcDocQtyBaseToBeFilledByInvt: Decimal;
+        SrcDocQtyToBeFilledByInvt: Decimal;
+    begin
+        ReservationExists := false;
+        ReservedForItemLedgEntry := false;
+        Quantity2 := Quantity;
+        QuantityBase2 := QuantityBase;
+
+        ReservationEntry.SetLoadFields("Entry No.", Positive);
+        if FindReservationEntries(ReservationEntry, SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo) then begin
+            ReservationExists := true;
+            repeat
+                QtyResvdNotOnILE += CalcQtyResvdNotOnILE(ReservationEntry."Entry No.", ReservationEntry.Positive);
+            until ReservationEntry.Next() = 0;
+            QtyBaseResvdNotOnILE := QtyResvdNotOnILE;
+            QtyResvdNotOnILE := Round(QtyResvdNotOnILE / QtyPerUnitOfMeasure, UnitOfMeasureManagement.QtyRndPrecision());
+
+            WhseManagement.GetOutboundDocLineQtyOtsdg(SrcType, SrcSubType,
+              SrcNo, SrcLineNo, SrcSubLineNo, SrcDocQtyToBeFilledByInvt, SrcDocQtyBaseToBeFilledByInvt);
+            OnCheckReservationOnAfterGetOutboundDocLineQtyOtsdg(ReservationEntry, SrcDocQtyToBeFilledByInvt, SrcDocQtyBaseToBeFilledByInvt, QtyResvdNotOnILE, QtyBaseResvdNotOnILE);
+            SrcDocQtyBaseToBeFilledByInvt := SrcDocQtyBaseToBeFilledByInvt - QtyBaseResvdNotOnILE;
+            SrcDocQtyToBeFilledByInvt := SrcDocQtyToBeFilledByInvt - QtyResvdNotOnILE;
+
+            if QuantityBase > SrcDocQtyBaseToBeFilledByInvt then begin
+                QuantityBase := SrcDocQtyBaseToBeFilledByInvt;
+                Quantity := SrcDocQtyToBeFilledByInvt;
+            end;
+
+            if QuantityBase <= SrcDocQtyBaseToBeFilledByInvt then
+                if (QuantityBase > QtyBaseAvailToPick) and (QtyBaseAvailToPick >= 0) then begin
+                    QuantityBase := QtyBaseAvailToPick;
+                    Quantity := Round(QtyBaseAvailToPick / QtyPerUnitOfMeasure, UnitOfMeasureManagement.QtyRndPrecision());
+                end;
+
+            ReservedForItemLedgEntry := QuantityBase <> 0;
+            if AlwaysCreatePickLine then begin
+                Quantity := Quantity2;
+                QuantityBase := QuantityBase2;
+            end;
+
+            if Quantity <= 0 then
+                EnqueueCannotBeHandledReason(GetMessageForUnhandledQtyDueToReserv());
+        end else
+            ReservationExists := false;
+
+        OnAfterCheckReservation(Quantity, QuantityBase, QtyBaseAvailToPick, ReservationExists, SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo);
+    end;
+
+    procedure CalcTotalAvailQtyToPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; SrcType: Integer; SrcSubType: Option; SrcNo: Code[20]; SrcLineNo: Integer; SrcSubLineNo: Integer; NeededQtyBase: Decimal; RespectLocationBins: Boolean): Decimal
+    var
+        DummyWhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        exit(
+            CalcTotalAvailQtyToPick(
+                LocationCode, ItemNo, VariantCode, DummyWhseItemTrackingLine,
+                SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, NeededQtyBase, RespectLocationBins));
+    end;
+
+    procedure CalcTotalAvailQtyToPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingLine: Record "Whse. Item Tracking Line"; SrcType: Integer; SrcSubType: Option; SrcNo: Code[20]; SrcLineNo: Integer; SrcSubLineNo: Integer; NeededQtyBase: Decimal; RespectLocationBins: Boolean): Decimal
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary;
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        TotalAvailQtyBase: Decimal;
+        QtyInWhse: Decimal;
+        QtyOnPickBins: Decimal;
+        QtyOnPutAwayBins: Decimal;
+        QtyOnOutboundBins: Decimal;
+        QtyOnReceiveBins: Decimal;
+        QtyOnDedicatedBins: Decimal;
+        QtyBlocked: Decimal;
+        SubTotal: Decimal;
+        QtyReservedOnPickShip: Decimal;
+        LineReservedQty: Decimal;
+        QtyAssignedPick: Decimal;
+        QtyAssignedToPick: Decimal;
+        AvailableAfterReshuffle: Decimal;
+        QtyOnToBinsBase: Decimal;
+        QtyOnToBinsBaseInPicks: Decimal;
+        ReservedQtyOnInventory: Decimal;
+        ResetWhseItemTrkgExists: Boolean;
+        BinTypeFilter: Text[1024];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcTotalAvailQtyToPick(
+          LocationCode, ItemNo, VariantCode, WhseItemTrackingLine."Lot No.", WhseItemTrackingLine."Serial No.",
+          SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo,
+          NeededQtyBase, RespectLocationBins, CalledFromMoveWksh, CalledFromWksh, TempWarehouseActivityLine, IsHandled, TotalAvailQtyBase, WhseItemTrackingLine);
+        if IsHandled then
+            exit(TotalAvailQtyBase);
+
+        // Directed put-away and pick
+        GetLocation(LocationCode);
+        if CurrLocation."Directed Put-away and Pick" then
+            exit(CalcTotalAvailQtyToPickForDirectedPutAwayPick(LocationCode, ItemNo, VariantCode, WhseItemTrackingLine, SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, NeededQtyBase));
+
+        ItemTrackingManagement.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+        OnCalcTotalAvailQtyToPickOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, LocationCode);
+        WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine);
+
+        ReservedQtyOnInventory :=
+            CalcReservedQtyOnInventory(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup);
+
+        QtyAssignedToPick :=
+            CalcQtyAssignedToPick(ItemNo, LocationCode, VariantCode, '', WhseItemTrackingSetup);
+
+        QtyInWhse :=
+            SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, '', '', false);
+
+        // calculate quantity in receipt area and fixed receipt bin at location
+        // quantity in pick bins is considered as total quantity on the warehouse excluding receipt area and fixed receipt bin
+        CalcQtyOnPickAndReceiveBins(
+            QtyOnReceiveBins, QtyOnPickBins, ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, RespectLocationBins);
+
+        OnAfterCalcQtyOnPickAndReceiveBins(
+            SrcType, LocationCode, ItemNo, VariantCode, WhseItemTrackingLine."Lot No.", WhseItemTrackingLine."Serial No.",
+            CalledFromPickWksh, CalledFromMoveWksh, CalledFromWksh,
+            QtyInWhse, QtyOnPickBins, QtyOnPutAwayBins, QtyOnOutboundBins, QtyOnReceiveBins, QtyOnDedicatedBins, QtyBlocked);
+
+        if CalledFromMoveWksh then begin
+            BinTypeFilter := GetBinTypeFilter(4); // put-away only
+            if BinTypeFilter <> '' then
+                QtyOnPutAwayBins :=
+                    SumWhseEntries(
+                        ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, BinTypeFilter, '', false);
+            if CurrWhseWorksheetLine."To Bin Code" <> '' then
+                if not IsShipZone(CurrWhseWorksheetLine."Location Code", CurrWhseWorksheetLine."To Zone Code") then begin
+                    QtyOnToBinsBase :=
+                        SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, '', CurrWhseWorksheetLine."To Bin Code", false);
+                    QtyOnToBinsBaseInPicks :=
+                        CalcQtyAssignedToPick(ItemNo, LocationCode, VariantCode, CurrWhseWorksheetLine."To Bin Code", WhseItemTrackingSetup);
+                    QtyOnToBinsBase -= Minimum(QtyOnToBinsBase, QtyOnToBinsBaseInPicks);
+                end;
+        end;
+
+        QtyOnOutboundBins := WarehouseAvailabilityMgt.CalcQtyOnOutboundBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, true);
+
+        QtyOnDedicatedBins := WarehouseAvailabilityMgt.CalcQtyOnDedicatedBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup);
+
+        QtyBlocked := WarehouseAvailabilityMgt.CalcQtyOnBlockedITOrOnBlockedOutbndBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup);
+
+        TempWhseItemTrackingLine2.Copy(TempWhseItemTrackingLine);
+        if ReqFEFOPick then begin
+            TempWhseItemTrackingLine2."Entry No." := TempWhseItemTrackingLine2."Entry No." + 1;
+            TempWhseItemTrackingLine2.CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine);
+            if not WhseItemTrkgExists then begin
+                WhseItemTrkgExists := true;
+                ResetWhseItemTrkgExists := true;
+            end;
+        end;
+
+        QtyAssignedPick := CalcPickQtyAssigned(LocationCode, ItemNo, VariantCode, '', '', TempWhseItemTrackingLine2);
+
+        if ResetWhseItemTrkgExists then begin
+            WhseItemTrkgExists := false;
+            ResetWhseItemTrkgExists := false;
+        end;
+
+        if CurrLocation."Always Create Pick Line" or CrossDock then begin
+            FilterWhsePickLinesWithUndefinedBin(WarehouseActivityLine, ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup);
+            WarehouseActivityLine.CalcSums("Qty. Outstanding (Base)");
+            QtyAssignedPick := QtyAssignedPick - WarehouseActivityLine."Qty. Outstanding (Base)";
+        end;
+
+        OnCalcTotalAvailQtyToPickOnBeforeCalcSubTotal(QtyInWhse, QtyOnPickBins, QtyOnPutAwayBins, QtyOnOutboundBins, QtyOnDedicatedBins, QtyBlocked, QtyOnReceiveBins, ReservedQtyOnInventory);
+        SubTotal :=
+          QtyInWhse - QtyOnPickBins - QtyOnPutAwayBins - QtyOnOutboundBins - QtyOnDedicatedBins - QtyBlocked -
+          QtyOnReceiveBins - Abs(ReservedQtyOnInventory);
+
+        if (SubTotal < 0) or CalledFromPickWksh or CalledFromMoveWksh then begin
+            TempTrackingSpecification.CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine);
+            QtyReservedOnPickShip :=
+                WarehouseAvailabilityMgt.CalcReservQtyOnPicksShipsWithItemTracking(TempWarehouseActivityLine, TempTrackingSpecification, LocationCode, ItemNo, VariantCode);
+
+            if WhseItemTrackingLine.TrackingExists() and (QtyReservedOnPickShip > 0) then
+                LineReservedQty :=
+                    WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                      SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, true, WhseItemTrackingSetup, TempWarehouseActivityLine)
+            else
+                LineReservedQty :=
+                    WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                      SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, true, TempWarehouseActivityLine);
+
+            AdjustQtyReservedOnPickShip(SubTotal, QtyReservedOnPickShip, LineReservedQty, ReservedQtyOnInventory);
+
+            case true of
+                CalledFromPickWksh:
+                    begin
+                        TotalAvailQtyBase :=
+                            QtyOnPickBins - QtyAssignedToPick - Abs(ReservedQtyOnInventory) + QtyReservedOnPickShip + LineReservedQty;
+                        MovementFromShipZone(TotalAvailQtyBase, QtyOnOutboundBins + QtyBlocked);
+                    end;
+                CalledFromMoveWksh:
+                    begin
+                        TotalAvailQtyBase :=
+                            QtyOnPickBins + QtyOnPutAwayBins - QtyAssignedToPick;
+                        if CalledFromWksh then
+                            TotalAvailQtyBase := TotalAvailQtyBase - QtyAssignedPick - QtyOnPutAwayBins;
+                        MovementFromShipZone(TotalAvailQtyBase, QtyOnOutboundBins + QtyBlocked);
+                    end;
+                else
+                    TotalAvailQtyBase :=
+                      QtyOnPickBins -
+                      QtyAssignedPick - QtyAssignedToPick +
+                      SubTotal +
+                      QtyReservedOnPickShip +
+                      LineReservedQty;
+            end
+        end else
+            TotalAvailQtyBase := QtyOnPickBins - QtyAssignedPick - QtyAssignedToPick;
+
+        if (NeededQtyBase <> 0) and (NeededQtyBase > TotalAvailQtyBase) then
+            if ReleaseNonSpecificReservations(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, NeededQtyBase - TotalAvailQtyBase) then begin
+                AvailableAfterReshuffle :=
+                    CalcTotalAvailQtyToPick(
+                        LocationCode, ItemNo, VariantCode, TempWhseItemTrackingLine,
+                        SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, 0, false);
+                exit(AvailableAfterReshuffle);
+            end;
+
+        exit(TotalAvailQtyBase - QtyOnToBinsBase);
+    end;
+
+    local procedure CalcTotalAvailQtyToPickForDirectedPutAwayPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingLine: Record "Whse. Item Tracking Line"; SrcType: Integer; SrcSubType: Option; SrcNo: Code[20]; SrcLineNo: Integer; SrcSubLineNo: Integer; NeededQtyBase: Decimal): Decimal
+    begin
+        exit(CalcTotalAvailQtyToPickForDirectedPutAwayPick(LocationCode, ItemNo, VariantCode, WhseItemTrackingLine, SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, NeededQtyBase, 0, 0));
+    end;
+
+    internal procedure CalcTotalAvailQtyToPickForDirectedPutAwayPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingLine: Record "Whse. Item Tracking Line"; SrcType: Integer; SrcSubType: Option; SrcNo: Code[20]; SrcLineNo: Integer; SrcSubLineNo: Integer; NeededQtyBase: Decimal; ExcludeQtyAssignedOnPickWorksheetLines: Decimal; ExcludeReservedQtyAssignedOnPickWorksheetLines: Decimal): Decimal
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        TempWhseItemTrackingLine2: Record "Whse. Item Tracking Line" temporary;
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        BinTypeFilter: Option ExcludeReceive,ExcludeShip,OnlyPickBins;
+        TotalAvailQtyBase: Decimal;
+        MaxPickableQtyInWhse: Decimal;
+        MaxPickableQtyExcludingShipBin: Decimal;
+        QtyReservedOnPickShip: Decimal;
+        LineReservedQty: Decimal;
+        QtyAssignedPick: Decimal;
+        AvailableAfterReshuffle: Decimal;
+        QtyOnToBinsBase: Decimal;
+        QtyOnToBinsBaseInPicks: Decimal;
+        ReservedQtyOnInventory: Decimal;
+        ResetWhseItemTrkgExists: Boolean;
+    begin
+        ItemTrackingManagement.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+        OnCalcTotalAvailQtyToPickOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, LocationCode);
+        WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine);
+
+        MaxPickableQtyInWhse := CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPick(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup);
+        MaxPickableQtyInWhse -= ExcludeQtyAssignedOnPickWorksheetLines; //Exclude the quantity assigned on other active worksheet lines as they are considered to be already picked (Scenario: Available to Pick field in Pick Worksheet)
+
+        if MaxPickableQtyInWhse = 0 then
+            exit(0);
+
+        TempWhseItemTrackingLine2.Copy(TempWhseItemTrackingLine);
+        if ReqFEFOPick then begin
+            TempWhseItemTrackingLine2."Entry No." := TempWhseItemTrackingLine2."Entry No." + 1;
+            TempWhseItemTrackingLine2.CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine);
+            if not WhseItemTrkgExists then begin
+                WhseItemTrkgExists := true;
+                ResetWhseItemTrkgExists := true;
+            end;
+        end;
+
+        QtyAssignedPick := CalcPickQtyAssigned(LocationCode, ItemNo, VariantCode, '', '', TempWhseItemTrackingLine2);
+
+        if ResetWhseItemTrkgExists then begin
+            WhseItemTrkgExists := false;
+            ResetWhseItemTrkgExists := false;
+        end;
+
+        if CurrLocation."Always Create Pick Line" or CrossDock then begin
+            FilterWhsePickLinesWithUndefinedBin(WarehouseActivityLine, ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup);
+            WarehouseActivityLine.CalcSums("Qty. Outstanding (Base)");
+            QtyAssignedPick := QtyAssignedPick - WarehouseActivityLine."Qty. Outstanding (Base)";
+        end;
+
+        //Reduce the pick quantity that has been assigned during previous iterations for creating picks for the current line
+        TotalAvailQtyBase -= QtyAssignedPick;
+
+        if CalledFromMoveWksh then begin
+            if CurrWhseWorksheetLine."To Bin Code" <> '' then
+                if not IsShipZone(CurrWhseWorksheetLine."Location Code", CurrWhseWorksheetLine."To Zone Code") then begin
+                    QtyOnToBinsBase :=
+                        SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, '', CurrWhseWorksheetLine."To Bin Code", false);
+                    QtyOnToBinsBaseInPicks :=
+                        CalcQtyAssignedToPick(ItemNo, LocationCode, VariantCode, CurrWhseWorksheetLine."To Bin Code", WhseItemTrackingSetup);
+                    QtyOnToBinsBase -= Minimum(QtyOnToBinsBase, QtyOnToBinsBaseInPicks);
+                end;
+
+            // For movement worksheet, MaxPickableQtyInWhse does not contain quantity from RECEIVE bins
+            TotalAvailQtyBase += MaxPickableQtyInWhse;
+        end
+        else begin
+            ReservedQtyOnInventory := CalcReservedQtyOnInventory(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, ExcludeReservedQtyAssignedOnPickWorksheetLines);
+
+            // Identify the reserved quantity for the current line
+            if Abs(ReservedQtyOnInventory) > 0 then begin
+                TempTrackingSpecification.CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine);
+                QtyReservedOnPickShip :=
+                    WarehouseAvailabilityMgt.CalcReservQtyOnPicksShipsWithItemTracking(TempWarehouseActivityLine, TempTrackingSpecification, LocationCode, ItemNo, VariantCode);
+
+                if WhseItemTrackingLine.TrackingExists() and (QtyReservedOnPickShip > 0) then
+                    LineReservedQty :=
+                        WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                          SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, true, WhseItemTrackingSetup, TempWarehouseActivityLine)
+                else
+                    LineReservedQty :=
+                        WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+                          SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, true, TempWarehouseActivityLine);
+            end;
+
+            // For non-movement worksheet use MaxPickableQtyExcludingShipBin
+            MaxPickableQtyExcludingShipBin := CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPickWithBinTypeFilter(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, BinTypeFilter::ExcludeShip);
+            MaxPickableQtyExcludingShipBin -= ExcludeQtyAssignedOnPickWorksheetLines; //Exclude the quantity assigned on other active worksheet lines as they are considered to be already picked (Scenario: Available to Pick field in Pick Worksheet)
+
+            // Reduce the available quantity if the items are reserved for other lines
+            TotalAvailQtyBase += CalcAvailabilityAfterReservationImpact(MaxPickableQtyExcludingShipBin, Abs(ReservedQtyOnInventory), QtyReservedOnPickShip, LineReservedQty);
+            TotalAvailQtyBase := Minimum(TotalAvailQtyBase, MaxPickableQtyInWhse);
+        end;
+
+        if (NeededQtyBase <> 0) and (NeededQtyBase > TotalAvailQtyBase) then
+            if ReleaseNonSpecificReservations(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, NeededQtyBase - TotalAvailQtyBase) then begin
+                AvailableAfterReshuffle :=
+                    CalcTotalAvailQtyToPick(
+                        LocationCode, ItemNo, VariantCode, TempWhseItemTrackingLine,
+                        SrcType, SrcSubType, SrcNo, SrcLineNo, SrcSubLineNo, 0, false);
+                exit(AvailableAfterReshuffle);
+            end;
+
+        UpdateCalculationSummaryQuantities(TotalAvailQtyBase, MaxPickableQtyInWhse, QtyAssignedPick, MaxPickableQtyExcludingShipBin, ReservedQtyOnInventory, QtyReservedOnPickShip, LineReservedQty);
+
+        exit(TotalAvailQtyBase - QtyOnToBinsBase); //QtyOnToBinsBase is set when CalledFromMoveWksh is true
+    end;
+
+    internal procedure CalcAvailabilityAfterReservationImpact(MaxPickableQtyExcludingShipBin: Decimal; ReservedQtyOnInventory: Decimal; QtyReservedOnPickShip: Decimal; LineReservedQty: Decimal): Decimal
+    begin
+        // Reduce the available quantity if the items are reserved for other lines
+        exit(Maximum(0, MaxPickableQtyExcludingShipBin - (ReservedQtyOnInventory - QtyReservedOnPickShip - LineReservedQty)));
+    end;
+
+    local procedure AdjustQtyReservedOnPickShip(var SubTotal: Decimal; var QtyReservedOnPickShip: Decimal; LineReservedQty: Decimal; ReservedQtyOnInventory: Decimal)
+    begin
+        OnBeforeAdjustQtyReservedOnPickShip(SubTotal, QtyReservedOnPickShip, LineReservedQty, ReservedQtyOnInventory);
+        if SubTotal < 0 then
+            if Abs(SubTotal) < QtyReservedOnPickShip + LineReservedQty then
+                QtyReservedOnPickShip := Abs(SubTotal) - LineReservedQty;
+    end;
+
+    local procedure CalcQtyOnPickAndReceiveBins(var QtyOnReceiveBins: Decimal; var QtyOnPickBins: Decimal; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; RespectLocationBins: Boolean)
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+        BinTypeFilter: Text;
+    begin
+        GetLocation(LocationCode);
+
+        WarehouseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
+        BinTypeFilter := GetBinTypeFilter(0);
+        if BinTypeFilter <> '' then begin
+            if RespectLocationBins and (CurrLocation."Receipt Bin Code" <> '') then begin
+                WarehouseEntry.SetRange("Bin Code", CurrLocation."Receipt Bin Code");
+                WarehouseEntry.CalcSums("Qty. (Base)");
+                QtyOnReceiveBins := WarehouseEntry."Qty. (Base)";
+
+                WarehouseEntry.SetFilter("Bin Code", '<>%1', CurrLocation."Receipt Bin Code");
+            end;
+            WarehouseEntry.SetFilter("Bin Type Code", BinTypeFilter); // Receive
+            WarehouseEntry.CalcSums("Qty. (Base)");
+            QtyOnReceiveBins += WarehouseEntry."Qty. (Base)";
+
+            WarehouseEntry.SetFilter("Bin Type Code", '<>%1', BinTypeFilter);
+        end;
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        QtyOnPickBins := WarehouseEntry."Qty. (Base)";
+    end;
+
+    local procedure CalcQtyCanBePicked(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; EntrySummary: Record "Entry Summary"; IsMovement: Boolean): Decimal
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        BinTypeFilter: Text;
+        QtyOnOutboundBins: Decimal;
+    begin
+        ItemTrackingManagement.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+        OnCalcQtyCanBePickedOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, LocationCode);
+        WhseItemTrackingSetup.CopyTrackingFromEntrySummary(EntrySummary);
+
+        GetLocation(LocationCode);
+        if not CurrLocation."Directed Put-away and Pick" then begin
+            BinTypeFilter := '';
+            QtyOnOutboundBins := WarehouseAvailabilityMgt.CalcQtyOnOutboundBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, true);
+        end else
+            // movement can be picked from anywhere but receive and ship zones, yet pick only takes the pick zone
+            if IsMovement then begin
+                BinTypeFilter := StrSubstNo('<>%1', GetBinTypeFilter(0));
+                QtyOnOutboundBins := WarehouseAvailabilityMgt.CalcQtyOnOutboundBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, true);
+            end else begin
+                BinTypeFilter := GetBinTypeFilter(3);
+                QtyOnOutboundBins := 0;
+            end;
+
+        exit(
+            SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, BinTypeFilter, '', true) - QtyOnOutboundBins);
+    end;
+
+    procedure GetBinTypeFilter(Type: Option Receive,Ship,"Put Away",Pick,"Put Away only") BinTypeFilter: Text[1024]
+    var
+        BinType: Record "Bin Type";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetBinTypeFilter(BinTypeFilter, IsHandled, Type);
+        if IsHandled then
+            exit(BinTypeFilter);
+
+        with BinType do begin
+            case Type of
+                Type::Receive:
+                    SetRange(Receive, true);
+                Type::Ship:
+                    SetRange(Ship, true);
+                Type::"Put Away":
+                    SetRange("Put Away", true);
+                Type::Pick:
+                    SetRange(Pick, true);
+                Type::"Put Away only":
+                    begin
+                        SetRange("Put Away", true);
+                        SetRange(Pick, false);
+                    end;
+            end;
+            if Find('-') then
+                repeat
+                    BinTypeFilter := StrSubstNo('%1|%2', BinTypeFilter, Code);
+                until Next() = 0;
+            if BinTypeFilter <> '' then
+                BinTypeFilter := CopyStr(BinTypeFilter, 2);
+        end;
+        exit(BinTypeFilter);
+    end;
+
+    procedure CheckOutBound(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer) OutBoundQty: Decimal
+    var
+        WhseShipLine: Record "Warehouse Shipment Line";
+        WhseActLine: Record "Warehouse Activity Line";
+        ProdOrderComp: Record "Prod. Order Component";
+        AsmLine: Record "Assembly Line";
+    begin
+        case SourceType of
+            Database::"Sales Line",
+            Database::"Purchase Line",
+            Database::"Transfer Line":
+                begin
+                    WhseShipLine.Reset();
+                    WhseShipLine.SetCurrentKey(
+                      "Source Type", "Source Subtype", "Source No.", "Source Line No.");
+                    WhseShipLine.SetRange("Source Type", SourceType);
+                    WhseShipLine.SetRange("Source Subtype", SourceSubType);
+                    WhseShipLine.SetRange("Source No.", SourceNo);
+                    WhseShipLine.SetRange("Source Line No.", SourceLineNo);
+                    if WhseShipLine.FindFirst() then begin
+                        WhseShipLine.CalcFields("Pick Qty. (Base)");
+                        OutBoundQty := WhseShipLine."Pick Qty. (Base)" + WhseShipLine."Qty. Picked (Base)";
+                    end else begin
+                        WhseActLine.Reset();
+                        WhseActLine.SetCurrentKey(
+                          "Source Type", "Source Subtype", "Source No.", "Source Line No.");
+                        WhseActLine.SetRange("Source Type", SourceType);
+                        WhseActLine.SetRange("Source Subtype", SourceSubType);
+                        WhseActLine.SetRange("Source No.", SourceNo);
+                        WhseActLine.SetRange("Source Line No.", SourceLineNo);
+                        if WhseActLine.FindFirst() then
+                            OutBoundQty := WhseActLine."Qty. Outstanding (Base)"
+                        else
+                            OutBoundQty := 0;
+                    end;
+                end;
+            Database::"Prod. Order Component":
+                begin
+                    ProdOrderComp.Reset();
+                    ProdOrderComp.SetRange(Status, SourceSubType);
+                    ProdOrderComp.SetRange("Prod. Order No.", SourceNo);
+                    ProdOrderComp.SetRange("Prod. Order Line No.", SourceSubLineNo);
+                    ProdOrderComp.SetRange("Line No.", SourceLineNo);
+                    if ProdOrderComp.FindFirst() then begin
+                        ProdOrderComp.CalcFields("Pick Qty. (Base)");
+                        OutBoundQty := ProdOrderComp."Pick Qty. (Base)" + ProdOrderComp."Qty. Picked (Base)";
+                    end else
+                        OutBoundQty := 0;
+                end;
+            Database::"Assembly Line":
+                if AsmLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
+                    AsmLine.CalcFields("Pick Qty. (Base)");
+                    OutBoundQty := AsmLine."Pick Qty. (Base)" + AsmLine."Qty. Picked (Base)";
+                end else
+                    OutBoundQty := 0;
+        end;
+        OnAfterCheckOutBound(SourceType, SourceSubType, SourceNo, SourceLineNo, OutBoundQty);
+    end;
+
+    procedure SetCrossDock(CrossDock2: Boolean)
+    begin
+        CrossDock := CrossDock2;
+    end;
+
+    procedure GetReservationStatus(var ReservationExists2: Boolean; var ReservedForItemLedgEntry2: Boolean)
+    begin
+        ReservationExists2 := ReservationExists;
+        ReservedForItemLedgEntry2 := ReservedForItemLedgEntry;
+    end;
+
+    procedure SetCalledFromPickWksh(CalledFromPickWksh2: Boolean)
+    begin
+        CalledFromPickWksh := CalledFromPickWksh2;
+    end;
+
+    procedure SetCalledFromMoveWksh(CalledFromMoveWksh2: Boolean)
+    begin
+        CalledFromMoveWksh := CalledFromMoveWksh2;
+    end;
+
+    procedure CalcQtyToPickBaseExt(var BinContent: Record "Bin Content"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary): Decimal
+    begin
+        exit(CalcQtyToPickBase(BinContent, TempWhseActivLine));
+    end;
+
+    local procedure CalcQtyToPickBase(var BinContent: Record "Bin Content"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary): Decimal
+    var
+        WhseEntry: Record "Warehouse Entry";
+        WhseActivLine: Record "Warehouse Activity Line";
+        WhseJournalLine: Record "Warehouse Journal Line";
+        QtyPlaced: Decimal;
+        QtyTaken: Decimal;
+    begin
+        WhseEntry.SetCurrentKey(
+            "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
+        WhseEntry.SetRange("Location Code", BinContent."Location Code");
+        WhseEntry.SetRange("Bin Code", BinContent."Bin Code");
+        WhseEntry.SetRange("Item No.", BinContent."Item No.");
+        WhseEntry.SetRange("Variant Code", BinContent."Variant Code");
+        WhseEntry.SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
+        WhseEntry.SetTrackingFilterFromBinContent(BinContent);
+        WhseEntry.CalcSums("Qty. (Base)");
+
+        WhseActivLine.SetCurrentKey(
+            "Item No.", "Bin Code", "Location Code",
+            "Action Type", "Variant Code", "Unit of Measure Code", "Breakbulk No.", "Activity Type", "Lot No.", "Serial No.");
+        WhseActivLine.SetRange("Location Code", BinContent."Location Code");
+        WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Take);
+        WhseActivLine.SetRange("Bin Code", BinContent."Bin Code");
+        WhseActivLine.SetRange("Item No.", BinContent."Item No.");
+        WhseActivLine.SetRange("Variant Code", BinContent."Variant Code");
+        WhseActivLine.SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
+        WhseActivLine.SetTrackingFilterFromBinContent(BinContent);
+        WhseActivLine.CalcSums("Qty. Outstanding (Base)");
+        QtyTaken := WhseActivLine."Qty. Outstanding (Base)";
+
+        TempWhseActivLine.Copy(WhseActivLine);
+        TempWhseActivLine.CalcSums("Qty. Outstanding (Base)");
+        QtyTaken += TempWhseActivLine."Qty. Outstanding (Base)";
+
+        TempWhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Place);
+        TempWhseActivLine.CalcSums("Qty. Outstanding (Base)");
+        QtyPlaced := TempWhseActivLine."Qty. Outstanding (Base)";
+
+        TempWhseActivLine.Reset();
+
+        WhseJournalLine.SetCurrentKey(
+            "Item No.", "From Bin Code", "Location Code", "Entry Type", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
+        WhseJournalLine.SetRange("Location Code", BinContent."Location Code");
+        WhseJournalLine.SetRange("From Bin Code", BinContent."Bin Code");
+        WhseJournalLine.SetRange("Item No.", BinContent."Item No.");
+        WhseJournalLine.SetRange("Variant Code", BinContent."Variant Code");
+        WhseJournalLine.SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
+        WhseJournalLine.SetTrackingFilterFromBinContent(BinContent);
+        WhseJournalLine.CalcSums("Qty. (Absolute, Base)");
+
+        exit(WhseEntry."Qty. (Base)" + WhseJournalLine."Qty. (Absolute, Base)" + QtyPlaced - QtyTaken);
+    end;
+
+    local procedure PickAccordingToFEFO(LocationCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup") PickAccordingToFEFO: Boolean
+    begin
+        GetLocation(LocationCode);
+        PickAccordingToFEFO := CurrLocation."Pick According to FEFO" and WhseItemTrackingSetup.TrackingRequired();
+        OnAfterPickAccordingToFEFO(LocationCode, WhseItemTrackingSetup, PickAccordingToFEFO);
+    end;
+
+    local procedure UndefinedItemTrkg(var QtyToTrackBase: Decimal): Boolean
+    var
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        QtyToTrackBase := QtyToTrackBase - ItemTrackedQuantity(DummyItemTrackingSetup);
+        exit(QtyToTrackBase > 0);
+    end;
+
+    local procedure ReleaseNonSpecificReservations(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyToRelease: Decimal): Boolean
+    var
+        LateBindingMgt: Codeunit "Late Binding Management";
+        xReservedQty: Decimal;
+    begin
+        if QtyToRelease <= 0 then
+            exit;
+
+        if WhseItemTrackingSetup.TrackingRequired() then
+            if CurrItem."Reserved Qty. on Inventory" > 0 then begin
+                xReservedQty := CurrItem."Reserved Qty. on Inventory";
+                LateBindingMgt.ReleaseForReservation(ItemNo, VariantCode, LocationCode, WhseItemTrackingSetup, QtyToRelease);
+                CurrItem.CalcFields("Reserved Qty. on Inventory");
+            end;
+
+        exit(xReservedQty > CurrItem."Reserved Qty. on Inventory");
+    end;
+
+    procedure SetCalledFromWksh(NewCalledFromWksh: Boolean)
+    begin
+        CalledFromWksh := NewCalledFromWksh;
+    end;
+
+    local procedure GetFromBinContentQty(LocCode: Code[10]; FromBinCode: Code[20]; ItemNo: Code[20]; Variant: Code[20]; UoMCode: Code[10]; WhseItemTrackingLine: Record "Whse. Item Tracking Line"): Decimal
+    var
+        BinContent: Record "Bin Content";
+    begin
+        BinContent.Get(LocCode, FromBinCode, ItemNo, Variant, UoMCode);
+        BinContent.SetTrackingFilterFromWhseItemTrackingLine(WhseItemTrackingLine);
+        BinContent.CalcFields("Quantity (Base)");
+        exit(BinContent."Quantity (Base)");
+    end;
+
+    procedure CreateTempActivityLine(
+        LocationCode: Code[10]; BinCode: Code[20]; UOMCode: Code[10]; QtyPerUOM: Decimal; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer; BreakBulkNo: Integer)
+    begin
+        CreateTempActivityLine(LocationCode, BinCode, UOMCode, QtyPerUOM, QtyToPick, QtyToPickBase, ActionType, BreakBulkNo, 0, 0);
+    end;
+
+    procedure CreateTempActivityLine(
+        LocationCode: Code[10]; BinCode: Code[20]; UOMCode: Code[10]; QtyPerUOM: Decimal; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer; BreakBulkNo: Integer; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
+    var
+        WhseSource2: Option;
+        ShouldCalcMaxQty: Boolean;
+    begin
+        OnBeforeCreateTempActivityLine(BinCode, QtyToPick, QtyToPickBase, ActionType);
+        if CurrLocation."Directed Put-away and Pick" then
+            GetBin(LocationCode, BinCode);
+
+        TempLineNo := TempLineNo + 10000;
+        with TempWarehouseActivityLine do begin
+            Reset();
+            Init();
+
+            "No." := Format(TempNo);
+            "Location Code" := LocationCode;
+            "Unit of Measure Code" := UOMCode;
+            "Qty. per Unit of Measure" := QtyPerUOM;
+            "Qty. Rounding Precision" := QtyRndPrec;
+            "Qty. Rounding Precision (Base)" := QtyRndPrecBase;
+            "Starting Date" := WorkDate();
+            "Bin Code" := BinCode;
+            "Action Type" := Enum::"Warehouse Action Type".FromInteger(ActionType);
+            "Breakbulk No." := BreakBulkNo;
+            "Line No." := TempLineNo;
+
+            case CreatePickParameters."Whse. Document" of
+                CreatePickParameters."Whse. Document"::"Pick Worksheet":
+                    TransferFromPickWkshLine(CurrWhseWorksheetLine);
+                CreatePickParameters."Whse. Document"::Shipment:
+                    if CurrWarehouseShipmentLine."Assemble to Order" then
+                        TransferFromATOShptLine(CurrWarehouseShipmentLine, CurrAssemblyLine)
+                    else
+                        TransferFromShptLine(CurrWarehouseShipmentLine);
+                CreatePickParameters."Whse. Document"::"Internal Pick":
+                    TransferFromIntPickLine(CurrWhseInternalPickLine);
+                CreatePickParameters."Whse. Document"::Production:
+                    TransferFromCompLine(CurrProdOrderComponentLine);
+                CreatePickParameters."Whse. Document"::Assembly:
+                    TransferFromAssemblyLine(CurrAssemblyLine);
+                CreatePickParameters."Whse. Document"::"Movement Worksheet":
+                    TransferFromMovWkshLine(CurrWhseWorksheetLine);
+                CreatePickParameters."Whse. Document"::Job:
+                    TransferFromJobPlanningLine(CurrJobPlanningLine);
+            end;
+
+            OnCreateTempActivityLineOnAfterTransferFrom(TempWarehouseActivityLine, CreatePickParameters."Whse. Document");
+
+            if (CreatePickParameters."Whse. Document" = CreatePickParameters."Whse. Document"::Shipment) and CurrWarehouseShipmentLine."Assemble to Order" then
+                WhseSource2 := CreatePickParameters."Whse. Document"::Assembly
+            else
+                WhseSource2 := CreatePickParameters."Whse. Document";
+
+            ShouldCalcMaxQty := (BreakBulkNo = 0) and ("Action Type" <> "Action Type"::" ");
+            OnCreateTempActivityLineOnAfterShouldCalcMaxQty(TempWarehouseActivityLine, BreakBulkNo, ShouldCalcMaxQty);
+            if ShouldCalcMaxQty then
+                case WhseSource2 of
+                    CreatePickParameters."Whse. Document"::"Pick Worksheet",
+                    CreatePickParameters."Whse. Document"::"Movement Worksheet":
+                        if ("Action Type" <> "Action Type"::Take) or (CurrWhseWorksheetLine."Unit of Measure Code" = TempWarehouseActivityLine."Unit of Measure Code") then
+                            CalcMaxQty(
+                              QtyToPick, CurrWhseWorksheetLine."Qty. to Handle", QtyToPickBase, CurrWhseWorksheetLine."Qty. to Handle (Base)", "Action Type");
+
+                    CreatePickParameters."Whse. Document"::Shipment:
+                        if ("Action Type" <> "Action Type"::Take) or (CurrWarehouseShipmentLine."Unit of Measure Code" = TempWarehouseActivityLine."Unit of Measure Code") then begin
+                            CurrWarehouseShipmentLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
+                            CalcMaxQty(
+                              QtyToPick,
+                              CurrWarehouseShipmentLine.Quantity -
+                              CurrWarehouseShipmentLine."Qty. Picked" -
+                              CurrWarehouseShipmentLine."Pick Qty.",
+                              QtyToPickBase,
+                              CurrWarehouseShipmentLine."Qty. (Base)" -
+                              CurrWarehouseShipmentLine."Qty. Picked (Base)" -
+                              CurrWarehouseShipmentLine."Pick Qty. (Base)",
+                              "Action Type");
+                        end;
+
+                    CreatePickParameters."Whse. Document"::"Internal Pick":
+                        if ("Action Type" <> "Action Type"::Take) or (CurrWhseInternalPickLine."Unit of Measure Code" = TempWarehouseActivityLine."Unit of Measure Code") then begin
+                            CurrWhseInternalPickLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
+                            CalcMaxQty(
+                              QtyToPick,
+                              CurrWhseInternalPickLine.Quantity -
+                              CurrWhseInternalPickLine."Qty. Picked" -
+                              CurrWhseInternalPickLine."Pick Qty.",
+                              QtyToPickBase,
+                              CurrWhseInternalPickLine."Qty. (Base)" -
+                              CurrWhseInternalPickLine."Qty. Picked (Base)" -
+                              CurrWhseInternalPickLine."Pick Qty. (Base)",
+                              "Action Type");
+                        end;
+
+                    CreatePickParameters."Whse. Document"::Production:
+                        if ("Action Type" <> "Action Type"::Take) or (CurrProdOrderComponentLine."Unit of Measure Code" = TempWarehouseActivityLine."Unit of Measure Code") then begin
+                            CurrProdOrderComponentLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
+                            CalcMaxQty(
+                              QtyToPick,
+                              CurrProdOrderComponentLine."Expected Quantity" -
+                              CurrProdOrderComponentLine."Qty. Picked" -
+                              CurrProdOrderComponentLine."Pick Qty.",
+                              QtyToPickBase,
+                              CurrProdOrderComponentLine."Expected Qty. (Base)" -
+                              CurrProdOrderComponentLine."Qty. Picked (Base)" -
+                              CurrProdOrderComponentLine."Pick Qty. (Base)",
+                              "Action Type");
+                        end;
+
+                    CreatePickParameters."Whse. Document"::Assembly:
+                        if ("Action Type" <> "Action Type"::Take) or (CurrAssemblyLine."Unit of Measure Code" = TempWarehouseActivityLine."Unit of Measure Code") then begin
+                            CurrAssemblyLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
+                            CalcMaxQty(
+                              QtyToPick,
+                              CurrAssemblyLine.Quantity -
+                              CurrAssemblyLine."Qty. Picked" -
+                              CurrAssemblyLine."Pick Qty.",
+                              QtyToPickBase,
+                              CurrAssemblyLine."Quantity (Base)" -
+                              CurrAssemblyLine."Qty. Picked (Base)" -
+                              CurrAssemblyLine."Pick Qty. (Base)",
+                              "Action Type");
+                        end;
+
+                    CreatePickParameters."Whse. Document"::Job:
+                        if not (("Action Type" = "Action Type"::Take) and (CurrJobPlanningLine."Unit of Measure Code" <> TempWarehouseActivityLine."Unit of Measure Code")) then begin
+                            CurrJobPlanningLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
+                            CalcMaxQty(
+                              QtyToPick,
+                              CurrJobPlanningLine.Quantity -
+                              CurrJobPlanningLine."Qty. Picked" -
+                              CurrJobPlanningLine."Pick Qty.",
+                              QtyToPickBase,
+                              CurrJobPlanningLine."Quantity (Base)" -
+                              CurrJobPlanningLine."Qty. Picked (Base)" -
+                              CurrJobPlanningLine."Pick Qty. (Base)",
+                              "Action Type");
+                        end;
+                end;
+
+            OnCreateTempActivityLineOnAfterCalcQtyToPick(
+                TempWarehouseActivityLine, QtyToPick, QtyToPickBase, CreatePickParameters."Whse. Document", WhseSource2);
+
+            if (LocationCode <> '') and (BinCode <> '') then begin
+                GetBin(LocationCode, BinCode);
+                Dedicated := CurrBin.Dedicated;
+            end;
+            "Zone Code" := CurrBin."Zone Code";
+            "Bin Ranking" := CurrBin."Bin Ranking";
+            if CurrLocation."Directed Put-away and Pick" then
+                "Bin Type Code" := CurrBin."Bin Type Code";
+            if CurrLocation."Special Equipment" <> CurrLocation."Special Equipment"::" " then
+                "Special Equipment Code" :=
+                  AssignSpecEquipment(LocationCode, BinCode, "Item No.", "Variant Code");
+            OnCreateTempActivityLineAfterAssignSpecEquipment(TempWarehouseActivityLine, QtyToPick);
+
+            Validate(Quantity, QtyToPick);
+            if QtyToPickBase <> 0 then begin
+                "Qty. (Base)" := QtyToPickBase;
+                "Qty. to Handle (Base)" := QtyToPickBase;
+                "Qty. Outstanding (Base)" := QtyToPickBase;
+            end;
+            OnCreateTempActivityLineOnAfterValidateQuantity(TempWarehouseActivityLine);
+
+            case CreatePickParameters."Whse. Document" of
+                CreatePickParameters."Whse. Document"::Shipment:
+                    begin
+                        "Shipping Agent Code" := ShippingAgentCode;
+                        "Shipping Agent Service Code" := ShippingAgentServiceCode;
+                        "Shipment Method Code" := ShipmentMethodCode;
+                        "Shipping Advice" := "Shipping Advice";
+                    end;
+                CreatePickParameters."Whse. Document"::Production,
+                CreatePickParameters."Whse. Document"::Assembly,
+                CreatePickParameters."Whse. Document"::Job:
+                    if "Shelf No." = '' then begin
+                        CurrItem."No." := "Item No.";
+                        CurrItem.ItemSKUGet(CurrItem, "Location Code", "Variant Code");
+                        "Shelf No." := CurrItem."Shelf No.";
+                    end;
+                CreatePickParameters."Whse. Document"::"Movement Worksheet":
+                    if (CurrWhseWorksheetLine."Qty. Outstanding" <> QtyToPick) and (BreakBulkNo = 0) then begin
+                        "Source Type" := Database::"Whse. Worksheet Line";
+                        "Source No." := CurrWhseWorksheetLine."Worksheet Template Name";
+                        "Source Line No." := "Line No.";
+                    end;
+            end;
+
+            TransferItemTrkgFields(TempWarehouseActivityLine, TempWhseItemTrackingLine);
+
+            if (BreakBulkNo = 0) and (ActionType <> 2) then
+                TotalQtyPickedBase += QtyToPickBase;
+
+            OnBeforeTempWhseActivLineInsert(TempWarehouseActivityLine, ActionType);
+            Insert();
+        end;
+    end;
+
+    procedure UpdateQuantitiesToPick(QtyAvailableBase: Decimal; FromQtyPerUOM: Decimal; var FromQtyToPick: Decimal; var FromQtyToPickBase: Decimal; ToQtyPerUOM: Decimal; var ToQtyToPick: Decimal; var ToQtyToPickBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal)
+    begin
+        UpdateToQtyToPick(QtyAvailableBase, ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase, TotalQtyToPick, TotalQtyToPickBase);
+        UpdateFromQtyToPick(QtyAvailableBase, FromQtyPerUOM, FromQtyToPick, FromQtyToPickBase, ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase);
+        UpdateTotalQtyToPick(ToQtyToPick, ToQtyToPickBase, TotalQtyToPick, TotalQtyToPickBase)
+    end;
+
+    procedure UpdateFromQtyToPick(QtyAvailableBase: Decimal; FromQtyPerUOM: Decimal; var FromQtyToPick: Decimal; var FromQtyToPickBase: Decimal; ToQtyPerUOM: Decimal; ToQtyToPick: Decimal; ToQtyToPickBase: Decimal)
+    begin
+        case FromQtyPerUOM of
+            ToQtyPerUOM:
+                begin
+                    FromQtyToPick := ToQtyToPick;
+                    FromQtyToPickBase := ToQtyToPickBase;
+                end;
+            0 .. ToQtyPerUOM:
+                begin
+                    FromQtyToPick := Round(ToQtyToPickBase / FromQtyPerUOM, UnitOfMeasureManagement.QtyRndPrecision());
+                    FromQtyToPickBase := ToQtyToPickBase;
+                end;
+            else
+                FromQtyToPick := Round(ToQtyToPickBase / FromQtyPerUOM, 1, '>');
+                FromQtyToPickBase := FromQtyToPick * FromQtyPerUOM;
+                if FromQtyToPickBase > QtyAvailableBase then begin
+                    FromQtyToPickBase := ToQtyToPickBase;
+                    FromQtyToPick := Round(FromQtyToPickBase / FromQtyPerUOM, UnitOfMeasureManagement.QtyRndPrecision());
+                end;
+        end;
+    end;
+
+    local procedure UpdateToQtyToPick(QtyAvailableBase: Decimal; ToQtyPerUOM: Decimal; var ToQtyToPick: Decimal; var ToQtyToPickBase: Decimal; TotalQtyToPick: Decimal; TotalQtyToPickBase: Decimal)
+    begin
+        ToQtyToPickBase := QtyAvailableBase;
+        if ToQtyToPickBase > TotalQtyToPickBase then
+            ToQtyToPickBase := TotalQtyToPickBase;
+
+        ToQtyToPick := Round(ToQtyToPickBase / ToQtyPerUOM, UnitOfMeasureManagement.QtyRndPrecision());
+        if ToQtyToPick > TotalQtyToPick then
+            ToQtyToPick := TotalQtyToPick;
+        if (ToQtyToPick <> TotalQtyToPick) and (ToQtyToPickBase = TotalQtyToPickBase) then
+            if Abs(1 - ToQtyToPick / TotalQtyToPick) <= UnitOfMeasureManagement.QtyRndPrecision() then
+                ToQtyToPick := TotalQtyToPick;
+    end;
+
+    procedure UpdateTotalQtyToPick(ToQtyToPick: Decimal; ToQtyToPickBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal)
+    begin
+        TotalQtyToPick := TotalQtyToPick - ToQtyToPick;
+        TotalQtyToPickBase := TotalQtyToPickBase - ToQtyToPickBase;
+    end;
+
+    // Replaced by Query CalcOutstandQtyOnWhseActLine
+    internal procedure CalcTotalQtyAssgndOnWhse(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    var
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        ProdOrderComp: Record "Prod. Order Component";
+        AsmLine: Record "Assembly Line";
+        QtyAssgndToWhseAct: Decimal;
+        QtyAssgndToShipment: Decimal;
+        QtyAssgndToProdComp: Decimal;
+        QtyAssgndToAsmLine: Decimal;
+    begin
+        QtyAssgndToWhseAct +=
+          CalcTotalQtyAssgndOnWhseAct("Warehouse Activity Type"::" ", LocationCode, ItemNo, VariantCode);
+        QtyAssgndToWhseAct +=
+          CalcTotalQtyAssgndOnWhseAct("Warehouse Activity Type"::"Put-away", LocationCode, ItemNo, VariantCode);
+        QtyAssgndToWhseAct +=
+          CalcTotalQtyAssgndOnWhseAct("Warehouse Activity Type"::Pick, LocationCode, ItemNo, VariantCode);
+        QtyAssgndToWhseAct +=
+          CalcTotalQtyAssgndOnWhseAct("Warehouse Activity Type"::Movement, LocationCode, ItemNo, VariantCode);
+        QtyAssgndToWhseAct +=
+          CalcTotalQtyAssgndOnWhseAct("Warehouse Activity Type"::"Invt. Put-away", LocationCode, ItemNo, VariantCode);
+        QtyAssgndToWhseAct +=
+          CalcTotalQtyAssgndOnWhseAct("Warehouse Activity Type"::"Invt. Pick", LocationCode, ItemNo, VariantCode);
+
+        with WhseShipmentLine do begin
+            SetCurrentKey("Item No.", "Location Code", "Variant Code", "Due Date");
+            SetRange("Location Code", LocationCode);
+            SetRange("Item No.", ItemNo);
+            SetRange("Variant Code", VariantCode);
+            CalcSums("Qty. Picked (Base)", "Qty. Shipped (Base)");
+            QtyAssgndToShipment := "Qty. Picked (Base)" - "Qty. Shipped (Base)";
+        end;
+
+        with ProdOrderComp do begin
+            SetCurrentKey("Item No.", "Variant Code", "Location Code", Status, "Due Date");
+            SetRange("Location Code", LocationCode);
+            SetRange("Item No.", ItemNo);
+            SetRange("Variant Code", VariantCode);
+            SetRange(Status, Status::Released);
+            CalcSums("Qty. Picked (Base)", "Expected Qty. (Base)", "Remaining Qty. (Base)");
+            QtyAssgndToProdComp := "Qty. Picked (Base)" - ("Expected Qty. (Base)" - "Remaining Qty. (Base)");
+        end;
+
+        with AsmLine do begin
+            SetCurrentKey("Document Type", Type, "No.", "Variant Code", "Location Code");
+            SetRange("Document Type", "Document Type"::Order);
+            SetRange("Location Code", LocationCode);
+            SetRange(Type, Type::Item);
+            SetRange("No.", ItemNo);
+            SetRange("Variant Code", VariantCode);
+            CalcSums("Qty. Picked (Base)", "Consumed Quantity (Base)");
+            QtyAssgndToAsmLine := CalcQtyPickedNotConsumedBase();
+        end;
+
+        OnAfterCalcTotalQtyAssgndOnWhse(
+            LocationCode, ItemNo, VariantCode, QtyAssgndToWhseAct, QtyAssgndToShipment, QtyAssgndToProdComp, QtyAssgndToAsmLine);
+
+        exit(QtyAssgndToWhseAct + QtyAssgndToShipment + QtyAssgndToProdComp + QtyAssgndToAsmLine);
+    end;
+
+    local procedure CalcTotalQtyAssgndOnWhseAct(ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    var
+        WhseActivLine: Record "Warehouse Activity Line";
+    begin
+        with WhseActivLine do begin
+            SetCurrentKey(
+              "Item No.", "Location Code", "Activity Type", "Bin Type Code",
+              "Unit of Measure Code", "Variant Code", "Breakbulk No.", "Action Type");
+            SetRange("Location Code", LocationCode);
+            SetRange("Item No.", ItemNo);
+            SetRange("Variant Code", VariantCode);
+            SetRange("Activity Type", ActivityType);
+            SetRange("Breakbulk No.", 0);
+            SetFilter("Action Type", '%1|%2', "Action Type"::" ", "Action Type"::Take);
+            CalcSums("Qty. Outstanding (Base)");
+            exit("Qty. Outstanding (Base)");
+        end;
+    end;
+
+    procedure CalcTotalQtyOnBinType(BinTypeFilter: Text[1024]; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    var
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        exit(SumWhseEntries(ItemNo, LocationCode, VariantCode, DummyItemTrackingSetup, BinTypeFilter, '', false));
+    end;
+
+    local procedure SumWhseEntries(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; BinTypeCodeFilter: Text; BinCodeFilter: Text; ExcludeDedicatedBins: Boolean): Decimal
+    var
+        WhseEntry: Record "Warehouse Entry";
+    begin
+        WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBins);
+        WhseEntry.SetFilter("Bin Type Code", BinTypeCodeFilter);
+        WhseEntry.SetFilter("Bin Code", BinCodeFilter);
+        WhseEntry.CalcSums("Qty. (Base)");
+        exit(WhseEntry."Qty. (Base)");
+    end;
+
+    procedure CalcBreakbulkOutstdQty(var WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    var
+        BinContent: Record "Bin Content";
+        WhseActivLine1: Record "Warehouse Activity Line";
+        WhseActivLine2: Record "Warehouse Activity Line";
+        TempUOM: Record "Unit of Measure" temporary;
+        QtyOnBreakbulk: Decimal;
+        BreakbulkBinFound: Boolean;
+    begin
+        with WhseActivLine1 do begin
+            CopyFilters(WhseActivLine);
+            SetFilter("Breakbulk No.", '<>%1', 0);
+            SetRange("Action Type", "Action Type"::Place);
+            if FindSet() then begin
+                BinContent.SetCurrentKey(
+                  "Location Code", "Item No.", "Variant Code", "Cross-Dock Bin", "Qty. per Unit of Measure", "Bin Ranking");
+                BinContent.SetRange("Location Code", "Location Code");
+                BinContent.SetRange("Item No.", "Item No.");
+                BinContent.SetRange("Variant Code", "Variant Code");
+                BinContent.SetRange("Cross-Dock Bin", CrossDock);
+
+                repeat
+                    if not TempUOM.Get("Unit of Measure Code") then begin
+                        TempUOM.Init();
+                        TempUOM.Code := "Unit of Measure Code";
+                        TempUOM.Insert();
+                        SetRange("Unit of Measure Code", "Unit of Measure Code");
+                        CalcSums("Qty. Outstanding (Base)");
+                        QtyOnBreakbulk += "Qty. Outstanding (Base)";
+
+                        // Exclude the qty counted in QtyAssignedToPick
+                        BinContent.SetRange("Unit of Measure Code", "Unit of Measure Code");
+                        if WhseItemTrackingSetup."Serial No. Required" then
+                            BinContent.SetRange("Serial No. Filter", "Serial No.")
+                        else
+                            BinContent.SetFilter("Serial No. Filter", '%1|%2', "Serial No.", '');
+                        if WhseItemTrackingSetup."Lot No. Required" then
+                            BinContent.SetRange("Lot No. Filter", "Lot No.")
+                        else
+                            BinContent.SetFilter("Lot No. Filter", '%1|%2', "Lot No.", '');
+
+                        BreakbulkBinFound := false;
+                        if BinContent.FindSet() then
+                            repeat
+                                if UseForPick(BinContent) then begin
+                                    BreakbulkBinFound := true;
+                                    BinContent.SetFilterOnUnitOfMeasure();
+                                    BinContent.CalcFields("Quantity (Base)", "Pick Quantity (Base)");
+                                    if BinContent."Pick Quantity (Base)" > BinContent."Quantity (Base)" then
+                                        QtyOnBreakbulk -= (BinContent."Pick Quantity (Base)" - BinContent."Quantity (Base)");
+                                end;
+                            until BinContent.Next() = 0;
+
+                        if not BreakbulkBinFound then begin
+                            WhseActivLine2.CopyFilters(WhseActivLine1);
+                            WhseActivLine2.SetFilter("Action Type", '%1|%2', "Action Type"::" ", "Action Type"::Take);
+                            WhseActivLine2.SetRange("Breakbulk No.", 0);
+                            WhseActivLine2.CalcSums("Qty. Outstanding (Base)");
+                            QtyOnBreakbulk -= WhseActivLine2."Qty. Outstanding (Base)";
+                        end;
+                        SetRange("Unit of Measure Code");
+                    end;
+                until Next() = 0;
+            end;
+            exit(QtyOnBreakbulk);
+        end;
+    end;
+
+    procedure GetCannotBeHandledReason(): Text
+    begin
+        exit(DequeueCannotBeHandledReason());
+    end;
+
+    local procedure PickStrictExpirationPosting(ItemNo: Code[20]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
+    var
+        StrictExpirationPosting: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePickStrictExpirationPosting(
+            ItemNo, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", StrictExpirationPosting, IsHandled);
+        if IsHandled then
+            exit(StrictExpirationPosting);
+
+        exit(ItemTrackingManagement.StrictExpirationPosting(ItemNo) and WhseItemTrackingSetup.TrackingRequired());
+    end;
+
+    procedure AddToFilterText(var TextVar: Text[250]; Separator: Code[1]; Comparator: Code[2]; Addendum: Code[20])
+    begin
+        if TextVar = '' then
+            TextVar := Comparator + '''' + Addendum + ''''
+        else
+            TextVar += Separator + Comparator + '''' + Addendum + '''';
+    end;
+
+    procedure CreateAssemblyPickLine(AsmLine: Record "Assembly Line")
+    var
+        QtyToPickBase: Decimal;
+        QtyToPick: Decimal;
+    begin
+        with AsmLine do begin
+            TestField("Qty. per Unit of Measure");
+            QtyToPickBase := CalcQtyToPickBase();
+            QtyToPick := CalcQtyToPick();
+            OnCreateAssemblyPickLineOnAfterCalcQtyToPick(AsmLine, QtyToPickBase, QtyToPick);
+            if QtyToPick > 0 then begin
+                SetAssemblyLine(AsmLine, 1);
+                SetTempWhseItemTrkgLine(
+                  "Document No.", Database::"Assembly Line", '', 0, "Line No.", "Location Code");
+                CreateTempLine(
+                  "Location Code", "No.", "Variant Code", "Unit of Measure Code", '', "Bin Code",
+                  "Qty. per Unit of Measure", "Qty. Rounding Precision", "Qty. Rounding Precision (Base)", QtyToPick, QtyToPickBase);
+            end;
+        end;
+    end;
+
+    local procedure MovementFromShipZone(var TotalAvailQtyBase: Decimal; QtyOnOutboundBins: Decimal)
+    begin
+        if not IsShipZone(CurrWhseWorksheetLine."Location Code", CurrWhseWorksheetLine."To Zone Code") then
+            TotalAvailQtyBase := TotalAvailQtyBase - QtyOnOutboundBins;
+    end;
+
+    procedure IsShipZone(LocationCode: Code[10]; ZoneCode: Code[10]): Boolean
+    var
+        Zone: Record Zone;
+        BinType: Record "Bin Type";
+    begin
+        if not Zone.Get(LocationCode, ZoneCode) then
+            exit(false);
+        if not BinType.Get(Zone."Bin Type Code") then
+            exit(false);
+        exit(BinType.Ship);
+    end;
+
+    local procedure Minimum(a: Decimal; b: Decimal): Decimal
+    begin
+        if a < b then
+            exit(a);
+
+        exit(b);
+    end;
+
+    local procedure Maximum(a: Decimal; b: Decimal): Decimal
+    begin
+        if a > b then
+            exit(a);
+
+        exit(b);
+    end;
+
+    procedure CalcQtyResvdNotOnILE(ReservEntryNo: Integer; ReservEntryPositive: Boolean) QtyResvdNotOnILE: Decimal
+    var
+        ReservEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcQtyResvdNotOnILE(ReservEntryNo, ReservEntryPositive, QtyResvdNotOnILE, IsHandled);
+        if not IsHandled then
+            if ReservEntry.Get(ReservEntryNo, not ReservEntryPositive) then
+                if ReservEntry."Source Type" <> Database::"Item Ledger Entry" then
+                    QtyResvdNotOnILE += ReservEntry."Quantity (Base)";
+
+        exit(QtyResvdNotOnILE);
+    end;
+
+    procedure SetFiltersOnReservEntry(var ReservEntry: Record "Reservation Entry"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
+    begin
+        with ReservEntry do begin
+            SetCurrentKey(
+              "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
+              "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
+            SetRange("Source ID", SourceNo);
+            case SourceType of
+                Database::"Prod. Order Component":
+                    begin
+                        SetRange("Source Ref. No.", SourceSubLineNo);
+                        SetRange("Source Prod. Order Line", SourceLineNo);
+                        SetRange("Source Type", SourceType);
+                        SetRange("Source Subtype", SourceSubType);
+                    end;
+                Database::Job, Database::"Job Planning Line":
+                    begin
+                        SetRange("Source Ref. No.", SourceLineNo);
+                        SetRange("Source Type", Database::"Job Planning Line");
+                        SetRange("Source Subtype", Enum::"Job Planning Line Status"::Order);
+                    end;
+                else
+                    SetRange("Source Ref. No.", SourceLineNo);
+                    SetRange("Source Type", SourceType);
+                    SetRange("Source Subtype", SourceSubType);
+            end;
+            SetRange("Reservation Status", "Reservation Status"::Reservation);
+        end;
+    end;
+
+    procedure GetActualQtyPickedBase(): Decimal
+    begin
+        exit(TotalQtyPickedBase);
+    end;
+
+    procedure CalcReservedQtyOnInventory(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: record "Item Tracking Setup") ReservedQty: Decimal
+    begin
+        ReservedQty := CalcReservedQtyOnInventory(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, 0);
+    end;
+
+    local procedure CalcReservedQtyOnInventory(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: record "Item Tracking Setup"; ExcludeReservedQty: Decimal) ReservedQty: Decimal
+    var
+        CalcQtyInReservEntry: Query CalcQtyInReservEntry;
+    begin
+        ReservedQty := 0;
+
+        CalcQtyInReservEntry.SetRange(Source_Type, Database::"Item Ledger Entry");
+        CalcQtyInReservEntry.SetRange(Source_Subtype, 0);
+        CalcQtyInReservEntry.SetRange(Reservation_Status, Enum::"Reservation Status"::Reservation);
+        CalcQtyInReservEntry.SetRange(Location_Code, LocationCode);
+        CalcQtyInReservEntry.SetRange(Item_No_, ItemNo);
+        CalcQtyInReservEntry.SetRange(Variant_Code, VariantCode);
+        CalcQtyInReservEntry.SetTrackingFilterFromWhseItemTrackingSetupIfRequired(WhseItemTrackingSetup);
+        CalcQtyInReservEntry.Open();
+        while CalcQtyInReservEntry.Read() do
+            ReservedQty += RemoveBlockedTrackedQtyFromReservedQtyByBin(CalcQtyInReservEntry, ExcludeReservedQty); //This is needed to distribute reservation entries with tracking to different bin and reduce the reserved qty that is blocked by the bin
+
+        OnAfterCalcReservedQtyOnInventory(
+            ItemNo, LocationCode, VariantCode,
+            WhseItemTrackingSetup."Lot No.", WhseItemTrackingSetup."Lot No. Required",
+            WhseItemTrackingSetup."Serial No.", WhseItemTrackingSetup."Serial No. Required",
+            ReservedQty, WhseItemTrackingSetup);
+    end;
+
+    local procedure RemoveBlockedTrackedQtyFromReservedQtyByBin(var CalcQtyInReservEntry: Query CalcQtyInReservEntry; ExcludeReservedQty: Decimal): Decimal
+    var
+        TempBinContentBufferByBins: Record "Bin Content Buffer" temporary;
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        CalcQtyInWhseEntries: Query CalcQtyInWhseEntries;
+        QtyLeftToDistribute: Decimal;
+        QtyInBin: Decimal;
+        Qty: Decimal;
+    begin
+        QtyLeftToDistribute := CalcQtyInReservEntry.Quantity__Base_ - ExcludeReservedQty; //ExcludeReservedQty is used to exclude reserved quantities that are already considered in other worksheet lines like pick worksheet. Therfore, there is no need to distribute them again.
+        GetLocation(CalcQtyInReservEntry.Location_Code);
+
+        CalcQtyInWhseEntries.SetRange(Location_Code, CalcQtyInReservEntry.Location_Code);
+        CalcQtyInWhseEntries.SetRange(Item_No_, CalcQtyInReservEntry.Item_No_);
+        CalcQtyInWhseEntries.SetRange(Variant_Code, CalcQtyInReservEntry.Variant_Code);
+        CalcQtyInWhseEntries.SetRange(Serial_No_, CalcQtyInReservEntry.Serial_No_);
+        CalcQtyInWhseEntries.SetRange(Lot_No_, CalcQtyInReservEntry.Lot_No_);
+        CalcQtyInWhseEntries.SetRange(Package_No_, CalcQtyInReservEntry.Package_No_);
+        CalcQtyInWhseEntries.Open();
+
+        // step 1: distribute quantity by bins
+        while CalcQtyInWhseEntries.Read() and (QtyLeftToDistribute <> 0) do begin
+            QtyInBin := Minimum(QtyLeftToDistribute, CalcQtyInWhseEntries.Qty___Base_);
+            QtyLeftToDistribute -= QtyInBin;
+
+            WhseItemTrackingSetup."Serial No." := CalcQtyInWhseEntries.Serial_No_;
+            WhseItemTrackingSetup."Lot No." := CalcQtyInWhseEntries.Lot_No_;
+            WhseItemTrackingSetup."Package No." := CalcQtyInWhseEntries.Package_No_;
+            TempBinContentBufferByBins.UpdateBuffer(
+              CalcQtyInWhseEntries.Location_Code, CalcQtyInWhseEntries.Bin_Code,
+              CalcQtyInWhseEntries.Item_No_, CalcQtyInWhseEntries.Variant_Code,
+              CalcQtyInWhseEntries.Unit_of_Measure_Code, WhseItemTrackingSetup, QtyInBin);
+        end;
+
+        // step 2: remove blocked item tracking
+        if TempBinContentBufferByBins.FindSet() then
+            repeat
+                if not BlockedBinOrTracking(TempBinContentBufferByBins) then
+                    Qty += TempBinContentBufferByBins."Qty. to Handle (Base)";
+            until TempBinContentBufferByBins.Next() = 0;
+
+        exit(Qty);
+    end;
+
+    local procedure BlockedBinOrTracking(BinContentBuffer: Record "Bin Content Buffer"): Boolean
+    var
+        LotNoInformation: Record "Lot No. Information";
+        SerialNoInformation: Record "Serial No. Information";
+        IsBlocked: Boolean;
+    begin
+        with BinContentBuffer do begin
+            if BinContentBlocked("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code") then
+                exit(true);
+            if LotNoInformation.Get("Item No.", "Variant Code", "Lot No.") then
+                if LotNoInformation.Blocked then
+                    exit(true);
+            if SerialNoInformation.Get("Item No.", "Variant Code", "Serial No.") then
+                if SerialNoInformation.Blocked then
+                    exit(true);
+
+            IsBlocked := false;
+            OnAfterBlockedBinOrTracking(BinContentBuffer, IsBlocked);
+            if IsBlocked then
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    local procedure GetMessageForUnhandledQtyDueToBin(BinIsForPick: Boolean; BinIsForReplenishment: Boolean; IsMoveWksh: Boolean; AvailableQtyBase: Decimal; var FromBinContent: Record "Bin Content") Result: Text
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetMessageForUnhandledQtyDueToBinProcedure(BinIsForPick, BinIsForReplenishment, IsMoveWksh, AvailableQtyBase, FromBinContent, Result, IsHandled);
+        if IsHandled then
+            exit;
+
+        if AvailableQtyBase <= 0 then
+            exit('');
+        if not BinIsForPick and not IsMoveWksh then
+            exit(StrSubstNo(BinIsNotForPickTxt, FromBinContent."Bin Code"));
+        if not BinIsForReplenishment and IsMoveWksh then
+            exit(StrSubstNo(BinIsForReceiveOrShipTxt, FromBinContent."Bin Code"));
+    end;
+
+    local procedure GetMessageForUnhandledQtyDueToReserv(): Text
+    begin
+        exit(QtyReservedNotFromInventoryTxt);
+    end;
+
+    procedure FilterWhsePickLinesWithUndefinedBin(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        with WarehouseActivityLine do begin
+            Reset();
+            SetCurrentKey(
+              "Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code", "Unit of Measure Code", "Breakbulk No.", "Activity Type");
+            SetRange("Item No.", ItemNo);
+            SetRange("Bin Code", '');
+            SetRange("Location Code", LocationCode);
+            SetRange("Action Type", "Action Type"::Take);
+            SetRange("Variant Code", VariantCode);
+            SetTrackingFilterFromWhseItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
+            SetRange("Breakbulk No.", 0);
+            SetRange("Activity Type", "Activity Type"::Pick);
+        end;
+    end;
+
+    procedure EnqueueCannotBeHandledReason(CannotBeHandledReason: Text)
+    var
+        NewReasonAdded: Boolean;
+        i: Integer;
+    begin
+        if CannotBeHandledReason = '' then
+            exit;
+
+        repeat
+            i += 1;
+            if CannotBeHandledReasons[i] = '' then begin
+                CannotBeHandledReasons[i] := CannotBeHandledReason;
+                NewReasonAdded := true;
+            end;
+        until NewReasonAdded or (i = ArrayLen(CannotBeHandledReasons));
+    end;
+
+    local procedure DequeueCannotBeHandledReason() CannotBeHandledReason: Text
+    begin
+        CannotBeHandledReason := CannotBeHandledReasons[1];
+        CannotBeHandledReasons[1] := '';
+        CompressArray(CannotBeHandledReasons);
+    end;
+
+    local procedure LockTables()
+    var
+        WarehouseActivityHeaderToLock: Record "Warehouse Activity Header";
+        WarehouseActivityLineToLock: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityHeaderToLock.Lock();
+        WarehouseActivityLineToLock.Lock();
+    end;
+
+    internal procedure SetSaveSummary(NewSaveSummary: Boolean)
+    begin
+        SaveSummary := NewSaveSummary;
+    end;
+
+    local procedure InitCalculationSummary(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; FromBinCode: Code[20]; TotalQtytoPick: Decimal; TotalQtytoPickBase: Decimal)
+    begin
+        if CanSaveSummary() then begin
+            TempWarehousePickSummary.Init();
+            TempWarehousePickSummary.IncrementEntryNumber();
+            TempWarehousePickSummary."Source Type" := SourceType;
+            TempWarehousePickSummary."Source No." := SourceNo;
+            TempWarehousePickSummary."Source Line No." := SourceLineNo;
+            TempWarehousePickSummary."Source Subtype" := SourceSubType;
+            TempWarehousePickSummary."Source Subline No." := SourceSubLineNo;
+            TempWarehousePickSummary."Source Document" := WhseManagement.GetWhseActivSourceDocument(SourceType, SourceSubType);
+            TempWarehousePickSummary."Location Code" := LocationCode;
+            TempWarehousePickSummary."Item No." := ItemNo;
+            TempWarehousePickSummary."Variant Code" := VariantCode;
+            TempWarehousePickSummary."Unit of Measure Code" := UnitofMeasureCode;
+            TempWarehousePickSummary."Bin Code" := FromBinCode;
+            TempWarehousePickSummary."Qty. to Handle" := TotalQtytoPick;
+            TempWarehousePickSummary."Qty. to Handle (Base)" := TotalQtytoPickBase;
+        end;
+    end;
+
+    local procedure FinalizeCalculationSummary()
+    begin
+        if CanSaveSummary() then begin
+            TempWarehousePickSummary."Qty. handled" := TotalQtyPickedBase;
+            TempWarehousePickSummary."Qty. handled (base)" := TotalQtyPickedBase;
+            TempWarehousePickSummary.Insert();
+        end;
+    end;
+
+    local procedure UpdateCalculationSummaryQuantities(TotalAvailQtyBase: Decimal; MaxPickableQtyInWhse: Decimal; QtyAssignedPick: Decimal; MaxPickableQtyExcludingShipBin: Decimal; ReservedQtyOnInventory: Decimal; QtyReservedOnPickShip: Decimal; LineReservedQty: Decimal)
+    begin
+        if CanSaveSummary() then begin
+            TempWarehousePickSummary."Potential pickable qty." := MaxPickableQtyInWhse;
+            TempWarehousePickSummary."Qty. assigned" := QtyAssignedPick;
+            TempWarehousePickSummary."Qty. available to pick" := TotalAvailQtyBase;
+
+            if not CalledFromMoveWksh then begin
+                //Needed to balance reserved quantities when not called from Movement Worksheet
+                TempWarehousePickSummary."Qty. Reserved in warehouse" := ReservedQtyOnInventory;
+                TempWarehousePickSummary."Qty. res. in pick/ship bins" := QtyReservedOnPickShip;
+                TempWarehousePickSummary."Qty. Reserved for this line" := LineReservedQty;
+                TempWarehousePickSummary."Available qty. not in ship bin" := MaxPickableQtyExcludingShipBin;
+            end;
+        end;
+    end;
+
+    local procedure UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(QtyInWhse: Decimal; QtyInBinNotBlockedNotDedicated: Decimal; QtyWithBlockedItemTracking: Decimal; QtyAssignedInWhseActLinesNotBlockedNotDedicated: Decimal; BinTypeFilter: Option ExcludeReceive,ExcludeShip,OnlyPickBins)
+    begin
+        if not CanSaveSummary() then
+            exit;
+
+        if CalledFromMoveWksh then
+            case BinTypeFilter of
+                BinTypeFilter::ExcludeReceive:
+                    begin
+                        TempWarehousePickSummary."Qty. in blocked item tracking" := QtyWithBlockedItemTracking;
+                        TempWarehousePickSummary."Qty. in active pick lines" := QtyAssignedInWhseActLinesNotBlockedNotDedicated;
+                        TempWarehousePickSummary."Qty. in pickable Bins" := QtyInBinNotBlockedNotDedicated;
+                    end;
+            end
+        else
+            case BinTypeFilter of
+                BinTypeFilter::OnlyPickBins:
+                    begin
+                        TempWarehousePickSummary."Qty. in blocked item tracking" := QtyWithBlockedItemTracking;
+                        TempWarehousePickSummary."Qty. in active pick lines" := QtyAssignedInWhseActLinesNotBlockedNotDedicated;
+                        TempWarehousePickSummary."Qty. in pickable Bins" := QtyInBinNotBlockedNotDedicated;
+                        TempWarehousePickSummary."Qty. in Warehouse" := QtyInWhse;
+                    end;
+                BinTypeFilter::ExcludeShip: //Needed to balance reserved quantities when not called from Movement Worksheet
+                    begin
+                        TempWarehousePickSummary."Qty. block. Item Tracking Res." := QtyWithBlockedItemTracking;
+                        TempWarehousePickSummary."Qty. in active pick lines Res." := QtyAssignedInWhseActLinesNotBlockedNotDedicated;
+                        TempWarehousePickSummary."Qty. not in ship bin" := QtyInBinNotBlockedNotDedicated;
+                        TempWarehousePickSummary."Qty. in Warehouse" := QtyInWhse;
+                    end;
+            end;
+    end;
+
+    local procedure CanSaveSummary(): Boolean
+    begin
+        exit(SaveSummary and CurrLocation."Directed Put-away and Pick");
+    end;
+
+    internal procedure SetSummaryPageMessage(MessageTxt: Text; OverwriteMessage: Boolean)
+    begin
+        if OverwriteMessage then
+            SummaryPageMessage := MessageTxt
+        else
+            if SummaryPageMessage = '' then
+                SummaryPageMessage := MessageTxt;
+    end;
+
+    internal procedure ShowCalculationSummary(): Boolean
+    var
+        WarehousePickSummaryPage: Page "Warehouse Pick Summary";
+    begin
+        if CanSaveSummary() then
+            if TempWarehousePickSummary.Count > 0 then begin
+                WarehousePickSummaryPage.SetRecords(TempWarehousePickSummary, SummaryPageMessage, CalledFromMoveWksh);
+                WarehousePickSummaryPage.Run();
+                exit(true);
+            end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyOnPickAndReceiveBins(SourceType: Integer; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; CalledFromPickWksh: Boolean; CalledFromMoveWksh: Boolean; CalledFromWksh: Boolean; var QtyInWhse: Decimal; var QtyOnPickBins: Decimal; var QtyOnPutAwayBins: Decimal; var QtyOnOutboundBins: Decimal; var QtyOnReceiveBins: Decimal; var QtyOnDedicatedBins: Decimal; var QtyBlocked: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcReservedQtyOnInventory(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; LotNo: Code[50]; LNRequired: Boolean; SerialNo: Code[50]; SNRequired: Boolean; var ReservedQty: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcTotalQtyAssgndOnWhse(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var QtyAssgndToWhseAct: Decimal; var QtyAssgndToShipment: Decimal; var QtyAssgndToProdComp: Decimal; var QtyAssgndToAsmLine: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckOutBound(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var OutBoundQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckReservation(var Quantity: Decimal; var QuantityBase: Decimal; var QtyBaseAvailToPick: Decimal; var ReservationExists: Boolean; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCreateTempLine(LocationCode: Code[10]; ToBinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateTempLineCheckReservation(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; var TotalQtytoPick: Decimal; var TotalQtytoPickBase: Decimal; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var LastWhseItemTrkgLineNo: Integer; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var WhseShptLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateTempWhseItemTrackingLines(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateWhseDocument(var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; CreatePickParameters: Record "Create Pick Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateWhseDocLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindWhseActivLine(var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceWhseItemTrkgLine(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var LastWhseItemTrkgLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetParameters(var CreatePickParameters: Record "Create Pick Parameters");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAssemblyLine(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetProdOrderCompLine(var ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetWhseShipment(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; TempNo2: Integer; var ShippingAgentCode2: Code[10]; var ShippingAgentServiceCode2: Code[10]; var ShipmentMethodCode2: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetWhseInternalPickLine(var WhseInternalPickLine: Record "Whse. Internal Pick Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferItemTrkgFields(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line"; EntriesExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjustQtyReservedOnPickShip(var SubTotal: Decimal; QtyReservedOnPickShip: Decimal; LineReservedQty: Decimal; ReservedQtyOnInventory: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyResvdNotOnILE(ReservEntryNo: Integer; ReservEntryPositive: Boolean; var QtyResvdNotOnILE: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseDocTakeLineProcedure(var WhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeCalcPickBin(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var TotalQtytoPick: Decimal; var TotalQtytoPickBase: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; CrossDock: Boolean; WhseTrackingExists: Boolean; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcBWPickBin(var TotalQtyToPick: Decimal; var TotalQtytoPickBase: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; WhseItemTrkgExists: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTotalAvailQtyToPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; NeededQtyBase: Decimal; RespectLocationBins: Boolean; CalledFromMoveWksh: Boolean; CalledFromWksh: Boolean; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean; var TotalAvailQtyBase: Decimal; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyToTempWhseItemTrkgLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseDocument(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeCreateNewWhseDoc(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; OldNo: Code[20]; OldSourceNo: Code[20]; OldLocationCode: Code[10]; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; var NoOfSourceDoc: Integer; var NoOfLines: Integer; var WhseDocCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempItemTrkgLines(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; var TotalQtytoPickBase: Decimal; HasExpiryDate: Boolean; var IsHandled: Boolean; var WhseItemTrackingFEFO: Codeunit "Whse. Item Tracking FEFO"; WhseShptLine: Record "Warehouse Shipment Line"; WhseWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempActivityLine(BinCode: Code[20]; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetBinTypeFilter(var BinTypeFilter: Text[1024]; var IsHandled: Boolean; Type: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetMessageForUnhandledQtyDueToBinProcedure(var BinIsForPick: Boolean; var BinIsForReplenishment: Boolean; var IsMoveWksh: Boolean; var AvailableQtyBase: Decimal; FromBinContent: Record "Bin Content"; var Result: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBWPickBin(var BinContent: Record "Bin Content"; var IsSetCurrentKeyHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBreakBulkBinPerBinContent(FromBinContent: Record "Bin Content"; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; WhseItemTrkgExists: Boolean; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal; var StopProcessing: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetBinCodeFilter(var BinCodeFilterText: Text[250]; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20]; var IsHandled: Boolean; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePickStrictExpirationPosting(ItemNo: Code[20]; SNRequired: Boolean; LNRequired: Boolean; var StrictExpirationPosting: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemTrackedQuantity(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyToHandleBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeInsertTempItemTrkgLine(var EntrySummary: Record "Entry Summary"; RemQtyToPickBase: Decimal; var TotalAvailQtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunFindBWPickBinLoop(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20];
+        UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal;
+        var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempWhseActivLineInsert(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; ActionType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempWhseItemTrkgLineInsert(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; FromWhseItemTrackingLine: Record "Whse. Item Tracking Line"; EntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempWhseItemTrackingLineModify(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempWhseItemTrackingLineModifyOnAfterAssignRemQtyToPickBase(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUseForPick(var FromBinContent: Record "Bin Content"; var IsForPick: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWhseActivLineQtyFIeldsFromCreateWhseDocPlaceLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhseActivHeaderInsert(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TempWhseActivityLine: Record "Warehouse Activity Line" temporary; CreatePickParameters: Record "Create Pick Parameters"; WhseShptLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyForSN(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailQtyOnFindBWPickBin(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailQtyOnFindPickBin2(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; LotNo: Code[50]; SerialNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableQtyOnAfterCalcAvailableQtyBase(Item: Record Item; Location: Record Location; VariantCode: Code[10]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var AvailableQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailQtyOnFindBreakBulkBin(Broken: Boolean; ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailQtyOnFindSmallerUOMBin(Broken: Boolean; ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcMaxQtyOnAfterTempWhseActivLineSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAssignedToPickOnAfterSetFilters(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckReservationOnAfterGetOutboundDocLineQtyOtsdg(var ReservationEntry: Record "Reservation Entry"; var SrcDocQtyToBeFilledByInvt: Decimal; var SrcDocQtyBaseToBeFilledByInvt: Decimal; var QtyResvdNotOnILE: Decimal; var QtyBaseResvdNotOnILE: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyToTempWhseItemTrkgLineOnBeforeTempWhseItemTrackingLineInsert(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempItemTrkgLinesOnBeforeGetFromBinContentQty(EntrySummary: Record "Entry Summary"; ItemNo: Code[20]; VariantCode: Code[10]; var TotalAvailQtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempItemTrkgLinesOnAfterCalcQtyTracked(EntrySummary: Record "Entry Summary"; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var QuantityTracked: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempItemTrkgLinesOnBeforeCheckQtyToPickBase(EntrySummary: Record "Entry Summary"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; TotalAvailQtyToPickBase: Decimal; var QtytoPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempActivityLineOnAfterTransferFrom(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WhseSource: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempActivityLineOnAfterShouldCalcMaxQty(var TempWarehouseActivityLine: Record "Warehouse Activity Line"; var BreakBulkNo: Integer; var ShouldCalcMaxQty: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempActivityLineAfterAssignSpecEquipment(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; QtyToPick: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempActivityLineOnAfterValidateQuantity(var TempWhseActivLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLine2OnBeforeDirectedPutAwayAndPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal; var TotalQtytoPick: Decimal; var TotalQtytoPickBase: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly; var IsHandled: Boolean; ReservationExists: Boolean; ReservedForItemLedgEntry: Boolean; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var TempLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLineOnAfterCreateTempLineWithItemTracking(var TotalQtytoPickBase: Decimal; var HasExpiredItems: Boolean; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var TempLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLineOnAfterCalcQtyBaseMaxAvailToPick(var QtyBaseMaxAvailToPick: Decimal; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLineOnBeforeCheckReservation(SourceType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyBaseMaxAvailToPick: Decimal; var isHandled: Boolean; LocationCode: Code[10]; ItemNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempActivityLineOnAfterCalcQtyToPick(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var QtyToPick: Decimal; var QtyToPickBase: Decimal; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly; WhseSource2: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLineOnBeforeCreateTempLineForSerialNo(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10];
+        FromBinCode: Code[20]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal; TotalQtytoPick: Decimal; TotalQtytoPickBase: Decimal;
+        var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup";
+        var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLineOnBeforeUpdateQuantitesToPick(var QtyAvailableBase: Decimal; var QtyPerUOM: Decimal; var QtyToPick: Decimal; var QtyToPickBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocumentOnAfterSaveOldValues(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var WarehouseActivityHeader: Record "Warehouse Activity Header"; LastWhseDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocumentOnAfterSetFiltersAfterLoop(var TempWhseActivLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocumentOnAfterSetFiltersBeforeLoop(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; PerBin: Boolean; PerZone: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocumentOnBeforeClearFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var WhseActivHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocumentOnBeforeCreateDocAndLine(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean; var CreateNewHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocumentOnBeforeShowError(var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocTakeLineOnAfterSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocTakeLineOnBeforeWhseActivLine2Insert(var WarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocPlaceLineOnAfterSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line"; LineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocPlaceLineOnBeforeWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBWPickBinOnBeforeEndLoop(var FromBinContent: Record "Bin Content"; var TotalQtyToPickBase: Decimal; var EndLoop: Boolean; var IsHandled: Boolean; QtytoPick: Decimal; QtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBWPickBinOnBeforeFromBinContentFindSet(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyPickedBase: Decimal; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBWPickBinOnBeforeSetQtyAvailableBaseForSerialNo(var FromBinContent: Record "Bin Content"; var QtyAvailableBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindPickBinOnAfterUpdateTotalAvailQtyToPickBase(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; TotalAvailQtyToPickBase: Decimal; ToQtyToPick: Decimal; ToQtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindPickBinOnBeforeStartFromBinContentLoop(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var TotalAvailQtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindPickBinOnBeforeUpdateQuantitesAndCreateActivityLines(var FromBinContent: Record "Bin Content"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var ToQtyToPick: Decimal; var ToQtyToPickBase: Decimal; var AvailableQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTotalAvailQtyToPickOnBeforeCalcSubTotal(var QtyInWhse: Decimal; var QtyOnPickBins: Decimal; var QtyOnPutAwayBins: Decimal; var QtyOnOutboundBins: Decimal; var QtyOnDedicatedBins: Decimal; var QtyBlocked: Decimal; var QtyOnReceiveBins: Decimal; var ReservedQtyOnInventory: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTotalAvailQtyToPickOnAfterGetWhseItemTrkgSetup(var WhseItemTrackingSetup: Record "Item Tracking Setup"; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyCanBePickedOnAfterGetWhseItemTrkgSetup(var WhseItemTrackingSetup: Record "Item Tracking Setup"; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocLineOnAfterGetWhseItemTrkgSetup(var WhseItemTrackingSetup: Record "Item Tracking Setup"; TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPickBinOnAfterGetWhseItemTrkgSetup(var WhseItemTrackingSetup: Record "Item Tracking Setup"; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocTakeLineOnBeforeWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPickAccordingToFEFO(LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"; var PickAccordingToFEFO: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessDoNotFillQtytoHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseActivHeaderOnAfterWhseActivHeaderInsert(var WhseActivHeader: Record "Warehouse Activity Header"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; CreatePickParameters: Record "Create Pick Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBlockedBinOrTracking(BinContentBuffer: Record "Bin Content Buffer"; var IsBlocked: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackedQuantityOnAfterCheckIfEmpty(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackedQuantityOnAfterSetFilters(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseDocTakeLine(var WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateAssemblyPickLineOnAfterCalcQtyToPick(var AsmLine: Record "Assembly Line"; var QtyToPickBase: Decimal; var QtyToPick: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocPlaceLineOnAfterTempWhseActivLineSetFilters(var TempWhseActivLine: Record "Warehouse Activity Line"; WhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocPlaceLineOnAfterTransferTempWhseActivLineToWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; PickQty: Decimal; PickQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetBinContent(
+        var TempBinContent: Record "Bin Content" temporary;
+        ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; LocationCode: Code[10]; ToBinCode: Code[20];
+        CrossDock: Boolean; IsMovementWorksheet: Boolean; WhseItemTrkgExists: Boolean; BreakbulkBins: Boolean; SmallerUOMBins: Boolean;
+        WhseItemTrackingSetup: Record "Item Tracking Setup"; TotalQtytoPick: Decimal; TotalQtytoPickBase: Decimal;
+        var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindPickBin(
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10];
+        UnitofMeasureCode: Code[10]; ToBinCode: Code[20]; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal;
+        var TempWhseActivLine2: Record "Warehouse Activity Line" temporary; var TotalQtytoPick: Decimal;
+        var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; CrossDock: Boolean;
+        var TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup"; IsMovementWorksheet: Boolean;
+        WhseItemTrkgExists: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLocation(LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOutstandingBaseAfterSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; BinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBWPickBinOnBeforeApplyBinCodeFilter(var BinCodeFilterText: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempActivityLineWithoutBinCode(var BinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePutawayForPostedWhseReceiptLine(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; QtyRoundingPrecision: Decimal; QtyRoundingPrecisionBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtytoPickBase: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBreakBulkPlacingExistsOnAfterBinContent2SetFilters(var BinContent: Record "Bin Content")
+    begin
+    end;
+}
+

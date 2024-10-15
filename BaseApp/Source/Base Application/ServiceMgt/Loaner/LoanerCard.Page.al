@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Loaner;
+
+using Microsoft.Service.Comment;
+
 page 5922 "Loaner Card"
 {
     Caption = 'Loaner Card';
@@ -20,7 +24,7 @@ page 5922 "Loaner Card"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -50,7 +54,7 @@ page 5922 "Loaner Card"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field(Lent; Lent)
+                field(Lent; Rec.Lent)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the loaner has been lent to a customer.';
@@ -65,7 +69,7 @@ page 5922 "Loaner Card"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service document for the service item that was lent.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -106,9 +110,9 @@ page 5922 "Loaner Card"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST(Loaner),
-                                  "Table Subtype" = CONST("0"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const(Loaner),
+                                  "Table Subtype" = const("0"),
+                                  "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("Loaner E&ntries")
@@ -117,9 +121,9 @@ page 5922 "Loaner Card"
                     Caption = 'Loaner E&ntries';
                     Image = Entries;
                     RunObject = Page "Loaner Entries";
-                    RunPageLink = "Loaner No." = FIELD("No.");
-                    RunPageView = SORTING("Loaner No.")
-                                  ORDER(Ascending);
+                    RunPageLink = "Loaner No." = field("No.");
+                    RunPageView = sorting("Loaner No.")
+                                  order(Ascending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of the loaner.';
                 }

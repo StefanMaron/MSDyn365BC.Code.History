@@ -1,3 +1,16 @@
+namespace System.Security.AccessControl;
+
+using System.AI;
+using Microsoft.CashFlow.Account;
+using Microsoft.CashFlow.Comment;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CashFlow.Setup;
+using Microsoft.CashFlow.Worksheet;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Foundation.AuditCodes;
+
 permissionset 8620 "CashFlow - Admin"
 {
     Access = Public;

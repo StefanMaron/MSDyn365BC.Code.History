@@ -1,3 +1,20 @@
+namespace System.Telemetry;
+
+using System.Security.AccessControl;
+using System.Reflection;
+using System.Threading;
+using System.IO;
+using Microsoft.Sales.History;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Posting;
+using Microsoft.Sales.Posting;
+using Microsoft.Sales.Document;
+using System.Environment;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.BankAccount;
+using System.Environment.Configuration;
+using System.Feedback;
+
 codeunit 1351 "Telemetry Subscribers"
 {
     Permissions = TableData "Permission Set Link" = r;
@@ -42,9 +59,6 @@ codeunit 1351 "Telemetry Subscribers"
         JobQueueEntryTaskCancelledTxt: Label 'Job queue entry task cancelled: %1', Comment = '%1 = Job queue id', Locked = true;
         UndoSalesShipmentCategoryTxt: Label 'AL UndoSalesShipmentNoOfLines', Locked = true;
         UndoSalesShipmentNoOfLinesTxt: Label 'UndoNoOfLines = %1', Locked = true;
-#if not CLEAN21
-        PostedDepositLinesLbl: Label 'Posted deposit line information', Locked = true;
-#endif
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
         FeatureManagementTok: Label 'Feature Management', Locked = true;
         BankAccountRecPostedWithBankAccCurrencyCodeMsg: Label 'Bank Account Reconciliation posted with CurrencyCode set to: %1', Locked = true;
@@ -106,10 +120,10 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000E29', StrSubstNo(PermissionSetLinkRemovedTelemetryScopeAllTxt, Rec."Permission Set ID", Rec."Linked Permission Set ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Permission Set", 'OnAfterInsertEvent', '', true, true)]
-    local procedure SendTraceOnPermissionSetIsAdded(var Rec: Record "Permission Set"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Metadata Permission Set", 'OnAfterInsertEvent', '', true, true)]
+    local procedure SendTraceOnPermissionSetIsAdded(var Rec: Record "Metadata Permission Set"; RunTrigger: Boolean)
     var
-        PermissionSetRec: Record "Permission Set";
+        MetadataPermissionSet: Record "Metadata Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
         if Rec.IsTemporary() then
@@ -120,14 +134,14 @@ codeunit 1351 "Telemetry Subscribers"
 
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
-        Dimensions.Add('NumberOfSystemPermissionSets', Format(PermissionSetRec.Count));
+        Dimensions.Add('NumberOfSystemPermissionSets', Format(MetadataPermissionSet.Count));
         Session.LogMessage('0000GMG', StrSubstNo(PermissionSetSystemAddedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Permission Set", 'OnBeforeDeleteEvent', '', true, true)]
-    local procedure SendTraceOnPermissionSetIsRemoved(var Rec: Record "Permission Set"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Metadata Permission Set", 'OnBeforeDeleteEvent', '', true, true)]
+    local procedure SendTraceOnPermissionSetIsRemoved(var Rec: Record "Metadata Permission Set"; RunTrigger: Boolean)
     var
-        PermissionSetRec: Record "Permission Set";
+        MetadataPermissionSet: Record "Metadata Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
         if Rec.IsTemporary() then
@@ -138,7 +152,7 @@ codeunit 1351 "Telemetry Subscribers"
 
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
-        Dimensions.Add('NumberOfSystemPermissionSets', Format(PermissionSetRec.Count - 1));
+        Dimensions.Add('NumberOfSystemPermissionSets', Format(MetadataPermissionSet.Count - 1));
         Session.LogMessage('0000GMH', StrSubstNo(PermissionSetSystemRemovedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
@@ -560,19 +574,6 @@ codeunit 1351 "Telemetry Subscribers"
     begin
         exit(EnvironmentInfo.IsSaaS());
     end;
-
-#if not CLEAN21
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Deposit-Post", 'OnAfterDepositPost', '', true, true)]
-    local procedure LogNumberOfPostedDepositLines(DepositHeader: Record "Deposit Header"; PostedDepositHeader: Record "Posted Deposit Header")
-    var
-        PostedDepositLine: Record "Posted Deposit Line";
-        Attributes: Dictionary of [Text, Text];
-    begin
-        PostedDepositLine.SetRange("Deposit No.", PostedDepositHeader."No.");
-        Attributes.Add('Number of lines', Format(PostedDepositLine.Count()));
-        Session.LogMessage('0000CZ1', PostedDepositLinesLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Bank Acc. Reconciliation Post", 'OnAfterFinalizePost', '', true, true)]
     local procedure LogTelemetryOnBankAccRecPostOnAfterFinalizePost(BankAccReconciliation: Record "Bank Acc. Reconciliation")

@@ -192,6 +192,9 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
+      "path": "./BaseApp/Source/Base Application/System/DevTools/CALTest"
+    },
+    {
       "path": "./onprem permissions/test/OnPrem Permissions Tests"
     },
     {

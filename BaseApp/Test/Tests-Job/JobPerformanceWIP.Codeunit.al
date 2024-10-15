@@ -2502,7 +2502,7 @@ codeunit 136304 "Job Performance WIP"
             RecogCosts += UsageTotalCost(JobTask) - WIPCostAmount(JobTask)
         until JobTask.Next() = 0;
 
-        RecogCosts := Max(RecogCosts, 0)
+        RecogCosts := max(RecogCosts, 0)
     end;
 
     local procedure WIPCostAmount(JobTask: Record "Job Task"): Decimal
@@ -2543,7 +2543,7 @@ codeunit 136304 "Job Performance WIP"
             RecogSales += WIPSalesAmount(JobTask) + ContractInvoicedPrice(JobTask)
         until JobTask.Next() = 0;
 
-        RecogSales := Max(RecogSales, 0)
+        RecogSales := max(RecogSales, 0)
     end;
 
     local procedure AccruedSalesAmount(Job: Record Job) AccruedSales: Decimal
@@ -2563,7 +2563,7 @@ codeunit 136304 "Job Performance WIP"
             case JobWIPMethod."Recognized Sales" of
                 JobWIPMethod."Recognized Sales"::"Sales Value",
               JobWIPMethod."Recognized Sales"::"Usage (Total Price)":
-                    AccruedSales += Max(RecogSalesAmt - ContractInvPriceAmt, 0);
+                    AccruedSales += max(RecogSalesAmt - ContractInvPriceAmt, 0);
                 JobWIPMethod."Recognized Sales"::"Percentage of Completion":
                     AccruedSales += RecogSalesAmt;
             end;
@@ -2624,7 +2624,7 @@ codeunit 136304 "Job Performance WIP"
                 JobWIPMethod."Recognized Sales"::"Percentage of Completion":
                     SalesApplied += ContractInvPriceAmt;
                 JobWIPMethod."Recognized Sales"::"Sales Value", JobWIPMethod."Recognized Sales"::"Usage (Total Price)":
-                    SalesApplied += Max(RecogSalesAmt, ContractInvPriceAmt)
+                    SalesApplied += max(RecogSalesAmt, ContractInvPriceAmt)
                 else
                     SalesApplied += ContractInvPriceAmt;
             end;

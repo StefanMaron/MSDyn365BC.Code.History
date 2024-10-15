@@ -1,3 +1,9 @@
+﻿namespace Microsoft.Bank.PositivePay;
+
+using Microsoft.Bank.BankAccount;
+using System.IO;
+using System.Utilities;
+
 table 1231 "Positive Pay Entry"
 {
     Caption = 'Positive Pay Entry';

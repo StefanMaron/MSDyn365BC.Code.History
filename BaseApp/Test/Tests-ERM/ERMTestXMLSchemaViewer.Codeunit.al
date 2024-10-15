@@ -15,9 +15,6 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLDateFormatTxt: Label 'YYYY-MM-DD', Locked = true;
         XMLDateTimeFormatTxt: Label 'YYYY-MM-DDThh:mm:ss', Locked = true;
         DefaultCultureTxt: Label 'en-US', Locked = true;
-#if not CLEAN20
-        LibraryXBRL: Codeunit "Library - XBRL";
-#endif
         LibraryRandom: Codeunit "Library - Random";
 
     [Test]
@@ -1172,82 +1169,6 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         Assert.ExpectedErrorCode('TestValidation');
     end;
 
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('MessageHandler,XBRLExportInstanceSpec2RequestPageHandler')]
-    procedure ImportXBRLSchemaFileWithInfoAboutXBRLTaxonomyLine()
-    var
-        XBRLSchema: Record "XBRL Schema";
-        XBRLTaxonomy: Record "XBRL Taxonomy";
-        XBRLTaxonomyLine: Record "XBRL Taxonomy Line";
-        FileManagement: Codeunit "File Management";
-        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
-        TempBlob: Codeunit "Temp Blob";
-        XMLDOMManagement: Codeunit "XML DOM Management";
-        XBRLExportInstanceSpec2: Report "XBRL Export Instance - Spec. 2";
-        MainDefinitionFile: File;
-        MainDefinitionOutStr: OutStream;
-        OutStream: OutStream;
-        InStream: InStream;
-        XmlDocumentDotNet: DotNet XmlDocument;
-        LineName: Text;
-        LineID: Text;
-    begin
-        // [SCENARIO 371663] Create and import .XSDParser file with information about XBRL Taxonomy Line
-        Initialize();
-
-        // [GIVEN] Generated LineNo and LineID
-        LineName := LibraryRandom.RandText(10);
-        LineID := LibraryRandom.RandText(10);
-
-        // [GIVEN] Created Schema Files, using created LineNo and LineID
-        MainDefinitionFile.Create(FileManagement.ServerTempFileName('.xsd'));
-        MainDefinitionFile.CreateOutStream(MainDefinitionOutStr);
-        CreateXBRLSchemaFile(
-          MainDefinitionOutStr, LineName, LineID);
-
-        // [GIVEN] Created XBRL Taxonomy and XBRL Schema
-        LibraryXBRL.CreateXBRLTaxonomy(XBRLTaxonomy);
-        XBRLTaxonomy.schemaLocation := LibraryRandom.RandText(20);
-        XBRLTaxonomy.Modify();
-        XBRLSchema."XBRL Taxonomy Name" := XBRLTaxonomy.Name;
-        XBRLSchema.XSD.CreateOutStream(OutStream);
-        MainDefinitionFile.CreateInStream(InStream);
-        CopyStream(OutStream, InStream);
-        XBRLSchema.Insert();
-
-        // [WHEN] Run codeunit 422 "XBRL Import Taxonomy Spec 2"
-        CODEUNIT.Run(CODEUNIT::"XBRL Import Taxonomy Spec. 2", XBRLSchema);
-
-        // [THEN] XBRL Taxonomy Line was created with LineNo LineID
-        XBRLTaxonomyLine.SetRange("XBRL Taxonomy Name", XBRLTaxonomy.Name);
-        XBRLTaxonomyLine.FindFirst();
-        XBRLTaxonomyLine.TestField("Element ID", LineID);
-        XBRLTaxonomyLine.TestField(Name, LineName);
-
-        // Bug 422369
-        // [THEN] Stan can report "XBRLExportInstanceSpec2" with option "Create File" and get Xml output file.
-        Commit();
-        LibraryVariableStorage.Enqueue(XBRLTaxonomy.Name); // Taxonomy
-        LibraryVariableStorage.Enqueue('777777777'); // Schema Identifier
-        LibraryVariableStorage.Enqueue(WorkDate()); // Start Date
-        LibraryVariableStorage.Enqueue(true); // Create File
-
-        BindSubscription(LibraryFileMgtHandler);
-        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
-
-        XBRLExportInstanceSpec2.RunModal();
-
-        LibraryFileMgtHandler.GetTempBlob(TempBlob);
-        Clear(InStream);
-        TempBlob.CreateInStream(InStream);
-        XMLDOMManagement.LoadXMLDocumentFromInStream(InStream, XmlDocumentDotNet);
-        Assert.AreEqual(6, XmlDocumentDotNet.DocumentElement.ChildNodes.Count, 'Invalid number of child nodes in Xml Document');
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-#endif
     local procedure Initialize()
     var
         XMLSchema: Record "XML Schema";
@@ -1786,34 +1707,6 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         exit(false);
     end;
-
-#if not CLEAN20
-    local procedure CreateXBRLSchemaFile(var OutStr: OutStream; LineName: Text; LineId: Text)
-    begin
-        OutStr.WriteText('<?xml version="1.0" encoding="UTF-8"?>');
-        OutStr.WriteText('<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2003/instance"');
-        OutStr.WriteText('           targetNamespace="http://tempuri.org/po.xsd"');
-        OutStr.WriteText('           xmlns="http://tempuri.org/po.xsd" xmlns:cac="mytest:namespace" elementFormDefault="qualified">');
-        OutStr.WriteText(
-          StrSubstNo('<xsd:element name="%1" id="%2" type="esma_technical:guidanceItemType"' +
-            ' substitutionGroup="xbrli:item" abstract="true" nillable="true" xbrli:periodType="instant"/>', LineName, LineId));
-        OutStr.WriteText('<xsd:import namespace="http://www.xbrl.org/2003/instance"' +
-          ' schemaLocation="http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd"/>');
-        OutStr.WriteText('</xsd:schema>');
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure XBRLExportInstanceSpec2RequestPageHandler(var XBRLExportInstanceSpec2: TestRequestPage "XBRL Export Instance - Spec. 2")
-    begin
-        XBRLExportInstanceSpec2.XBRLTaxonomyName.SetValue(LibraryVariableStorage.DequeueText());
-        XBRLExportInstanceSpec2.SchemeIdentifier.SetValue(LibraryVariableStorage.DequeueText());
-        XBRLExportInstanceSpec2.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
-        XBRLExportInstanceSpec2.CreateFile.SetValue(LibraryVariableStorage.DequeueBoolean());
-
-        XBRLExportInstanceSpec2.Preview().Invoke();
-    end;
-#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

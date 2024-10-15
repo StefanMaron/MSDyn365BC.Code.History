@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.Journal;
+
 codeunit 7303 "Whse. Jnl.-Register"
 {
     TableNo = "Warehouse Journal Line";
@@ -6,7 +8,7 @@ codeunit 7303 "Whse. Jnl.-Register"
     begin
         WhseJnlLine.Copy(Rec);
         Code();
-        Copy(WhseJnlLine);
+        Rec.Copy(WhseJnlLine);
     end;
 
     var

@@ -1,8 +1,8 @@
-#if not CLEAN21
+﻿#if not CLEAN21
 page 2317 "BC O365 Item Card"
 {
     Caption = 'Price';
-    DataCaptionExpression = Description;
+    DataCaptionExpression = Rec.Description;
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = Item;
@@ -44,13 +44,13 @@ page 2317 "BC O365 Item Card"
                         O365UnitsOfMeasureList: Page "O365 Units of Measure List";
                     begin
                         TempUnitOfMeasure.CreateListInCurrentLanguage(TempUnitOfMeasure);
-                        if TempUnitOfMeasure.Get("Base Unit of Measure") then;
+                        if TempUnitOfMeasure.Get(Rec."Base Unit of Measure") then;
 
                         O365UnitsOfMeasureList.SetRecord(TempUnitOfMeasure);
                         O365UnitsOfMeasureList.LookupMode(true);
                         if O365UnitsOfMeasureList.RunModal() = ACTION::LookupOK then begin
                             O365UnitsOfMeasureList.GetRecord(TempUnitOfMeasure);
-                            Validate("Base Unit of Measure", TempUnitOfMeasure.Code);
+                            Rec.Validate("Base Unit of Measure", TempUnitOfMeasure.Code);
                             UnitOfMeasureDescription := TempUnitOfMeasure.Description;
                         end;
 
@@ -79,7 +79,7 @@ page 2317 "BC O365 Item Card"
                                 TaxGroup.SetFilter(Code, '%1', TaxSetup."Non-Taxable Tax Group Code")
                         end;
                         if TaxGroup.FindFirst() then
-                            Validate("Tax Group Code", TaxGroup.Code);
+                            Rec.Validate("Tax Group Code", TaxGroup.Code);
                     end;
                 }
                 field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
@@ -97,7 +97,7 @@ page 2317 "BC O365 Item Card"
                         VATProductPostingGroup: Record "VAT Product Posting Group";
                     begin
                         if PAGE.RunModal(PAGE::"O365 VAT Product Posting Gr.", VATProductPostingGroup) = ACTION::LookupOK then begin
-                            Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+                            Rec.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
                             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
                         end;
                     end;
@@ -110,13 +110,13 @@ page 2317 "BC O365 Item Card"
             {
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Picture';
-                SubPageLink = "No." = FIELD("No."),
-                              "Date Filter" = FIELD("Date Filter"),
-                              "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                              "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"),
-                              "Location Filter" = FIELD("Location Filter"),
-                              "Drop Shipment Filter" = FIELD("Drop Shipment Filter"),
-                              "Variant Filter" = FIELD("Variant Filter");
+                SubPageLink = "No." = field("No."),
+                              "Date Filter" = field("Date Filter"),
+                              "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                              "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
+                              "Location Filter" = field("Location Filter"),
+                              "Drop Shipment Filter" = field("Drop Shipment Filter"),
+                              "Variant Filter" = field("Variant Filter");
             }
         }
     }
@@ -131,9 +131,9 @@ page 2317 "BC O365 Item Card"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         CreateItemFromTemplate();
-        if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
+        if VATProductPostingGroup.Get(Rec."VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
-        if UnitOfMeasure.Get("Base Unit of Measure") then
+        if UnitOfMeasure.Get(Rec."Base Unit of Measure") then
             UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage();
         IsPageEditable := CurrPage.Editable;
     end;
@@ -173,18 +173,18 @@ page 2317 "BC O365 Item Card"
     var
         Response: Option ,KeepEditing,Discard;
     begin
-        if "No." = '' then
+        if Rec."No." = '' then
             exit(true);
 
-        if NewMode and (Description = '') then begin
-            if Delete(true) then;
+        if NewMode and (Rec.Description = '') then begin
+            if Rec.Delete(true) then;
             exit(true);
         end;
 
-        if GuiAllowed and (Description = '') then
+        if GuiAllowed and (Rec.Description = '') then
             case StrMenu(ProcessNewItemOptionQst, Response::KeepEditing, ProcessNewItemInstructionTxt) of
                 Response::Discard:
-                    exit(Delete(true));
+                    exit(Rec.Delete(true));
                 else
                     exit(false);
             end;
@@ -202,13 +202,13 @@ page 2317 "BC O365 Item Card"
         if NewMode and (not Created) then
             if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
                 O365SalesManagement.SetItemDefaultValues(Item);
-                Copy(Item);
+                Rec.Copy(Item);
                 Created := true;
                 CurrPage.Update(true);
             end;
 
         if TaxSetup.Get() then
-            Taxable := "Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
+            Taxable := Rec."Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
     end;
 }
 #endif

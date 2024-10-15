@@ -9,7 +9,7 @@ page 2190 "O365 Invoicing Sales Doc. List"
     RefreshOnActivate = true;
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
-    SourceTableView = SORTING("Sell-to Customer Name");
+    SourceTableView = sorting("Sell-to Customer Name");
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -40,7 +40,7 @@ page 2190 "O365 Invoicing Sales Doc. List"
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Style = Ambiguous;
-                    StyleExpr = NOT Posted;
+                    StyleExpr = NOT Rec.Posted;
                     ToolTip = 'Specifies the total invoiced amount.';
                 }
                 field("Outstanding Status"; Rec."Outstanding Status")
@@ -69,7 +69,7 @@ page 2190 "O365 Invoicing Sales Doc. List"
 
                 trigger OnAction()
                 begin
-                    OpenDocument();
+                    Rec.OpenDocument();
                 end;
             }
         }
@@ -89,26 +89,26 @@ page 2190 "O365 Invoicing Sales Doc. List"
     trigger OnAfterGetRecord()
     begin
         OutStandingStatusStyle := '';
-        if IsOverduePostedInvoice() then
+        if Rec.IsOverduePostedInvoice() then
             OutStandingStatusStyle := 'Unfavorable'
         else
-            if Posted and not Canceled and ("Outstanding Amount" <= 0) then
+            if Rec.Posted and not Rec.Canceled and (Rec."Outstanding Amount" <= 0) then
                 OutStandingStatusStyle := 'Favorable';
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(OnFind(Which));
+        exit(Rec.OnFind(Which));
     end;
 
     trigger OnInit()
     begin
-        SetSortByDocDate();
+        Rec.SetSortByDocDate();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(OnNext(Steps));
+        exit(Rec.OnNext(Steps));
     end;
 
     var

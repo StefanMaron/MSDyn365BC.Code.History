@@ -7,7 +7,7 @@ page 2112 "O365 Sales Item Lookup"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = Item;
-    SourceTableView = SORTING(Description);
+    SourceTableView = sorting(Description);
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';

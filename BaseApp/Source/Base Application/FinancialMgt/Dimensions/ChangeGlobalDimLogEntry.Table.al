@@ -1,3 +1,35 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Bank.Ledger;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.History;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Reminder;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using System.Environment;
+using System.Reflection;
+using System.Threading;
+
 table 483 "Change Global Dim. Log Entry"
 {
     Caption = 'Change Global Dim. Log Entry';
@@ -49,8 +81,8 @@ table 483 "Change Global Dim. Log Entry"
                   TableData "Value Entry" = rm,
                   TableData "Capacity Ledger Entry" = rm,
                   TableData "Service Header" = rm,
-                  TableData "Service Item Line" = rm,
                   TableData "Service Line" = rm,
+                  TableData "Service Item Line" = rm,
                   TableData "Service Ledger Entry" = rm,
                   TableData "Service Contract Header" = rm,
                   TableData "Service Contract Line" = rm,

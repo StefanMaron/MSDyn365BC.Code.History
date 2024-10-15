@@ -422,6 +422,39 @@ codeunit 137915 "SCM Assembly Posting"
         exit(false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateAssemblyOrderWithDefaultDimensionOnLocation()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        AssembledItem: Record Item;
+        Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+    begin
+        // [FEATURE] [AssemblyOrder] [Dimension] [Global Dimension]
+        // [SCENARIO] Global dimension, set on Location, should be copied to a new Assembly Order Line
+
+        Initialize();
+        // [GIVEN] New Item and Location with default dimension
+        LibraryInventory.CreateItem(AssembledItem);
+        LibraryWarehouse.CreateLocation(Location);
+
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Assembly Order
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), AssembledItem."No.", Location.Code, 1, '');
+
+        // [WHEN] Create Assembly Order Line
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, AssembledItem."No.", 1, '');
+
+        // [THEN] Verify that default dimension is copied to Assembly Order Line
+        AssemblyLine.TestField("Dimension Set ID", AssemblyHeader."Dimension Set ID");
+        AssemblyLine.TestField("Shortcut Dimension 1 Code", DimensionValue.Code);
+    end;
+
     local procedure B231812_CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; DocumentNo: Code[10])
     var
         AssembledItem: Record Item;

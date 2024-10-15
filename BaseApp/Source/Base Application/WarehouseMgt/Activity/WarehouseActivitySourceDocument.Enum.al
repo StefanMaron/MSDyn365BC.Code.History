@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.Activity;
+
 enum 5768 "Warehouse Activity Source Document"
 {
     Extensible = true;

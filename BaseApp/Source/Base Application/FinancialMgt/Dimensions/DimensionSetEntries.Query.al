@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 query 260 "Dimension Set Entries"
 {
     Caption = 'Dimension Set Entries';

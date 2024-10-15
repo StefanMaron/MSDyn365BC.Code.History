@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Pricing;
+
 page 6080 "Service Price Groups"
 {
     ApplicationArea = Service;
@@ -13,7 +15,7 @@ page 6080 "Service Price Groups"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the service price group.';
@@ -50,7 +52,7 @@ page 6080 "Service Price Groups"
                 Caption = '&Setup';
                 Image = Setup;
                 RunObject = Page "Serv. Price Group Setup";
-                RunPageLink = "Service Price Group Code" = FIELD(Code);
+                RunPageLink = "Service Price Group Code" = field(Code);
                 ToolTip = 'View or edit how you group service prices.';
             }
         }

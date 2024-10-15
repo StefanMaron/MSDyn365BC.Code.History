@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 enum 85 "Acc. Schedule Line Totaling Type"
 {
     Extensible = true;
@@ -15,14 +17,14 @@ enum 85 "Acc. Schedule Line Totaling Type"
     {
         Caption = 'Formula';
     }
-	value(3; Underline) 
-	{ 
-		Caption = 'Underline'; 
-	}
+    value(3; Underline) 
+    { 
+	Caption = 'Underline'; 
+    }
     value(4; "Double Underline") 
-	{ 
-		Caption = 'Double Underline'; 
-	}
+    { 
+	Caption = 'Double Underline'; 
+    }
     value(5; "Set Base For Percent")
     {
         Caption = 'Set Base For Percent';

@@ -1,3 +1,25 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using System.Environment.Configuration;
+using System.Environment;
+using System.Reflection;
+using Microsoft.Finance.RoleCenters;
+using Microsoft.Sales.Customer;
+using Microsoft.Inventory.Item;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.RoleCenters;
+using System.Azure.Identity;
+using System.Integration;
+using System.Security.User;
+using System.Email;
+
 codeunit 1997 "Checklist Events"
 {
     var
