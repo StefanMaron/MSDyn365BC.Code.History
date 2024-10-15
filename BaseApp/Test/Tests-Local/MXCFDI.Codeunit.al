@@ -1178,7 +1178,7 @@
         VerifyComplementoPagoAmountWithCurrency(
             OriginalStr,
             CustLedgerEntry."Amount (LCY)", Customer."Currency Code",
-            FormatDecimal(Round(1 / CustLedgerEntry."Original Currency Factor", 0.000001, '<'), 6),
+            FormatDecimal(Round(1 / CustLedgerEntry."Original Currency Factor", 0.000001), 6),
             CustLedgerEntry.Amount, Customer."Currency Code", '1', CustLedgerEntry.Amount, 30);
     end;
 
@@ -1535,7 +1535,7 @@
         PaymentNo: Code[20];
         FileName: Text;
     begin
-        // [FEATURE] [Sales] [Currency]
+        // [FEATURE] [Payment] [Rounding] [Currency]
         // [SCENARIO 449448] Request stamp for FCY payment applied to FCY invoice
         Initialize();
 
@@ -1597,7 +1597,7 @@
         PaymentNo: Code[20];
         FileName: Text;
     begin
-        // [FEATURE] [Rounding]
+        // [FEATURE] [Payment] [Rounding] [Currency]
         // [SCENARIO 441226] Request stamp for payment FCY applied to the invoice with normal VAT and VAT exempt
         Initialize();
 
@@ -1661,7 +1661,7 @@
         PaymentNo: Code[20];
         FileName: Text;
     begin
-        // [FEATURE] [Sales] [Rounding]
+        // [FEATURE] [Payment] [Rounding] [Currency]
         // [SCENARIO 447293] Request stamp for FCY payment applied to FCY invoice
         Initialize();
 
@@ -1722,7 +1722,7 @@
         PaymentNo: Code[20];
         FileName: Text;
     begin
-        // [FEATURE] [Sales] [Rounding]
+        // [FEATURE] [Payment] [Rounding] [Currency]
         // [SCENARIO 447293] Request stamp for FCY payment applied to FCY invoice wuth exchange rate having decimals
         Initialize();
 
@@ -1784,7 +1784,7 @@
         FileName: Text;
         PaymentNo: Code[20];
     begin
-        // [FEATURE] [Sales] [Rounding]
+        // [FEATURE] [Payment] [Rounding]
         // [SCENARIO 444797] Request stamp for payment of four invoices
         Initialize();
 
@@ -1796,7 +1796,7 @@
         PaymentNo := CreatePostPayment(Customer."No.", '', -199750.37, '');
 
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
-        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItemWithPrice(12166.06), VATProdPostingGroup, 1, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItem, VATProdPostingGroup, 1, 12166.06, 0);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Modify();
@@ -1804,7 +1804,7 @@
           CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, SalesInvoiceHeader."No.");
 
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
-        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItemWithPrice(41963.81), VATProdPostingGroup, 1, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItem, VATProdPostingGroup, 1, 41963.81, 0);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Modify();
@@ -1812,7 +1812,7 @@
           CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, SalesInvoiceHeader."No.");
 
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
-        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItemWithPrice(10254.72), VATProdPostingGroup, 1, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItem, VATProdPostingGroup, 1, 10254.72, 0);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Modify();
@@ -1820,7 +1820,7 @@
           CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, SalesInvoiceHeader."No.");
 
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
-        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItemWithPrice(107814.0), VATProdPostingGroup, 1, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItem, VATProdPostingGroup, 1, 107814.0, 0);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Modify();
@@ -1861,7 +1861,7 @@
         PaymentNo: Code[20];
         FileName: Text;
     begin
-        // [FEATURE] [Sales] [Rounding] 
+        // [FEATURE] [Payment] [Rounding] [Currency]
         // [SCENARIO 451338] Request stamp for LCY payment applied to FCY invoice
         Initialize();
 
@@ -1912,6 +1912,708 @@
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYThreeLinesNoDiscount()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [RoundingModel 1]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with three lines
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice has 3 lines of Qty/Unit price:
+        // [GIVEN] Line 1: 36/ 25.61, Line 2: 132/ 38.49, Line 3: 48/ 38.49
+        Customer.Get(CreateCustomer());
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine[1], SalesHeader, CreateItem(), VATProdPostingGroup, 36, 25.61, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[2], SalesHeader, CreateItem(), VATProdPostingGroup, 132, 38.49, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[3], SalesHeader, CreateItem(), VATProdPostingGroup, 48, 38.49, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(0, 921.96, 25.61, 147.5136, 921.96, 0);
+        VerifyLineAmountsByIndex(0, 5080.68, 38.49, 812.9088, 5080.68, 1);
+        VerifyLineAmountsByIndex(0, 1847.52, 38.49, 295.6032, 1847.52, 2);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 921.960000, 'Importe' = 147.513600.
+        // [THEN] 2nd line: 'Base' = 5080.680000, 'Importe' = 812.908800.
+        // [THEN] 3rd line: 'Base' = 1847.520000, 'Importe' = 295.603200.
+        VerifyVATAmountLines(
+          OriginalStr, 921.96, 147.5136, 16, '002', 0, 0);
+        VerifyVATAmountLines(
+          OriginalStr, 5080.68, 812.9088, 16, '002', 0, 1);
+        VerifyVATAmountLines(
+          OriginalStr, 1847.52, 295.6032, 16, '002', 0, 2);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 1256.03
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 1256.03
+        VerifyVATTotalLine(
+          OriginalStr, 1256.03, 16, '002', 0, 3, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 1256.03, 72);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYThreeLinesNoDiscountPricesInclVAT()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [Prices Including VAT] [RoundingModel 1]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with three lines and Prices Including VAT
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Prices Including VAT has 3 lines of Qty/Unit price:
+        // [GIVEN] Line 1: 36/ 25.61, Line 2: 132/ 38.49, Line 3: 48/ 38.49
+        Customer.Get(CreateCustomer());
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        CreateSalesLineItemWithVATSetup(SalesLine[1], SalesHeader, CreateItem(), VATProdPostingGroup, 36, 25.61, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[2], SalesHeader, CreateItem(), VATProdPostingGroup, 132, 38.49, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[3], SalesHeader, CreateItem(), VATProdPostingGroup, 48, 38.49, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(0, 794.793103, 22.077586, 127.1664, 794.79, 0);
+        VerifyLineAmountsByIndex(0, 4379.896552, 33.181034, 700.784, 4379.9, 1);
+        VerifyLineAmountsByIndex(0, 1592.689655, 33.181034, 254.8304, 1592.69, 2);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 794.790000, 'Importe' = 127.166400.
+        // [THEN] 2nd line: 'Base' = 4379.900000, 'Importe' = 700.784000.
+        // [THEN] 3rd line: 'Base' = 1592.690000, 'Importe' = 254.830400.
+        VerifyVATAmountLines(
+          OriginalStr, 794.79, 127.1664, 16, '002', 0, 0);
+        VerifyVATAmountLines(
+          OriginalStr, 4379.9, 700.784, 16, '002', 0, 1);
+        VerifyVATAmountLines(
+          OriginalStr, 1592.69, 254.8304, 16, '002', 0, 2);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 1082.78
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 1082.78
+        VerifyVATTotalLine(
+          OriginalStr, 1082.78, 16, '002', 0, 3, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 1082.78, 72);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYThreeLinesDiscountInFirstLine()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [RoundingModel 1]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with three lines with discount in first line
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice has 3 lines of Qty/Unit price:
+        // [GIVEN] Line 1: 36/ 25.61, Line Discount 10% Line 2: 132/ 38.49, Line 3: 48/ 38.49
+        Customer.Get(CreateCustomer());
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine[1], SalesHeader, CreateItem(), VATProdPostingGroup, 36, 25.61, 10);
+        CreateSalesLineItemWithVATSetup(SalesLine[2], SalesHeader, CreateItem(), VATProdPostingGroup, 132, 38.49, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[3], SalesHeader, CreateItem(), VATProdPostingGroup, 48, 38.49, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(92.2, 921.96, 25.61, 132.7616, 829.76, 0);
+        VerifyLineAmountsByIndex(0, 5080.68, 38.49, 812.9088, 5080.68, 1);
+        VerifyLineAmountsByIndex(0, 1847.52, 38.49, 295.6032, 1847.52, 2);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 829.760000, 'Importe' = 132.761600.
+        // [THEN] 2nd line: 'Base' = 5080.680000, 'Importe' = 812.908800.
+        // [THEN] 3rd line: 'Base' = 1847.520000, 'Importe' = 295.603200.
+        VerifyVATAmountLines(
+          OriginalStr, 829.76, 132.7616, 16, '002', 0, 0);
+        VerifyVATAmountLines(
+          OriginalStr, 5080.68, 812.9088, 16, '002', 0, 1);
+        VerifyVATAmountLines(
+          OriginalStr, 1847.52, 295.6032, 16, '002', 0, 2);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 1241.27
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 1241.27
+        VerifyVATTotalLine(
+          OriginalStr, 1241.27, 16, '002', 0, 3, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 1241.27, 72);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYThreeLinesDiscountInFirstLinePricesInclVAT()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [RoundingModel 3]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with three lines
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Prices Including VAT has 3 lines of Qty/Unit price:
+        // [GIVEN] Line 1: 36/ 25.16, Line Discount 10%, Line 2: 132/ 38.39, Line 3: 48/ 38.39
+        Customer.Get(CreateCustomer());
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        CreateSalesLineItemWithVATSetup(SalesLine[1], SalesHeader, CreateItem(), VATProdPostingGroup, 36, 25.16, 10);
+        CreateSalesLineItemWithVATSetup(SalesLine[2], SalesHeader, CreateItem(), VATProdPostingGroup, 132, 38.39, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[3], SalesHeader, CreateItem(), VATProdPostingGroup, 48, 38.39, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+
+        InsertNameValueBufferRounding('2'); // RoundingModel::Model3-NoRecalculation
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        BindSubscription(MXCFDI);
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        UnbindSubscription(MXCFDI);
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(78.09, 780.83, 21.689655, 112.44, 702.74, 0);
+        VerifyLineAmountsByIndex(0, 4368.52, 33.094828, 698.96, 4368.52, 1);
+        VerifyLineAmountsByIndex(0, 1588.55, 33.094828, 254.17, 1588.55, 2);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 702.740000, 'Importe' = 112.440000.
+        // [THEN] 2nd line: 'Base' = 4368.520000, 'Importe' = 698.960000.
+        // [THEN] 3rd line: 'Base' = 1588.550000, 'Importe' = 254.170000.
+        VerifyVATAmountLines(
+          OriginalStr, 702.74, 112.44, 16, '002', 0, 0);
+        VerifyVATAmountLines(
+          OriginalStr, 4368.52, 698.96, 16, '002', 0, 1);
+        VerifyVATAmountLines(
+          OriginalStr, 1588.55, 254.17, 16, '002', 0, 2);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 1065.57
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 1065.57
+        VerifyVATTotalLine(
+          OriginalStr, 1065.57, 16, '002', 0, 3, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 1065.57, 72);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYTwoIdenticalLinesWithDiscount()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [RoundingModel 1]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with two identical lines with line discount
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice has 2 lines of Qty = 1, Unit price = 57061.35, Line Discount = 15%,
+        Customer.Get(CreateCustomer());
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine1, SalesHeader, CreateItem(), VATProdPostingGroup, 1, 57061.35, 15);
+        CreateSalesLineItemWithVATSetup(SalesLine2, SalesHeader, CreateItem(), VATProdPostingGroup, 1, 57061.35, 15);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(8559.2, 57061.35, 57061.35, 7760.344, 48502.15, 0);
+        VerifyLineAmountsByIndex(8559.2, 57061.35, 57061.35, 7760.344, 48502.15, 1);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 48502.150000, 'Importe' = 7760.344000.
+        // [THEN] 2nd line: 'Base' = 48502.150000, 'Importe' = 7760.344000.
+        VerifyVATAmountLines(
+          OriginalStr, 48502.15, 7760.344, 16, '002', 0, 0);
+        VerifyVATAmountLines(
+          OriginalStr, 48502.15, 7760.344, 16, '002', 0, 1);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 15520.69
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 15520.69
+        VerifyVATTotalLine(
+          OriginalStr, 15520.69, 16, '002', 0, 2, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 15520.69, 57);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYTwoIdenticalLinesWithDecimalDiscount()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [RoundingModel 2]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with two identical lines with decimal line discount
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice has 2 lines of Qty = 1.25, Unit price = 100696.50, Line Discount % = 2.10484
+        Customer.Get(CreateCustomer());
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine1, SalesHeader, CreateItem(), VATProdPostingGroup, 1.25, 100696.5, 2.10484);
+        CreateSalesLineItemWithVATSetup(SalesLine2, SalesHeader, CreateItem(), VATProdPostingGroup, 1.25, 100696.5, 2.10484);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+
+        InsertNameValueBufferRounding('1'); // RoundingModel::Model2-Recalc-NoDiscountRounding
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        BindSubscription(MXCFDI);
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        UnbindSubscription(MXCFDI);
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(2649.375263, 125870.625, 100696.5, 19715.4, 123221.25, 0);
+        VerifyLineAmountsByIndex(2649.375263, 125870.625, 100696.5, 19715.4, 123221.25, 1);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 123221.250000, 'Importe' = 19715.400000.
+        // [THEN] 2nd line: 'Base' = 123221.250000, 'Importe' = 19715.400000.
+        VerifyVATAmountLines(
+          OriginalStr, 123221.25, 19715.4, 16, '002', 0, 0);
+        VerifyVATAmountLines(
+          OriginalStr, 123221.25, 19715.4, 16, '002', 0, 1);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 39430.80
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 39430.80
+        VerifyVATTotalLine(
+          OriginalStr, 39430.8, 16, '002', 0, 2, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 39430.8, 57);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYTwoIdenticalLinesWithDecimalDiscountPricesInclVAT()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [RoundingModel 2]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with two identical lines with line discount
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Prices Including VAT
+        // [GIVEN] 2 lines of Qty = 1.25, Unit price = 100696.50, Line Discount % = 2.10484
+        Customer.Get(CreateCustomer());
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        CreateSalesLineItemWithVATSetup(SalesLine1, SalesHeader, CreateItem(), VATProdPostingGroup, 1.25, 116807.94, 2.10484);
+        CreateSalesLineItemWithVATSetup(SalesLine2, SalesHeader, CreateItem(), VATProdPostingGroup, 1.25, 116807.94, 2.10484);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+
+        InsertNameValueBufferRounding('1'); // RoundingModel::Model2-Recalc-NoDiscountRounding
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        BindSubscription(MXCFDI);
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        UnbindSubscription(MXCFDI);
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(2649.375263, 125870.625, 100696.5, 19715.4, 123221.25, 0);
+        VerifyLineAmountsByIndex(2649.375263, 125870.625, 100696.5, 19715.4, 123221.25, 1);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 123221.250000, 'Importe' = 19715.400000.
+        // [THEN] 2nd line: 'Base' = 123221.250000, 'Importe' = 19715.400000.
+        VerifyVATAmountLines(
+          OriginalStr, 123221.25, 19715.4, 16, '002', 0, 0);
+        VerifyVATAmountLines(
+          OriginalStr, 123221.25, 19715.4, 16, '002', 0, 1);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 39430.80
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 39430.80
+        VerifyVATTotalLine(
+          OriginalStr, 39430.8, 16, '002', 0, 2, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 39430.8, 57);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_FCYFourLinesNoDiscount()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[4] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [RoundingModel 3]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice USD with four lines
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice USD has 4 lines of Qty/Unit price:
+        // [GIVEN] Line 1: 1.25/ 3221.99, Line 2: 1/ 3221.99, Line 3: 1/ 3221.99, Line 4: 1.5/ 3221.99
+        Customer.Get(CreateCustomer());
+        Customer.Validate(
+          "Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1 / 8.9991, 1 / 8.9991));
+        Customer.Modify(true);
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine[1], SalesHeader, CreateItem(), VATProdPostingGroup, 1.25, 3221.99, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[2], SalesHeader, CreateItem(), VATProdPostingGroup, 1, 3221.99, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[3], SalesHeader, CreateItem(), VATProdPostingGroup, 1, 3221.99, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[4], SalesHeader, CreateItem(), VATProdPostingGroup, 1.5, 3221.99, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+
+        InsertNameValueBufferRounding('2'); // RoundingModel::Model3-NoRecalculation
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        BindSubscription(MXCFDI);
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        UnbindSubscription(MXCFDI);
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(0, 4027.49, 3221.99, 644.4, 4027.49, 0);
+        VerifyLineAmountsByIndex(0, 3221.99, 3221.99, 515.52, 3221.99, 1);
+        VerifyLineAmountsByIndex(0, 3221.99, 3221.99, 515.51, 3221.99, 2);
+        VerifyLineAmountsByIndex(0, 4832.99, 3221.99, 773.28, 4832.99, 3);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 4027.490000, 'Importe' = 644.400000.
+        // [THEN] 2nd line: 'Base' = 3221.990000, 'Importe' = 515.520000.
+        // [THEN] 3rd line: 'Base' = 3221.990000, 'Importe' = 515.510000.
+        // [THEN] 4th line: 'Base' = 4832.990000, 'Importe' = 773.280000.
+        VerifyVATAmountLines(
+          OriginalStr, 4027.49, 644.4, 16, '002', 1, 0);
+        VerifyVATAmountLines(
+          OriginalStr, 3221.99, 515.52, 16, '002', 1, 1);
+        VerifyVATAmountLines(
+          OriginalStr, 3221.99, 515.51, 16, '002', 1, 2);
+        VerifyVATAmountLines(
+          OriginalStr, 4832.99, 773.28, 16, '002', 1, 3);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 2448.71
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 2448.71
+        VerifyVATTotalLine(
+          OriginalStr, 2448.71, 16, '002', 0, 4, 1);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 2448.71, 88);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_FCYOneLineDecimalPrice()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding] [RoundingModel 1]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice USD line having decimal price
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice USD Qty = 1, Unit price = 444.489
+        Customer.Get(CreateCustomer());
+        Customer.Validate(
+          "Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1 / 8.9991, 1 / 8.9991));
+        Customer.Modify(true);
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItem(), VATProdPostingGroup, 1, 444.489, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(0, 444.489, 444.489, 71.1184, 444.49, 0);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 'Base' = 444.490000, 'Importe' = 71.118400.
+        VerifyVATAmountLines(
+          OriginalStr, 444.49, 71.1184, 16, '002', 1, 0);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 71.12
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 71.12
+        VerifyVATTotalLine(
+          OriginalStr, 71.12, 16, '002', 0, 1, 1);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 71.12, 43);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYFourLinesDecimalQuantityWithDiscount()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[4] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding]
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with three lines
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice
+        Customer.Get(CreateCustomer());
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine[1], SalesHeader, CreateItem(), VATProdPostingGroup, 2, 99.0, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[2], SalesHeader, CreateItem(), VATProdPostingGroup, 137.891, 9.95, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[3], SalesHeader, CreateItem(), VATProdPostingGroup, 116.857, 7.3, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[4], SalesHeader, CreateItem(), VATProdPostingGroup, 7, 1959.0, 10);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        InsertNameValueBufferRounding('3'); // RoundingModel::Model4-DecimalBased
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        BindSubscription(MXCFDI);
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        UnbindSubscription(MXCFDI);
+        NameValueBuffer.Delete();
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(0, 198.0, 99.0, 31.68, 198.0, 0);
+        VerifyLineAmountsByIndex(0, 1372.02, 9.95, 219.5232, 1372.02, 1);
+        VerifyLineAmountsByIndex(0, 853.056, 7.3, 136.48896, 853.056, 2);
+        VerifyLineAmountsByIndex(1371.3, 13713.0, 1959.0, 1974.672, 12341.7, 3);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 198.000000, 'Importe' = 31.680000.
+        // [THEN] 2nd line: 'Base' = 1372.020000, 'Importe' = 219.523200.
+        // [THEN] 3rd line: 'Base' = 853.056000, 'Importe' = 136.488960.
+        // [THEN] 4th line: 'Base' = 12341.700000, 'Importe' = 1974.672000.
+        VerifyVATAmountLines(OriginalStr, 198.0, 31.68, 16, '002', 0, 0);
+        VerifyVATAmountLines(OriginalStr, 1372.02, 219.5232, 16, '002', 0, 1);
+        VerifyVATAmountLines(OriginalStr, 853.056, 136.48896, 16, '002', 0, 2);
+        VerifyVATAmountLines(OriginalStr, 12341.7, 1974.672, 16, '002', 0, 3);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 2362.36
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 2362.36
+        VerifyVATTotalLine(
+          OriginalStr, 2362.36, 16, '002', 0, 4, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 2362.36, 87);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
     procedure SalesInvoiceWithRelationDocumentsRequestStamp()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -1924,6 +2626,7 @@
         EncodedDescr: Text;
         i: Integer;
     begin
+        // [FEATURE] [Sales] [CFDI Relation]
         // [SCENARIO 319131] Request Stamp for Sales Invoice with multiple CFDI Related Documents
         Initialize();
 
@@ -1994,7 +2697,7 @@
         InStream: InStream;
         OriginalStr: Text;
     begin
-        // [FEATURE] [Sales]
+        // [FEATURE] [Sales] [CFDI Relation]
         // [SCENARIO 319131] Request Stamp for Sales Credit Memo applied to Sales Invoice
         Initialize();
 
@@ -2054,7 +2757,7 @@
         OriginalStr: Text;
         i: Integer;
     begin
-        // [FEATURE] [Sales]
+        // [FEATURE] [Sales] [CFDI Relation]
         // [SCENARIO 334952] Request Stamp for Sales Credit Memo applied to Sales Invoice with multiple CFDI Related Documents
         Initialize();
 
@@ -2181,7 +2884,7 @@
         OriginalStr: Text;
         i: Integer;
     begin
-        // [FEATURE] [Sales]
+        // [FEATURE] [Sales] [CFDI Relation]
         // [SCENARIO 334952] Request Stamp for Sales Credit Memo applied to Sales Invoice with multiple CFDI Related Documents
         // [SCENARIO 334952] and the Invoice is included in Related Documents
         Initialize();
@@ -2251,7 +2954,7 @@
         OriginalStr: Text;
         i: Integer;
     begin
-        // [FEATURE] [Service]
+        // [FEATURE] [Service] [CFDI Relation]
         // [SCENARIO 334952] Request Stamp for Service Credit Memo applied to Service Invoice with multiple CFDI Related Documents
         Initialize();
 
@@ -2387,7 +3090,7 @@
         InStream: InStream;
         OriginalStr: Text;
     begin
-        // [FEATURE] [Service]
+        // [FEATURE] [Service] [CFDI Relation]
         // [SCENARIO 372201] Request Stamp for Service Credit Memo applied to Service Invoice not equal to Applied-to Doc No.
         Initialize();
 
@@ -3506,7 +4209,8 @@
         Customer.Modify(true);
         SalesHeader.Get(
           SalesHeader."Document Type"::Invoice,
-          CreateSalesDocForCustomer(SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT));
+          CreateSalesDocForCustomerWithVAT(
+            SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT, 16, false, false));
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst();
@@ -4121,7 +4825,7 @@
         CreateSalesLineItem(
           SalesLineRetention, SalesHeader, CreateItem, -LibraryRandom.RandIntInRange(1, 10), 0, 0, false, false);
         SalesLineRetention."Retention Attached to Line No." := SalesLine."Line No.";
-        SalesLineRetention."Retention VAT %" := LibraryRandom.RandIntInRange(10, 20);
+        SalesLineRetention."Retention VAT %" := LibraryRandom.RandIntInRange(10, 16);
         SalesLineRetention.Modify();
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
@@ -4190,7 +4894,7 @@
         CreateSalesLineItem(
           SalesLineRetention, SalesHeader, CreateItem, -LibraryRandom.RandIntInRange(1, 10), 0, 0, false, false);
         SalesLineRetention."Retention Attached to Line No." := SalesLine."Line No.";
-        SalesLineRetention."Retention VAT %" := LibraryRandom.RandIntInRange(10, 20);
+        SalesLineRetention."Retention VAT %" := LibraryRandom.RandIntInRange(10, 16);
         SalesLineRetention.Modify();
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
@@ -4322,6 +5026,113 @@
     end;
 
     [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorLogSalesInvoiceForeignTrade()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Sales] [UI] [Comercio Exterior]
+        // [SCENARIO 449449] Request stamp for foreign trade invoice when mandatory fields are empty
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Foreign Trade = True
+        SalesInvoiceHeader.Get(CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, CreatePaymentMethodForSAT()));
+        SalesInvoiceHeader."Foreign Trade" := true;
+        SalesInvoiceHeader."Exchange Rate USD" := 0;
+        SalesInvoiceHeader.Modify();
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindFirst();
+        Item.Get(SalesInvoiceLine."No.");
+        Item."Tariff No." := '';
+        Item.Modify();
+        UnitOfMeasure.Get(SalesInvoiceLine."Unit of Measure");
+        UnitOfMeasure."SAT Customs Unit" := '';
+        UnitOfMeasure.Modify();
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        ErrorMessages.Trap();
+        asserterror
+          RequestStamp(
+            DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+
+        // [THEN] Error Messages page is opened with logged errors for missed values
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Transit-to Location"), SalesInvoiceHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("SAT International Trade Term"), SalesInvoiceHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Exchange Rate USD"), SalesInvoiceHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Location Code"), SalesInvoiceHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, Item.FieldCaption("Tariff No."), Item.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, UnitOfMeasure.FieldCaption("SAT Customs Unit"), UnitOfMeasure.RecordId));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure RequestStampSalesInvoiceForeignTrade()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        ExchRateAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Comercio Exterior]
+        // [SCENARIO 449449] Request Stamp for foreign trade invoice
+        Initialize();
+
+        // [GIVEN] USD currency has Exchange Rate = 20, Amount = 2000, Amount Including VAT = 3200
+        ExchRateAmount := SetupUSDCurrencyGLSetup();
+        // [GIVEN] Posted Sales Invoice for foreign trade
+        Customer.Get(CreateCustomer());
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        UpdateSalesHeaderForeignTrade(SalesHeader);
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItemWithPrice(LibraryRandom.RandIntInRange(1000, 2000)), 1, 0, 16, false, false);
+        UpdateSalesLineForeingTrade(SalesLine);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cce11', 'http://www.sat.gob.mx/ComercioExterior11');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] Comercio Exterior node has TipoCambioUSD = 20, TotalUSD = 100 (2000 / 20)
+        VerifyComercioExteriorHeader(
+          OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
+          SalesInvoiceHeader."Exchange Rate USD", SalesInvoiceHeader.Amount);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine, ExchRateAmount);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ErrorWhenRequestStampForSalesShipmentCartaPorte()
     var
@@ -4329,6 +5140,7 @@
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        FixedAsset: Record "Fixed Asset";
         ErrorMessages: TestPage "Error Messages";
     begin
         // [FEATURE] [Carta Porte] [Sales]
@@ -4343,6 +5155,13 @@
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesShipmentHeader.FindFirst();
+        // [GIVEN] Fixed Asset in Vehicle field has "SCT Permission Number" and "SCT Permission Type" blank
+        FixedAsset.Get(CreateVehicle);
+        FixedAsset."SCT Permission Number" := '';
+        FixedAsset."SCT Permission Type" := '';
+        FixedAsset.Modify();
+        SalesShipmentHeader."Vehicle Code" := FixedAsset."No.";
+        SalesShipmentHeader.Modify();
 
         // [WHEN] Request Stamp for the Sales Shipment
         ErrorMessages.Trap;
@@ -4359,6 +5178,15 @@
         ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("Transit Distance"), SalesShipmentHeader.RecordId));
+
+        // [THEN] Error Messages page shows error for blank values in "SCT Permission Type" and "SCT Permission Number" (TFS 449447)
+        ErrorMessages.FILTER.SetFilter("Record ID", Format(FixedAsset.RecordId));
+        ErrorMessages.First;
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, FixedAsset.FieldCaption("SCT Permission Type"), FixedAsset.RecordId));
+        ErrorMessages.Next;
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, FixedAsset.FieldCaption("SCT Permission Number"), FixedAsset.RecordId));
     end;
 
     [Test]
@@ -4442,7 +5270,8 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Carta Porte XML is created for the document
-      VerifyCartaPorteXMLValues(OriginalStr,SalesShipmentHeader."Transit Distance", 29);
+        VerifyCartaPorteXMLValues(
+            OriginalStr, SalesShipmentHeader."Transit Distance", SalesShipmentHeader."Vehicle Code", 29);
     end;
 
     [Test]
@@ -4486,7 +5315,8 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Carta Porte XML is created for the document
-      VerifyCartaPorteXMLValues(OriginalStr,TransferShipmentHeader."Transit Distance", 27);
+        VerifyCartaPorteXMLValues(
+          OriginalStr, TransferShipmentHeader."Transit Distance", TransferShipmentHeader."Vehicle Code", 27);
     end;
 
     [Test]
@@ -4575,6 +5405,8 @@
 
         NameValueBuffer.SetRange(Name, Format(CODEUNIT::"MX CFDI"));
         NameValueBuffer.DeleteAll();
+        if NameValueBuffer.Get(CODEUNIT::"MX CFDI") then
+            NameValueBuffer.Delete();
         PostCode.ModifyAll("Time Zone", '');
         SetupCompanyInformation;
         ClearLastError();
@@ -4776,18 +5608,22 @@
 
     local procedure CreateSalesLineItem(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LineDiscountPct: Decimal; VATPct: Decimal; IsVATExempt: Boolean; IsNoTaxable: Boolean)
     begin
-        CreateSalesLineItemWithVATSetup(
-          SalesLine, SalesHeader, ItemNo,
-          CreateVATPostingSetup(SalesHeader."VAT Bus. Posting Group", VATPct, IsVATExempt, IsNoTaxable),
-          Quantity, LineDiscountPct);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate(
+          "VAT Prod. Posting Group", CreateVATPostingSetup(SalesHeader."VAT Bus. Posting Group", VATPct, IsVATExempt, IsNoTaxable));
+        SalesLine.Validate(Description, SalesLine."No.");
+        SalesLine.Validate("Line Discount %", LineDiscountPct);
+        SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesLineItemWithVATSetup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; VATProdPostingGroup: Code[20]; Quantity: Decimal; LineDiscountPct: Decimal)
+    local procedure CreateSalesLineItemWithVATSetup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; VATProdPostingGroup: Code[20]; Quantity: Decimal; UnitPrice: Decimal; LineDiscountPct: Decimal)
     begin
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.Validate(Description, SalesLine."No.");
+        SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Validate("Line Discount %", LineDiscountPct);
         SalesLine.Modify(true);
     end;
@@ -4826,7 +5662,8 @@
     begin
         SalesHeader.Get(
           SalesHeader."Document Type"::Invoice,
-          CreateSalesDocForCustomer(SalesHeader."Document Type"::Invoice, CustomerNo, CreatePaymentMethodForSAT()));
+          CreateSalesDocForCustomerWithVAT(
+            SalesHeader."Document Type"::Invoice, CustomerNo, CreatePaymentMethodForSAT, 16, false, false));
         SalesHeader.Modify(true);
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
@@ -5189,14 +6026,26 @@
     var
         FixedAsset: Record "Fixed Asset";
         SATFederalMotorTransport: Record "SAT Federal Motor Transport";
+        SATPermissionType: Record "SAT Permission Type";
     begin
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         SATFederalMotorTransport.Next(LibraryRandom.RandInt(SATFederalMotorTransport.Count));
         FixedAsset."SAT Federal Autotransport" := SATFederalMotorTransport.Code;
         FixedAsset."Vehicle Licence Plate" := LibraryUtility.GenerateGUID();
         FixedAsset."Vehicle Year" := LibraryRandom.RandIntInRange(1990, 2010);
+        FixedAsset."SCT Permission Number" := LibraryUtility.GenerateGUID();
+        SATPermissionType.Next(LibraryRandom.RandInt(SATPermissionType.Count));
+        FixedAsset."SCT Permission Type" := SATPermissionType.Code;
         FixedAsset.Modify();
         exit(FixedAsset."No.");
+    end;
+
+    local procedure InsertNameValueBufferRounding(NewValue: Text[250])
+    begin
+        NameValueBuffer.ID := CODEUNIT::"MX CFDI";
+        NameValueBuffer.Name := 'Rounding';
+        NameValueBuffer.Value := NewValue;
+        NameValueBuffer.Insert();
     end;
 
     local procedure GenerateString(Length: Integer) String: Text[30]
@@ -5410,7 +6259,6 @@
     var
         CompanyInformation: Record "Company Information";
         PostCode: Record "Post Code";
-        SATPermissionType: Record "SAT Permission Type";
     begin
         PostCode.SetFilter(City, '<>%1', '');
         PostCode.SetFilter("Country/Region Code", '<>%1', '');
@@ -5427,9 +6275,6 @@
         CompanyInformation."SAT Tax Regime Classification" :=
           LibraryUtility.GenerateRandomCode(
             CompanyInformation.FieldNo("SAT Tax Regime Classification"), DATABASE::"Company Information");
-        CompanyInformation."SCT Permission Number" := LibraryUtility.GenerateGUID();
-        SATPermissionType.Next(LibraryRandom.RandInt(SATPermissionType.Count));
-        CompanyInformation."SCT Permission Type" := SATPermissionType.Code;
         CompanyInformation.Modify(true);
     end;
 
@@ -6222,6 +7067,53 @@
           RelationIdx);
     end;
 
+    local procedure SetupUSDCurrencyGLSetup() ExchRateAmount: Decimal
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryERM.CreateCurrency(Currency);
+        GeneralLedgerSetup.Validate("USD Currency Code", Currency.Code);
+        GeneralLedgerSetup.Modify(true);
+        ExchRateAmount := LibraryRandom.RandDecInRange(10, 20, 2);
+        LibraryERM.CreateExchangeRate(
+          GeneralLedgerSetup."USD Currency Code", WorkDate(), 1 / ExchRateAmount, 1 / ExchRateAmount);
+    end;
+
+    local procedure UpdateSalesHeaderForeignTrade(var SalesHeader: Record "Sales Header")
+    var
+        SATInternationalTradeTerm: Record "SAT International Trade Term";
+        Location: Record Location;
+    begin
+        SATInternationalTradeTerm.Next(LibraryRandom.RandInt(SATInternationalTradeTerm.Count));
+        SalesHeader.Validate("Foreign Trade", true);
+        SalesHeader.Validate("SAT International Trade Term", SATInternationalTradeTerm.Code);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        SalesHeader.Validate("Location Code", Location.Code);
+        LibraryWarehouse.CreateLocationWithAddress(Location);
+        SalesHeader.Validate("Transit-to Location", Location.Code);
+        SalesHeader.Modify(true);
+        UpdateLocationForCartaPorte(SalesHeader."Location Code");
+        UpdateLocationForCartaPorte(SalesHeader."Transit-to Location");
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure UpdateSalesLineForeingTrade(SalesLine: Record "Sales Line")
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        SATCustomsUnit: Record "SAT Customs Unit";
+    begin
+        Item.Get(SalesLine."No.");
+        Item."Tariff No." := LibraryUtility.GenerateGUID();
+        Item.Modify();
+        SATCustomsUnit.Next(LibraryRandom.RandInt(SATCustomsUnit.Count));
+        UnitOfMeasure.Get(SalesLine."Unit of Measure Code");
+        UnitOfMeasure."SAT Customs Unit" := SATCustomsUnit.Code;
+        UnitOfMeasure.Modify();
+    end;
+
     local procedure UpdateDocumentFieldValue(TableNo: Integer; FieldNo: Integer; DocumentNo: Code[20]; ChangeFieldNo: Integer; ChangeValue: Variant)
     var
         PostedHeaderRecRef: RecordRef;
@@ -6435,6 +7327,89 @@
           StrSubstNo(IncorrectOriginalStrValueErr, 'SAT Unit of Measure', OriginalStr));
     end;
 
+    local procedure VerifyComercioExteriorHeader(OriginalStr: Text; SATInternationalTermsCode: Code[10]; ExchRateUSD: Decimal; InvAmount: Decimal)
+    var
+        StartPosition: Integer;
+    begin
+        StartPosition := 44;
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Version', '1.1');
+        Assert.AreEqual(
+          '1.1', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'TipoOperacion', '2');
+        Assert.AreEqual(
+          '2', SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoOperacion', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'ClaveDePedimento', 'A1');
+        Assert.AreEqual(
+          'A1', SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ClaveDePedimento', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'CertificadoOrigen', '0');
+        Assert.AreEqual(
+          '0', SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'CertificadoOrigen', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Incoterm', SATInternationalTermsCode);
+        Assert.AreEqual(
+          SATInternationalTermsCode,
+          SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Incoterm', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior', 'Subdivision', '0');
+        Assert.AreEqual(
+          '0', SelectStr(StartPosition + 5, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Subdivision', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior', 'TipoCambioUSD', FormatDecimal(ExchRateUSD, 6));
+        Assert.AreEqual(
+          FormatDecimal(ExchRateUSD, 6),
+          SelectStr(StartPosition + 6, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioUSD', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior', 'TotalUSD', FormatDecimal(InvAmount / ExchRateUSD, 2));
+        Assert.AreEqual(
+          FormatDecimal(InvAmount / ExchRateUSD, 2),
+          SelectStr(StartPosition + 7, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TotalUSD', OriginalStr));
+    end;
+
+    local procedure VerifyComercioExteriorLine(OriginalStr: Text; SalesLine: Record "Sales Line"; ExchRateUSD: Decimal)
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        StartPosition: Integer;
+    begin
+        StartPosition := 66;
+        Item.Get(SalesLine."No.");
+        UnitOfMeasure.Get(SalesLine."Unit of Measure Code");
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia',
+          'NoIdentificacion', SalesLine."No.");
+        Assert.AreEqual(
+          SalesLine."No.",
+          SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NoIdentificacion', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'FraccionArancelaria', Item."Tariff No.");
+        Assert.AreEqual(
+          Item."Tariff No.",
+          SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FraccionArancelaria', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'CantidadAduana', Format(SalesLine.Quantity));
+        Assert.AreEqual(
+          Format(SalesLine.Quantity),
+          SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'CantidadAduana', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'UnidadAduana', UnitOfMeasure."SAT Customs Unit");
+        Assert.AreEqual(
+          UnitOfMeasure."SAT Customs Unit",
+          SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadAduana', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'ValorDolares',
+          FormatDecimal(SalesLine.Amount / ExchRateUSD, 2));
+        Assert.AreEqual(
+          FormatDecimal(SalesLine.Amount / ExchRateUSD, 2),
+          SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorDolares', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'ValorUnitarioAduana',
+          FormatDecimal(SalesLine."Unit Price" / ExchRateUSD, 2));
+        Assert.AreEqual(
+          FormatDecimal(SalesLine."Unit Price" / ExchRateUSD, 2),
+          SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorUnitarioAduana', OriginalStr));
+    end;
+
     local procedure VerifyComplementoPagoAmountWithCurrency(OriginalStr: Text; PaymentAmountLCY: Decimal; CurrencyPmt: Text; CurrencyFactorPmt: Text; PaymentAmountFCY: Decimal; CurrencyInv: Text; CurrencyFactorDR: Text; ImpPagado: Decimal; StartPosition: Integer)
     begin
         LibraryXPathXMLReader.VerifyAttributeValue(
@@ -6473,41 +7448,44 @@
     end;
 
     local procedure VerifyComplementoPago(OriginalStr: Text; ImpSaldoAnt: Decimal; ImpPagado: Decimal; ImpSaldoInsoluto: Decimal; IdDocumento: Text; NumParcialidad: Text; Index: Integer)
+    var
+        StartPos: Integer;
     begin
+        StartPos := 41;
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'ImpSaldoAnt',
           FormatDecimal(ImpSaldoAnt, 2), Index);
         Assert.AreEqual(
           FormatDecimal(ImpSaldoAnt, 2),
-          SelectStr(39 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpSaldoAnt', OriginalStr));
+          SelectStr(StartPos + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpSaldoAnt', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'ImpPagado',
           FormatDecimal(ImpPagado, 2), Index);
         Assert.AreEqual(
           FormatDecimal(ImpPagado, 2),
-          SelectStr(40 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpPagado', OriginalStr));
+          SelectStr(StartPos + 1 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpPagado', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'ImpSaldoInsoluto',
           FormatDecimal(ImpSaldoInsoluto, 2), Index);
         Assert.AreEqual(
           FormatDecimal(ImpSaldoInsoluto, 2),
-          SelectStr(41 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpSaldoInsoluto', OriginalStr));
+          SelectStr(StartPos + 2 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpSaldoInsoluto', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'IdDocumento',
           IdDocumento, Index);
         Assert.AreEqual(
           IdDocumento,
-          SelectStr(34 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdDocumento', OriginalStr));
+          SelectStr(StartPos - 5 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdDocumento', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'NumParcialidad',
           NumParcialidad, Index);
         Assert.AreEqual(
           NumParcialidad,
-          SelectStr(38 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
+          SelectStr(StartPos - 1 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
     end;
 
     local procedure VerifyComplementoPagoTrasladoP(OriginalStr: Text; StartPosition: Integer; BaseP: Decimal; ImporteP: Decimal; TasaOCuotaP: Decimal; Index: Integer)
@@ -6763,9 +7741,10 @@
         Assert.AreEqual('.pdf', CopyStr(FilePath, StrLen(FilePath) - 3), '');
     end;
 
-    local procedure VerifyCartaPorteXMLValues(OriginalStr: Text; TransitDistance: Integer; StartPosition: Integer)
+    local procedure VerifyCartaPorteXMLValues(OriginalStr: Text; TransitDistance: Integer; VehicleNo: Code[20]; StartPosition: Integer)
     var
         CompanyInformation: Record "Company Information";
+        FixedAsset: Record "Fixed Asset";
     begin
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte:CartaPorte', 'Version', '2.0');
         Assert.AreEqual('2.0', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
@@ -6773,7 +7752,7 @@
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte', 'TotalDistRec', FormatDecimal(TransitDistance, 6));
         Assert.AreEqual(
-        FormatDecimal(TransitDistance,6),SELECTSTR(StartPosition + 2,OriginalStr),
+          FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 2, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TotalDistRec', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte:CartaPorte', 'TranspInternac', 'No');
@@ -6790,7 +7769,7 @@
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Ubicaciones/cartaporte:Ubicacion',
           'DistanciaRecorrida', FormatDecimal(TransitDistance, 6), 1);
         Assert.AreEqual(
-          FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 2, OriginalStr),
+          FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 16, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'DistanciaRecorrida', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue(
@@ -6806,6 +7785,33 @@
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:FiguraTransporte/cartaporte:TiposFigura', 'TipoFigura', '01');
         Assert.AreEqual('01', SelectStr(StartPosition + 44, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFigura', OriginalStr));
+
+        // Vehicle
+        FixedAsset.Get(VehicleNo);
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Autotransporte',
+          'PermSCT', FixedAsset."SCT Permission Type");
+        Assert.AreEqual(
+          FixedAsset."SCT Permission Type", SelectStr(StartPosition + 35, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'PermSCT', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Autotransporte',
+          'NumPermisoSCT', FixedAsset."SCT Permission Number");
+        Assert.AreEqual(
+          FixedAsset."SCT Permission Number", SelectStr(StartPosition + 36, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'NumPermisoSCT', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Autotransporte/cartaporte:IdentificacionVehicular',
+          'ConfigVehicular', FixedAsset."SAT Federal Autotransport");
+        Assert.AreEqual(
+          FixedAsset."SAT Federal Autotransport", SelectStr(StartPosition + 37, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'ConfigVehicular', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Autotransporte/cartaporte:IdentificacionVehicular',
+          'PlacaVM', FixedAsset."Vehicle Licence Plate");
+        Assert.AreEqual(
+          FixedAsset."Vehicle Licence Plate", SelectStr(StartPosition + 38, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'PlacaVM', OriginalStr));
     end;
 
     local procedure VerfifyCartaPorteDataset(DocumentNo: Code[20]; FiscalInvoiceNumber: Text; DateTimeStamped: Text; ItemNo: Code[20])
@@ -6960,8 +7966,40 @@
     [EventSubscriber(ObjectType::Codeunit, 10145, 'OnBeforeGetNumeroPedimento', '', false, false)]
     local procedure SetNumeroPedimento(TempDocumentLine: Record "Document Line" temporary; var NumberPedimento: Text; var IsHandled: Boolean)
     begin
-        NameValueBuffer.Get(CODEUNIT::"MX CFDI");
+        if not NameValueBuffer.Get(CODEUNIT::"MX CFDI") then
+            exit;
+        if NameValueBuffer.Name = 'Rounding' then
+            exit;
         NumberPedimento := NameValueBuffer.Value;
         IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 10145, 'OnAfterRequestStamp', '', false, false)]
+    local procedure SetDocumentErrorCode(var DocumentHeaderRecordRef: RecordRef)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FieldRef: FieldRef;
+    begin
+        if not NameValueBuffer.Get(CODEUNIT::"MX CFDI") then
+            exit;
+        if NameValueBuffer.Name <> 'Rounding' then
+            exit;
+
+        FieldRef := DocumentHeaderRecordRef.Field(10035);
+        FieldRef.Value := 'CFDI40108';
+        MockFailure(TempBlob);
+        FieldRef := DocumentHeaderRecordRef.Field(10025);
+        TempBlob.ToFieldRef(FieldRef);
+        DocumentHeaderRecordRef.Modify;
+
+        case NameValueBuffer.Value of
+            '1':
+                NameValueBuffer.Delete;
+            '2':
+                begin
+                    NameValueBuffer.Value := '1';
+                    NameValueBuffer.Modify;
+                end;
+        end;
     end;
 }

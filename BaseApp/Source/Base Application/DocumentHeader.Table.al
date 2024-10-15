@@ -211,6 +211,16 @@ table 10002 "Document Header"
         {
             Caption = 'SAT Weight Unit Of Measure';
         }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';	
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';	
+            DecimalPlaces = 0 : 6;
+        }
         field(27000; "CFDI Purpose"; Code[10])
         {
             Caption = 'CFDI Purpose';
