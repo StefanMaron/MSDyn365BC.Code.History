@@ -36,10 +36,13 @@ codeunit 142055 "UT REP Vendor 1099"
         GetAmtINT01: Label 'GetAmtINT01';
         GetAmtMISC02: Label 'GetAmtMISC02';
         GetAmtNEC01Tok: Label 'GetAmtNEC01';
+        GetAmtDIV13Tok: Label 'GetAmtDIV13';
         GetAmtCombinedDivCodeAB: Label 'GetAmtCombinedDivCodeAB';
         IRS1099CodeDiv: Label 'DIV-01-A';
         IRS1099CodeDiv02ETok: Label 'DIV-02-E';
         IRS1099CodeDiv02FTok: Label 'DIV-02-F';
+        IRS1099CodeDiv12Tok: Label 'DIV-12';
+        IRS1099CodeDiv13Tok: Label 'DIV-13';
         IRS1099CodeInt: Label 'INT-01';
         IRS1099CodeMisc: Label 'MISC-02';
         Assert: Codeunit Assert;
@@ -51,7 +54,7 @@ codeunit 142055 "UT REP Vendor 1099"
         IRS1099CodeMisc10Tok: Label 'MISC-10', Comment = 'MISC - miscellaneous';
         IRS1099CodeMisc11Tok: Label 'MISC-11', Comment = 'MISC - miscellaneous';
         IRS1099CodeMisc12Tok: Label 'MISC-12', Comment = 'MISC - miscellaneous';
-        IRS1099CodeMisc13Tok: Label 'MISC-13', Comment = 'MISC - miscellaneous';
+        IRS1099CodeMisc14Tok: Label 'MISC-14', Comment = 'MISC - miscellaneous';
         IRS1099CodeNec01Tok: Label 'NEC-01';
         AmountCodeErr: Label 'Wrong value of Amount code.';
         LibraryLocalFunctionality: Codeunit "Library - Local Functionality";
@@ -727,10 +730,11 @@ codeunit 142055 "UT REP Vendor 1099"
 
         Initialize();
 
-        // [GIVEN] Vendor entries with codes "MISC-13", "MISC-09", "MISC-10", "MISC-01", "MISC-01", "MISC-05", "MISC-12"
-        VendorNo := CreateVendor();
+        // [GIVEN] Vendor entries with codes "MISC-14", "MISC-09", "MISC-10", "MISC-01", "MISC-01", "MISC-05", "MISC-12"
+        // Work item id 458117: Misc code "MISC-13" has been replaced with misc code "MISC-14"
+        VendorNo := CreateVendor;
         SetupToCreateLedgerEntriesForExistingVendor(
-          VendorLedgerEntry, VendorNo, IRS1099CodeMisc13Tok, LibraryRandom.RandIntInRange(5000, 10000));
+          VendorLedgerEntry, VendorNo, IRS1099CodeMisc14Tok, LibraryRandom.RandIntInRange(5000, 10000));
         SetupToCreateLedgerEntriesForExistingVendor(
           VendorLedgerEntry, VendorNo, IRS1099CodeMisc09Tok, LibraryRandom.RandIntInRange(5000, 10000));
         SetupToCreateLedgerEntriesForExistingVendor(
@@ -1319,6 +1323,196 @@ codeunit 142055 "UT REP Vendor 1099"
         FILE.Erase(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099Div2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintVendor1099Div2022()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 456917] Stan can print "Vendor 1099 Div 2022" report
+
+        // [GIVEN] Vendor Leger Entry with "DIV-13" code and Amount = 100
+        Initialize();
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv13Tok, LibraryRandom.RandIntInRange(1000, 2000));
+
+        // [WHEN] Run "Vendor 1099 Div 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Div 2022");
+
+        // [THEN] "DIV-13" code prints with amount equals 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtDIV13Tok, -VendorLedgerEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Int2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintVendor1099Int2022()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 456917] Stan can print "Vendor 1099 Int 2022" report
+
+        // [GIVEN] Vendor Leger Entry with "INT-01" code and Amount = 100
+        Initialize();
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, LibraryRandom.RandIntInRange(1000, 2000));
+
+        // [WHEN] Run "Vendor 1099 Int 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Int 2022");
+
+        // [THEN] "INT-01" code prints with amount equals 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtINT01, -VendorLedgerEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintVendor1099Misc2022()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 456917] Stan can print "Vendor 1099 Misc 2022" report
+
+        // [GIVEN] Vendor Leger Entry with "MISC-02" code and Amount = 100
+        Initialize();
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(1000, 2000));
+
+        // [WHEN] Run "Vendor 1099 Misc 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Misc 2022");
+
+        // [THEN] "MISC-02" code prints with amount equals 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, -VendorLedgerEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Nec2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintVendor1099Nec2022()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 456917] Stan can print "Vendor 1099 Nec 2022" report
+
+        // [GIVEN] Vendor Leger Entry with "NEC-01" code and Amount = 100
+        Initialize();
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeNec01Tok, LibraryRandom.RandIntInRange(1000, 2000));
+
+        // [WHEN] Run "Vendor 1099 Misc 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Nec 2022");
+
+        // [THEN] "NEC-01" code prints with amount equals 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtNEC01Tok, -VendorLedgerEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaMisc14CodeHasCorrectPosition()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        AMagneticMediaMgt: Codeunit "A/P Magnetic Media Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 458117] The magnetic media file contains the information about the MISC-14 code in the correct position in B and C sections
+
+        Initialize();
+
+        // [GIVEN] Vendor entry with MISC-14 code and amount = "X"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc14Tok, LibraryRandom.RandIntInRange(5000, 10000));
+        Commit();
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B record has "X" amount in position 175 to 186
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 12),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 175, 12), AmountErr);
+
+        // [THEN] C record has "X" amount in position 196 to 213
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 18),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 196, 18), AmountErr);
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaDiv12CodeHasCorrectPosition()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        AMagneticMediaMgt: Codeunit "A/P Magnetic Media Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 458117] The magnetic media file contains the information about the DIV-12 code in the correct position in B and C sections
+
+        Initialize();
+
+        // [GIVEN] Vendor entry with DIV-12 code and amount = "X"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv12Tok, LibraryRandom.RandIntInRange(5000, 10000));
+        Commit();
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B record has "X" amount in position 223 to 234
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 12),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 223, 12), AmountErr);
+
+        // [THEN] C record has "X" amount in position 268 to 285
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 18),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 268, 18), AmountErr);
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaDiv13CodeHasCorrectPosition()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        AMagneticMediaMgt: Codeunit "A/P Magnetic Media Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 458117] The magnetic media file contains the information about the DIV-13 code in the correct position in B and C sections
+
+        Initialize();
+
+        // [GIVEN] Vendor entry with DIV-13 code and amount = "X"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv13Tok, LibraryRandom.RandIntInRange(5000, 10000));
+        Commit();
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B record has "X" amount in position 235 to 246
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 12),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 235, 12), AmountErr);
+
+        // [THEN] C record has "X" amount in position 286 to 303
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 18),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 286, 18), AmountErr);
+
+        FILE.Erase(FileName);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1622,6 +1816,38 @@ codeunit 142055 "UT REP Vendor 1099"
 
         Vendor1099MagneticMedia.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
         Vendor1099MagneticMedia.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Div2022RPH(var Vendor1099Div2022: TestRequestPage "Vendor 1099 Div 2022")
+    begin
+        Vendor1099Div2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Div2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Int2022RPH(var Vendor1099Int2022: TestRequestPage "Vendor 1099 Int 2022")
+    begin
+        Vendor1099Int2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Int2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2022RPH(var Vendor1099Misc2022: TestRequestPage "Vendor 1099 Misc 2022")
+    begin
+        Vendor1099Misc2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Misc2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Nec2022RPH(var Vendor1099Nec2022: TestRequestPage "Vendor 1099 Nec 2022")
+    begin
+        Vendor1099Nec2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Nec2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 
