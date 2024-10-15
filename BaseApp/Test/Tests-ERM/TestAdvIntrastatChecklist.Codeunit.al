@@ -376,14 +376,48 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         VerifyBatchTwoErrors(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transport Method"), IntrastatJnlLine.FieldName("Item No."));
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatMakeDiskTaxAuthRPH')]
+    procedure IntrastatMakeDiskTaxAuth_TwoLinesErrors()
+    var
+        IntrastatJnlLine: array[2] of Record "Intrastat Jnl. Line";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 407941] Report 593 "Intrastat - Make Disk Tax Auth" in case of two journal lines with errors
+        Initialize();
+
+        // [GIVEN] Advanced Intrastat Checklist setup for two fields "Transport Method", Area for report "Intrastat - Make Disk Tax Auth"
+        CreateFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine[1].FieldNo("Transport Method"), '');
+        CreateFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine[1].FieldNo(Area), '');
+
+        // [GIVEN] Intrastat journal with two lines: first with blanked "Transport Method" field, second with blanked Area field
+        IntrastatJnlBatch.DeleteAll();
+        CreateJournalLine(IntrastatJnlLine[1]);
+        IntrastatJnlLine[2] := IntrastatJnlLine[1];
+        IntrastatJnlLine[2]."Line No." += 10000;
+        IntrastatJnlLine[2]."Transport Method" := 'dummy';
+        IntrastatJnlLine[2].Area := '';
+        IntrastatJnlLine[2].Insert();
+
+        // [WHEN] Export file action ("Intrastat - Make Disk Tax Auth" report)
+        asserterror RunIntrastatMakeDiskTaxAuth(IntrastatJnlLine[1]);
+
+        // [THEN] There are two batch errors, one per line
+        VerifyError();
+        VerifyBatchTwoErrors(IntrastatJnlLine[1], IntrastatJnlLine[1].FieldName("Transport Method"), IntrastatJnlLine[1].FieldName(Area));
+        VerifyJnlLineSingleError(IntrastatJnlLine[1], IntrastatJnlLine[1].FieldName("Transport Method"));
+        VerifyJnlLineSingleError(IntrastatJnlLine[2], IntrastatJnlLine[2].FieldName(Area));
+    end;
+
     local procedure Initialize()
     var
         AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
     begin
         AdvancedIntrastatChecklist.DeleteAll();
 
-        IF IsInitialized THEN
-            EXIT;
+        if IsInitialized then
+            exit;
 
         EnableSetup();
         DummyReportId := Report::"Intrastat - Checklist";
@@ -536,6 +570,16 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
         ErrorMessage.SetContext(IntrastatJnlBatch);
         Assert.AreEqual(0, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
+    end;
+
+    local procedure VerifyJnlLineSingleError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        ErrorMessage: Record "Error Message";
+    begin
+        ErrorMessage.SetRange("Record ID", IntrastatJnlLine.RecordId());
+        Assert.RecordCount(ErrorMessage, 1);
+        ErrorMessage.FindFirst();
+        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
     end;
 
     [RequestPageHandler]

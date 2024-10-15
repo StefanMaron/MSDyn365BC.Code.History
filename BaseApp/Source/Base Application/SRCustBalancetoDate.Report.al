@@ -3,7 +3,7 @@ report 11540 "SR Cust. - Balance to Date"
     DefaultLayout = RDLC;
     RDLCLayout = './SRCustBalancetoDate.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Customer - Balance to Date';
+    Caption = 'SR Customer - Balance to Date';
     UsageCategory = ReportsAndAnalysis;
 
     dataset

@@ -3,7 +3,7 @@ report 11559 "SR Vendor - Balance to Date"
     DefaultLayout = RDLC;
     RDLCLayout = './SRVendorBalancetoDate.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Vendor - Balance to Date';
+    Caption = 'SR Vendor - Balance to Date';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
