@@ -275,7 +275,7 @@ codeunit 134825 "UT Customer Table"
         // Setup
         NoneExixtingCustomerNo := LibrarySales.CreateCustomerNo;
         Customer.Get(NoneExixtingCustomerNo);
-        Customer.Delete;
+        Customer.Delete();
 
         // Exercise and Verify None Existing Customer
         asserterror Customer.GetCustNo(NoneExixtingCustomerNo);
@@ -456,7 +456,7 @@ codeunit 134825 "UT Customer Table"
         LibrarySales.CreateCustomer(Customer);
         Customer."Primary Contact No." := ExpectedPrimaryContactNo;
         Customer.Contact := '';
-        Customer.Modify;
+        Customer.Modify();
 
         // [GIVEN] Text[50] = "XX"
         ExpectedContact := CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50);
@@ -706,7 +706,7 @@ codeunit 134825 "UT Customer Table"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Customer Table");
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup;
         LibrarySetupStorage.Restore;
 
@@ -717,7 +717,7 @@ codeunit 134825 "UT Customer Table"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Customer Table");
     end;
 

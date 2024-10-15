@@ -30,7 +30,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         UpdatePostedPhysInventoryOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderLine."Entry Type"::"Positive Adjmt.");
         CreateDimension(DimensionSetEntry);
         PstdPhysInvtOrderLine."Dimension Set ID" := DimensionSetEntry."Dimension Set ID";
-        PstdPhysInvtOrderLine.Modify;
+        PstdPhysInvtOrderLine.Modify();
 
         // [WHEN] Run Posted Phys. Inventory Order Diff. Report.
         RunPostedPhysInvtOrderDiffReport(PstdPhysInvtOrderHdr);
@@ -61,7 +61,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         CreateDimensionSetEntry(
           DimensionSetEntry2, DimensionSetEntry."Dimension Set ID", LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
         PstdPhysInvtOrderLine."Dimension Set ID" := DimensionSetEntry."Dimension Set ID";
-        PstdPhysInvtOrderLine.Modify;
+        PstdPhysInvtOrderLine.Modify();
 
         // [WHEN] Run Posted Phys. Inventory Order Diff. Report.
         RunPostedPhysInvtOrderDiffReport(PstdPhysInvtOrderHdr);
@@ -259,20 +259,20 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         Item: Record Item;
     begin
         Item."No." := LibraryUTUtility.GetNewCode;
-        Item.Insert;
+        Item.Insert();
         exit(Item."No.");
     end;
 
     local procedure CreatePostedPhysInventoryOrder(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; ItemNo: Code[20])
     begin
         PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
-        PstdPhysInvtOrderHdr.Insert;
+        PstdPhysInvtOrderHdr.Insert();
 
         PstdPhysInvtOrderLine."Document No." := PstdPhysInvtOrderHdr."No.";
         PstdPhysInvtOrderLine."Line No." := 1;
         PstdPhysInvtOrderLine."Item No." := ItemNo;
         PstdPhysInvtOrderLine."Location Code" := LibraryUTUtility.GetNewCode10;
-        PstdPhysInvtOrderLine.Insert;
+        PstdPhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePostedPhysInventoryRecording(var PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line"; OrderNo: Code[20])
@@ -281,7 +281,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
     begin
         PstdPhysInvtRecordHdr."Order No." := OrderNo;
         PstdPhysInvtRecordHdr."Recording No." := 1;
-        PstdPhysInvtRecordHdr.Insert;
+        PstdPhysInvtRecordHdr.Insert();
 
         PstdPhysInvtRecordLine."Order No." := OrderNo;
         PstdPhysInvtRecordLine."Order Line No." := 1;
@@ -290,7 +290,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         PstdPhysInvtRecordLine.Recorded := true;
         PstdPhysInvtRecordLine."Serial No." := LibraryUTUtility.GetNewCode;
         PstdPhysInvtRecordLine."Lot No." := LibraryUTUtility.GetNewCode;
-        PstdPhysInvtRecordLine.Insert;
+        PstdPhysInvtRecordLine.Insert();
     end;
 
     local procedure CreateDimension(var DimensionSetEntry: Record "Dimension Set Entry")
@@ -300,7 +300,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
     begin
         DimensionValue.Code := LibraryUTUtility.GetNewCode;
         DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
-        DimensionValue.Insert;
+        DimensionValue.Insert();
 
         DimensionSetEntry2.FindLast;
         CreateDimensionSetEntry(DimensionSetEntry,
@@ -312,7 +312,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         DimensionSetEntry."Dimension Set ID" := DimensionSetID;
         DimensionSetEntry."Dimension Code" := DimensionCode;
         DimensionSetEntry."Dimension Value Code" := DimensionValueCode;
-        DimensionSetEntry.Insert;
+        DimensionSetEntry.Insert();
     end;
 
     local procedure UpdatePostedPhysInventoryOrderLine(var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; EntryType: Option)
@@ -323,13 +323,13 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         PstdPhysInvtOrderLine."Neg. Qty. (Base)" := 1;
         PstdPhysInvtOrderLine."Pos. Qty. (Base)" := 1;
         PstdPhysInvtOrderLine."Use Item Tracking" := true;
-        PstdPhysInvtOrderLine.Modify;
+        PstdPhysInvtOrderLine.Modify();
     end;
 
     local procedure UpdatePostedPhysInventoryOrderStatusToFinished(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")
     begin
         PstdPhysInvtOrderHdr.Status := PstdPhysInvtOrderHdr.Status::Finished;
-        PstdPhysInvtOrderHdr.Modify;
+        PstdPhysInvtOrderHdr.Modify();
     end;
 
     local procedure UpdateTrackingOnPostedPhysInventoryOrderLine(var PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track"; OrderNo: Code[20])
@@ -338,7 +338,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         PstdExpPhysInvtTrack."Order Line No." := 1;
         PstdExpPhysInvtTrack."Serial No." := LibraryUTUtility.GetNewCode;
         PstdExpPhysInvtTrack."Quantity (Base)" := 1;
-        PstdExpPhysInvtTrack.Insert;
+        PstdExpPhysInvtTrack.Insert();
     end;
 
     local procedure RunPostedPhysInvtOrderDiffReport(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")

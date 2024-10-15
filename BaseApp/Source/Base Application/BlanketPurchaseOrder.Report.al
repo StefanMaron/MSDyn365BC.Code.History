@@ -210,10 +210,10 @@ report 410 "Blanket Purchase Order"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -237,7 +237,7 @@ report 410 "Blanket Purchase Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purchase Line"; "Purchase Line")
@@ -248,7 +248,7 @@ report 410 "Blanket Purchase Order"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -295,10 +295,10 @@ report 410 "Blanket Purchase Order"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -322,7 +322,7 @@ report 410 "Blanket Purchase Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
@@ -339,7 +339,7 @@ report 410 "Blanket Purchase Order"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLine.DeleteAll;
+                            PurchLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -351,7 +351,7 @@ report 410 "Blanket Purchase Order"
                             do
                                 MoreLines := PurchLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             PurchLine.SetRange("Line No.", 0, PurchLine."Line No.");
                             SetRange(Number, 1, PurchLine.Count);
                         end;
@@ -374,7 +374,7 @@ report 410 "Blanket Purchase Order"
                         trigger OnPreDataItem()
                         begin
                             if "Purchase Header"."Buy-from Vendor No." = "Purchase Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -414,7 +414,7 @@ report 410 "Blanket Purchase Order"
                         trigger OnPreDataItem()
                         begin
                             if ("Purchase Header"."Sell-to Customer No." = '') and (ShipToAddr[1] = '') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -423,7 +423,7 @@ report 410 "Blanket Purchase Order"
                 begin
                     Clear(PurchLine);
                     Clear(PurchPost);
-                    PurchLine.DeleteAll;
+                    PurchLine.DeleteAll();
                     PurchPost.GetPurchLines("Purchase Header", PurchLine, 0);
 
                     if Number > 1 then begin
@@ -533,7 +533,7 @@ report 410 "Blanket Purchase Order"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         PurchSetup.Get
     end;
 

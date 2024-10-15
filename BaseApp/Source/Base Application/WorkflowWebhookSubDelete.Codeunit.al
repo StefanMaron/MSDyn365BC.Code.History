@@ -12,7 +12,7 @@ codeunit 1547 "Workflow Webhook Sub Delete"
         // disable corresponding WorkflowWebhookSubBuffer entry
         WorkflowWebhookSubBuffer.SetRange("WF Definition Id", Code);
         if WorkflowWebhookSubBuffer.FindFirst then
-            WorkflowWebhookSubBuffer.Delete;
+            WorkflowWebhookSubBuffer.Delete();
 
         // disable workflow
         if Enabled then begin

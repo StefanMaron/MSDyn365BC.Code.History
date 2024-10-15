@@ -234,7 +234,7 @@ report 5971 "Service Contract-Detail"
                         trigger OnPreDataItem()
                         begin
                             if not ShowComments then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -268,7 +268,7 @@ report 5971 "Service Contract-Detail"
                 trigger OnPreDataItem()
                 begin
                     if not ShowShippingAddr then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(ServcommentLine2; "Service Comment Line")
@@ -289,7 +289,7 @@ report 5971 "Service Contract-Detail"
                 trigger OnPreDataItem()
                 begin
                     if not ShowComments then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -339,7 +339,7 @@ report 5971 "Service Contract-Detail"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var

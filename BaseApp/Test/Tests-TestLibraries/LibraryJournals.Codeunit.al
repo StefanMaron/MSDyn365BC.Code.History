@@ -22,7 +22,7 @@ codeunit 131306 "Library - Journals"
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
 
         // Create a General Journal Entry.
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", JournalTemplateName);
         GenJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(GenJournalLine);
@@ -152,7 +152,7 @@ codeunit 131306 "Library - Journals"
         GenJournalTemplate.SetRange("Page ID", PageID);
 
         if not GenJournalTemplate.FindFirst then begin
-            GenJournalTemplate.Init;
+            GenJournalTemplate.Init();
             GenJournalTemplate.Validate(
               Name, LibraryUtility.GenerateRandomCode(GenJournalTemplate.FieldNo(Name), DATABASE::"Gen. Journal Template"));
             GenJournalTemplate.Validate(Type, Type);
@@ -203,7 +203,7 @@ codeunit 131306 "Library - Journals"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Post & Print with Job Queue", PostAndPrintWithJobQueue);
         GeneralLedgerSetup.Modify(true);
     end;

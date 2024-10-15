@@ -14,10 +14,10 @@ report 5182 "Delete Opportunities"
             begin
                 RMCommentLine.SetRange("Table Name", RMCommentLine."Table Name"::Opportunity);
                 RMCommentLine.SetRange("No.", "No.");
-                RMCommentLine.DeleteAll;
+                RMCommentLine.DeleteAll();
 
                 OppEntry.SetRange("Opportunity No.", "No.");
-                OppEntry.DeleteAll;
+                OppEntry.DeleteAll();
 
                 Delete;
             end;

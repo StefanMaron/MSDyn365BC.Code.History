@@ -1619,7 +1619,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine.TestField(Quantity, Quantity[2]);
 
         // Tear down.
-        PlanningErrorLog.DeleteAll;
+        PlanningErrorLog.DeleteAll();
     end;
 
     [Test]
@@ -1687,62 +1687,6 @@ codeunit 137080 "SCM Planning And Manufacturing"
         until ProdOrderComponent.Next = 0;
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure DueDateOnProdOrderLineMatchesOneOnProdOrderHeaderAfterReschedule()
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenter: Record "Work Center";
-        Item: Record Item;
-        SalesLine: Record "Sales Line";
-        ProductionOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-        ReschedPeriod: DateFormula;
-    begin
-        // [FEATURE] [Planning] [Production Order]
-        // [SCENARIO 343277] Due Date on prod. order line matches Due Date on production order header after the order is rescheduled by planning.
-        Initialize();
-
-        // [GIVEN] Set "Default Safety Lead Time" blank on Manufacturing Setup.
-        ManufacturingSetup.Get();
-        Clear(ManufacturingSetup."Default Safety Lead Time");
-        ManufacturingSetup.Modify(true);
-
-        // [GIVEN] Create lot-for-lot item with "Prod. Order" manufacturing policy.
-        // [GIVEN] Set rescheduling period on the item so that the planning will reschedule existing supply instead of suggesting "Cancel + New".
-        // [GIVEN] Create sales order with "Shipment Date" = WORKDATE.
-        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
-        CreateWorkCenterDemand(Item, WorkCenter."No.", LibraryRandom.RandIntInRange(50, 100), WorkDate());
-        Evaluate(ReschedPeriod, '<2W>');
-        Item.Validate("Rescheduling Period", ReschedPeriod);
-        Item.Modify(true);
-
-        // [GIVEN] Calculate regenerative plan and carry out action message.
-        // [GIVEN] That creates a production order for the item.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
-        CarryOutActionMessageOnPlanningWorksheet(Item."No.");
-
-        // [GIVEN] Move the shipment date on the sales order line a week forward.
-        SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.SetRange("No.", Item."No.");
-        SalesLine.FindFirst();
-        SalesLine.Validate("Shipment Date", LibraryRandom.RandDate(10));
-        SalesLine.Modify(true);
-
-        // [WHEN] Calculate regenerative plan and carry out action message again.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
-        CarryOutActionMessageOnPlanningWorksheet(Item."No.");
-
-        // [THEN] A production order is rescheduled.
-        // [THEN] New "Due Date" on the header matches "Due Date" on the line.
-        // [THEN] "Due Date" is equal to the shipment date on the sales line.
-        FindProductionOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
-        ProdOrderLine.TestField("Due Date", ProductionOrder."Due Date");
-        ProdOrderLine.TestField("Due Date", SalesLine."Shipment Date");
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1763,9 +1707,9 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
-        LibrarySetupStorage.SaveManufacturingSetup();
+        LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning And Manufacturing");
     end;
 
@@ -1829,11 +1773,11 @@ codeunit 137080 "SCM Planning And Manufacturing"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -1841,13 +1785,13 @@ codeunit 137080 "SCM Planning And Manufacturing"
     local procedure OutputJournalSetup()
     begin
         Clear(OutputItemJournalTemplate);
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
         OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         OutputItemJournalTemplate.Modify(true);
 
         Clear(OutputItemJournalBatch);
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
         OutputItemJournalBatch.Modify(true);
@@ -2042,7 +1986,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderRoutingLine.FindSet;
         repeat
             TempProdOrderRoutingLine := ProdOrderRoutingLine;
-            TempProdOrderRoutingLine.Insert;
+            TempProdOrderRoutingLine.Insert();
         until ProdOrderRoutingLine.Next = 0;
 
         ProdOrderLine.SetRange("Item No.", Item."No.");
@@ -2549,7 +2493,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         exit(Format(ManufacturingSetup."Default Safety Lead Time"));
     end;
 
@@ -2620,7 +2564,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         OldPlanningWarning := ManufacturingSetup."Planning Warning";
         ManufacturingSetup.Validate("Planning Warning", NewPlanningWarning);
         ManufacturingSetup.Modify(true);
@@ -2630,7 +2574,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Validate("Components at Location", ComponentsAtLocation);
         ManufacturingSetup.Modify(true);

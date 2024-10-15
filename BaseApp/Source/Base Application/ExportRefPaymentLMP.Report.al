@@ -62,9 +62,9 @@ report 32000006 "Export Ref. Payment -  LMP"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
-                GLSetup.Get;
-                PurchSetup.Get;
+                CompanyInfo.Get();
+                GLSetup.Get();
+                PurchSetup.Get();
                 Transferfile.TextMode := true;
                 ServerFileName := FileMgt.ServerTempFileName('txt');
                 UniqueBatchID := '';
@@ -254,7 +254,7 @@ report 32000006 "Export Ref. Payment -  LMP"
                 RefPmtExport."Transfer Date" := Today;
                 RefPmtExport."Transfer Time" := Time;
                 RefPmtExport."Batch Code" := UniqueBatchID2;
-                RefPmtExport.Modify;
+                RefPmtExport.Modify();
 
                 if RefFileSetup."Inform. of Appl. Cr. Memos" then
                     if VendLedgEntry.FindFirst then
@@ -396,7 +396,7 @@ report 32000006 "Export Ref. Payment -  LMP"
     [Scope('OnPrem')]
     procedure GetVendAccount(AccountCode: Code[20]; VendNo: Code[20]) VendAccount: Text[14]
     begin
-        VendBankAcc.Reset;
+        VendBankAcc.Reset();
         VendBankAcc.SetFilter("Vendor No.", VendNo);
         VendBankAcc.SetRange(Code, AccountCode);
         VendBankAcc.FindFirst;

@@ -14,8 +14,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryERM: Codeunit "Library - ERM";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryDimension: Codeunit "Library - Dimension";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -64,8 +62,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
         ExistErr: Label '%1 must exist.', Comment = '%1 = Column or field value';
         ValueMismatchErr: Label '%1 must be %2.', Comment = '%1 = Column Caption, %2 = Value';
         ReclassifyTxt: Label 'Reclassification';
-        ZeroDifferenceLineErr: Label '''%1'' report contains lines with 0 in difference amount';
-        TheDepreciationHasBeenCalculatedTxt: Label 'The depreciation has been calculated.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1007,7 +1003,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 1 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1060,7 +1056,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 2 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1691,7 +1687,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 1 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1740,7 +1736,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 2 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1986,7 +1982,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryLowerPermissions.SetO365FAView;
         LibraryVariableStorage.Enqueue(FADepreciationBook."Depreciation Book Code");
         LibraryVariableStorage.Enqueue(FixedAsset."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Fixed Asset - List");
 
         // [THEN] "Fixed Asset - List" report contains "Depreciation Ending date" (31.12.17)
@@ -2011,48 +2007,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryDimension.GetGlobalDimCodeValue(2, DimValue);
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports");
-    end;
-
-    [Test]
-    [HandlerFunctions('CalcAndPostDeprDifferenceRPH,DepreciationCalcConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure CalcAndPostDeprDifferenceReportWithZeroDifference()
-    var
-        FADepreciationBook: Record "FA Depreciation Book";
-        DepreciationBookCodeSUMU: Code[10];
-        DepreciationBookCodeTax: Code[10];
-        StartingDate: Date;
-        PostingDate: Date;
-        FixedAssetNo1: Code[20];
-        FixedAssetNo2: Code[20];
-    begin
-        // Setup
-        Initialize;
-        StartingDate := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
-        PostingDate := CalcDate('<3M-1D>', StartingDate);
-        DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true, true, true, true);
-        DepreciationBookCodeTax := CreateDepreciationBook(0, true, true, true, false);
-
-        // Excercise
-        with FADepreciationBook do begin
-            FixedAssetNo1 :=
-              CreateFAAndPostDepreciation(
-                4000, StartingDate, PostingDate, DepreciationBookCodeSUMU, DepreciationBookCodeTax,
-                "Depreciation Method"::"Declining-Balance 1", '', 25);
-            FixedAssetNo2 :=
-              CreateFAAndPostDepreciation(
-                6000, StartingDate, PostingDate, DepreciationBookCodeSUMU, DepreciationBookCodeTax,
-                "Depreciation Method"::"Straight-Line", '<3Y-1D>', 0);
-        end;
-
-        RunCalcAndPostDeprDifferenceReport(
-          DepreciationBookCodeSUMU, DepreciationBookCodeTax, StartingDate, PostingDate, PostingDate,
-          CopyStr(Format(CreateGuid), 1, 20), false, false, StrSubstNo('%1..%2', FixedAssetNo1, FixedAssetNo2));
-
-        // Verify
-        VerifyCalcAndPostDeprDifferenceReportWithZeroDifference;
     end;
 
     local procedure AttachFAPostingGroup(FixedAsset: Record "Fixed Asset"; FAPostingGroup: Code[20])
@@ -2086,7 +2042,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CopyStr(
             LibraryUtility.GenerateRandomCode(FAClass.FieldNo(Code), DATABASE::"FA Class"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"FA Class", FAClass.FieldNo(Code))));
-        FAClass.Insert;
+        FAClass.Insert();
     end;
 
     local procedure CreateFixedAssetLocation(var FALocation: Record "FA Location")
@@ -2097,28 +2053,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CopyStr(
             LibraryUtility.GenerateRandomCode(FALocation.FieldNo(Code), DATABASE::"FA Location"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"FA Location", FALocation.FieldNo(Code))));
-        FALocation.Insert;
-    end;
-
-    local procedure CreateAndSetupFixedAsset(var FixedAsset: Record "Fixed Asset"; StartingDate: Date; FAPostingGroupCode: Code[20]; DepreciationBookCodeSUMU: Code[10]; DepreciationMethodSUMU: Option; EndingDateFormulaSUMU: Text; DecliningBalancePercentSUMU: Decimal; DepreciationBookCodeTax: Code[10]; DepreciationMethodTax: Option; EndingDateFormulaTax: Text; DecliningBalancePercentTax: Decimal)
-    var
-        FAClass: Record "FA Class";
-    begin
-        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        LibraryFixedAsset.FindFAClass(FAClass);
-        with FixedAsset do begin
-            "FA Class Code" := FAClass.Code;
-            Modify(true);
-        end;
-
-        FAPostingGroupCode := FixedAsset."FA Posting Group";
-
-        CreateAndSetupFADepreciationBook(
-          FixedAsset, FAPostingGroupCode, DepreciationBookCodeSUMU, DepreciationMethodSUMU,
-          StartingDate, EndingDateFormulaSUMU, DecliningBalancePercentSUMU);
-        CreateAndSetupFADepreciationBook(
-          FixedAsset, FAPostingGroupCode, DepreciationBookCodeTax, DepreciationMethodTax,
-          StartingDate, EndingDateFormulaTax, DecliningBalancePercentTax);
+        FALocation.Insert();
     end;
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; FAPostingGroup: Code[20]; DepreciationBookCode: Code[10])
@@ -2132,49 +2067,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FADepreciationBook.Modify(true);
     end;
 
-    local procedure CreateAndSetupFADepreciationBook(FixedAsset: Record "Fixed Asset"; FAPostingGroupCode: Code[20]; DepreciationBooKCode: Code[10]; DepreciationMethod: Option; StartDate: Date; EndingDateFormulaExpression: Text; DecliningBalancePercent: Decimal)
-    var
-        FADepreciationBook: Record "FA Depreciation Book";
-        EndingDateFormula: DateFormula;
-    begin
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBooKCode);
-        with FADepreciationBook do begin
-            Validate("FA Posting Group", FAPostingGroupCode);
-            Validate("Depreciation Method", DepreciationMethod);
-            Validate("Depreciation Starting Date", StartDate);
-            if EndingDateFormulaExpression <> '' then begin
-                Evaluate(EndingDateFormula, EndingDateFormulaExpression);
-                Validate("Depreciation Ending Date", CalcDate(EndingDateFormula, StartDate));
-            end;
-            Validate("Declining-Balance %", DecliningBalancePercent);
-            Modify(true);
-        end;
-    end;
-
-    local procedure CreateDepreciationBook(DefaultRounding: Decimal; UseFALedgerCheck: Boolean; UserRoundingInPeriodicAmount: Boolean; UseSameFAGLPostingDates: Boolean; Integration: Boolean): Code[10]
-    var
-        DepreciationBook: Record "Depreciation Book";
-    begin
-        CreateDepreciationJournalSetup(DepreciationBook);
-        with DepreciationBook do begin
-            "Default Final Rounding Amount" := DefaultRounding;
-            "Use FA Ledger Check" := UseFALedgerCheck;
-            "Use Rounding in Periodic Depr." := UserRoundingInPeriodicAmount;
-            "Use Same FA+G/L Posting Dates" := UseSameFAGLPostingDates;
-            "G/L Integration - Acq. Cost" := Integration;
-            "G/L Integration - Depreciation" := Integration;
-            "G/L Integration - Write-Down" := Integration;
-            "G/L Integration - Appreciation" := Integration;
-            "G/L Integration - Custom 1" := Integration;
-            "G/L Integration - Custom 2" := Integration;
-            "G/L Integration - Disposal" := Integration;
-            "G/L Integration - Maintenance" := Integration;
-            Modify;
-        end;
-
-        exit(DepreciationBook.Code);
-    end;
-
     local procedure CreateDepreciationJournalSetup(var DepreciationBook: Record "Depreciation Book")
     var
         FAJournalSetup: Record "FA Journal Setup";
@@ -2185,12 +2077,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
     end;
 
     local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option; PostingDate: Date)
-    begin
-        CreateFAJournalLineWithAmount(
-          FAJournalLine, FANo, DepreciationBookCode, FAPostingType, PostingDate, LibraryRandom.RandDec(1000, 2));
-    end;
-
-    local procedure CreateFAJournalLineWithAmount(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option; PostingDate: Date; LineAmount: Decimal)
     var
         FAJournalBatch: Record "FA Journal Batch";
     begin
@@ -2201,41 +2087,9 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FAJournalLine.Validate("FA Posting Date", PostingDate);
         FAJournalLine.Validate("FA Posting Type", FAPostingType);
         FAJournalLine.Validate("FA No.", FANo);
-        FAJournalLine.Validate(Amount, LineAmount);
+        FAJournalLine.Validate(Amount, LibraryRandom.RandDec(1000, 2));  // Using Random Number Generator for Amount.
         FAJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
         FAJournalLine.Modify(true);
-    end;
-
-    local procedure CreateAndPostPurchaseInvoice(PostingDate: Date; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; Quantity: Decimal; Cost: Decimal): Code[20]
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Document Type"::Invoice, '');
-            Validate(
-              "Vendor Invoice No.", LibraryUtility.GenerateRandomCode(FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
-            Validate("Posting Date", PostingDate);
-            Validate("Message Type", "Message Type"::Message);
-            Validate("Invoice Message", FixedAssetNo);
-            Modify(true);
-        end;
-
-        CreatePurchaseLine(PurchaseHeader, FixedAssetNo, DepreciationBookCode, Quantity, Cost);
-
-        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
-    end;
-
-    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; FAQuantity: Decimal; FACost: Decimal)
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"Fixed Asset", FixedAssetNo, FAQuantity);
-            Validate("Depreciation Book Code", DepreciationBookCode);
-            Validate("Direct Unit Cost", FACost);
-            Modify(true);
-        end;
     end;
 
     local procedure CreateAndPostFAGLJournalLine(FANo: Code[20]; FAPostingType: Option; Amount: Decimal)
@@ -2260,14 +2114,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
 
-    local procedure CreateAndPostAcqusitionLine(FANo: Code[20]; FAPostingType: Option; DepreciationBookCode: Code[10]; PostingDate: Date; LineAmount: Decimal)
-    var
-        FAJournalLine: Record "FA Journal Line";
-    begin
-        CreateFAJournalLineWithAmount(FAJournalLine, FANo, DepreciationBookCode, FAPostingType, PostingDate, LineAmount);
-        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
-    end;
-
     local procedure CreateAndPostFAReclassJournal(DepreciationBookCode: Code[10]; FixedAssetNo: Code[20]; FixedAssetNo2: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -2282,31 +2128,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         UpdateDocumentNo(GenJournalLine, DepreciationBookCode);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure CreateFAAndPostDepreciation(Amount: Decimal; StartingDate: Date; PostingDate: Date; DepreciationBookCodeSUMU: Code[10]; DepreciationBookCodeTax: Code[10]; DepreciationMethodTax: Option; EndingDateFormulaTax: Text; DecliningBalancePercentTax: Decimal): Code[20]
-    var
-        FixedAsset: Record "Fixed Asset";
-        FAJournalLine: Record "FA Journal Line";
-        FADepreciationBook: Record "FA Depreciation Book";
-    begin
-        with FADepreciationBook do
-            CreateAndSetupFixedAsset(
-              FixedAsset, StartingDate, '',
-              DepreciationBookCodeSUMU, "Depreciation Method"::"Straight-Line", '<3Y-1D>', 0,
-              DepreciationBookCodeTax, DepreciationMethodTax, EndingDateFormulaTax, DecliningBalancePercentTax);
-
-        with FixedAsset do begin
-            CreateAndPostPurchaseInvoice(StartingDate, "No.", DepreciationBookCodeSUMU, 1, Amount);
-            CreateAndPostAcqusitionLine(
-              "No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBookCodeTax, StartingDate, Amount);
-
-            RunAndPostDepreciation("No.", DepreciationBookCodeSUMU, CalcDate('<1M-1D>', StartingDate), true, false);
-            RunAndPostDepreciation("No.", DepreciationBookCodeSUMU, PostingDate, true, false);
-            RunAndPostDepreciation("No.", DepreciationBookCodeTax, PostingDate, false, true);
-
-            exit("No.");
-        end
     end;
 
     local procedure CreateFAJournalBatch(var FAJournalBatch: Record "FA Journal Batch")
@@ -2432,82 +2253,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryReportValidation.SetFileName(CreateGuid);
         FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
-    end;
-
-    local procedure RunAndPostDepreciation(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; PostingDate: Date; InsertBalanceAccount: Boolean; Tax: Boolean)
-    begin
-        RunCalculateDepreciation(FixedAssetNo, DepreciationBookCode, PostingDate, InsertBalanceAccount);
-        if Tax then
-            PostTaxDepreciation(DepreciationBookCode, FixedAssetNo)
-        else
-            PostDepreciation(DepreciationBookCode);
-    end;
-
-    local procedure RunCalculateDepreciation(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; PostingDate: Date; InsertBalanceAccount: Boolean)
-    var
-        FixedAsset: Record "Fixed Asset";
-        CalculateDepreciation: Report "Calculate Depreciation";
-    begin
-        Clear(CalculateDepreciation);
-        FixedAsset.SetRange("No.", FixedAssetNo);
-
-        CalculateDepreciation.SetTableView(FixedAsset);
-        CalculateDepreciation.InitializeRequest(
-          DepreciationBookCode, PostingDate, false, 0, PostingDate, FixedAssetNo, FixedAsset.
-          Description + ' ' + Format(PostingDate), InsertBalanceAccount);
-        CalculateDepreciation.UseRequestPage(false);
-        CalculateDepreciation.Run;
-    end;
-
-    local procedure PostDepreciation(DepreciationBookCode: Code[10])
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        FAJournalSetup: Record "FA Journal Setup";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DocumentNo: Code[20];
-    begin
-        FAJournalSetup.Get(DepreciationBookCode, '');
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
-            SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-            FindSet;
-            GenJournalBatch.Get("Journal Template Name", "Journal Batch Name");
-
-            DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
-            repeat
-                Validate("Document No.", DocumentNo);
-                Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
-                Modify(true);
-            until Next = 0;
-        end;
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure PostTaxDepreciation(DepreciationBookCode: Code[10]; FixedAssetNo: Code[20])
-    var
-        FAJournalLine: Record "FA Journal Line";
-        FAJournalSetup: Record "FA Journal Setup";
-        FAJournalBatch: Record "FA Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DocumentNo: Code[20];
-    begin
-        FAJournalSetup.Get(DepreciationBookCode, '');
-        with FAJournalLine do begin
-            SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
-            SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-            SetRange("FA No.", FixedAssetNo);
-            FindSet;
-            FAJournalBatch.Get("Journal Template Name", "Journal Batch Name");
-
-            DocumentNo := NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate, false);
-            repeat
-                Validate("Document No.", DocumentNo);
-                Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
-                Modify(true);
-            until Next = 0;
-        end;
-        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
 
     local procedure RestoreGainAccOnDisposal(FAPostingGroupCode: Code[20]; GainAccOnDisposal: Code[20])
@@ -2771,70 +2516,6 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetList."Fixed Asset".SetFilter("No.", LibraryVariableStorage.DequeueText);
         LibraryReportValidation.SetFileName(CreateGuid);
         FixedAssetList.SaveAsExcel(LibraryReportValidation.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure CalcAndPostDeprDifferenceRPH(var CalcAndPostDeprDifferenceRequestPage: TestRequestPage "Calc. and Post Depr. Diff.")
-    var
-        Value: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(Value);
-        CalcAndPostDeprDifferenceRequestPage."Depreciation Book Code 1".SetValue(Value);
-        LibraryVariableStorage.Dequeue(Value);
-        CalcAndPostDeprDifferenceRequestPage."Depreciation Book Code 2".SetValue(Value);
-        LibraryVariableStorage.Dequeue(Value);
-        CalcAndPostDeprDifferenceRequestPage."Starting Date".SetValue(Value);
-        LibraryVariableStorage.Dequeue(Value);
-        CalcAndPostDeprDifferenceRequestPage."Ending Date".SetValue(Value);
-        LibraryVariableStorage.Dequeue(Value);
-        CalcAndPostDeprDifferenceRequestPage."Posting Date".SetValue(Value);
-        LibraryVariableStorage.Dequeue(Value);
-        CalcAndPostDeprDifferenceRequestPage."Document No.".SetValue(Value);
-        LibraryVariableStorage.Dequeue(Value);
-        CalcAndPostDeprDifferenceRequestPage."Print Empty Lines".SetValue(Value);
-        LibraryVariableStorage.Dequeue(Value);
-        CalcAndPostDeprDifferenceRequestPage."Post Depreciation Difference".SetValue(Value);
-
-        CalcAndPostDeprDifferenceRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
-    local procedure RunCalcAndPostDeprDifferenceReport(DepreciationBookCodeSUMU: Code[10]; DepreciationBookCodeTax: Code[10]; StartingDate: Date; EndingDate: Date; PostingDate: Date; DocumentNo: Code[20]; PrintEmptyLines: Boolean; PostDepreciationDifference: Boolean; FixedAssetFilter: Text)
-    var
-        FixedAsset: Record "Fixed Asset";
-        CalcAndPostDeprDiffReport: Report "Calc. and Post Depr. Diff.";
-    begin
-        // passing parameters to request page
-        LibraryVariableStorage.Enqueue(DepreciationBookCodeSUMU);
-        LibraryVariableStorage.Enqueue(DepreciationBookCodeTax);
-        LibraryVariableStorage.Enqueue(StartingDate);
-        LibraryVariableStorage.Enqueue(EndingDate);
-        LibraryVariableStorage.Enqueue(PostingDate);
-        LibraryVariableStorage.Enqueue(DocumentNo);
-        LibraryVariableStorage.Enqueue(PrintEmptyLines);
-        LibraryVariableStorage.Enqueue(PostDepreciationDifference);
-
-        FixedAsset.SetFilter("No.", FixedAssetFilter);
-        CalcAndPostDeprDiffReport.SetTableView(FixedAsset);
-        CalcAndPostDeprDiffReport.UseRequestPage(true);
-        CalcAndPostDeprDiffReport.Run;
-    end;
-
-    local procedure VerifyCalcAndPostDeprDifferenceReportWithZeroDifference()
-    begin
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsFalse(
-          LibraryReportDataset.FindRow('DifferenceAmt', 0) > -1,
-          StrSubstNo(ZeroDifferenceLineErr, 'Calc. and Post Depr. Diff.'));
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure DepreciationCalcConfirmHandler(Message: Text; var Reply: Boolean)
-    begin
-        Assert.ExpectedMessage(TheDepreciationHasBeenCalculatedTxt, Message);
-        Reply := false;
     end;
 }
 

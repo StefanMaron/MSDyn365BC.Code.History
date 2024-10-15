@@ -1,4 +1,4 @@
-﻿page 5156 "Customer Template List"
+page 5156 "Customer Template List"
 {
     AdditionalSearchTerms = 'convert contact, new customer';
     ApplicationArea = RelationshipMgmt;

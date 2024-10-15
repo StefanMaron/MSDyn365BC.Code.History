@@ -162,10 +162,10 @@ report 5902 "Service Quote"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -189,7 +189,7 @@ report 5902 "Service Quote"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Service Order Comment"; "Service Comment Line")
@@ -437,10 +437,10 @@ report 5902 "Service Quote"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -464,7 +464,7 @@ report 5902 "Service Quote"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Service Line"."Dimension Set ID");
                             end;
@@ -507,7 +507,7 @@ report 5902 "Service Quote"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -606,8 +606,8 @@ report 5902 "Service Quote"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        ServiceSetup.Get;
+        CompanyInfo.Get();
+        ServiceSetup.Get();
         FormatDocument.SetLogoPosition(ServiceSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
     end;
 

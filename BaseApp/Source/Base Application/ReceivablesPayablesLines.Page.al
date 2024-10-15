@@ -3,7 +3,8 @@ page 355 "Receivables-Payables Lines"
     Caption = 'Lines';
     LinksAllowed = false;
     PageType = ListPart;
-    SourceTable = Date;
+    SourceTable = "Receivables-Payables Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -25,7 +26,7 @@ page 355 "Receivables-Payables Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period covered by the summary report of receivables for customers and payables for vendors.';
                 }
-                field(CustBalancesDue; GLSetup."Cust. Balances Due")
+                field(CustBalancesDue; "Cust. Balances Due")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -35,10 +36,10 @@ page 355 "Receivables-Payables Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCustEntriesDue;
+                        ShowCustEntriesDue();
                     end;
                 }
-                field(VendorBalancesDue; GLSetup."Vendor Balances Due")
+                field(VendorBalancesDue; "Vendor Balances Due")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -48,10 +49,10 @@ page 355 "Receivables-Payables Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowVendEntriesDue;
+                        ShowVendEntriesDue();
                     end;
                 }
-                field(ReceivablesPayables; GLSetup."Cust. Balances Due" - GLSetup."Vendor Balances Due")
+                field(ReceivablesPayables; "Receivables-Payables")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -68,36 +69,46 @@ page 355 "Receivables-Payables Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        GLSetup.CalcFields("Cust. Balances Due", "Vendor Balances Due");
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
 
     procedure Set(var NewGLSetup: Record "General Ledger Setup"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         GLSetup.Copy(NewGLSetup);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -105,8 +116,8 @@ page 355 "Receivables-Payables Lines"
 
     local procedure ShowCustEntriesDue()
     begin
-        SetDateFilter;
-        CustLedgEntry.Reset;
+        SetDateFilter();
+        CustLedgEntry.Reset();
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetFilter("Due Date", GLSetup.GetFilter("Date Filter"));
         CustLedgEntry.SetFilter("Global Dimension 1 Code", GLSetup.GetFilter("Global Dimension 1 Filter"));
@@ -116,8 +127,8 @@ page 355 "Receivables-Payables Lines"
 
     local procedure ShowVendEntriesDue()
     begin
-        SetDateFilter;
-        VendLedgEntry.Reset;
+        SetDateFilter();
+        VendLedgEntry.Reset();
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.SetFilter("Due Date", GLSetup.GetFilter("Date Filter"));
         VendLedgEntry.SetFilter("Global Dimension 1 Code", GLSetup.GetFilter("Global Dimension 1 Filter"));
@@ -131,6 +142,22 @@ page 355 "Receivables-Payables Lines"
             GLSetup.SetRange("Date Filter", "Period Start", "Period End")
         else
             GLSetup.SetRange("Date Filter", 0D, "Period End");
+    end;
+
+    local procedure CalcLine()
+    begin
+        SetDateFilter();
+        GLSetup.CalcFields("Cust. Balances Due", "Vendor Balances Due");
+        "Cust. Balances Due" := GLSetup."Cust. Balances Due";
+        "Vendor Balances Due" := GLSetup."Vendor Balances Due";
+        "Receivables-Payables" := GLSetup."Cust. Balances Due" - GLSetup."Vendor Balances Due";
+
+        OnAfterCalcLine(GLSetup, Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLine(var GLSetup: Record "General Ledger Setup"; var ReceivablesPayablesBuffer: Record "Receivables-Payables Buffer")
+    begin
     end;
 }
 

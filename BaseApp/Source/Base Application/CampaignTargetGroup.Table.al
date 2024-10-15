@@ -41,5 +41,15 @@ table 7030 "Campaign Target Group"
     fieldgroups
     {
     }
+
+    procedure CopyTo(var TempCampaignTargetGroup: Record "Campaign Target Group" temporary) Found: Boolean;
+    begin
+        Found := FindSet();
+        if Found then
+            repeat
+                TempCampaignTargetGroup := Rec;
+                TempCampaignTargetGroup.Insert();
+            until Next() = 0;
+    end;
 }
 

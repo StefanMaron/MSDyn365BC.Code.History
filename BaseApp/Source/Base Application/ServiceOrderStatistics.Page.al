@@ -1105,7 +1105,7 @@ page 5914 "Service Order Statistics"
         Clear(ServAmtsMgt);
 
         for i := 1 to 7 do begin
-            TempServLine.DeleteAll;
+            TempServLine.DeleteAll();
             Clear(TempServLine);
             ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
 
@@ -1171,7 +1171,7 @@ page 5914 "Service Order Statistics"
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         AllowInvDisc := not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
           SalesSetup."Allow VAT Difference" and

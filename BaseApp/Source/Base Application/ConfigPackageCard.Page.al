@@ -73,6 +73,28 @@ page 8614 "Config. Package Card"
             group(Package)
             {
                 Caption = 'Package';
+                
+                action(GetTables)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Get Tables';
+                    Ellipsis = true;
+                    Image = GetLines;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+                    ToolTip = 'Select tables that you want to add to the configuration package.';
+
+                    trigger OnAction()
+                    var
+                        GetPackageTables: Report "Get Package Tables";
+                    begin
+                        CurrPage.SaveRecord;
+                        GetPackageTables.Set(Code);
+                        GetPackageTables.RunModal;
+                        Clear(GetPackageTables);
+                    end;
+                }
                 action(ExportPackage)
                 {
                     ApplicationArea = Basic, Suite;
@@ -167,27 +189,7 @@ page 8614 "Config. Package Card"
             group("F&unctions")
             {
                 Caption = 'F&unctions';
-                action(GetTables)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Get Tables';
-                    Ellipsis = true;
-                    Image = GetLines;
-                    Promoted = true;
-                    PromotedCategory = New;
-                    PromotedIsBig = true;
-                    ToolTip = 'Select tables that you want to add to the configuration package.';
 
-                    trigger OnAction()
-                    var
-                        GetPackageTables: Report "Get Package Tables";
-                    begin
-                        CurrPage.SaveRecord;
-                        GetPackageTables.Set(Code);
-                        GetPackageTables.RunModal;
-                        Clear(GetPackageTables);
-                    end;
-                }
                 action(ApplyPackage)
                 {
                     ApplicationArea = Basic, Suite;

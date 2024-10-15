@@ -47,7 +47,7 @@ report 846 "Cash Flow Date List"
                 column(Receivables; Values[CFForecastEntry."Source Type"::Receivables])
                 {
                 }
-                column(Sales_Orders_; Values[CFForecastEntry."Source Type"::"Sales Order"])
+                column(Sales_Orders_; Values[CFForecastEntry."Source Type"::"Sales Orders"])
                 {
                 }
                 column(Service_Orders_; Values[CFForecastEntry."Source Type"::"Service Orders"])
@@ -59,7 +59,7 @@ report 846 "Cash Flow Date List"
                 column(Payables; Values[CFForecastEntry."Source Type"::Payables])
                 {
                 }
-                column(Purchase_Orders_; Values[CFForecastEntry."Source Type"::"Purchase Order"])
+                column(Purchase_Orders_; Values[CFForecastEntry."Source Type"::"Purchase Orders"])
                 {
                 }
                 column(ManualExpenses; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"])
@@ -83,13 +83,13 @@ report 846 "Cash Flow Date List"
                 column(Receivables_Control2; Values[CFForecastEntry."Source Type"::Receivables])
                 {
                 }
-                column(Sales_Orders__Control9; Values[CFForecastEntry."Source Type"::"Sales Order"])
+                column(Sales_Orders__Control9; Values[CFForecastEntry."Source Type"::"Sales Orders"])
                 {
                 }
                 column(Payables_Control12; Values[CFForecastEntry."Source Type"::Payables])
                 {
                 }
-                column(Purchase_Orders__Control15; Values[CFForecastEntry."Source Type"::"Purchase Order"])
+                column(Purchase_Orders__Control15; Values[CFForecastEntry."Source Type"::"Purchase Orders"])
                 {
                 }
                 column(ManualRevenues_Control23; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"])

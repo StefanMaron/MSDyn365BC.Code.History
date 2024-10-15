@@ -88,7 +88,7 @@ table 5605 "FA Journal Setup"
 
     trigger OnInsert()
     begin
-        DeprBook.LockTable;
+        DeprBook.LockTable();
         DeprBook.Get("Depreciation Book Code");
     end;
 
@@ -288,7 +288,7 @@ table 5605 "FA Journal Setup"
                    (FAJnlSetup."FA Jnl. Batch Name" = FAJnlBatch.Name)
                 then begin
                     FAJnlSetup."FA Jnl. Batch Name" := IncStr(FAJnlSetup."FA Jnl. Batch Name");
-                    FAJnlSetup.Modify;
+                    FAJnlSetup.Modify();
                 end;
             until FAJnlSetup.Next = 0;
     end;
@@ -303,7 +303,7 @@ table 5605 "FA Journal Setup"
                    (FAJnlSetup."Gen. Jnl. Batch Name" = GenJnlBatch.Name)
                 then begin
                     FAJnlSetup."Gen. Jnl. Batch Name" := IncStr(FAJnlSetup."Gen. Jnl. Batch Name");
-                    FAJnlSetup.Modify;
+                    FAJnlSetup.Modify();
                 end;
             until FAJnlSetup.Next = 0;
     end;
@@ -318,7 +318,7 @@ table 5605 "FA Journal Setup"
                    (FAJnlSetup."Insurance Jnl. Batch Name" = InsuranceJnlBatch.Name)
                 then begin
                     FAJnlSetup."Insurance Jnl. Batch Name" := IncStr(FAJnlSetup."Insurance Jnl. Batch Name");
-                    FAJnlSetup.Modify;
+                    FAJnlSetup.Modify();
                 end;
             until FAJnlSetup.Next = 0;
     end;

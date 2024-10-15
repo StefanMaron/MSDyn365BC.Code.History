@@ -154,7 +154,7 @@ codeunit 32000002 "Bank Nos Check"
     [Scope('OnPrem')]
     procedure CreateSalesInvReference(PostingNo: Code[20]; BillToCustomer: Code[20]) NewRefNo: Code[20]
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         Clear(ReferenceNumber);
         if not SalesSetup."Invoice No." then
             SalesSetup.TestField("Reference Nos.");

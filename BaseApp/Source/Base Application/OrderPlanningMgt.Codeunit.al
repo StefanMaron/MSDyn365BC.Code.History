@@ -44,13 +44,13 @@ codeunit 5522 "Order Planning Mgt."
 
     procedure PrepareRequisitionRecord(var RequisitionLine: Record "Requisition Line")
     begin
-        RequisitionLine.LockTable;
+        RequisitionLine.LockTable();
         RequisitionLine.SetCurrentKey("User ID", "Worksheet Template Name");
         RequisitionLine.SetRange("User ID", UserId);
         RequisitionLine.SetRange("Worksheet Template Name", '');
         RequisitionLine.DeleteAll(true);
 
-        RequisitionLine.Reset;
+        RequisitionLine.Reset();
         RequisitionLine.SetRange("Worksheet Template Name", '');
         if RequisitionLine.FindLast then;
     end;
@@ -85,14 +85,14 @@ codeunit 5522 "Order Planning Mgt."
 
             Window.Close;
 
-            RequisitionLine.Reset;
+            RequisitionLine.Reset();
             RequisitionLine.SetCurrentKey("User ID", "Worksheet Template Name");
             RequisitionLine.SetRange("User ID", UserId);
             if not RequisitionLine.FindFirst then
                 Error(Text004);
 
             OnAfterTransformUnplannedDemandToRequisitionLines(RequisitionLine);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -129,7 +129,7 @@ codeunit 5522 "Order Planning Mgt."
                     ReqLine.SetSupplyQty("Quantity (Base)", "Needed Qty. (Base)");
                     ReqLine.SetSupplyDates("Demand Date");
                     OnInsertDemandLinesOnBeforeReqLineInsert(ReqLine);
-                    ReqLine.Insert;
+                    ReqLine.Insert();
 
                     if Item."No." <> "Item No." then
                         Item.Get("Item No.");
@@ -264,7 +264,7 @@ codeunit 5522 "Order Planning Mgt."
     begin
         if HasGotCompanyInfo then
             exit;
-        HasGotCompanyInfo := CompanyInfo.Get;
+        HasGotCompanyInfo := CompanyInfo.Get();
     end;
 
     procedure SetSalesOrder()
@@ -315,7 +315,7 @@ codeunit 5522 "Order Planning Mgt."
 
         ItemSubstMgt.GetTempItemSubstList(TempItemSub);
 
-        TempItemSub.Reset;
+        TempItemSub.Reset();
         TempItemSub.SetRange("Variant Code", ReqLine."Variant Code");
         TempItemSub.SetRange("Location Filter", ReqLine."Location Code");
         if TempItemSub.FindFirst then;
@@ -353,7 +353,7 @@ codeunit 5522 "Order Planning Mgt."
                 ReqLine."Original Item No." := ReqLine2."No.";
                 ReqLine."Original Variant Code" := ReqLine2."Variant Code";
                 OnBeforeReqLineModify(ReqLine, ReqLine2, ProdOrderComp);
-                ReqLine.Modify;
+                ReqLine.Modify();
                 PlanningLineMgt.Calculate(ReqLine, 1, true, true, 0);
             end;
         end;
@@ -404,7 +404,7 @@ codeunit 5522 "Order Planning Mgt."
 
         NextLineNo := 0;
 
-        Location.Reset;
+        Location.Reset();
         Location.SetRange("Use As In-Transit", false);
         Location.SetFilter(Code, '<>%1', ReqLine."Location Code");
         if Location.Find('-') then
@@ -431,7 +431,7 @@ codeunit 5522 "Order Planning Mgt."
                     TempReqLine."Quantity (Base)" := AvailableQtyBase;
 
                     OnInsertAltSupplyLocationOnBeforeTempReqLineInsert(TempReqLine);
-                    TempReqLine.Insert;
+                    TempReqLine.Insert();
                 end;
             until Location.Next = 0;
 
@@ -451,7 +451,7 @@ codeunit 5522 "Order Planning Mgt."
         ReqLine2: Record "Requisition Line";
     begin
         with ReqLine do begin
-            ReqLine2.Reset;
+            ReqLine2.Reset();
             ReqLine2.SetCurrentKey("Worksheet Template Name", "Journal Batch Name", Type, "No.", "Due Date");
             ReqLine2.SetRange("Worksheet Template Name", '');
             ReqLine2.SetRange("Journal Batch Name", '');
@@ -479,7 +479,7 @@ codeunit 5522 "Order Planning Mgt."
             exit(0);
 
         AvailableQtyBaseTotal := 0;
-        Location.Reset;
+        Location.Reset();
         Location.SetRange("Use As In-Transit", false);
         if ReqLine."Location Code" <> '' then
             Location.SetFilter(Code, '<>%1', ReqLine."Location Code")

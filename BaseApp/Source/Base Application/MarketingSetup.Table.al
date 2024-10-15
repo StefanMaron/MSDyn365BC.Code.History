@@ -166,11 +166,9 @@ table 5079 "Marketing Setup"
             Caption = 'Default Person Salutation Code';
             TableRelation = Salutation;
         }
-        field(53; "Default Correspondence Type"; Option)
+        field(53; "Default Correspondence Type"; Enum "Correspondence Type")
         {
             Caption = 'Default Correspondence Type';
-            OptionCaption = ' ,Hard Copy,Email,Fax';
-            OptionMembers = " ","Hard Copy",Email,Fax;
         }
         field(56; "Queue Folder Path"; Text[250])
         {
@@ -403,7 +401,7 @@ table 5079 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
 
         case ContactType of
             ContactType::Company:

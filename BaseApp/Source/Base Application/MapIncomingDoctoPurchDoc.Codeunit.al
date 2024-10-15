@@ -230,7 +230,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
 
                 // prepare variables needed for calculation of totals
                 VATAmount := 0;
-                TempTotalPurchaseLine.Init;
+                TempTotalPurchaseLine.Init();
                 CurrentPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
                 CurrentPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
 
@@ -300,11 +300,8 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
     end;
 
     local procedure TruncateValueToFieldLength(FieldRef: FieldRef; var Value: Text[250])
-    var
-        "Field": Record "Field";
     begin
-        Evaluate(Field.Type, Format(FieldRef.Type));
-        if Field.Type in [Field.Type::Code, Field.Type::Text] then
+        if FieldRef.Type in [FieldType::Code, FieldType::Text] then
             Value := CopyStr(Value, 1, FieldRef.Length);
     end;
 
@@ -314,8 +311,8 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         IntermediateDataImport: Record "Intermediate Data Import";
         FldNo: Integer;
     begin
-        TempProcessedHdrFldId.Reset;
-        TempProcessedHdrFldId.DeleteAll;
+        TempProcessedHdrFldId.Reset();
+        TempProcessedHdrFldId.DeleteAll();
 
         with IntermediateDataImport do begin
             SetRange("Data Exch. No.", DataExch."Entry No.");
@@ -412,8 +409,8 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        TempProcessedLineFldId.Reset;
-        TempProcessedLineFldId.DeleteAll;
+        TempProcessedLineFldId.Reset();
+        TempProcessedLineFldId.DeleteAll();
 
         InsertEmptyPurchaseLine(PurchaseHeader, PurchaseLine);
         RecRef.GetTable(PurchaseLine);
@@ -529,12 +526,12 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
     begin
         Clear(TempInt);
         TempInt.Number := FieldID;
-        TempInt.Insert;
+        TempInt.Insert();
     end;
 
     local procedure IsFieldProcessed(var TempInt: Record "Integer"; FieldID: Integer): Boolean
     begin
-        TempInt.Reset;
+        TempInt.Reset();
         TempInt.SetRange(Number, FieldID);
 
         exit(TempInt.FindFirst);
@@ -542,11 +539,11 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
 
     local procedure CorrelateCreatedDocumentWithRecordNo(RecRef: RecordRef; RecordNo: Integer)
     begin
-        TempNameValueBufferPurchHdr.Init;
+        TempNameValueBufferPurchHdr.Init();
         TempNameValueBufferPurchHdr.ID := RecordNo;
         TempNameValueBufferPurchHdr.Name := Format(RecordNo);
         TempNameValueBufferPurchHdr.Value := Format(RecRef.RecordId);
-        TempNameValueBufferPurchHdr.Insert;
+        TempNameValueBufferPurchHdr.Insert();
     end;
 
     local procedure GetRelatedPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; RecordNo: Integer)
@@ -568,18 +565,18 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         if TempNameValueBufferPurchLine.FindLast then
             ID := TempNameValueBufferPurchLine.ID + 1;
 
-        TempNameValueBufferPurchLine.Init;
+        TempNameValueBufferPurchLine.Init();
         TempNameValueBufferPurchLine.ID := ID;
         TempNameValueBufferPurchLine.Name := Key;
         TempNameValueBufferPurchLine.Value := Format(RecRef.RecordId);
-        TempNameValueBufferPurchLine.Insert;
+        TempNameValueBufferPurchLine.Insert();
     end;
 
     local procedure GetRelatedPurchaseLine(var PurchaseLine: Record "Purchase Line"; "Key": Text[250])
     var
         RecId: RecordID;
     begin
-        TempNameValueBufferPurchLine.Reset;
+        TempNameValueBufferPurchLine.Reset();
         TempNameValueBufferPurchLine.SetRange(Name, Key);
         TempNameValueBufferPurchLine.FindFirst;
         Evaluate(RecId, Format(TempNameValueBufferPurchLine.Value));
@@ -659,9 +656,9 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         IntermediateDataImport: Record "Intermediate Data Import";
     begin
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
         IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
-        IntermediateDataImport.DeleteAll;
+        IntermediateDataImport.DeleteAll();
     end;
 
     local procedure InsertEmptyPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")

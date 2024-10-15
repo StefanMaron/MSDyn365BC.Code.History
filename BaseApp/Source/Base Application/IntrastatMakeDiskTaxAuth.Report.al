@@ -29,7 +29,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TestField("Tariff No.");
                     TestField("Country/Region Code");
@@ -76,7 +76,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     "Tariff No." := DelChr("Tariff No.");
 
                     TotalWeightAmt += "Total Weight";
@@ -118,14 +118,14 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                     if IntraJnlLineType = 0 then begin
                         "Intrastat Jnl. Batch"."Reported Receipt" := true;
-                        "Intrastat Jnl. Batch".Modify;
-                        IntraSetup.Modify;
+                        "Intrastat Jnl. Batch".Modify();
+                        IntraSetup.Modify();
                     end
                     else
                         if IntraJnlLineType = 1 then begin
                             "Intrastat Jnl. Batch"."Reported Shipment" := true;
-                            "Intrastat Jnl. Batch".Modify;
-                            IntraSetup.Modify;
+                            "Intrastat Jnl. Batch".Modify();
+                            IntraSetup.Modify();
                         end;
 
                     if ServerFileName = '' then
@@ -137,7 +137,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 trigger OnPreDataItem()
                 begin
                     IntrastatJnlLine2.SetRange(Type, IntraJnlLineType);
-                    CompanyInfo.Get;
+                    CompanyInfo.Get();
                     if not IntraSetup.Get then
                         Error(MissingFileSetupConfigErr);
 

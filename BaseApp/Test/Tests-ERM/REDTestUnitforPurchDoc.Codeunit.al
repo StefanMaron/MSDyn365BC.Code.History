@@ -18,6 +18,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryResource: Codeunit "Library - Resource";
         CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined";
         StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
         PurchDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Posted Invoice","Posted Credit Memo","Posted Return Receipt";
@@ -73,7 +74,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [GIVEN] User has assigned a default deferral code to a GL Account
         CreateGLAccount(GLAccount);
         GLAccount.Validate("Default Deferral Template Code", DeferralTemplateCode);
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [WHEN] Creating Purchase Line for GL Account should default deferral code
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -105,7 +106,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [GIVEN] User has assigned a default deferral code to a GL Account
         CreateGLAccount(GLAccount);
         GLAccount.Validate("Default Deferral Template Code", DeferralTemplateCode);
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [WHEN] Creating Purchase Line for GL Account should default deferral code
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -179,7 +180,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::"Return Order", PurchaseLine.Type::Item, ItemNo, SetDateDay(10, WorkDate));
         PurchaseLine.Validate("Returns Deferral Start Date", SetDateDay(15, WorkDate));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
 
         // [THEN] The Deferral Code was assigned to the Purchase Line
         PurchaseLine.TestField("Deferral Code", DeferralTemplateCode);
@@ -970,7 +971,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         // [WHEN] The Order Qty to Invoice is updated again
         PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchHeader.Modify;
+        PurchHeader.Modify();
         FindPurchLine(PurchHeader, PurchLine);
         UpdateQtyToReceiveInvoiceOnPurchLine(PurchLine, 5, 2, 2);
         AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount, PurchHeader."Currency Code");
@@ -1571,7 +1572,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
 
         FindDeferralHeader(PurchaseLine, DeferralHeader);
-        DeferralHeader.Delete;
+        DeferralHeader.Delete();
 
         // [WHEN] Document is posted
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1601,7 +1602,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         FindDeferralHeader(PurchaseLine, DeferralHeader);
         DeferralHeader."Amount to Defer" := 0;
-        DeferralHeader.Modify;
+        DeferralHeader.Modify();
 
         // [WHEN] Document is posted
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1632,7 +1633,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         FindDeferralHeader(PurchaseLine, DeferralHeader);
         RangeDeferralLines(DeferralHeader, DeferralLine);
-        DeferralLine.DeleteAll;
+        DeferralLine.DeleteAll();
 
         // [WHEN] Document is posted
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1666,7 +1667,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         if DeferralLine.FindFirst then begin
             DeferralLine.Amount := 0.0;
             DeferralLine."Amount (LCY)" := 0.0;
-            DeferralLine.Modify;
+            DeferralLine.Modify();
         end;
 
         // [WHEN] Document is posted
@@ -1753,7 +1754,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         CreateGLAccount(GLAccount);
         PurchAccount := GLAccount."No.";
         GenPostingSetup.Validate("Purch. Credit Memo Account", PurchAccount);
-        GenPostingSetup.Modify;
+        GenPostingSetup.Modify();
 
         // [WHEN] Document is posted
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1888,7 +1889,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
-        Commit;
+        Commit();
 
         // [GIVEN] Two periods are created
         FindDeferralHeader(PurchaseLine, DeferralHeader);
@@ -2228,6 +2229,77 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchaseReturnOrderArchive.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPurchaseOrderWithResource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+    begin
+        // [FEATURE] [Resources]
+        // [SCENARIO 289386] Deferral template code filled in the purchase order line when select resource with default deferral template
+        Initialize;
+
+        // [GIVEN] Resource with default deferral code
+        CreateResourceWithDefaultDeferralCode(Resource);
+
+        // [WHEN] Create purchase order with resource line
+        CreatePurchDocWithLine(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Resource, Resource."No.", CalcDate('<-CM>', WorkDate()));
+
+        // [THEN] The Deferral Code was assigned to the Purchase Line
+        PurchaseLine.TestField("Deferral Code", Resource."Default Deferral Template Code");
+
+        // [THEN] The deferral schedule was created
+        ValidateDeferralSchedule(
+          PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
+          Resource."Default Deferral Template Code", PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCopyPostedInvoiceWithResourceAndDeferral()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeaderDest: Record "Purchase Header";
+        PurchaseLineDest: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        Resource: Record Resource;
+        DeferralTemplateCode: Code[10];
+        ItemNo: Code[20];
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Resources]
+        // [SCENARIO 289386] Deferral template code filled in the purchase order line when copy document from posted invoice with resource line
+        Initialize();
+
+        // [GIVEN] Resource with default deferral code
+        CreateResourceWithDefaultDeferralCode(Resource);
+
+        // [GIVEN] Posted purchase invoice with resource line
+        CreatePurchDocWithLine(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Resource, Resource."No.", CalcDate('<-CM>', WorkDate()));
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(DocNo);
+
+        // [WHEN] Create New purchase order document and copy the existing one
+        CreatePurchHeaderForVendor(PurchaseHeader, PurchaseHeader."Document Type"::Order, CalcDate('<-CM>', WorkDate()), PurchInvHeader."Buy-from Vendor No.");
+        CopyDoc(PurchaseHeader, CopyDocType::"Posted Invoice", PurchInvHeader."No.", true, false);
+
+        // [THEN] The deferral schedule was copied from the existing line
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.FindFirst;
+        FindPurchLine(PurchaseHeader, PurchaseLine);
+        if PurchaseLine."No." = '' then
+            PurchaseLine.Next;
+        PurchaseLine.TestField("Deferral Code", Resource."Default Deferral Template Code");
+        PurchaseLine.TestField("Returns Deferral Start Date", 0D);
+        VerifyPostedDeferralsAreEqual(PurchInvLine, PurchaseLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2256,7 +2328,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     var
         DeferralTemplate: Record "Deferral Template";
     begin
-        DeferralTemplate.Init;
+        DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" :=
           LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
         DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo;
@@ -2265,7 +2337,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DeferralTemplate."No. of Periods" := NumOfPeriods;
         DeferralTemplate."Period Description" := 'Deferral Revenue for %4';
 
-        DeferralTemplate.Insert;
+        DeferralTemplate.Insert();
         exit(DeferralTemplate."Deferral Code");
     end;
 
@@ -2321,7 +2393,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         GLAccount.Get(No);
     end;
 
-    local procedure CreatePurchDocWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PurchLineType: Option " ","G/L Account",Item,,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreatePurchDocWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PurchLineType: Enum "Purchase Line Type"; No: Code[20]; PostingDate: Date)
     var
         Item: Record Item;
     begin
@@ -2340,13 +2412,18 @@ codeunit 134804 "RED Test Unit for Purch Doc"
                     PurchaseLine.Validate("Direct Unit Cost", Item."Unit Cost");
                     PurchaseLine.Modify(true)
                 end;
+            PurchaseLine.Type::Resource:
+                begin
+                    PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+                    PurchaseLine.Modify(true)
+                end;
         end;
     end;
 
     local procedure CreatePurchHeaderForVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Integer; PostingDate: Date; VendorCode: Code[20])
     begin
         Clear(PurchaseHeader);
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorCode);
         PurchaseHeader.Validate("Posting Date", PostingDate);
@@ -2840,7 +2917,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
-        RecCount := GLEntry.Count;
+        RecCount := GLEntry.Count();
         GLEntry.CalcSums(Amount);
         AccAmt := GLEntry.Amount;
         if GLEntry.FindFirst then
@@ -3046,7 +3123,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
-        RecCount := GLEntry.Count;
+        RecCount := GLEntry.Count();
         if GLEntry.Find('-') then begin
             PurchAmt := GLEntry.Amount;
             repeat
@@ -3083,7 +3160,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         NewPostingDate := CalcDate('<+1M>', PostingDate);
         SetupBatchPostingReportParameters(NewPostingDate, ConfirmValue);
-        Commit;
+        Commit();
         PurchaseHeader.SetFilter("No.", '%1|%2', DocNo1, DocNo2);
         REPORT.Run(ReportID, true, false, PurchaseHeader);
     end;
@@ -3254,6 +3331,17 @@ codeunit 134804 "RED Test Unit for Purch Doc"
             FindFirst;
             TestField(Amount, -PairAmount);
         end;
+    end;
+
+    local procedure CreateResourceWithDefaultDeferralCode(var Resource: Record Resource)
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        LibraryResource.CreateResourceNew(Resource);
+        Resource.Validate(
+            "Default Deferral Template Code",
+            CreateDeferralCode(DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Posting Date", 2));
+        Resource.Modify(true);
     end;
 
     [ModalPageHandler]

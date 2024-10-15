@@ -7,7 +7,7 @@ codeunit 114 "Empl. Entry-Edit"
     trigger OnRun()
     begin
         EmplLedgEntry := Rec;
-        EmplLedgEntry.LockTable;
+        EmplLedgEntry.LockTable();
         EmplLedgEntry.Find;
         if EmplLedgEntry.Open then begin
             EmplLedgEntry."Applies-to ID" := "Applies-to ID";
@@ -21,7 +21,7 @@ codeunit 114 "Empl. Entry-Edit"
         EmplLedgEntry.Validate("Payment Reference", "Payment Reference");
         OnBeforeEmplLedgEntryModify(EmplLedgEntry, Rec);
         EmplLedgEntry.TestField("Entry No.", "Entry No.");
-        EmplLedgEntry.Modify;
+        EmplLedgEntry.Modify();
         Rec := EmplLedgEntry;
     end;
 

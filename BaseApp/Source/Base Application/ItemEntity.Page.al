@@ -377,7 +377,7 @@ page 5470 "Item Entity"
         Clear(BaseUnitOfMeasureCode);
         Clear(BaseUnitOfMeasureJSONText);
         Clear(InventoryValue);
-        TempFieldSet.DeleteAll;
+        TempFieldSet.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -385,7 +385,7 @@ page 5470 "Item Entity"
         if TempFieldSet.Get(DATABASE::Item, FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Item;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

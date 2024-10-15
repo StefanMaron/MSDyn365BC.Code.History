@@ -27,10 +27,10 @@ codeunit 32000000 "Ref. Payment Management"
     [Scope('OnPrem')]
     procedure SetLines(RefPaymentImported: Record "Ref. Payment - Imported"; JnlBatchName: Code[20]; JnlTemplateName: Code[20])
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GenJnlTemplate.Get(JnlTemplateName);
 
-        GenJnlLine.Reset;
+        GenJnlLine.Reset();
         GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
         GenJnlLine.SetFilter("Journal Template Name", JnlTemplateName);
         GenJnlLine.SetFilter("Journal Batch Name", JnlBatchName);
@@ -44,7 +44,7 @@ codeunit 32000000 "Ref. Payment Management"
         RefPaymentImported.SetRange("Posted to G/L", false);
         RefPaymentImported.SetRange(Matched, true);
         RefPaymentImported.SetFilter("Entry No.", '<>%1', 0);
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         if RefPaymentImported.FindSet then
             repeat
                 BankAcc.SetRange("No.", RefPaymentImported."Bank Account Code");
@@ -53,7 +53,7 @@ codeunit 32000000 "Ref. Payment Management"
                 else
                     AccCode := '';
                 CustLedgEntry.SetRange("Entry No.", RefPaymentImported."Entry No.");
-                GenJnlLine.Reset;
+                GenJnlLine.Reset();
                 GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Applies-to Doc. No.", "Reference No.");
                 GenJnlLine.SetRange("Journal Template Name", JnlTemplateName);
                 GenJnlLine.SetRange("Journal Batch Name", JnlBatchName);
@@ -63,7 +63,7 @@ codeunit 32000000 "Ref. Payment Management"
                 RefPmtImportTemp.SetRange("Account No.", RefPaymentImported."Account No.");
                 RefPmtImportTemp.SetRange("Filing Code", RefPaymentImported."Filing Code");
                 if (CustLedgEntry.FindFirst or (not RefPmtImportTemp.FindFirst)) and (not GenJnlLine.FindFirst) then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine."Journal Template Name" := JnlTemplateName;
                     GenJnlLine.Validate("Journal Batch Name", JnlBatchName);
                     GenJnlLine."Line No." := LineNro;
@@ -104,12 +104,12 @@ codeunit 32000000 "Ref. Payment Management"
     var
         NoMatchLines: Boolean;
     begin
-        RefPmtImport.Reset;
+        RefPmtImport.Reset();
         RefPmtImport.SetRange("Record ID", 3, 5);
         RefPmtImport.SetRange("Posted to G/L", false);
         if RefPmtImport.FindSet then
             repeat
-                CustLedgEntry.Reset;
+                CustLedgEntry.Reset();
                 CustLedgEntry.SetFilter("Reference No.", RefPmtImport."Reference No.");
                 CustLedgEntry.SetFilter("Document Type", '%1', 2);
                 CustLedgEntry.SetRange(Open, true);
@@ -121,7 +121,7 @@ codeunit 32000000 "Ref. Payment Management"
                     RefPmtImport.Matched := true;
                     RefPmtImport."Matched Date" := Today;
                     RefPmtImport."Matched Time" := Time;
-                    RefPmtImport.Modify;
+                    RefPmtImport.Modify();
                 end else
                     NoMatchLines := true;
             until RefPmtImport.Next = 0;
@@ -129,7 +129,7 @@ codeunit 32000000 "Ref. Payment Management"
         if NoMatchLines then
             Message(Text1090001);
 
-        RefPmtImport.Reset;
+        RefPmtImport.Reset();
         SetLines(RefPmtImport, JnlBatchName, JnlTemplateName);
     end;
 
@@ -166,7 +166,7 @@ codeunit 32000000 "Ref. Payment Management"
                 RefPmtExport1 := RefPmtExported;
                 RefPmtExport1."Affiliated to Line" := TempRefPmtBuffer.AddLine(RefPmtExported);
                 RefPmtExport1."Applied Payments" := true;
-                RefPmtExport1.Modify;
+                RefPmtExport1.Modify();
             until RefPmtExported.Next = 0;
 
         TempRefPmtBuffer.SetFilter("No.", '<>%1', 0);
@@ -175,17 +175,17 @@ codeunit 32000000 "Ref. Payment Management"
                 if RefPmtExported.Get(TempRefPmtBuffer."No.") then begin
                     RefPmtExported."Affiliated to Line" := 0;
                     RefPmtExported."Applied Payments" := false;
-                    RefPmtExported.Modify;
+                    RefPmtExported.Modify();
                 end;
             until TempRefPmtBuffer.Next = 0;
-        TempRefPmtBuffer.DeleteAll;
+        TempRefPmtBuffer.DeleteAll();
 
-        RefPmtExported.LockTable;
+        RefPmtExported.LockTable();
         LastLineNo := RefPmtExported.GetLastLineNo + 1;
-        TempRefPmtBuffer.Reset;
+        TempRefPmtBuffer.Reset();
         if TempRefPmtBuffer.FindSet then
             repeat
-                RefPmtExported.Init;
+                RefPmtExported.Init();
                 RefPmtExported.TransferFields(TempRefPmtBuffer);
                 if (PaymentType = PaymentType::SEPA) and RefPmtExport1.Get(TempRefPmtBuffer."Affiliated to Line") then
                     RefPmtExported."Document No." := RefPmtExport1."Document No.";
@@ -194,10 +194,10 @@ codeunit 32000000 "Ref. Payment Management"
                 RefPmtExported.Description := CopyStr(Vendor.Name, 1, MaxStrLen(RefPmtExported.Description));
                 RefPmtExported."Document Type" := RefPmtExported."Document Type"::Invoice;
                 RefPmtExported.Validate("Message Type");
-                RefPmtExported.Insert;
+                RefPmtExported.Insert();
                 LastLineNo := LastLineNo + 1;
             until TempRefPmtBuffer.Next = 0;
-        TempRefPmtBuffer.DeleteAll;
+        TempRefPmtBuffer.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -334,7 +334,7 @@ codeunit 32000000 "Ref. Payment Management"
                         if "Disreg. Pmt. Disc. at Full Pmt" then
                             Error(Text1090005);
                     end else begin
-                        CustLedgerEntryPmt.Reset;
+                        CustLedgerEntryPmt.Reset();
                         CustLedgerEntryPmt.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
                         CustLedgerEntryPmt.SetRange("Document Type", "Document Type"::Payment);
                         CustLedgerEntryPmt.SetRange("Applies-to ID", GenJnlLine2."Applies-to ID");
@@ -375,7 +375,7 @@ codeunit 32000000 "Ref. Payment Management"
         if RefPmtImport.FindSet then
             repeat
                 RefPmtImportTemp := RefPmtImport;
-                RefPmtImportTemp.Insert;
+                RefPmtImportTemp.Insert();
             until RefPmtImport.Next = 0;
     end;
 

@@ -26,11 +26,11 @@ codeunit 134611 "Test Nav App Permissions"
 
     local procedure InitializeData()
     var
-        NavApp: Record "NAV App";
+        PublishedApplication: Record "Published Application";
         i: Integer;
     begin
         Clear(NullGuid); // Ensure the null GUID is cleared
-        User.DeleteAll;
+        User.DeleteAll();
 
         // Need to add at least one super user.
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
@@ -80,16 +80,19 @@ codeunit 134611 "Test Nav App Permissions"
             AppGUIDs[i] := CreateGuid;
             LibraryPermissions.CreateTenantPermissionSet(AppPermissionSet, AppPermissionRoles[i], AppGUIDs[i]);
         end;
-        NavApp.Init;
-        NavApp."Package ID" := AppGUIDs[1];
-        NavApp.ID := AppGUIDs[1];
-        NavApp.Name := LibraryUtility.GenerateGUID;
-        NavApp.Insert;
-        NavApp.Init;
-        NavApp."Package ID" := AppGUIDs[2];
-        NavApp.Name := LibraryUtility.GenerateGUID;
-        NavApp.ID := AppGUIDs[2];
-        NavApp.Insert;
+        PublishedApplication.Init();
+        PublishedApplication."Package ID" := AppGUIDs[1];
+        PublishedApplication."Runtime Package ID" := AppGUIDs[1];
+        PublishedApplication.ID := AppGUIDs[1];
+        PublishedApplication.Name := LibraryUtility.GenerateGUID;
+        PublishedApplication.Insert();
+
+        PublishedApplication.Init();
+        PublishedApplication."Package ID" := AppGUIDs[2];
+        PublishedApplication."Runtime Package ID" := AppGUIDs[2];
+        PublishedApplication.ID := AppGUIDs[2];
+        PublishedApplication.Name := LibraryUtility.GenerateGUID;
+        PublishedApplication.Insert();
 
         // Add permissions to the new permission sets
         AppPermissionSet.Get(AppGUIDs[1], AppPermissionRoles[1]);
@@ -131,13 +134,13 @@ codeunit 134611 "Test Nav App Permissions"
         // is modified during this test.
         // User Setup must cleaned too, due to reference to User table.
         User.SetFilter("User Name", '<>%1', UserId);
-        User.DeleteAll;
-        UserSetup.DeleteAll;
-        AccessControl.DeleteAll;
-        UserGroup.DeleteAll;
-        UserGroupMember.DeleteAll;
-        UserGroupAccessControl.DeleteAll;
-        UserGroupPermissionSet.DeleteAll;
+        User.DeleteAll();
+        UserSetup.DeleteAll();
+        AccessControl.DeleteAll();
+        UserGroup.DeleteAll();
+        UserGroupMember.DeleteAll();
+        UserGroupAccessControl.DeleteAll();
+        UserGroupPermissionSet.DeleteAll();
     end;
 
     [Test]

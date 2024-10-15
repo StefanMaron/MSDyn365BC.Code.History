@@ -153,7 +153,7 @@ report 502 "Intrastat - Checklist"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if IntrastatChecklistSetup.FindSet then
                         repeat
@@ -165,7 +165,7 @@ report 502 "Intrastat - Checklist"
 
                     if Country.Get("Country/Region Code") then;
                     SetCountryRegionOfOriginIntrastatCode("Intrastat Jnl. Line");
-                    IntrastatJnlLineTemp.Reset;
+                    IntrastatJnlLineTemp.Reset();
                     IntrastatJnlLineTemp.SetRange(Type, Type);
                     IntrastatJnlLineTemp.SetRange("Tariff No.", "Tariff No.");
                     IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
@@ -173,7 +173,7 @@ report 502 "Intrastat - Checklist"
                     IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
                     if not IntrastatJnlLineTemp.FindFirst then begin
                         IntrastatJnlLineTemp := "Intrastat Jnl. Line";
-                        IntrastatJnlLineTemp.Insert;
+                        IntrastatJnlLineTemp.Insert();
                         NoOfRecordsRTC += 1;
                     end;
                     if (PrevIntrastatJnlLine.Type <> Type) or
@@ -200,7 +200,7 @@ report 502 "Intrastat - Checklist"
                 var
                     IntrastatSetup: Record "Intrastat Setup";
                 begin
-                    IntrastatJnlLineTemp.DeleteAll;
+                    IntrastatJnlLineTemp.DeleteAll();
                     NoOfRecordsRTC := 0;
 
                     if not IntrastatSetup.Get then
@@ -224,7 +224,7 @@ report 502 "Intrastat - Checklist"
                 ErrorMessage.SetContext("Intrastat Jnl. Batch");
                 ErrorMessage.ClearLog;
 
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Amounts in Add. Currency" then begin
                     GLSetup.TestField("Additional Reporting Currency");
                     HeaderLine := StrSubstNo(Text002, GLSetup."Additional Reporting Currency");
@@ -278,7 +278,7 @@ report 502 "Intrastat - Checklist"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text000, '    ');
     end;
 

@@ -338,6 +338,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType GLEntryVATEntryLinkErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2601868730 - NamedType 3603811132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reversal Entries Must be Same.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries-II - NamedType ReverseError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3418784030 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2.]]></Val>

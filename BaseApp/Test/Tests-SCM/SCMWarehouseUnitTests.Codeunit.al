@@ -49,10 +49,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         // SETUP: Create bin content on dedicated bin
         LocationCode := MockLocationCode;
 
-        Bin.Init;
+        Bin.Init();
         Bin."Location Code" := LocationCode;
         Bin.Code := LibraryUtility.GenerateGUID;
-        Bin.Insert;
+        Bin.Insert();
 
         MockItemWithBaseUOM(Item);
 
@@ -61,15 +61,15 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         BinContent."Item No." := Item."No.";
         BinContent."Unit of Measure Code" := Item."Base Unit of Measure";
         BinContent.Dedicated := true;
-        BinContent.Insert;
+        BinContent.Insert();
 
-        WhseEntry.Init;
+        WhseEntry.Init();
         WhseEntry."Location Code" := BinContent."Location Code";
         WhseEntry."Bin Code" := BinContent."Bin Code";
         WhseEntry."Item No." := BinContent."Item No.";
         WhseEntry."Unit of Measure Code" := BinContent."Unit of Measure Code";
         WhseEntry."Qty. (Base)" := 10;
-        WhseEntry.Insert;
+        WhseEntry.Insert();
 
         // make a warehouse worksheet line- for use in the calling of the report
         WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Movement);
@@ -79,9 +79,9 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         // EXERCISE: Invoke get bin content on movement worksheet
         BinContent.SetRange("Item No.", BinContent."Item No."); // filter on the bin content created only
         WhseGetBinContent.SetTableView(BinContent);
-        Commit;
+        Commit();
         WhseGetBinContent.UseRequestPage(false);
-        WhseInternalPutAwayHeaderDummy.Init;
+        WhseInternalPutAwayHeaderDummy.Init();
         WhseGetBinContent.InitializeReport(WhseWorksheetLine, WhseInternalPutAwayHeaderDummy, 0);
         WhseGetBinContent.Run;
 
@@ -228,7 +228,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         // [WHEN] Run Item's Availability By Event
         // [THEN] Transfer Shipment line is shown as Item To Plan Demand
-        TransferLine.Reset;
+        TransferLine.Reset();
         Assert.IsTrue(TransferLine.FindLinesWithItemToPlan(Item, false, false), TransferLineNotExistErr); // ship
 
         // [THEN] Tansfer Receipt Line is shown as Item To Plan Supply
@@ -254,7 +254,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         // [WHEN] Run Item's Availability By Event
         // [THEN] Transfer Shipment line is not shown as Item To Plan Demand
-        TransferLine.Reset;
+        TransferLine.Reset();
         Assert.IsFalse(TransferLine.FindLinesWithItemToPlan(Item, false, false), TransferLineShouldnotExistErr); // ship
 
         // [THEN] Tansfer Receipt Line is shown as Item To Plan Supply
@@ -587,13 +587,13 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         Clear(Item);
         MockItemWithBaseUOM(Item);
-        ItemTrackingCode.Init;
+        ItemTrackingCode.Init();
         ItemTrackingCode.Code := LibraryUtility.GenerateGUID;
         ItemTrackingCode."Lot Specific Tracking" := true;
         ItemTrackingCode."Lot Warehouse Tracking" := true;
-        ItemTrackingCode.Insert;
+        ItemTrackingCode.Insert();
         Item."Item Tracking Code" := ItemTrackingCode.Code;
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -609,17 +609,17 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         MockILE(ItemLedgerEntry, ItemNo, LocationCode, 10);
         ItemLedgerEntry."Lot No." := LibraryUtility.GenerateGUID;
-        ItemLedgerEntry.Modify;
+        ItemLedgerEntry.Modify();
 
         WarehouseEntry2.FindLast;
-        WarehouseEntry.Init;
+        WarehouseEntry.Init();
         WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
         WarehouseEntry."Item No." := ItemLedgerEntry."Item No.";
         WarehouseEntry."Location Code" := ItemLedgerEntry."Location Code";
         WarehouseEntry."Bin Code" := BinCodeToStore;
         WarehouseEntry."Qty. (Base)" := ItemLedgerEntry.Quantity;
         WarehouseEntry."Lot No." := ItemLedgerEntry."Lot No.";
-        WarehouseEntry.Insert;
+        WarehouseEntry.Insert();
     end;
 
     local procedure CreatePick(DemandType: Option Sales,Assembly,Production; DPPLocation: Boolean; InvtPick: Boolean; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var ItemLedgerEntry: Record "Item Ledger Entry"; RefDate: Date; TakeBinCode: Code[10])
@@ -654,12 +654,11 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     SalesLine."Quantity (Base)" := ItemLedgerEntry.Quantity;
                     SalesLine."Outstanding Qty. (Base)" := SalesLine."Quantity (Base)";
                     SalesLine."Shipment Date" := RefDate;
-                    SalesLine.Insert();
 
-                    WarehouseShipmentHeader.Init;
+                    WarehouseShipmentHeader.Init();
                     WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
-                    WarehouseShipmentHeader.Insert;
-                    WarehouseShipmentLine.Init;
+                    WarehouseShipmentHeader.Insert();
+                    WarehouseShipmentLine.Init();
                     WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
                     WarehouseShipmentLine."Item No." := SalesLine."No.";
                     WarehouseShipmentLine."Qty. (Base)" := SalesLine."Quantity (Base)";
@@ -671,7 +670,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     WarehouseShipmentLine."Source Line No." := SalesLine."Line No.";
                     WarehouseShipmentLine."Shipment Date" := SalesLine."Shipment Date";
                     WarehouseShipmentLine."Due Date" := SalesLine."Shipment Date" + 2; // different from the Shipment Date
-                    WarehouseShipmentLine.Insert;
+                    WarehouseShipmentLine.Insert();
 
                     WhseDocType := WarehouseActivityLine."Whse. Document Type"::Shipment;
                     WhseDocNo := WarehouseShipmentLine."No.";
@@ -685,7 +684,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                 begin
                     AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
                     AssemblyHeader."No." := LibraryUtility.GenerateGUID;
-                    AssemblyHeader.Insert;
+                    AssemblyHeader.Insert();
                     AssemblyLine."Document Type" := AssemblyHeader."Document Type";
                     AssemblyLine."Document No." := AssemblyHeader."No.";
                     AssemblyLine.Type := AssemblyLine.Type::Item;
@@ -695,7 +694,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     AssemblyLine."Quantity (Base)" := ItemLedgerEntry.Quantity;
                     AssemblyLine."Remaining Quantity (Base)" := AssemblyLine."Quantity (Base)";
                     AssemblyLine."Due Date" := RefDate;
-                    AssemblyLine.Insert;
+                    AssemblyLine.Insert();
 
                     WhseDocType := WarehouseActivityLine."Whse. Document Type"::Assembly;
                     WhseDocNo := AssemblyLine."Document No.";
@@ -709,8 +708,8 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                 begin
                     ProdOrder.Status := ProdOrder.Status::Released;
                     ProdOrder."No." := LibraryUtility.GenerateGUID;
-                    ProdOrder.Insert;
-                    ProdOrderComponent.Init;
+                    ProdOrder.Insert();
+                    ProdOrderComponent.Init();
                     ProdOrderComponent.Status := ProdOrder.Status;
                     ProdOrderComponent."Prod. Order No." := ProdOrder."No.";
                     ProdOrderComponent."Item No." := ItemLedgerEntry."Item No.";
@@ -718,9 +717,9 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     ProdOrderComponent."Bin Code" := PlaceBinCode;
                     ProdOrderComponent."Quantity (Base)" := ItemLedgerEntry.Quantity;
                     ProdOrderComponent."Expected Qty. (Base)" := ProdOrderComponent."Quantity (Base)";
-                    ProdOrderComponent."Remaining Qty. (Base)" := ProdOrderComponent."Quantity (Base)";
+                    ProdOrderComponent."Remaining Qty. (Base)" := AssemblyLine."Quantity (Base)";
                     ProdOrderComponent."Due Date" := RefDate;
-                    ProdOrderComponent.Insert;
+                    ProdOrderComponent.Insert();
 
                     WhseDocType := WarehouseActivityLine."Whse. Document Type"::Production;
                     WhseDocNo := ProdOrderComponent."Prod. Order No.";
@@ -742,7 +741,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
         WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID;
         WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
-        WarehouseActivityHeader.Insert;
+        WarehouseActivityHeader.Insert();
         if WarehouseActivityHeader.Type <> WarehouseActivityHeader.Type::"Invt. Pick" then
             CreateWarehouseActivityLine(WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take,
               ItemLedgerEntry."Location Code", TakeBinCode, ItemLedgerEntry."Item No.", ItemLedgerEntry.Quantity, ItemLedgerEntry."Lot No.",
@@ -797,7 +796,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseActivityLine."Source No." := SourceNo;
         WarehouseActivityLine."Source Line No." := SourceLineNo;
         WarehouseActivityLine."Source Subline No." := SourceSubLineNo;
-        WarehouseActivityLine.Insert;
+        WarehouseActivityLine.Insert();
     end;
 
     [Test]
@@ -827,7 +826,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         QtyBase := 20;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine.Type := SalesLine.Type::Item;
@@ -839,12 +838,12 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine."Quantity (Base)" := QtyBase;
         SalesLine."Outstanding Qty. (Base)" := SalesLine."Quantity (Base)";
         SalesLine."Location Code" := LocationCode;
-        SalesLine.Insert;
+        SalesLine.Insert();
 
-        WarehouseShipmentHeader.Init;
+        WarehouseShipmentHeader.Init();
         WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
         WarehouseShipmentHeader."Location Code" := LocationCode;
-        WarehouseShipmentHeader.Insert;
+        WarehouseShipmentHeader.Insert();
 
         // EXERCISE : Create shipment from sales line
         WhseCreateSourceDocument.FromSalesLine2ShptLine(WarehouseShipmentHeader, SalesLine);
@@ -867,7 +866,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemUnitOfMeasure."Item No." := ItemNo;
         ItemUnitOfMeasure.Code := UOMCode;
         ItemUnitOfMeasure."Qty. per Unit of Measure" := QtyPerUOM;
-        ItemUnitOfMeasure.Insert;
+        ItemUnitOfMeasure.Insert();
     end;
 
     [Test]
@@ -895,7 +894,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
           ItemNo, LocationCode, 10, ItemUnitOfMeasureForSales, LotNo);
 
         // EXERCISE: Create pick or inventory pick
-        Commit;
+        Commit();
         WarehouseShipmentLine.SetRange("Item No.", WarehouseShipmentLine."Item No.");
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
@@ -972,7 +971,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         PurchaseHeader.Validate("Location Code", LocationCode);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, 20, LocationCode, UnitOfMeasure);
         LotNo[1] := GetItemTrackingLotNo(PurchaseLine);
@@ -1131,10 +1130,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         Bin: Record Bin;
     begin
-        Bin.Init;
+        Bin.Init();
         Bin.Code := LibraryUtility.GenerateGUID;
         Bin."Location Code" := LocationCode;
-        Bin.Insert;
+        Bin.Insert();
         exit(Bin.Code);
     end;
 
@@ -1144,7 +1143,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemUnitOfMeasure."Item No." := ItemNo;
         ItemUnitOfMeasure.Code := LibraryUtility.GenerateGUID;
         ItemUnitOfMeasure."Qty. per Unit of Measure" := QtyPerUOM;
-        ItemUnitOfMeasure.Insert;
+        ItemUnitOfMeasure.Insert();
     end;
 
     local procedure VSTF330787CreateEntry(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal; LotNo: Code[20]; ItemUnitOfMeasure: Record "Item Unit of Measure")
@@ -1159,10 +1158,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemLedgerEntry."Lot No." := LotNo;
         ItemLedgerEntry."Unit of Measure Code" := ItemUnitOfMeasure.Code;
         ItemLedgerEntry."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
-        ItemLedgerEntry.Modify;
+        ItemLedgerEntry.Modify();
 
         WarehouseEntry2.FindLast;
-        WarehouseEntry.Init;
+        WarehouseEntry.Init();
         WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
         WarehouseEntry."Item No." := ItemLedgerEntry."Item No.";
         WarehouseEntry."Location Code" := ItemLedgerEntry."Location Code";
@@ -1172,7 +1171,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseEntry."Lot No." := ItemLedgerEntry."Lot No.";
         WarehouseEntry."Unit of Measure Code" := ItemUnitOfMeasure.Code;
         WarehouseEntry."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
-        WarehouseEntry.Insert;
+        WarehouseEntry.Insert();
 
         if not BinContent.Get(WarehouseEntry."Location Code", WarehouseEntry."Bin Code", WarehouseEntry."Item No.",
              WarehouseEntry."Variant Code", WarehouseEntry."Unit of Measure Code")
@@ -1185,7 +1184,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             BinType.SetRange(Pick, true);
             BinType.FindFirst;
             BinContent."Bin Type Code" := BinType.Code;
-            BinContent.Insert;
+            BinContent.Insert();
         end;
     end;
 
@@ -1237,7 +1236,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
         SalesLine."Quantity (Base)" := SalesLine.Quantity * SalesLine."Qty. per Unit of Measure";
         SalesLine."Outstanding Qty. (Base)" := SalesLine."Quantity (Base)";
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         VSTF330787CreateWarehouseShipment(WarehouseShipmentHeader, WarehouseShipmentLine, SalesLine);
 
@@ -1287,10 +1286,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     local procedure VSTF330787CreateWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var SalesLine: Record "Sales Line")
     begin
         // SETUP : Create whse shipment from demand
-        WarehouseShipmentHeader.Init;
+        WarehouseShipmentHeader.Init();
         WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        WarehouseShipmentHeader.Insert;
-        WarehouseShipmentLine.Init;
+        WarehouseShipmentHeader.Insert();
+        WarehouseShipmentLine.Init();
         WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
         WarehouseShipmentLine."Item No." := SalesLine."No.";
         WarehouseShipmentLine.Quantity := SalesLine.Quantity;
@@ -1306,7 +1305,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseShipmentLine."Source No." := SalesLine."Document No.";
         WarehouseShipmentLine."Source Line No." := SalesLine."Line No.";
         WarehouseShipmentLine."Shipment Date" := SalesLine."Shipment Date";
-        WarehouseShipmentLine.Insert;
+        WarehouseShipmentLine.Insert();
     end;
 
     local procedure VSTF330787CreateReservation(EntryNo: Integer; Positive: Boolean; SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; Quantity: Decimal; QuantityBase: Decimal; QtyPerUOM: Decimal; LotNo: Code[10])
@@ -1324,14 +1323,14 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ReservationEntry."Quantity (Base)" := QuantityBase;
         ReservationEntry."Qty. per Unit of Measure" := QtyPerUOM;
         ReservationEntry."Lot No." := LotNo;
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     local procedure VSTF330787CreateWhseItemTrkgLine(EntryNo: Integer; LocationCode: Code[10]; SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; Quantity: Decimal; QuantityBase: Decimal; QtyPerUOM: Decimal; LotNo: Code[10])
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
     begin
-        WhseItemTrackingLine.Init;
+        WhseItemTrackingLine.Init();
         WhseItemTrackingLine."Entry No." := EntryNo;
         WhseItemTrackingLine."Location Code" := LocationCode;
         WhseItemTrackingLine."Source Type" := SourceType;
@@ -1343,7 +1342,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WhseItemTrackingLine."Qty. to Handle (Base)" := WhseItemTrackingLine."Quantity (Base)";
         WhseItemTrackingLine."Qty. per Unit of Measure" := QtyPerUOM;
         WhseItemTrackingLine."Lot No." := LotNo;
-        WhseItemTrackingLine.Insert;
+        WhseItemTrackingLine.Insert();
     end;
 
     local procedure VSTF334573CreateReleaseTransOrder(var TransHeader: Record "Transfer Header"; LocationCode: Code[10]; ItemUOM: Record "Item Unit of Measure"; LotNo: array[3] of Code[20])
@@ -1459,7 +1458,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         MockItem(Item);
         Item."Base Unit of Measure" := MockItemUOMCode(Item."No.", 1);
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure MockItemNoWithBaseUOM(): Code[20]
@@ -1854,7 +1853,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         // [SCENARIO 207605] Stan cannot create Bin without Location Code
 
-        Bin.Init;
+        Bin.Init();
         Bin.Validate(Code, LibraryUtility.GenerateGUID);
         asserterror Bin.Insert(true);
 
@@ -1882,7 +1881,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         // SETUP : Create prod. order with 7 PCS of component.
         ProductionOrder.Status := ProductionOrder.Status::Released;
         ProductionOrder."No." := LibraryUtility.GenerateGUID;
-        ProductionOrder.Insert;
+        ProductionOrder.Insert();
         ProdOrderComponent.Status := ProductionOrder.Status;
         ProdOrderComponent."Prod. Order No." := ProductionOrder."No.";
         ProdOrderComponent."Item No." := ItemNo;
@@ -1901,7 +1900,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             SourceDocBinCode::NonDefault:
                 ProdOrderComponent."Bin Code" := NonDefaultBinCode;
         end;
-        ProdOrderComponent.Insert;
+        ProdOrderComponent.Insert();
 
         WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Prod. Consumption";
         WarehouseRequest."Source Subtype" := ProdOrderComponent.Status;
@@ -1919,22 +1918,22 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         BinCode := LibraryUtility.GenerateGUID;
 
-        BinContent.Init;
+        BinContent.Init();
         BinContent.Default := Default;
         BinContent."Location Code" := LocationCode;
         BinContent."Bin Code" := BinCode;
         BinContent."Item No." := ItemNo;
-        BinContent.Insert;
+        BinContent.Insert();
 
         WarehouseEntry2.FindLast;
-        WarehouseEntry.Init;
+        WarehouseEntry.Init();
         WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
         WarehouseEntry."Location Code" := LocationCode;
         WarehouseEntry."Bin Code" := BinCode;
         WarehouseEntry."Item No." := ItemNo;
         WarehouseEntry.Quantity := Qty;
         WarehouseEntry."Qty. (Base)" := Qty;
-        WarehouseEntry.Insert;
+        WarehouseEntry.Insert();
     end;
 
     local procedure VSTF335757CallCreateInvtDoc(ActivityType: Option; ProdOrderComponent: Record "Prod. Order Component"; WarehouseRequest: Record "Warehouse Request")
@@ -2126,7 +2125,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
 
         SalesLine."Document Type" := SalesLine."Document Type"::Order;
         SalesLine."Document No." := SalesHeader."No.";
@@ -2135,7 +2134,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine."Location Code" := LocationCode;
         SalesLine.Quantity := Qty;
         SalesLine."Qty. to Ship" := QtyToShip;
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         SourceSubtype := SalesLine."Document Type";
         SourceNo := SalesLine."Document No.";
@@ -2146,13 +2145,13 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         TransferLine: Record "Transfer Line";
     begin
-        TransferLine.Init;
+        TransferLine.Init();
         TransferLine."Document No." := LibraryUtility.GenerateGUID;
         TransferLine."Item No." := ItemNo;
         TransferLine."Transfer-from Code" := LocationCode;
         TransferLine.Quantity := Qty;
         TransferLine."Qty. to Ship" := QtyToShip;
-        TransferLine.Insert;
+        TransferLine.Insert();
 
         SourceNo := TransferLine."Document No.";
         SourceLineNo := TransferLine."Line No.";
@@ -2162,14 +2161,14 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         TransferLine: Record "Transfer Line";
     begin
-        TransferLine.Init;
+        TransferLine.Init();
         TransferLine."Document No." := LibraryUtility.GenerateGUID;
         TransferLine."Item No." := ItemNo;
         TransferLine."Transfer-to Code" := LocationCode;
         TransferLine.Quantity := Qty;
         TransferLine."Qty. in Transit" := Qty;
         TransferLine."Qty. to Receive" := QtyToReceive;
-        TransferLine.Insert;
+        TransferLine.Insert();
 
         SourceNo := TransferLine."Document No.";
         SourceLineNo := TransferLine."Line No.";
@@ -2179,7 +2178,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        WhseActivityLine.Init;
+        WhseActivityLine.Init();
         WhseActivityLine."No." := LibraryUtility.GenerateGUID;
         WhseActivityLine."Source Type" := SourceType;
         WhseActivityLine."Source Subtype" := SourceSubtype;
@@ -2188,7 +2187,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WhseActivityLine."Item No." := ItemNo;
         WhseActivityLine.Quantity := Qty;
         WhseActivityLine."Location Code" := LocationCode;
-        WhseActivityLine.Insert;
+        WhseActivityLine.Insert();
     end;
 
     local procedure RaiseErrorOnChangingQtyToShipOnSalesLineIfPickExistsChangeSalesLine(var FieldName: Text; NewQtyToShip: Decimal; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer)
@@ -2250,19 +2249,19 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         MockItemUOM(BaseItemUnitOfMeasure, Item."No.", 1);
         MockItemUOM(BigItemUnitOfMeasure, Item."No.", 144);
         Item."Stockout Warning" := Item."Stockout Warning"::Yes;
-        Item.Modify;
+        Item.Modify();
 
         MockILE(ItemLedgerEntry, Item."No.", '', 144 - 20); // less than 1 BigUnitOfMeasure
         ItemLedgerEntry."Qty. per Unit of Measure" := BaseItemUnitOfMeasure."Qty. per Unit of Measure";
         ItemLedgerEntry."Unit of Measure Code" := BaseItemUnitOfMeasure.Code;
-        ItemLedgerEntry.Modify;
+        ItemLedgerEntry.Modify();
         LibrarySales.CreateCustomer(Customer);
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesLine."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
-        SalesHeader.Insert;
+        SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine.Type := SalesLine.Type::Item;
@@ -2272,7 +2271,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine."Outstanding Quantity" := 1;
         SalesLine."Qty. per Unit of Measure" := BaseItemUnitOfMeasure."Qty. per Unit of Measure";
         SalesLine."Unit of Measure Code" := BaseItemUnitOfMeasure.Code;
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         // EXERCISE : change UOM Code in sales to big uom so that sale qty > inventory.
         SalesOrderSubform.Trap;
@@ -2294,7 +2293,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         FilterLinesWithItemToPlan(Item);
         LocationFilter := Item.GetFilter("Location Filter");
 
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("Location Filter", LocationFilter);
         ItemLedgerEntry.FilterLinesWithItemToPlan(Item, false);
         Assert.AreEqual(1, ItemLedgerEntry.Count, '');
@@ -2312,7 +2311,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         FilterLinesWithItemToPlan(Item);
         VariantFilter := Item.GetFilter("Variant Filter");
 
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("Variant Filter", VariantFilter);
         ItemLedgerEntry.FilterLinesWithItemToPlan(Item, false);
         Assert.AreEqual(1, ItemLedgerEntry.Count, '');
@@ -2330,7 +2329,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         FilterLinesWithItemToPlan(Item);
         GlobalDim1Filter := Item.GetFilter("Global Dimension 1 Filter");
 
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("Global Dimension 1 Filter", GlobalDim1Filter);
         ItemLedgerEntry.FilterLinesWithItemToPlan(Item, false);
         Assert.AreEqual(1, ItemLedgerEntry.Count, '');
@@ -2348,7 +2347,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         FilterLinesWithItemToPlan(Item);
         GlobalDim2Filter := Item.GetFilter("Global Dimension 2 Filter");
 
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("Global Dimension 2 Filter", GlobalDim2Filter);
         ItemLedgerEntry.FilterLinesWithItemToPlan(Item, false);
         Assert.AreEqual(1, ItemLedgerEntry.Count, '');

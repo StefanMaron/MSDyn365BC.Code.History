@@ -154,7 +154,7 @@ table 32000002 "Ref. Payment - Exported"
                     TestField("Vendor No.");
                     VendBankAcc.Get("Vendor No.", "Vendor Account");
                     "SEPA Payment" := VendBankAcc."SEPA Payment";
-                    CompanyInfo.Get;
+                    CompanyInfo.Get();
                     if not (VendBankAcc."Country/Region Code" in ['', CompanyInfo."Country/Region Code"]) then begin
                         "Foreign Payment" := true;
                         SetDefaultTypes;
@@ -421,6 +421,13 @@ table 32000002 "Ref. Payment - Exported"
             end;
     end;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("No.")))
+    end;
+
     procedure SetDefaultTypes()
     begin
         if ("Foreign Payment Method" = '') or ("Foreign Banks Service Fee" = '') then
@@ -548,7 +555,7 @@ table 32000002 "Ref. Payment - Exported"
     var
         RefPaymentExported: Record "Ref. Payment - Exported";
     begin
-        RefPaymentExported.Reset;
+        RefPaymentExported.Reset();
         if RefPaymentExported.FindLast then
             exit(RefPaymentExported."No.");
     end;

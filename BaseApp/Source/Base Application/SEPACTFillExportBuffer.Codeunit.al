@@ -33,7 +33,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         TempGenJnlLine.CopyFilters(GenJnlLine);
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Prepare Source", TempGenJnlLine);
 
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine.FindSet;
         BankAccount.Get(TempGenJnlLine."Bal. Account No.");
         BankAccount.TestField(IBAN);
@@ -47,11 +47,11 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         until TempGenJnlLine.Next = 0;
 
         if TempGenJnlLine.HasPaymentFileErrorsInBatch then begin
-            Commit;
+            Commit();
             Error(HasErrorsErr);
         end;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("LCY Code");
 
         MessageID := BankAccount.GetCreditTransferMessageNo;
@@ -113,7 +113,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
 
                 ValidatePaymentExportData(PaymentExportData, TempGenJnlLine);
                 Insert(true);
-                TempInteger.DeleteAll;
+                TempInteger.DeleteAll();
                 GetAppliesToDocEntryNumbers(TempGenJnlLine, TempInteger);
                 if TempInteger.FindSet then
                     repeat
@@ -143,7 +143,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                     RefPmtExp."Transfer Time" := Time;
                     RefPmtExp."Batch Code" := "Message ID";
                     RefPmtExp."Payment Execution Date" := RefPmtExp."Payment Date";
-                    RefPmtExp.Modify;
+                    RefPmtExp.Modify();
                     RefPmtExp.MarkAffiliatedAsTransferred;
                 until RefPmtExp.Next = 0;
         end;
@@ -261,7 +261,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
             if FindSet then
                 repeat
                     TempInteger.Number := FieldRef.Value;
-                    TempInteger.Insert;
+                    TempInteger.Insert();
                 until Next = 0;
         end;
     end;

@@ -59,7 +59,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Initialize;
 
         LibraryLowerPermissions.SetCostAccountingSetup;
-        CostAccSetup.Get;
+        CostAccSetup.Get();
 
         CostAccSetupPage.OpenEdit;
         CostAccSetupPage."Cost Center Dimension".AssertEquals(CostAccSetup."Cost Center Dimension");
@@ -79,7 +79,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Initialize;
 
         LibraryLowerPermissions.SetCostAccountingSetup;
-        CostAccSetup.Get;
+        CostAccSetup.Get();
 
         CostAccSetupPage.OpenEdit;
         CostAccSetupPage."Cost Object Dimension".AssertEquals(CostAccSetup."Cost Object Dimension");
@@ -831,7 +831,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreNotEqual(BudgetFilter, CostType."Budget Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Budget Filter")));
 
         CostBudgetByCostObjectPage.Close;
-        CostType.Delete;
+        CostType.Delete();
     end;
 
     [Test]
@@ -1144,7 +1144,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreNotEqual(BudgetFilter, CostType."Budget Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Budget Filter")));
 
         CostBudgetByCostCenterPage.Close;
-        CostType.Delete;
+        CostType.Delete();
     end;
 
     [Test]
@@ -1353,7 +1353,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage.BudgetPct.AssertEquals(Round(NetChange / BudgetAmount * 100));
 
         // Clean-up:
-        CostType.Delete;
+        CostType.Delete();
         CostBudgetName.Delete(true);
     end;
 
@@ -1389,7 +1389,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         // Clean-up:
         CostBudgetName.Delete(true);
-        CostType.Delete;
+        CostType.Delete();
     end;
 
     [Test]
@@ -1525,7 +1525,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage.BudgetPct.AssertEquals(Round(NetChange / BudgetAmount * 100));
 
         // Clean-up:
-        CostType.Delete;
+        CostType.Delete();
         CostBudgetName.Delete(true);
     end;
 
@@ -1553,7 +1553,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreNotEqual(BudgetFilter, CostType."Budget Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Budget Filter")));
 
         CostTypeBalanceBudgetPage.Close;
-        CostType.Delete;
+        CostType.Delete();
     end;
 
     [Test]
@@ -1582,7 +1582,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CostCenterCode, CostType."Cost Center Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Cost Center Filter")));
 
         CostTypeBalanceBudgetPage.Close;
-        CostType.Delete;
+        CostType.Delete();
     end;
 
     [Test]
@@ -1610,7 +1610,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CostObjectCode, CostType."Cost Object Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Cost Object Filter")));
 
         CostTypeBalanceBudgetPage.Close;
-        CostType.Delete;
+        CostType.Delete();
     end;
 
     [Test]
@@ -2445,7 +2445,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddCostAccountingSetup;
         LibraryLowerPermissions.AddCostAccountingEdit;
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         OldAlignmentValue := CostAccountingSetup."Align G/L Account";
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::"No Alignment");
@@ -2707,7 +2707,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddCostAccountingEdit;
         CopyCostCenters(CostCenter, TempCostCenter);
-        CostCenter.DeleteAll;
+        CostCenter.DeleteAll();
 
         // Create 12 new cost centers and open the page cost budget by cost center page.
         for i := 1 to 12 do
@@ -2742,7 +2742,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddCostAccountingEdit;
         CopyCostObjects(CostObject, TempCostObject);
-        CostObject.DeleteAll;
+        CostObject.DeleteAll();
 
         // Create 12 new cost objects and open the page cost budget by cost object page.
         for i := 1 to 12 do
@@ -2870,7 +2870,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName);
         CostBudgetEntry."Cost Type No." := CostTypeNo;
         CostBudgetEntry.Date := Date;
-        CostBudgetEntry.Modify;
+        CostBudgetEntry.Modify();
 
         exit(CostBudgetEntry.Amount);
     end;
@@ -2882,7 +2882,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         CostType."Cost Center Code" := CostCenter.Code;
-        CostType.Modify;
+        CostType.Modify();
     end;
 
     local procedure FindCostJournalBatch(var CostJournalBatch: Record "Cost Journal Batch")
@@ -3165,7 +3165,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostJournalLine."Cost Type No." := CostTypeNo;
         CostJournalLine."Cost Center Code" := CostCenterCode;
         CostJournalLine."Cost Object Code" := CostObjectCode;
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         Amount := CostJournalLine.Amount;
 
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
@@ -3570,7 +3570,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostObject.SetRange("Line Type", CostObject."Line Type"::"Cost Object");
         CostObject.FindSet;
         CostObject.Next(Offset);
-        Commit;
+        Commit();
         asserterror
         begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, 1, CostObject.Code);
@@ -3587,7 +3587,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostCenter.SetRange("Line Type", CostCenter."Line Type"::"Cost Center");
         CostCenter.FindSet;
         CostCenter.Next(Offset);
-        Commit;
+        Commit();
         asserterror
         begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, 1, CostCenter.Code);
@@ -3794,23 +3794,23 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
     local procedure CopyCostCenters(var FromCostCenter: Record "Cost Center"; var ToCostCenter: Record "Cost Center")
     begin
-        ToCostCenter.DeleteAll;
+        ToCostCenter.DeleteAll();
         if FromCostCenter.FindSet then
             repeat
-                ToCostCenter.Init;
+                ToCostCenter.Init();
                 ToCostCenter := FromCostCenter;
-                ToCostCenter.Insert;
+                ToCostCenter.Insert();
             until FromCostCenter.Next = 0;
     end;
 
     local procedure CopyCostObjects(var FromCostObject: Record "Cost Object"; var ToCostObject: Record "Cost Object")
     begin
-        ToCostObject.DeleteAll;
+        ToCostObject.DeleteAll();
         if FromCostObject.FindSet then
             repeat
-                ToCostObject.Init;
+                ToCostObject.Init();
                 ToCostObject := FromCostObject;
-                ToCostObject.Insert;
+                ToCostObject.Insert();
             until FromCostObject.Next = 0;
     end;
 

@@ -408,7 +408,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         // Exercise
-        TempWorkflowStepBuffer.Init;
+        TempWorkflowStepBuffer.Init();
         TempWorkflowStepBuffer."Workflow Code" := Workflow.Code;
         TempWorkflowStepBuffer.Order := 20000;
         TempWorkflowStepBuffer.Insert(true);
@@ -436,7 +436,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTableFromEvent(Workflow.Code, EventWorkflowStep.ID);
 
         // Exercise
-        TempWorkflowStepBuffer.Init;
+        TempWorkflowStepBuffer.Init();
         TempWorkflowStepBuffer."Workflow Code" := Workflow.Code;
         TempWorkflowStepBuffer.Order := 10000;
         TempWorkflowStepBuffer."Parent Event Step ID" := EventWorkflowStep.ID;
@@ -470,7 +470,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.SetxRec(TempWorkflowStepBuffer);
 
         // Exercise
-        TempWorkflowStepBuffer.Init;
+        TempWorkflowStepBuffer.Init();
         TempWorkflowStepBuffer.CreateNewWhenThenLine(Workflow.Code, true);
 
         // Validation
@@ -532,7 +532,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.SetxRec(TempWorkflowStepBuffer);
 
         // Exercise
-        TempWorkflowStepBuffer.Init;
+        TempWorkflowStepBuffer.Init();
         TempWorkflowStepBuffer.CreateNewWhenThenLine(Workflow.Code, false);
         TempWorkflowStepBuffer.Insert(true);
 
@@ -1092,7 +1092,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         DummyWorkflowStep.SetRange("Workflow Code", TempWorkflowStepBuffer."Workflow Code");
         DummyWorkflowStep.SetFilter("Next Workflow Step ID", '<>%1', 0);
         Assert.RecordIsNotEmpty(DummyWorkflowStep);
-        Commit;
+        Commit();
         asserterror DeleteTempWorkflowStepBufferEntry(TempWorkflowStepBuffer, StepID);
 
         // [THEN] Transaction is rolled back with an expected message.
@@ -1102,7 +1102,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
 
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event")
     begin
-        WorkflowEvent.Init;
+        WorkflowEvent.Init();
         WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowEvent.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowEvent.Description)), 1,
             MaxStrLen(WorkflowEvent.Description));
@@ -1112,7 +1112,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
 
     local procedure CreateAnyResponse(var WorkflowResponse: Record "Workflow Response")
     begin
-        WorkflowResponse.Init;
+        WorkflowResponse.Init();
         WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowResponse.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowResponse.Description)), 1,
             MaxStrLen(WorkflowResponse.Description));
@@ -1163,7 +1163,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
           WorkflowStepArgument."Approver Type"::Approver, false);
         WorkflowStepArgument.SetEventFilters(Filters);
         WorkflowStep.Argument := WorkflowStepArgument.ID;
-        WorkflowStep.Modify;
+        WorkflowStep.Modify();
     end;
 
     local procedure FindLastStepID(): Integer
@@ -1171,10 +1171,10 @@ codeunit 134312 "Workflow Step Buffer Tests"
         WorkflowStep: Record "Workflow Step";
         ID: Integer;
     begin
-        WorkflowStep.Init;
-        WorkflowStep.Insert;
+        WorkflowStep.Init();
+        WorkflowStep.Insert();
         ID := WorkflowStep.ID;
-        WorkflowStep.Delete;
+        WorkflowStep.Delete();
         exit(ID);
     end;
 

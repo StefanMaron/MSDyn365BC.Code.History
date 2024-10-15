@@ -16,7 +16,6 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         EnabledValue: Boolean;
@@ -512,7 +511,6 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Navigate to Posted Document");
-        LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Navigate to Posted Document");
@@ -525,8 +523,6 @@ codeunit 138047 "Navigate to Posted Document"
 
         LibraryERMCountryData.CreateVATData;
         CreateUserPersonalization;
-
-        LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Navigate to Posted Document");
@@ -544,17 +540,17 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Job Planning Line":
-                JobPlanningLine.DeleteAll;
+                JobPlanningLine.DeleteAll();
             DATABASE::"Troubleshooting Setup":
-                TroubleshootingSetup.DeleteAll;
+                TroubleshootingSetup.DeleteAll();
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
             DATABASE::"Service Document Log":
-                ServiceDocumentLog.DeleteAll;
+                ServiceDocumentLog.DeleteAll();
             DATABASE::"Service Item Component":
-                ServiceItemComponent.DeleteAll;
+                ServiceItemComponent.DeleteAll();
             DATABASE::"Warehouse Receipt Line":
-                WarehouseReceiptLine.DeleteAll;
+                WarehouseReceiptLine.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -565,7 +561,7 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         if not UserPersonalization.Get(UserSecurityId) then begin
             UserPersonalization.Validate("User SID", UserSecurityId);
-            UserPersonalization.Insert;
+            UserPersonalization.Insert();
         end;
     end;
 
@@ -603,14 +599,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         Initialize;
         LibraryLowerPermissions.SetOutsideO365Scope;
-        SetServSetupNoSeries;
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         ServiceLine.Validate(Quantity, 1);
         ServiceLine."Service Item Line No." := LibraryRandom.RandInt(1000);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
     end;
 
     local procedure EnableConfirmAfterPosting()
@@ -631,18 +626,6 @@ codeunit 138047 "Navigate to Posted Document"
         EnabledValue := Value;
         MySettings.MyNotificationsLbl.DrillDown;
         MySettings.Close;
-    end;
-
-    local procedure SetServSetupNoSeries()
-    var
-        SalesSetup: Record "Sales & Receivables Setup";
-        ServiceMgtSetup: Record "Service Mgt. Setup";
-    begin
-        SalesSetup.Get;
-        ServiceMgtSetup.Get;
-        ServiceMgtSetup."Service Invoice Nos." := SalesSetup."Invoice Nos.";
-        ServiceMgtSetup."Posted Service Invoice Nos." := SalesSetup."Invoice Nos.";
-        ServiceMgtSetup.Modify;
     end;
 
     [ConfirmHandler]

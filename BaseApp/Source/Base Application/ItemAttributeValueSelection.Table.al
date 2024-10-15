@@ -122,9 +122,14 @@ table 7504 "Item Attribute Value Selection"
 
     procedure PopulateItemAttributeValueSelection(var TempItemAttributeValue: Record "Item Attribute Value" temporary)
     begin
+        PopulateItemAttributeValueSelection(TempItemAttributeValue, 0, '')
+    end;
+
+    procedure PopulateItemAttributeValueSelection(var TempItemAttributeValue: Record "Item Attribute Value" temporary; DefinedOnTableID: Integer; DefinedOnKeyValue: Code[20])
+    begin
         if TempItemAttributeValue.FindSet then
             repeat
-                InsertRecord(TempItemAttributeValue, 0, '');
+                InsertRecord(TempItemAttributeValue, DefinedOnTableID, DefinedOnKeyValue);
             until TempItemAttributeValue.Next = 0;
     end;
 
@@ -136,10 +141,10 @@ table 7504 "Item Attribute Value Selection"
         if FindSet then
             repeat
                 Clear(TempNewItemAttributeValue);
-                TempNewItemAttributeValue.Init;
+                TempNewItemAttributeValue.Init();
                 TempNewItemAttributeValue."Attribute ID" := "Attribute ID";
                 TempNewItemAttributeValue.Blocked := Blocked;
-                ItemAttributeValue.Reset;
+                ItemAttributeValue.Reset();
                 ItemAttributeValue.SetRange("Attribute ID", "Attribute ID");
                 case "Attribute Type" of
                     "Attribute Type"::Option,
@@ -166,7 +171,7 @@ table 7504 "Item Attribute Value Selection"
                 if not ItemAttributeValue.FindFirst then
                     InsertItemAttributeValue(ItemAttributeValue, Rec);
                 TempNewItemAttributeValue.ID := ItemAttributeValue.ID;
-                TempNewItemAttributeValue.Insert;
+                TempNewItemAttributeValue.Insert();
             until Next = 0;
     end;
 
@@ -195,7 +200,7 @@ table 7504 "Item Attribute Value Selection"
                     ItemAttributeValue.Validate("Date Value", ValDate);
                 end;
         end;
-        ItemAttributeValue.Insert;
+        ItemAttributeValue.Insert();
     end;
 
     procedure InsertRecord(var TempItemAttributeValue: Record "Item Attribute Value" temporary; DefinedOnTableID: Integer; DefinedOnKeyValue: Code[20])
@@ -329,7 +334,7 @@ table 7504 "Item Attribute Value Selection"
         ValDecimal: Decimal;
         ValDate: Date;
     begin
-        ItemAttributeValue.Reset;
+        ItemAttributeValue.Reset();
         ItemAttributeValue.SetRange("Attribute ID", ItemAttributeValueSelection."Attribute ID");
         if IsNotBlankDecimal(ItemAttributeValueSelection.Value) then begin
             Evaluate(ValDecimal, ItemAttributeValueSelection.Value);
@@ -355,10 +360,10 @@ table 7504 "Item Attribute Value Selection"
                 ItemAttributeValue.Validate(Value, Format(ValDecimal));
             end else
                 ItemAttributeValue.Value := Value;
-            ItemAttributeValue.Insert;
+            ItemAttributeValue.Insert();
         end;
         TempItemAttributeValueToInsert.TransferFields(ItemAttributeValue);
-        TempItemAttributeValueToInsert.Insert;
+        TempItemAttributeValueToInsert.Insert();
         exit(ItemAttributeValue.ID);
     end;
 

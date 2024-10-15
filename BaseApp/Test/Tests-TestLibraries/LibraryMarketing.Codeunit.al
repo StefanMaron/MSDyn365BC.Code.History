@@ -15,7 +15,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateActivity(var Activity: Record Activity)
     begin
-        Activity.Init;
+        Activity.Init();
         Activity.Validate(Code, LibraryUtility.GenerateRandomCode(Activity.FieldNo(Code), DATABASE::Activity));
         Activity.Validate(Description, Activity.Code);  // Validating Code as Description because value is not important.
         Activity.Insert(true);
@@ -25,7 +25,7 @@ codeunit 131900 "Library - Marketing"
     var
         RecRef: RecordRef;
     begin
-        ActivityStep.Init;
+        ActivityStep.Init();
         ActivityStep.Validate("Activity Code", ActivityCode);
         RecRef.GetTable(ActivityStep);
         ActivityStep.Validate("Step No.", LibraryUtility.GetNewLineNo(RecRef, ActivityStep.FieldNo("Step No.")));
@@ -41,14 +41,14 @@ codeunit 131900 "Library - Marketing"
         if Attachment.FindLast then
             No := Attachment."No." + 1;
 
-        Attachment.Init;
+        Attachment.Init();
         Attachment."No." := No;
         Attachment.Insert(true);
     end;
 
     procedure CreateBusinessRelation(var BusinessRelation: Record "Business Relation")
     begin
-        BusinessRelation.Init;
+        BusinessRelation.Init();
         BusinessRelation.Validate(Code, LibraryUtility.GenerateRandomCode(BusinessRelation.FieldNo(Code), DATABASE::"Business Relation"));
         BusinessRelation.Validate(Description, BusinessRelation.Code);  // Validating Code as Description because value is not important.
         BusinessRelation.Insert(true);
@@ -58,14 +58,14 @@ codeunit 131900 "Library - Marketing"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if MarketingSetup."Campaign Nos." = '' then begin
             MarketingSetup.Validate("Campaign Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             MarketingSetup.Modify(true);
         end;
 
         Clear(Campaign);
-        Campaign.Init;
+        Campaign.Init();
         Campaign.Insert(true);
         Campaign.Validate(Description, Campaign."No.");  // Validating No. as Description because value is not important.
         Campaign.Modify(true);
@@ -73,7 +73,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateCampaignStatus(var CampaignStatus: Record "Campaign Status")
     begin
-        CampaignStatus.Init;
+        CampaignStatus.Init();
         CampaignStatus.Validate(Code, LibraryUtility.GenerateRandomCode(CampaignStatus.FieldNo(Code), DATABASE::"Campaign Status"));
         CampaignStatus.Validate(Description, CampaignStatus.Code);  // Validating Code as Description because value is not important.
         CampaignStatus.Insert(true);
@@ -81,7 +81,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateCloseOpportunityCode(var CloseOpportunityCode: Record "Close Opportunity Code")
     begin
-        CloseOpportunityCode.Init;
+        CloseOpportunityCode.Init();
         CloseOpportunityCode.Validate(
           Code, LibraryUtility.GenerateRandomCode(CloseOpportunityCode.FieldNo(Code), DATABASE::"Close Opportunity Code"));
         // Validating Code as Description because value is not important.
@@ -107,7 +107,7 @@ codeunit 131900 "Library - Marketing"
         Salesperson: Record "Salesperson/Purchaser";
     begin
         LibrarySales.CreateSalesperson(Salesperson);
-        Task.Init;
+        Task.Init();
         Task.Validate(Description, Salesperson.Code);
         Task.Validate(Type, TaskType);
         Task.Validate("Contact No.", CreateCompanyContactNo);
@@ -144,14 +144,14 @@ codeunit 131900 "Library - Marketing"
         MarketingSetup: Record "Marketing Setup";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then begin
             MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             MarketingSetup.Modify(true);
         end;
 
         SalespersonPurchaser.FindFirst;
-        Contact.Init;
+        Contact.Init();
         Contact.Insert(true);
         Contact.Validate(Name, Contact."No.");  // Validating Name as No. because value is not important.
         Contact.Validate("Salesperson Code", SalespersonPurchaser.Code);
@@ -162,7 +162,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateContactAltAddress(var ContactAltAddress: Record "Contact Alt. Address"; ContactNo: Code[20])
     begin
-        ContactAltAddress.Init;
+        ContactAltAddress.Init();
         ContactAltAddress.Validate("Contact No.", ContactNo);
         ContactAltAddress.Validate(
           Code, LibraryUtility.GenerateRandomCode(ContactAltAddress.FieldNo(Code), DATABASE::"Contact Alt. Address"));
@@ -171,7 +171,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateContactAltAddrDateRange(var ContactAltAddrDateRange: Record "Contact Alt. Addr. Date Range"; ContactNo: Code[20]; StartingDate: Date)
     begin
-        ContactAltAddrDateRange.Init;
+        ContactAltAddrDateRange.Init();
         ContactAltAddrDateRange.Validate("Contact No.", ContactNo);
         ContactAltAddrDateRange.Validate("Starting Date", StartingDate);
         ContactAltAddrDateRange.Insert(true);
@@ -179,7 +179,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateContactBusinessRelation(var ContactBusinessRelation: Record "Contact Business Relation"; ContactNo: Code[20]; BusinessRelationCode: Code[10])
     begin
-        ContactBusinessRelation.Init;
+        ContactBusinessRelation.Init();
         ContactBusinessRelation.Validate("Contact No.", ContactNo);
         ContactBusinessRelation.Validate("Business Relation Code", BusinessRelationCode);
         ContactBusinessRelation.Insert(true);
@@ -187,7 +187,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateContactIndustryGroup(var ContactIndustryGroup: Record "Contact Industry Group"; ContactNo: Code[20]; IndustryGroupCode: Code[10])
     begin
-        ContactIndustryGroup.Init;
+        ContactIndustryGroup.Init();
         ContactIndustryGroup.Validate("Contact No.", ContactNo);
         ContactIndustryGroup.Validate("Industry Group Code", IndustryGroupCode);
         ContactIndustryGroup.Insert(true);
@@ -195,7 +195,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateContactJobResponsibility(var ContactJobResponsibility: Record "Contact Job Responsibility"; ContactNo: Code[20]; JobResponsibilityCode: Code[10])
     begin
-        ContactJobResponsibility.Init;
+        ContactJobResponsibility.Init();
         ContactJobResponsibility.Validate("Contact No.", ContactNo);
         ContactJobResponsibility.Validate("Job Responsibility Code", JobResponsibilityCode);
         ContactJobResponsibility.Insert(true);
@@ -203,7 +203,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateContactMailingGroup(var ContactMailingGroup: Record "Contact Mailing Group"; ContactNo: Code[20]; MailingGroupCode: Code[10])
     begin
-        ContactMailingGroup.Init;
+        ContactMailingGroup.Init();
         ContactMailingGroup.Validate("Contact No.", ContactNo);
         ContactMailingGroup.Validate("Mailing Group Code", MailingGroupCode);
         ContactMailingGroup.Insert(true);
@@ -211,7 +211,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateContactWebSource(var ContactWebSource: Record "Contact Web Source"; ContactNo: Code[20]; WebSourceCode: Code[10])
     begin
-        ContactWebSource.Init;
+        ContactWebSource.Init();
         ContactWebSource.Validate("Contact No.", ContactNo);
         ContactWebSource.Validate("Web Source Code", WebSourceCode);
         ContactWebSource.Insert(true);
@@ -283,7 +283,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateInteractionGroup(var InteractionGroup: Record "Interaction Group")
     begin
-        InteractionGroup.Init;
+        InteractionGroup.Init();
         InteractionGroup.Validate(Code, LibraryUtility.GenerateRandomCode(InteractionGroup.FieldNo(Code), DATABASE::"Interaction Group"));
         InteractionGroup.Validate(Description, InteractionGroup.Code);  // Validating Code as Description because value is not important.
         InteractionGroup.Insert(true);
@@ -297,14 +297,14 @@ codeunit 131900 "Library - Marketing"
         if InteractionLogEntry.FindLast then
             NextInteractLogEntryNo := InteractionLogEntry."Entry No." + 1;
 
-        InteractionLogEntry.Init;
+        InteractionLogEntry.Init();
         InteractionLogEntry."Entry No." := NextInteractLogEntryNo;
-        InteractionLogEntry.Insert;
+        InteractionLogEntry.Insert();
         InteractionLogEntry."Document Type" := DocumentType;
         InteractionLogEntry."Document No." := DocumentNo;
         InteractionLogEntry."Version No." := 1;
         InteractionLogEntry.Canceled := true;
-        InteractionLogEntry.Modify;
+        InteractionLogEntry.Modify();
     end;
 
     procedure CreateInteractionTemplate(var InteractionTemplate: Record "Interaction Template")
@@ -312,7 +312,7 @@ codeunit 131900 "Library - Marketing"
         InteractionGroup: Record "Interaction Group";
     begin
         InteractionGroup.FindFirst;
-        InteractionTemplate.Init;
+        InteractionTemplate.Init();
         InteractionTemplate.Validate(
           Code, LibraryUtility.GenerateRandomCode(InteractionTemplate.FieldNo(Code), DATABASE::"Interaction Template"));
         InteractionTemplate.Validate("Interaction Group Code", InteractionGroup.Code);
@@ -323,7 +323,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateJobResponsibility(var JobResponsibility: Record "Job Responsibility")
     begin
-        JobResponsibility.Init;
+        JobResponsibility.Init();
         JobResponsibility.Validate(
           Code, LibraryUtility.GenerateRandomCode(JobResponsibility.FieldNo(Code), DATABASE::"Job Responsibility"));
         JobResponsibility.Validate(Description, JobResponsibility.Code);  // Validating Code as Description because value is not important.
@@ -332,7 +332,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateMailingGroup(var MailingGroup: Record "Mailing Group")
     begin
-        MailingGroup.Init;
+        MailingGroup.Init();
         MailingGroup.Validate(Code, LibraryUtility.GenerateRandomCode(MailingGroup.FieldNo(Code), DATABASE::"Mailing Group"));
         MailingGroup.Validate(Description, MailingGroup.Code);  // Validating Code as Description because value is not important.
         MailingGroup.Insert(true);
@@ -363,7 +363,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateQuestionnaireHeader(var ProfileQuestionnaireHeader: Record "Profile Questionnaire Header")
     begin
-        ProfileQuestionnaireHeader.Init;
+        ProfileQuestionnaireHeader.Init();
         ProfileQuestionnaireHeader.Validate(
           Code, LibraryUtility.GenerateRandomCode(ProfileQuestionnaireHeader.FieldNo(Code), DATABASE::"Profile Questionnaire Header"));
 
@@ -376,7 +376,7 @@ codeunit 131900 "Library - Marketing"
     var
         RecRef: RecordRef;
     begin
-        ProfileQuestionnaireLine.Init;
+        ProfileQuestionnaireLine.Init();
         ProfileQuestionnaireLine.Validate("Profile Questionnaire Code", ProfileQuestionnaireCode);
         RecRef.GetTable(ProfileQuestionnaireLine);
         // Use the function GetLastLineNo to get the value of the Line No. field.
@@ -402,7 +402,7 @@ codeunit 131900 "Library - Marketing"
     var
         RecRef: RecordRef;
     begin
-        RlshpMgtCommentLine.Init;
+        RlshpMgtCommentLine.Init();
         RlshpMgtCommentLine.Validate("Table Name", TableName);
         RlshpMgtCommentLine.Validate("No.", No);
         RlshpMgtCommentLine.Validate("Sub No.", SubNo);
@@ -425,7 +425,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateSalutation(var Salutation: Record Salutation)
     begin
-        Salutation.Init;
+        Salutation.Init();
         Salutation.Validate(Code, LibraryUtility.GenerateRandomCode(Salutation.FieldNo(Code), DATABASE::Salutation));
         Salutation.Validate(Description, Salutation.Code);  // Validating Code as Description because value is not important.
         Salutation.Insert(true);
@@ -433,7 +433,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateSalutationFormula(var SalutationFormula: Record "Salutation Formula"; SalutationCode: Code[10]; LanguageCode: Code[10]; SalutationType: Option)
     begin
-        SalutationFormula.Init;
+        SalutationFormula.Init();
         SalutationFormula.Validate("Salutation Code", SalutationCode);
         SalutationFormula.Validate("Language Code", LanguageCode);
         SalutationFormula.Validate("Salutation Type", SalutationType);
@@ -442,7 +442,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateSalesCycle(var SalesCycle: Record "Sales Cycle")
     begin
-        SalesCycle.Init;
+        SalesCycle.Init();
         SalesCycle.Validate(Code, LibraryUtility.GenerateRandomCode(SalesCycle.FieldNo(Code), DATABASE::"Sales Cycle"));
         SalesCycle.Validate(Description, SalesCycle.Code);
         SalesCycle.Insert(true);
@@ -458,7 +458,7 @@ codeunit 131900 "Library - Marketing"
             Stage := SalesCycleStage.Stage + 1
         else
             Stage := 1;
-        SalesCycleStage.Init;
+        SalesCycleStage.Init();
         SalesCycleStage.Validate("Sales Cycle Code", SalesCycleCode);
         SalesCycleStage.Validate(Stage, Stage);
         SalesCycleStage.Insert(true);
@@ -466,7 +466,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateSalesHeaderWithContact(var SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[10])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
         SalesHeader.Validate("Sell-to Customer Template Code", SellToCustomerTemplateCode);
@@ -475,7 +475,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateSalesQuoteWithContact(var SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[10])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Insert(true);
         SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
@@ -486,7 +486,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CampaignNo: Code[20]; ItemNo: Code[20])
     begin
-        SalesLineDiscount.Init;
+        SalesLineDiscount.Init();
         SalesLineDiscount.Validate(Type, SalesLineDiscount.Type::Item);
         SalesLineDiscount.Validate(Code, ItemNo);
         SalesLineDiscount.Validate("Sales Type", SalesLineDiscount."Sales Type"::Campaign);
@@ -496,7 +496,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; CampaignNo: Code[20])
     begin
-        SalesPrice.Init;
+        SalesPrice.Init();
         SalesPrice.Validate("Item No.", ItemNo);
         SalesPrice.Validate("Sales Type", SalesPrice."Sales Type"::Campaign);
         SalesPrice.Validate("Sales Code", CampaignNo);
@@ -507,13 +507,13 @@ codeunit 131900 "Library - Marketing"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if MarketingSetup."Segment Nos." = '' then begin
             MarketingSetup.Validate("Segment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             MarketingSetup.Modify(true);
         end;
 
-        SegmentHeader.Init;
+        SegmentHeader.Init();
         SegmentHeader.Insert(true);
         SegmentHeader.Validate(Description, SegmentHeader."No.");  // Validating No. as Description because value is not important.
         SegmentHeader.Modify(true);
@@ -523,7 +523,7 @@ codeunit 131900 "Library - Marketing"
     var
         RecRef: RecordRef;
     begin
-        SegmentLine.Init;
+        SegmentLine.Init();
         SegmentLine.Validate("Segment No.", SegmentHeaderNo);
         RecRef.GetTable(SegmentLine);
         SegmentLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SegmentLine.FieldNo("Line No.")));
@@ -532,14 +532,14 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateTeam(var Team: Record Team)
     begin
-        Team.Init;
+        Team.Init();
         Team.Validate(Code, LibraryUtility.GenerateRandomCode(Team.FieldNo(Code), DATABASE::Team));
         Team.Insert(true);
     end;
 
     procedure CreateTeamSalesperson(var TeamSalesperson: Record "Team Salesperson"; TeamCode: Code[10]; SalespersonCode: Code[20])
     begin
-        TeamSalesperson.Init;
+        TeamSalesperson.Init();
         TeamSalesperson.Validate("Team Code", TeamCode);
         TeamSalesperson.Validate("Salesperson Code", SalespersonCode);
         TeamSalesperson.Insert(true);
@@ -547,7 +547,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateTask(var Task: Record "To-do")
     begin
-        Task.Init;
+        Task.Init();
         Task.Insert(true);
         Task.Validate(Description, Task."No.");
         Task.Modify(true);
@@ -555,7 +555,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateWebSource(var WebSource: Record "Web Source")
     begin
-        WebSource.Init;
+        WebSource.Init();
         WebSource.Validate(Code, LibraryUtility.GenerateRandomCode(WebSource.FieldNo(Code), DATABASE::"Web Source"));
         WebSource.Validate(Description, WebSource.Code);  // Validating Code as Description because value is not important.
         WebSource.Insert(true);
@@ -577,7 +577,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure CreateEmailMergeAttachment(var Attachment: Record Attachment) ContentBodyText: Text
     begin
-        Attachment.Init;
+        Attachment.Init();
         Attachment."No." := LibraryUtility.GetNewRecNo(Attachment, Attachment.FieldNo("No."));
         Attachment."Storage Type" := Attachment."Storage Type"::Embedded;
         Attachment."File Extension" := 'HTML';
@@ -652,9 +652,9 @@ codeunit 131900 "Library - Marketing"
         Contact.County := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(Contact.County));
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Name := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(CountryRegion.Name));
-        CountryRegion.Modify;
+        CountryRegion.Modify();
         Contact."Country/Region Code" := CountryRegion.Code;
-        Contact.Modify;
+        Contact.Modify();
     end;
 }
 

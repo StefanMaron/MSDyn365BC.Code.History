@@ -41,8 +41,8 @@ xmlport 10 "IC G/L Account Import/Export"
                             Modified := Modified + 1;
                         ICGLAcc."Map-to G/L Acc. No." := TempICGLAcc."Map-to G/L Acc. No.";
                         OrgICGLAcc.Get(ICGLAcc."No.");
-                        OrgICGLAcc.Delete;
-                        TempICGLAcc.Delete;
+                        OrgICGLAcc.Delete();
+                        TempICGLAcc.Delete();
                     end else
                         Inserted := Inserted + 1;
                 end;
@@ -72,7 +72,7 @@ xmlport 10 "IC G/L Account Import/Export"
                 repeat
                     Deleted := Deleted + 1;
                     OrgICGLAcc.Get(TempICGLAcc."No.");
-                    OrgICGLAcc.Delete;
+                    OrgICGLAcc.Delete();
                 until TempICGLAcc.Next = 0;
 
             if Inserted > 0 then
@@ -110,11 +110,11 @@ xmlport 10 "IC G/L Account Import/Export"
     var
         ICGLAcc: Record "IC G/L Account";
     begin
-        TempICGLAcc.DeleteAll;
+        TempICGLAcc.DeleteAll();
         if ICGLAcc.Find('-') then
             repeat
                 TempICGLAcc := ICGLAcc;
-                TempICGLAcc.Insert;
+                TempICGLAcc.Insert();
             until ICGLAcc.Next = 0;
     end;
 

@@ -106,10 +106,10 @@ table 8611 "Config. Question Area"
     var
         ConfigQuestion: Record "Config. Question";
     begin
-        ConfigQuestion.Reset;
+        ConfigQuestion.Reset();
         ConfigQuestion.SetRange("Questionnaire Code", "Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", Code);
-        ConfigQuestion.DeleteAll;
+        ConfigQuestion.DeleteAll();
     end;
 
     trigger OnRename()

@@ -17,32 +17,32 @@ report 394 "Suggest Employee Payments"
                 EmployeeBalance := Balance;
 
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 Window.Update(1, "No.");
                 GetEmplLedgEntries(true);
                 GetEmplLedgEntries(false);
-                CheckAmounts;
+                CheckAmounts();
             end;
 
             trigger OnPostDataItem()
             begin
-                DimSetEntry.LockTable;
-                GenJnlLine.LockTable;
+                DimSetEntry.LockTable();
+                GenJnlLine.LockTable();
                 GenJnlTemplate.Get(GenJnlLine."Journal Template Name");
                 GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
                 GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                 if GenJnlLine.FindLast then begin
                     LastLineNo := GenJnlLine."Line No.";
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                 end;
 
                 Window2.Open(InsertingJournalLinesMsg);
 
-                TempPayableEmployeeLedgerEntry.Reset;
+                TempPayableEmployeeLedgerEntry.Reset();
                 MakeGenJnlLines;
-                TempPayableEmployeeLedgerEntry.Reset;
-                TempPayableEmployeeLedgerEntry.DeleteAll;
+                TempPayableEmployeeLedgerEntry.Reset();
+                TempPayableEmployeeLedgerEntry.DeleteAll();
 
                 Window2.Close;
                 Window.Close;
@@ -183,11 +183,16 @@ report 394 "Suggest Employee Payments"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Bal. Account Type';
                             Importance = Additional;
-                            OptionCaption = 'G/L Account,,,Bank Account';
                             ToolTip = 'Specifies the balancing account type that payments on the payment journal are posted to.';
 
                             trigger OnValidate()
                             begin
+                                if not (GenJnlLine2."Bal. Account Type" in
+                                    [GenJnlLine2."Bal. Account Type"::"Bank Account", GenJnlLine2."Bal. Account Type"::"G/L Account"])
+                                then
+                                    error(
+                                        BalAccountTypeErr,
+                                        GenJnlLine2."Bal. Account Type"::"Bank Account", GenJnlLine2."Bal. Account Type"::"G/L Account");
                                 GenJnlLine2."Bal. Account No." := '';
                             end;
                         }
@@ -273,7 +278,7 @@ report 394 "Suggest Employee Payments"
 
     trigger OnPostReport()
     begin
-        Commit;
+        Commit();
         if not TempEmployeeLedgerEntry.IsEmpty then
             if Confirm(UnprocessedEntriesQst) then
                 PAGE.RunModal(0, TempEmployeeLedgerEntry);
@@ -281,8 +286,8 @@ report 394 "Suggest Employee Payments"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        TempEmployeeLedgerEntry.DeleteAll;
+        CompanyInformation.Get();
+        TempEmployeeLedgerEntry.DeleteAll();
         ShowPostingDateWarning := false;
     end;
 
@@ -293,6 +298,7 @@ report 394 "Suggest Employee Payments"
         InsertingJournalLinesMsg: Label 'Inserting payment journal lines #1##########', Comment = '#1########## is for the progress dialog. Don''t translate that part of the string';
         AccountTypeErr: Label '%1 must be G/L Account or Bank Account.', Comment = '%1 - balancing account type';
         BankPaymentTypeErr: Label 'Bank Payment Type field must be filled only when Bal. Account Type is set to Bank Account.';
+        BalAccountTypeErr: label 'Balancing account must be %1 or %2.';
         ManualCheckErr: Label 'If bank payment type is set to Manual Check, and you have not selected the Summarize per Employee field,\ then you must select the New Doc. No. per Line.';
         EmployeePaymentLinesCreatedTxt: Label 'You have created suggested employee payment lines.';
         Empl2: Record Employee;
@@ -371,7 +377,7 @@ report 394 "Suggest Employee Payments"
 
     local procedure GetEmplLedgEntries(Positive: Boolean)
     begin
-        EmployeeLedgerEntry.Reset;
+        EmployeeLedgerEntry.Reset();
         EmployeeLedgerEntry.SetCurrentKey("Employee No.", Open, Positive);
         EmployeeLedgerEntry.SetRange("Employee No.", Employee."No.");
         EmployeeLedgerEntry.SetRange(Open, true);
@@ -419,7 +425,7 @@ report 394 "Suggest Employee Payments"
         TempPayableEmployeeLedgerEntry.Amount := GenJnlLine.Amount;
         TempPayableEmployeeLedgerEntry.Positive := (TempPayableEmployeeLedgerEntry.Amount > 0);
         TempPayableEmployeeLedgerEntry."Currency Code" := EmployeeLedgerEntry."Currency Code";
-        TempPayableEmployeeLedgerEntry.Insert;
+        TempPayableEmployeeLedgerEntry.Insert();
         NextEntryNo := NextEntryNo + 1;
     end;
 
@@ -443,22 +449,22 @@ report 394 "Suggest Employee Payments"
                 then
                     CurrencyBalance := CurrencyBalance + TempPayableEmployeeLedgerEntry.Amount
                 else
-                    TempPayableEmployeeLedgerEntry.Delete;
+                    TempPayableEmployeeLedgerEntry.Delete();
             until TempPayableEmployeeLedgerEntry.Next = 0;
             if OriginalAmtAvailable > 0 then
                 AmountAvailable := AmountAvailable - CurrencyBalance;
             if (OriginalAmtAvailable > 0) and (AmountAvailable <= 0) then
                 StopPayments := true;
         end;
-        TempPayableEmployeeLedgerEntry.Reset;
+        TempPayableEmployeeLedgerEntry.Reset();
     end;
 
     local procedure MakeGenJnlLines()
     var
         RemainingAmtAvailable: Decimal;
     begin
-        TempEmplPaymentBuffer.Reset;
-        TempEmplPaymentBuffer.DeleteAll;
+        TempEmplPaymentBuffer.Reset();
+        TempEmplPaymentBuffer.DeleteAll();
 
         if BalAccType = BalAccType::"Bank Account" then
             CheckCurrencies(BalAccType, BalAccNo);
@@ -498,13 +504,13 @@ report 394 "Suggest Employee Payments"
                         TempEmplPaymentBuffer."Employee Ledg. Entry No." := 0;
                         if TempEmplPaymentBuffer.Find then begin
                             TempEmplPaymentBuffer.Amount := TempEmplPaymentBuffer.Amount + TempPayableEmployeeLedgerEntry.Amount;
-                            TempEmplPaymentBuffer.Modify;
+                            TempEmplPaymentBuffer.Modify();
                         end else begin
                             TempEmplPaymentBuffer."Document No." := NextDocNo;
-                            GenJnlLine.IncrementDocumentNo(GenJnlBatch, NextDocNo);
+                            NextDocNo := IncStr(NextDocNo);
                             TempEmplPaymentBuffer.Amount := TempPayableEmployeeLedgerEntry.Amount;
                             Window2.Update(1, EmployeeLedgerEntry."Employee No.");
-                            TempEmplPaymentBuffer.Insert;
+                            TempEmplPaymentBuffer.Insert();
                         end;
                         EmployeeLedgerEntry."Applies-to ID" := TempEmplPaymentBuffer."Document No.";
                     end else
@@ -517,20 +523,20 @@ report 394 "Suggest Employee Payments"
                             TempEmplPaymentBuffer."Employee Ledg. Entry No." := EmployeeLedgerEntry."Entry No.";
                             TempEmplPaymentBuffer.Amount := TempPayableEmployeeLedgerEntry.Amount;
                             Window2.Update(1, EmployeeLedgerEntry."Employee No.");
-                            TempEmplPaymentBuffer.Insert;
+                            TempEmplPaymentBuffer.Insert();
                         end;
 
                     EmployeeLedgerEntry."Amount to Apply" := EmployeeLedgerEntry."Remaining Amount";
                     CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
 
-                    TempPayableEmployeeLedgerEntry.Delete;
+                    TempPayableEmployeeLedgerEntry.Delete();
                     if OriginalAmtAvailable <> 0 then begin
                         RemainingAmtAvailable := RemainingAmtAvailable - TempPayableEmployeeLedgerEntry.Amount;
                         RemovePaymentsAboveLimit(TempPayableEmployeeLedgerEntry, RemainingAmtAvailable);
                     end;
 
                 until not TempPayableEmployeeLedgerEntry.FindSet;
-                TempPayableEmployeeLedgerEntry.DeleteAll;
+                TempPayableEmployeeLedgerEntry.DeleteAll();
                 TempPayableEmployeeLedgerEntry.SetRange("Employee No.");
             until not TempPayableEmployeeLedgerEntry.Find('-');
     end;
@@ -561,7 +567,7 @@ report 394 "Suggest Employee Payments"
                                 "Document Type" := "Document Type"::Refund;
 
                             "Document No." := NextDocNo;
-                            IncrementDocumentNo(GenJnlBatch, NextDocNo);
+                            NextDocNo := IncStr(NextDocNo);
                         end else
                             if (TempEmplPaymentBuffer."Employee No." = OldTempEmplPaymentBuffer."Employee No.") and
                                (TempEmplPaymentBuffer."Currency Code" = OldTempEmplPaymentBuffer."Currency Code")
@@ -569,7 +575,7 @@ report 394 "Suggest Employee Payments"
                                 "Document No." := OldTempEmplPaymentBuffer."Document No."
                             else begin
                                 "Document No." := NextDocNo;
-                                IncrementDocumentNo(GenJnlBatch, NextDocNo);
+                                NextDocNo := IncStr(NextDocNo);
                                 OldTempEmplPaymentBuffer := TempEmplPaymentBuffer;
                                 OldTempEmplPaymentBuffer."Document No." := "Document No.";
                             end;
@@ -622,8 +628,8 @@ report 394 "Suggest Employee Payments"
         with GenJnlLine do begin
             NewDimensionID := "Dimension Set ID";
             if SummarizePerEmpl then begin
-                DimBuf.Reset;
-                DimBuf.DeleteAll;
+                DimBuf.Reset();
+                DimBuf.DeleteAll();
                 DimBufMgt.GetDimensions(TempEmplPaymentBuffer."Dimension Entry No.", DimBuf);
                 if DimBuf.FindSet then
                     repeat
@@ -631,7 +637,7 @@ report 394 "Suggest Employee Payments"
                         TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
                         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
                         TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
-                        TempDimSetEntry.Insert;
+                        TempDimSetEntry.Insert();
                     until DimBuf.Next = 0;
                 NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 "Dimension Set ID" := NewDimensionID;
@@ -685,7 +691,7 @@ report 394 "Suggest Employee Payments"
 
     local procedure DimCodeIsInDimBuf(DimCode: Code[20]; DimBuf: Record "Dimension Buffer"): Boolean
     begin
-        DimBuf.Reset;
+        DimBuf.Reset();
         DimBuf.SetRange("Dimension Code", DimCode);
         exit(not DimBuf.IsEmpty);
     end;
@@ -693,18 +699,18 @@ report 394 "Suggest Employee Payments"
     local procedure RemovePaymentsAboveLimit(var PayableEmplLedgEntry: Record "Payable Employee Ledger Entry"; RemainingAmtAvailable: Decimal)
     begin
         PayableEmplLedgEntry.SetFilter(Amount, '>%1', RemainingAmtAvailable);
-        PayableEmplLedgEntry.DeleteAll;
+        PayableEmplLedgEntry.DeleteAll();
         PayableEmplLedgEntry.SetRange(Amount);
     end;
 
     local procedure InsertDimBuf(var DimBuf: Record "Dimension Buffer"; TableID: Integer; EntryNo: Integer; DimCode: Code[20]; DimValue: Code[20])
     begin
-        DimBuf.Init;
+        DimBuf.Init();
         DimBuf."Table ID" := TableID;
         DimBuf."Entry No." := EntryNo;
         DimBuf."Dimension Code" := DimCode;
         DimBuf."Dimension Value Code" := DimValue;
-        DimBuf.Insert;
+        DimBuf.Insert();
     end;
 
     local procedure AdjustAgainstSelectedDim(var TempDimSetEntry: Record "Dimension Set Entry" temporary; var TempDimSetEntry2: Record "Dimension Set Entry" temporary): Boolean
@@ -714,7 +720,7 @@ report 394 "Suggest Employee Payments"
                 TempDimSetEntry.SetRange("Dimension Code", SelectedDim."Dimension Code");
                 if TempDimSetEntry.FindFirst then begin
                     TempDimSetEntry2.TransferFields(TempDimSetEntry, true);
-                    TempDimSetEntry2.Insert;
+                    TempDimSetEntry2.Insert();
                 end;
             until SelectedDim.Next = 0;
             exit(true);
@@ -728,8 +734,8 @@ report 394 "Suggest Employee Payments"
         EntryNo: Integer;
     begin
         if SummarizePerDim then begin
-            DimBuf.Reset;
-            DimBuf.DeleteAll;
+            DimBuf.Reset();
+            DimBuf.DeleteAll();
             if SelectedDim.Find('-') then
                 repeat
                     if DimSetEntry.Get(
@@ -743,7 +749,7 @@ report 394 "Suggest Employee Payments"
                 EntryNo := DimBufMgt.InsertDimensions(DimBuf);
             TempEmplPaymentBuffer."Dimension Entry No." := EntryNo;
             if TempEmplPaymentBuffer."Dimension Entry No." <> 0 then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if DimCodeIsInDimBuf(GLSetup."Global Dimension 1 Code", DimBuf) then
                     TempEmplPaymentBuffer."Global Dimension 1 Code" := EmployeeLedgerEntry."Global Dimension 1 Code"
                 else

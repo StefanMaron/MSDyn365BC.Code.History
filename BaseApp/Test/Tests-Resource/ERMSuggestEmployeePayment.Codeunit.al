@@ -34,7 +34,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Create and Post General Journal Lines and Suggest Employee Payments with Manual Check.
-        Initialize();
+        Initialize;
         EmployeePayment(GenJournalLine."Bank Payment Type"::"Manual Check");
     end;
 
@@ -46,7 +46,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Create and Post General Journal Lines and Suggest Employee Payments with Computer Check.
-        Initialize();
+        Initialize;
         EmployeePayment(GenJournalLine."Bank Payment Type"::"Computer Check");
     end;
 
@@ -86,7 +86,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         NoOfLines: Integer;
     begin
         // Create Setup, Post General Journal Lines, Suggest Employee Payment for Multi Employee with Computer Check and Verify Posted Entries.
-        Initialize();
+        Initialize;
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
         BankAccountNo := SetupAndCreateGenJournalLines(GenJournalLine, GenJournalBatch);
         EmployeeNo := GenJournalLine."Account No.";
@@ -128,7 +128,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // Suggest Employee payments with Discounts.
 
         // Setup: Create Payment Terms and Employee, Create Expenses and post them
-        Initialize();
+        Initialize;
 
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
@@ -142,25 +142,25 @@ codeunit 134116 "ERM Suggest Employee Payment"
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        PreCount := GenJournalLine.Count;
+        PreCount := GenJournalLine.Count();
         SuggestEmployeePayment(
           GenJournalBatch, '',
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", false);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        PostCount := GenJournalLine.Count;
+        PostCount := GenJournalLine.Count();
 
         Assert.IsTrue(PreCount < PostCount, 'Suggest Employee Payments should have added records.');
 
-        RecordCountBefore := GenJournalLine.Count;
+        RecordCountBefore := GenJournalLine.Count();
         GenJournalLine.FindLast;
-        GenJournalLine.Delete;
-        Commit;
+        GenJournalLine.Delete();
+        Commit();
 
         // Verify: Record was removed
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        RecordCountAfterDelete := GenJournalLine.Count;
+        RecordCountAfterDelete := GenJournalLine.Count();
         Assert.AreNotEqual(RecordCountBefore, RecordCountAfterDelete, 'General Journal record should have been removed.');
 
         SuggestEmployeePayment(
@@ -168,7 +168,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", false);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        RecordCountAfterResuggest := GenJournalLine.Count;
+        RecordCountAfterResuggest := GenJournalLine.Count();
 
         // Verify: Record was recreated, i.e.  Before and After record counts are equal
         Assert.AreEqual(RecordCountBefore, RecordCountAfterResuggest, 'Suggest Employee payments did not add the line.');
@@ -182,7 +182,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Apply Payment against the Expenses and show Only Applied Entries.
-        Initialize();
+        Initialize;
         SetApplyIdToDocument(GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment, -1);
     end;
 
@@ -224,7 +224,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
 
         // 1. Setup: Create Payment Terms with Discount Date and Calc. Pmt. Disc. on Cr. Memos as True, Employee with Payment Terms Code,
         // Create and Post General Journal Lines with Document Type as Expense and Payment
-        Initialize();
+        Initialize;
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
         ExpenseAmount := LibraryRandom.RandDec(1000, 2);  // Use Random for Expense Amount.
@@ -263,7 +263,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // Test Employee Ledger Entry after Posting Payment Journal with running Suggest Employee Payment against Expense.
 
         // 1. Setup: Create and post General Journal with Document Type as Expense.
-        Initialize();
+        Initialize;
         DocumentNo := CreateAndPostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::" ");
 
         // 2. Exercise: Create General Journal Batch for Payment and Run Suggest Employee Payment with Random Last Payment Date.
@@ -285,6 +285,19 @@ codeunit 134116 "ERM Suggest Employee Payment"
     end;
 
     [Test]
+    [HandlerFunctions('SuggestEmployeePaymentsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestPaymentForEmployeeWithDebitBalance()
+    begin
+        Initialize;
+        // [GIVEN] Employee with Negative Balance
+        // [GIVEN] Use Employee Priority is FALSE
+        // [WHEN] Suggest Employee Payment
+        // [THEN] Payment is not suggested
+        SuggestPaymentForEmployee;
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure GLEntriesWithDimensionValues()
     var
@@ -296,7 +309,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         ShortcutDimension2Code: Code[20];
     begin
         // Setup: Create & Post General Journal Lines.
-        Initialize();
+        Initialize;
         EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
         GLAccountNo := LibraryERM.CreateGLAccountNo;
         CreateGeneralJournalWithAccountTypeGLAccount(GenJournalLine, GLAccountNo);
@@ -353,7 +366,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // Test the dimension valued posted with Expense are retrived when performing suggest Employee payment.
 
         // Setup:
-        Initialize();
+        Initialize;
 
         // Exercise: Create GenJournalLine with Dimesnion and Post it. Run Suggest Employee Payment.
         EmployeeNo := CreateGenJnlLineWithEmployeeBalAcc(GenJournalLine);
@@ -442,7 +455,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // Test the dimension valued posted with Expense are retrived when performing suggest Employee payment with 'Summarize per Employee' checked.
 
         // Setup:
-        Initialize();
+        Initialize;
 
         // Exercise: Create GenJournalLine with Dimesnion and Post it. Create Default dimension for Employee, Run Suggest Employee Payment.
         EmployeeNo := CreateGenJnlLineWithEmployeeBalAcc(GenJournalLine);
@@ -490,7 +503,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // [FEATURE] [Default Dimension]
         // [SCENARIO 371674] Default Dimensions should be used for Payment Journal when Suggest Employee Payments with no selected dimensions and "Summarize Per Employee" option
 
-        Initialize();
+        Initialize;
         // [GIVEN] Employee with Default Dimension Set ID = "X" combined from "Global Dimension 1 Code" = "A" and "Global Dimension 2 Code" = "B"
         CreateEmployeeWithDimensions(EmployeeNo, DimSetID);
         // [GIVEN] Posted Expense
@@ -520,7 +533,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // [SCENARIO 159865] Test suggest Employee payment request page defaults correct values.
 
         // Setup:
-        Initialize();
+        Initialize;
 
         // [GIVEN] Create GenJournalLine and Post it. Run Suggest Employee Payment.
         CreateGenJnlLineWithEmployeeBalAcc(GenJournalLine);
@@ -531,6 +544,101 @@ codeunit 134116 "ERM Suggest Employee Payment"
         SuggestEmployeePaymentUsingPage(GenJournalLine);
 
         // [THEN] SuggestEmployeePaymentsDefaultValuesForRequestPageHandler page handler will verify default values
+    end;
+
+    local procedure SuggestPaymentForEmployee()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        EmployeeNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // 1. Setup: Create and Post Expense for Employee.
+        EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
+        GLAccountNo := LibraryERM.CreateGLAccountNo;
+
+        LibraryVariableStorage.Enqueue(EmployeeNo);
+        LibraryVariableStorage.Enqueue(GLAccountNo);
+
+        CreateExpenseForEmployeeToGiveNegativeBalance(GenJournalLine, EmployeeNo);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // 2. Exercise: Suggest Employee Payment using Page. Using Page is because InitializeRequest of Report does not have the option to set value in "Use Employee Priority" Field.
+        SuggestEmployeePaymentUsingPage(GenJournalLine);
+
+        // 3. Verify: Verify that Payment is not suggested for the Employee with Debit Balance.
+        VerifyJournalLinesNotSuggested(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,SuggestEmployeePaymentsRequestWithBnkPmtTypePageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestEmployeePaymentWithElectronicPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SuggestEmployeePayments: Report "Suggest Employee Payments";
+        BankAccountNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [Bank Payment Type]
+        // [SCENARIO] Stan can set "Electronic Payment" as "Bank Payment Type" on request page of "Suggest Employee Payments" report
+        Initialize;
+
+        // [GIVEN] Posted journal with type <blank> for Employee A for Amount = -100
+        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        CreateAndPostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ");
+        EmployeeNo := GenJournalLine."Account No.";
+
+        // [WHEN] Run Report "Suggest Employee Payment" for Employee A with "Bank Payment Type" set to "Electronic Payment"
+        SuggestEmployeePayments.SetGenJnlLine(GenJournalLine);
+        LibraryVariableStorage.Enqueue(EmployeeNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        SuggestEmployeePayments.Run;
+
+        // [THEN] Payment Journal Line created for Employee A with Ammout 100 with "Bank Payment Type" = "Electronic Payment"
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        GenJournalLine.SetRange("Account No.", EmployeeNo);
+        GenJournalLine.SetRange(Amount, -GenJournalLine.Amount);
+        Assert.RecordIsNotEmpty(GenJournalLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,SuggestEmployeePaymentsRequestWithBnkPmtTypePageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestEmployeePaymentWithElectronicPaymentIAT()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SuggestEmployeePayments: Report "Suggest Employee Payments";
+        BankAccountNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [Bank Payment Type]
+        // [SCENARIO] Stan can set "Electronic Payment-IAT" as "Bank Payment Type" on request page of "Suggest Employee Payments" report
+        Initialize;
+
+        // [GIVEN] Posted journal with type <blank> for Employee A with Amount = -100
+        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        CreateAndPostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ");
+        EmployeeNo := GenJournalLine."Account No.";
+
+        // [WHEN] Run Report "Suggest Employee Payment" for Employee A with "Bank Payment Type" set to "Electronic Payment-IAT" in request page of a report
+        SuggestEmployeePayments.SetGenJnlLine(GenJournalLine);
+        LibraryVariableStorage.Enqueue(EmployeeNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT");
+        SuggestEmployeePayments.Run;
+
+        // [THEN] Payment Journal Line created for Employee A with Ammout 100 with "Bank Payment Type" = "Electronic Payment-IAT"
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT");
+        GenJournalLine.SetRange("Account No.", EmployeeNo);
+        GenJournalLine.SetRange(Amount, -GenJournalLine.Amount);
+        Assert.RecordIsNotEmpty(GenJournalLine);
     end;
 
     [Test]
@@ -567,78 +675,6 @@ codeunit 134116 "ERM Suggest Employee Payment"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestEmployeePaymentsRequestWithBnkPmtTypePageHandler')]
-    [Scope('OnPrem')]
-    procedure SuggestEmployeePaymentWithElectronicPayment()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        SuggestEmployeePayments: Report "Suggest Employee Payments";
-        BankAccountNo: Code[20];
-        EmployeeNo: Code[20];
-    begin
-        // [FEATURE] [Bank Payment Type]
-        // [SCENARIO] Stan can set "Electronic Payment" as "Bank Payment Type" on request page of "Suggest Employee Payments" report
-        Initialize();
-
-        // [GIVEN] Posted journal with type <blank> for Employee A for Amount = -100
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
-        CreateAndPostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ");
-        EmployeeNo := GenJournalLine."Account No.";
-
-        // [WHEN] Run Report "Suggest Employee Payment" for Employee A with "Bank Payment Type" set to "Electronic Payment"
-        SuggestEmployeePayments.SetGenJnlLine(GenJournalLine);
-        LibraryVariableStorage.Enqueue(EmployeeNo);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
-        LibraryVariableStorage.Enqueue(BankAccountNo);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Bank Payment Type"::"Electronic Payment");
-        SuggestEmployeePayments.Run;
-
-        // [THEN] Payment Journal Line created for Employee A with Ammout 100 with "Bank Payment Type" = "Electronic Payment"
-        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-        GenJournalLine.SetRange("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
-        GenJournalLine.SetRange("Account No.", EmployeeNo);
-        GenJournalLine.SetRange(Amount, -GenJournalLine.Amount);
-        Assert.RecordIsNotEmpty(GenJournalLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,SuggestEmployeePaymentsRequestWithBnkPmtTypePageHandler')]
-    [Scope('OnPrem')]
-    procedure SuggestEmployeePaymentWithElectronicPaymentIAT()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        SuggestEmployeePayments: Report "Suggest Employee Payments";
-        BankAccountNo: Code[20];
-        EmployeeNo: Code[20];
-    begin
-        // [FEATURE] [Bank Payment Type]
-        // [SCENARIO] Stan can set "Electronic Payment-IAT" as "Bank Payment Type" on request page of "Suggest Employee Payments" report
-        Initialize();
-
-        // [GIVEN] Posted journal with type <blank> for Employee A with Amount = -100
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
-        CreateAndPostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ");
-        EmployeeNo := GenJournalLine."Account No.";
-
-        // [WHEN] Run Report "Suggest Employee Payment" for Employee A with "Bank Payment Type" set to "Electronic Payment-IAT" in request page of a report
-        SuggestEmployeePayments.SetGenJnlLine(GenJournalLine);
-        LibraryVariableStorage.Enqueue(EmployeeNo);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
-        LibraryVariableStorage.Enqueue(BankAccountNo);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT");
-        SuggestEmployeePayments.Run;
-
-        // [THEN] Payment Journal Line created for Employee A with Ammout 100 with "Bank Payment Type" = "Electronic Payment-IAT"
-        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-        GenJournalLine.SetRange("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT");
-        GenJournalLine.SetRange("Account No.", EmployeeNo);
-        GenJournalLine.SetRange(Amount, -GenJournalLine.Amount);
-        Assert.RecordIsNotEmpty(GenJournalLine);
-    end;
-
-    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CreateEmployeePaymentWhenBatchNotExists()
@@ -649,8 +685,8 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         // [FEATURE] [UI] [Create Employee Payment]
         // [SCENARIO 294543] When run page Create Employee Payment for non-existent Batch, then no error and Batch Name is cleared on page
-        Initialize();
-        GenJournalTemplate.DeleteAll;
+        Initialize;
+        GenJournalTemplate.DeleteAll();
 
         // [GIVEN] Created Gen. Journal Batch with payment Template
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
@@ -662,7 +698,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         CreateEmployeePayment.OK.Invoke;
 
         // [GIVEN] Deleted Gen Journal Batch
-        GenJournalBatch.Delete;
+        GenJournalBatch.Delete();
 
         // [WHEN] Run page Create Employee Payment
         CreateEmployeePayment.OpenEdit;
@@ -682,10 +718,10 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         // [FEATURE] [UI] [Create Employee Payment]
         // [SCENARIO 294543] When run page Create Employee Payment and no Gen. Journal Templates exist, then no error and Batch Name is cleared on page
-        Initialize();
+        Initialize;
 
         // [GIVEN] Removed all Gen. Journal Templates
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
 
         // [WHEN] Run page Create Employee Payment
         CreateEmployeePayment.OpenEdit;
@@ -708,7 +744,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         // [FEATURE] [UI] [Create Employee Payment]
         // [SCENARIO 297928] Choosing Batch name on Create Employee Payment page leads to "Starting Document No." being equal to increment of last Gen. Journal Line's "Document No."
-        Initialize();
+        Initialize;
 
         // [GIVEN] Gen. Journal Batch "B" with No. Series
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
@@ -734,186 +770,27 @@ codeunit 134116 "ERM Suggest Employee Payment"
         CreateEmployeePayment.Close;
     end;
 
-    [Test]
-    [HandlerFunctions('SuggestEmployeePaymentsWithStartingNoSummarizedNewDocPerLineRPH')]
-    [Scope('OnPrem')]
-    procedure SuggestEmployeePaymentsTwoEmpoyeesNoSeriesIncrBy10()
-    var
-        Employee: array[2] of Record Employee;
-        NoSeriesLine: Record "No. Series Line";
-        GenJournalLine: Record "Gen. Journal Line";
-        Index: Integer;
-        EmployeeAmount: Decimal;
-    begin
-        // [FEATURE] [No. Series]
-        // [SCENARIO 342243] "Suggest Employee Payments" report considers "Increment by No." setup in number series of general journal batch
-        Initialize();
-
-        for Index := 1 to ArrayLen(Employee) do begin
-            CreateAndPostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ");
-            Employee[Index].Get(GenJournalLine."Account No.");
-            EmployeeAmount += GenJournalLine."Amount (LCY)";
-        end;
-
-        CreateNoSeriesWithIncrementByNo(NoSeriesLine, 10, 'A0001', 'A9999');
-
-        SetupGenJournalLineForSuggestEmployeePayments(GenJournalLine, NoSeriesLine);
-
-        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Employee[1]."No.", Employee[2]."No."));
-        LibraryVariableStorage.Enqueue(-EmployeeAmount);
-        LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
-        LibraryVariableStorage.Enqueue(false); // Summarize - FALSE
-        LibraryVariableStorage.Enqueue(false); // New Doc. No. per Line - FALSE
-
-        Commit();
-
-        RunSuggestEmployeePaymentsWithRequestPage(GenJournalLine);
-
-        GenJournalLine.FindFirst();
-        GenJournalLine.TestField("Document No.", 'A0001');
-
-        GenJournalLine.Next();
-        GenJournalLine.TestField("Document No.", 'A0011');
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('SuggestEmployeePaymentsWithStartingNoSummarizedNewDocPerLineRPH')]
-    [Scope('OnPrem')]
-    procedure SuggestEmployeePaymentsTwoEmployeesNoSeriesIncrBy10SummarizedByEmployee()
-    var
-        Employee: array[2] of Record Employee;
-        NoSeriesLine: Record "No. Series Line";
-        GenJournalLine: Record "Gen. Journal Line";
-        EmployeeIndex: Integer;
-        DocIndex: Integer;
-        EmployeeAmount: Decimal;
-    begin
-        // [FEATURE] [No. Series]
-        // [SCENARIO 342243] "Suggest Employee Payments" report considers "Increment by No." setup in number series of general journal batch when "Summarized per Employee" = TRUE
-        Initialize();
-
-        for EmployeeIndex := 1 to ArrayLen(Employee) do begin
-            LibraryHumanResource.CreateEmployeeWithBankAccount(Employee[EmployeeIndex]);
-            for DocIndex := 1 to 2 do begin
-                Clear(GenJournalLine);
-                LibraryJournals.CreateGenJournalLineWithBatch(
-                  GenJournalLine, GenJournalLine."Document Type"::" ",
-                  GenJournalLine."Account Type"::Employee, Employee[EmployeeIndex]."No.", -LibraryRandom.RandDec(100, 2));
-
-                LibraryERM.PostGeneralJnlLine(GenJournalLine);
-                EmployeeAmount += GenJournalLine."Amount (LCY)";
-            end;
-        end;
-
-        CreateNoSeriesWithIncrementByNo(NoSeriesLine, 10, 'A0001', 'A9999');
-
-        SetupGenJournalLineForSuggestEmployeePayments(GenJournalLine, NoSeriesLine);
-
-        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Employee[1]."No.", Employee[2]."No."));
-        LibraryVariableStorage.Enqueue(-EmployeeAmount);
-        LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
-        LibraryVariableStorage.Enqueue(true); // Summarize - TRUE
-        LibraryVariableStorage.Enqueue(false); // New Doc. No. per Line - FALSE
-
-        Commit();
-
-        RunSuggestEmployeePaymentsWithRequestPage(GenJournalLine);
-
-        GenJournalLine.FindFirst();
-        GenJournalLine.TestField("Document No.", 'A0001');
-        GenJournalLine.TestField("Account No.", Employee[1]."No.");
-
-        GenJournalLine.Next();
-        GenJournalLine.TestField("Document No.", 'A0011');
-        GenJournalLine.TestField("Account No.", Employee[2]."No.");
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('SuggestEmployeePaymentsWithStartingNoSummarizedNewDocPerLineRPH')]
-    [Scope('OnPrem')]
-    procedure SuggestEmployeePaymentsTwoEmployeesNoSeriesIncrBy10DocNoPerLine()
-    var
-        Employee: array[2] of Record Employee;
-        NoSeriesLine: Record "No. Series Line";
-        GenJournalLine: Record "Gen. Journal Line";
-        EmployeeIndex: Integer;
-        DocIndex: Integer;
-        EmployeeAmount: Decimal;
-    begin
-        // [FEATURE] [No. Series]
-        // [SCENARIO 342243] "Suggest Employee Payments" report considers "Increment by No." setup in number series of general journal batch when "New Doc. No. per Line" = TRUE
-        Initialize();
-
-        for EmployeeIndex := 1 to ArrayLen(Employee) do begin
-            LibraryHumanResource.CreateEmployeeWithBankAccount(Employee[EmployeeIndex]);
-            for DocIndex := 1 to 2 do begin
-                Clear(GenJournalLine);
-                LibraryJournals.CreateGenJournalLineWithBatch(
-                  GenJournalLine, GenJournalLine."Document Type"::" ",
-                  GenJournalLine."Account Type"::Employee, Employee[EmployeeIndex]."No.", -LibraryRandom.RandDec(100, 2));
-
-                LibraryERM.PostGeneralJnlLine(GenJournalLine);
-                EmployeeAmount += GenJournalLine."Amount (LCY)";
-            end;
-        end;
-
-        CreateNoSeriesWithIncrementByNo(NoSeriesLine, 10, 'A0001', 'A9999');
-
-        SetupGenJournalLineForSuggestEmployeePayments(GenJournalLine, NoSeriesLine);
-
-        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Employee[1]."No.", Employee[2]."No."));
-        LibraryVariableStorage.Enqueue(-EmployeeAmount);
-        LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
-        LibraryVariableStorage.Enqueue(false); // Summarize - FALSE
-        LibraryVariableStorage.Enqueue(true); // New Doc. No. per Line - TRUE
-
-        Commit();
-
-        RunSuggestEmployeePaymentsWithRequestPage(GenJournalLine);
-
-        GenJournalLine.FindFirst();
-        GenJournalLine.TestField("Document No.", 'A0001');
-        GenJournalLine.TestField("Account No.", Employee[1]."No.");
-
-        GenJournalLine.Next();
-        GenJournalLine.TestField("Document No.", 'A0011');
-        GenJournalLine.TestField("Account No.", Employee[1]."No.");
-
-        GenJournalLine.Next();
-        GenJournalLine.TestField("Document No.", 'A0021');
-        GenJournalLine.TestField("Account No.", Employee[2]."No.");
-
-        GenJournalLine.Next();
-        GenJournalLine.TestField("Document No.", 'A0031');
-        GenJournalLine.TestField("Account No.", Employee[2]."No.");
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Suggest Employee Payment");
-        ClearSelectedDim();
+        ClearSelectedDim;
 
-        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Clear;
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Suggest Employee Payment");
 
-        LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERMCountryData.UpdateGenJournalTemplate();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGenJournalTemplate;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Employee Payment");
     end;
 
@@ -944,7 +821,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         Employee: Record Employee;
     begin
         // Setup: Create Employee and Create and post Gen journal line with document type Expense.
-        Initialize();
+        Initialize;
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         CreateAndPostMultipleGenJnlLine(GenJournalLine, Employee."No.", LibraryRandom.RandIntInRange(15, 20), SecondExpenseAmount);
         LibraryVariableStorage.Enqueue(Employee."No.");
@@ -980,12 +857,24 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
+    local procedure CreateExpenseForEmployeeToGiveNegativeBalance(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // Take Random Amount for expense and make it positive, so the employee will have negative balance.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::Employee, EmployeeNo, LibraryRandom.RandDec(100, 2));
+    end;
+
     local procedure CreateBankAccount(CurrencyCode: Code[10]): Code[20]
     var
         BankAccount: Record "Bank Account";
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        BankAccountPostingGroup.FindFirst();
+        BankAccountPostingGroup.FindFirst;
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
@@ -1081,7 +970,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GLSetup: Record "General Ledger Setup";
     begin
         EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
-        GLSetup.Get;
+        GLSetup.Get();
         DimSetID :=
           LibraryDimension.CreateDimSet(
             0, GLSetup."Global Dimension 1 Code",
@@ -1090,19 +979,6 @@ codeunit 134116 "ERM Suggest Employee Payment"
           LibraryDimension.CreateDimSet(
             DimSetID, GLSetup."Global Dimension 2 Code",
             CreateDefDimWithFoundDimValue(GLSetup."Global Dimension 2 Code", DATABASE::Employee, EmployeeNo));
-    end;
-
-    local procedure CreateNoSeriesWithIncrementByNo(var NoSeriesLine: Record "No. Series Line"; IncrementByNo: Integer; StartingNo: Code[20]; EndingNo: Code[20])
-    var
-        NoSeries: Record "No. Series";
-    begin
-        NoSeries.Get(LibraryERM.CreateNoSeriesCode);
-        NoSeriesLine.SetRange("Series Code", NoSeries.Code);
-        NoSeriesLine.FindFirst();
-        NoSeriesLine."Starting No." := StartingNo;
-        NoSeriesLine."Ending No." := EndingNo;
-        NoSeriesLine."Increment-by No." := IncrementByNo;
-        NoSeriesLine.Modify();
     end;
 
     local procedure GetOnHold(): Code[3]
@@ -1122,7 +998,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst();
+        GenJournalLine.FindFirst;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -1132,14 +1008,6 @@ codeunit 134116 "ERM Suggest Employee Payment"
         EmployeeLedgerEntry.SetRange("Document Type", DocumentType);
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
         EmployeeLedgerEntry.FindSet;
-    end;
-
-    local procedure RunSuggestEmployeePaymentsWithRequestPage(var GenJournalLine: Record "Gen. Journal Line")
-    var
-        SuggestEmployeePayments: Report "Suggest Employee Payments";
-    begin
-        SuggestEmployeePayments.SetGenJnlLine(GenJournalLine);
-        SuggestEmployeePayments.RunModal();
     end;
 
     local procedure SetupAndCreateGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch") BankAccountNo: Code[20]
@@ -1159,28 +1027,13 @@ codeunit 134116 "ERM Suggest Employee Payment"
           GenJournalLine, GenJournalBatch, NoOfLines, WorkDate, Employee."No.", GenJournalLine."Document Type"::" ", -1);
     end;
 
-    local procedure SetupGenJournalLineForSuggestEmployeePayments(var GenJournalLine: Record "Gen. Journal Line"; NoSeriesLine: Record "No. Series Line")
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-    begin
-        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        GenJournalBatch.Validate("No. Series", NoSeriesLine."Series Code");
-        GenJournalBatch.Modify(true);
-
-        GenJournalLine.Init();
-        GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
-        GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-    end;
-
     local procedure SuggestEmployeePayment(GenJournalBatch: Record "Gen. Journal Batch"; EmployeeNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; BankPaymentType: Option; SummarizePerEmployee: Boolean)
     var
         Employee: Record Employee;
         GenJournalLine: Record "Gen. Journal Line";
         SuggestEmployeePayments: Report "Suggest Employee Payments";
     begin
-        GenJournalLine.Init;  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
         SuggestEmployeePayments.SetGenJnlLine(GenJournalLine);
@@ -1206,11 +1059,11 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
-        GenJournalLine.Init;  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
 
-        Commit;  // Commit required to avoid test failure.
+        Commit();  // Commit required to avoid test failure.
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
 
@@ -1238,7 +1091,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         DimensionValue: Record "Dimension Value";
         DimensionValue2: Record "Dimension Value";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGeneralJournalLines(GenJournalLine); // Find General Journal Line to update Dimension on first record.
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
@@ -1321,7 +1174,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionSelectionBuffer.SetFilter(
           Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
         exit(DimensionSelectionBuffer.GetFilter(Code));
@@ -1340,7 +1193,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         FindGeneralJournalLines(GenJournalLine);
         repeat
             GenJournalLine2 := GenJournalLine;
-            GenJournalLine2.Insert;
+            GenJournalLine2.Insert();
         until GenJournalLine.Next = 0;
     end;
 
@@ -1367,7 +1220,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Employee);
         GenJournalLine.SetRange("Account No.", EmployeeNo);
-        GenJournalLine.FindFirst();
+        GenJournalLine.FindFirst;
         EmployeeLedgerEntry.SetRange("Document Type", EmployeeLedgerEntry."Document Type"::" ");
         EmployeeLedgerEntry.SetRange("Employee No.", GenJournalLine."Account No.");
         EmployeeLedgerEntry.FindSet;
@@ -1381,6 +1234,16 @@ codeunit 134116 "ERM Suggest Employee Payment"
           StrSubstNo(AmountErrorMessageMsg, GenJournalLine.FieldCaption("Amount (LCY)"),
             TotalAmountLCY, GenJournalLine."Journal Template Name",
             GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
+    end;
+
+    local procedure VerifyJournalLinesNotSuggested(JournalTemplateName: Code[10]; JournalBatchName: Code[10])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.Init();
+        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        Assert.RecordIsEmpty(GenJournalLine);
     end;
 
     local procedure VerifyRemainingOnEmployeeLedger(EmployeeNo: Code[20])
@@ -1399,7 +1262,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
-        EmployeeLedgerEntry.Init;
+        EmployeeLedgerEntry.Init();
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
         EmployeeLedgerEntry.SetFilter("Applies-to ID", '<>''''');
         Assert.RecordCount(EmployeeLedgerEntry, EmployeeLedgerEntryCount);
@@ -1470,7 +1333,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         ShortcutDim1Code: Code[20];
         ShortcutDim2Code: Code[20];
     begin
-        Initialize();
+        Initialize;
         CreatePostGenJnlLineRunSuggestEmployeePayments(GenJournalLine, ShortcutDim1Code);
         GetDefaultEmployeeGlobalDimCode(ShortcutDim1Code, ShortcutDim2Code, GenJournalLine."Account No.", FirstDim);
         VerifyDimensionOnGeneralJournalLineFromExpense(GenJournalLine, ShortcutDim1Code, ShortcutDim2Code);
@@ -1483,7 +1346,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         if FirstDim then
             ShortcutDim2Code := ''
         else begin
-            GLSetup.Get;
+            GLSetup.Get();
             ShortcutDim1Code := GetEmployeeDefaultDim(AccountNo, GLSetup."Global Dimension 1 Code");
             ShortcutDim2Code := GetEmployeeDefaultDim(AccountNo, GLSetup."Global Dimension 2 Code");
         end;
@@ -1496,7 +1359,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
         GenJnlLine.SetRange("Account No.", EmployeeNo);
-        GenJnlLine.FindFirst();
+        GenJnlLine.FindFirst;
         Assert.AreEqual(DimSetID, GenJnlLine."Dimension Set ID", GenJnlLine.FieldCaption("Dimension Set ID"));
     end;
 
@@ -1507,7 +1370,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Employee);
         GenJournalLine.SetRange("Account No.", EmployeeNo);
-        GenJournalLine.FindFirst();
+        GenJournalLine.FindFirst;
         Assert.AreEqual(EmployeeNo, GenJournalLine."Recipient Bank Account", GenJournalLine.FieldCaption("Recipient Bank Account"));
     end;
 
@@ -1516,6 +1379,16 @@ codeunit 134116 "ERM Suggest Employee Payment"
     procedure MessageHandler(Message: Text[1024])
     begin
         // Message Handler.
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestEmployeePaymentsRequestPageHandler(var SuggestEmployeePayments: TestRequestPage "Suggest Employee Payments")
+    begin
+        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestEmployeePayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
+        SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
+        SuggestEmployeePayments.OK.Invoke;
     end;
 
     [RequestPageHandler]
@@ -1549,7 +1422,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         DimensionSelectionMultiple.First;
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
-        until not DimensionSelectionMultiple.Next();
+        until not DimensionSelectionMultiple.Next;
         DimensionSelectionMultiple.OK.Invoke;
     end;
 
@@ -1561,7 +1434,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         DimensionSelectionMultiple.First;
         repeat
             DimensionSelectionMultiple.Selected.SetValue(false);
-        until not DimensionSelectionMultiple.Next();
+        until not DimensionSelectionMultiple.Next;
         DimensionSelectionMultiple.OK.Invoke;
     end;
 
@@ -1572,7 +1445,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionSelectionBuffer.SetRange(Code, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionSelectionBuffer.GetFilter(Code));
         DimensionSelectionMultiple.First;
@@ -1588,7 +1461,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        GenJournalLine.Init;  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
         GenJournalLine.Validate("Journal Template Name", GenJournalTemplate.Name);
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
     end;
@@ -1612,7 +1485,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionSelectionBuffer.SetFilter(
           Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
         DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionSelectionBuffer.GetFilter(Code));
@@ -1620,7 +1493,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         DimensionSelectionMultiple.First;
         repeat
             DimensionSelectionMultiple.Selected.SetValue(false);
-        until not DimensionSelectionMultiple.Next();
+        until not DimensionSelectionMultiple.Next;
         DimensionSelectionMultiple.OK.Invoke;
     end;
 
@@ -1658,18 +1531,6 @@ codeunit 134116 "ERM Suggest Employee Payment"
         SuggestEmployeePayments.BankPaymentType.SetValue(LibraryVariableStorage.DequeueInteger);
         SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
         SuggestEmployeePayments.OK.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SuggestEmployeePaymentsWithStartingNoSummarizedNewDocPerLineRPH(var SuggestEmployeePayments: TestRequestPage "Suggest Employee Payments")
-    begin
-        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        SuggestEmployeePayments."Available Amount (LCY)".SetValue(LibraryVariableStorage.DequeueDecimal());
-        SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryVariableStorage.DequeueText());
-        SuggestEmployeePayments.SummarizePerEmployee.SetValue(LibraryVariableStorage.DequeueBoolean());
-        SuggestEmployeePayments.NewDocNoPerLine.SetValue(LibraryVariableStorage.DequeueBoolean());
-        SuggestEmployeePayments.OK.Invoke();
     end;
 }
 

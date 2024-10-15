@@ -27,7 +27,7 @@ codeunit 134062 "Field Style Unit Tests"
         CreateCustomerLedgerEntry(CustLedgerEntry, false, LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate)), '<-1D>');
         Assert.IsTrue('' = CustLedgerEntry.SetStyle, IncorrectStyle);
 
-        CustLedgerEntry.Delete;
+        CustLedgerEntry.Delete();
     end;
 
     [Test]
@@ -39,7 +39,7 @@ codeunit 134062 "Field Style Unit Tests"
         CreateCustomerLedgerEntry(CustLedgerEntry, true, LibraryUtility.GenerateRandomDate(CalcDate('<-1Y>', WorkDate), WorkDate), '');
         Assert.IsTrue(Unfavorable = CustLedgerEntry.SetStyle, IncorrectStyle);
 
-        CustLedgerEntry.Delete;
+        CustLedgerEntry.Delete();
     end;
 
     [Test]
@@ -51,7 +51,7 @@ codeunit 134062 "Field Style Unit Tests"
         CreateCustomerLedgerEntry(CustLedgerEntry, false, LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate)), '<1D>');
         Assert.IsTrue(Attention = CustLedgerEntry.SetStyle, IncorrectStyle);
 
-        CustLedgerEntry.Delete;
+        CustLedgerEntry.Delete();
     end;
 
     [Test]
@@ -63,7 +63,7 @@ codeunit 134062 "Field Style Unit Tests"
         CreateVendorLedgerEntry(VendorLedgerEntry, false, LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate)), '<-1D>');
         Assert.IsTrue('' = VendorLedgerEntry.SetStyle, IncorrectStyle);
 
-        VendorLedgerEntry.Delete;
+        VendorLedgerEntry.Delete();
     end;
 
     [Test]
@@ -75,7 +75,7 @@ codeunit 134062 "Field Style Unit Tests"
         CreateVendorLedgerEntry(VendorLedgerEntry, true, LibraryUtility.GenerateRandomDate(CalcDate('<-1Y>', WorkDate), WorkDate), '');
         Assert.IsTrue(Unfavorable = VendorLedgerEntry.SetStyle, IncorrectStyle);
 
-        VendorLedgerEntry.Delete;
+        VendorLedgerEntry.Delete();
     end;
 
     [Test]
@@ -87,7 +87,7 @@ codeunit 134062 "Field Style Unit Tests"
         CreateVendorLedgerEntry(VendorLedgerEntry, false, LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate)), '<1D>');
         Assert.IsTrue(Attention = VendorLedgerEntry.SetStyle, IncorrectStyle);
 
-        VendorLedgerEntry.Delete;
+        VendorLedgerEntry.Delete();
     end;
 
     [Test]
@@ -99,7 +99,7 @@ codeunit 134062 "Field Style Unit Tests"
         CreateCustomer(Customer, 0);
         Assert.IsTrue('' = Customer.SetStyle, IncorrectStyle);
 
-        Customer.Delete;
+        Customer.Delete();
     end;
 
     [Test]
@@ -111,42 +111,42 @@ codeunit 134062 "Field Style Unit Tests"
         CreateCustomer(Customer, -LibraryRandom.RandDec(10, 2));
         Assert.IsTrue(Unfavorable = Customer.SetStyle, IncorrectStyle);
 
-        Customer.Delete;
+        Customer.Delete();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer; CreditLimitLCY: Decimal)
     begin
-        Customer.Init;
+        Customer.Init();
         Customer."Credit Limit (LCY)" := CreditLimitLCY;
-        Customer.Insert;
+        Customer.Insert();
     end;
 
     local procedure CreateCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; Open: Boolean; DueDate: Date; ClosedAtDateDelta: Text)
     var
         DateFormula: DateFormula;
     begin
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry.Open := Open;
         CustLedgerEntry."Due Date" := DueDate;
         if not Open then begin
             Evaluate(DateFormula, ClosedAtDateDelta);
             CustLedgerEntry."Closed at Date" := CalcDate(DateFormula, CustLedgerEntry."Due Date");
         end;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Open: Boolean; DueDate: Date; ClosedAtDateDelta: Text)
     var
         DateFormula: DateFormula;
     begin
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry.Open := Open;
         VendorLedgerEntry."Due Date" := DueDate;
         if not Open then begin
             Evaluate(DateFormula, ClosedAtDateDelta);
             VendorLedgerEntry."Closed at Date" := CalcDate(DateFormula, VendorLedgerEntry."Due Date");
         end;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
     end;
 }
 

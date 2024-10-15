@@ -117,7 +117,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         // 1. Setup: Create a Dimension.
         Initialize;
-        Dimension.Init;
+        Dimension.Init();
 
         // 2. Exercise: Change the dimension with code Period.
         asserterror Dimension.Validate(Code, Code);
@@ -166,7 +166,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // 1. Setup: Find the Global Dimension 1 code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
 
         // 2. Exercise: Rename the Global Dimension 1 Code.
@@ -178,7 +178,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Dimension.Rename(NewDimensionCode);
 
         // 3. Verify: Verify the Global Dimension 1 code in General Ledger Setup with new created code.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", NewDimensionCode);
     end;
 
@@ -194,7 +194,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // 1. Setup: Find the Shortcut Dimension 3 code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Shortcut Dimension 3 Code");
 
         // 2. Exercise: Rename the Shortcut Dimension 3 Code.
@@ -206,7 +206,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Dimension.Rename(NewDimensionCode);
 
         // 3. Verify: Verify the Shortcut Dimension 3 code in General Ledger Setup with new created code.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Shortcut Dimension 3 Code", NewDimensionCode);
     end;
 
@@ -314,7 +314,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // 1. Setup: Find the Shortcut Dimension 3 code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Shortcut Dimension 3 Code");
 
         // 2. Exercise: Delete the Dimension.
@@ -353,7 +353,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // 1. Setup: Find a Dimension with Global Dimension 1 code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
 
         // 2. Exercise: Delete the created Dimension.
@@ -1212,7 +1212,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize;
 
         // [GIVEN] Customer with Global Dimension 1 Code = "G".
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         CustomerNo := CreateCustomerWithDimension(DimensionValue.Code);
 
@@ -1364,7 +1364,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         // Check that 'FindRec' function in 'Item Analysis Management' returns right period in DimCodeBuf
 
         // Setup
-        ItemAnalysisView.Init;
+        ItemAnalysisView.Init();
         PeriodInitialized := true;
         DimOption := DimOption::Period;
         PeriodType := PeriodType::Month;
@@ -1477,7 +1477,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         CreateGeneralLineWithGLAccount(GenJournalLine);
         GenJournalLine.Validate("Posting Date", FindLastFYClosingDate);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryVariableStorage.Enqueue(0);
 
         AnalysisViewCode := CreateAnalysisViewWithDimension(GenJournalLine."Bal. Account No.");
@@ -2097,7 +2097,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [GIVEN] Dimension "TEST & TEST" with value "TEST1"
         DimensionCode := LibraryUtility.GenerateRandomCode(Dimension.FieldNo(Code), DATABASE::Dimension);
         DimensionCode[1 + LibraryRandom.RandInt(StrLen(DimensionCode) - 2)] := '&';
-        Dimension.Init;
+        Dimension.Init();
         Dimension.Validate(Code, DimensionCode);
         Dimension.Insert(true);
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
@@ -2144,7 +2144,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         DimCode := CreateDimensionWithMapToICDimensionCode(ICDimension.Code);
 
         // [GIVEN] New Dimension Value
-        DimensionValue.Init;
+        DimensionValue.Init();
 
         // [WHEN] Validate "Dimension Code" = "D" in Dimension Value
         DimensionValue.Validate("Dimension Code", DimCode);
@@ -2228,7 +2228,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         ICD := CreateICDimensionWithMapToDimensionCode(Dimension.Code);
 
         // [GIVEN] New IC Dimension Value
-        ICDimensionValue.Init;
+        ICDimensionValue.Init();
 
         // [WHEN] Validate "Dimension Code" = "ICD" in IC Dimension Value
         ICDimensionValue.Validate("Dimension Code", ICD);
@@ -2309,7 +2309,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         GLBudgetFilterControlId := 6;
         CostBudgetFilterControlId := 9;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension General Part 2");
     end;
 
@@ -2435,7 +2435,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         ItemNo: Code[20];
     begin
         // Setup: Create Item Analysis View with Update Posting TRUE and Sales Invoice.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateItemAnalysisViewWithItemFilterAndUpdateOnPostingSetup(
           ItemAnalysisView, false, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
@@ -2748,7 +2748,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     var
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
-        ItemAnalysisViewEntry.Init;
+        ItemAnalysisViewEntry.Init();
         ItemAnalysisViewEntry."Analysis Area" := ItemAnalysisArea;
         ItemAnalysisViewEntry."Analysis View Code" := ItemAnalysisViewCode;
         ItemAnalysisViewEntry."Item No." := ItemNo;
@@ -2757,7 +2757,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         ItemAnalysisViewEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(ItemAnalysisViewEntry, ItemAnalysisViewEntry.FieldNo("Entry No."));
         ItemAnalysisViewEntry."Sales Amount (Actual)" := LibraryRandom.RandDec(100, 2);
-        ItemAnalysisViewEntry.Insert;
+        ItemAnalysisViewEntry.Insert();
         exit(ItemAnalysisViewEntry."Sales Amount (Actual)");
     end;
 

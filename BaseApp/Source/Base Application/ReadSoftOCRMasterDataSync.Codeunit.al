@@ -22,6 +22,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         MethodPostTok: Label 'POST', Locked = true;
         OCRServiceSetup: Record "OCR Service Setup";
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
+        XmlOptions: XmlWriteOptions;
         Window: Dialog;
         WindowUpdateDateTime: DateTime;
         OrganizationId: Text;
@@ -31,6 +32,10 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         OCRServiceMasterDataSyncSucceededTxt: Label 'Successfully synchronized %1 entities with OCR service.', Locked = true;
         OCRServiceMasterDataSyncFailedTxt: Label 'Failed to synchronize %1 entities with OCR service.', Locked = true;
         TelemetryCategoryTok: Label 'AL OCR Service', Locked = true;
+        XmlNameSpace: Text;
+        CRLF: Text[2];
+        CR: Text[1];
+        LF: Text[1];
 
     procedure SyncMasterData(Resync: Boolean; Silent: Boolean): Boolean
     var
@@ -42,12 +47,13 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
         if Resync then begin
             Clear(OCRServiceSetup."Master Data Last Sync");
-            OCRServiceSetup.Modify;
-            Commit;
+            OCRServiceSetup.Modify();
+            Commit();
         end;
 
+        Initialize();
         LastSyncTime := OCRServiceSetup."Master Data Last Sync";
-        SyncStartTime := CurrentDateTime;
+        SyncStartTime := CurrentDateTime();
 
         if not SyncVendors(LastSyncTime, SyncStartTime) then begin
             if not Silent then
@@ -56,7 +62,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         end;
 
         OCRServiceSetup."Master Data Last Sync" := SyncStartTime;
-        OCRServiceSetup.Modify;
+        OCRServiceSetup.Modify();
         if not Silent then
             Message(SyncSuccessfulSimpleMsg);
         exit(true);
@@ -66,19 +72,19 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
     begin
         if not IsSyncEnabled then
             exit;
-        OCRServiceSetup.Get;
+        OCRServiceSetup.Get();
         if OCRServiceSetup."Master Data Last Sync" = 0DT then
             exit;
         Clear(OCRServiceSetup."Master Data Last Sync");
-        OCRServiceSetup.Modify;
-        Commit;
+        OCRServiceSetup.Modify();
+        Commit();
     end;
 
     procedure IsSyncEnabled(): Boolean
     var
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        if not OCRServiceSetup.Get then
+        if not OCRServiceSetup.Get() then
             exit(false);
 
         if not OCRServiceSetup."Master Data Sync Enabled" then
@@ -93,37 +99,49 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         exit(true);
     end;
 
-    local procedure CheckSyncResponse(var ResponseStream: InStream; ActivityDescription: Text): Boolean
+    local procedure CheckSyncResponse(var ResponseBody: Text; ActivityDescription: Text): Boolean
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
-        XMLRootNode: DotNet XmlNode;
-        XMLNode: DotNet XmlNode;
+        XmlDoc: XmlDocument;
+        XmlRoot: XmlElement;
+        XmlNode: XmlNode;
         NoOfCreated: Integer;
         NoOfUpdated: Integer;
         NoOfDeleted: Integer;
         ErrorCode: Text;
         ErrorMessage: Text;
     begin
-        XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStream, XMLRootNode);
-        case XMLRootNode.Name of
+        if not XmlDocument.ReadFrom(ResponseBody, XmlDoc) then begin
+            OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, InvalidResponseMsg);
+            exit(false);
+        end;
+        if not XmlDoc.GetRoot(XmlRoot) then begin
+            OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, InvalidResponseMsg);
+            exit(false);
+        end;
+        case XmlRoot.Name() of
             'UpdateResult':
                 begin
-                    if XMLDOMManagement.FindNode(XMLRootNode, 'Created', XMLNode) then
-                        Evaluate(NoOfCreated, XMLNode.InnerText, 9);
-                    if XMLDOMManagement.FindNode(XMLRootNode, 'Updated', XMLNode) then
-                        Evaluate(NoOfUpdated, XMLNode.InnerText, 9);
-                    if XMLDOMManagement.FindNode(XMLRootNode, 'Deleted', XMLNode) then
-                        Evaluate(NoOfDeleted, XMLNode.InnerText, 9);
+                    if XmlRoot.SelectSingleNode('Created', XmlNode) then
+                        if XmlNode.IsXmlElement() then
+                            if Evaluate(NoOfCreated, XmlNode.AsXmlElement().InnerText(), 9) then;
+                    if XmlRoot.SelectSingleNode('Updated', XmlNode) then
+                        if XmlNode.IsXmlElement() then
+                            if Evaluate(NoOfUpdated, XmlNode.AsXmlElement().InnerText(), 9) then;
+                    if XmlRoot.SelectSingleNode('Deleted', XmlNode) then
+                        if XmlNode.IsXmlElement() then
+                            if Evaluate(NoOfDeleted, XmlNode.AsXmlElement().InnerText(), 9) then;
                     OCRServiceMgt.LogActivitySucceeded(
                       OCRServiceSetup.RecordId, ActivityDescription, StrSubstNo(SyncSuccessfulDetailedMsg, NoOfCreated, NoOfUpdated, NoOfDeleted));
                     exit(true);
                 end;
             'ServiceError':
                 begin
-                    if XMLDOMManagement.FindNode(XMLRootNode, 'Code', XMLNode) then
-                        ErrorCode := XMLNode.InnerText;
-                    if XMLDOMManagement.FindNode(XMLRootNode, 'Message', XMLNode) then
-                        ErrorMessage := XMLNode.InnerText;
+                    if XmlRoot.SelectSingleNode('Code', XmlNode) then
+                        if XmlNode.IsXmlElement() then
+                            ErrorCode := XmlNode.AsXmlElement().InnerText();
+                    if XmlRoot.SelectSingleNode('Message', XmlNode) then
+                        if XmlNode.IsXmlElement() then
+                            ErrorMessage := XmlNode.AsXmlElement().InnerText();
                     OCRServiceMgt.LogActivityFailed(
                       OCRServiceSetup.RecordId, ActivityDescription, StrSubstNo(SyncFailedDetailedMsg, ErrorCode, ErrorMessage));
                     exit(false);
@@ -155,19 +173,19 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         GetModifiedVendors(TempBlobListModifiedVendor, StartDateTime, EndDateTime);
         GetVendorBankAccounts(TempBlobListBankAccount, StartDateTime, EndDateTime);
 
-        ModifiedVendorCount := TempBlobListModifiedVendor.Count;
-        BankAccountCount := TempBlobListBankAccount.Count;
+        ModifiedVendorCount := TempBlobListModifiedVendor.Count();
+        BankAccountCount := TempBlobListBankAccount.Count();
 
         if (ModifiedVendorCount > 0) or (StartDateTime = 0DT) then
-            ModifyVendorPackageCount := (ModifiedVendorCount div MaxPortionSize) + 1;
+            ModifyVendorPackageCount := (ModifiedVendorCount div MaxPortionSize()) + 1;
         if BankAccountCount > 0 then
-            BankAccountPackageCount := (TempBlobListBankAccount.Count div MaxPortionSize) + 1;
+            BankAccountPackageCount := (TempBlobListBankAccount.Count() div MaxPortionSize()) + 1;
         TotalPackageCount := ModifyVendorPackageCount + BankAccountPackageCount;
 
         if TotalPackageCount = 0 then
             exit(true);
 
-        CheckOrganizationId;
+        CheckOrganizationId();
 
         OpenWindow(TotalPackageCount);
 
@@ -180,22 +198,25 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
                 TempBlobListBankAccount, VendorBankAccountsUri, MethodPutTok, MethodPutTok,
                 'SupplierBankAccounts', SyncBankAccountsMsg, MaxPortionSize);
 
-        CloseWindow;
+        CloseWindow();
 
         exit(Success);
     end;
 
     local procedure SyncMasterDataEntities(var TempBlobList: Codeunit "Temp Blob List"; RequestUri: Text; FirstPortionAction: Code[6]; NextPortionAction: Code[6]; RootNodeName: Text; ActivityDescription: Text; PortionSize: Integer): Boolean
     var
-        ResponseStream: InStream;
         EntityCount: Integer;
         PortionCount: Integer;
         PortionNumber: Integer;
         LastPortion: Boolean;
-        Data: Text;
         RequestAction: Code[6];
+        RequestBody: Text;
+        ResponseBody: Text;
+        ErrorMessage: Text;
+        ErrorDetails: Text;
+        StatusCode: Integer;
     begin
-        EntityCount := TempBlobList.Count;
+        EntityCount := TempBlobList.Count();
 
         if EntityCount = 0 then begin
             if FirstPortionAction <> MethodPutTok then
@@ -207,15 +228,15 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
         RequestAction := FirstPortionAction;
         for PortionNumber := 1 to PortionCount do begin
-            UpdateWindow;
-            Data := GetMasterDataEntitiesXml(TempBlobList, RootNodeName, PortionSize, LastPortion);
-            OnBeforeSendRequest(Data);
-            if not OCRServiceMgt.RsoRequest(RequestUri, RequestAction, Data, ResponseStream) then begin
+            UpdateWindow();
+            RequestBody := GetMasterDataEntitiesXml(TempBlobList, RootNodeName, PortionSize, LastPortion);
+            OnBeforeSendRequest(RequestBody);
+            if not OCRServiceMgt.RsoRequest(RequestUri, RequestAction, RequestBody, ResponseBody, ErrorMessage, ErrorDetails, StatusCode) then begin
                 LogTelemetryFailedMasterDataSync(RootNodeName);
                 OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, SyncFailedSimpleMsg);
                 exit(false);
             end;
-            if not CheckSyncResponse(ResponseStream, ActivityDescription) then begin
+            if not CheckSyncResponse(ResponseBody, ActivityDescription) then begin
                 LogTelemetryFailedMasterDataSync(RootNodeName);
                 exit(false);
             end;
@@ -233,8 +254,8 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         Data: Text;
     begin
         OCRVendors.SetRange(Modified_On, StartDateTime, EndDateTime);
-        if OCRVendors.Open then
-            while OCRVendors.Read do begin
+        if OCRVendors.Open() then
+            while OCRVendors.Read() do begin
                 Data := GetModifiedVendorXml(OCRVendors);
                 AddToBuffer(TempBlobList, Data);
             end;
@@ -247,10 +268,10 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         Data: Text;
     begin
         OCRVendorBankAccounts.SetRange(Modified_On, StartDateTime, EndDateTime);
-        if not OCRVendorBankAccounts.Open then
+        if not OCRVendorBankAccounts.Open() then
             exit;
 
-        while OCRVendorBankAccounts.Read do begin
+        while OCRVendorBankAccounts.Read() do begin
             if IsNullGuid(VendorId) then
                 VendorId := OCRVendorBankAccounts.Id;
             if VendorId <> OCRVendorBankAccounts.Id then begin
@@ -263,7 +284,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         AddToBuffer(TempBlobList, Data);
     end;
 
-    local procedure "Min"(A: Integer; B: Integer): Integer
+    local procedure Min(A: Integer; B: Integer): Integer
     begin
         if A < B then
             exit(A);
@@ -277,8 +298,8 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         Index: Integer;
     begin
         Data := '';
-        LastPortion := (PortionSize > TempBlobList.Count) or (PortionSize = 0);
-        for Index := 1 to Min(PortionSize, TempBlobList.Count) do begin
+        LastPortion := (PortionSize > TempBlobList.Count()) or (PortionSize = 0);
+        for Index := 1 to Min(PortionSize, TempBlobList.Count()) do begin
             TempBlobList.Get(Index, TempBlob);
             Data += GetFromBuffer(TempBlob);
         end;
@@ -289,36 +310,32 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
     local procedure GetModifiedVendorXml(var OCRVendors: Query "OCR Vendors"): Text
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
-        DotNetXmlDocument: DotNet XmlDocument;
-        XmlNode: DotNet XmlNode;
-        XmlNodeChild: DotNet XmlNode;
+        XmlElem: XmlElement;
         Blocked: Boolean;
+        Result: Text;
     begin
         Blocked := OCRVendors.Blocked <> OCRVendors.Blocked::" ";
-        DotNetXmlDocument := DotNetXmlDocument.XmlDocument;
-        XMLDOMManagement.AddRootElement(DotNetXmlDocument, 'Supplier', XmlNode);
+        XmlElem := XmlElement.Create('Supplier');
 
         // when using XML as the input for API, the element order needs to match exactly
-        XMLDOMManagement.AddElement(XmlNode, 'SupplierNumber', OCRVendors.No, '', XmlNodeChild);
-        XMLDOMManagement.AddElement(XmlNode, 'Name', OCRVendors.Name, '', XmlNodeChild);
-        XMLDOMManagement.AddElement(XmlNode, 'TaxRegistrationNumber', OCRVendors.VAT_Registration_No, '', XmlNodeChild);
-        XMLDOMManagement.AddElement(XmlNode, 'Street', OCRVendors.Address, '', XmlNodeChild);
-        XMLDOMManagement.AddElement(XmlNode, 'PostalCode', OCRVendors.Post_Code, '', XmlNodeChild);
-        XMLDOMManagement.AddElement(XmlNode, 'City', OCRVendors.City, '', XmlNodeChild);
-        XMLDOMManagement.AddElement(XmlNode, 'Blocked', Format(Blocked, 0, 9), '', XmlNodeChild);
-        XMLDOMManagement.AddElement(XmlNode, 'TelephoneNumber', OCRVendors.Phone_No, '', XmlNodeChild);
+        AddElement(XmlElem, 'SupplierNumber', OCRVendors.No);
+        AddElement(XmlElem, 'Name', OCRVendors.Name);
+        AddElement(XmlElem, 'TaxRegistrationNumber', OCRVendors.VAT_Registration_No);
+        AddElement(XmlElem, 'Street', OCRVendors.Address);
+        AddElement(XmlElem, 'PostalCode', OCRVendors.Post_Code);
+        AddElement(XmlElem, 'City', OCRVendors.City);
+        AddElement(XmlElem, 'Blocked', Format(Blocked, 0, 9));
+        AddElement(XmlElem, 'TelephoneNumber', OCRVendors.Phone_No);
 
-        exit(DotNetXmlDocument.OuterXml);
+        XmlElem.WriteTo(XmlOptions, Result);
+        exit(Result);
     end;
 
     local procedure GetVendorBankAccountXml(var OCRVendorBankAccounts: Query "OCR Vendor Bank Accounts"): Text
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
-        DotNetXmlDocument: DotNet XmlDocument;
-        XmlNode: DotNet XmlNode;
-        XmlNodeChild: DotNet XmlNode;
+        XmlElem: XmlElement;
         Result: Text;
+        AccountXml: Text;
     begin
         if (OCRVendorBankAccounts.Bank_Account_No = '') and
            (OCRVendorBankAccounts.IBAN = '')
@@ -328,28 +345,51 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         // when using XML as the input for API, the element order needs to match exactly
 
         if OCRVendorBankAccounts.Bank_Account_No <> '' then begin
-            DotNetXmlDocument := DotNetXmlDocument.XmlDocument;
-            XMLDOMManagement.AddRootElement(DotNetXmlDocument, 'SupplierBankAccount', XmlNode);
-            XMLDOMManagement.AddElement(XmlNode, 'BankName', OCRVendorBankAccounts.Name, '', XmlNodeChild);
-            XMLDOMManagement.AddElement(XmlNode, 'SupplierNumber', OCRVendorBankAccounts.No, '', XmlNodeChild);
-            XMLDOMManagement.AddElement(XmlNode, 'BankNumber', OCRVendorBankAccounts.Bank_Branch_No, '', XmlNodeChild);
-            XMLDOMManagement.AddElement(XmlNode, 'AccountNumber', OCRVendorBankAccounts.Bank_Account_No, '', XmlNodeChild);
-            Result += DotNetXmlDocument.OuterXml;
+            XmlElem := XmlElement.Create('SupplierBankAccount');
+            AddElement(XmlElem, 'BankName', OCRVendorBankAccounts.Name);
+            AddElement(XmlElem, 'SupplierNumber', OCRVendorBankAccounts.No);
+            AddElement(XmlElem, 'BankNumber', OCRVendorBankAccounts.Bank_Branch_No);
+            AddElement(XmlElem, 'AccountNumber', OCRVendorBankAccounts.Bank_Account_No);
+            XmlElem.WriteTo(XmlOptions, AccountXml);
+            Result += AccountXml;
         end;
 
         if OCRVendorBankAccounts.IBAN <> '' then begin
-            DotNetXmlDocument := DotNetXmlDocument.XmlDocument;
-            XMLDOMManagement.AddRootElement(DotNetXmlDocument, 'SupplierBankAccount', XmlNode);
-            XMLDOMManagement.AddElement(XmlNode, 'BankName', OCRVendorBankAccounts.Name, '', XmlNodeChild);
-            XMLDOMManagement.AddElement(XmlNode, 'SupplierNumber', OCRVendorBankAccounts.No, '', XmlNodeChild);
-            XMLDOMManagement.AddElement(XmlNode, 'BankNumberType', 'bic', '', XmlNodeChild);
-            XMLDOMManagement.AddElement(XmlNode, 'BankNumber', OCRVendorBankAccounts.SWIFT_Code, '', XmlNodeChild);
-            XMLDOMManagement.AddElement(XmlNode, 'AccountNumberType', 'iban', '', XmlNodeChild);
-            XMLDOMManagement.AddElement(XmlNode, 'AccountNumber', OCRVendorBankAccounts.IBAN, '', XmlNodeChild);
-            Result += DotNetXmlDocument.OuterXml;
+            XmlElem := XmlElement.Create('SupplierBankAccount');
+            AddElement(XmlElem, 'BankName', OCRVendorBankAccounts.Name);
+            AddElement(XmlElem, 'SupplierNumber', OCRVendorBankAccounts.No);
+            AddElement(XmlElem, 'BankNumberType', 'bic');
+            AddElement(XmlElem, 'BankNumber', OCRVendorBankAccounts.SWIFT_Code);
+            AddElement(XmlElem, 'AccountNumberType', 'iban');
+            AddElement(XmlElem, 'AccountNumber', OCRVendorBankAccounts.IBAN);
+            XmlElem.WriteTo(XmlOptions, AccountXml);
+            Result += AccountXml;
         end;
 
         exit(Result);
+    end;
+
+    local procedure AddElement(var XmlElem: XmlElement; var XmlChildElem: XmlElement; Name: Text; Value: Text): Boolean
+    begin
+        XmlChildElem := XmlElement.Create(Name, XmlNameSpace, Value.Replace(CRLF, '').Replace(CR, '').Replace(LF, '').Trim());
+        exit(XmlElem.Add(XmlChildElem));
+    end;
+
+    local procedure AddElement(var XmlElem: XmlElement; Name: Text; Value: Text): Boolean
+    var
+        XmlChildElem: XmlElement;
+    begin
+        exit(AddElement(XmlElem, XmlChildElem, Name, Value));
+    end;
+
+    local procedure Initialize()
+    begin
+        XmlOptions.PreserveWhitespace := true;
+        XmlNameSpace := '';
+        CRLF[1] := 13;
+        CRLF[2] := 10;
+        CR[1] := 13;
+        LF[1] := 10;
     end;
 
     local procedure AddToBuffer(var TempBlobList: Codeunit "Temp Blob List"; Data: Text)
@@ -366,11 +406,13 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
     var
         InStream: InStream;
         Data: Text;
+        Line: Text;
     begin
         if not TempBlob.HasValue then
             exit;
         TempBlob.CreateInStream(InStream);
-        InStream.ReadText(Data);
+        while InStream.ReadText(Line) > 0 do
+            Data += Line;
         exit(Data);
     end;
 

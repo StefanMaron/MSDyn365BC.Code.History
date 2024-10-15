@@ -389,7 +389,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         LibraryERMCountryData.CreateVATData;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Sales Calc Disc By Type");
     end;
 
@@ -401,9 +401,9 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
             DATABASE::"Res. Ledger Entry":
-                ResLedgerEntry.DeleteAll;
+                ResLedgerEntry.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;

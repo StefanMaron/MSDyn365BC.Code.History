@@ -802,18 +802,18 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure UpdateNoSeriesOnPurchaseSetup()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 }
 

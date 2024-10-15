@@ -13,11 +13,9 @@ table 5074 "Delivery Sorter"
             Caption = 'Attachment No.';
             TableRelation = Attachment;
         }
-        field(3; "Correspondence Type"; Option)
+        field(3; "Correspondence Type"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type';
-            OptionCaption = ' ,Hard Copy,Email,Fax';
-            OptionMembers = " ","Hard Copy",Email,Fax;
         }
         field(4; Subject; Text[100])
         {

@@ -654,7 +654,7 @@ codeunit 136114 "Service Order Check"
         CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
         CreateServiceLineWithDescriptionOnly(ServiceHeader, ServiceItemLine."Line No.");
         GetServiceLines(ServiceLine, ServiceHeader."No.", ServiceHeader."Document Type");
-        ServiceLineCount := ServiceLine.Count;
+        ServiceLineCount := ServiceLine.Count();
 
         // 2. Exercise.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -1333,7 +1333,7 @@ codeunit 136114 "Service Order Check"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Check");
     end;
 
@@ -1341,9 +1341,9 @@ codeunit 136114 "Service Order Check"
     begin
         FromServiceLine.FindSet;
         repeat
-            ToTempServiceLine.Init;
+            ToTempServiceLine.Init();
             ToTempServiceLine := FromServiceLine;
-            ToTempServiceLine.Insert;
+            ToTempServiceLine.Insert();
         until FromServiceLine.Next = 0
     end;
 
@@ -1697,7 +1697,7 @@ codeunit 136114 "Service Order Check"
         ServiceItemLine.FindSet;
         repeat
             TempServiceItemLine := ServiceItemLine;
-            TempServiceItemLine.Insert;
+            TempServiceItemLine.Insert();
         until ServiceItemLine.Next = 0;
     end;
 
@@ -2144,7 +2144,7 @@ codeunit 136114 "Service Order Check"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
     end;

@@ -32,10 +32,10 @@ codeunit 1640 "Add-in Deployment Helper"
         end;
 
         NewOfficeAddin."Deployment Date" := Today;
-        NewOfficeAddin.Modify;
+        NewOfficeAddin.Modify();
 
         UserPreference.SetRange("Instruction Code", InstructionMgt.OfficeUpdateNotificationCode);
-        UserPreference.DeleteAll;
+        UserPreference.DeleteAll();
     end;
 
     [TryFunction]
@@ -111,7 +111,7 @@ codeunit 1640 "Add-in Deployment Helper"
         // Make sure that the version of the add-in in the table is up to date
         if OfficeAddin.Version <> LatestAddinVersion then begin
             AddinManifestMgt.CreateDefaultAddins(OfficeAddin);
-            Commit;
+            Commit();
             AddinManifestMgt.GetAddinByHostType(OfficeAddin, HostType);
         end;
 

@@ -94,7 +94,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
                 EU3PartyServiceTradeAmt := 0;
                 with VATEntriesBaseAmtSum do begin
                     if not Read then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if EU_Service then begin
                         if UseAmtsInAddCurr then
@@ -119,7 +119,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
                         CountryBlank := false;
 
                     if Country_Region_Code = CompanyInfo."Country/Region Code" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     ShowError := false;
                     ErrorText := '';
@@ -134,7 +134,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
             begin
                 if (StartDate = 0D) or (EndDate = 0D) then
                     Error(Text002);
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 CompanyInfo.TestField("VAT Registration No.");
 
@@ -269,7 +269,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()

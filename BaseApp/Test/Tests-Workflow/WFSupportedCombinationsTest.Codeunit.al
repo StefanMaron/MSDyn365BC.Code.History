@@ -494,7 +494,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEvent1.Delete(true);
 
         // Verify
-        Commit;
+        Commit();
         asserterror WFEventResponseCombination.Get(WFEventResponseCombination.Type::"Event", WorkflowEvent2."Function Name",
             WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent1."Function Name");
         Assert.AssertRecordNotFound;
@@ -609,14 +609,14 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
         LibraryVariableStorage.Clear;
-        WorkflowEvent.DeleteAll;
-        WorkflowResponse.DeleteAll;
-        WFEventResponseCombination.DeleteAll;
+        WorkflowEvent.DeleteAll();
+        WorkflowResponse.DeleteAll();
+        WFEventResponseCombination.DeleteAll();
     end;
 
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event")
     begin
-        WorkflowEvent.Init;
+        WorkflowEvent.Init();
         WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowEvent.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
@@ -626,7 +626,7 @@ codeunit 134207 "WF Supported Combinations Test"
 
     local procedure CreateAnyResponse(var WorkflowResponse: Record "Workflow Response")
     begin
-        WorkflowResponse.Init;
+        WorkflowResponse.Init();
         WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
@@ -635,7 +635,7 @@ codeunit 134207 "WF Supported Combinations Test"
 
     local procedure CreateLongResponse(var WorkflowResponse: Record "Workflow Response")
     begin
-        WorkflowResponse.Init;
+        WorkflowResponse.Init();
         WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowResponse.Description := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(WorkflowResponse.Description)), 1);
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";

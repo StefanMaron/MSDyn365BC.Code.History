@@ -229,7 +229,7 @@ report 5912 "Service - Credit Memo"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             FindDimTxt("Service Cr.Memo Header"."Dimension Set ID");
                             SetRange(Number, 1, DimTxtArrLength);
                         end;
@@ -367,7 +367,7 @@ report 5912 "Service - Credit Memo"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 FindDimTxt("Service Cr.Memo Line"."Dimension Set ID");
                                 SetRange(Number, 1, DimTxtArrLength);
@@ -376,7 +376,7 @@ report 5912 "Service - Credit Memo"
 
                         trigger OnAfterGetRecord()
                         begin
-                            ServiceShipmentBuffer.DeleteAll;
+                            ServiceShipmentBuffer.DeleteAll();
                             PostedReceiptDate := 0D;
                             if Quantity <> 0 then
                                 PostedReceiptDate := FindPostedShipmentDate;
@@ -384,7 +384,7 @@ report 5912 "Service - Credit Memo"
                             if (Type = Type::"G/L Account") and not ShowInternalInfo then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -407,15 +407,15 @@ report 5912 "Service - Credit Memo"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
-                            ServiceShipmentBuffer.Reset;
-                            ServiceShipmentBuffer.DeleteAll;
+                            VATAmountLine.DeleteAll();
+                            ServiceShipmentBuffer.Reset();
+                            ServiceShipmentBuffer.DeleteAll();
                             FirstValueEntryNo := 0;
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
 
                             TotalAmount := 0;
@@ -489,7 +489,7 @@ report 5912 "Service - Credit Memo"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.GetTotalVATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -530,7 +530,7 @@ report 5912 "Service - Credit Memo"
                         begin
                             VATAmountLine.GetLine(Number);
                             if not VATClause.Get(VATAmountLine."VAT Clause Code") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             VATClause.GetDescription("Service Cr.Memo Header");
                         end;
 
@@ -584,7 +584,7 @@ report 5912 "Service - Credit Memo"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -660,9 +660,9 @@ report 5912 "Service - Credit Memo"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        ServiceSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        ServiceSetup.Get();
 
         case ServiceSetup."Logo Position on Documents" of
             ServiceSetup."Logo Position on Documents"::"No Logo":
@@ -671,12 +671,12 @@ report 5912 "Service - Credit Memo"
                 CompanyInfo.CalcFields(Picture);
             ServiceSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             ServiceSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -771,7 +771,7 @@ report 5912 "Service - Credit Memo"
                 exit(0D);
         end;
 
-        ServiceShipmentBuffer.Reset;
+        ServiceShipmentBuffer.Reset();
         ServiceShipmentBuffer.SetRange("Document No.", "Service Cr.Memo Line"."Document No.");
         ServiceShipmentBuffer.SetRange("Line No.", "Service Cr.Memo Line"."Line No.");
 
@@ -780,12 +780,12 @@ report 5912 "Service - Credit Memo"
             if ServiceShipmentBuffer.Next = 0 then begin
                 ServiceShipmentBuffer.Get(ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2.
                   "Entry No.");
-                ServiceShipmentBuffer.Delete;
+                ServiceShipmentBuffer.Delete();
                 exit(ServiceShipmentBuffer2."Posting Date");
             end;
             ServiceShipmentBuffer.CalcSums(Quantity);
             if ServiceShipmentBuffer.Quantity <> "Service Cr.Memo Line".Quantity then begin
-                ServiceShipmentBuffer.DeleteAll;
+                ServiceShipmentBuffer.DeleteAll();
                 exit("Service Cr.Memo Header"."Posting Date");
             end;
         end else
@@ -829,7 +829,7 @@ report 5912 "Service - Credit Memo"
         ServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer.Quantity := ServiceShipmentBuffer.Quantity - QtyOnShipment;
-            ServiceShipmentBuffer.Modify;
+            ServiceShipmentBuffer.Modify();
             exit;
         end;
 

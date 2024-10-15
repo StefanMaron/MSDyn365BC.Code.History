@@ -109,11 +109,11 @@ page 860 "CF Entries Dim. Overview"
     procedure SetTempCFForecastEntry(var NewCFForecastEntry: Record "Cash Flow Forecast Entry")
     begin
         RunOnTempRec := true;
-        TempCFForecastEntry.DeleteAll;
+        TempCFForecastEntry.DeleteAll();
         if NewCFForecastEntry.Find('-') then
             repeat
                 TempCFForecastEntry := NewCFForecastEntry;
-                TempCFForecastEntry.Insert;
+                TempCFForecastEntry.Insert();
             until NewCFForecastEntry.Next = 0;
     end;
 

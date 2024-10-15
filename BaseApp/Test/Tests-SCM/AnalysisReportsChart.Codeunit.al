@@ -21,6 +21,7 @@ codeunit 137409 "Analysis Reports Chart"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryPriceCalculation: codeunit "Library - Price Calculation";
         AnalysisReportChartMgt: Codeunit "Analysis Report Chart Mgt.";
         IsInitialized: Boolean;
         DimensionValueNotEqualERR: Label 'X-Axis Dimension value for interval no. %1 differs from expected value.';
@@ -40,7 +41,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestChart(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Day,
@@ -54,7 +55,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestChart(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Week,
@@ -68,7 +69,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestChart(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Month,
@@ -82,7 +83,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestChart(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Quarter,
@@ -96,7 +97,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestChart(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Year,
@@ -110,7 +111,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestChart(AnalysisReportChartSetup."Base X-Axis on"::Line, LibraryRandom.RandIntInRange(1, 5) - 1, 0);
     end;
@@ -122,7 +123,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestChart(AnalysisReportChartSetup."Base X-Axis on"::Column, AnalysisReportChartSetup."Period Length", 0);
     end;
@@ -134,7 +135,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Month,
@@ -148,7 +149,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Quarter,
@@ -162,7 +163,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Day,
@@ -176,7 +177,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Period, AnalysisReportChartSetup."Period Length"::Week,
@@ -190,7 +191,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Line, AnalysisReportChartSetup."Period Length"::Month, 0,
@@ -204,7 +205,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Line, AnalysisReportChartSetup."Period Length"::Quarter, 0,
@@ -218,7 +219,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Column, AnalysisReportChartSetup."Period Length"::Day, 0,
@@ -232,7 +233,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Column, AnalysisReportChartSetup."Period Length"::Week, 0,
@@ -247,7 +248,7 @@ codeunit 137409 "Analysis Reports Chart"
         MovePeriod: Option " ",Next,Previous;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -262,7 +263,7 @@ codeunit 137409 "Analysis Reports Chart"
         MovePeriod: Option " ",Next,Previous;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -277,7 +278,7 @@ codeunit 137409 "Analysis Reports Chart"
         MovePeriod: Option " ",Next,Previous;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Line, LibraryRandom.RandIntInRange(1, 5) - 1, 0, MovePeriod::Next);
@@ -291,7 +292,7 @@ codeunit 137409 "Analysis Reports Chart"
         MovePeriod: Option " ",Next,Previous;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Line, LibraryRandom.RandIntInRange(1, 5) - 1, 0, MovePeriod::Previous);
@@ -305,7 +306,7 @@ codeunit 137409 "Analysis Reports Chart"
         MovePeriod: Option " ",Next,Previous;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Column, LibraryRandom.RandIntInRange(1, 5) - 1, 0, MovePeriod::Next);
@@ -319,7 +320,7 @@ codeunit 137409 "Analysis Reports Chart"
         MovePeriod: Option " ",Next,Previous;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
           AnalysisReportChartSetup."Base X-Axis on"::Column, LibraryRandom.RandIntInRange(1, 5) - 1, 0, MovePeriod::Previous);
@@ -334,7 +335,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -350,7 +351,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -366,7 +367,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -382,7 +383,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Line, LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -398,7 +399,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Line, LibraryRandom.RandIntInRange(1, 5) - 1, 0, TestDrillDownType::RowFormula);
@@ -413,7 +414,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Line, LibraryRandom.RandIntInRange(1, 5) - 1, 0, TestDrillDownType::Data);
@@ -428,7 +429,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Column, LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -444,7 +445,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Column, LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -460,7 +461,7 @@ codeunit 137409 "Analysis Reports Chart"
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
         Initialize;
-        AnalysisReportChartSetup.Init;
+        AnalysisReportChartSetup.Init();
 
         TestDrillDown(
           AnalysisReportChartSetup."Base X-Axis on"::Column, LibraryRandom.RandIntInRange(1, 5) - 1, 0, TestDrillDownType::Data);
@@ -924,20 +925,20 @@ codeunit 137409 "Analysis Reports Chart"
             LibraryInventory.CreateAnalysisColumn(AnalysisColumn, AnalysisArea, AnalysisColumnTemplate.Name);
             AnalysisColumn.Validate("Column No.", Format(Counter * 10000));
             AnalysisColumn.Validate("Column Header", Format(Counter));
-            AnalysisColumn.Modify;
+            AnalysisColumn.Modify();
         end;
 
         LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisColumnTemplate."Analysis Area");
 
         LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisColumnTemplate."Analysis Area", AnalysisLineTemplate.Name);
         AnalysisLine."Line No." := 10000;
-        AnalysisLine.Modify;
+        AnalysisLine.Modify();
 
         AnalysisReportChartSetup."Analysis Column Template Name" := AnalysisColumnTemplate.Name;
         AnalysisReportChartSetup."Analysis Line Template Name" := AnalysisLine."Analysis Line Template Name";
         AnalysisReportChartSetup."Analysis Area" := AnalysisColumnTemplate."Analysis Area";
         AnalysisReportChartSetup."Base X-Axis on" := AnalysisReportChartSetup."Base X-Axis on"::Period;
-        AnalysisReportChartSetup.Insert;
+        AnalysisReportChartSetup.Insert();
 
         for Counter := 1 to MaxNumberOfMatrixColumns + 1 do
             CreateOnePerfIndSetupLine(AnalysisReportChartSetup, AnalysisLine."Line No.", Counter * 10000, '', '', AnalysisArea);
@@ -960,10 +961,11 @@ codeunit 137409 "Analysis Reports Chart"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Analysis Reports Chart");
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Analysis Reports Chart");
     end;
 
@@ -1003,7 +1005,7 @@ codeunit 137409 "Analysis Reports Chart"
         VerifyChart2ItemAndTotalLines2Cols(AnalysisReportChartSetup, BusinessChartBuffer, AnalysisLine, AnalysisColumn, StartDate, EndDate);
 
         AnalysisReportChartSetup."Period Length" := NewPeriodLength;
-        AnalysisReportChartSetup.Modify;
+        AnalysisReportChartSetup.Modify();
         if ShowPer = AnalysisReportChartSetup."Base X-Axis on"::Period then
             EndDate :=
               CalculatePeriodEndDate(
@@ -1218,7 +1220,7 @@ codeunit 137409 "Analysis Reports Chart"
             AnalysisReportChartSetup."No. of Periods" := NoOfPeriods
         else
             AnalysisReportChartSetup."End Date" := EndDate;
-        AnalysisReportChartSetup.Insert;
+        AnalysisReportChartSetup.Insert();
 
         CreatePerfIndSetupLines(AnalysisReportChartSetup, AnalysisLine, AnalysisColumn);
     end;
@@ -1262,7 +1264,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartLine: Record "Analysis Report Chart Line";
     begin
-        AnalysisReportChartLine.Init;
+        AnalysisReportChartLine.Init();
         AnalysisReportChartLine."User ID" := AnalysisReportChartSetup."User ID";
         AnalysisReportChartLine."Analysis Area" := AnalysisReportChartSetup."Analysis Area";
         AnalysisReportChartLine.Name := AnalysisReportChartSetup.Name;
@@ -1274,7 +1276,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartLine."Measure Name" := MeasureName;
         AnalysisReportChartLine."Measure Value" := MeasureValue;
         AnalysisReportChartLine."Chart Type" := ChartType;
-        AnalysisReportChartLine.Insert;
+        AnalysisReportChartLine.Insert();
     end;
 
     local procedure SetupAnalysisReport2ItemAndTotalLines2Cols(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; ColumnValueType: Option; Invoiced: Boolean)
@@ -1406,7 +1408,7 @@ codeunit 137409 "Analysis Reports Chart"
         ItemLedgerEntry."Posting Date" := PostingDate;
         ItemLedgerEntry."Entry Type" := ILEEntryType;
         ItemLedgerEntry.Quantity := Quantity;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure CreateValueEntry(var ValueEntry: Record "Value Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"; EntryNo: Integer; CostAmount: Decimal; SalesAmount: Decimal; InvoicedQty: Decimal)
@@ -1424,7 +1426,7 @@ codeunit 137409 "Analysis Reports Chart"
         ValueEntry."Sales Amount (Expected)" := SalesAmount;
         ValueEntry."Cost Amount (Non-Invtbl.)" := CostAmount;
         ValueEntry."Invoiced Quantity" := InvoicedQty;
-        ValueEntry.Insert;
+        ValueEntry.Insert();
     end;
 
     local procedure SetupStartAndEndDates(var StartDate: Date; var EndDate: Date; ShowPer: Option Period,"Acc. Sched. Line","Acc. Sched. Column"; PeriodLength: Option; NoOfPeriods: Integer)
@@ -1446,8 +1448,8 @@ codeunit 137409 "Analysis Reports Chart"
         LineIndex: Integer;
         ColumnIndex: Integer;
     begin
-        NoOfLines := AnalysisLine.Count;
-        NoOfColumns := AnalysisColumn.Count;
+        NoOfLines := AnalysisLine.Count();
+        NoOfColumns := AnalysisColumn.Count();
 
         case AnalysisReportChartSetup."Base X-Axis on" of
             AnalysisReportChartSetup."Base X-Axis on"::Period:

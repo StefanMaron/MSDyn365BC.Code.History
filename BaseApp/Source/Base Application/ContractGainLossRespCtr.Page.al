@@ -37,7 +37,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        RespCrCode.Reset;
+                        RespCrCode.Reset();
                         if PAGE.RunModal(0, RespCrCode) = ACTION::LookupOK then begin
                             Text := RespCrCode.Code;
                             exit(true);

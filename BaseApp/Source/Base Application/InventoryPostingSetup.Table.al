@@ -226,7 +226,7 @@ table 5813 "Inventory Posting Setup"
         if "Subcontracted Variance Account" = '' then
             SuggestAccount(RecRef, FieldNo("Subcontracted Variance Account"));
         OnAfterSuggestSetupAccount(Rec, RecRef);
-        RecRef.Modify;
+        RecRef.Modify();
     end;
 
     procedure SuggestAccount(var RecRef: RecordRef; AccountFieldNo: Integer)
@@ -238,7 +238,7 @@ table 5813 "Inventory Posting Setup"
     begin
         InvtPostingSetupRecRef.Open(DATABASE::"Inventory Posting Setup");
 
-        InvtPostingSetupRecRef.Reset;
+        InvtPostingSetupRecRef.Reset();
         InvtPostingSetupFieldRef := InvtPostingSetupRecRef.Field(FieldNo("Invt. Posting Group Code"));
         InvtPostingSetupFieldRef.SetFilter('<>%1', "Invt. Posting Group Code");
         InvtPostingSetupFieldRef := InvtPostingSetupRecRef.Field(FieldNo("Location Code"));
@@ -247,7 +247,7 @@ table 5813 "Inventory Posting Setup"
 
         InvtPostingSetupRecRef.Close;
 
-        TempAccountUseBuffer.Reset;
+        TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
         if TempAccountUseBuffer.FindLast then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);

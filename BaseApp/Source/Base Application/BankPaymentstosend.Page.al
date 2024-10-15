@@ -268,9 +268,9 @@ page 32000006 "Bank Payments to send"
     begin
         UpdateBalance;
         if "Affiliated to Line" <> 0 then begin
-            PurchRefLines.Reset;
+            PurchRefLines.Reset();
             PurchRefLines.SetRange("Affiliated to Line", "Affiliated to Line");
-            PurchRefLines.DeleteAll;
+            PurchRefLines.DeleteAll();
         end;
     end;
 
@@ -281,7 +281,7 @@ page 32000006 "Bank Payments to send"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        PurchRefLines.Reset;
+        PurchRefLines.Reset();
         if PurchRefLines.FindLast then
             "No." := PurchRefLines."No." + 1
         else
@@ -292,7 +292,7 @@ page 32000006 "Bank Payments to send"
     trigger OnOpenPage()
     begin
         UpdateBalance;
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("Bank Batch Nos.");
     end;
 
@@ -312,7 +312,7 @@ page 32000006 "Bank Payments to send"
 
     local procedure UpdateBalance()
     begin
-        PurchRefLines.Reset;
+        PurchRefLines.Reset();
         PurchRefLines.SetCurrentKey(Transferred);
         PurchRefLines.SetRange(Transferred, false);
         PurchRefLines.SetRange("Applied Payments", false);

@@ -64,7 +64,6 @@ page 9032 "Acc. Payables Activities"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Edit Bank Payment to send';
-                        Image = VendorPayment;
                         RunObject = Page "Bank Payments to send";
                         ToolTip = 'View and edit the payments that will be registered to the vendors.';
                     }

@@ -34,7 +34,7 @@ table 5081 Activity
         ActivityStep: Record "Activity Step";
     begin
         ActivityStep.SetRange("Activity Code", Code);
-        ActivityStep.DeleteAll;
+        ActivityStep.DeleteAll();
     end;
 
     procedure IncludesMeeting(ActivityCode: Code[10]): Boolean

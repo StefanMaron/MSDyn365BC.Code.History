@@ -25,7 +25,7 @@ report 5753 "Get Source Documents"
                         IsHandled := false;
                         OnBeforeSalesLineOnAfterGetRecord("Sales Line", "Warehouse Request", RequestType, IsHandled);
                         if IsHandled then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         VerifyItemNotBlocked("No.");
                         if "Location Code" = "Warehouse Request"."Location Code" then
@@ -49,7 +49,7 @@ report 5753 "Get Source Documents"
                                                 SkippedSourceDoc += 1;
                                                 SalesHeaderCounted := true;
                                             end;
-                                            CurrReport.Skip;
+                                            CurrReport.Skip();
                                         end;
                                         OnSalesLineOnAfterGetRecordOnBeforeCreateShptHeader(
                                           "Sales Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated);
@@ -107,15 +107,15 @@ report 5753 "Get Source Documents"
                     SkipRecord := false;
                     OnAfterSalesHeaderOnAfterGetRecord("Sales Header", SkipRecord, BreakReport, "Warehouse Request");
                     if BreakReport then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if SkipRecord then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if "Warehouse Request"."Source Type" <> DATABASE::"Sales Line" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     OnAfterSalesHeaderOnPreDataItem("Sales Header");
                 end;
@@ -136,7 +136,7 @@ report 5753 "Get Source Documents"
                         IsHandled := false;
                         OnBeforePurchaseLineOnAfterGetRecord("Purchase Line", "Warehouse Request", RequestType, IsHandled);
                         if IsHandled then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         VerifyItemNotBlocked("No.");
                         if "Location Code" = "Warehouse Request"."Location Code" then
@@ -234,7 +234,7 @@ report 5753 "Get Source Documents"
                         IsHandled := false;
                         OnBeforeTransferLineOnAfterGetRecord("Transfer Line", "Warehouse Request", RequestType, IsHandled);
                         if IsHandled then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         case RequestType of
                             RequestType::Receive:
@@ -296,9 +296,9 @@ report 5753 "Get Source Documents"
                     SkipRecord := false;
                     OnAfterTransHeaderOnAfterGetRecord("Transfer Header", SkipRecord, BreakReport, "Warehouse Request");
                     if BreakReport then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if SkipRecord then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -325,7 +325,7 @@ report 5753 "Get Source Documents"
                         IsHandled := false;
                         OnBeforeServiceLineOnAfterGetRecord("Service Line", "Warehouse Request", RequestType, IsHandled);
                         if IsHandled then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if "Location Code" = "Warehouse Request"."Location Code" then
                             case RequestType of
@@ -363,13 +363,13 @@ report 5753 "Get Source Documents"
                         Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false)
                     else
                         if Cust.Blocked <> Cust.Blocked::" " then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if "Warehouse Request"."Source Type" <> DATABASE::"Service Line" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -383,9 +383,9 @@ report 5753 "Get Source Documents"
                 OnBeforeWarehouseRequestOnAfterGetRecord(
                   "Warehouse Request", WhseHeaderCreated, SkipRecord, BreakReport, RequestType, WhseReceiptHeader, WhseShptHeader, OneHeaderCreated);
                 if BreakReport then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 case Type of
                     Type::Inbound:
@@ -574,13 +574,13 @@ report 5753 "Get Source Documents"
         if IsHandled then
             exit;
 
-        WhseShptHeader.Init;
+        WhseShptHeader.Init();
         WhseShptHeader."No." := '';
         WhseShptHeader."Location Code" := "Warehouse Request"."Location Code";
         if Location.Code = WhseShptHeader."Location Code" then
             WhseShptHeader."Bin Code" := Location."Shipment Bin Code";
         WhseShptHeader."External Document No." := "Warehouse Request"."External Document No.";
-        WhseShptLine.LockTable;
+        WhseShptLine.LockTable();
         OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request");
         WhseShptHeader.Insert(true);
         ActivitiesCreated := ActivitiesCreated + 1;
@@ -589,7 +589,7 @@ report 5753 "Get Source Documents"
         OnAfterCreateShptHeader(WhseShptHeader, "Warehouse Request", "Sales Line");
     end;
 
-    local procedure CreateReceiptHeader()
+    procedure CreateReceiptHeader()
     var
         IsHandled: Boolean;
     begin
@@ -598,19 +598,19 @@ report 5753 "Get Source Documents"
         if IsHandled then
             exit;
 
-        WhseReceiptHeader.Init;
+        WhseReceiptHeader.Init();
         WhseReceiptHeader."No." := '';
         WhseReceiptHeader."Location Code" := "Warehouse Request"."Location Code";
         if Location.Code = WhseReceiptHeader."Location Code" then
             WhseReceiptHeader."Bin Code" := Location."Receipt Bin Code";
         WhseReceiptHeader."Vendor Shipment No." := "Warehouse Request"."External Document No.";
-        WhseReceiptLine.LockTable;
+        WhseReceiptLine.LockTable();
         OnBeforeWhseReceiptHeaderInsert(WhseReceiptHeader, "Warehouse Request");
         WhseReceiptHeader.Insert(true);
         ActivitiesCreated := ActivitiesCreated + 1;
         WhseHeaderCreated := true;
         if not SuppressCommit then
-            Commit;
+            Commit();
 
         OnAfterCreateRcptHeader(WhseReceiptHeader, "Warehouse Request", "Purchase Line");
     end;
@@ -641,7 +641,7 @@ report 5753 "Get Source Documents"
     begin
         Item.Get(ItemNo);
         if SkipBlockedItem and Item.Blocked then
-            CurrReport.Skip;
+            CurrReport.Skip();
 
         Item.TestField(Blocked, false);
     end;
@@ -687,7 +687,7 @@ report 5753 "Get Source Documents"
         OnBeforeCheckFillQtyToHandle(DoNotFillQtytoHandle, RequestType);
 
         if DoNotFillQtytoHandle and (RequestType = RequestType::Receive) then begin
-            WhseReceiptLine.Reset;
+            WhseReceiptLine.Reset();
             WhseReceiptLine.SetRange("No.", WhseReceiptHeader."No.");
             WhseReceiptLine.DeleteQtyToReceive(WhseReceiptLine);
         end;

@@ -123,7 +123,7 @@ codeunit 137408 "SCM Warehouse VI"
 
         // Exercise: Update Quantity to Handle on Put Away Worksheet line and Invoke Create Put away from Pick Worksheet.
         PutAwayWorksheet."Qty. to Handle".SetValue(QuantityToHandle);
-        Commit;  // COMMIT is required here.
+        Commit();  // COMMIT is required here.
         PutAwayWorksheet.CreatePutAway.Invoke;
 
         // Verify: Verify Warehouse Activity Line.
@@ -151,7 +151,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseLine, Location.Code);
         PutAwayWorksheet.OpenEdit;
         PutAwayWorksheet.GetWarehouseDocuments.Invoke;
-        Commit;  // COMMIT is required here.
+        Commit();  // COMMIT is required here.
         PutAwayWorksheet.CreatePutAway.Invoke;
         QuantityToHandle := Round(PurchaseLine.Quantity / LibraryRandom.RandDec(5, 2));  // Subtracting Random Quantity from the Purchase line Quantity.
 
@@ -1154,7 +1154,7 @@ codeunit 137408 "SCM Warehouse VI"
         CalculateBinReplenishmentForBinContent(Location.Code, BinContent);
         WhseWorksheetLine.SetRange("Location Code", Location.Code);
         WhseWorksheetLine.FindFirst;
-        Commit;
+        Commit();
 
         // [WHEN] Create movement from warehouse worksheet
         WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
@@ -1539,7 +1539,7 @@ codeunit 137408 "SCM Warehouse VI"
         CalculateBinReplenishmentForBinContent(Location.Code, BinContent);
         WhseWorksheetLine.SetRange("Location Code", Location.Code);
         WhseWorksheetLine.FindFirst;
-        Commit;
+        Commit();
 
         // [WHEN] Create movement from the warehouse worksheet.
         WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
@@ -1585,7 +1585,7 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, WarehouseJournalLine."Location Code");
 
         // [WHEN] Run "Calculate Bin Replenishment" report and select Location Code = "L", worksheet template name = "MT", worksheet name = "MN" on the request page.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(WarehouseJournalLine."Location Code");
         LibraryVariableStorage.Enqueue(WhseWorksheetTemplate.Name);
         LibraryVariableStorage.Enqueue(WhseWorksheetName.Name);
@@ -1620,7 +1620,7 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
 
         // [WHEN] Select "L" and "WT" on the request page in Calculate Bin Replenishment report and look up list of worksheet names.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(Location.Code);
         LibraryVariableStorage.Enqueue(WhseWorksheetTemplate.Name);
@@ -1868,7 +1868,7 @@ codeunit 137408 "SCM Warehouse VI"
         // [GIVEN] "Directed Put-away and Pick" location with "Pick according to FEFO" and "Allow Breakbulk" enabled
         CreateFullWarehouseSetup(Location);
         Location.Validate("Pick According to FEFO", true);
-        Location.Modify;
+        Location.Modify();
 
         // [GIVEN] BinFrom with ranking = "X"
         FindBin(BinFrom, Location.Code);
@@ -1894,7 +1894,7 @@ codeunit 137408 "SCM Warehouse VI"
             ItemUnitOfMeasure."Qty. per Unit of Measure" + 1, ItemUnitOfMeasure."Qty. per Unit of Measure" * 2);
         CreateMovementWorksheetLine(WhseWorksheetLine, Location.Code, Item."No.", Item."Base Unit of Measure", BinTo.Code, QuantityToMove);
 
-        Commit;
+        Commit();
 
         // [WHEN] Movement is created for this item via "Create Movement" button
         WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
@@ -1968,7 +1968,7 @@ codeunit 137408 "SCM Warehouse VI"
             ItemUnitOfMeasure."Qty. per Unit of Measure" + 1, ItemUnitOfMeasure."Qty. per Unit of Measure" * 2);
         CreateMovementWorksheetLine(WhseWorksheetLine, Location.Code, Item."No.", Item."Base Unit of Measure", BinTo.Code, QuantityToMove);
 
-        Commit;
+        Commit();
 
         // [WHEN] Movement is created for this item via "Create Movement" button
         WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
@@ -2170,7 +2170,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Pick);
 
         // [WHEN] Invoke 'Delete Registered Picks' on RegisteredWhsePicks page, invoke Cancel on RPH
-        Commit;
+        Commit();
         RegisteredWhsePicks.OpenEdit;
         RegisteredWhsePicks.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
         RegisteredWhsePicks."Delete Registered Movements".Invoke;
@@ -2197,7 +2197,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Pick);
 
         // [WHEN] Invoke 'Delete Registered Picks' on RegisteredWhsePicks page, invoke OK on RPH
-        Commit;
+        Commit();
         RegisteredWhsePicks.OpenEdit;
         RegisteredWhsePicks.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
         RegisteredWhsePicks."Delete Registered Movements".Invoke;
@@ -2224,7 +2224,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Movement);
 
         // [WHEN] Invoke 'Delete Registered Movements' on RegisteredWhseMovements page, invoke Cancel on RPH
-        Commit;
+        Commit();
         RegisteredWhseMovements.OpenEdit;
         RegisteredWhseMovements.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
         RegisteredWhseMovements."Delete Registered Movements".Invoke;
@@ -2251,7 +2251,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Movement);
 
         // [WHEN] Invoke 'Delete Registered Movements' on RegisteredWhseMovements page, invoke OK on RPH
-        Commit;
+        Commit();
         RegisteredWhseMovements.OpenEdit;
         RegisteredWhseMovements.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
         RegisteredWhseMovements."Delete Registered Movements".Invoke;
@@ -2278,7 +2278,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::"Put-away");
 
         // [WHEN] Invoke 'Delete Registered Put-aways' on RegisteredWhsePutaways page, invoke Cancel on RPH
-        Commit;
+        Commit();
         RegisteredWhsePutaways.OpenEdit;
         RegisteredWhsePutaways.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
         RegisteredWhsePutaways."Delete Registered Movements".Invoke;
@@ -2305,7 +2305,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::"Put-away");
 
         // [WHEN] Invoke 'Delete Registered Put-aways' on RegisteredWhsePutaways page, invoke OK on RPH
-        Commit;
+        Commit();
         RegisteredWhsePutaways.OpenEdit;
         RegisteredWhsePutaways.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
         RegisteredWhsePutaways."Delete Registered Movements".Invoke;
@@ -2457,7 +2457,7 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse VI");
@@ -2467,7 +2467,7 @@ codeunit 137408 "SCM Warehouse VI"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup.Validate(
           "Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
         WarehouseSetup.Modify(true);
@@ -2665,7 +2665,7 @@ codeunit 137408 "SCM Warehouse VI"
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
           Bin."Location Code", Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
         WarehouseJournalLine.Validate("Unit of Measure Code", UnitsOfMeasure);
-        WarehouseJournalLine.Modify;
+        WarehouseJournalLine.Modify();
         // Enqueue values for WhseItemTrackingLinesModalPageHandler
         LibraryVariableStorage.Enqueue(TrackingActionStr::AssignGivenLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -2699,7 +2699,7 @@ codeunit 137408 "SCM Warehouse VI"
         FindBinContent(BinContent, ItemNo);
         BinCode := FindEmptyBin(LocationCode, BinContent."Zone Code");
         CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Reclassification, LocationCode);
-        Commit;
+        Commit();
         WhseReclassificationJournal.OpenEdit;
         WhseReclassificationJournal.CurrentLocationCode.SetValue(LocationCode);
         WhseReclassificationJournal.CurrentJnlBatchName.SetValue(WarehouseJournalBatch.Name);
@@ -3094,7 +3094,7 @@ codeunit 137408 "SCM Warehouse VI"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         FindWarehouseWorksheetLine(WhseWorksheetLine, ItemNo);
-        Commit;  // Commit is required.
+        Commit();  // Commit is required.
         WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
     end;
 
@@ -3313,11 +3313,11 @@ codeunit 137408 "SCM Warehouse VI"
     var
         Location: Record Location;
     begin
-        RegisteredWhseActivityHdr.Init;
+        RegisteredWhseActivityHdr.Init();
         RegisteredWhseActivityHdr.Type := Type;
         RegisteredWhseActivityHdr."No." := LibraryUtility.GenerateGUID;
         RegisteredWhseActivityHdr."Location Code" := LibraryWarehouse.CreateLocation(Location);
-        RegisteredWhseActivityHdr.Insert;
+        RegisteredWhseActivityHdr.Insert();
     end;
 
     local procedure AddBin(LocationCode: Code[10]): Code[20]
@@ -3559,7 +3559,7 @@ codeunit 137408 "SCM Warehouse VI"
         BinContent: Record "Bin Content";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.Validate("Posting Date", WorkDate);
@@ -3575,7 +3575,7 @@ codeunit 137408 "SCM Warehouse VI"
     begin
         PickWorksheet.OpenEdit;
         PickWorksheet."Get Warehouse Documents".Invoke;
-        Commit;  // Commit required.
+        Commit();  // Commit required.
         PickWorksheet.CreatePick.Invoke;
     end;
 
@@ -3650,7 +3650,7 @@ codeunit 137408 "SCM Warehouse VI"
     begin
         BinContentTo := BinContentFrom;
         BinContentTo."Bin Code" := LibraryUtility.GenerateGUID;
-        BinContentTo.Insert;
+        BinContentTo.Insert();
     end;
 
     local procedure MockWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; BinContentFrom: Record "Bin Content"; BinContentTo: Record "Bin Content"; EntryType: Option)
@@ -3781,11 +3781,11 @@ codeunit 137408 "SCM Warehouse VI"
         ItemJournalLine: Record "Item Journal Line";
         PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
     begin
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         PhysInvtCountManagement.InitFromItemJnl(ItemJournalLine);
-        Commit;  // Commit is required.
+        Commit();  // Commit is required.
         PhysInvtCountManagement.Run;
     end;
 
@@ -3798,12 +3798,12 @@ codeunit 137408 "SCM Warehouse VI"
         CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", LocationCode);
         WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         WarehouseJournalBatch.Modify(true);
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
         PhysInvtCountManagement.InitFromWhseJnl(WarehouseJournalLine);
-        Commit;  // Commit is required.
+        Commit();  // Commit is required.
         PhysInvtCountManagement.Run;
     end;
 
@@ -3848,11 +3848,11 @@ codeunit 137408 "SCM Warehouse VI"
         BinContent: Record "Bin Content";
         WhseCalculateInventory: Report "Whse. Calculate Inventory";
     begin
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalTemplateName);
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatchName);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
-        Commit;  // Commit is required to run the report.
+        Commit();  // Commit is required to run the report.
         Clear(WhseCalculateInventory);
         BinContent.SetRange("Item No.", ItemNo);
         WhseCalculateInventory.SetTableView(BinContent);
@@ -3931,7 +3931,7 @@ codeunit 137408 "SCM Warehouse VI"
           Bin."Location Code", Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
           Item."No.", LibraryRandom.RandIntInRange(10, 20));
         WarehouseJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
-        WarehouseJournalLine.Modify;
+        WarehouseJournalLine.Modify();
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code", true);
         LibraryWarehouse.PostWhseAdjustment(Item);

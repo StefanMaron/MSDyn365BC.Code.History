@@ -7,8 +7,6 @@ codeunit 7171 "Sales Info-Pane Management"
 
     var
         Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         AvailableToPromise: Codeunit "Available to Promise";
         UOMMgt: Codeunit "Unit of Measure Management";
 
@@ -120,18 +118,14 @@ codeunit 7171 "Sales Info-Pane Management"
 
     procedure CalcNoOfSalesPrices(var SalesLine: Record "Sales Line"): Integer
     begin
-        if GetItem(SalesLine) then begin
-            GetSalesHeader(SalesLine);
-            exit(SalesPriceCalcMgt.NoOfSalesLinePrice(SalesHeader, SalesLine, true));
-        end;
+        if GetItem(SalesLine) then
+            exit(SalesLine.CountPrice(true));
     end;
 
     procedure CalcNoOfSalesLineDisc(var SalesLine: Record "Sales Line"): Integer
     begin
-        if GetItem(SalesLine) then begin
-            GetSalesHeader(SalesLine);
-            exit(SalesPriceCalcMgt.NoOfSalesLineLineDisc(SalesHeader, SalesLine, true));
-        end;
+        if GetItem(SalesLine) then
+            exit(SalesLine.CountDiscount(true));
     end;
 
     local procedure ConvertQty(Qty: Decimal; PerUoMQty: Decimal): Decimal
@@ -172,17 +166,9 @@ codeunit 7171 "Sales Info-Pane Management"
         end;
     end;
 
-    local procedure GetSalesHeader(var SalesLine: Record "Sales Line")
-    begin
-        if (SalesLine."Document Type" <> SalesHeader."Document Type") or
-           (SalesLine."Document No." <> SalesHeader."No.")
-        then
-            SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-    end;
-
     local procedure SetItemFilter(var Item: Record Item; var SalesLine: Record "Sales Line")
     begin
-        Item.Reset;
+        Item.Reset();
         Item.SetRange("Date Filter", 0D, CalcAvailabilityDate(SalesLine));
         Item.SetRange("Variant Filter", SalesLine."Variant Code");
         Item.SetRange("Location Filter", SalesLine."Location Code");

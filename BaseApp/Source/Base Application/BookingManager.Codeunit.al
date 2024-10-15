@@ -8,6 +8,7 @@ codeunit 6721 "Booking Manager"
     var
         ConfirmSyncQst: Label '%1 does not exist in %2. Would you like to synchronize your Bookings customers and services now?', Comment = '%1 - The name of the service or customer. %2 - short product name';
         NoCustomerFoundErr: Label 'Could not find the customer in %1.', Comment = '%1 - Short product name';
+        InvoicingBookingsTelemetryTxt: Label 'Invoicing Bookings Services for a customer.', Locked = true;
 
     procedure GetAppointmentConnectionName(): Text
     begin
@@ -31,13 +32,13 @@ codeunit 6721 "Booking Manager"
         Now := DotNet_DateTimeOffset.ConvertToUtcDateTime(CurrentDateTime);
         if TryFindAppointments(BookingItem) then
             repeat
-                TempBookingItem.Init;
+                TempBookingItem.Init();
                 BookingItem.CalcFields("Start Date", "End Date");
                 TempBookingItem.TransferFields(BookingItem);
                 with BookingItem do
                     if ("Invoice No." = '') and ("Invoice Status" = "Invoice Status"::draft) then
                         if GetStartDate < Now then
-                            TempBookingItem.Insert;
+                            TempBookingItem.Insert();
             until BookingItem.Next = 0;
     end;
 
@@ -114,7 +115,7 @@ codeunit 6721 "Booking Manager"
                 Error(NoCustomerFoundErr, PRODUCTNAME.Short);
         end;
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
         SalesHeader.Insert(true);
@@ -142,12 +143,12 @@ codeunit 6721 "Booking Manager"
             LineNo := 10000;
         Clear(SalesLine);
 
-        InvoicedBookingItem.Init;
+        InvoicedBookingItem.Init();
         InvoicedBookingItem."Booking Item ID" := BookingItem.Id;
         InvoicedBookingItem."Document No." := SalesHeader."No.";
         InvoicedBookingItem.Insert(true);
 
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate("Line No.", LineNo);
@@ -158,7 +159,7 @@ codeunit 6721 "Booking Manager"
         SalesLine.Validate("Unit Price", BookingItem.Price);
         SalesLine.Validate(Description, StrSubstNo('%1 - %2', BookingItem."Service Name", DT2Date(BookingItem.GetStartDate)));
         if not SalesLine.Insert(true) then begin
-            InvoicedBookingItem.Delete;
+            InvoicedBookingItem.Delete();
             Error(GetLastErrorText);
         end;
     end;
@@ -167,6 +168,7 @@ codeunit 6721 "Booking Manager"
     var
         NewTempBookingItem: Record "Booking Item" temporary;
         InvoicedBookingItem: Record "Invoiced Booking Item";
+        O365SyncManagement: Codeunit "O365 Sync. Management";
     begin
         NewTempBookingItem.Copy(TempBookingItem, true);
         if not InvoicedBookingItem.Get(TempBookingItem.Id) then begin
@@ -180,9 +182,10 @@ codeunit 6721 "Booking Manager"
                     if not InvoicedBookingItem.Get(NewTempBookingItem.Id) then
                         CreateSalesLine(SalesHeader, NewTempBookingItem);
                     BookingItemSource.Get(NewTempBookingItem.Id);
-                    BookingItemSource.Delete;
+                    BookingItemSource.Delete();
                 until NewTempBookingItem.Next = 0;
                 InvoiceCreated := true;
+                SendTraceTag('0000ACI', O365SyncManagement.TraceCategory(), Verbosity::Normal, InvoicingBookingsTelemetryTxt, DataClassification::SystemMetadata);
             end;
         end;
     end;

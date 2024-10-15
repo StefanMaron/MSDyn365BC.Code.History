@@ -1,4 +1,4 @@
-﻿page 130 "Posted Sales Shipment"
+page 130 "Posted Sales Shipment"
 {
     Caption = 'Posted Sales Shipment';
     InsertAllowed = false;

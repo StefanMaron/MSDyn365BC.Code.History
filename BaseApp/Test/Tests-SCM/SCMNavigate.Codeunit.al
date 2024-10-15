@@ -346,11 +346,10 @@ codeunit 137078 "SCM Navigate"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Navigate");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryApplicationArea.EnableEssentialSetup;
         NoSeriesSetup;
-        Commit;
+        Commit();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Navigate");
@@ -362,7 +361,7 @@ codeunit 137078 "SCM Navigate"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -371,7 +370,7 @@ codeunit 137078 "SCM Navigate"
         SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -380,7 +379,7 @@ codeunit 137078 "SCM Navigate"
         PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         ServiceMgtSetup.Validate("Service Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         ServiceMgtSetup.Validate("Service Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -592,7 +591,7 @@ codeunit 137078 "SCM Navigate"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldCreditWarnings := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Modify(true);

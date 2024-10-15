@@ -225,7 +225,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetCategoriesString(CategoriesString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id); // Required to 'clear' the BLOB
 
         // Verify
@@ -274,7 +274,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetEmailAddressesString(EmailAddressesString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -323,7 +323,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetWebsitesString(WebsitesString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -374,7 +374,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetImAddressesString(ImAddressesString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -423,7 +423,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetPhonesString(PhonesString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -471,7 +471,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetPostalAddressesString(PostalAddressesString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -512,7 +512,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetPersonalNotesString(PersonalNotesString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -562,7 +562,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetChildrenString(ChildrenString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -611,7 +611,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetFlagString(FlagString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -655,7 +655,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetBusinessTypeString(BusinessTypeString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -699,7 +699,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetIsBankString(IsBankString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -743,7 +743,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetIsCustomerString(IsCustomerString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -787,7 +787,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetIsVendorString(IsVendorString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify
@@ -831,7 +831,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
 
         // Execute
         GraphContact.SetIsContactString(IsContactString);
-        GraphContact.Insert;
+        GraphContact.Insert();
         GraphContact.Get(GraphContact.Id);
 
         // Verify

@@ -174,7 +174,7 @@ codeunit 132500 "Error Message Handling"
 
         // [WHEN] Run posting with enabled error handling
         LibraryErrorMessage.TrapErrorMessages;
-        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage);
+        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
 
         // [THEN] Page "Error Messages" is open, where are both errors: 'A' and 'B'
         LibraryErrorMessage.GetErrorMessages(TempActualErrorMessage);
@@ -208,6 +208,56 @@ codeunit 132500 "Error Message Handling"
 
         // [THEN] Error 'A' is thrown; Page "Error Messages" is not open.
         Assert.AreEqual(HandledErr, GetLastErrorText, 'unexpected last error text');
+    end;
+
+    [Test]
+    procedure T012_UnhandledErrorAfterHandledOneEnabledHandlingLogToFile()
+    var
+        TempActualErrorMessage: Record "Error Message" temporary;
+        TempErrorMessage: Record "Error Message" temporary;
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+        LogFile: File;
+        InStr: InStream;
+        LogLine: Text;
+        ExpectedLogLine: Array[3] of Text;
+        ErrorMsg: Text;
+        LineNo: Integer;
+    begin
+        // [FEATURE] [Log File]
+        // [SCENARIO] Unhandled and handled errors should be written to the file.
+        Initialize;
+        PushContext(TempErrorMessage, 'Global Context');
+        // [GIVEN] Unhandled error 'B' happens after one error 'A' is collected
+        PushContext(TempErrorMessage, 'Local Context');
+        AddHandledError(TempErrorMessage, StrSubstNo(HandledErr, 1));
+        PopContext(TempErrorMessage);
+        AddUnhandledError(TempErrorMessage, UnhandledErr);
+        AddFinishCall(TempErrorMessage);
+
+        // [WHEN] Run posting with enabled error handling and logging to file
+        asserterror PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, true);
+
+        // [THEN] WriteMessagesToFile() re-throws unhandled error 'B' including the callstack
+        ErrorMsg := 'Unhandled Error';
+        ExpectedLogLine[1] := 'Local Context : Handled Error 1';
+        ExpectedLogLine[2] := StrSubstNo('Global Context : %1.', ErrorMsg);
+        ExpectedLogLine[3] := '"Posting Codeunit Mock"(CodeUnit 132479).OnRun(Trigger) line';
+        Assert.ExpectedError(ErrorMsg);
+        Assert.ExpectedError(ExpectedLogLine[3]);
+        // [THEN] The handled error 'A' is not thrown
+        asserterror Assert.ExpectedError(ExpectedLogLine[1]);
+        Assert.ExpectedError('x');
+        // [THEN] The log file is created in the server folder
+        Assert.IsTrue(LogFile.Open(PostingCodeunitMock.GetLogFileName()), 'Log file is not created');
+        // [THEN] it contains three lines: error messages 'A' and 'B' with contexts and the callstack line
+        LineNo := 0;
+        LogFile.CreateInStream(InStr);
+        while not InStr.EOS do begin
+            LineNo += 1;
+            InStr.ReadText(LogLine);
+            Assert.ExpectedMessage(ExpectedLogLine[LineNo], LogLine);
+        end;
+        LogFile.Close();
     end;
 
     [Test]
@@ -453,9 +503,9 @@ codeunit 132500 "Error Message Handling"
         Initialize;
         // [GIVEN] Sales Invoice Header 'A' and 'B'
         SalesInvoiceHeader[1]."No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader[1].Insert;
+        SalesInvoiceHeader[1].Insert();
         SalesInvoiceHeader[2]."No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader[2].Insert;
+        SalesInvoiceHeader[2].Insert();
         Clear(SalesInvoiceHeader[3]);
 
         // [GIVEN] Initial activation with context 'blank SalesInvoiceHeader' (batch header)
@@ -655,7 +705,7 @@ codeunit 132500 "Error Message Handling"
         // [FEATURE] [UT]
         // [SCENARIO] If the error logged without additional information it is filled from top of call stack
         Initialize;
-        Commit;
+        Commit();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         if not CODEUNIT.Run(CODEUNIT::TestCodeunitRunError) then
             ErrorMessageMgt.LogError(0, GetLastErrorText, '');
@@ -826,7 +876,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegister."Created On" := CurrentDateTime;
         ErrorMessageRegister."User ID" := UserId;
         ErrorMessageRegister.Description := LibraryUtility.GenerateGUID;
-        ErrorMessageRegister.Insert;
+        ErrorMessageRegister.Insert();
         // [GIVEN] 1 Error Message, where "Message Type" is 'Error'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '1');
         // [GIVEN] 2 Error Messages, where "Message Type" is 'Warning'
@@ -838,7 +888,7 @@ codeunit 132500 "Error Message Handling"
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '6');
         // [GIVEN] 1 Error Message related to another register
         LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Error, 'X');
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         ErrorMessage.CopyFromTemp(TempErrorMessage);
 
         // [WHEN] Open Error Message Register page
@@ -876,7 +926,7 @@ codeunit 132500 "Error Message Handling"
         Initialize;
         // [GIVEN] Error Message Register
         ErrorMessageRegister.ID := CreateGuid;
-        ErrorMessageRegister.Insert;
+        ErrorMessageRegister.Insert();
         // [GIVEN] 3 Error Messages, where "Message Type" is 'Error'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '1');
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '2');
@@ -885,7 +935,7 @@ codeunit 132500 "Error Message Handling"
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '5');
         // [GIVEN] 1 'Error' Error Message related to another register
         LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Error, 'X');
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         ErrorMessage.CopyFromTemp(TempErrorMessage);
 
         // [WHEN] DrillDown on "Errors" in Error Message Register page
@@ -913,7 +963,7 @@ codeunit 132500 "Error Message Handling"
         Initialize;
         // [GIVEN] Error Message Register
         ErrorMessageRegister.ID := CreateGuid;
-        ErrorMessageRegister.Insert;
+        ErrorMessageRegister.Insert();
         // [GIVEN] 3 Error Messages, where "Message Type" is 'Warning'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '1');
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '2');
@@ -922,7 +972,7 @@ codeunit 132500 "Error Message Handling"
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '5');
         // [GIVEN] 1 'Warning' Error Message related to another register
         LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Warning, 'X');
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         ErrorMessage.CopyFromTemp(TempErrorMessage);
 
         // [WHEN] DrillDown on "Errors" in Error Message Register page
@@ -950,7 +1000,7 @@ codeunit 132500 "Error Message Handling"
         Initialize;
         // [GIVEN] Error Message Register
         ErrorMessageRegister.ID := CreateGuid;
-        ErrorMessageRegister.Insert;
+        ErrorMessageRegister.Insert();
         // [GIVEN] 3 Error Messages, where "Message Type" is 'Information'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '1');
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '2');
@@ -959,7 +1009,7 @@ codeunit 132500 "Error Message Handling"
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '5');
         // [GIVEN] 1 'Information' Error Message related to another register
         LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Information, 'X');
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         ErrorMessage.CopyFromTemp(TempErrorMessage);
 
         // [WHEN] DrillDown on "Errors" in Error Message Register page
@@ -1043,7 +1093,7 @@ codeunit 132500 "Error Message Handling"
         AddFinishCall(TempErrorMessage);
         // [WHEN] Run posting with enabled error handling
         ErrorMessagesPage.Trap;
-        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage);
+        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
         // [THEN] Error Messages list page open
         ErrorMessagesPage.Close;
         // [THEN] Error Register contains 2 'Error' records: 'A' and 'B'.
@@ -1075,10 +1125,10 @@ codeunit 132500 "Error Message Handling"
         AddFinishCall(TempErrorMessage);
         // [WHEN] Run posting with enabled error handling twice
         ErrorMessagesPage.Trap;
-        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage);
+        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
         ErrorMessagesPage.Close;
         ErrorMessagesPage.Trap;
-        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage);
+        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
         ErrorMessagesPage.Close;
         // [THEN] 2 Error Registers each contains 2 'Error' records: 'A' and 'B'.
         Assert.IsTrue(ErrorMessageRegister.Find('-'), '1st register not found');
@@ -1104,12 +1154,12 @@ codeunit 132500 "Error Message Handling"
         // [FEATURE] [UI] [Forward Link]
         Initialize;
 
-        NamedForwardLink.DeleteAll;
-        NamedForwardLink.Init;
+        NamedForwardLink.DeleteAll();
+        NamedForwardLink.Init();
         NamedForwardLink.Name := ForwardLinkMgt.GetHelpCodeForAllowedPostingDate;
         NamedForwardLink.Description := NamedForwardLink.Name;
         NamedForwardLink.Link := 'https://docs.microsoft.com/en-us/dynamics365/business-central/finance-how-specify-posting-periods';
-        NamedForwardLink.Insert;
+        NamedForwardLink.Insert();
 
         ForwardLinks.OpenEdit;
 
@@ -1131,7 +1181,7 @@ codeunit 132500 "Error Message Handling"
         // [FEATURE] [UI] [Forward Link]
         Initialize;
         // [GIVEN] No Forward Links
-        NamedForwardLink.DeleteAll;
+        NamedForwardLink.DeleteAll();
 
         // [WHEN] Run action "Load" on the page
         ForwardLinks.OpenView;
@@ -1152,28 +1202,7 @@ codeunit 132500 "Error Message Handling"
         NamedForwardLink.SetRange(Description, '');
         NamedForwardLink.SetRange(Link, '');
         Assert.RecordIsEmpty(NamedForwardLink);
-    end;
 
-    [Test]
-    procedure T992_ExistingForwardLinkDoesNotGetOverriden()
-    var
-        NamedForwardLink: Record "Named Forward Link";
-        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
-    begin
-        // [FEATURE] [UT] [Forward Link]
-        Initialize;
-        // [GIVEN] No Forward Links
-        NamedForwardLink.DeleteAll();
-        // [GIVEN] Action "A", where Description 'D', Link 'L'
-        ForwardLinkMgt.AddLink('A', 'D', 'L');
-
-        // [WHEN] Try to add action "A", where Description 'D2', Link 'L2'
-        ForwardLinkMgt.AddLink('A', 'D2', 'L2');
-
-        // [THEN]  Link "A", where Description 'D', Link 'L'
-        NamedForwardLink.Get('A');
-        NamedForwardLink.Testfield(Description, 'D');
-        NamedForwardLink.Testfield(Link, 'L');
     end;
 
     local procedure Initialize()

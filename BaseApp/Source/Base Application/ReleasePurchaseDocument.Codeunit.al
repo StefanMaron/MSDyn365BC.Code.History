@@ -1,4 +1,4 @@
-codeunit 415 "Release Purchase Document"
+﻿codeunit 415 "Release Purchase Document"
 {
     TableNo = "Purchase Header";
 
@@ -47,7 +47,7 @@ codeunit 415 "Release Purchase Document"
             PurchLine.SetFilter(Quantity, '<>0');
             if not PurchLine.Find('-') then
                 Error(Text001, "Document Type", "No.");
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Location Mandatory" then begin
                 PurchLine.SetRange(Type, PurchLine.Type::Item);
                 if PurchLine.Find('-') then
@@ -62,11 +62,11 @@ codeunit 415 "Release Purchase Document"
 
             PurchLine.SetRange("Drop Shipment", false);
             NotOnlyDropShipment := PurchLine.Find('-');
-            PurchLine.Reset;
+            PurchLine.Reset();
 
             OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode);
 
-            PurchSetup.Get;
+            PurchSetup.Get();
             if PurchSetup."Calc. Inv. Discount" then begin
                 PostingDate := "Posting Date";
                 PrintPostedDocuments := "Print Posted Documents";
@@ -145,10 +145,10 @@ codeunit 415 "Release Purchase Document"
 
         with PurchHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestPurchasePayment(PurchHeader) then begin
-                if Status <> Status::"Pending Prepayment" then begin
+                if TestStatusIsNotPendingPrepayment then begin
                     Status := Status::"Pending Prepayment";
                     Modify;
-                    Commit;
+                    Commit();
                 end;
                 Error(Text005, "Document Type", "No.");
             end;

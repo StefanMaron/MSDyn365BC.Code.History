@@ -18,11 +18,11 @@ report 5696 "Date Compress FA Ledger"
             begin
                 if "FA No." <> '' then begin
                     if "FA Posting Category" <> "FA Posting Category"::" " then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     case "FA Posting Type" of
                         "FA Posting Type"::"Proceeds on Disposal",
                       "FA Posting Type"::"Gain/Loss":
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                 end;
                 FALedgEntry2 := "FA Ledger Entry";
@@ -43,7 +43,7 @@ report 5696 "Date Compress FA Ledger"
 
                     LastEntryNo := LastEntryNo + 1;
 
-                    NewFALedgEntry.Init;
+                    NewFALedgEntry.Init();
                     NewFALedgEntry."Entry No." := LastEntryNo;
                     NewFALedgEntry."FA No." := "FA No.";
                     NewFALedgEntry."Depreciation Book Code" := "Depreciation Book Code";
@@ -119,7 +119,7 @@ report 5696 "Date Compress FA Ledger"
                 GLSetup: Record "General Ledger Setup";
             begin
                 if not Confirm(Text001, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text004, EntrdDateComprReg.FieldCaption("Ending Date"));
@@ -131,13 +131,13 @@ report 5696 "Date Compress FA Ledger"
                   Text008 +
                   Text009);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress FA Ledger");
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress FA Ledger", '', TempSelectedDim);
                 FADimMgt.GetSelectedDim(TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[4] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress FA Ledger", '', GLSetup."Global Dimension 1 Code");
@@ -145,12 +145,11 @@ report 5696 "Date Compress FA Ledger"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress FA Ledger", '', GLSetup."Global Dimension 2 Code");
 
-                NewFALedgEntry.LockTable;
-                FAReg.LockTable;
-                DateComprReg.LockTable;
+                NewFALedgEntry.LockTable();
+                FAReg.LockTable();
+                DateComprReg.LockTable();
 
-                if FALedgEntry2.Find('+') then;
-                LastEntryNo := FALedgEntry2."Entry No.";
+                LastEntryNo := FALedgEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("FA Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -321,9 +320,8 @@ report 5696 "Date Compress FA Ledger"
 
     local procedure InitRegisters()
     begin
-        if FAReg.Find('+') then;
-        FAReg.Init;
-        FAReg."No." := FAReg."No." + 1;
+        FAReg.Init();
+        FAReg."No." := FAReg.GetLastEntryNo() + 1;
         FAReg."Creation Date" := Today;
         FAReg."Creation Time" := Time;
         FAReg."Journal Type" := FAReg."Journal Type"::"Fixed Asset";
@@ -331,9 +329,8 @@ report 5696 "Date Compress FA Ledger"
         FAReg."User ID" := UserId;
         FAReg."From Entry No." := LastEntryNo + 1;
 
-        if DateComprReg.FindLast then;
         DateComprReg.InitRegister(
-          DATABASE::"FA Ledger Entry", DateComprReg."No." + 1, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date",
+          DATABASE::"FA Ledger Entry", DateComprReg.GetLastEntryNo() + 1, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date",
           EntrdDateComprReg."Period Length", FALedgEntryFilter, FAReg."No.", SourceCodeSetup."Compress FA Ledger");
 
         for i := 1 to NoOfFields do
@@ -355,29 +352,26 @@ report 5696 "Date Compress FA Ledger"
         FAReg."To Entry No." := NewFALedgEntry."Entry No.";
 
         if FARegExists then begin
-            FAReg.Modify;
-            DateComprReg.Modify;
+            FAReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            FAReg.Insert;
-            DateComprReg.Insert;
+            FAReg.Insert();
+            DateComprReg.Insert();
             FARegExists := true;
         end;
-        FALedgEntry2.Reset;
-        if FALedgEntry2.Find('+') then;
-        LastEntryNo := FALedgEntry2."Entry No.";
-        Commit;
+        FALedgEntry2.Reset();
+        LastEntryNo := FALedgEntry2.GetLastEntryNo();
+        Commit();
 
-        NewFALedgEntry.LockTable;
-        FAReg.LockTable;
-        DateComprReg.LockTable;
+        NewFALedgEntry.LockTable();
+        FAReg.LockTable();
+        DateComprReg.LockTable();
 
-        if FALedgEntry2.Find('+') then;
-        if LastEntryNo <> FALedgEntry2."Entry No." then
+        if LastEntryNo <> FALedgEntry2.GetLastEntryNo() then
             Error(
               Text011, FALedgEntry2.TableCaption);
 
-        if FAReg2.FindLast then;
-        if FAReg."No." <> FAReg2."No." then
+        if FAReg."No." <> FAReg2.GetLastEntryNo() then
             Error(
               Text011, FAReg.TableCaption);
     end;
@@ -406,7 +400,7 @@ report 5696 "Date Compress FA Ledger"
         FALedgEntry: Record "FA Ledger Entry";
         EqualPostingType: Boolean;
     begin
-        FALedgEntryTmp.DeleteAll;
+        FALedgEntryTmp.DeleteAll();
         with FALedgEntry do begin
             SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
             SetRange("FA No.", FALedgEntry2."FA No.");
@@ -421,7 +415,7 @@ report 5696 "Date Compress FA Ledger"
                   (FALedgEntry2."Part of Depreciable Basis" = "Part of Depreciable Basis");
                 if EqualPostingType then begin
                     FALedgEntryTmp."Entry No." := "Entry No.";
-                    FALedgEntryTmp.Insert;
+                    FALedgEntryTmp.Insert();
                 end;
             until (Next = 0) or not EqualPostingType;
         end;
@@ -443,11 +437,11 @@ report 5696 "Date Compress FA Ledger"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         FADimMgt.GetDimensions(TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewFALedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        NewFALedgEntry.Insert;
+        NewFALedgEntry.Insert();
         if NewFALedgEntry."FA No." <> '' then
             FACheckConsistency.SetFAPostingDate(NewFALedgEntry, false);
     end;

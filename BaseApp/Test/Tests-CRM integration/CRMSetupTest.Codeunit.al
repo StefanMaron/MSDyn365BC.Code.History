@@ -117,7 +117,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [GIVEN] Enabled CRM Connection
         // [GIVEN] CRM Connection is not registered
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Is Enabled", true);
         CRMConnectionSetup.UnregisterConnection;
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM));
@@ -150,9 +150,9 @@ codeunit 139160 "CRM Setup Test"
         MockCRMConnectionSetupWithEnableValidConnection;
 
         // [GIVEN] "LCY Code" doesn't match ISO code og CRM base currency (cause failure on connection enabling)
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."LCY Code" := 'XXX';
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // [WHEN] running IsCRMIntegrationEnabled()
         CRMIntegrationManagement.ClearState;
@@ -160,7 +160,7 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] Runtime error on enabling connection: '...does not match ISO Currency Code...'
         Assert.ExpectedError(NotMatchCurrencyCodeErr);
         // [THEN] Response is 'Yes', "Is Enabled" is 'No', "Restore Connection" is 'No'
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Restore Connection", false);
         CRMConnectionSetup.TestField("Is Enabled", false);
     end;
@@ -190,7 +190,7 @@ codeunit 139160 "CRM Setup Test"
           'Expected Integration to be enabled.');
 
         // [THEN] Response is 'Yes', "Is Enabled" is 'Yes', "Restore Connection" is 'No'
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Restore Connection", false);
         CRMConnectionSetup.TestField("Is Enabled", true);
     end;
@@ -217,7 +217,7 @@ codeunit 139160 "CRM Setup Test"
           'Expected Integration to be disabled.');
 
         // [THEN] Response is 'No', "Is Enabled" is 'No', "Restore Connection" is 'No'
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Restore Connection", false);
         CRMConnectionSetup.TestField("Is Enabled", false);
     end;
@@ -319,10 +319,10 @@ codeunit 139160 "CRM Setup Test"
         // [FEATURE] [UT]
         Initialize;
 
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."User Name" := 'tester@domain.net';
         CRMConnectionSetup.SetPassword('T3sting!');
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
 
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
         Assert.ExpectedError(StrSubstNo(URLNamePswNeededErr, CRMProductName.SHORT));
@@ -338,10 +338,10 @@ codeunit 139160 "CRM Setup Test"
         // [FEATURE] [UT]
         Initialize;
 
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := '@@test@@';
         CRMConnectionSetup.SetPassword('T3sting!');
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
 
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
         Assert.ExpectedError(StrSubstNo(URLNamePswNeededErr, CRMProductName.SHORT));
@@ -357,10 +357,10 @@ codeunit 139160 "CRM Setup Test"
         // [FEATURE] [UT]
         Initialize;
 
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := '@@test@@';
         CRMConnectionSetup."User Name" := 'tester@domain.net';
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
 
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
         Assert.ExpectedError(StrSubstNo(URLNamePswNeededErr, CRMProductName.SHORT));
@@ -378,11 +378,11 @@ codeunit 139160 "CRM Setup Test"
         LibraryCRMIntegration.UnbindMockConnection;
 
         // Enter details in the page and enable the connection
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := 'https://nocrmhere.gov';
         CRMConnectionSetup.Validate("User Name", 'tester@domain.net');
         CRMConnectionSetup.SetPassword('T3sting!');
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
 
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
         Assert.ExpectedError(ConnectionErr);
@@ -403,11 +403,11 @@ codeunit 139160 "CRM Setup Test"
         Assert.TableIsEmpty(DATABASE::"Integration Table Mapping");
 
         // [GIVEN] Connection is disabled
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         InitSetup(false, '');
 
         // [WHEN] Enable the connection
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Is Enabled", true);
 
         // [THEN] Table Mapping is filled
@@ -429,7 +429,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [GIVEN] CRM Organization, where BaseCurrencySymbol = 'ABC', BaseCurrencyId = 'X', BaseCurrencyPrecision = 2
         LibraryCRMIntegration.CreateCRMOrganizationWithCurrencyPrecision(2);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         // [GIVEN] CRM Connection Setup, where BaseCurrencySymbol = '', BaseCurrencyId = <null>, BaseCurrencyPrecision = 0
         Clear(CRMOrganization);
         VerifyCurrencyData(CRMConnectionSetup, CRMOrganization);
@@ -472,18 +472,18 @@ codeunit 139160 "CRM Setup Test"
         CRMOrganization.FindFirst;
         CRMTransactioncurrency.Get(CRMOrganization.BaseCurrencyId);
         CRMTransactioncurrency.ISOCurrencyCode := 'USD';
-        CRMTransactioncurrency.Modify;
+        CRMTransactioncurrency.Modify();
 
         // [GIVEN] LCY is 'GBP'
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."LCY Code" := 'GBP';
-        GLSetup.Modify;
+        GLSetup.Modify();
 
         // [GIVEN] CRM Connection Setup is set, but not enabled
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', false);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.SetPassword('value');
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [WHEN] Enable connection on CRM Connection Setup
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
@@ -504,12 +504,12 @@ codeunit 139160 "CRM Setup Test"
         Initialize;
         LibraryCRMIntegration.RegisterTestTableConnection;
         LibraryCRMIntegration.EnsureCRMSystemUser;
-        CRMConnectionSetup.DeleteAll;
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.DeleteAll();
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := '@@test@@';
         CRMConnectionSetup.Validate("User Name", 'tester@domain.net');
         CRMConnectionSetup.SetPassword('value');
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
 
         CRMConnectionSetup.PerformTestConnection;
     end;
@@ -531,14 +531,14 @@ codeunit 139160 "CRM Setup Test"
         // [GIVEN] Two Table Mappings, where "Integration Table UID Fld. No." is of type GUID and Option.
         IntegrationTableMapping.DeleteAll(true);
 
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := '1';
         IntegrationTableMapping."Table ID" := DATABASE::Customer;
         IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
         IntegrationTableMapping.Validate("Integration Table UID Fld. No.", 1);
         IntegrationTableMapping.Insert(true);
 
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := '2';
         IntegrationTableMapping."Table ID" := DATABASE::"Shipping Agent";
         IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
@@ -546,16 +546,16 @@ codeunit 139160 "CRM Setup Test"
         IntegrationTableMapping.Insert(true);
 
         // [GIVEN] The mapping to the option field has one related record in "CRM Option Mapping" table
-        ShippingAgent.Init;
+        ShippingAgent.Init();
         ShippingAgent.Code := LibraryUtility.GenerateGUID;
-        ShippingAgent.Insert;
+        ShippingAgent.Insert();
 
-        CRMOptionMapping.Init;
+        CRMOptionMapping.Init();
         CRMOptionMapping."Record ID" := ShippingAgent.RecordId;
         CRMOptionMapping."Table ID" := DATABASE::"Shipping Agent";
         CRMOptionMapping."Option Value" := -1;
         CRMOptionMapping."Option Value Caption" := Format(CRMOptionMapping."Option Value") + ShippingAgent.Code;
-        CRMOptionMapping.Insert;
+        CRMOptionMapping.Insert();
         // Expected values for CRMOptionMappingModalHandler
         LibraryVariableStorage.Enqueue(Format(ShippingAgent.RecordId));
         LibraryVariableStorage.Enqueue(CRMOptionMapping."Option Value");
@@ -603,7 +603,7 @@ codeunit 139160 "CRM Setup Test"
         // [GIVEN] No Integration Table Mapping records
         // [GIVEN] No Job Queue Entry records
         IntegrationTableMapping.DeleteAll(true);
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
 
@@ -634,7 +634,7 @@ codeunit 139160 "CRM Setup Test"
         Initialize;
         LibraryCRMIntegration.ConfigureCRM;
 
-        IntegrationRecord.DeleteAll;
+        IntegrationRecord.DeleteAll();
 
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
         CRMConnectionSetup.OpenEdit;
@@ -698,12 +698,12 @@ codeunit 139160 "CRM Setup Test"
         // [FEATURE] [UI]
         // [GIVEN] Application Area is set to Basic for the current user
         ApplicationAreaSetup.SetRange("User ID", UserId);
-        ApplicationAreaSetup.DeleteAll;
+        ApplicationAreaSetup.DeleteAll();
 
-        ApplicationAreaSetup.Init;
+        ApplicationAreaSetup.Init();
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Basic := true;
-        ApplicationAreaSetup.Insert;
+        ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // [WHEN] Open CRM Connection Setup page
@@ -842,7 +842,7 @@ codeunit 139160 "CRM Setup Test"
         Initialize;
         // [GIVEN] CRM Connection Setup, where "Is Enabled" = Yes, "Is CRM Solution Installed" = No
         InitSetup(true, '');
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup."Is CRM Solution Installed" := false;
 
         // [GIVEN] 4 Job Queue Entries: 3 are for CRM Integration, 3 of them active, 1 are running "CRM Statistics Job"
@@ -1036,11 +1036,11 @@ codeunit 139160 "CRM Setup Test"
         LibraryCRMIntegration.RegisterTestTableConnection;
         LibraryCRMIntegration.EnsureCRMSystemUser;
 
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         InitSetup(true, '');
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup."Is User Mapping Required" := true;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         // [GIVEN] Open CRM Connection Setup page
         CRMConnectionSetupPage.OpenEdit;
         // [WHEN] Run "Test Connection" action
@@ -1101,6 +1101,7 @@ codeunit 139160 "CRM Setup Test"
     var
         IntegrationSynchJob: Record "Integration Synch. Job";
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMConnectionSetupTestPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [UI]
@@ -1109,6 +1110,8 @@ codeunit 139160 "CRM Setup Test"
         if not CRMConnectionSetup.Get then
             LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
 
+        CDSConnectionSetup.DeleteAll();
+        CRMConnectionSetup.RegisterConnection();
         CreateTableMapping;
 
         CRMConnectionSetupTestPage.OpenEdit;
@@ -1116,31 +1119,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupTestPage.SynchronizeNow.Invoke;
 
         Assert.AreEqual(3, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
-    end;
-
-    [Test]
-    [HandlerFunctions('CRMSystemUserListHandler')]
-    [Scope('OnPrem')]
-    procedure CoupleUsersActionOpensCRMSystemUsersList()
-    var
-        CRMConnectionSetupTestPage: TestPage "CRM Connection Setup";
-    begin
-        // [FEATURE] [UI] [Salesperson]
-        // [SCENARIO] Action "Couple Salespersons" should open CRM System User List, where coupling controls are enabled
-        Initialize;
-        LibraryCRMIntegration.RegisterTestTableConnection;
-        // [GIVEN] There is a record in CRM Systemuser table
-        LibraryCRMIntegration.EnsureCRMSystemUser;
-        // [GIVEN] "CRM Connection Setup" page is open
-        CRMConnectionSetupTestPage.OpenEdit;
-
-        // [WHEN] Run action "Couple Salespersons"
-        CRMConnectionSetupTestPage.CoupleUsers.Invoke;
-
-        // [THEN] CRM System User List is open, where Salesperson Code column is editable, action Couple is enabled
-        // returned by CRMSystemUserListHandler
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Salesperson Code column should be editable.');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Couple action should be enabled.');
+        InitializeCDSConnectionSetup();
     end;
 
     [Test]
@@ -1153,13 +1132,12 @@ codeunit 139160 "CRM Setup Test"
         // [FEATURE] [UT]
         // [SCENARIO 178384] Init Value of "Is User Mapping Required" should be 'No' by default in CRM Connection Setup
         Initialize;
-        CRMConnectionSetup.Init;
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Init();
+        CRMConnectionSetup.Insert();
         CRMConnectionSetup.TestField("Is User Mapping Required", false);
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure EnableCRMJobQueueEntriesOnEnableCRMConnection()
     var
@@ -1171,16 +1149,19 @@ codeunit 139160 "CRM Setup Test"
 
         // [GIVEN] CRM Connection Setup with Integration Table Mapping and CRM Job Queue Entries
         CreateCRMConnectionSetup;
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         InitSetup(false, '');
 
         // [WHEN] Enable the connection
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Is Enabled", true);
         CRMConnectionSetup.Modify(true);
 
         // [THEN] All CRM Job Queue Entries has Status = Ready
         VerifyJobQueueEntriesStatusIsReady;
+        CRMConnectionSetup.Validate("Is Enabled", false);
+        CRMConnectionSetup.Modify(true);
+        CRMConnectionSetup.Delete();
     end;
 
     [Test]
@@ -1195,11 +1176,11 @@ codeunit 139160 "CRM Setup Test"
 
         // [GIVEN] CRM Connection Setup with Integration Table Mapping and CRM Job Queue Entries
         CreateCRMConnectionSetup;
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         InitSetup(true, '');
 
         // [WHEN] Disable the connection
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Is Enabled", false);
         CRMConnectionSetup.Modify(true);
 
@@ -1223,7 +1204,7 @@ codeunit 139160 "CRM Setup Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         // [GIVEN] CRM Connection Setup
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
 
         // [GIVEN] CRM User "CU" with email "EMAIL"
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser);
@@ -1231,11 +1212,11 @@ codeunit 139160 "CRM Setup Test"
         // [GIVEN] Current user has Authentication Email = "EMAIL"
         LibraryPermissions.CreateWindowsUser(User, UserId);
         User.Validate("Authentication Email", CRMSystemuser.InternalEMailAddress);
-        User.Modify;
+        User.Modify();
 
         // [WHEN] User Mapping is enabled
         CRMConnectionSetup."Is User Mapping Required" := true;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [THEN] CRM Connection setup page with Is User Mapped To CRM User = TRUE
         CRMConnectionSetupPage.OpenView;
@@ -1343,11 +1324,11 @@ codeunit 139160 "CRM Setup Test"
     [HandlerFunctions('ConfirmYes,MessageOk')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure AutoCreateSalesOrdersJobQueueEntryDoesNotCreatedOnResetConfiguration()
+    procedure AutoCreateSalesOrdersJobQueueEntryIsNotCreatedOnResetConfiguration()
     var
         CRMConnectionSetup: TestPage "CRM Connection Setup";
     begin
-        // [SCENARIO 229986] Job queue entry for codeunit "Auto Create Sales Orders" does not created while resetting configuration if CRMConnectionSetup."Auto Create Sales Orders" = FALSE
+        // [SCENARIO 229986] Job queue entry for codeunit "Auto Create Sales Orders" is not created while resetting configuration if CRMConnectionSetup."Auto Create Sales Orders" = FALSE
         Initialize;
 
         // [GIVEN] New CRM connection setup
@@ -1365,6 +1346,61 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] Job queue entry for codeunit "Auto Create Sales Orders" does not created
         VerifyAutoCreateSalesOrdersJobQueueEntryDoesNotExist;
     end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYes,MessageOk')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure AutoProcessSalesQuotesJobQueueEntryCreatedOnResetConfiguration()
+    var
+        CRMConnectionSetup: TestPage "CRM Connection Setup";
+    begin
+        // [SCENARIO 229986] Job queue entry for codeunit "Auto Process Sales Quotes" created while resetting configuration if CRMConnectionSetup."Auto Process Sales Quotes" = TRUE
+        Initialize;
+
+        // [GIVEN] New CRM connection setup
+        PrepareNewConnectionSetup;
+
+        // [GIVEN] CRMConnectionSetup."Auto Process Sales Quotes" = TRUE
+        SetAutoProcessSalesQuotes(true);
+
+        // [GIVEN] Open CRM connection setup page
+        CRMConnectionSetup.OpenEdit;
+
+        // [WHEN] Reset configuration action is being clicked
+        CRMConnectionSetup.ResetConfiguration.Invoke;
+
+        // [THEN] Job queue entry for codeunit "Auto Process Sales Quotes" created
+        VerifyAutoProcessSalesQuotesJobQueueEntryExists();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYes,MessageOk')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure AutoProcessSalesQuotesJobQueueEntryIsNotCreatedOnResetConfiguration()
+    var
+        CRMConnectionSetup: TestPage "CRM Connection Setup";
+    begin
+        // [SCENARIO 229986] Job queue entry for codeunit "Auto Process Sales Quotes" is not created while resetting configuration if CRMConnectionSetup."Auto Process Sales Quotes" = FALSE
+        Initialize;
+
+        // [GIVEN] New CRM connection setup
+        PrepareNewConnectionSetup;
+
+        // [GIVEN] CRMConnectionSetup."Auto Process Sales Quotes" = FALSE
+        SetAutoProcessSalesQuotes(false);
+
+        // [GIVEN] Open CRM connection setup page
+        CRMConnectionSetup.OpenEdit;
+
+        // [WHEN] Reset configuration action is being clicked
+        CRMConnectionSetup.ResetConfiguration.Invoke;
+
+        // [THEN] Job queue entry for codeunit "Auto Process Sales Quotes" does not created
+        VerifyAutoProcessSalesQuotesJobQueueEntryDoesNotExist();
+    end;
+
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1436,7 +1472,7 @@ codeunit 139160 "CRM Setup Test"
         // [FEATURE] [UI]
         // [SCENARIO 229986] Setting CRMConnectionSetup."Auto Create Sales Orders" = TRUE makes job queue entry created
         Initialize;
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
         // [GIVEN] CRM Connection Enabled and Sales Order Integration enabled
         LibraryCRMIntegration.ConfigureCRM;
@@ -1449,7 +1485,7 @@ codeunit 139160 "CRM Setup Test"
         // [WHEN] Set "Auto Create Sales Orders" = TRUE
         CRMConnectionSetupPage."Auto Create Sales Orders".SetValue(true);
 
-        // [THEN] Job queue entry created with Object ID to Run = "Process Sbmt. CRM Sales Orders"
+        // [THEN] Job queue entry created with Object ID to Run = "Auto Create Sales Orders"
         VerifyAutoCreateSalesOrdersJobQueueEntryExists;
     end;
 
@@ -1464,7 +1500,7 @@ codeunit 139160 "CRM Setup Test"
         // [FEATURE] [UI]
         // [SCENARIO 229986] Setting CRMConnectionSetup."Auto Create Sales Orders" = FALSE makes job queue entry deleted
         Initialize;
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
         // [GIVEN] CRM Connection Enabled and Sales Order Integration enabled
         LibraryCRMIntegration.ConfigureCRM;
@@ -1480,8 +1516,65 @@ codeunit 139160 "CRM Setup Test"
         // [WHEN] Set "Auto Create Sales Orders" = FALSE
         CRMConnectionSetupPage."Auto Create Sales Orders".SetValue(false);
 
-        // [THEN] Job queue entry does not exist with Object ID to Run = "Process Sbmt. CRM Sales Orders"
+        // [THEN] Job queue entry does not exist with Object ID to Run = "Auto Create Sales Orders"
         VerifyAutoCreateSalesOrdersJobQueueEntryDoesNotExist;
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure EnablingAutoProcessSalesQuotesMakesJobQueueEntryCreated()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        CRMConnectionSetupPage: TestPage "CRM Connection Setup";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 229986] Setting CRMConnectionSetup."Auto Process Sales Quotes" = TRUE makes job queue entry created
+        Initialize;
+        JobQueueEntry.DeleteAll();
+
+        // [GIVEN] CRM Connection Enabled
+        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.CreateCRMOrganization;
+
+        // [GIVEN] Opened CRM Connection Setup page
+        CRMConnectionSetupPage.OpenEdit;
+
+        // [WHEN] Set "Auto Process Sales Quotes" = TRUE
+        CRMConnectionSetupPage."Auto Process Sales Quotes".SetValue(true);
+
+        // [THEN] Job queue entry created with Object ID to Run = "Auto Process Sales Quotes"
+        VerifyAutoProcessSalesQuotesJobQueueEntryExists();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure DisablingAutoProcessSalesQuotesMakesJobQueueEntryDeleted()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        CRMConnectionSetupPage: TestPage "CRM Connection Setup";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 229986] Setting CRMConnectionSetup."Auto Process Sales Quotes" = TRUE makes job queue entry created
+        Initialize;
+        JobQueueEntry.DeleteAll();
+
+        // [GIVEN] CRM Connection Enabled
+        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.CreateCRMOrganization;
+
+        // [GIVEN] Opened CRM Connection Setup page
+        CRMConnectionSetupPage.OpenEdit;
+
+        // [WHEN] Set "Auto Process Sales Quotes" = TRUE
+        CRMConnectionSetupPage."Auto Process Sales Quotes".SetValue(true);
+
+        // [WHEN] Set "Auto Process Sales Quotes" = FALSE
+        CRMConnectionSetupPage."Auto Process Sales Quotes".SetValue(false);
+
+        // [THEN] Job queue entry does not exist with Object ID to Run = "Auto Process Sales Quotes"
+        VerifyAutoProcessSalesQuotesJobQueueEntryDoesNotExist();
     end;
 
     [Test]
@@ -1503,6 +1596,8 @@ codeunit 139160 "CRM Setup Test"
         VerifyCodeunitInFilter(Filter, CODEUNIT::"CRM Statistics Job");
         // [THEN] Resulted filter contains codeunit 5349
         VerifyCodeunitInFilter(Filter, CODEUNIT::"Auto Create Sales Orders");
+        // [THEN] Resulted filter contains codeunit 5354
+        VerifyCodeunitInFilter(Filter, CODEUNIT::"Auto Process Sales Quotes");
     end;
 
     [Test]
@@ -1517,9 +1612,9 @@ codeunit 139160 "CRM Setup Test"
         // [SCENARIO 235022] You cannot create Integration Table Mapping with blank Name.
         Initialize;
 
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping."Table ID" := DATABASE::"Integration Table Mapping";
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
 
         IntegrationTableMappingList.OpenEdit;
         IntegrationTableMappingList.GotoRecord(IntegrationTableMapping);
@@ -1551,12 +1646,12 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage.Close;
 
         // [THEN] CRM Connection Setup record has Proxy Version = 9
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Proxy Version", 9);
 
         // [WHEN] CRM Connection Setup record has Proxy Version = 0 and CRM Connection Setup page is opened
         CRMConnectionSetup.Validate("Proxy Version", 0);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         CRMConnectionSetupPage.OpenEdit;
 
         // [THEN] SDK Version = 9 by default
@@ -1571,13 +1666,13 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetup: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Multiple SDK]
-        // [SCENARIO 234755] SDK Version selection is enabled only when connection is not enabled
+        // [SCENARIO 234755] SDK Version selection is disabled when connection is not enabled, but CDS is enabled
         Initialize;
         // [GIVEN] Connection is not enabled
         // [WHEN] Connection Setup opened and connection not enabled
         CRMConnectionSetup.OpenEdit;
         // [THEN] SDK Version field is enabled
-        Assert.IsTrue(CRMConnectionSetup.SDKVersion.Enabled, 'Expected "SDK Version" field to be enabled');
+        Assert.IsFalse(CRMConnectionSetup.SDKVersion.Enabled, 'Expected "SDK Version" field not to be enabled');
         CRMConnectionSetup.Close;
 
         // [GIVEN] Connection is enabled
@@ -1609,7 +1704,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage.SDKVersion.SetValue(8);
         CRMConnectionSetupPage.Close;
         // [THEN] Proxy Version in CRM Connection Setup record is "8"
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Proxy Version", 8);
 
         // [WHEN] SDK Version is set to "9"
@@ -1617,7 +1712,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage.SDKVersion.SetValue(9);
         CRMConnectionSetupPage.Close;
         // [THEN] Proxy Version in CRM Connection Setup record is "9"
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Proxy Version", 9);
     end;
 
@@ -1645,7 +1740,7 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] Proxy Version in Connection String is "8"
         CRMConnectionSetupPage.SDKVersion.AssertEquals(8);
         Assert.ExpectedMessage('ProxyVersion=8', CRMConnectionSetupPage."Connection String".Value);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         Assert.ExpectedMessage('ProxyVersion=8', CRMConnectionSetup.GetConnectionString);
 
         // [WHEN] Proxy Version is set to "9"
@@ -1655,7 +1750,7 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] Proxy Version in Connection String is "9"
         CRMConnectionSetupPage.SDKVersion.AssertEquals(9);
         Assert.ExpectedMessage('ProxyVersion=9', CRMConnectionSetupPage."Connection String".Value);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         Assert.ExpectedMessage('ProxyVersion=9', CRMConnectionSetup.GetConnectionString);
         CRMConnectionSetupPage.Close;
     end;
@@ -1677,7 +1772,7 @@ codeunit 139160 "CRM Setup Test"
         Assert.IsTrue(CRMIntegrationManagement.IsCRMIntegrationEnabled, CRMIntegrationEnabledStateErr);
 
         // [WHEN] Disable the connection
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Is Enabled", false);
         CRMConnectionSetup.Modify(true);
 
@@ -1699,11 +1794,11 @@ codeunit 139160 "CRM Setup Test"
         LibraryCRMIntegration.CreateCRMOrganization;
 
         // [GIVEN] Connection is disabled, "Disable Reason" = ABC
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         InitSetup(false, '');
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup."Disable Reason" := 'ABC';
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [WHEN] Enable the connection
         CRMConnectionSetup.Validate("Is Enabled", true);
@@ -1725,9 +1820,9 @@ codeunit 139160 "CRM Setup Test"
         InitSetup(false, '');
 
         // [GIVEN] CRM Connection is disabled due to reason "ABC"
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup."Disable Reason" := 'ABC';
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [WHEN] CRM Connection Setup page is opened
         CRMConnectionSetupPage.OpenEdit;
@@ -1850,6 +1945,20 @@ codeunit 139160 "CRM Setup Test"
 
         IsInitialized := true;
         SetTenantLicenseStateToTrial;
+
+        InitializeCDSConnectionSetup();
+    end;
+
+    local procedure InitializeCDSConnectionSetup()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup."Is Enabled" := true;
+        CDSConnectionSetup."Server Address" := '@@test@@';
+        CDSConnectionSetup."User Name" := 'user@test.net';
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
+        CDSConnectionSetup.Insert();
     end;
 
     local procedure AssertConnectionNotRegistered(ConnectionName: Code[10])
@@ -1888,9 +1997,9 @@ codeunit 139160 "CRM Setup Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        IntegrationTableMapping.DeleteAll;
+        IntegrationTableMapping.DeleteAll();
         CreateTableMapping;
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
         InsertJobQueueEntries;
         InsertJobQueueEntriesWithError;
         IntegrationTableMapping.FindFirst;
@@ -1909,7 +2018,7 @@ codeunit 139160 "CRM Setup Test"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."Is Enabled" := Enable;
         CRMConnectionSetup."Is CRM Solution Installed" := Enable;
         CRMConnectionSetup."Is User Mapping Required" := false;
@@ -1917,7 +2026,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetup.Validate("User Name", 'tester@domain.net');
         CRMConnectionSetup.SetPassword('Password');
         CRMConnectionSetup."CRM Version" := Version;
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
 
         if CRMConnectionSetup."Is Enabled" then
             CRMConnectionSetup.RegisterConnection;
@@ -1927,7 +2036,7 @@ codeunit 139160 "CRM Setup Test"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
         InsertJobQueueEntry(CODEUNIT::"Integration Synch. Job Runner", JobQueueEntry.Status::Ready);
         InsertJobQueueEntry(CODEUNIT::"Integration Synch. Job Runner", JobQueueEntry.Status::"In Process");
         InsertJobQueueEntry(CODEUNIT::"CRM Statistics Job", JobQueueEntry.Status::Ready);
@@ -1946,24 +2055,24 @@ codeunit 139160 "CRM Setup Test"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := ID;
         JobQueueEntry.Status := Status;
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
     end;
 
     local procedure MockCRMConnectionSetupWithEnableValidConnection()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', false);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.SetPassword('password');
         CRMConnectionSetup."Restore Connection" := true;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
     end;
 
     local procedure PrepareNewConnectionSetup()
@@ -1975,7 +2084,7 @@ codeunit 139160 "CRM Setup Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         IntegrationTableMapping.DeleteAll(true);
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
     end;
@@ -1984,8 +2093,17 @@ codeunit 139160 "CRM Setup Test"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Auto Create Sales Orders", NewAutoCreateOrders);
+        CRMConnectionSetup.Modify(true);
+    end;
+
+    local procedure SetAutoProcessSalesQuotes(NewAutoProcessQuotes: Boolean)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup.Validate("Auto Process Sales Quotes", NewAutoProcessQuotes);
         CRMConnectionSetup.Modify(true);
     end;
 
@@ -2000,20 +2118,30 @@ codeunit 139160 "CRM Setup Test"
     local procedure VerifyJobQueueEntriesStatusIsReady()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        CRMProductName: Codeunit "CRM Product Name";
     begin
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
         JobQueueEntry.FindSet;
         repeat
-            Assert.IsTrue(JobQueueEntry.Status = JobQueueEntry.Status::Ready, JobQueueEntryStatusReadyErr);
+            if JobQueueEntry.Description.Contains(CRMProductName.SHORT()) then
+                Assert.IsTrue(JobQueueEntry.Status = JobQueueEntry.Status::Ready, JobQueueEntryStatusReadyErr);
         until JobQueueEntry.Next = 0;
     end;
 
     local procedure VerifyJobQueueEntriesStatusIsOnHold()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CheckSetOnHold: Boolean;
     begin
         JobQueueEntry.FindSet;
         repeat
-            Assert.IsTrue(JobQueueEntry.Status = JobQueueEntry.Status::"On Hold", JobQueueEntryStatusOnHoldErr);
+            CheckSetOnHold := true;
+            if IntegrationTableMapping.Get(JobQueueEntry."Record ID to Process") then
+                if IntegrationTableMapping."Table ID" in [Database::Contact, Database::Customer, Database::"Salesperson/Purchaser", Database::Vendor, Database::Currency] then
+                    CheckSetOnHold := false;
+            if CheckSetOnHold then
+                Assert.IsTrue(JobQueueEntry.Status = JobQueueEntry.Status::"On Hold", JobQueueEntryStatusOnHoldErr);
         until JobQueueEntry.Next = 0;
     end;
 
@@ -2023,7 +2151,7 @@ codeunit 139160 "CRM Setup Test"
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Auto Create Sales Orders");
-        JobQueueEntry.FindFirst;
+        Assert.RecordIsNotEmpty(JobQueueEntry);
     end;
 
     local procedure VerifyAutoCreateSalesOrdersJobQueueEntryDoesNotExist()
@@ -2032,6 +2160,24 @@ codeunit 139160 "CRM Setup Test"
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Auto Create Sales Orders");
+        Assert.RecordIsEmpty(JobQueueEntry);
+    end;
+
+    local procedure VerifyAutoProcessSalesQuotesJobQueueEntryExists()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Auto Process Sales Quotes");
+        Assert.RecordIsNotEmpty(JobQueueEntry);
+    end;
+
+    local procedure VerifyAutoProcessSalesQuotesJobQueueEntryDoesNotExist()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Auto Process Sales Quotes");
         Assert.RecordIsEmpty(JobQueueEntry);
     end;
 
@@ -2053,7 +2199,7 @@ codeunit 139160 "CRM Setup Test"
     begin
         CRMOrganization.FindFirst;
         CRMOrganization.IsSOPIntegrationEnabled := EnabledSalesOrderIntegration;
-        CRMOrganization.Modify;
+        CRMOrganization.Modify();
     end;
 
     [ConfirmHandler]
@@ -2131,7 +2277,7 @@ codeunit 139160 "CRM Setup Test"
     begin
         TenantLicenseState."Start Date" := CurrentDateTime;
         TenantLicenseState.State := TenantLicenseState.State::Trial;
-        TenantLicenseState.Insert;
+        TenantLicenseState.Insert();
     end;
 }
 

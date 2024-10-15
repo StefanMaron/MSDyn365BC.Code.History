@@ -18,11 +18,9 @@ table 5612 "FA Depreciation Book"
             NotBlank = true;
             TableRelation = "Depreciation Book";
         }
-        field(3; "Depreciation Method"; Option)
+        field(3; "Depreciation Method"; Enum "FA Depreciation Method")
         {
             Caption = 'Depreciation Method';
-            OptionCaption = 'Straight-Line,Declining-Balance 1,Declining-Balance 2,DB1/SL,DB2/SL,User-Defined,Manual';
-            OptionMembers = "Straight-Line","Declining-Balance 1","Declining-Balance 2","DB1/SL","DB2/SL","User-Defined",Manual;
 
             trigger OnValidate()
             begin
@@ -722,9 +720,9 @@ table 5612 "FA Depreciation Book"
         "Last Custom 2 Date" := 0D;
         "Disposal Date" := 0D;
         "Last Maintenance Date" := 0D;
-        LockTable;
-        FA.LockTable;
-        DeprBook.LockTable;
+        LockTable();
+        FA.LockTable();
+        DeprBook.LockTable();
         FA.Get("FA No.");
         DeprBook.Get("Depreciation Book Code");
         Description := FA.Description;
@@ -738,8 +736,8 @@ table 5612 "FA Depreciation Book"
     trigger OnModify()
     begin
         "Last Date Modified" := Today;
-        LockTable;
-        DeprBook.LockTable;
+        LockTable();
+        DeprBook.LockTable();
         DeprBook.Get("Depreciation Book Code");
         if ("No. of Depreciation Years" <> 0) or ("No. of Depreciation Months" <> 0) then
             DeprBook.TestField("Fiscal Year 365 Days", false);
@@ -927,7 +925,7 @@ table 5612 "FA Depreciation Book"
     begin
         if "Disposal Date" > 0D then begin
             Clear(TempFALedgEntry);
-            TempFALedgEntry.DeleteAll;
+            TempFALedgEntry.DeleteAll();
             TempFALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
             DepreciationCalc.SetFAFilter(FALedgEntry, "FA No.", "Depreciation Book Code", false);
             SetBookValueAfterDisposalFiltersOnFALedgerEntry(FALedgEntry);
@@ -959,7 +957,7 @@ table 5612 "FA Depreciation Book"
         FADepreciationBook: Record "FA Depreciation Book";
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         exit(FADepreciationBook.Get(FANo, FASetup."Default Depr. Book") and FADepreciationBook.RecIsReadyForAcquisition);
     end;
 
@@ -967,7 +965,7 @@ table 5612 "FA Depreciation Book"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         if ("Depreciation Book Code" = FASetup."Default Depr. Book") and
            ("FA Posting Group" <> '') and
            ("Depreciation Starting Date" > 0D)

@@ -106,7 +106,7 @@ report 32000004 "Export Ref. Payment -  LUM"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyInfo.TestField("Business Identity Code");
                 TransferFile.TextMode := true;
                 ServerFileName := FileMgt.ServerTempFileName('txt');
@@ -139,11 +139,11 @@ report 32000004 "Export Ref. Payment -  LUM"
                     Error('');
                 Erase(ServerFileName);
             end;
-            RefPmtExport.Reset;
+            RefPmtExport.Reset();
             RefPmtExport.SetRange("Foreign Payment", true);
             RefPmtExport.ModifyAll(Transferred, true);
             RefPmtExport.ModifyAll("Applied Payments", false);
-            RefPmtExport.Modify;
+            RefPmtExport.Modify();
         end else
             Message(Text1090006);
     end;
@@ -291,7 +291,7 @@ report 32000004 "Export Ref. Payment -  LUM"
                     RefPmtExport."Payment Date" := BatchDate;
                 PaymentsQty := IncStr(PaymentsQty);
                 RefPmtExport.Transferred := true;
-                RefPmtExport.Modify;
+                RefPmtExport.Modify();
                 RefPmtExport.MarkAffiliatedAsTransferred;
             until RefPmtExport.Next = 0;
     end;

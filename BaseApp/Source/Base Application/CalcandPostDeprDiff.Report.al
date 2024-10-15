@@ -15,9 +15,6 @@ report 13402 "Calc. and Post Depr. Diff."
             column(CompanyName; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(PageNumber; CurrReport.PageNo)
-            {
-            }
             column(FixedAssetFAFilter; FixedAsset.TableCaption + ': ' + FAFilter)
             {
             }
@@ -80,7 +77,7 @@ report 13402 "Calc. and Post Depr. Diff."
                 DifferenceAmt := 0;
 
                 if not (FADeprBook1.Get("No.", DeprBookCode1) and FADeprBook2.Get("No.", DeprBookCode2)) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TestField("FA Posting Group", FADeprBook1."FA Posting Group");
                 if FADeprBook2."FA Posting Group" <> '' then
@@ -92,7 +89,7 @@ report 13402 "Calc. and Post Depr. Diff."
                     if FAPostingGroup."Depr. Difference Bal. Acc." = '' then
                         Error(Text13407, FAPostingGroup.Code);
 
-                    FALedgerEntry.Reset;
+                    FALedgerEntry.Reset();
                     FALedgerEntry.SetCurrentKey("FA No.", "FA Posting Group", "Depreciation Book Code",
                       "FA Posting Category", "FA Posting Type", "Posting Date", "Depr. Difference Posted");
                     FALedgerEntry.SetRange("FA No.", "No.");
@@ -107,7 +104,7 @@ report 13402 "Calc. and Post Depr. Diff."
                     if PostDeprDiff then
                         FALedgerEntry.ModifyAll("Depr. Difference Posted", true);
 
-                    FALedgerEntry.Reset;
+                    FALedgerEntry.Reset();
                     FALedgerEntry.SetCurrentKey("FA No.", "FA Posting Group", "Depreciation Book Code",
                       "FA Posting Category", "FA Posting Type", "Posting Date", "Depr. Difference Posted");
                     FALedgerEntry.SetRange("FA No.", "No.");
@@ -127,14 +124,14 @@ report 13402 "Calc. and Post Depr. Diff."
                     if ((DeprBookAmt1 <> 0) or (DeprBookAmt2 <> 0)) and (PrintEmptyLines or (DifferenceAmt <> 0)) then
                         InsertDifferenceBuffer
                     else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             end;
 
             trigger OnPostDataItem()
             begin
                 if PostDeprDiff then begin
-                    DeprDiffPostingBuffer.Reset;
+                    DeprDiffPostingBuffer.Reset();
                     if DeprDiffPostingBuffer.FindSet then begin
                         repeat
                             PostJournalLines(DeprDiffPostingBuffer);
@@ -144,7 +141,7 @@ report 13402 "Calc. and Post Depr. Diff."
                         Message(Text13412);
                 end;
 
-                DeprDiffPostingBuffer.DeleteAll;
+                DeprDiffPostingBuffer.DeleteAll();
             end;
 
             trigger OnPreDataItem()
@@ -323,7 +320,7 @@ report 13402 "Calc. and Post Depr. Diff."
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         Clear(GenJnlLine);
         GenJnlNextLineNo := 0;
         FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
@@ -365,7 +362,7 @@ report 13402 "Calc. and Post Depr. Diff."
         DeprDiffPostingBuffer."Depreciation Amount 1" := DeprBookAmt1;
         DeprDiffPostingBuffer."Depreciation Amount 2" := DeprBookAmt2;
         DeprDiffPostingBuffer."FA No." := FixedAsset."No.";
-        DeprDiffPostingBuffer.Insert;
+        DeprDiffPostingBuffer.Insert();
     end;
 }
 

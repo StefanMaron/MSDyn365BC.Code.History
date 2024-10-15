@@ -13,7 +13,7 @@ report 32000003 "Suggest Bank Payments"
             trigger OnAfterGetRecord()
             begin
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 Window.Update(1, "No.");
                 GetVendLedgEntries(true, false);
                 GetVendLedgEntries(false, false);
@@ -53,18 +53,18 @@ report 32000003 "Suggest Bank Payments"
                     end;
                 end;
 
-                RefPmtLines.LockTable;
+                RefPmtLines.LockTable();
 
                 Window.Open(Text1090006);
 
-                PayableVendLedgEntry.Reset;
+                PayableVendLedgEntry.Reset();
                 PayableVendLedgEntry.SetFilter(Priority, '>0');
                 MakeRefPmtLines;
-                PayableVendLedgEntry.Reset;
+                PayableVendLedgEntry.Reset();
                 PayableVendLedgEntry.SetRange(Priority, 0);
                 MakeRefPmtLines;
-                PayableVendLedgEntry.Reset;
-                PayableVendLedgEntry.DeleteAll;
+                PayableVendLedgEntry.Reset();
+                PayableVendLedgEntry.DeleteAll();
 
                 Window.Close;
             end;
@@ -210,7 +210,7 @@ report 32000003 "Suggest Bank Payments"
     [Scope('OnPrem')]
     procedure GetVendLedgEntries(Positive: Boolean; Future: Boolean)
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetFilter("Document Type", '%1|%2',
@@ -248,7 +248,7 @@ report 32000003 "Suggest Bank Payments"
         PayableVendLedgEntry.Positive := (PayableVendLedgEntry.Amount > 0);
         PayableVendLedgEntry.Future := (VendLedgEntry."Due Date" > LastDueDateToPayReq);
         PayableVendLedgEntry."Currency Code" := VendLedgEntry."Currency Code";
-        PayableVendLedgEntry.Insert;
+        PayableVendLedgEntry.Insert();
         NextEntryNo := NextEntryNo + 1;
     end;
 
@@ -266,7 +266,7 @@ report 32000003 "Suggest Bank Payments"
                 if PayableVendLedgEntry."Currency Code" <> PrevCurrency then begin
                     if CurrencyBalance < 0 then begin
                         PayableVendLedgEntry.SetRange("Currency Code", PrevCurrency);
-                        PayableVendLedgEntry.DeleteAll;
+                        PayableVendLedgEntry.DeleteAll();
                         PayableVendLedgEntry.SetRange("Currency Code");
                     end else
                         AmountAvailable := AmountAvailable - CurrencyBalance;
@@ -278,11 +278,11 @@ report 32000003 "Suggest Bank Payments"
                 then
                     CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
                 else
-                    PayableVendLedgEntry.Delete;
+                    PayableVendLedgEntry.Delete();
             until PayableVendLedgEntry.Next = 0;
             if CurrencyBalance < 0 then begin
                 PayableVendLedgEntry.SetRange("Currency Code", PrevCurrency);
-                PayableVendLedgEntry.DeleteAll;
+                PayableVendLedgEntry.DeleteAll();
                 PayableVendLedgEntry.SetRange("Currency Code");
             end else
                 if OriginalAmtAvailable > 0 then
@@ -290,14 +290,13 @@ report 32000003 "Suggest Bank Payments"
             if (OriginalAmtAvailable > 0) and (AmountAvailable <= 0) then
                 StopPayments := true;
         end;
-        PayableVendLedgEntry.Reset;
+        PayableVendLedgEntry.Reset();
     end;
 
     local procedure MakeRefPmtLines()
     begin
-        PurchRefLines.Reset;
-        if PurchRefLines.FindLast then
-            NextEntryNo := PurchRefLines."No." + 1;
+        PurchRefLines.Reset();
+        NextEntryNo := PurchRefLines.GetLastEntryNo() + 1;
 
         if PayableVendLedgEntry.FindSet then
             repeat

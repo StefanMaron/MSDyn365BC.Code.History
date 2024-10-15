@@ -108,7 +108,7 @@ codeunit 132221 "EventSubscriber Invoicing App"
         if DT2Date(JobQueueEntry."Earliest Start Date/Time") = Today then
             if not (JobQueueEntry.Status in [JobQueueEntry.Status::Error, JobQueueEntry.Status::Finished]) then begin
                 JobQueueEntry.Validate(Status, JobQueueEntry.Status::Ready);
-                JobQueueEntry.Modify;
+                JobQueueEntry.Modify();
                 CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
             end;
     end;

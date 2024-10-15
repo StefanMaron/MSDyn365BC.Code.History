@@ -243,7 +243,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         StandardGeneralJournal.FindFirst;
 
         // 2. Exercise: Run Create Vendor Journal Lines Report.
-        Commit;  // COMMIT is required for Write Transaction Error.
+        Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.UseRequestPage(false);
         Vendor.SetRange("No.", Vendor."No.");
@@ -331,7 +331,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account",
           CreateGLAccountNoPurchase, 0, '', LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bill-to/Pay-to No.", '');
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         DocumentNo := GenJournalLine."Document No.";
 
         // [GIVEN] General Journal Line2: "Account Type" = "Customer"
@@ -340,7 +340,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer,
           LibrarySales.CreateCustomerNo, 0, '', -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post General Journal
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -368,7 +368,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account",
           CreateGLAccountNoSales, 0, '', -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bill-to/Pay-to No.", '');
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         DocumentNo := GenJournalLine."Document No.";
 
         // [GIVEN] General Journal Line2: "Account Type" = "Vendor"
@@ -377,7 +377,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor,
           LibraryPurchase.CreateVendorNo, 0, '', -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post General Journal
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -549,7 +549,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryERMCountryData.UpdateGenJournalTemplate;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndCheckEqualAmount(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
@@ -787,7 +787,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         CreateVendorJournalLines: Report "Create Vendor Journal Lines";
     begin
-        Commit;  // COMMIT is required for Write Transaction Error.
+        Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.UseRequestPage(false);
         CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice, WorkDate, WorkDate);

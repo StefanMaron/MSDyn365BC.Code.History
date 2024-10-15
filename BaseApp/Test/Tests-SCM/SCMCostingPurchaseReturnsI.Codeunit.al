@@ -30,12 +30,12 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         SalesSetup: Record "Sales & Receivables Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
     end;
@@ -329,7 +329,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         PurchaseOrderNo := PurchaseHeader."No.";
         CreateItemChargeAndCopyToTemp(TempItemCharge, NoOfCharges);
         if NoOfItems = 0 then
-            TempItem.Delete;
+            TempItem.Delete();
 
         // Make a Credit Memo for Item, Charge or both as required.
         VendorNo := PurchaseHeader."Buy-from Vendor No.";
@@ -522,7 +522,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         NoSeriesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Purchase Returns I");
     end;
 
@@ -531,7 +531,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Return Shipment on Credit Memo", true);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -547,7 +547,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
             Clear(Item);
             CreateItemWithInventory(Item, CostingMethod[Counter]);
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
     end;
 
@@ -617,7 +617,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         for Counter := 1 to NoOfCharges do begin
             LibraryInventory.CreateItemCharge(ItemCharge);
             TempItemCharge := ItemCharge;
-            TempItemCharge.Insert;
+            TempItemCharge.Insert();
         end;
     end;
 
@@ -661,7 +661,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        ItemChargeAssignmentPurch.Init;
+        ItemChargeAssignmentPurch.Init();
         ItemChargeAssignmentPurch.Validate("Document Type", PurchaseLine."Document Type");
         ItemChargeAssignmentPurch.Validate("Document No.", PurchaseLine."Document No.");
         ItemChargeAssignmentPurch.Validate("Document Line No.", PurchaseLine."Line No.");
@@ -728,14 +728,14 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         PurchaseLine.FindSet;
         repeat
             TempPurchaseLine := PurchaseLine;
-            TempPurchaseLine.Insert;
+            TempPurchaseLine.Insert();
         until PurchaseLine.Next = 0;
     end;
 
     [Normal]
     local procedure CreateCrMemo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.Insert(true);
     end;

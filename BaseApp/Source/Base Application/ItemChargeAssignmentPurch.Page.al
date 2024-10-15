@@ -461,7 +461,7 @@ page 5805 "Item Charge Assignment (Purch)"
         AssignableQty :=
           PurchLine2."Qty. to Invoice" + PurchLine2."Quantity Invoiced" - PurchLine2."Qty. Assigned";
 
-        ItemChargeAssgntPurch.Reset;
+        ItemChargeAssgntPurch.Reset();
         ItemChargeAssgntPurch.SetCurrentKey("Document Type", "Document No.", "Document Line No.");
         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");

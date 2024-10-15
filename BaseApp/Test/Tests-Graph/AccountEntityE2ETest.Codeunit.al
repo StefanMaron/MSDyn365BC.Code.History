@@ -21,7 +21,7 @@ codeunit 135501 "AccountEntity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -39,10 +39,10 @@ codeunit 135501 "AccountEntity E2E Test"
         // [GIVEN] a modified G/L Account
         Initialize;
         AccountNo := CreateAccount;
-        Commit;
+        Commit();
 
         // [WHEN] we retrieve the account from the database
-        GLAccount.Reset;
+        GLAccount.Reset();
         GLAccount.SetFilter("No.", AccountNo);
         Assert.IsTrue(GLAccount.FindFirst, 'The G/L Account should exist in the table.');
         AccountGUID := GLAccount.Id;
@@ -68,7 +68,7 @@ codeunit 135501 "AccountEntity E2E Test"
         Initialize;
         AccountNo[1] := CreateAccount;
         AccountNo[2] := CreateAccount;
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the accounts from the web service
         ClearLastError;
@@ -98,7 +98,7 @@ codeunit 135501 "AccountEntity E2E Test"
 
         // [WHEN] We look through all G/L Accounts.
         // [THEN] The integration record for the G/L Account should have the same record id.
-        GLAccount.Reset;
+        GLAccount.Reset();
         if GLAccount.Find('-') then begin
             repeat
                 Assert.IsTrue(IntegrationRecord.Get(GLAccount.SystemId), 'The GLAccount id should exist in the integration record table');

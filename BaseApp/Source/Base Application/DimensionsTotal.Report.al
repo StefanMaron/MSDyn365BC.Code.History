@@ -396,13 +396,13 @@ report 27 "Dimensions - Total"
                             trigger OnAfterGetRecord()
                             begin
                                 if not CalcLine(4) and not PrintEmptyLines then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end;
 
                             trigger OnPreDataItem()
                             begin
                                 if DimCode[4] = '' then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 FindFirstDim[4] := true;
                             end;
                         }
@@ -446,13 +446,13 @@ report 27 "Dimensions - Total"
                         trigger OnAfterGetRecord()
                         begin
                             if not CalcLine(3) and not PrintEmptyLines then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if DimCode[3] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             FindFirstDim[3] := true;
                         end;
                     }
@@ -496,13 +496,13 @@ report 27 "Dimensions - Total"
                     trigger OnAfterGetRecord()
                     begin
                         if not CalcLine(2) and not PrintEmptyLines then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if DimCode[2] = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         FindFirstDim[2] := true;
                     end;
                 }
@@ -546,13 +546,13 @@ report 27 "Dimensions - Total"
                 trigger OnAfterGetRecord()
                 begin
                     if not CalcLine(1) and not PrintEmptyLines then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if DimCode[1] = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     FindFirstDim[1] := true;
                 end;
             }
@@ -568,7 +568,7 @@ report 27 "Dimensions - Total"
                 else
                     ViewLastUpdatedText := Text005;
 
-                TempSelectedDim.Reset;
+                TempSelectedDim.Reset();
                 TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
                 TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
                 DimFilterText := '';
@@ -585,7 +585,7 @@ report 27 "Dimensions - Total"
                     until TempSelectedDim.Next = 0;
                 end;
 
-                TempSelectedDim.Reset;
+                TempSelectedDim.Reset();
                 TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
                 TempSelectedDim.SetFilter(Level, '<>%1', TempSelectedDim.Level::" ");
                 i := 1;
@@ -636,7 +636,7 @@ report 27 "Dimensions - Total"
             trigger OnPreDataItem()
             begin
                 SetRange(Code, AnalysisViewCode);
-                GLSetup.Get;
+                GLSetup.Get();
                 LCYCode := GLSetup."LCY Code";
                 AddRepCurr := GLSetup."Additional Reporting Currency";
             end;
@@ -770,7 +770,7 @@ report 27 "Dimensions - Total"
 
         trigger OnOpenPage()
         begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Additional Reporting Currency" = '' then
                 UseAmtsInAddCurr := false;
 
@@ -815,16 +815,16 @@ report 27 "Dimensions - Total"
             if AccountSource = AccountSource::"Cash Flow Account" then
                 FillTempCFAccount;
 
-        TempSelectedDim.Reset;
+        TempSelectedDim.Reset();
         TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
         TempSelectedDim.SetFilter(Level, '<>%1', TempSelectedDim.Level::" ");
         if TempSelectedDim.FindSet then begin
             repeat
-                TempDimVal.Init;
+                TempDimVal.Init();
                 TempDimVal.Code := '';
                 TempDimVal."Dimension Code" := TempSelectedDim."Dimension Code";
                 TempDimVal.Name := Text004;
-                TempDimVal.Insert;
+                TempDimVal.Insert();
                 DimVal.SetRange("Dimension Code", TempSelectedDim."Dimension Code");
                 if TempSelectedDim."Dimension Value Filter" <> '' then
                     DimVal.SetFilter(Code, TempSelectedDim."Dimension Value Filter")
@@ -832,13 +832,14 @@ report 27 "Dimensions - Total"
                     DimVal.SetRange(Code);
                 if DimVal.FindSet then
                     repeat
-                        TempDimVal.Init;
+                        TempDimVal.Init();
                         TempDimVal := DimVal;
-                        TempDimVal.Insert;
+                        TempDimVal.Insert();
                     until DimVal.Next = 0;
             until TempSelectedDim.Next = 0;
         end;
-
+        // Commit added to free resources and allowing the report to use the read only replica
+        Commit();
         AccSchedName."Analysis View Name" := AnalysisViewCode;
         AccSchedManagement.SetAccSchedName(AccSchedName);
         InitAccSchedLine;
@@ -998,7 +999,7 @@ report 27 "Dimensions - Total"
 
             exit(HasValue or CalcColumns(Level));
         end;
-        CurrReport.Break;
+        CurrReport.Break();
     end;
 
     local procedure TestCalcLine(Level: Integer; ThisFindFirstDim: Boolean): Boolean
@@ -1105,12 +1106,12 @@ report 27 "Dimensions - Total"
         SelectedDim.SetRange("Analysis View Code", AnalysisViewCode);
         if SelectedDim.FindSet then begin
             repeat
-                TempDimSelectionBuf.Init;
+                TempDimSelectionBuf.Init();
                 TempDimSelectionBuf.Code := SelectedDim."Dimension Code";
                 TempDimSelectionBuf.Selected := true;
                 TempDimSelectionBuf."Dimension Value Filter" := SelectedDim."Dimension Value Filter";
                 TempDimSelectionBuf.Level := SelectedDim.Level;
-                TempDimSelectionBuf.Insert;
+                TempDimSelectionBuf.Insert();
             until SelectedDim.Next = 0;
             TempDimSelectionBuf.SetDimSelection(
               3, REPORT::"Dimensions - Total", AnalysisViewCode, ColumnDim, TempDimSelectionBuf);
@@ -1124,7 +1125,7 @@ report 27 "Dimensions - Total"
         case IterationDimCode of
             TempGLAcc.TableCaption:
                 begin
-                    TempGLAcc.Reset;
+                    TempGLAcc.Reset();
                     TempGLAcc.SetFilter("No.", IterationFilter);
                     if FindFirst then
                         SearchResult := TempGLAcc.FindSet
@@ -1141,7 +1142,7 @@ report 27 "Dimensions - Total"
                 end;
             TempBusUnit.TableCaption:
                 begin
-                    TempBusUnit.Reset;
+                    TempBusUnit.Reset();
                     TempBusUnit.SetFilter(Code, IterationFilter);
                     if FindFirst then
                         SearchResult := TempBusUnit.FindSet
@@ -1160,7 +1161,7 @@ report 27 "Dimensions - Total"
                 end;
             TempCFAccount.TableCaption:
                 begin
-                    TempCFAccount.Reset;
+                    TempCFAccount.Reset();
                     TempCFAccount.SetFilter("No.", IterationFilter);
                     if FindFirst then
                         SearchResult := TempCFAccount.FindSet
@@ -1177,7 +1178,7 @@ report 27 "Dimensions - Total"
                 end;
             TempCashFlowForecast.TableCaption:
                 begin
-                    TempCashFlowForecast.Reset;
+                    TempCashFlowForecast.Reset();
                     TempCashFlowForecast.SetFilter("No.", IterationFilter);
                     if FindFirst then
                         SearchResult := TempCashFlowForecast.FindSet
@@ -1195,7 +1196,7 @@ report 27 "Dimensions - Total"
                     end;
                 end;
             else begin
-                    TempDimVal.Reset;
+                    TempDimVal.Reset();
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
                     if FindFirst then
@@ -1243,7 +1244,7 @@ report 27 "Dimensions - Total"
 
     local procedure FillTempGLAccount()
     begin
-        TempSelectedDim.Reset;
+        TempSelectedDim.Reset();
         TempSelectedDim.SetRange("Dimension Code", TempGLAcc.TableCaption);
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
         if TempSelectedDim.FindFirst then
@@ -1251,31 +1252,31 @@ report 27 "Dimensions - Total"
         if GLAcc.FindSet then begin
             GLAccRange := GLAcc."No.";
             repeat
-                TempGLAcc.Init;
+                TempGLAcc.Init();
                 TempGLAcc := GLAcc;
-                TempGLAcc.Insert;
+                TempGLAcc.Insert();
             until GLAcc.Next = 0;
             GLAccRange := GLAccRange + '..' + GLAcc."No.";
         end;
 
-        TempBusUnit.Init;
-        TempBusUnit.Insert;
-        TempSelectedDim.Reset;
+        TempBusUnit.Init();
+        TempBusUnit.Insert();
+        TempSelectedDim.Reset();
         TempSelectedDim.SetFilter("Dimension Code", TempBusUnit.TableCaption);
         if TempSelectedDim.FindFirst then
             TempBusUnit.SetFilter(Code, TempSelectedDim."Dimension Value Filter");
         if BusUnit.FindSet then begin
             repeat
-                TempBusUnit.Init;
+                TempBusUnit.Init();
                 TempBusUnit := BusUnit;
-                TempBusUnit.Insert;
+                TempBusUnit.Insert();
             until BusUnit.Next = 0;
         end;
     end;
 
     local procedure FillTempCFAccount()
     begin
-        TempSelectedDim.Reset;
+        TempSelectedDim.Reset();
         TempSelectedDim.SetRange("Dimension Code", TempCFAccount.TableCaption);
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
         if TempSelectedDim.FindFirst then
@@ -1283,23 +1284,23 @@ report 27 "Dimensions - Total"
         if CFAccount.FindSet then begin
             CFAccRange := CFAccount."No.";
             repeat
-                TempCFAccount.Init;
+                TempCFAccount.Init();
                 TempCFAccount := CFAccount;
-                TempCFAccount.Insert;
+                TempCFAccount.Insert();
             until CFAccount.Next = 0;
             CFAccRange := CFAccRange + '..' + CFAccount."No.";
         end;
 
-        TempCashFlowForecast.Init;
-        TempCashFlowForecast.Insert;
+        TempCashFlowForecast.Init();
+        TempCashFlowForecast.Insert();
         TempSelectedDim.SetFilter("Dimension Code", TempCashFlowForecast.TableCaption);
         if TempSelectedDim.FindFirst then
             TempCashFlowForecast.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
         if CashFlowForecast.FindSet then begin
             repeat
-                TempCashFlowForecast.Init;
+                TempCashFlowForecast.Init();
                 TempCashFlowForecast := CashFlowForecast;
-                TempCashFlowForecast.Insert;
+                TempCashFlowForecast.Insert();
             until CashFlowForecast.Next = 0;
         end;
     end;
@@ -1400,7 +1401,7 @@ report 27 "Dimensions - Total"
                 AnalysisView.Validate("Dimension 1 Code", GLSetup."Global Dimension 1 Code");
             if AnalysisView."Dimension 2 Code" = '' then
                 AnalysisView.Validate("Dimension 2 Code", GLSetup."Global Dimension 2 Code");
-            AnalysisView.Modify;
+            AnalysisView.Modify();
 
             GetAccountSource;
             if AccountSource = AccountSource::"G/L Account" then

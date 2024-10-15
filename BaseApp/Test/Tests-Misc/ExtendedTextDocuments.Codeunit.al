@@ -19,6 +19,7 @@ codeunit 137410 "Extended Text Documents"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryResource: Codeunit "Library - Resource";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         NotFoundErr: Label 'Could not find an order line with the Extended Text.';
@@ -409,6 +410,46 @@ codeunit 137410 "Extended Text Documents"
         RollbackTransactionThroughErrorAndVerify(InsertedCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderWithResourceLineAndExtendedText()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ExtTextPurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Insert extended text for purchase line with resource
+        Initialize();
+
+        // [GIVEN] Resource with extended text
+        LibraryResource.CreateResourceNew(Resource);
+        Resource.Validate("Automatic Ext. Texts", true);
+        Resource.Modify(true);
+        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, ExtendedTextHeader."Table Name"::Resource, Resource."No.");
+        ExtendedTextHeader.Validate("Purchase Order", true);
+        ExtendedTextHeader.Modify(true);
+        LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
+
+        // [GIVEN] Purchase order with resource line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Insert extended text
+        TransferExtendedText.PurchCheckIfAnyExtText(PurchaseLine, false);
+        TransferExtendedText.InsertPurchExtText(PurchaseLine);
+
+        // [THEN] Purchase line with Extended text is inserted
+        ExtTextPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        ExtTextPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        Assert.RecordCount(ExtTextPurchaseLine, 2);
+        ExtTextPurchaseLine.SetRange(Description, ExtendedTextLine.Text);
+        Assert.RecordIsNotEmpty(ExtTextPurchaseLine);
+    end;
+
     local procedure CreateExtendedText(var ExtendedTextHeader: Record "Extended Text Header")
     var
         StandardText: Record "Standard Text";
@@ -424,7 +465,7 @@ codeunit 137410 "Extended Text Documents"
     var
         "Area": Record "Area";
     begin
-        Commit;
+        Commit();
         Area.Validate(Code, LibraryUtility.GenerateRandomCode(Area.FieldNo(Code), DATABASE::Area));
         Area.Validate(Text, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Area.Text)), 1, MaxStrLen(Area.Text)));
         Area.Insert(true);

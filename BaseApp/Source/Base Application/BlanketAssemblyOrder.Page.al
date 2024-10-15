@@ -1,4 +1,4 @@
-﻿page 940 "Blanket Assembly Order"
+page 940 "Blanket Assembly Order"
 {
     Caption = 'Blanket Assembly Order';
     DeleteAllowed = false;

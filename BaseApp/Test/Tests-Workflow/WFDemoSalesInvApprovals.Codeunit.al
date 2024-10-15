@@ -137,7 +137,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         VerifyApprovalEntryApproverID(ApprovalEntry, ApproverUserSetup."User ID");
 
         // [WHEN] The user wants to post the Sales Invoice.
-        Commit;
+        Commit();
         ErrorMessagesPage.Trap;
         PostSalesInvoice(SalesHeader);
 
@@ -184,7 +184,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         VerifySalesInvIsPendingApproval(SalesHeader);
 
         // Exercise
-        Commit;
+        Commit();
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
         asserterror SalesInvoice.Release.Invoke;
@@ -290,7 +290,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -347,7 +347,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsRejected(ApprovalEntry);
     end;
@@ -415,7 +415,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsPendingApproval(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntryApproverID(ApprovalEntry, FinalApproverUserSetup."User ID");
@@ -428,7 +428,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -482,7 +482,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -504,7 +504,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // [WHEN] SalesHeader card is opened.
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        Commit;
+        Commit();
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
 
@@ -583,7 +583,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // [WHEN] SalesHeader card is opened.
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        Commit;
+        Commit();
         SalesInvoiceList.OpenEdit;
         SalesInvoiceList.GotoRecord(SalesHeader);
 
@@ -686,7 +686,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -758,7 +758,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -778,7 +778,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
 
-        Commit;
+        Commit();
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
 
@@ -837,7 +837,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
     begin
         // [SCENARIO 271614] One can post Sales Invoice after Sales Invoice Credit Limit Approval Workflow was completed.
         Initialize;
-        RestrictedRecord.DeleteAll;
+        RestrictedRecord.DeleteAll();
 
         // [GIVEN] User with direct approver.
         // [GIVEN] Sales Invoice Credit Limit Approval Workflow.
@@ -873,11 +873,11 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryVariableStorage.Clear;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
-        Commit;
+        Commit();
         if IsInitialized then
             exit;
         IsInitialized := true;

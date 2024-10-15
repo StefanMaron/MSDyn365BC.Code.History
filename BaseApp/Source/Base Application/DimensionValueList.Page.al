@@ -82,7 +82,7 @@ page 560 "Dimension Value List"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

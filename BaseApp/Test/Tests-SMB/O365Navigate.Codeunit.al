@@ -51,12 +51,12 @@ codeunit 138033 "O365 Navigate"
 
         LibraryERMCountryData.CreateVATData;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Navigate");
     end;
 
@@ -67,7 +67,7 @@ codeunit 138033 "O365 Navigate"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -321,8 +321,6 @@ codeunit 138033 "O365 Navigate"
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseInvoice."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
-        PurchaseInvoice."Message Type".SetValue(PurchaseHeader."Message Type"::Message);
-        PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID);
 
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));

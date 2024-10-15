@@ -5,11 +5,9 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     fields
     {
-        field(1; "Order Type"; Option)
+        field(1; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
-            OptionCaption = ' ,Production,Transfer,Service,Assembly';
-            OptionMembers = " ",Production,Transfer,Service,Assembly;
         }
         field(2; "Order No."; Code[20])
         {
@@ -316,7 +314,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         OnAfterSetProdOrderLineTransferFields(Rec, ProdOrderLine);
 
         GetUnitCostsFromProdOrderLine;
-        if not Insert then;
+        if not Insert() then;
     end;
 
     procedure SetAsmOrder(AssemblyHeader: Record "Assembly Header")
@@ -338,7 +336,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Cost is Adjusted" := false;
         "Is Finished" := true;
         GetCostsFromItem(1);
-        if not Insert then;
+        if not Insert() then;
     end;
 
     procedure CalcDirectCostFromCostShares()
@@ -456,7 +454,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         Currency: Record Currency;
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         AmtRndingPrecLCY := GLSetup."Amount Rounding Precision";
         AmtRndingPrecACY := Currency."Amount Rounding Precision";
         if GLSetup."Additional Reporting Currency" <> '' then begin
@@ -472,7 +470,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         Currency: Record Currency;
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         UnitAmtRndingPrecLCY := GLSetup."Unit-Amount Rounding Precision";
         UnitAmtRndingPrecACY := Currency."Unit-Amount Rounding Precision";
         if GLSetup."Additional Reporting Currency" <> '' then begin

@@ -40,7 +40,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize;
 
         // Exercise:
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
 
         // Verify:
@@ -62,7 +62,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize;
 
         // Exercise:
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
         error := GetLastErrorText;
         Assert.IsTrue(StrPos(error, SameCCAndCODimError) > 0, UnexpectedErrorMessage);
@@ -80,7 +80,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize;
 
         // Exercise:
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
         error := GetLastErrorText;
         Assert.IsTrue(StrPos(error, EmptyCCDimError) > 0, UnexpectedErrorMessage);
@@ -98,7 +98,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize;
 
         // Exercise:
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
         error := GetLastErrorText;
         Assert.IsTrue(StrPos(error, EmptyCODimError) > 0, UnexpectedErrorMessage);
@@ -139,7 +139,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         PrevCODimensionCOde := CostObjectDimension;
 
         // Exercise:
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
 
         // Verify:
@@ -338,7 +338,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize;
 
         // Setup:
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align Cost Center Dimension"),
           CostAccountingSetup."Align Cost Center Dimension"::"No Alignment");
         LibraryDimension.CreateDimensionValue(DimensionValue, CostAccountingSetup."Cost Center Dimension");
@@ -363,7 +363,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize;
 
         // Setup:
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align Cost Object Dimension"),
           CostAccountingSetup."Align Cost Object Dimension"::"No Alignment");
         LibraryDimension.CreateDimensionValue(DimensionValue, CostAccountingSetup."Cost Object Dimension");
@@ -890,7 +890,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Cost Center Dimension");
     end;
 
@@ -899,14 +899,14 @@ codeunit 134810 "ERM Cost Accounting Setup"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Cost Object Dimension");
     end;
 
     [Normal]
     local procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; DimensionValueType: Option)
     begin
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue.Validate("Dimension Code", DimensionCode);
         DimensionValue.Validate("Dimension Value Type", DimensionValueType);
         DimensionValue.Validate(
@@ -971,7 +971,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostAccountingSetup: Record "Cost Accounting Setup";
         Dimension: Record Dimension;
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         Dimension.SetFilter(Code, '<>%1&<>%2', CostAccountingSetup."Cost Center Dimension", CostAccountingSetup."Cost Object Dimension");
         Dimension.Next(LibraryRandom.RandInt(Dimension.Count - 1));
         CostCenterDim := Dimension.Code;
@@ -1048,7 +1048,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         RecordRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         RecordRef.GetTable(CostAccountingSetup);
         FieldRef := RecordRef.Field(FieldNo);
         Field.Get(RecordRef.Number, FieldRef.Number);
@@ -1109,7 +1109,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.TestField("Cost Center Dimension", ExpectedCCDim);
         CostAccountingSetup.TestField("Cost Object Dimension", ExpectedCODim);
     end;

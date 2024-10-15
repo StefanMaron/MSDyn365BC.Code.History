@@ -244,7 +244,7 @@ codeunit 138022 "O365 Charts Tests"
             InvoiceCust(Cust2, Item);
         end;
 
-        SalesByCustGrpChartSetup.DeleteAll;
+        SalesByCustGrpChartSetup.DeleteAll();
         SalesByCustGrpChartMgt.OnInitPage;
         with SalesByCustGrpChartSetup do
             for "Period Length" := "Period Length"::Day to "Period Length"::Year do begin
@@ -288,7 +288,7 @@ codeunit 138022 "O365 Charts Tests"
         InvoiceCust(Customer, Item);
 
         // [GIVEN] "Sales Trends by Customer Groups" chart is opened.
-        SalesByCustGrpChartSetup.DeleteAll;
+        SalesByCustGrpChartSetup.DeleteAll();
         SalesByCustGrpChartMgt.OnInitPage;
         SalesByCustGrpChartMgt.UpdateChart(BusChartBuf);
 
@@ -375,10 +375,9 @@ codeunit 138022 "O365 Charts Tests"
             LibraryFiscalYear.CreateFiscalYear;
 
         LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Charts Tests");
     end;
 
@@ -392,13 +391,13 @@ codeunit 138022 "O365 Charts Tests"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
             DATABASE::"Res. Ledger Entry":
-                ResLedgerEntry.DeleteAll;
+                ResLedgerEntry.DeleteAll();
             DATABASE::Customer:
-                Customer.DeleteAll;
+                Customer.DeleteAll();
             DATABASE::"Cust. Ledger Entry":
-                CustLedgerEntry.DeleteAll;
+                CustLedgerEntry.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -444,6 +443,7 @@ codeunit 138022 "O365 Charts Tests"
         I: Integer;
     begin
         LibrarySmallBusiness.CreateItem(TestItem);
+
         // create 'CustomerCount' customers with salesLCY ranging from high to low.
         for I := 1 to CustomerCount do begin
             LibrarySmallBusiness.CreateCustomer(TestCustomer);
@@ -455,7 +455,7 @@ codeunit 138022 "O365 Charts Tests"
         end;
 
         // update top customers buffer table, in order to include current Sales LCY numbers instantly
-        TopCustomersBySalesBuffer.DeleteAll;
+        TopCustomersBySalesBuffer.DeleteAll();
         TopCustomersBySalesJob.UpdateCustomerTopList;
     end;
 
@@ -581,7 +581,7 @@ codeunit 138022 "O365 Charts Tests"
         PurchaseHeader."Vendor Invoice No." := VendorInvoiceNo;
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibrarySmallBusiness.PostPurchaseInvoice(PurchaseHeader);
     end;
 

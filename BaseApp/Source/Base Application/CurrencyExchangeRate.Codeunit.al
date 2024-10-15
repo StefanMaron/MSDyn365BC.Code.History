@@ -22,7 +22,7 @@ codeunit 32000001 "Currency Exchange Rate"
             exit;
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         repeat
             CurrencyFile.Read(Tietuerivi);
@@ -80,8 +80,8 @@ codeunit 32000001 "Currency Exchange Rate"
                                     CurrencyExchRate."Fix Exchange Rate Amount" := 1;
                                 end;
                         end;
-                        Currency.Modify;
-                        CurrencyExchRate.Insert;
+                        Currency.Modify();
+                        CurrencyExchRate.Insert();
                     end;
             end;
             Counter2 := Counter2 + 1;

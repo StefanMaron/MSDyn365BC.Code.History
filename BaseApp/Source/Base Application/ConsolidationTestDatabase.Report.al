@@ -151,11 +151,11 @@ report 14 "Consolidation - Test Database"
 
                             if TempSelectedDim.FindFirst then begin
                                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
-                                TempDimBufIn.DeleteAll;
+                                TempDimBufIn.DeleteAll();
                                 if DimSetEntry.FindSet then begin
                                     repeat
                                         if TempSelectedDim.Get(UserId, 3, REPORT::"Consolidation - Test Database", '', DimSetEntry."Dimension Code") then begin
-                                            TempDimBufIn.Init;
+                                            TempDimBufIn.Init();
                                             TempDimBufIn."Table ID" := DATABASE::"G/L Entry";
                                             TempDimBufIn."Entry No." := "Entry No.";
                                             if TempDim.Get(DimSetEntry."Dimension Code") then
@@ -172,7 +172,7 @@ report 14 "Consolidation - Test Database"
                                                     TempDimBufIn."Dimension Value Code" := TempDimVal.Code
                                             else
                                                 TempDimBufIn."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                                            TempDimBufIn.Insert;
+                                            TempDimBufIn.Insert();
                                         end;
                                     until DimSetEntry.Next = 0;
 
@@ -197,7 +197,7 @@ report 14 "Consolidation - Test Database"
                                 end;
                             end;
                             if GLEntryAddedToDataset then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             GLEntryAddedToDataset := true;
                         end;
 
@@ -264,7 +264,7 @@ report 14 "Consolidation - Test Database"
                 end;
 
                 SubsidGLSetup.ChangeCompany("Company Name");
-                SubsidGLSetup.Get;
+                SubsidGLSetup.Get();
                 if (SubsidGLSetup."Additional Reporting Currency" = '') and
                    ("Data Source" = "Data Source"::"Add. Rep. Curr. (ACY)")
                 then
@@ -279,32 +279,32 @@ report 14 "Consolidation - Test Database"
                 "G/L Entry".ChangeCompany("Company Name");
                 DimSetEntry.ChangeCompany("Company Name");
                 Dim.ChangeCompany("Company Name");
-                TempDim.Reset;
-                TempDim.DeleteAll;
+                TempDim.Reset();
+                TempDim.DeleteAll();
                 if Dim.Find('-') then begin
                     repeat
-                        TempDim.Init;
+                        TempDim.Init();
                         TempDim := Dim;
-                        TempDim.Insert;
+                        TempDim.Insert();
                     until Dim.Next = 0;
                 end;
-                TempConsolidDim.Reset;
-                TempConsolidDim.DeleteAll;
+                TempConsolidDim.Reset();
+                TempConsolidDim.DeleteAll();
                 if ConsolidDim.Find('-') then begin
                     repeat
-                        TempConsolidDim.Init;
+                        TempConsolidDim.Init();
                         TempConsolidDim := ConsolidDim;
-                        TempConsolidDim.Insert;
+                        TempConsolidDim.Insert();
                     until ConsolidDim.Next = 0;
                 end;
                 SelectedDim.SetRange("User ID", UserId);
                 SelectedDim.SetRange("Object Type", 3);
                 SelectedDim.SetRange("Object ID", REPORT::"Consolidation - Test Database");
-                TempSelectedDim.Reset;
-                TempSelectedDim.DeleteAll;
+                TempSelectedDim.Reset();
+                TempSelectedDim.DeleteAll();
                 if SelectedDim.Find('-') then begin
                     repeat
-                        TempSelectedDim.Init;
+                        TempSelectedDim.Init();
                         TempSelectedDim := SelectedDim;
                         if not TempDim.Get(SelectedDim."Dimension Code") then begin
                             TempDim.SetRange("Consolidation Code", SelectedDim."Dimension Code");
@@ -323,27 +323,27 @@ report 14 "Consolidation - Test Database"
                                         TempDim.FieldCaption("Consolidation Code"), TempDim."Consolidation Code",
                                         CompanyName));
                         end;
-                        TempSelectedDim.Insert;
+                        TempSelectedDim.Insert();
                     until SelectedDim.Next = 0;
                 end;
-                TempDim.Reset;
-                TempDimVal.Reset;
-                TempDimVal.DeleteAll;
+                TempDim.Reset();
+                TempDimVal.Reset();
+                TempDimVal.DeleteAll();
                 DimVal.ChangeCompany("Company Name");
                 if DimVal.Find('-') then begin
                     repeat
-                        TempDimVal.Init;
+                        TempDimVal.Init();
                         TempDimVal := DimVal;
-                        TempDimVal.Insert;
+                        TempDimVal.Insert();
                     until DimVal.Next = 0;
                 end;
-                TempConsolidDimVal.Reset;
-                TempConsolidDimVal.DeleteAll;
+                TempConsolidDimVal.Reset();
+                TempConsolidDimVal.DeleteAll();
                 if ConsolidDimVal.Find('-') then begin
                     repeat
-                        TempConsolidDimVal.Init;
+                        TempConsolidDimVal.Init();
                         TempConsolidDimVal := ConsolidDimVal;
-                        TempConsolidDimVal.Insert;
+                        TempConsolidDimVal.Insert();
                     until ConsolidDimVal.Next = 0;
                 end;
             end;
@@ -511,7 +511,7 @@ report 14 "Consolidation - Test Database"
                     "G/L Account".FieldCaption("Consol. Translation Method"),
                     AccountToTest."No.", "Business Unit".TableCaption));
         end else begin
-            "G/L Account".Reset;
+            "G/L Account".Reset();
             "G/L Account".FilterGroup(2);
             "G/L Account".SetRange("Account Type", "G/L Account"."Account Type"::Posting);
             "G/L Account" := AccountToTest;

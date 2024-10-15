@@ -1,4 +1,4 @@
-﻿page 39 "General Journal"
+page 39 "General Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
     // // Classic mode (Show more columns action) - When IsSimplePage is set to false. This view supports showing all the traditional columns. All the lines for all
@@ -1117,7 +1117,7 @@
 
                     trigger OnAction()
                     begin
-                        if FindLast() then;
+                        if FindLast then;
                         ImportBankStatement;
                     end;
                 }
@@ -1149,7 +1149,7 @@
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run();
+                        GLReconcile.Run;
                     end;
                 }
             }
@@ -1219,7 +1219,7 @@
                         ImportPayrollTransaction: Codeunit "Import Payroll Transaction";
                     begin
                         GeneralLedgerSetup.TestField("Payroll Trans. Import Format");
-                        if FindLast() then;
+                        if FindLast then;
                         ImportPayrollTransaction.SelectAndImportPayrollDataToGL(Rec, GeneralLedgerSetup."Payroll Trans. Import Format");
                     end;
                 }
@@ -1236,7 +1236,7 @@
 
                     trigger OnAction()
                     begin
-                        if FindLast() then;
+                        if FindLast then;
                         PayrollManagement.ImportPayroll(Rec);
                     end;
                 }
@@ -1338,7 +1338,7 @@
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter);
-                        FlowTemplateSelector.Run();
+                        FlowTemplateSelector.Run;
                     end;
                 }
                 action(SeeFlows)
@@ -1459,11 +1459,11 @@
                             GLAccount.SetRange("Direct Posting", true);
                             GLAccount.SetRange(Blocked, false);
                             CreateGLAccJournalLines.SetTableView(GLAccount);
-                            CreateGLAccJournalLines.InitializeRequest(DocumentTypes, GetPostingDate(), "Journal Template Name", "Journal Batch Name", '');
+                            CreateGLAccJournalLines.InitializeRequest(DocumentTypes, Today, "Journal Template Name", "Journal Batch Name", '');
                             CreateGLAccJournalLines.UseRequestPage(false);
                             CreateGLAccJournalLines.SetDefaultDocumentNo(CurrentDocNo);
                             Commit();  // Commit is required for Create Lines.
-                            CreateGLAccJournalLines.Run();
+                            CreateGLAccJournalLines.Run;
                         end;
                     }
                     action("Customers Opening balance")
@@ -1478,17 +1478,15 @@
                             Customer: Record Customer;
                             CreateCustomerJournalLines: Report "Create Customer Journal Lines";
                             DocumentTypes: Option;
-                            PostingDate: Date;
                         begin
                             Customer.SetRange(Blocked, Customer.Blocked::" ");
                             CreateCustomerJournalLines.SetTableView(Customer);
-                            PostingDate := GetPostingDate();
-                            CreateCustomerJournalLines.InitializeRequest(DocumentTypes, PostingDate, PostingDate);
+                            CreateCustomerJournalLines.InitializeRequest(DocumentTypes, Today, Today);
                             CreateCustomerJournalLines.InitializeRequestTemplate("Journal Template Name", "Journal Batch Name", '');
                             CreateCustomerJournalLines.UseRequestPage(false);
                             CreateCustomerJournalLines.SetDefaultDocumentNo(CurrentDocNo);
                             Commit();  // Commit is required for Create Lines.
-                            CreateCustomerJournalLines.Run();
+                            CreateCustomerJournalLines.Run;
                         end;
                     }
                     action("Vendors Opening balance")
@@ -1503,17 +1501,15 @@
                             Vendor: Record Vendor;
                             CreateVendorJournalLines: Report "Create Vendor Journal Lines";
                             DocumentTypes: Option;
-                            PostingDate: Date;
                         begin
                             Vendor.SetRange(Blocked, Vendor.Blocked::" ");
                             CreateVendorJournalLines.SetTableView(Vendor);
-                            PostingDate := GetPostingDate();
-                            CreateVendorJournalLines.InitializeRequest(DocumentTypes, PostingDate, PostingDate);
+                            CreateVendorJournalLines.InitializeRequest(DocumentTypes, Today, Today);
                             CreateVendorJournalLines.InitializeRequestTemplate("Journal Template Name", "Journal Batch Name", '');
                             CreateVendorJournalLines.UseRequestPage(false);
                             CreateVendorJournalLines.SetDefaultDocumentNo(CurrentDocNo);
                             Commit();  // Commit is required for Create Lines.
-                            CreateVendorJournalLines.Run();
+                            CreateVendorJournalLines.Run;
                         end;
                     }
                 }
@@ -1531,7 +1527,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -1640,8 +1637,8 @@
     trigger OnAfterGetCurrRecord()
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::ODataV4 then
-            UpdateBalance();
+        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::ODataV4 then
+            UpdateBalance;
         EnableApplyEntriesAction;
         SetControlAppearance;
         // PostedFromSimplePage is set to TRUE when 'POST' / 'POST+PRINT' action is executed in simple page mode.
@@ -1672,7 +1669,7 @@
         BalanceVisible := true;
         AmountVisible := true;
         // Get simple / classic mode for this page except when called from a webservices (SOAP or ODATA)
-        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4]
+        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4]
         then
             IsSimplePage := false
         else
@@ -1694,7 +1691,7 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateBalance();
+        UpdateBalance;
         EnableApplyEntriesAction;
         SetUpNewLine(xRec, Balance, BelowxRec);
         // set values from header for currency code, doc no. and posting date
@@ -1715,8 +1712,8 @@
         JnlSelected: Boolean;
         LastGenJnlBatch: Code[10];
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
-        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
         BalAccName := '';
@@ -1783,7 +1780,7 @@
         CanCancelApprovalForJnlBatch: Boolean;
         CanCancelApprovalForJnlLine: Boolean;
         ImportPayrollTransactionsAvailable: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         CanRequestFlowApprovalForBatch: Boolean;
         CanRequestFlowApprovalForBatchAndAllLines: Boolean;
         CanRequestFlowApprovalForBatchAndCurrentLine: Boolean;
@@ -1843,14 +1840,7 @@
     local procedure GetCurrentlySelectedLines(var GenJournalLine: Record "Gen. Journal Line"): Boolean
     begin
         CurrPage.SetSelectionFilter(GenJournalLine);
-        exit(GenJournalLine.FindSet());
-    end;
-
-    local procedure GetPostingDate(): Date
-    begin
-      if IsSimplePage then
-        exit(CurrentPostingDate);
-      exit(Workdate());
+        exit(GenJournalLine.FindSet);
     end;
 
     local procedure SetControlAppearance()
@@ -1870,7 +1860,7 @@
 
         CanCancelApprovalForJnlLine := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
-        SetPayrollAppearance();
+        SetPayrollAppearance;
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestFlowApprovalForLine, CanCancelFlowApprovalForLine);
         CanRequestFlowApprovalForBatchAndCurrentLine := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForLine;
@@ -1918,7 +1908,7 @@
         GenJournalLine.SetCurrentKey("Document No.");
         GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if GenJournalLine.FindLast() then begin
+        if GenJournalLine.FindLast then begin
             LastDocNo := GenJournalLine."Document No.";
             IncrementDocumentNo(GenJnlBatch, LastDocNo);
         end else
@@ -2051,7 +2041,7 @@
                 SetDataForSimpleMode(Rec)
             else begin
                 // if no rec is found reset the currentposting date to workdate and currency code to empty
-                CurrentPostingDate := WorkDate();
+                CurrentPostingDate := WorkDate;
                 Clear(CurrentCurrencyCode);
             end;
         end;

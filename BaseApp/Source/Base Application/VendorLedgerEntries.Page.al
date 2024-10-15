@@ -1,4 +1,4 @@
-﻿page 29 "Vendor Ledger Entries"
+page 29 "Vendor Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor Ledger Entries';
@@ -645,10 +645,10 @@
         GLSetup: Record "General Ledger Setup";
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
-        PurchSetup.Get;
+        PurchSetup.Get();
         VendNameVisible := PurchSetup."Copy Vendor Name to Entries";
     end;
 

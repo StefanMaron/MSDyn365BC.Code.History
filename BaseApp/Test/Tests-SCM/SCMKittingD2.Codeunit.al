@@ -24,7 +24,6 @@ codeunit 137091 "SCM Kitting - D2"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage;
         StdCostLevel: Integer;
         isInitialized: Boolean;
@@ -52,12 +51,12 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         StdCostLevel := 2;
         LibraryAssembly.UpdateAssemblySetup(
           AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode);
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - D2");
     end;
 
@@ -79,7 +78,7 @@ codeunit 137091 "SCM Kitting - D2"
         // Exercise.
         AssemblyHeader.Validate("Item No.", Item."No.");
         AssemblyHeader.Modify(true);
-        Commit; // added as ASSERTERROR rolls back all changes made as yet- and therefore asm header cannot be verified.
+        Commit(); // added as ASSERTERROR rolls back all changes made as yet- and therefore asm header cannot be verified.
         asserterror Item.Delete(true);
 
         // Validate.
@@ -111,7 +110,7 @@ codeunit 137091 "SCM Kitting - D2"
                 AssemblyLine.Validate(Quantity, -AssemblyLine.Quantity);
                 AssemblyHeader.Modify(true);
             until AssemblyLine.Next = 0;
-        Commit; // added as ASSERTERROR rolls back all changes made as yet- and therefore asm header cannot be verified.
+        Commit(); // added as ASSERTERROR rolls back all changes made as yet- and therefore asm header cannot be verified.
         asserterror AssemblyHeader.Validate(Quantity, -AssemblyHeader.Quantity);
         ClearLastError;
 
@@ -120,7 +119,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ItemSubstitutionPageHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ItemSubstitutionPageHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure UseSubstitute()
     var
@@ -128,13 +127,10 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine: Record "Assembly Line";
         ItemSubstitution: Record "Item Substitution";
         BOMComponent: Record "BOM Component";
-        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Setup.
         Initialize;
-
-        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
-
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', false);
@@ -157,6 +153,7 @@ codeunit 137091 "SCM Kitting - D2"
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", true);
         Assert.AreEqual(AssemblyLine."No.", ItemSubstitution."Substitute No.", 'Wrong substitution selected.');
+        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [ModalPageHandler]
@@ -1218,7 +1215,7 @@ codeunit 137091 "SCM Kitting - D2"
         SaveInitialAssemblyList(TempBOMComponent, Item1."No.");
 
         // Exercise.
-        TempAssemblyLine.DeleteAll;
+        TempAssemblyLine.DeleteAll();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -1228,7 +1225,7 @@ codeunit 137091 "SCM Kitting - D2"
                 if Item."Assembly BOM" then begin
                     AssemblyLine.ExplodeAssemblyList;
                     TempAssemblyLine := AssemblyLine;
-                    TempAssemblyLine.Insert;
+                    TempAssemblyLine.Insert();
                 end;
             until AssemblyLine.Next = 0;
 
@@ -1307,16 +1304,16 @@ codeunit 137091 "SCM Kitting - D2"
     begin
         // Setup.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
         LibraryAssembly.CreateMultipleLvlTree(Item, Item1, Item."Replenishment System"::Assembly, Item."Costing Method"::Standard, 1, 2);
         SaveInitialAssemblyList(TempBOMComponent, Item1."No.");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item1."No.", LibraryRandom.RandDec(5, 2));
-        TempSalesLine.DeleteAll;
+        TempSalesLine.DeleteAll();
         TempSalesLine := SalesLine;
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
 
         // Exercise.
         SalesExplodeBOM.Run(SalesLine);
@@ -1377,9 +1374,9 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(5, 2));
-        TempPurchaseLine.DeleteAll;
+        TempPurchaseLine.DeleteAll();
         TempPurchaseLine := PurchaseLine;
-        TempPurchaseLine.Insert;
+        TempPurchaseLine.Insert();
 
         // Exercise.
         PurchExplodeBOM.Run(PurchaseLine);
@@ -1638,7 +1635,7 @@ codeunit 137091 "SCM Kitting - D2"
         BOMComponent: Record "BOM Component";
     begin
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, AssemblyHeaderNo);
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
         AssemblyLine.SetFilter(Type, '<>%1', AssemblyLine.Type::" ");
@@ -1658,7 +1655,7 @@ codeunit 137091 "SCM Kitting - D2"
             until AssemblyLine.Next = 0;
 
         if not CustomLines then begin
-            BOMComponent.Reset;
+            BOMComponent.Reset();
             BOMComponent.SetRange("Parent Item No.", AssemblyHeader."Item No.");
             BOMComponent.SetFilter(Type, '<>%1', BOMComponent.Type::" ");
             Assert.AreEqual(AssemblyLine.Count, BOMComponent.Count, 'Wrong no. of retrieved lines.');
@@ -1753,7 +1750,7 @@ codeunit 137091 "SCM Kitting - D2"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
@@ -1772,7 +1769,7 @@ codeunit 137091 "SCM Kitting - D2"
             TempBOMComponent.Delete(true);
         until SalesLine.Next = 0;
 
-        TempBOMComponent.Reset;
+        TempBOMComponent.Reset();
         TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
         Assert.AreEqual(0, TempBOMComponent.Count, 'Not all lines were exploded.');
     end;
@@ -1782,7 +1779,7 @@ codeunit 137091 "SCM Kitting - D2"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
@@ -1801,7 +1798,7 @@ codeunit 137091 "SCM Kitting - D2"
             TempBOMComponent.Delete(true);
         until PurchaseLine.Next = 0;
 
-        TempBOMComponent.Reset;
+        TempBOMComponent.Reset();
         TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
         Assert.AreEqual(0, TempBOMComponent.Count, 'Not all lines were exploded.');
     end;
@@ -1831,13 +1828,13 @@ codeunit 137091 "SCM Kitting - D2"
     var
         BOMComponent: Record "BOM Component";
     begin
-        Commit;
-        TempBOMComponent.DeleteAll;
+        Commit();
+        TempBOMComponent.DeleteAll();
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         if BOMComponent.FindSet then
             repeat
                 TempBOMComponent := BOMComponent;
-                TempBOMComponent.Insert;
+                TempBOMComponent.Insert();
             until BOMComponent.Next = 0;
     end;
 
@@ -1904,6 +1901,18 @@ codeunit 137091 "SCM Kitting - D2"
     begin
         Assert.IsTrue(StrPos(Question, CnfmRefreshLines) > 0, Question);
         Reply := true;
+    end;
+
+    [RecallNotificationHandler]
+    [Scope('OnPrem')]
+    procedure RecallNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 }
 

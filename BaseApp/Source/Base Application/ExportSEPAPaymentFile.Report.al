@@ -32,9 +32,9 @@ report 13403 "Export SEPA Payment File"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
-                CompanyInfo.Get;
-                PurchSetup.Get;
+                GLSetup.Get();
+                CompanyInfo.Get();
+                PurchSetup.Get();
                 CheckSEPAValidations;
                 if IsEmpty then
                     Error(Text13403);
@@ -71,12 +71,12 @@ report 13403 "Export SEPA Payment File"
     var
         SEPARefPmtExported: Record "Ref. Payment - Exported";
     begin
-        SEPARefPmtExported.Reset;
+        SEPARefPmtExported.Reset();
         SEPARefPmtExported.SetCurrentKey("Payment Date", "Vendor No.", "Entry No.");
         SEPARefPmtExported.SetRange(Transferred, false);
         SEPARefPmtExported.SetRange("Applied Payments", false);
         if SEPARefPmtExported.FindFirst then begin
-            ReferenceFileSetup.Reset;
+            ReferenceFileSetup.Reset();
             ReferenceFileSetup.SetRange("No.", SEPARefPmtExported."Payment Account");
             if ReferenceFileSetup.FindFirst then begin
                 ReferenceFileSetup.TestField("Bank Party ID");
@@ -164,7 +164,7 @@ report 13403 "Export SEPA Payment File"
         MessageId := NoSeriesMgt.GetNextNo(PurchSetup."Bank Batch Nos.", WorkDate, true);
         XMLDomMgt.AddElement(XMLNodeCurr, 'MsgId', MessageId, '', XMLNewChild);
         XMLDomMgt.AddElement(XMLNodeCurr, 'CreDtTm', Format(CurrentDateTime, 19, 9), '', XMLNewChild);
-        RefPaymentExported.Reset;
+        RefPaymentExported.Reset();
         RefPaymentExported.SetRange("SEPA Payment", true);
         RefPaymentExported.SetRange(Transferred, false);
         RefPaymentExported.SetRange("Applied Payments", false);
@@ -374,7 +374,7 @@ report 13403 "Export SEPA Payment File"
         RefPaymentExported."Batch Code" := MessageId;
         RefPaymentExported."Payment Execution Date" := RefPaymentExported."Payment Date";
         RefPaymentExported."File Name" := FileName;
-        RefPaymentExported.Modify;
+        RefPaymentExported.Modify();
         RefPaymentExported.MarkAffiliatedAsTransferred;
 
         XMLNodeCurr := XMLNodeCurr.ParentNode;

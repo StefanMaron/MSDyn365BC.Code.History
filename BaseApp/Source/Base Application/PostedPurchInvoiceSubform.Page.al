@@ -1,4 +1,4 @@
-﻿page 139 "Posted Purch. Invoice Subform"
+page 139 "Posted Purch. Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

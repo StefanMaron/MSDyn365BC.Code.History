@@ -416,6 +416,14 @@ codeunit 10 "Type Helper"
         exit(FormatDateTime(GetCurrUTCDateTime, 'R', ''));
     end;
 
+    procedure AddHoursToDateTime(SourceDateTime: DateTime; NoOfHours: Integer): DateTime
+    var
+        MillisecondsToAdd: BigInteger;
+    begin
+        MillisecondsToAdd := NoOfHours * 3600000; // 60 * 60 * 1000
+        exit(SourceDateTime + MillisecondsToAdd);
+    end;
+
     procedure FormatDecimal(Decimal: Decimal; DataFormat: Text; DataFormattingCulture: Text) String: Text
     var
         CultureInfo: DotNet CultureInfo;
@@ -755,7 +763,7 @@ codeunit 10 "Type Helper"
     begin
         DataTypeManagement.GetRecordRef(RecordVariant, SourceRecRef);
 
-        TempFieldBuffer.Reset;
+        TempFieldBuffer.Reset();
         if not TempFieldBuffer.FindFirst then
             exit;
 
@@ -763,7 +771,7 @@ codeunit 10 "Type Helper"
             if TargetTableRecRef.FieldExist(TempFieldBuffer."Field ID") then begin
                 SourceFieldRef := SourceRecRef.Field(TempFieldBuffer."Field ID");
                 TargetFieldRef := TargetTableRecRef.Field(TempFieldBuffer."Field ID");
-                if Format(TargetFieldRef.Class) = 'Normal' then
+                if TargetFieldRef.Class = FieldClass::Normal then
                     if TargetFieldRef.Value <> SourceFieldRef.Value then
                         TargetFieldRef.Validate(SourceFieldRef.Value);
             end;
@@ -782,7 +790,7 @@ codeunit 10 "Type Helper"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CurrencySymbol: Text[10];
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol;
 
         exit(GetAmountFormatWithUserLocale(CurrencySymbol));
@@ -839,14 +847,6 @@ codeunit 10 "Type Helper"
         CultureInfo := CultureInfo.GetCultureInfo(LocaleId);
         NumberFormat := CultureInfo.NumberFormat;
         CurrencyPositivePattern := NumberFormat.CurrencyPositivePattern;
-    end;
-
-    procedure AddHoursToDateTime(SourceDateTime: DateTime; NoOfHours: Integer): DateTime
-    var
-        MillisecondsToAdd: BigInteger;
-    begin
-        MillisecondsToAdd := NoOfHours * 3600000; // 60 * 60 * 1000
-        exit(SourceDateTime + MillisecondsToAdd);
     end;
 }
 

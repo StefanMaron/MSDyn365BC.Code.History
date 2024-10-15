@@ -19,7 +19,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
             repeat
                 TempGenJnlLine := FromGenJnlLine;
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             until FromGenJnlLine.Next = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);

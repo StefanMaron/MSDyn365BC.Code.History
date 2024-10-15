@@ -3260,8 +3260,8 @@
             <FontSize>8pt</FontSize>
           </Style>
         </PageHeader>
-        <PageHeight>29.7cm</PageHeight>
-        <PageWidth>21cm</PageWidth>
+        <PageHeight>21cm</PageHeight>
+        <PageWidth>29.7cm</PageWidth>
         <LeftMargin>30pt</LeftMargin>
         <RightMargin>0.41667in</RightMargin>
         <TopMargin>0.41667in</TopMargin>

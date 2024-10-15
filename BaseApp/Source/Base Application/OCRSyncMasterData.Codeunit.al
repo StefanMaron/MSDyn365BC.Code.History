@@ -87,7 +87,7 @@ codeunit 882 "OCR - Sync Master Data"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.LockTable;
+        JobQueueEntry.LockTable();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"OCR - Sync Master Data";
         JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime + JobDelayMinutes * 60000;

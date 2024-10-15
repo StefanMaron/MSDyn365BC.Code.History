@@ -110,7 +110,7 @@ codeunit 130011 "Backup Management"
         Initialize;
 
         BackupNo := InitBackup(Backup);
-        TempTableMetadata.Reset;
+        TempTableMetadata.Reset();
 
         if TempTableMetadata.FindSet then
             repeat
@@ -138,7 +138,7 @@ codeunit 130011 "Backup Management"
 
         WindowsUpdateTime := Time;
         ProgressDialog.Open('Restoring database from memory@1@@@@\Table#2########');
-        TempTableMetadata.Reset;
+        TempTableMetadata.Reset();
 
         Increment := 9998 / (TempTableMetadata.Count - 1);
         if TempTableMetadata.FindSet then
@@ -246,7 +246,7 @@ codeunit 130011 "Backup Management"
 
         if BackupNoExists(BackupNo) then
             if BackupStorage.GetTableBackup(BackupNo, TableNo, BackupRecordRef) then
-                BackupRecordRef.DeleteAll;
+                BackupRecordRef.DeleteAll();
     end;
 
     local procedure GetBackupNo(Backup: Text[30]) Result: Integer
@@ -372,7 +372,7 @@ codeunit 130011 "Backup Management"
             repeat
                 // open a record ref to the table
                 RecRef.Open(TableMetadata.ID);
-                RecRef.DeleteAll;
+                RecRef.DeleteAll();
                 RecRef.Close
             until TableMetadata.Next = 0
     end;
@@ -469,7 +469,7 @@ codeunit 130011 "Backup Management"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 49, 'OnAfterGetDatabaseTableTriggerSetup', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, 49, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
     local procedure OnAfterGetDatabaseTableTriggerSetupHandler(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     begin
         OnDatabaseInsert := GetDatabaseTableTriggerSetup(TableId);

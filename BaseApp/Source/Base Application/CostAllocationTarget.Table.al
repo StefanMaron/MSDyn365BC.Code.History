@@ -326,7 +326,7 @@ table 1107 "Cost Allocation Target"
                 until Next = 0;
             Rec.Percent := Round(100 * Rec.Share / TotalShare, 0.00001);
             Rec."Share Updated on" := Today;
-            Rec.Modify;
+            Rec.Modify();
             // distribute rounding error:
             CalcSums(Percent);
             PctTotal := Percent + Rec.Percent;

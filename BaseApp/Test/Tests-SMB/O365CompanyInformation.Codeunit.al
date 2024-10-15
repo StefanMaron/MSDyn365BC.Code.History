@@ -31,11 +31,11 @@ codeunit 138041 "O365 Company Information"
 
         // delete company bank account
         if BankAccount.Get(CompanyBankAccountTxt) then
-            BankAccount.Delete;
+            BankAccount.Delete();
 
         if GenJournalBatch.Get(XPAYMENTTxt, XPmtRegTxt) then begin
             GenJournalBatch."Bal. Account No." := '';
-            GenJournalBatch.Modify;
+            GenJournalBatch.Modify();
         end;
 
         // fill out bank account information in Company Information page
@@ -45,7 +45,7 @@ codeunit 138041 "O365 Company Information"
             OpenEdit;
             "Bank Name".SetValue('Stans Bank');
             "Bank Branch No.".SetValue('0235');
-            "Bank Account No.".SetValue('2229018-7205');
+            "Bank Account No.".SetValue('3276392693');
             "SWIFT Code".SetValue('DABASTAN');
             IBAN.SetValue('GB 80 RBOS 161732 41116737');
             BankAccountPostingGroup.SetValue(BankAccPostingGroup.Code);
@@ -53,7 +53,7 @@ codeunit 138041 "O365 Company Information"
         end;
 
         // verify that a bank account has been created
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.IsTrue(BankAccount.Get(CompanyBankAccountTxt), 'Bank account ' + CompanyBankAccountTxt + ' not generated.');
 
         with BankAccount do begin

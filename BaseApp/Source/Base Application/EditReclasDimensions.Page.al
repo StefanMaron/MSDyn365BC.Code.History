@@ -70,7 +70,7 @@ page 484 "Edit Reclas. Dimensions"
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
-        DeleteAll;
+        DeleteAll();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
         if DimSetEntry.FindSet then
             repeat

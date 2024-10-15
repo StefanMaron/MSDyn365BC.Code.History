@@ -23,7 +23,7 @@ codeunit 1216 "Incoming Doc. with Data. Exch."
         DataExchDef: Record "Data Exch. Def";
         DataExchangeType: Record "Data Exchange Type";
     begin
-        DataExch.Init;
+        DataExch.Init();
         DataExchangeType.Get(IncomingDocument."Data Exchange Type");
         DataExchDef.Get(DataExchangeType."Data Exch. Def. Code");
 

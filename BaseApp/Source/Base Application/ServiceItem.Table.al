@@ -14,7 +14,7 @@ table 5940 "Service Item"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     NoSeriesMgt.TestManual(ServMgtSetup."Service Item Nos.");
                     "No. Series" := '';
                 end;
@@ -30,7 +30,7 @@ table 5940 "Service Item"
                     MessageIfServItemLinesExist(FieldCaption("Serial No."));
 
                 if "Serial No." <> '' then begin
-                    ServItem.Reset;
+                    ServItem.Reset();
                     ServItem.SetCurrentKey("Item No.", "Serial No.");
                     ServItem.SetRange("Item No.", "Item No.");
                     ServItem.SetRange("Serial No.", "Serial No.");
@@ -113,11 +113,9 @@ table 5940 "Service Item"
         {
             Caption = 'Description 2';
         }
-        field(6; Status; Option)
+        field(6; Status; Enum "Service Item Status")
         {
             Caption = 'Status';
-            OptionCaption = ' ,Own Service Item,Installed,Temporarily Installed,Defective';
-            OptionMembers = " ","Own Service Item",Installed,"Temporarily Installed",Defective;
 
             trigger OnValidate()
             begin
@@ -286,7 +284,7 @@ table 5940 "Service Item"
 
             trigger OnValidate()
             begin
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 Currency.InitRoundingPrecision;
                 if (ServMgtSetup."Contract Value Calc. Method" =
                     ServMgtSetup."Contract Value Calc. Method"::"Based on Unit Price") and
@@ -305,7 +303,7 @@ table 5940 "Service Item"
 
             trigger OnValidate()
             begin
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 Currency.InitRoundingPrecision;
                 "Default Contract Cost" :=
                   Round("Sales Unit Cost" * ServMgtSetup."Contract Value %" / 100,
@@ -326,7 +324,7 @@ table 5940 "Service Item"
                 if "Warranty Starting Date (Labor)" <> xRec."Warranty Starting Date (Labor)" then
                     MessageIfServItemLinesExist(FieldCaption("Warranty Starting Date (Labor)"));
 
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 ServMgtSetup.TestField("Default Warranty Duration");
                 if "Warranty Starting Date (Labor)" <> xRec."Warranty Starting Date (Labor)" then
                     if "Warranty Starting Date (Labor)" <> 0D then
@@ -353,7 +351,7 @@ table 5940 "Service Item"
                       Text007,
                       FieldCaption("Warranty Starting Date (Labor)"), FieldCaption("Warranty Ending Date (Labor)"));
 
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 if "Warranty % (Labor)" = 0 then
                     "Warranty % (Labor)" := ServMgtSetup."Warranty Disc. % (Labor)";
             end;
@@ -380,7 +378,7 @@ table 5940 "Service Item"
                               CalcDate(ItemTrackingCode."Warranty Date Formula",
                                 "Warranty Starting Date (Parts)"))
                         else begin
-                            ServMgtSetup.Get;
+                            ServMgtSetup.Get();
                             ServMgtSetup.TestField("Default Warranty Duration");
                             Validate(
                               "Warranty Ending Date (Parts)",
@@ -409,7 +407,7 @@ table 5940 "Service Item"
                 if "Warranty Ending Date (Parts)" <> xRec."Warranty Ending Date (Parts)" then
                     MessageIfServItemLinesExist(FieldCaption("Warranty Ending Date (Parts)"));
 
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 if "Warranty % (Parts)" = 0 then
                     "Warranty % (Parts)" := ServMgtSetup."Warranty Disc. % (Parts)";
             end;
@@ -979,11 +977,11 @@ table 5940 "Service Item"
 
         DeleteServItemComponents;
 
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Item");
         ServCommentLine.SetRange("Table Subtype", 0);
         ServCommentLine.SetRange("No.", "No.");
-        ServCommentLine.DeleteAll;
+        ServCommentLine.DeleteAll();
 
         ResSkillMgt.DeleteServItemResSkills("No.");
         ServLogMgt.ServItemDeleted("No.");
@@ -993,7 +991,7 @@ table 5940 "Service Item"
 
     trigger OnInsert()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Service Item Nos.");
             NoSeriesMgt.InitSeries(ServMgtSetup."Service Item Nos.", xRec."No. Series", 0D, "No.", "No. Series");
@@ -1008,7 +1006,7 @@ table 5940 "Service Item"
         if "No." <> xRec."No." then begin
             DimMgt.RenameDefaultDim(DATABASE::"Service Item", xRec."No.", "No.");
             ServLogMgt.ServItemNoChange(Rec, xRec);
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
             ServContractLine.SetRange("Service Item No.", xRec."No.");
             ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
@@ -1058,7 +1056,7 @@ table 5940 "Service Item"
     begin
         with ServItem do begin
             ServItem := Rec;
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             ServMgtSetup.TestField("Service Item Nos.");
             if NoSeriesMgt.SelectSeries(ServMgtSetup."Service Item Nos.", OldServItem."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -1070,7 +1068,7 @@ table 5940 "Service Item"
 
     local procedure ServItemLinesExist(): Boolean
     begin
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Service Item No.");
         ServItemLine.SetRange("Service Item No.", "No.");
         exit(ServItemLine.FindFirst);
@@ -1090,9 +1088,9 @@ table 5940 "Service Item"
 
     local procedure DeleteServItemComponents()
     begin
-        ServItemComponent.Reset;
+        ServItemComponent.Reset();
         ServItemComponent.SetRange("Parent Service Item No.", "No.");
-        ServItemComponent.DeleteAll;
+        ServItemComponent.DeleteAll();
 
         OnAfterDeleteServItemComponents(Rec);
     end;
@@ -1116,7 +1114,7 @@ table 5940 "Service Item"
 
     local procedure ServLedgEntryExist(): Boolean
     begin
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetCurrentKey(
           "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.",
           Type, "Posting Date", Open);
@@ -1126,7 +1124,7 @@ table 5940 "Service Item"
 
     local procedure CheckifActiveServContLineExist(): Boolean
     begin
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
         ServContractLine.SetRange("Service Item No.", "No.");
         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
@@ -1143,7 +1141,7 @@ table 5940 "Service Item"
                 Text000,
                 TableCaption, "No."));
 
-        ServItemComponent.Reset;
+        ServItemComponent.Reset();
         ServItemComponent.SetCurrentKey(Type, "No.", Active);
         ServItemComponent.SetRange(Type, ServItemComponent.Type::"Service Item");
         ServItemComponent.SetRange("No.", "No.");
@@ -1153,7 +1151,7 @@ table 5940 "Service Item"
                 Text001,
                 TableCaption, "No.", ServItemComponent.TableCaption, ServItemComponent."Parent Service Item No."));
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
         ServContractLine.SetRange("Service Item No.", "No.");
         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);

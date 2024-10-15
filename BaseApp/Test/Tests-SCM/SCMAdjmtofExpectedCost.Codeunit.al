@@ -31,7 +31,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
         Initialize;
         Qty := 100;
         // Inventory setup for test
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         SetInventorySetup(
           OldInventorySetup, true, true, true,
           OldInventorySetup."Automatic Cost Adjustment"::Always);
@@ -79,7 +79,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Adjmt. of Expected Cost");
     end;
 
@@ -95,7 +95,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
                 "Average Cost Calc. Type" := "Average Cost Calc. Type"::Item;
                 "Average Cost Period" := "Average Cost Period"::Day;
             end else begin
-                SavedInventorySetup.Get;
+                SavedInventorySetup.Get();
                 SavedInventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
                 SavedInventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
                 SavedInventorySetup."Automatic Cost Adjustment" := AutomaticCostAdjustment;

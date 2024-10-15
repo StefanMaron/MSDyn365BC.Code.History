@@ -622,7 +622,7 @@ page 9217 "ResGrp. All. per Serv.  Matrix"
     var
         I: Integer;
     begin
-        MatrixRec.Reset;
+        MatrixRec.Reset();
         MatrixRec.SetRange("Document No.", "No.");
         MatrixRec.SetRange("Document Type", MatrixRec."Document Type"::Order);
         MatrixRec.SetFilter(Status, '%1|%2', MatrixRec.Status::Active, MatrixRec.Status::Finished);

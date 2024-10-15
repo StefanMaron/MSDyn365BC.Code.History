@@ -48,6 +48,8 @@ table 210 "Job Journal Line"
                   DimMgt.TypeToTableID2(Type), "No.",
                   DATABASE::"Resource Group", "Resource Group No.");
                 Validate("Country/Region Code", Job."Bill-to Country/Region Code");
+                "Price Calculation Method" := Job.GetPriceCalculationMethod();
+                "Cost Calculation Method" := Job.GetCostCalculationMethod();
             end;
         }
         field(4; "Posting Date"; Date)
@@ -56,12 +58,12 @@ table 210 "Job Journal Line"
 
             trigger OnValidate()
             begin
-                if not IsTemporary then
+                if not IsTemporary() then
                     TestField("Posting Date");
                 Validate("Document Date", "Posting Date");
                 if "Currency Code" <> '' then begin
-                    UpdateCurrencyFactor;
-                    UpdateAllAmounts;
+                    UpdateCurrencyFactor();
+                    UpdateAllAmounts();
                 end
             end;
         }
@@ -985,6 +987,14 @@ table 210 "Job Journal Line"
             Caption = 'Lot No.';
             Editable = false;
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
+        field(7001; "Cost Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Cost Calculation Method';
+        }
     }
 
     keys
@@ -1014,7 +1024,7 @@ table 210 "Job Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         JobJnlTemplate.Get("Journal Template Name");
         JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
@@ -1051,7 +1061,6 @@ table 210 "Job Journal Line"
         JobJnlLine: Record "Job Journal Line";
         ItemVariant: Record "Item Variant";
         ResUnitofMeasure: Record "Resource Unit of Measure";
-        ResCost: Record "Resource Cost";
         ItemTranslation: Record "Item Translation";
         CurrExchRate: Record "Currency Exchange Rate";
         SKU: Record "Stockkeeping Unit";
@@ -1203,6 +1212,8 @@ table 210 "Job Journal Line"
         "Source Code" := JobJnlTemplate."Source Code";
         "Reason Code" := JobJnlBatch."Reason Code";
         "Posting No. Series" := JobJnlBatch."Posting No. Series";
+        "Price Calculation Method" := Job.GetPriceCalculationMethod();
+        "Cost Calculation Method" := Job.GetCostCalculationMethod();
 
         OnAfterSetUpNewLine(Rec, LastJobJnlLine, JobJnlTemplate, JobJnlBatch);
     end;
@@ -1359,7 +1370,7 @@ table 210 "Job Journal Line"
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
         ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
@@ -1425,7 +1436,7 @@ table 210 "Job Journal Line"
         "Currency Factor" := Factor;
     end;
 
-    local procedure GetItemTranslation()
+    procedure GetItemTranslation()
     begin
         GetJob;
         if ItemTranslation.Get("No.", "Variant Code", Job."Language Code") then begin
@@ -1438,8 +1449,34 @@ table 210 "Job Journal Line"
     begin
         if HasGotGLSetup then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         HasGotGLSetup := true;
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Job Journal Line", "Entry Type", "Journal Template Name", "Line No.", "Journal Batch Name", 0);
+        ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        ReservEntry."Expected Receipt Date" := "Posting Date";
+        ReservEntry."Shipment Date" := "Posting Date";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Job Journal Line", "Entry Type", "Journal Template Name", "Line No.", false);
+        ReservEntry.SetSourceFilter("Journal Batch Name", 0);
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        ReservEntry.ClearTrackingFilter;
+        exit(not ReservEntry.IsEmpty);
     end;
 
     procedure UpdateAllAmounts()
@@ -1460,6 +1497,7 @@ table 210 "Job Journal Line"
 
     procedure UpdateUnitCost()
     var
+        ResCost: Record "Resource Cost";
         RetrievedCost: Decimal;
     begin
         if (Type = Type::Item) and Item.Get("No.") then begin
@@ -1520,7 +1558,7 @@ table 210 "Job Journal Line"
         end else
             if (Type = Type::Resource) and Res.Get("No.") then begin
                 if RetrieveCostPrice then begin
-                    ResCost.Init;
+                    ResCost.Init();
                     ResCost.Code := "No.";
                     ResCost."Work Type Code" := "Work Type Code";
                     CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
@@ -1594,21 +1632,33 @@ table 210 "Job Journal Line"
 
     local procedure FindPriceAndDiscount(var JobJnlLine: Record "Job Journal Line"; CalledByFieldNo: Integer)
     var
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
+        PriceType: Enum "Price Type";
     begin
         if RetrieveCostPrice and ("No." <> '') then begin
-            SalesPriceCalcMgt.FindJobJnlLinePrice(JobJnlLine, CalledByFieldNo);
-
-            if Type <> Type::"G/L Account" then
-                PurchPriceCalcMgt.FindJobJnlLinePrice(JobJnlLine, CalledByFieldNo)
-            else begin
-                // Because the SalesPriceCalcMgt.FindJobJnlLinePrice function also retrieves costs for G/L Account,
-                // cost and total cost need to get updated again.
+            ApplyPrice(PriceType::Sale, CalledByFieldNo);
+            ApplyPrice(PriceType::Purchase, CalledByFieldNo);
+            if Type = Type::"G/L Account" then begin
                 UpdateUnitCost;
                 UpdateTotalCost;
             end;
         end;
+    end;
+
+
+    procedure ApplyPrice(PriceType: enum "Price Type"; CalledByFieldNo: Integer)
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        JobJournalLinePrice: Codeunit "Job Journal Line - Price";
+        PriceCalculation: Interface "Price Calculation";
+        Line: Variant;
+    begin
+        JobJournalLinePrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(JobJournalLinePrice, PriceCalculation);
+        PriceCalculation.ApplyPrice(CalledByFieldNo);
+        if PriceType = PriceType::Sale then
+            PriceCalculation.ApplyDiscount();
+        PriceCalculation.GetLine(Line);
+        Rec := Line;
     end;
 
     local procedure HandleCostFactor()
@@ -1783,6 +1833,22 @@ table 210 "Job Journal Line"
             "Journal Template Name", "Journal Batch Name", 0, "Line No."));
     end;
 
+    procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        "Serial No." := ItemLedgEntry."Serial No.";
+        "Lot No." := ItemLedgEntry."Lot No.";
+
+        OnAfterCopyTrackingFromItemLedgEntry(rec, ItemLedgEntry);
+    end;
+
+    procedure CopyTrackingFromJobPlanningLine(JobPlanningLine: Record "Job Planning Line")
+    begin
+        "Serial No." := JobPlanningLine."Serial No.";
+        "Lot No." := JobPlanningLine."Lot No.";
+
+        OnAfterCopyTrackingFromJobPlanningLine(rec, JobPlanningLine);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignGLAccountValues(var JobJournalLine: Record "Job Journal Line"; GLAccount: Record "G/L Account")
     begin
@@ -1814,10 +1880,21 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemLedgEntry(var JobJournalLine: Record "Job Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromJobPlanningLine(var JobJournalLine: Record "Job Journal Line"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteAmounts(var JobJournalLine: Record "Job Journal Line")
     begin
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")
     begin
@@ -1885,6 +1962,11 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeUpdateAllAmounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; JobJournalLine: Record "Job Journal Line");
     begin
     end;
 

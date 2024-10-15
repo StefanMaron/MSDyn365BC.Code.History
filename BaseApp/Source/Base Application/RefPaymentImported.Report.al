@@ -125,7 +125,7 @@ report 32000001 "Ref. Payment Imported"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 SetFilter("Record ID", '%1..%2', 3, 5);
             end;

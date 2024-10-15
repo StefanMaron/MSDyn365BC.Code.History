@@ -12,17 +12,17 @@ report 32000000 "Import Ref. Payment"
             trigger OnPostDataItem()
             var
                 FileMgt: Codeunit "File Management";
+                BackupFileName: Text;
             begin
                 BankFile.Close;
                 if FileMgt.IsLocalFileSystemAccessible then begin
                     BackUp := '.000';
+                    BackupFileName := FileMgt.ClientTempFileName('');
 
-                    while FileMgt.ClientFileExists(FileName + BackUp) do
+                    while FileMgt.ClientFileExists(BackupFileName + BackUp) do
                         BackUp := IncStr(BackUp);
-                    FileMgt.MoveAndRenameClientFile(
-                      FileName,
-                      FileName + BackUp,
-                      '');
+
+                    FileMgt.DownloadToFile(FileName, BackupFileName + BackUp);
                 end;
                 MatchPayments.MatchLines(TemplateName, BatchName);
             end;
@@ -37,7 +37,7 @@ report 32000000 "Import Ref. Payment"
                 if FindSet then
                     repeat
                         RefPmtImportTemp := BankPayments;
-                        RefPmtImportTemp.Insert;
+                        RefPmtImportTemp.Insert();
                     until Next = 0;
                 MatchPayments.GetRefPmtImportTemp(RefPmtImportTemp);
                 if BankAccCode = '' then
@@ -228,7 +228,7 @@ report 32000000 "Import Ref. Payment"
     procedure SelectBankAccount(LineBankAcctNo: Text[15]) AccountCode: Code[10]
     begin
         Clear(AccountCode);
-        BankAccount.Reset;
+        BankAccount.Reset();
         BankAccount.SetFilter("Bank Account No.", '<>%1', '');
         CheckAccount := false;
         if BankAccount.FindSet then

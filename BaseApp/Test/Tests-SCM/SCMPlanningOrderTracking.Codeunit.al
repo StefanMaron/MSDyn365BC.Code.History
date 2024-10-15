@@ -572,7 +572,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [WHEN] Calculate Plan for Requisition Worksheet with new Req. Worksheet Name for Location Blue
         Item.SetRange("Location Filter", LocationBlue.Code); // Set Location filter as Blue
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate, WorkDate + LibraryRandom.RandInt(20));
-        RequisitionLine.Reset;
+        RequisitionLine.Reset();
         FilterRequisitionLine(RequisitionLine, Item."No.", LocationBlue.Code);
 
         // [THEN] No Requisition Line for Location Blue should be generated.
@@ -702,8 +702,8 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Order Tracking");
-        RequisitionLine.DeleteAll;
-        ReservationEntry.DeleteAll;
+        RequisitionLine.DeleteAll();
+        ReservationEntry.DeleteAll();
         LibraryVariableStorage.Clear;
 
         LibraryApplicationArea.EnableEssentialSetup;
@@ -723,7 +723,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateLocationSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning Order Tracking");
     end;
 
@@ -745,34 +745,34 @@ codeunit 137075 "SCM Planning Order Tracking"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure ItemJournalSetup()
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Modify(true);
     end;
 
     local procedure OutputJournalSetup()
     begin
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
 
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
     end;
@@ -804,10 +804,10 @@ codeunit 137075 "SCM Planning Order Tracking"
 
     local procedure ConsumptionJournalSetup()
     begin
-        ConsumptionItemJournalTemplate.Init;
+        ConsumptionItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ConsumptionItemJournalTemplate, ConsumptionItemJournalTemplate.Type::Consumption);
 
-        ConsumptionItemJournalBatch.Init;
+        ConsumptionItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type, ConsumptionItemJournalTemplate.Name);
     end;
@@ -1047,7 +1047,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         OldCombinedMPSMRPCalculation := ManufacturingSetup."Combined MPS/MRP Calculation";
         ManufacturingSetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
         ManufacturingSetup.Modify(true);
@@ -1067,7 +1067,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Modify(true);
     end;
@@ -1097,7 +1097,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryVariableStorage.Enqueue(ItemNo2);  // Enqueue Item No for filtering - required in CalculatePlanPlanWkshRequestPageHandler.
         SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplate.Type::Planning);
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
-        Commit;  // Required for Test.
+        Commit();  // Required for Test.
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionWkshName.Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
@@ -1284,7 +1284,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         // Add Safety lead time to the required date and return the Date value.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         if SignFactor < 0 then
             exit(CalcDate('<-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
         exit(CalcDate('<' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));

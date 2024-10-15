@@ -85,7 +85,7 @@ codeunit 136216 "Marketing Cues"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Cues");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Cues");
     end;
 
@@ -95,9 +95,9 @@ codeunit 136216 "Marketing Cues"
         ContactDuplicate: Record "Contact Duplicate";
         DuplicateSearchStringSetup: Record "Duplicate Search String Setup";
     begin
-        Contact.DeleteAll;
-        ContactDuplicate.DeleteAll;
-        DuplicateSearchStringSetup.DeleteAll;
+        Contact.DeleteAll();
+        ContactDuplicate.DeleteAll();
+        DuplicateSearchStringSetup.DeleteAll();
     end;
 
     local procedure CreateDuplicateSearchStringSetup()
@@ -105,18 +105,18 @@ codeunit 136216 "Marketing Cues"
         DuplicateSearchStringSetup: Record "Duplicate Search String Setup";
         Contact: Record Contact;
     begin
-        DuplicateSearchStringSetup.Init;
+        DuplicateSearchStringSetup.Init();
         DuplicateSearchStringSetup."Field No." := Contact.FieldNo(Name);
         DuplicateSearchStringSetup."Part of Field" := DuplicateSearchStringSetup."Part of Field"::First;
-        DuplicateSearchStringSetup.Insert;
+        DuplicateSearchStringSetup.Insert();
     end;
 
     local procedure MockContact(var Contact: Record Contact)
     begin
-        Contact.Init;
+        Contact.Init();
         Contact."No." := LibraryUtility.GenerateRandomCode(Contact.FieldNo("No."), DATABASE::Contact);
         Contact.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Contact.Name)), 1, MaxStrLen(Contact.Name));
-        Contact.Insert;
+        Contact.Insert();
     end;
 
     local procedure MockContactCompany()
@@ -125,7 +125,7 @@ codeunit 136216 "Marketing Cues"
     begin
         MockContact(Contact);
         Contact.Type := Contact.Type::Company;
-        Contact.Modify;
+        Contact.Modify();
     end;
 
     local procedure MockContactPerson()
@@ -134,7 +134,7 @@ codeunit 136216 "Marketing Cues"
     begin
         MockContact(Contact);
         Contact.Type := Contact.Type::Person;
-        Contact.Modify;
+        Contact.Modify();
     end;
 
     local procedure MockContactDuplicate()
@@ -148,7 +148,7 @@ codeunit 136216 "Marketing Cues"
         MockContact(DuplicateContact);
         DuplicateContact.Name := Contact.Name;
         DuplicateContact.Type := DuplicateContact.Type::Company;
-        DuplicateContact.Modify;
+        DuplicateContact.Modify();
     end;
 }
 

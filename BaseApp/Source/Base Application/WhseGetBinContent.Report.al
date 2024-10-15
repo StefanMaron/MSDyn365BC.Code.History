@@ -14,11 +14,11 @@ report 7391 "Whse. Get Bin Content"
                 if BinType.Code <> "Bin Type Code" then
                     BinType.Get("Bin Type Code");
                 if BinType.Receive and not "Cross-Dock Bin" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 QtyToEmptyBase := GetQtyToEmptyBase('', '');
                 if QtyToEmptyBase <= 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 case DestinationType2 of
                     DestinationType2::MovementWorksheet:
@@ -44,7 +44,7 @@ report 7391 "Whse. Get Bin Content"
                 if not ReportInitialized then
                     Error(Text001);
 
-                Location.Init;
+                Location.Init();
             end;
         }
     }
@@ -168,10 +168,10 @@ report 7391 "Whse. Get Bin Content"
 
     procedure InitializeTransferHeader(TransferHeader2: Record "Transfer Header")
     begin
-        TransferLine.Reset;
+        TransferLine.Reset();
         TransferLine.SetRange("Document No.", TransferHeader2."No.");
         if not TransferLine.FindLast then begin
-            TransferLine.Init;
+            TransferLine.Init();
             TransferLine."Document No." := TransferHeader2."No.";
         end;
 
@@ -183,10 +183,10 @@ report 7391 "Whse. Get Bin Content"
 
     procedure InitializeInternalMovement(InternalMovementHeader2: Record "Internal Movement Header")
     begin
-        InternalMovementLine.Reset;
+        InternalMovementLine.Reset();
         InternalMovementLine.SetRange("No.", InternalMovementHeader2."No.");
         if not InternalMovementLine.FindLast then begin
-            InternalMovementLine.Init;
+            InternalMovementLine.Init();
             InternalMovementLine."No." := InternalMovementHeader2."No.";
         end;
         InternalMovementHeader := InternalMovementHeader2;
@@ -309,15 +309,12 @@ report 7391 "Whse. Get Bin Content"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
         ReserveTransferLine: Codeunit "Transfer Line-Reserve";
-        Direction: Option Outbound,Inbound;
-        SNRequired: Boolean;
-        LNRequired: Boolean;
+        Direction: Enum "Transfer Direction";
         TrackedQtyToEmptyBase: Decimal;
         TotalTrackedQtyBase: Decimal;
     begin
         Clear(ItemTrackingMgt);
-        ItemTrackingMgt.CheckWhseItemTrkgSetup("Bin Content"."Item No.", SNRequired, LNRequired, false);
-        if not (SNRequired or LNRequired) then
+        if not ItemTrackingMgt.GetWhseItemTrkgSetup("Bin Content"."Item No.") then
             exit;
 
         with WarehouseEntry do begin
@@ -390,7 +387,7 @@ report 7391 "Whse. Get Bin Content"
     procedure InsertTempTrackingSpec(WarehouseEntry: Record "Warehouse Entry"; QtyOnBin: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
         with WarehouseEntry do begin
-            TempTrackingSpecification.Init;
+            TempTrackingSpecification.Init();
             TempTrackingSpecification.SetSkipSerialNoQtyValidation(true);
             TempTrackingSpecification.Validate("Serial No.", "Serial No.");
             TempTrackingSpecification.SetSkipSerialNoQtyValidation(false);
@@ -402,7 +399,7 @@ report 7391 "Whse. Get Bin Content"
             TempTrackingSpecification."New Expiration Date" := "Expiration Date";
             TempTrackingSpecification.Validate("Quantity (Base)", QtyOnBin);
             TempTrackingSpecification."Entry No." += 1;
-            TempTrackingSpecification.Insert;
+            TempTrackingSpecification.Insert();
             OnAfterInsertTempTrackingSpec(TempTrackingSpecification, WarehouseEntry);
         end;
     end;

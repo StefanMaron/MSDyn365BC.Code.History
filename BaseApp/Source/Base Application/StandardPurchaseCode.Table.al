@@ -33,7 +33,7 @@ table 173 "Standard Purchase Code"
                     Currency2.InitRoundingPrecision;
 
                 if Currency."Amount Rounding Precision" <> Currency2."Amount Rounding Precision" then begin
-                    StdPurchLine.Reset;
+                    StdPurchLine.Reset();
                     StdPurchLine.SetRange("Standard Purchase Code", Code);
                     StdPurchLine.SetRange(Type, StdPurchLine.Type::"G/L Account");
                     StdPurchLine.SetFilter("Amount Excl. VAT", '<>%1', 0);
@@ -47,7 +47,7 @@ table 173 "Standard Purchase Code"
                         repeat
                             StdPurchLine."Amount Excl. VAT" :=
                               Round(StdPurchLine."Amount Excl. VAT", Currency."Amount Rounding Precision");
-                            StdPurchLine.Modify;
+                            StdPurchLine.Modify();
                         until StdPurchLine.Next = 0;
                     end;
                 end;
@@ -72,7 +72,7 @@ table 173 "Standard Purchase Code"
 
     trigger OnDelete()
     begin
-        StdPurchLine.Reset;
+        StdPurchLine.Reset();
         StdPurchLine.SetRange("Standard Purchase Code", Code);
         StdPurchLine.DeleteAll(true);
     end;

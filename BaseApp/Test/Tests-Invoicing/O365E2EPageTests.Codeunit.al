@@ -93,9 +93,9 @@ codeunit 138910 "O365 E2E Page Tests"
 
         // [GIVEN] #Invoicing area enabled in ApplicationAreaSetup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup.DeleteAll;
+        ApplicationAreaSetup.DeleteAll();
         ApplicationAreaSetup.Invoicing := true;
-        ApplicationAreaSetup.Insert;
+        ApplicationAreaSetup.Insert();
 
         // [WHEN] Application Areas are found
         // [THEN] Invoicing value does not exist
@@ -399,7 +399,7 @@ codeunit 138910 "O365 E2E Page Tests"
         // [GIVEN] VAT Service is not configured
         // [WHEN] User opens the Setting page and enable and disable the VAT service
         // [THEN] Service is enabled and disabled accordingly
-        VATRegNoSrvConfig.DeleteAll;
+        VATRegNoSrvConfig.DeleteAll();
         Assert.IsTrue(VATRegNoSrvConfig.IsEmpty, 'Table should be empty');
 
         O365ServiceConfiguration.OpenView;
@@ -648,7 +648,7 @@ codeunit 138910 "O365 E2E Page Tests"
     var
         O365PostedSalesInvoice: TestPage "O365 Posted Sales Invoice";
     begin
-        Commit;
+        Commit();
         O365PostedSalesInvoice.OpenView;
         O365PostedSalesInvoice.GotoKey(PostedInvoiceNo);
 
@@ -860,7 +860,7 @@ codeunit 138910 "O365 E2E Page Tests"
         BindActiveDirectoryMockEvents;
 
         LibraryVariableStorage.AssertEmpty;
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
         Clear(CustomerName);
         Clear(ItemDescription);
         Clear(ItemPrice);
@@ -869,7 +869,7 @@ codeunit 138910 "O365 E2E Page Tests"
         Clear(VATRate);
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
         if IsInitialized then
             exit;
@@ -878,7 +878,7 @@ codeunit 138910 "O365 E2E Page Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);

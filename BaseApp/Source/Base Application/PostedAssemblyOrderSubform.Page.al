@@ -1,4 +1,4 @@
-﻿page 921 "Posted Assembly Order Subform"
+page 921 "Posted Assembly Order Subform"
 {
     Caption = 'Posted Assembly Order Subform';
     Editable = false;

@@ -73,7 +73,7 @@ page 1810 "Data Migration Entities"
 
     procedure CopyToSourceTable(var TempDataMigrationEntity: Record "Data Migration Entity" temporary)
     begin
-        DeleteAll;
+        DeleteAll();
 
         if TempDataMigrationEntity.FindSet then
             repeat
@@ -85,14 +85,14 @@ page 1810 "Data Migration Entities"
 
     procedure CopyFromSourceTable(var TempDataMigrationEntity: Record "Data Migration Entity" temporary)
     begin
-        TempDataMigrationEntity.Reset;
-        TempDataMigrationEntity.DeleteAll;
+        TempDataMigrationEntity.Reset();
+        TempDataMigrationEntity.DeleteAll();
 
         if FindSet then
             repeat
-                TempDataMigrationEntity.Init;
+                TempDataMigrationEntity.Init();
                 TempDataMigrationEntity.TransferFields(Rec);
-                TempDataMigrationEntity.Insert;
+                TempDataMigrationEntity.Insert();
             until Next = 0;
     end;
 

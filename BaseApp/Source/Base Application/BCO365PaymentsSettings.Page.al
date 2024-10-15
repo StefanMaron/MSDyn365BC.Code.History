@@ -83,7 +83,7 @@ page 2338 "BC O365 Payments Settings"
     var
         O365PaymentInstructions: Record "O365 Payment Instructions";
     begin
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PaymentTermsCode := O365SalesInitialSetup."Default Payment Terms Code";
 
         O365PaymentInstructions.SetRange(Default, true);

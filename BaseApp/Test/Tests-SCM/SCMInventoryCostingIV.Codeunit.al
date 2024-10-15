@@ -344,7 +344,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Setup: Create Currency with Exchange Rate. Update General Ledger Setup for Additional Reporting Currency. Post Purchase Invoice without Currency with Random Direct Unit Cost.
         Initialize;
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCurrencyWithExchangeRate(Currency);
         UpdateGeneralLedgerSetupForACY(Currency.Code);
         CreateAndUpdatePurchaseDocument(
@@ -439,7 +439,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         // Setup: Create Currency with Exchange Rate. Update General Ledger Setup for Additional Reporting Currency.
         // Create and post Sales Order as Ship.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCurrencyWithExchangeRate1(Currency, CurrencyExchangeRate);
         UpdateGeneralLedgerSetupForACY(Currency.Code);
         DocumentNo := CreateAndPostSalesDocument(
@@ -477,7 +477,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Setup: Create Currency with Exchange Rate. Update General Ledger Setup for Additional Reporting Currency.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCurrencyWithExchangeRate(Currency);
         UpdateGeneralLedgerSetupForACY(Currency.Code);
         Item.Get(CreateItem(0, Item."Costing Method"::FIFO));  // Use 0 for Indirect Cost Pct.
@@ -998,7 +998,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         CreateCurrencyWithExchangeRate(Currency);
         ItemNo := CreateItem(LibraryRandom.RandInt(10), Item."Costing Method"::Average);  // Take random for Indirect Cost Percent.
         SetupForAdjustCostOnACY(SalesHeader, ItemNo, Currency.Code);
@@ -1292,7 +1292,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Setup: Create Currency with multiple Exchange Rates. Update Additional Reporting Currency on General Ledger Setup.
         Initialize;
         CreateCurrencyWithMultipleExchangeRates(Currency, CurrencyExchangeRate);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetupForACY(Currency.Code);
         RevaluedFactor := LibraryRandom.RandIntInRange(2, 5);
 
@@ -1601,7 +1601,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing IV");
     end;
 
@@ -1967,7 +1967,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         WarehouseEmployee: Record "Warehouse Employee";
     begin
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, true);
     end;
 
@@ -2028,7 +2028,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Create Component Item and set as Assembly BOM
         CreateAssemblyBomComponent(BomComponent, AssemblyItem."No.");
         CreateAssemblyBomComponent(BomComponent2, AssemblyItem."No.");
-        Commit; // Save the BOM Component record created above
+        Commit(); // Save the BOM Component record created above
     end;
 
     local procedure CreateAssemblyItemWithBOMForPlanning(var AssemblyItem: Record Item; QtyPer: Decimal) ItemNo: Code[20]
@@ -2522,7 +2522,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
     end;

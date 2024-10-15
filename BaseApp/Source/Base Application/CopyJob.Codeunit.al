@@ -37,7 +37,7 @@ codeunit 1006 "Copy Job"
             CopyJobPrices(SourceJob, TargetJob);
 
         OnAfterCopyJob(TargetJob, SourceJob);
-        TargetJob.Modify;
+        TargetJob.Modify();
     end;
 
     procedure CopyJobTasks(SourceJob: Record Job; TargetJob: Record Job)
@@ -57,7 +57,7 @@ codeunit 1006 "Copy Job"
 
         if SourceJobTask.FindSet then
             repeat
-                TargetJobTask.Init;
+                TargetJobTask.Init();
                 TargetJobTask.Validate("Job No.", TargetJob."No.");
                 TargetJobTask.Validate("Job Task No.", SourceJobTask."Job Task No.");
                 TargetJobTask.TransferFields(SourceJobTask, false);
@@ -179,7 +179,7 @@ codeunit 1006 "Copy Job"
         JobLedgEntry.SetFilter("Posting Date", SourceJobTask.GetFilter("Planning Date Filter"));
         if JobLedgEntry.FindSet then
             repeat
-                TargetJobPlanningLine.Init;
+                TargetJobPlanningLine.Init();
                 JobTransferLine.FromJobLedgEntryToPlanningLine(JobLedgEntry, TargetJobPlanningLine);
                 TargetJobPlanningLine."Job No." := TargetJobTask."Job No.";
                 TargetJobPlanningLine.Validate("Line No.", NextPlanningLineNo);
@@ -197,10 +197,11 @@ codeunit 1006 "Copy Job"
                 if not CopyQuantity then
                     TargetJobPlanningLine.Validate(Quantity, 0);
                 NextPlanningLineNo += 10000;
-                TargetJobPlanningLine.Modify;
+                TargetJobPlanningLine.Modify();
             until JobLedgEntry.Next = 0;
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure CopyJobPrices(SourceJob: Record Job; TargetJob: Record Job)
     var
         SourceJobItemPrice: Record "Job Item Price";
@@ -252,7 +253,7 @@ codeunit 1006 "Copy Job"
         if DefaultDimension.FindSet then
             repeat
                 DimMgt.DefaultDimOnDelete(DefaultDimension);
-                DefaultDimension.Delete;
+                DefaultDimension.Delete();
             until DefaultDimension.Next = 0;
 
         DefaultDimension.SetRange("No.", SourceJob."No.");
