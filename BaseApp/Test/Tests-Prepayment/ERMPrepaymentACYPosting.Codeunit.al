@@ -22,6 +22,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         LCYAmtMustBeZeroErr: Label 'Additional-currency Amount in realized gain/loss entries must be 0.';
         IncorrectRoundingAmtErr: Label 'Invoice rounding amount is incorrect.';
         AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
+        GainLossGLEntriesPostedErr: Label 'Realized gains/losses have been posted.';
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
@@ -45,15 +46,15 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PostSalesPrepayment(SalesHeader);
         SalesHeader.CalcFields("Amount Including VAT");
         PostCashPayment(
-          AccountType::Customer, Customer."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate),
+          AccountType::Customer, Customer."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<-1M>', WorkDate),
           -SalesHeader."Amount Including VAT", FindPostedSalesInvoiceForCustomer(Customer."No."));
 
         // Applied cash receipt posting updates sales header status. Need to re-read it.
         SalesHeader.Find;
-        UpdatePostingDateOnSalesHeader(SalesHeader, CalcDate('<+2M>', WorkDate));
+        UpdatePostingDateOnSalesHeader(SalesHeader, WorkDate);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        VerifyACYAmountIsZero(AddCurrency."Realized Losses Acc.");
+        VerifyACYAmountIsZero(AddCurrency."Realized Gains Acc.");
     end;
 
     [Test]
@@ -78,23 +79,24 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PostPurchasePrepayment(PurchaseHeader);
         PurchaseHeader.CalcFields("Amount Including VAT");
         PostCashPayment(
-          AccountType::Vendor, Vendor."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate),
+          AccountType::Vendor, Vendor."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<-1M>', WorkDate),
           PurchaseHeader."Amount Including VAT", FindPostedPurchaseInvoiceForVendor(Vendor."No."));
 
         // Applied cash payment posting updates purchase header status. Need to re-read it.
         PurchaseHeader.Find;
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
-        UpdatePostingDateOnPurchaseHeader(PurchaseHeader, CalcDate('<+2M>', WorkDate));
+        UpdatePostingDateOnPurchaseHeader(PurchaseHeader, WorkDate);
         PurchaseHeader.Validate(
           "Vendor Invoice No.",
           CopyStr(PurchaseHeader."No." + PurchaseHeader."Buy-from Vendor No.", 1, MaxStrLen(PurchaseHeader."Vendor Invoice No.")));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        VerifyACYAmountIsZero(AddCurrency."Realized Gains Acc.");
+        VerifyACYAmountIsZero(AddCurrency."Realized Losses Acc.");
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure TFS353478_VATRoundingOnSalesPrpmtACY()
     var
@@ -121,6 +123,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure TFS353478_VATRoundingOnPurchPrpmtACY()
     var
@@ -138,6 +141,9 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         SetVendorInvRoundingAcc(Vendor."Vendor Posting Group", GLAccount);
 
         CreatePurchaseOrder(PurchaseHeader, Vendor, GLAccount."No.");
+        PurchaseHeader.Validate("Check Total", PurchaseHeader."Check Total");
+        PurchaseHeader.Modify(true);
+
         PostPurchasePrepayment(PurchaseHeader);
         PurchaseHeader.Find;
         PurchaseHeader.CalcFields("Amount Including VAT");
@@ -165,12 +171,12 @@ codeunit 134110 "ERM Prepayment ACY Posting"
 
         PostPurchasePrepayment(PurchaseHeader);
 
-        UpdatePostingDateOnPurchaseHeader(PurchaseHeader, CalcDate('<+2M>', WorkDate));
+        UpdatePostingDateOnPurchaseHeader(PurchaseHeader, WorkDate);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo);
         PurchaseHeader.Modify(true);
         PostPurchasePrepmtCreditMemo(PurchaseHeader);
 
-        VerifyACYAmountIsZero(AddCurrency."Realized Gains Acc.");
+        VerifyNoGainsLossesPosted(AddCurrency."Realized Losses Acc.");
     end;
 
     [Test]
@@ -193,10 +199,10 @@ codeunit 134110 "ERM Prepayment ACY Posting"
 
         PostSalesPrepayment(SalesHeader);
 
-        UpdatePostingDateOnSalesHeader(SalesHeader, CalcDate('<+2M>', WorkDate));
+        UpdatePostingDateOnSalesHeader(SalesHeader, WorkDate);
         PostSalesPrepmtCreditMemo(SalesHeader);
 
-        VerifyACYAmountIsZero(AddCurrency."Realized Losses Acc.");
+        VerifyNoGainsLossesPosted(AddCurrency."Realized Gains Acc.");
     end;
 
     local procedure Initialize()
@@ -261,7 +267,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
 
         BaseExchRate := LibraryRandom.RandIntInRange(100, 200);
 
-        for I := -1 to 3 do
+        for I := -4 to 0 do
             CreateExchangeRate(AddCurrency.Code, CalcDate(StrSubstNo('<%1M>', Format(I)), WorkDate), BaseExchRate, BaseExchRate + 10 * I + 20);
     end;
 
@@ -315,14 +321,20 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Posting Date", CalcDate('<-2M>', PurchaseHeader."Posting Date"));
         PurchaseHeader.Validate("Prepayment %", 100);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader."Prepayment Due Date" := PurchaseHeader."Posting Date";
+        PurchaseHeader."Prepayment No. Series" := LibraryERM.CreateNoSeriesPurchaseCode;
         PurchaseHeader.Modify(true);
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccNo, LibraryRandom.RandInt(5));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
         PurchaseLine.Modify(true);
+
+        PurchaseHeader.Validate("Check Total", PurchaseLine."Amount Including VAT");
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; Customer: Record Customer; GLAccNo: Code[20])
@@ -330,7 +342,9 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Posting Date", CalcDate('<-2M>', SalesHeader."Posting Date"));
         SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader."Prepayment No. Series" := LibraryERM.CreateNoSeriesSalesCode;
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
@@ -516,6 +530,14 @@ codeunit 134110 "ERM Prepayment ACY Posting"
                 Assert.AreEqual(0, "Additional-Currency Amount", LCYAmtMustBeZeroErr);
             until Next = 0;
         end;
+    end;
+
+    local procedure VerifyNoGainsLossesPosted(GLAccNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        Assert.IsTrue(GLEntry.IsEmpty, GainLossGLEntriesPostedErr);
     end;
 
     [ConfirmHandler]

@@ -22,6 +22,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         UnsupportedFieldTypeErr: Label 'The %1 field in the %2 table is of an unsupported type.', Locked = true;
         ChangeTypeOption: Option Created,Updated,Deleted,Collection;
         CachedApiSubscriptionEnabled: Boolean;
+        CachedDetailedLoggingEnabled: Boolean;
         FindingEntityMsg: Label 'Finding entity for subscription. Subscription expiration time: %1. Source table: %2.', Locked = true;
         CannotFindEntityErr: Label 'Cannot find entity. Table: %1.', Locked = true;
         TemporarySourceTableErr: Label 'No support for entities with a temporary source table. Table: %1.', Locked = true;
@@ -32,6 +33,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         CreateJobCategoryMsg: Label 'Create new job category.', Locked = true;
         CreateJobMsg: Label 'Create new job. Earliest start time: %1.', Locked = true;
         UseCachedApiSubscriptionEnabled: Boolean;
+        UseCachedDetailedLoggingEnabled: Boolean;
         TooManyJobsMsg: Label 'New job is not created. Count of jobs cannot exceed %1.', Locked = true;
         FieldTok: Label 'Field', Locked = true;
         EqConstTok: Label '=CONST(', Locked = true;
@@ -184,9 +186,10 @@ codeunit 6153 "API Webhook Notification Mgt."
     [Scope('OnPrem')]
     procedure GetEntity(var APIWebhookSubscription: Record "API Webhook Subscription"; var ApiWebhookEntity: Record "Api Webhook Entity"): Boolean
     begin
-        SendTraceTag('00006ZN', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(FindingEntityMsg, DateTimeToString(APIWebhookSubscription."Expiration Date Time"),
-            APIWebhookSubscription."Source Table Id"),
+        if IsDetailedLoggingEnabled() then
+            SendTraceTag('00006ZN', APIWebhookCategoryLbl, VERBOSITY::Normal,
+            StrSubstNo(FindingEntityMsg, DateTimeToString(APIWebhookSubscription."Expiration Date Time"),
+                APIWebhookSubscription."Source Table Id"),
           DATACLASSIFICATION::SystemMetadata);
         ApiWebhookEntity.SetRange(Publisher, APIWebhookSubscription."Entity Publisher");
         ApiWebhookEntity.SetRange(Group, APIWebhookSubscription."Entity Group");
@@ -238,9 +241,10 @@ codeunit 6153 "API Webhook Notification Mgt."
                 exit(false);
             end;
         end;
-        SendTraceTag('00006ZP', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(FilterMatchingMsg, RecRef.Number, ApiWebhookEntity."Object Type", ApiWebhookEntity."Object ID"),
-          DATACLASSIFICATION::SystemMetadata);
+        if IsDetailedLoggingEnabled() then
+            SendTraceTag('00006ZP', APIWebhookCategoryLbl, VERBOSITY::Normal,
+            StrSubstNo(FilterMatchingMsg, RecRef.Number, ApiWebhookEntity."Object Type", ApiWebhookEntity."Object ID"),
+            DATACLASSIFICATION::SystemMetadata);
         exit(true);
     end;
 
@@ -343,12 +347,13 @@ codeunit 6153 "API Webhook Notification Mgt."
                 APIWebhookNotification."Last Modified Date Time" := GetLastModifiedDateTime(RecRef, FieldRef);
             APIWebhookNotification."Entity Key Value" := CopyStr(FieldValue, 1, MaxStrLen(APIWebhookNotification."Entity Key Value"));
             if APIWebhookNotification.Insert(true) then begin
-                SendTraceTag('000024P', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(CreateNotificationMsg,
-                    DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id",
-                    DateTimeToString(APIWebhookNotification."Last Modified Date Time"),
-                    APIWebhookNotification."Change Type", APIWebhookNotification.ID),
-                  DATACLASSIFICATION::SystemMetadata);
+                if IsDetailedLoggingEnabled() then
+                    SendTraceTag('000024P', APIWebhookCategoryLbl, VERBOSITY::Normal,
+                    StrSubstNo(CreateNotificationMsg,
+                        DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id",
+                        DateTimeToString(APIWebhookNotification."Last Modified Date Time"),
+                        APIWebhookNotification."Change Type", APIWebhookNotification.ID),
+                    DATACLASSIFICATION::SystemMetadata);
                 exit(true);
             end;
         end;
@@ -541,9 +546,10 @@ codeunit 6153 "API Webhook Notification Mgt."
         ProcessingDateTime := CurrentDateTime();
         LatestStartDateTime := EarliestStartDateTime + GetDelayTime();
 
-        SendTraceTag('000070M', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(ScheduleJobMsg, DateTimeToString(ProcessingDateTime), DateTimeToString(EarliestStartDateTime), DateTimeToString(LatestStartDateTime)),
-          DATACLASSIFICATION::SystemMetadata);
+        if IsDetailedLoggingEnabled() then
+            SendTraceTag('000070M', APIWebhookCategoryLbl, VERBOSITY::Normal,
+            StrSubstNo(ScheduleJobMsg, DateTimeToString(ProcessingDateTime), DateTimeToString(EarliestStartDateTime), DateTimeToString(LatestStartDateTime)),
+            DATACLASSIFICATION::SystemMetadata);
 
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"API Webhook Notification Send");
@@ -630,6 +636,30 @@ codeunit 6153 "API Webhook Notification Mgt."
     begin
     end;
 
+    [Scope('OnPrem')]
+    procedure IsDetailedLoggingEnabled(): Boolean
+    var
+        Handled: Boolean;
+        Enabled: boolean;
+    begin
+        if UseCachedDetailedLoggingEnabled then
+            exit(CachedDetailedLoggingEnabled);
+
+        OnGetDetailedLoggingEnabled(Handled, Enabled);
+        if Handled then begin
+            CachedDetailedLoggingEnabled := Enabled;
+            UseCachedDetailedLoggingEnabled := true;
+            exit(Enabled);
+        end;
+
+        exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDetailedLoggingEnabled(var Handled: Boolean; var Enabled: Boolean)
+    begin
+    end;
+
     local procedure IsApiSubscriptionEnabled(): Boolean
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
@@ -643,11 +673,12 @@ codeunit 6153 "API Webhook Notification Mgt."
         exit(CachedApiSubscriptionEnabled);
     end;
 
-    [Scope('OnPrem')]
     procedure Reset()
     begin
         UseCachedApiSubscriptionEnabled := false;
+        UseCachedDetailedLoggingEnabled := false;
         Clear(CachedApiSubscriptionEnabled);
+        Clear(CachedDetailedLoggingEnabled);
     end;
 
     local procedure GetMaxNumberOfJobs(): Integer

@@ -259,6 +259,7 @@ codeunit 131300 "Library - ERM"
         BankAccount.Validate(Name, BankAccount."No.");  // Validating No. as Name because value is not important.
         BankAccount.Insert(true);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
+        BankAccount.IBAN := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account"); // Bypass CheckIBAN fired in OnValidate Trigger.
         BankAccount.Modify(true);
         BankContUpdate.OnModify(BankAccount);
     end;
@@ -614,6 +615,69 @@ codeunit 131300 "Library - ERM"
         Insurance.Insert(true);
         Insurance.Validate(Description, Insurance."No.");  // Validating No as Description because value is not important.
         Insurance.Modify(true);
+    end;
+
+    procedure CreateNoSeriesLineSales(var NoSeriesLineSales: Record "No. Series Line Sales"; SeriesCode: Code[20]; StartingNo: Code[20]; EndingNo: Code[20])
+    begin
+        NoSeriesLineSales.Init();
+        NoSeriesLineSales.Validate("Series Code", SeriesCode);
+        NoSeriesLineSales.Validate("Line No.",
+          LibraryUtility.GetNewRecNo(NoSeriesLineSales, NoSeriesLineSales.FieldNo("Line No.")));
+        if StartingNo = '' then
+            NoSeriesLineSales.Validate("Starting No.", PadStr(InsStr(SeriesCode, '00000000', 3), 10))
+        else
+            NoSeriesLineSales.Validate("Starting No.", StartingNo);
+        if EndingNo = '' then
+            NoSeriesLineSales.Validate("Ending No.", PadStr(InsStr(SeriesCode, '99999999', 3), 10))
+        else
+            NoSeriesLineSales.Validate("Ending No.", EndingNo);
+        NoSeriesLineSales.Insert(true)
+    end;
+
+    procedure CreateNoSeriesSalesCode(): Code[20]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLineSales: Record "No. Series Line Sales";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
+        NoSeries.Validate("No. Series Type", NoSeries."No. Series Type"::Sales);
+        NoSeries.Modify(true);
+        CreateNoSeriesLineSales(
+          NoSeriesLineSales, NoSeries.Code,
+          CopyStr(LibraryUtility.GenerateRandomCode(NoSeriesLineSales.FieldNo("Starting No."), DATABASE::"No. Series Line Sales"), 1, 20),
+          '');
+        exit(NoSeries.Code);
+    end;
+
+    procedure CreateNoSeriesLinePurchase(var NoSeriesLinePurchase: Record "No. Series Line Purchase"; SeriesCode: Code[20]; StartingNo: Code[20]; EndingNo: Code[20])
+    begin
+        NoSeriesLinePurchase.Init();
+        NoSeriesLinePurchase.Validate("Series Code", SeriesCode);
+        NoSeriesLinePurchase.Validate("Line No.",
+          LibraryUtility.GetNewRecNo(NoSeriesLinePurchase, NoSeriesLinePurchase.FieldNo("Line No.")));
+        if StartingNo = '' then
+            NoSeriesLinePurchase.Validate("Starting No.", PadStr(InsStr(SeriesCode, '00000000', 3), 10))
+        else
+            NoSeriesLinePurchase.Validate("Starting No.", StartingNo);
+        if EndingNo = '' then
+            NoSeriesLinePurchase.Validate("Ending No.", PadStr(InsStr(SeriesCode, '99999999', 3), 10))
+        else
+            NoSeriesLinePurchase.Validate("Ending No.", EndingNo);
+        NoSeriesLinePurchase.Insert(true)
+    end;
+
+    procedure CreateNoSeriesPurchaseCode(): Code[20]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
+        NoSeries.Validate("No. Series Type", NoSeries."No. Series Type"::Purchase);
+        NoSeries.Modify(true);
+        CreateNoSeriesLinePurchase(
+          NoSeriesLinePurchase, NoSeries.Code,
+          LibraryUtility.GenerateRandomCode(NoSeriesLinePurchase.FieldNo("Starting No."), DATABASE::"No. Series Line Purchase"), '');
+        exit(NoSeries.Code);
     end;
 
     procedure CreateRandomExchangeRate(CurrencyCode: Code[10])
@@ -1032,29 +1096,23 @@ codeunit 131300 "Library - ERM"
     end;
 
     procedure CreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
+    var
+        PaymentLines: Record "Payment Lines";
     begin
-        PaymentTerms.Init();
-        PaymentTerms.Validate(
-          Code,
-          CopyStr(
-            LibraryUtility.GenerateRandomCode(PaymentTerms.FieldNo(Code), DATABASE::"Payment Terms"),
-            1,
-            LibraryUtility.GetFieldLength(DATABASE::"Payment Terms", PaymentTerms.FieldNo(Code))));
-        PaymentTerms.Insert(true);
+        CreatePaymentTermsIT(PaymentTerms);
+        CreatePaymentLines(PaymentLines, PaymentLines."Sales/Purchase"::" ", PaymentLines.Type::"Payment Terms", PaymentTerms.Code, '', 0);
 
         OnAfterCreatePaymentTerms(PaymentTerms);
     end;
 
     procedure CreatePaymentTermsDiscount(var PaymentTerms: Record "Payment Terms"; CalcPmtDiscOnCrMemos: Boolean)
+    var
+        PaymentLines: Record "Payment Lines";
     begin
-        CreatePaymentTerms(PaymentTerms);
+        CreatePaymentTermsIT(PaymentTerms);
         PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", CalcPmtDiscOnCrMemos);
-        Evaluate(PaymentTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
-        Evaluate(PaymentTerms."Discount Date Calculation", '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-        PaymentTerms.Validate("Due Date Calculation", PaymentTerms."Due Date Calculation");
-        PaymentTerms.Validate("Discount Date Calculation", PaymentTerms."Discount Date Calculation");
-        PaymentTerms.Validate("Discount %", LibraryRandom.RandInt(10));
         PaymentTerms.Modify(true);
+        CreatePaymentLinesDiscount(PaymentLines, PaymentTerms.Code);
     end;
 
     procedure CreatePostCode(var PostCode: Record "Post Code")
@@ -1318,6 +1376,8 @@ codeunit 131300 "Library - ERM"
     end;
 
     procedure CreateVATBusinessPostingGroup(var VATBusinessPostingGroup: Record "VAT Business Posting Group")
+    var
+        NoSeries: Record "No. Series";
     begin
         VATBusinessPostingGroup.Init();
         VATBusinessPostingGroup.Validate(
@@ -1327,27 +1387,50 @@ codeunit 131300 "Library - ERM"
 
         // Validating Code as Name because value is not important.
         VATBusinessPostingGroup.Validate(Description, VATBusinessPostingGroup.Code);
+
+        // Set "Default Sales/Purchase operation"s - select first appropriate from "No. Series"
+        NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Sales);
+        NoSeries.FindFirst;
+        VATBusinessPostingGroup."Default Sales Operation Type" := NoSeries.Code;
+
+        NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Purchase);
+        NoSeries.FindFirst;
+        VATBusinessPostingGroup."Default Purch. Operation Type" := NoSeries.Code;
+
         VATBusinessPostingGroup.Insert(true);
     end;
 
     procedure CreateRandomVATIdentifierAndGetCode(): Text
     var
-        VATPostingSetup: Record "VAT Posting Setup";
+        VATIdentifier: Record "VAT Identifier";
     begin
-        exit(LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        CreateVATIdentifier(VATIdentifier);
+        exit(VATIdentifier.Code);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateVATIdentifier(var VATIdentifier: Record "VAT Identifier")
+    begin
+        VATIdentifier.Init();
+        VATIdentifier.Validate(Code, LibraryUtility.GenerateRandomCode(VATIdentifier.FieldNo(Code), DATABASE::"VAT Identifier"));
+        VATIdentifier.Insert(true);
     end;
 
     procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
     var
+        VATIdentifier: Record "VAT Identifier";
         Handled: Boolean;
     begin
         OnBeforeCreateVATPostingSetup(VATPostingSetup, Handled);
         if Handled then
             exit;
 
+        CreateVATIdentifier(VATIdentifier);
+
         VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        VATPostingSetup.Validate("VAT Identifier", VATIdentifier.Code);
         VATPostingSetup.Insert(true);
 
         OnAfterCreateVATPostingSetup(VATPostingSetup);
@@ -1357,7 +1440,10 @@ codeunit 131300 "Library - ERM"
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATIdentifier: Record "VAT Identifier";
     begin
+        CreateVATIdentifier(VATIdentifier);
+
         VATPostingSetup.Init();
         CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         CreateVATProductPostingGroup(VATProductPostingGroup);
@@ -1365,11 +1451,11 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
         VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.Validate("VAT %", VATRate);
-        VATPostingSetup.Validate("VAT Identifier",
-          LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        VATPostingSetup."VAT Identifier" := VATIdentifier.Code;
         VATPostingSetup.Validate("Sales VAT Account", CreateGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccountNo);
         VATPostingSetup.Validate("Tax Category", 'S');
+        VATPostingSetup."Deductible %" := 100;
         VATPostingSetup.Insert(true);
     end;
 
@@ -1526,6 +1612,13 @@ codeunit 131300 "Library - ERM"
     begin
         CreateVATStatementTemplate(VATStatementTemplate);
         CreateVATStatementName(VATStatementName, VATStatementTemplate.Name);
+    end;
+
+    procedure CreateVATTransReportAmount(var VATTransactionReportAmount: Record "VAT Transaction Report Amount"; StartingDate: Date)
+    begin
+        VATTransactionReportAmount.Init();
+        VATTransactionReportAmount.Validate("Starting Date", StartingDate);
+        VATTransactionReportAmount.Insert(true);
     end;
 
     procedure CreateTaxArea(var TaxArea: Record "Tax Area")
@@ -1909,6 +2002,15 @@ codeunit 131300 "Library - ERM"
         GenProdPostingGroup.Modify();
     end;
 
+    procedure FindOperationType(SeriesType: Option): Code[10]
+    var
+        NoSeries: Record "No. Series";
+    begin
+        NoSeries.SetRange("No. Series Type", SeriesType);
+        NoSeries.FindFirst;
+        exit(NoSeries.Code);
+    end;
+
     procedure FindIntrastatSetup(var IntrastatSetup: Record "Intrastat Setup")
     begin
         if not IntrastatSetup.Get then
@@ -1980,6 +2082,7 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
+        VATPostingSetup.SetRange("Deductible %", 100);
         if not VATPostingSetup.FindFirst then
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
@@ -1993,9 +2096,37 @@ codeunit 131300 "Library - ERM"
             VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
         if SearchPostingType <> SearchPostingType::Sales then
             VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
+        VATPostingSetup.SetRange("Deductible %", 100);
         if not VATPostingSetup.FindFirst then
             CreateVATPostingSetupWithAccounts(VATPostingSetup,
               VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
+    end;
+
+    [Scope('OnPrem')]
+    procedure FindVATPostingSetupSales(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+    begin
+        with VATPostingSetup do begin
+            SetFilter("VAT Bus. Posting Group", '<>%1', '');
+            SetFilter("VAT Prod. Posting Group", '<>%1', '');
+            SetFilter("VAT %", '<>%1', 0);
+            SetFilter("VAT Calculation Type", '<>%1', "VAT Calculation Type"::"Reverse Charge VAT");
+            SetFilter("Sales VAT Account", '<>%1', '');
+            SetFilter("Purchase VAT Account", '<>%1', '');
+            if not FindFirst then begin
+                Init;
+                VATBusPostingGroup.FindFirst;
+                VATProdPostingGroup.FindFirst;
+                "VAT Bus. Posting Group" := VATBusPostingGroup.Code;
+                "VAT Prod. Posting Group" := VATProdPostingGroup.Code;
+                "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
+                "VAT %" := LibraryRandom.RandIntInRange(1, 25);
+                "Deductible %" := 100;
+                Insert(true);
+            end;
+        end;
     end;
 
     procedure FindZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
@@ -2098,12 +2229,35 @@ codeunit 131300 "Library - ERM"
         exit(GeneralLedgerSetup.GetCurrencyCode(Code));
     end;
 
-    procedure GetDiscountPaymentTerm(var PaymentTerms: Record "Payment Terms")
+    procedure GetDefaultOperationType(AccountNo: Code[20]; TableNo: Integer): Code[10]
+    var
+        Customer: Record Customer;
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        Vendor: Record Vendor;
     begin
-        PaymentTerms.SetFilter("Due Date Calculation", '<>''''');
-        PaymentTerms.SetFilter("Discount Date Calculation", '<>''''');
-        PaymentTerms.SetFilter("Discount %", '>%1', 0);
-        if not PaymentTerms.FindFirst then
+        case TableNo of
+            DATABASE::Customer:
+                begin
+                    Customer.Get(AccountNo);
+                    VATBusPostingGroup.Get(Customer."VAT Bus. Posting Group");
+                    exit(VATBusPostingGroup."Default Sales Operation Type");
+                end;
+            DATABASE::Vendor:
+                begin
+                    Vendor.Get(AccountNo);
+                    VATBusPostingGroup.Get(Vendor."VAT Bus. Posting Group");
+                    exit(VATBusPostingGroup."Default Purch. Operation Type");
+                end;
+        end;
+    end;
+
+    procedure GetDiscountPaymentTerm(var PaymentTerms: Record "Payment Terms")
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        if FindDiscountPaymentLine(PaymentLines) then
+            PaymentTerms.Get(PaymentLines.Code)
+        else
             CreatePaymentTermsDiscount(PaymentTerms, false);
     end;
 
@@ -2118,6 +2272,11 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
+    procedure GetDiscountPaymentLine(var PaymentLines: Record "Payment Lines"): Boolean
+    begin
+        exit(FindDiscountPaymentLine(PaymentLines));
+    end;
+
     procedure GetInvoiceRoundingPrecisionLCY(): Decimal
     begin
         GeneralLedgerSetup.Get();
@@ -2130,9 +2289,18 @@ codeunit 131300 "Library - ERM"
         exit(GeneralLedgerSetup."LCY Code");
     end;
 
-    procedure GetPaymentTermsDiscountPct(PaymentTerms: Record "Payment Terms"): Decimal
+    procedure GetPaymentLines(var PaymentLines: Record "Payment Lines"; "Code": Code[10]): Boolean
     begin
-        exit(PaymentTerms."Discount %");
+        exit(FindPaymentLines(PaymentLines, Code));
+    end;
+
+    procedure GetPaymentTermsDiscountPct(PaymentTerms: Record "Payment Terms"): Decimal
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        if FindPaymentLines(PaymentLines, PaymentTerms.Code) then
+            exit(PaymentLines."Discount %");
+        exit(0);
     end;
 
     procedure GetShortcutDimensionCode(DimNo: Integer): Code[20]
@@ -2733,7 +2901,23 @@ codeunit 131300 "Library - ERM"
             "Income/Balance" := "Income/Balance"::"Balance Sheet";
             "Direct Posting" := true;
             Modify;
+
+            if GenPostingType = GenPostingType::Sale then
+                VATPostingSetup."Sales Prepayments Account" := "No."
+            else
+                VATPostingSetup."Purch. Prepayments Account" := "No.";
+            VATPostingSetup.Modify();
         end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetDefaultSalesOperationType(VATBusPostingGroupCode: Code[20])
+    var
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+    begin
+        VATBusPostingGroup.Get(VATBusPostingGroupCode);
+        VATBusPostingGroup.Validate("Default Sales Operation Type", CreateNoSeriesSalesCode);
+        VATBusPostingGroup.Modify(true);
     end;
 
     procedure SetInvRoundingPrecisionLCY(InvRoundingPrecisionLCY: Decimal)
@@ -3004,6 +3188,82 @@ codeunit 131300 "Library - ERM"
         DtldCustLedgEntry.TestField("Transaction No.", 0);
         DtldCustLedgEntry.TestField("Application No.");
         DtldCustLedgEntry.TestField("Amount (LCY)", AmountLCY);
+    end;
+
+    procedure CreatePaymentTermsIT(var PaymentTerms: Record "Payment Terms")
+    begin
+        PaymentTerms.Init();
+        PaymentTerms.Validate(
+          Code,
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(PaymentTerms.FieldNo(Code), DATABASE::"Payment Terms"),
+            1,
+            LibraryUtility.GetFieldLength(DATABASE::"Payment Terms", PaymentTerms.FieldNo(Code))));
+        PaymentTerms.Insert(true);
+    end;
+
+    procedure FindPaymentTermsIT(): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        if not PaymentTerms.Get(GetNonDuePaymentLineCode) then
+            CreatePaymentTermsIT(PaymentTerms);
+        exit(PaymentTerms.Code);
+    end;
+
+    procedure CreatePaymentLines(var PaymentLines: Record "Payment Lines"; SalesPurchase: Option; Type: Option; "Code": Code[20]; JnlTemplateName: Code[10]; JnlLineNo: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        PaymentLines.Init();
+        PaymentLines.SetRange(Type, Type);
+        PaymentLines.SetFilter(Code, Code);
+        PaymentLines.Validate("Sales/Purchase", SalesPurchase);
+        PaymentLines.Validate(Type, Type);
+        PaymentLines.Validate(Code, Code);
+        PaymentLines.Validate("Journal Template Name", JnlTemplateName);
+        PaymentLines.Validate("Journal Line No.", JnlLineNo);
+        RecRef.GetTable(PaymentLines);
+        PaymentLines.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PaymentLines.FieldNo("Line No.")));
+        PaymentLines.Insert(true);
+    end;
+
+    procedure CreatePaymentLinesDiscount(var PaymentLines: Record "Payment Lines"; "Code": Code[20])
+    begin
+        CreatePaymentLines(PaymentLines, PaymentLines."Sales/Purchase"::" ", PaymentLines.Type::"Payment Terms", Code, '', 0);
+        Evaluate(PaymentLines."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
+        Evaluate(PaymentLines."Discount Date Calculation", '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
+        PaymentLines.Validate("Due Date Calculation", PaymentLines."Due Date Calculation");
+        PaymentLines.Validate("Discount Date Calculation", PaymentLines."Discount Date Calculation");
+        PaymentLines.Validate("Discount %", LibraryRandom.RandInt(10));
+        PaymentLines.Modify(true);
+    end;
+
+    procedure GetNonDuePaymentLineCode(): Code[10]
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
+        PaymentLines.SetFilter("Due Date Calculation", '0D');
+        if PaymentLines.FindFirst then
+            exit(PaymentLines.Code);
+        exit('');
+    end;
+
+    procedure FindDiscountPaymentLine(var PaymentLines: Record "Payment Lines"): Boolean
+    begin
+        PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
+        PaymentLines.SetFilter("Due Date Calculation", '<>''''');
+        PaymentLines.SetFilter("Discount Date Calculation", '<>''''');
+        PaymentLines.SetFilter("Discount %", '>0');
+        exit(PaymentLines.FindFirst);
+    end;
+
+    procedure FindPaymentLines(var PaymentLines: Record "Payment Lines"; "Code": Code[10]): Boolean
+    begin
+        PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
+        PaymentLines.SetRange(Code, Code);
+        exit(PaymentLines.FindFirst);
     end;
 
     procedure UpdateAmountOnGenJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; var GeneralJournal: TestPage "General Journal")

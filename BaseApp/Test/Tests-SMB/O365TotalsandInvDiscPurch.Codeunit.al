@@ -557,6 +557,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         CreateInvoceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(InvoiceDiscountAmount);
+        PurchaseInvoice."Check Total".SetValue(PurchaseInvoice.PurchLines."Total Amount Incl. VAT".Value);
 
         LibraryVariableStorage.Enqueue(PostMsg);
         LibraryVariableStorage.Enqueue(true);
@@ -1354,6 +1355,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     local procedure CreateVendorWithDiscount(var Vendor: Record Vendor; DiscPct: Decimal; MinimumAmount: Decimal)
     begin
         CreateVendor(Vendor);
+        Vendor."Payment Terms Code" := '';
+        Vendor.Modify();
 
         LibrarySmallBusiness.SetInvoiceDiscountToVendor(Vendor, DiscPct, MinimumAmount, '');
     end;

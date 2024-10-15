@@ -45,15 +45,29 @@ codeunit 131332 "Library - Cash Flow Helper"
         exit(SalesHeader."Last Prepayment No.");
     end;
 
-    procedure AddAndPostPOPrepaymentInvoice(var PurchaseHeader: Record "Purchase Header"; PrepaymentPercentage: Decimal) PrepmtInvNo: Code[20]
+    procedure AddAndPostPOPrepaymentInvoice(var PurchaseHeader: Record "Purchase Header"; PrepaymentPercentage: Decimal; var CheckTotalAmount: Decimal) PrepmtInvNo: Code[20]
     begin
         AddPOPrepayment(PurchaseHeader, PrepaymentPercentage);
+        ValidatePOCheckTotal(PurchaseHeader, CheckTotalAmount);
         PrepmtInvNo := PostPOPrepaymentInvoice(PurchaseHeader);
     end;
 
     procedure AddPOPrepayment(var PurchaseHeader: Record "Purchase Header"; PrepaymentPercentage: Decimal)
     begin
         PurchaseHeader.Validate("Prepayment %", PrepaymentPercentage);
+        PurchaseHeader.Modify(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ValidatePOCheckTotal(var PurchaseHeader: Record "Purchase Header"; var CheckTotalAmount: Decimal)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        // IT requires the prepayment amount in the Purchase Header Check Total field
+        PurchaseHeader.Validate("Check Total",
+          Round(GetTotalPurchasePrepaymentAmount(PurchaseHeader), GeneralLedgerSetup."Amount Rounding Precision"));
+        CheckTotalAmount := PurchaseHeader."Check Total";
         PurchaseHeader.Modify(true);
     end;
 
@@ -65,25 +79,12 @@ codeunit 131332 "Library - Cash Flow Helper"
         exit(PurchaseHeader."Last Prepayment No.");
     end;
 
-    procedure AssignCFPaymentTermToCustomer(var Customer: Record Customer; PaymentTermsCode: Code[10])
-    begin
-        // An empty payment terms code creates a default payment term code
-        Customer.Validate("Cash Flow Payment Terms Code", GetPaymentTermsCode(PaymentTermsCode));
-        Customer.Modify(true);
-    end;
-
+    [Scope('OnPrem')]
     procedure AssignPaymentTermToCustomer(var Customer: Record Customer; PaymentTermsCode: Code[10])
     begin
         // An empty payment terms code creates a default payment term code
         Customer.Validate("Payment Terms Code", GetPaymentTermsCode(PaymentTermsCode));
         Customer.Modify(true);
-    end;
-
-    procedure AssignCFPaymentTermToVendor(var Vendor: Record Vendor; PaymentTermsCode: Code[10])
-    begin
-        // An empty payment terms code creates a default payment term code
-        Vendor.Validate("Cash Flow Payment Terms Code", GetPaymentTermsCode(PaymentTermsCode));
-        Vendor.Modify(true);
     end;
 
     procedure AssignPaymentTermToVendor(var Vendor: Record Vendor; PaymentTermsCode: Code[10])
@@ -250,26 +251,29 @@ codeunit 131332 "Library - Cash Flow Helper"
     end;
 
     procedure CreateDefaultPaymentTerms(var PaymentTerms: Record "Payment Terms")
+    var
+        PaymentLines: Record "Payment Lines";
     begin
         LibraryERM.CreatePaymentTerms(PaymentTerms);
-        Evaluate(PaymentTerms."Due Date Calculation", '<0D>');
-        Evaluate(PaymentTerms."Discount Date Calculation", '<0D>');
-        PaymentTerms.Validate("Discount %", 0);
-        PaymentTerms.Modify(true);
+        LibraryERM.GetPaymentLines(PaymentLines, PaymentTerms.Code);
+        Evaluate(PaymentLines."Due Date Calculation", '<0D>');
+        Evaluate(PaymentLines."Discount Date Calculation", '<0D>');
+        PaymentLines.Validate("Discount %", 0);
+        PaymentLines.Modify(true);
     end;
 
-    procedure CreateCustWithCFDsctPmtTerm(var Customer: Record Customer; var PaymentTerms: Record "Payment Terms")
+    procedure CreateCustWithDsctPmtTerm(var Customer: Record Customer; var PaymentTerms: Record "Payment Terms")
     begin
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
-        AssignCFPaymentTermToCustomer(Customer, PaymentTerms.Code);
+        AssignPaymentTermToCustomer(Customer, PaymentTerms.Code);
     end;
 
-    procedure CreateVendorWithCFDsctPmtTerm(var Vendor: Record Vendor; var PaymentTerms: Record "Payment Terms")
+    procedure CreateVendorWithDsctPmtTerm(var Vendor: Record Vendor; var PaymentTerms: Record "Payment Terms")
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
-        AssignCFPaymentTermToVendor(Vendor, PaymentTerms.Code);
+        AssignPaymentTermToVendor(Vendor, PaymentTerms.Code);
     end;
 
     procedure CreateFixedAssetForInvestment(var FixedAsset: Record "Fixed Asset"; DepreciationBookCode: Code[10]; FAPostingDateFormula: DateFormula; InvestmentAmount: Decimal)
@@ -348,72 +352,74 @@ codeunit 131332 "Library - Cash Flow Helper"
         Evaluate(ResultDateFormula, StrSubstNo('<%1D>', LibraryRandom.RandInt(5)));
     end;
 
-    procedure CreateSpecificCashFlowCard(var CashFlowForecast: Record "Cash Flow Forecast"; ConsiderDiscount: Boolean; ConsiderPmtTerms: Boolean)
+    procedure CreateSpecificCashFlowCard(var CashFlowForecast: Record "Cash Flow Forecast"; ConsiderDiscount: Boolean)
     begin
         LibraryCashFlowForecast.CreateCashFlowCard(CashFlowForecast);
         CashFlowForecast."Manual Payments To" := CashFlowForecast."Manual Payments From";
         CashFlowForecast.Validate("Consider Discount", ConsiderDiscount);
-        CashFlowForecast.Validate("Consider CF Payment Terms", ConsiderPmtTerms);
         CashFlowForecast.Modify(true);
     end;
 
     procedure CreateCashFlowForecastDefault(var CashFlowForecast: Record "Cash Flow Forecast")
     begin
-        CreateSpecificCashFlowCard(CashFlowForecast, false, false);
+        CreateSpecificCashFlowCard(CashFlowForecast, false);
     end;
 
     procedure CreateCashFlowForecastConsiderDiscount(var CashFlowForecast: Record "Cash Flow Forecast")
     begin
-        CreateSpecificCashFlowCard(CashFlowForecast, true, false);
+        CreateSpecificCashFlowCard(CashFlowForecast, true);
     end;
 
-    procedure CreateCashFlowForecastConsiderCFPmtTerms(var CashFlowForecast: Record "Cash Flow Forecast")
-    begin
-        CreateSpecificCashFlowCard(CashFlowForecast, false, true);
-    end;
-
-    procedure CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(var CashFlowForecast: Record "Cash Flow Forecast")
-    begin
-        CreateSpecificCashFlowCard(CashFlowForecast, true, true);
-    end;
-
-    procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; GLAccount: Record "G/L Account"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
+    procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; GLAccount: Record "G/L Account"; PaymentTermsCode: Code[10])
     var
         Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
+        DueDateCalculation: DateFormula;
+        DiscountDateCalculation: DateFormula;
     begin
         Customer.Get(
           LibrarySales.CreateCustomerWithBusPostingGroups(
             GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group"));
         AssignPaymentTermToCustomer(Customer, PaymentTermsCode);
-        AssignCFPaymentTermToCustomer(Customer, CFPaymentTermsCode);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        // IT requires a value in the sales header Prepayment Due Date field
+        if PaymentTermsCode <> '' then begin
+            PaymentTerms.Get(PaymentTermsCode);
+            GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
+            GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
+            SalesHeader.Validate("Prepayment Due Date", CalcDate(DueDateCalculation, SalesHeader."Document Date"));
+            SalesHeader.Validate("Prepmt. Payment Discount %", GetPmtTermsDiscountPercentage(PaymentTerms));
+            SalesHeader.Validate("Prepmt. Pmt. Discount Date", CalcDate(DiscountDateCalculation, SalesHeader."Document Date"));
+        end else
+            SalesHeader."Prepayment Due Date" := SalesHeader."Document Date";
+        SalesHeader.Modify(true);
 
         CreateSalesLine(SalesHeader, GLAccount);
         CreateSalesLine(SalesHeader, GLAccount);
         CreateSalesLine(SalesHeader, GLAccount);
     end;
 
-    procedure CreateSpecificSalesOrder(var SalesHeader: Record "Sales Header"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
+    procedure CreateSpecificSalesOrder(var SalesHeader: Record "Sales Header"; PaymentTermsCode: Code[10])
     var
         GLAccount: Record "G/L Account";
     begin
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
-        CreateSalesOrder(SalesHeader, GLAccount, PaymentTermsCode, CFPaymentTermsCode);
+        CreateSalesOrder(SalesHeader, GLAccount, PaymentTermsCode);
     end;
 
     procedure CreateDefaultSalesOrder(var SalesHeader: Record "Sales Header")
     begin
-        CreateSpecificSalesOrder(SalesHeader, '', '');
+        CreateSpecificSalesOrder(SalesHeader, '');
     end;
 
-    procedure CreatePrepmtSalesOrder(var SalesHeader: Record "Sales Header"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
+    procedure CreatePrepmtSalesOrder(var SalesHeader: Record "Sales Header"; PaymentTermsCode: Code[10])
     var
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibrarySales.CreatePrepaymentVATSetup(GLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CreateSalesOrder(SalesHeader, GLAccount, PaymentTermsCode, CFPaymentTermsCode);
+        CreateSalesOrder(SalesHeader, GLAccount, PaymentTermsCode);
     end;
 
     procedure CreateSalesLine(SalesHeader: Record "Sales Header"; GLAccount: Record "G/L Account")
@@ -436,43 +442,57 @@ codeunit 131332 "Library - Cash Flow Helper"
         SalesLine.Modify(true);
     end;
 
-    procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; GLAccount: Record "G/L Account"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
+    procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; GLAccount: Record "G/L Account"; PaymentTermsCode: Code[10])
     var
         Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+        DueDateCalculation: DateFormula;
+        DiscountDateCalculation: DateFormula;
     begin
         Vendor.Get(
           LibraryPurchase.CreateVendorWithBusPostingGroups(
             GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group"));
         AssignPaymentTermToVendor(Vendor, PaymentTermsCode);
-        AssignCFPaymentTermToVendor(Vendor, CFPaymentTermsCode);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        // IT requires a value in the sales header Prepayment Due Date field
+        if PaymentTermsCode <> '' then begin
+            PaymentTerms.Get(PaymentTermsCode);
+            GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
+            GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
+            PurchaseHeader.Validate("Prepayment Due Date", CalcDate(DueDateCalculation, PurchaseHeader."Document Date"));
+            PurchaseHeader.Validate("Prepmt. Payment Discount %", GetPmtTermsDiscountPercentage(PaymentTerms)); // default is 0
+            PurchaseHeader.Validate("Prepmt. Pmt. Discount Date", CalcDate(DiscountDateCalculation, PurchaseHeader."Document Date"));
+        end else
+            PurchaseHeader."Prepayment Due Date" := PurchaseHeader."Document Date";
+        PurchaseHeader.Validate("Due Date", CalcDate(DueDateCalculation, PurchaseHeader."Prepayment Due Date"));
+        PurchaseHeader.Modify(true);
 
         CreatePurchaseLine(PurchaseHeader, GLAccount);
         CreatePurchaseLine(PurchaseHeader, GLAccount);
         CreatePurchaseLine(PurchaseHeader, GLAccount);
     end;
 
-    procedure CreateSpecificPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
+    procedure CreateSpecificPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; PaymentTermsCode: Code[10])
     var
         GLAccount: Record "G/L Account";
     begin
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
-        CreatePurchaseOrder(PurchaseHeader, GLAccount, PaymentTermsCode, CFPaymentTermsCode);
+        CreatePurchaseOrder(PurchaseHeader, GLAccount, PaymentTermsCode);
     end;
 
     procedure CreateDefaultPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
     begin
-        CreateSpecificPurchaseOrder(PurchaseHeader, '', '');
+        CreateSpecificPurchaseOrder(PurchaseHeader, '');
     end;
 
-    procedure CreatePrepmtPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
+    procedure CreatePrepmtPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; PaymentTermsCode: Code[10])
     var
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CreatePurchaseOrder(PurchaseHeader, GLAccount, PaymentTermsCode, CFPaymentTermsCode);
+        CreatePurchaseOrder(PurchaseHeader, GLAccount, PaymentTermsCode);
     end;
 
     procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; GLAccount: Record "G/L Account")
@@ -502,14 +522,13 @@ codeunit 131332 "Library - Cash Flow Helper"
         OnAfterCreatePurchaseLine(PurchaseHeader, GLAccount);
     end;
 
-    procedure CreateSpecificServiceOrder(var ServiceHeader: Record "Service Header"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
+    procedure CreateSpecificServiceOrder(var ServiceHeader: Record "Service Header"; PaymentTermsCode: Code[10])
     var
         Customer: Record Customer;
         LibraryService: Codeunit "Library - Service";
     begin
         LibrarySales.CreateCustomer(Customer);
-        AssignCFPaymentTermToCustomer(Customer, PaymentTermsCode);
-        AssignCFPaymentTermToCustomer(Customer, CFPaymentTermsCode);
+        AssignPaymentTermToCustomer(Customer, PaymentTermsCode);
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
 
@@ -520,7 +539,7 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure CreateDefaultServiceOrder(var ServiceHeader: Record "Service Header")
     begin
-        CreateSpecificServiceOrder(ServiceHeader, '', '');
+        CreateSpecificServiceOrder(ServiceHeader, '');
     end;
 
     procedure CreateServiceLines(ServiceHeader: Record "Service Header")
@@ -637,6 +656,22 @@ codeunit 131332 "Library - Cash Flow Helper"
         GLAccount.FindFirst;
     end;
 
+    procedure FilterPaymentLines(var PaymentLines: Record "Payment Lines"; PaymentTermsCode: Code[20])
+    begin
+        PaymentLines.SetFilter(Type, '%1', PaymentLines.Type::"Payment Terms");
+        PaymentLines.SetFilter(Code, '%1', PaymentTermsCode);
+        PaymentLines.FindFirst;  // HACK - there might be multiple lines, which one to pick? bug id: 265594
+    end;
+
+    procedure FindCustomerCFPaymentTerms(var PaymentTerms: Record "Payment Terms"; PartnerNo: Code[20])
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(PartnerNo);
+        PaymentTerms.Get(Customer."Payment Terms Code");
+    end;
+
+    [Scope('OnPrem')]
     procedure FindFirstCustLEFromSO(var CustLedgerEntry: Record "Cust. Ledger Entry"; SalesOrderNo: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -655,14 +690,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         PurchInvHeader.FindFirst;
         VendorLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
         VendorLedgerEntry.FindFirst;
-    end;
-
-    procedure FindCustomerCFPaymentTerms(var PaymentTerms: Record "Payment Terms"; CustomerNo: Code[20])
-    var
-        Customer: Record Customer;
-    begin
-        Customer.Get(CustomerNo);
-        PaymentTerms.Get(Customer."Cash Flow Payment Terms Code");
     end;
 
     procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -703,18 +730,32 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure GetDifferentDsctPaymentTerms(var PaymentTerms: Record "Payment Terms"; PmtTermsCodeToDifferFrom: Code[20])
     var
-        PaymentTerms2: Record "Payment Terms";
+        PaymentTermsToDifferFrom: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
+        DueDateToDifferFrom: DateFormula;
+        DiscountDateToDifferFrom: DateFormula;
+        DiscountPercentageToDifferFrom: Integer;
     begin
-        PaymentTerms2.Get(PmtTermsCodeToDifferFrom);
+        PaymentTermsToDifferFrom.Get(PmtTermsCodeToDifferFrom);
+        GetPmtTermsDueDateCalculation(DueDateToDifferFrom, PaymentTermsToDifferFrom);
+        GetPmtTermsDiscountDateCalculation(DiscountDateToDifferFrom, PaymentTermsToDifferFrom);
+        DiscountPercentageToDifferFrom := GetPmtTermsDiscountPercentage(PaymentTermsToDifferFrom);
+
         LibraryERM.CreatePaymentTerms(PaymentTerms);
-        Evaluate(PaymentTerms."Due Date Calculation", Format(PaymentTerms2."Due Date Calculation") + '+<1M>');
-        Evaluate(PaymentTerms."Discount Date Calculation", Format(PaymentTerms2."Discount Date Calculation") + '+<1D>');
-        PaymentTerms.Validate("Discount %", PaymentTerms2."Discount %" + 1);
-        PaymentTerms.Modify(true);
+        LibraryERM.GetPaymentLines(PaymentLines, PaymentTerms.Code);
+        Evaluate(PaymentLines."Due Date Calculation", Format(DueDateToDifferFrom) +
+          '+<' + Format(LibraryRandom.RandInt(2)) + 'M>');
+        Evaluate(PaymentLines."Discount Date Calculation", Format(DiscountDateToDifferFrom) +
+          '+<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        PaymentLines.Validate("Discount %", DiscountPercentageToDifferFrom +
+          LibraryRandom.RandInt(3));
+        PaymentLines.Modify(true);
     end;
 
     procedure GetTotalSalesAmount(SalesHeader: Record "Sales Header"; ConsiderDefaultPmtDiscount: Boolean): Decimal
     var
+        Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
         SalesLine: Record "Sales Line";
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
@@ -722,6 +763,8 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         TotalAmount := 0;
         TotalDiscountAmount := 0;
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        PaymentTerms.Get(Customer."Payment Terms Code");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.FindSet;
@@ -730,13 +773,16 @@ codeunit 131332 "Library - Cash Flow Helper"
             TotalAmount += LineAmount;
             if ConsiderDefaultPmtDiscount then
                 TotalDiscountAmount +=
-                  CalculateDiscountAmount(LineAmount, SalesHeader."Payment Discount %");
+                  CalculateDiscountAmount(LineAmount, GetPmtTermsDiscountPercentage(PaymentTerms));
         until SalesLine.Next = 0;
+
         exit(TotalAmount - TotalDiscountAmount);
     end;
 
     procedure GetTotalPurchaseAmount(PurchaseHeader: Record "Purchase Header"; ConsiderDefaultPmtDiscount: Boolean): Decimal
     var
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
         PurchaseLine: Record "Purchase Line";
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
@@ -744,6 +790,8 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         TotalAmount := 0;
         TotalDiscountAmount := 0;
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        PaymentTerms.Get(Vendor."Payment Terms Code");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.FindSet;
@@ -751,13 +799,42 @@ codeunit 131332 "Library - Cash Flow Helper"
             LineAmount := PurchaseLine."Outstanding Amount (LCY)";
             TotalAmount += LineAmount;
             if ConsiderDefaultPmtDiscount then
-                TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PurchaseHeader."Payment Discount %");
+                TotalDiscountAmount +=
+                  CalculateDiscountAmount(LineAmount, GetPmtTermsDiscountPercentage(PaymentTerms));
         until PurchaseLine.Next = 0;
+
         exit(TotalAmount - TotalDiscountAmount);
+    end;
+
+    local procedure GetTotalPurchasePrepaymentAmount(PurchaseHeader: Record "Purchase Header"): Decimal
+    var
+        PurchaseLine: Record "Purchase Line";
+        PrepaymentVATPct: Decimal;
+        PrepaymentLineAmount: Decimal;
+        PrepaymentTotalAmount: Decimal;
+    begin
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Prepmt. Amt. Inv.", 0);
+        PurchaseLine.FindSet;
+
+        PrepaymentVATPct := PurchaseLine."Prepayment VAT %";
+        PrepaymentTotalAmount := 0;
+        repeat
+            if PurchaseHeader."Prices Including VAT" then
+                PrepaymentLineAmount := PurchaseLine."Prepmt. Line Amount"
+            else
+                PrepaymentLineAmount := PurchaseLine."Prepmt. Line Amount" * (1 + PrepaymentVATPct / 100);
+            PrepaymentTotalAmount += PrepaymentLineAmount;
+        until PurchaseLine.Next = 0;
+
+        exit(PrepaymentTotalAmount);
     end;
 
     procedure GetTotalServiceAmount(ServiceHeader: Record "Service Header"; ConsiderDefaultPmtDiscount: Boolean): Decimal
     var
+        Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
         ServiceLine: Record "Service Line";
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
@@ -765,6 +842,8 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         TotalAmount := 0;
         TotalDiscountAmount := 0;
+        Customer.Get(ServiceHeader."Bill-to Customer No.");
+        PaymentTerms.Get(Customer."Payment Terms Code");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.FindSet;
@@ -773,7 +852,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             TotalAmount += LineAmount;
             if ConsiderDefaultPmtDiscount then
                 TotalDiscountAmount +=
-                  CalculateDiscountAmount(LineAmount, ServiceHeader."Payment Discount %");
+                  CalculateDiscountAmount(LineAmount, GetPmtTermsDiscountPercentage(PaymentTerms));
         until ServiceLine.Next = 0;
 
         exit(TotalAmount - TotalDiscountAmount);
@@ -934,6 +1013,43 @@ codeunit 131332 "Library - Cash Flow Helper"
         exit(PaymentTermsCode);
     end;
 
+    [Scope('OnPrem')]
+    procedure GetPmtTermsDiscountPercentage(PaymentTerms: Record "Payment Terms"): Decimal
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        // Special treatment for IT because of different Payment Terms behavior
+        // Retrieves the discount % value from the first line found in Payment Lines table.
+        // Best used in combination with GetDiscountPaymentTerm function from IT ERM library
+
+        FilterPaymentLines(PaymentLines, PaymentTerms.Code);
+        exit(PaymentLines."Discount %");
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetPmtTermsDueDateCalculation(var Result: DateFormula; PaymentTerms: Record "Payment Terms")
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        // Special treatment for IT because of different Payment Terms behavior
+        // Initializes the given dateformula with the due date calculation formula from the first line found in Payment Lines table
+
+        FilterPaymentLines(PaymentLines, PaymentTerms.Code);
+        Result := PaymentLines."Due Date Calculation";
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetPmtTermsDiscountDateCalculation(var Result: DateFormula; PaymentTerms: Record "Payment Terms")
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        // Special treatment for IT because of different Payment Terms behavior
+        // Initializes the given dateformula with the discount date calculation formula from the first line found in Payment Lines table
+
+        FilterPaymentLines(PaymentLines, PaymentTerms.Code);
+        Result := PaymentLines."Discount Date Calculation";
+    end;
+
     local procedure GetCFAccountNo(SourceType: Option): Code[20]
     var
         CFAccount: Record "Cash Flow Account";
@@ -981,6 +1097,8 @@ codeunit 131332 "Library - Cash Flow Helper"
         PurchaseHeader: Record "Purchase Header";
         ServiceHeader: Record "Service Header";
         TotalAmount: Decimal;
+        DiscountDateCalculation: DateFormula;
+        DueDateCalculation: DateFormula;
     begin
         case DocType of
             DocumentType::Sale:
@@ -998,7 +1116,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             DocumentType::Purchase:
                 begin
                     Vendor.Get(PartnerNo);
-                    PaymentTerms.Get(Vendor."Cash Flow Payment Terms Code");
+                    PaymentTerms.Get(Vendor."Payment Terms Code");
                     PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, DocumentNo);
                     TotalAmount := GetTotalPurchaseAmount(PurchaseHeader, false);
                 end;
@@ -1007,10 +1125,12 @@ codeunit 131332 "Library - Cash Flow Helper"
         end;
 
         if ConsiderDsctAndCFPmtTerms then begin
-            ExpectedCFDate := CalcDate(PaymentTerms."Discount Date Calculation", CFSourceDate);
-            ExpectedAmount := TotalAmount - CalculateDiscountAmount(TotalAmount, PaymentTerms."Discount %");
+            GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
+            ExpectedCFDate := CalcDate(DiscountDateCalculation, CFSourceDate);
+            ExpectedAmount := TotalAmount - CalculateDiscountAmount(TotalAmount, GetPmtTermsDiscountPercentage(PaymentTerms));
         end else begin
-            ExpectedCFDate := CalcDate(PaymentTerms."Due Date Calculation", CFSourceDate);
+            GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
+            ExpectedCFDate := CalcDate(DueDateCalculation, CFSourceDate);
             ExpectedAmount := TotalAmount;
         end;
 
@@ -1085,30 +1205,30 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure SetupPmtDsctTolCustLETest(var CashFlowForecast: Record "Cash Flow Forecast"; var Customer: Record Customer; var PaymentTerms: Record "Payment Terms"; NewPmtDiscountGracePeriod: DateFormula; var Amount: Decimal; var DiscountedAmount: Decimal)
     begin
-        CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+        CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         SetPmtToleranceOptionsOnCashFlowForecast(CashFlowForecast, true, false);
         SetupPmtDsctGracePeriod(NewPmtDiscountGracePeriod);
-        CreateCustWithCFDsctPmtTerm(Customer, PaymentTerms);
+        CreateCustWithDsctPmtTerm(Customer, PaymentTerms);
         Amount := LibraryRandom.RandDec(2000, 2);
-        DiscountedAmount := Amount - CalculateDiscountAmount(Amount, PaymentTerms."Discount %");
+        DiscountedAmount := Amount - CalculateDiscountAmount(Amount, GetPmtTermsDiscountPercentage(PaymentTerms));
     end;
 
     procedure SetupPmtDsctTolVendorLETest(var CashFlowForecast: Record "Cash Flow Forecast"; var Vendor: Record Vendor; var PaymentTerms: Record "Payment Terms"; NewPmtDiscountGracePeriod: DateFormula; var Amount: Decimal; var DiscountedAmount: Decimal)
     begin
-        CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+        CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         SetPmtToleranceOptionsOnCashFlowForecast(CashFlowForecast, true, false);
         SetupPmtDsctGracePeriod(NewPmtDiscountGracePeriod);
-        CreateVendorWithCFDsctPmtTerm(Vendor, PaymentTerms);
+        CreateVendorWithDsctPmtTerm(Vendor, PaymentTerms);
         Amount := LibraryRandom.RandDec(2000, 2);
-        DiscountedAmount := Amount - CalculateDiscountAmount(Amount, PaymentTerms."Discount %");
+        DiscountedAmount := Amount - CalculateDiscountAmount(Amount, GetPmtTermsDiscountPercentage(PaymentTerms));
     end;
 
     procedure SetupDsctPmtTermsCustLETest(var CashFlowForecast: Record "Cash Flow Forecast"; var Customer: Record Customer; var PaymentTerms: Record "Payment Terms"; var Amount: Decimal; var DiscountedAmount: Decimal)
     begin
-        CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
-        CreateCustWithCFDsctPmtTerm(Customer, PaymentTerms);
+        CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
+        CreateCustWithDsctPmtTerm(Customer, PaymentTerms);
         Amount := LibraryRandom.RandDec(2000, 2);
-        DiscountedAmount := Amount - CalculateDiscountAmount(Amount, PaymentTerms."Discount %");
+        DiscountedAmount := Amount - CalculateDiscountAmount(Amount, GetPmtTermsDiscountPercentage(PaymentTerms));
     end;
 
     procedure VerifyCFDateOnCFJnlLine(CFWorksheetLine: Record "Cash Flow Worksheet Line"; ExpectedCFDate: Date)

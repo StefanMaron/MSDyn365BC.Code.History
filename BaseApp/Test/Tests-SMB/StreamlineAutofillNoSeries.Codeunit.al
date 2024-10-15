@@ -1307,8 +1307,8 @@ codeunit 138100 "Streamline. Autofill No Series"
         // [THEN] "Sales Header"."No." = ''
         SalesHeader.TestField("No.", '');
 
-        // [THEN] "Sales Header"."Posting No. Series" = "NOS1"
-        SalesHeader.TestField("Posting No. Series", NoSeriesCode[1]);
+        // [THEN] "Sales Header"."Posting No. Series" = "Sales Header"."Operation Type"
+        SalesHeader.TestField("Posting No. Series", SalesHeader."Operation Type");
 
         // [THEN] "Sales Header"."Shipping No. Series" = "NOS2"
         SalesHeader.TestField("Shipping No. Series", NoSeriesCode[2]);
@@ -1344,8 +1344,8 @@ codeunit 138100 "Streamline. Autofill No Series"
         // [THEN] "Purchase Header"."No." = ''
         PurchaseHeader.TestField("No.", '');
 
-        // [THEN] "Purchase Header"."Posting No. Series" = "NOS1"
-        PurchaseHeader.TestField("Posting No. Series", NoSeriesCode[1]);
+        // [THEN] "Purchase Header"."Posting No. Series" = "Purchase Header"."Operation Type"
+        PurchaseHeader.TestField("Posting No. Series", PurchaseHeader."Operation Type");
 
         // [THEN] "Purchase Header"."Shipping No. Series" = "NOS2"
         PurchaseHeader.TestField("Receiving No. Series", NoSeriesCode[2]);
@@ -1357,7 +1357,9 @@ codeunit 138100 "Streamline. Autofill No Series"
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Streamline. Autofill No Series");
         CurrentSalesSetupDocType := -1;
         CurrentPurchSetupDocType := -1;
         LibraryVariableStorage.Clear;

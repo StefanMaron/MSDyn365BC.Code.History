@@ -755,9 +755,10 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         MatchBankRecLines.MatchManually(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
 
         // Exercise.
-        TempBankAccReconciliationLine.DeleteAll();
+        AddBankEntriesToTemp(TempBankAccountLedgerEntry, BankAccountNo);
         TempBankAccountLedgerEntry.FindLast;
-        TempBankAccountLedgerEntry.Delete();
+        TempBankAccountLedgerEntry.Delete;
+        TempBankAccReconciliationLine.DeleteAll;
         MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
 
         // Verify.
@@ -845,6 +846,8 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
+        TempBankAccReconciliationLine.Reset();
+        TempBankAccReconciliationLine.DeleteAll();
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
@@ -859,6 +862,8 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     var
         BankAccLedgerEntry: Record "Bank Account Ledger Entry";
     begin
+        TempBankAccLedgerEntry.Reset();
+        TempBankAccLedgerEntry.DeleteAll();
         BankAccLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         if BankAccLedgerEntry.FindSet then
             repeat

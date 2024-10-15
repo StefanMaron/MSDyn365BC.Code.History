@@ -5,7 +5,7 @@ codeunit 139451 "O365 Item Permission Test"
 
     trigger OnRun()
     begin
-        // [FEATURE] [O365] [Permissions]
+        // [FEATURE] [O365] [Permission]
     end;
 
     var
@@ -62,6 +62,48 @@ codeunit 139451 "O365 Item Permission Test"
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
     end;
 
+    [Test]
+    [HandlerFunctions('PostedServiceShptUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunPostedTransferShptUpdateFromCard()
+    var
+        PostedTransferShipment: TestPage "Posted Transfer Shipment";
+    begin
+        // [FEATURE] [Transfer Shipment]
+        // [SCENARIO 308913] Open "Posted Transfer Shpt. - Update" from "Posted Transfer Shipment" card with "D365 INV DOC, POST".
+        Initialize;
+
+        // [GIVEN] A user with "D365 INV DOC, POST" permission set.
+        LibraryLowerPermissions.SetO365INVSetup;
+
+        // [WHEN] Open "Posted Transfer Shpt. - Update" page from "Posted Transfer Shipment" card.
+        PostedTransferShipment.OpenView;
+        PostedTransferShipment."Update Document".Invoke;
+
+        // [THEN] "Posted Transfer Shpt. - Update" opens.
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedServiceShptUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunPostedTransferShptUpdateFromList()
+    var
+        PostedTransferShipments: TestPage "Posted Transfer Shipments";
+    begin
+        // [FEATURE] [Transfer Shipment]
+        // [SCENARIO 308913] Open "Posted Transfer Shpt. - Update" from "Posted Transfer Shipments" list with "D365 INV DOC, POST".
+        Initialize;
+
+        // [GIVEN] A user with "D365 INV DOC, POST" permission set.
+        LibraryLowerPermissions.SetO365INVSetup;
+
+        // [WHEN] Open "Posted Transfer Shpt. - Update" page from "Posted Transfer Shipments" list.
+        PostedTransferShipments.OpenView;
+        PostedTransferShipments."Update Document".Invoke;
+
+        // [THEN] "Posted Transfer Shpt. - Update" opens.
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -106,6 +148,13 @@ codeunit 139451 "O365 Item Permission Test"
         ExcludedTables.Add(DATABASE::"Routing Header");
         ExcludedTables.Add(DATABASE::"Production BOM Header");
         ExcludedTables.Add(DATABASE::"Production Forecast Name");
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedServiceShptUpdateOKModalPageHandler(var PostedTransferShptUpdate: TestPage "Posted Transfer Shpt. - Update")
+    begin
+        PostedTransferShptUpdate.OK.Invoke;
     end;
 }
 

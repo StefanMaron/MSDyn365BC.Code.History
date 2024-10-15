@@ -477,6 +477,8 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
 
         // [WHEN] Purchase Invoice is sent for approval.
+        PurchHeader.Find;
+        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchHeader, false, true, true);
         SendPurchaseInvoiceForApproval(PurchHeader);
 
         // [THEN] Approval Request is created for the purchaser.

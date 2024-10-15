@@ -146,7 +146,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
 
         LibraryLowerPermissions.SetSalesDocsCreate;
         LibraryLowerPermissions.AddO365Setup;
-        LibrarySmallBusiness.CreateCustomer(Customer);
+        CreateCustomer(Customer);
         CreateNewInvoiceWithLines(SalesHeader, Customer, NumberOfLines, ItemUnitPrice, ItemQuantity);
 
         SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, SalesHeader);
@@ -201,7 +201,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
 
         LibraryLowerPermissions.SetSalesDocsCreate;
         LibraryLowerPermissions.AddO365Setup;
-        LibrarySmallBusiness.CreateCustomer(Customer);
+        CreateCustomer(Customer);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscPct1, MinAmount1, '');
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscPct2, MinAmount2, '');
 
@@ -428,9 +428,16 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
             LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, ItemQuantity);
     end;
 
-    local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; MinDiscAmount: Decimal)
+    local procedure CreateCustomer(var Customer: Record Customer)
     begin
         LibrarySmallBusiness.CreateCustomer(Customer);
+        Customer."Payment Terms Code" := '';
+        Customer.Modify();
+    end;
+
+    local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; MinDiscAmount: Decimal)
+    begin
+        CreateCustomer(Customer);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscPct, MinDiscAmount, '');
     end;
 

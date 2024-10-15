@@ -356,10 +356,11 @@ codeunit 132212 "Library - Patterns"
     end;
 
     procedure MAKEPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    var
+        Vendor: Record Vendor;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, '');
-        PurchaseHeader.Validate("Posting Date", PostingDate);
-        PurchaseHeader.Modify(true);
+        MakeVendor(Vendor);
+        MakePurchaseHeader(PurchaseHeader, DocType, PostingDate, Vendor);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
         PurchaseLine."Location Code" := LocationCode;
         PurchaseLine."Variant Code" := VariantCode;
@@ -882,12 +883,12 @@ codeunit 132212 "Library - Patterns"
 
         POSTPurchaseOrder(
           PurchaseHeader1, Item, LocationCode, VariantCode,
-          LibraryRandom.RandIntInRange(OutboundQty, OutboundQty + LibraryRandom.RandInt(10)), Day1 + 1,
+          LibraryRandom.RandIntInRange(OutboundQty, OutboundQty + LibraryRandom.RandInt(10)), Day1,
           LibraryRandom.RandDec(100, 2), true, InvoicePurchase);
         InsertTempILEFromLast(TempItemLedgerEntry);
 
         MAKEPurchaseOrder(
-          PurchaseHeader2, PurchaseLine, Item, LocationCode, VariantCode, LibraryRandom.RandInt(10), Day1 + 2,
+          PurchaseHeader2, PurchaseLine, Item, LocationCode, VariantCode, LibraryRandom.RandInt(10), Day1,
           LibraryRandom.RandDec(100, 2));
     end;
 
@@ -914,7 +915,7 @@ codeunit 132212 "Library - Patterns"
         // Receive partially the Purchase Line, with or without invoicing.
         InboundQty := LibraryRandom.RandIntInRange(10, 20);
         MAKEPurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, InboundQty, Day1 + 2, LibraryRandom.RandDec(100, 2));
+          PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, InboundQty, Day1, LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandInt(PurchaseLine."Outstanding Quantity" - 5));
         PurchaseLine.Modify();
         if InvoicePurchase then
@@ -935,7 +936,7 @@ codeunit 132212 "Library - Patterns"
 
         // Create Purchase Return Header and Line with 0 quantity. Actual qty to be added in calling test.
         MAKEPurchaseReturnOrder(
-          PurchaseHeader1, PurchaseLine1, Item, LocationCode, VariantCode, 0, Day1 + 2, LibraryRandom.RandDec(100, 5));
+          PurchaseHeader1, PurchaseLine1, Item, LocationCode, VariantCode, 0, Day1, LibraryRandom.RandDec(100, 5));
     end;
 
     procedure GRPHPurchItemTracked(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var PurchaseLine: Record "Purchase Line"; var ReservEntry: Record "Reservation Entry"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Invoice: Boolean)
@@ -1102,7 +1103,7 @@ codeunit 132212 "Library - Patterns"
     begin
         QtyIn := RandDec(10, 20, 2);
         MAKEInbound(Item, QtyIn, WorkDate, TempItemJournalLine);
-        SHIPSales(SalesLine, Item, RandDec(0, QtyIn, 2), WorkDate + 1);
+        SHIPSales(SalesLine, Item, RandDec(0, QtyIn, 2), WorkDate);
     end;
 
     procedure GRPHSalesReturnOnly(var Item: Record Item; var ReturnReceiptLine: Record "Return Receipt Line")
@@ -1593,6 +1594,138 @@ codeunit 132212 "Library - Patterns"
         PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
         PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
         PurchaseHeader.Modify();
+    end;
+
+    [Scope('OnPrem')]
+    procedure MakePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocType: Option; PostingDate: Date; Vendor: Record Vendor)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        PurchaseNoSeries: Code[20];
+    begin
+        PurchaseNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
+        PurchasesPayablesSetup.Get();
+        case DocType of
+            PurchaseHeader."Document Type"::Quote:
+                if PurchasesPayablesSetup."Quote Nos." <> PurchaseNoSeries then begin
+                    PurchasesPayablesSetup."Quote Nos." := PurchaseNoSeries;
+                    PurchasesPayablesSetup.Modify();
+                end;
+            PurchaseHeader."Document Type"::Order:
+                if PurchasesPayablesSetup."Order Nos." <> PurchaseNoSeries then begin
+                    PurchasesPayablesSetup."Order Nos." := PurchaseNoSeries;
+                    PurchasesPayablesSetup.Modify();
+                end;
+            PurchaseHeader."Document Type"::Invoice:
+                if PurchasesPayablesSetup."Invoice Nos." <> PurchaseNoSeries then begin
+                    PurchasesPayablesSetup."Invoice Nos." := PurchaseNoSeries;
+                    PurchasesPayablesSetup.Modify();
+                end;
+            PurchaseHeader."Document Type"::"Credit Memo":
+                if PurchasesPayablesSetup."Credit Memo Nos." <> PurchaseNoSeries then begin
+                    PurchasesPayablesSetup."Credit Memo Nos." := PurchaseNoSeries;
+                    PurchasesPayablesSetup.Modify();
+                end;
+            PurchaseHeader."Document Type"::"Return Order":
+                if PurchasesPayablesSetup."Return Order Nos." <> PurchaseNoSeries then begin
+                    PurchasesPayablesSetup."Return Order Nos." := PurchaseNoSeries;
+                    PurchasesPayablesSetup.Modify();
+                end;
+        end;
+
+        Clear(PurchaseHeader);
+        PurchaseHeader."No." := NoSeriesManagement.GetNextNo(PurchaseNoSeries, PostingDate, true);
+        PurchaseHeader."Document Type" := DocType;
+        PurchaseHeader.InitRecord;
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Order Date", PurchaseHeader."Posting Date");
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::"Return Order",
+                                              PurchaseHeader."Document Type"::"Credit Memo"]
+        then begin
+            PurchaseHeader.Validate("Reason Code", GetReasonCode);
+            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        end else
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Insert();
+    end;
+
+    [Scope('OnPrem')]
+    procedure MakeVendor(var Vendor: Record Vendor)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PaymentMethod: Record "Payment Method";
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        NoSeriesLineSales: Record "No. Series Line Sales";
+        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        LibraryERM: Codeunit "Library - ERM";
+        VendorNoSeries: Code[20];
+    begin
+        VendorNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
+        PurchasesPayablesSetup.Get();
+        if PurchasesPayablesSetup."Vendor Nos." <> VendorNoSeries then begin
+            PurchasesPayablesSetup.Validate("Vendor Nos.", VendorNoSeries);
+            PurchasesPayablesSetup.Modify();
+        end;
+        LibraryERM.FindPaymentMethod(PaymentMethod);
+
+        Clear(Vendor);
+        Vendor."No." := NoSeriesManagement.GetNextNo(VendorNoSeries, 0D, true);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);  // Mandatory for ES
+        Vendor.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode);  // Mandatory for ES
+        Vendor.Validate("Gen. Bus. Posting Group", GetGenBusPostingGroup);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATBusPostingGroup.Get(Vendor."VAT Bus. Posting Group");
+        NoSeriesLineSales.SetCurrentKey("Series Code", "Starting Date");
+        NoSeriesLineSales.SetRange("Series Code", VATBusPostingGroup."Default Sales Operation Type");
+        NoSeriesLineSales.SetRange("Starting Date", 0D, WorkDate);
+        NoSeriesLineSales.FindLast;
+        NoSeriesLineSales.Validate("Last Date Used", WorkDate);
+        NoSeriesLineSales.Modify();
+        NoSeriesLinePurchase.SetCurrentKey("Series Code", "Starting Date");
+        NoSeriesLinePurchase.SetRange("Series Code", VATBusPostingGroup."Default Purch. Operation Type");
+        NoSeriesLinePurchase.SetRange("Starting Date", 0D, WorkDate);
+        NoSeriesLinePurchase.FindLast;
+        NoSeriesLinePurchase.Validate("Last Date Used", WorkDate);
+        NoSeriesLinePurchase.Modify();
+        Vendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup);
+        Vendor.Insert();
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetReasonCode(): Code[10]
+    var
+        ReasonCode: Record "Reason Code";
+    begin
+        if ReasonCode.FindFirst then;
+        exit(ReasonCode.Code);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetGenBusPostingGroup(): Code[20]
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        FindGenPostingSetup(GeneralPostingSetup);
+        exit(GeneralPostingSetup."Gen. Bus. Posting Group");
+    end;
+
+    local procedure FindGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        // Find a General Posting Setup with all key accounts filled up
+        GeneralPostingSetup.SetFilter("Sales Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Purch. Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("COGS Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Inventory Adjmt. Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Sales Credit Memo Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Purch. Credit Memo Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Direct Cost Applied Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Overhead Applied Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Purchase Variance Account", '<>%1', '');
+        GeneralPostingSetup.FindLast;
     end;
 }
 

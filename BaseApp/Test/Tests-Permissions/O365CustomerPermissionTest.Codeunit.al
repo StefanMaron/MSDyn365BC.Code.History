@@ -5,7 +5,7 @@ codeunit 139453 "O365 Customer Permission Test"
 
     trigger OnRun()
     begin
-        // [FEATURE] [O365] [Permissions]
+        // [FEATURE] [O365] [Permission]
     end;
 
     var
@@ -147,6 +147,48 @@ codeunit 139453 "O365 Customer Permission Test"
         // [THEN] "Posted Return Receipt - Update" opens.
     end;
 
+    [Test]
+    [HandlerFunctions('PostedServiceShptUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunPostedServiceShptUpdateFromCard()
+    var
+        PostedServiceShipment: TestPage "Posted Service Shipment";
+    begin
+        // [FEATURE] [Service Shipment]
+        // [SCENARIO 308913] Open "Posted Service Shpt. - Update" from "Posted Service Shipment" card with "D365PREM SMG, VIEW".
+        Initialize;
+
+        // [GIVEN] A user with "D365PREM SMG, VIEW" permission set.
+        LibraryLowerPermissions.SetO365ServiceMgtRead;
+
+        // [WHEN] Open "Posted Service Shpt. - Update" page from "Posted Service Shipment" card.
+        PostedServiceShipment.OpenView;
+        PostedServiceShipment."Update Document".Invoke;
+
+        // [THEN] "Posted Service Shpt. - Update" opens.
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedServiceShptUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunPostedServiceShptUpdateFromList()
+    var
+        PostedServiceShipments: TestPage "Posted Service Shipments";
+    begin
+        // [FEATURE] [Service Shipment]
+        // [SCENARIO 308913] Open "Posted Service Shpt. - Update" from "Posted Service Shipments" list with "D365PREM SMG, VIEW".
+        Initialize;
+
+        // [GIVEN] A user with "D365PREM SMG, VIEW" permission set.
+        LibraryLowerPermissions.SetO365ServiceMgtRead;
+
+        // [WHEN] Open "Posted Service Shpt. - Update" page from "Posted Service Shipments" list.
+        PostedServiceShipments.OpenView;
+        PostedServiceShipments."Update Document".Invoke;
+
+        // [THEN] "Posted Service Shpt. - Update" opens.
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -193,6 +235,13 @@ codeunit 139453 "O365 Customer Permission Test"
     procedure PostedReturnReceiptUpdateOKModalPageHandler(var PostedReturnReceiptUpdate: TestPage "Posted Return Receipt - Update")
     begin
         PostedReturnReceiptUpdate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedServiceShptUpdateOKModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Shpt. - Update")
+    begin
+        PostedServiceShptUpdate.OK.Invoke;
     end;
 }
 

@@ -57,6 +57,8 @@ codeunit 12104 LocalApplicationManagement
         SkipMsgDisplay: Boolean;
         FieldModifyQst: Label '%1 will be modified according to %2. Do you want to continue?', Comment = '%1=Field name, %2=Another field name';
         ValueLessThanAnotherErr: Label '%1 cannot be less than %2.', Comment = '%1=Field name, %2=Another field name';
+        PostingNoExistsQst: Label 'If you create an invoice based on order %1 with an existing posting number, it will cause a gap in the number series. \\Do you want to continue?', Comment = '%1=Document number';
+        CancelledErr: Label 'Cancelled by user.';
 
     [Scope('OnPrem')]
     procedure CheckDigit(FiscalCode: Code[20])
@@ -464,5 +466,34 @@ codeunit 12104 LocalApplicationManagement
                 end;
         end;
     end;
+    local procedure CheckOriginalOrderPostingNo(var PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
+    var
+        PurchRcptHeader2: Record "Purch. Rcpt. Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchRcptLine2: Record "Purch. Rcpt. Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        PurchRcptLine2.Copy(PurchRcptLine);
+        PurchaseHeader.SetFilter("Posting No.", '<>%1', '');
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        if PurchRcptLine2.FindSet() then
+            repeat
+                if PurchRcptHeader2.Get(PurchRcptLine2."Document No.") then begin
+                    PurchaseHeader.SetRange("No.", PurchRcptHeader2."Order No.");
+                    if PurchaseHeader.FindFirst() then
+                        exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(PostingNoExistsQst, PurchaseHeader."No."), true));
+                end;
+            until PurchRcptLine2.Next() = 0;
+        exit(true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 74, 'OnCreateInvLinesOnBeforeFind', '', true, true)]
+    [Scope('Internal')]
+    procedure CheckPostingNoOnCreateInvLinesOnBeforeFind(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+        if not CheckOriginalOrderPostingNo(PurchRcptLine) then
+            Error(CancelledErr);
+    end;
+
 }
 

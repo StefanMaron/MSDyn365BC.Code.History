@@ -388,12 +388,15 @@ table 91 "User Setup"
             exit;
         if SalespersonPurchaser.Get("Salespers./Purch. Code") then begin
             xSalespersonPurchaser := SalespersonPurchaser;
-            if FieldNumber in [fieldno("E-Mail"), FieldNo("Salespers./Purch. Code")] then
+            if FieldNumber in [fieldno("E-Mail"), FieldNo("Salespers./Purch. Code")] then begin
                 SalespersonPurchaser."E-Mail" := CopyStr("E-Mail", 1, MaxStrLen(SalespersonPurchaser."E-Mail"));
+                SalespersonPurchaser."Search E-Mail" := SalespersonPurchaser."E-Mail";
+            end;
             if FieldNumber in [fieldno("Phone No."), FieldNo("Salespers./Purch. Code")] then
                 SalespersonPurchaser."Phone No." := "Phone No.";
 
             if (SalespersonPurchaser."E-Mail" <> xSalespersonPurchaser."E-Mail") or
+                (SalespersonPurchaser."Search E-Mail" <> xSalespersonPurchaser."Search E-Mail") or
                 (SalespersonPurchaser."Phone No." <> xSalespersonPurchaser."Phone No.")
             then
                 SalespersonPurchaser.Modify();

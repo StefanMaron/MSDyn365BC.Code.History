@@ -399,7 +399,7 @@ codeunit 134914 "ERM Payment Disc Application"
         ApplyVendorPmtToSevDocs(VendorNo, PaymentNo, InvoiceNo);
         // [GIVEN] 14 VAT Entries have been created for Apply
         ApplTransactionNo := GetVendApplTransactionNo(VendorNo, PaymentNo);
-        VerifyVATEntriesCountAndBalanceByTransactionNo(ApplTransactionNo, 14, -14.56, -1.96);
+        VerifyVATEntriesCountAndBalanceByTransactionNo(ApplTransactionNo, 16, -16.64, -1.44);
 
         // [WHEN] Unapply payment
         UnapplyVendorLedgerEntry(VendorNo, PaymentNo);
@@ -587,10 +587,13 @@ codeunit 134914 "ERM Payment Disc Application"
     end;
 
     local procedure CreatePaymentTermsDiscount(var PaymentTerms: Record "Payment Terms"; DiscountPct: Decimal)
+    var
+        PaymentLines: Record "Payment Lines";
     begin
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
-        PaymentTerms.Validate("Discount %", DiscountPct);
-        PaymentTerms.Modify(true);
+        LibraryERM.FindPaymentLines(PaymentLines, PaymentTerms.Code);
+        PaymentLines.Validate("Discount %", DiscountPct);
+        PaymentLines.Modify(true);
     end;
 
     local procedure CreatePostPurchaseInvoiceWithSevLines(VATPostingSetup: array[3] of Record "VAT Posting Setup"; VendorNo: Code[20]; PaymentTermsCode: Code[10]; DirectUnitCost: Decimal): Code[20]

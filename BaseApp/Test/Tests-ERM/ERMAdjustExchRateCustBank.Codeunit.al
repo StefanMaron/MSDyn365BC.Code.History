@@ -25,6 +25,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         PostingDate: Date;
         SetHandler: Boolean;
         ReversalErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Realized Gain/Loss entry.';
+        DocTypeReversalErr: Label 'You cannot reverse the entry %1 because it''s an %2 Document.';
 
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
@@ -678,12 +679,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure ReverseUnappliedFCYInvoiceWithGainLossforVendorAppliedFromInvoice()
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GLEntry: Record "G/L Entry";
         StartingDate: Date;
         StartingDate2: Date;
         CurrencyCode: Code[10];
@@ -703,11 +705,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         UnapplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [WHEN] Reverse Invoice
-        LibraryERM.ReverseTransaction(VendorLedgerEntry."Transaction No.");
+        asserterror LibraryERM.ReverseTransaction(VendorLedgerEntry."Transaction No.");
 
         // [THEN] Invoice Document Balance for Vendor Posting Account and Currency Gain/Loss Account is zero
-        VerifyGLEntryReverseBalance(
-          CurrencyCode, GetVendorPostingAccount(GenJournalLine."Account No."), GenJournalLine."Document Type"::Invoice, InvoiceNo);
+        GLEntry.SetRange("Transaction No.", VendorLedgerEntry."Transaction No.");
+        GLEntry.FindFirst;
+        Assert.ExpectedError(
+          StrSubstNo(DocTypeReversalErr, GLEntry."Entry No.", GLEntry."Document Type"));
     end;
 
     [Test]
@@ -745,12 +749,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure ReverseUnappliedFCYInvoiceWithGainLossforCustomerAppliedFromInvoice()
     var
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        GLEntry: Record "G/L Entry";
         StartingDate: Date;
         StartingDate2: Date;
         CurrencyCode: Code[10];
@@ -770,11 +775,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         UnapplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [WHEN] Reverse Invoice
-        LibraryERM.ReverseTransaction(CustLedgerEntry."Transaction No.");
+        asserterror LibraryERM.ReverseTransaction(CustLedgerEntry."Transaction No.");
 
         // [THEN] Invoice Document Balance for Customer Posting Account and Currency Gain/Loss Account is zero
-        VerifyGLEntryReverseBalance(
-          CurrencyCode, GetCustomerPostingAccount(GenJournalLine."Account No."), GenJournalLine."Document Type"::Invoice, InvoiceNo);
+        GLEntry.SetRange("Transaction No.", CustLedgerEntry."Transaction No.");
+        GLEntry.FindFirst;
+        Assert.ExpectedError(
+          StrSubstNo(DocTypeReversalErr, GLEntry."Entry No.", GLEntry."Document Type"));
     end;
 
     [Test]

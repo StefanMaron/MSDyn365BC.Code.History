@@ -65,26 +65,38 @@ page 9326 "Released Production Orders"
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of the production order.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Date';
                     ToolTip = 'Specifies the starting date of the production order.';
+                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of the production order.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the ending date of the production order.';
+                    Visible = DateAndTimeFieldVisible;
+                }
+                field("Starting Date-Time"; "Starting Date-Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the starting date and starting time of the production order.';
+                }
+                field("Ending Date-Time"; "Ending Date-Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the ending date and ending time of the production order.';
                 }
                 field("Due Date"; "Due Date")
                 {
@@ -410,11 +422,22 @@ page 9326 "Released Production Orders"
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
+    trigger OnInit()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
+    trigger OnOpenPage()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
     var
         ManuPrintReport: Codeunit "Manu. Print Report";
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
+        DateAndTimeFieldVisible: Boolean;
 }
 

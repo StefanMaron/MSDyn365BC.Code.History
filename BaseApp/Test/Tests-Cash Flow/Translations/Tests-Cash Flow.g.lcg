@@ -293,6 +293,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Expected Amount %2 = Actual Amount.]D;]A;(LookupHint=Codeunit ERM Cash Flow Filling I - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2834294265 - NamedType 7323701" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cash Flow payment terms are not supported in IT.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow Filling I - NamedType CFPaymentTermsNotSupportedInIT)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2834294265 - NamedType 3239064990" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There should not be any %1 for the posted Prepayment Invoice.]]></Val>
@@ -354,6 +363,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[Unexpected Cash Flow journal line count within filter: Cash Flow No.: Cash Flow No, Document No.: Sales Order No, Purchase Order No, Service Order No.]D;]A;(LookupHint=Codeunit ERM Cash Flow - Filling II - NamedType UnexpectedCFWorksheetLineCountForMultipleSourcesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2327756101 - NamedType 2204028990" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cash Flow payment terms are not supported in IT.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow - Filling II - NamedType CFPaymentTermsNotSupportedInITMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 170326706 - NamedType 196702087" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -482,24 +500,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType Matrix4)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 524224998 - NamedType 2033278026" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Matrix 5]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType Matrix5)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 524224998 - NamedType 757884792" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Matrix 7]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType Matrix7)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 524224998 - NamedType 1095702838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Matrix 9]]></Val>
@@ -554,6 +554,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType NoDefaultCFMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 524224998 - NamedType 2617397605" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Control must not be visible.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType NotVisible)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 524224998 - NamedType 4058621829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Control must not be editable.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType NotEditable)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 524224998 - NamedType 43047829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected value in field %1.]]></Val>
@@ -561,6 +579,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType UnexpectedValueInField)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 524224998 - NamedType 7323701" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cash Flow payment terms are not supported in IT.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType CFPaymentTermsNotSupportedInIT)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 524224998 - NamedType 1812575330" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

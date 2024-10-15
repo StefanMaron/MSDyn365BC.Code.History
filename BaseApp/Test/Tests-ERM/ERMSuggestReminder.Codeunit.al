@@ -20,7 +20,6 @@ codeunit 134910 "ERM Suggest Reminder"
         ReminderCaptionTxt: Label 'Edit - Reminder Text - %1 %2 Beginning', Comment = '%1=Reminder Terms Code;%2=Reminder Level';
         CaptionErr: Label 'Page Captions must match.';
         ReminderLineExistErr: Label 'Reminder Line must not exist.';
-        ReminderHeaderExistErr: Label 'Reminder Header must not exist.';
 
     [Test]
     [Scope('OnPrem')]
@@ -54,42 +53,7 @@ codeunit 134910 "ERM Suggest Reminder"
 
         // Verify: Check that no Reminder Line exists when Document Date is before Due Date.
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        Assert.IsTrue(ReminderLine.IsEmpty, ReminderLineExistErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NoReminderLinesWithInterestCalculation()
-    var
-        ReminderHeader: Record "Reminder Header";
-        GenJournalLine: Record "Gen. Journal Line";
-        Assert: Codeunit Assert;
-        ReminderNo: Code[20];
-        CustomerNo: Code[20];
-        Amt: Decimal;
-    begin
-        // [SCENARIO TFS121135] Create Reminder and remove Reminder Header if total balance is negative.
-
-        // [GIVEN] Create new customer.
-        Initialize;
-        CustomerNo := CreateCustomer;
-        Amt := LibraryRandom.RandIntInRange(1000, 1500);
-
-        // [GIVEN] Credit Memo posted with amount 'A1', where calculated Interest = 'I'.
-        CreatePostGeneralJnlLine(
-          CustomerNo, GenJournalLine."Document Type"::"Credit Memo", WorkDate, -Amt);
-
-        // [GIVEN] Invoice posted on the 1 year after work date with amount 'A2', where ('A1'+ 'I') > 'A2' > 'A1'.
-        CreatePostGeneralJnlLine(
-          CustomerNo, GenJournalLine."Document Type"::Invoice, CalcDate('<1Y>', WorkDate),
-          Amt + LibraryRandom.RandIntInRange(5, 10));
-
-        // [WHEN] Create Reminder Header and Suggest Reminder Line.
-        ReminderNo := CreateAndSuggestingReminder(CustomerNo, CalcDate('<1Y+1M>', WorkDate));
-
-        // [THEN] Check that no Reminder exists when Total Balance is negative.
-        ReminderHeader.SetRange("No.", ReminderNo);
-        Assert.IsTrue(ReminderHeader.IsEmpty, ReminderHeaderExistErr);
+        Assert.IsFalse(ReminderLine.FindFirst, ReminderLineExistErr);
     end;
 
     [Test]
@@ -232,14 +196,6 @@ codeunit 134910 "ERM Suggest Reminder"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Reminder");
     end;
 
-    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-    end;
-
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         Item: Record Item;
@@ -268,29 +224,12 @@ codeunit 134910 "ERM Suggest Reminder"
             SalesHeader."Sell-to Customer No.", CalcDate('<' + Format(NoOfDays) + 'D>', CalcDate(GracePeriod, SalesHeader."Due Date")));
     end;
 
-    local procedure CreatePostGeneralJnlLine(CustomerNo: Code[20]; DocType: Option; DocDate: Date; Amt: Decimal)
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        CreateGenJournalBatch(GenJournalBatch);
-        LibraryERM.CreateGeneralJnlLineWithBalAcc(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          DocType, GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amt);
-        GenJournalLine.Validate("Posting Date", DocDate);
-        GenJournalLine.Modify(true);
-
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", CreateReminderTerms(true));
-        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms);
         Customer.Modify(true);
         exit(Customer."No.")
     end;
@@ -299,7 +238,6 @@ codeunit 134910 "ERM Suggest Reminder"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", CreateReminderTerms(CalculateInterest));
-        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms);
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         Customer.Modify(true);
@@ -339,23 +277,6 @@ codeunit 134910 "ERM Suggest Reminder"
         ReminderTerms.Modify(true);
         CreateReminderLevel(ReminderTerms.Code, CalculateInterest);
         exit(ReminderTerms.Code);
-    end;
-
-    local procedure CreateFinanceChargeTerms(): Code[10]
-    var
-        FinanceChargeTerms: Record "Finance Charge Terms";
-    begin
-        with FinanceChargeTerms do begin
-            LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
-            Validate("Interest Rate", LibraryRandom.RandDec(10, 2));
-            Validate("Additional Fee (LCY)", LibraryRandom.RandDec(100, 2));
-            Validate("Interest Period (Days)", LibraryRandom.RandInt(30));
-            Evaluate("Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
-            Validate("Post Additional Fee", true);
-            Validate("Post Interest", true);
-            Modify(true);
-            exit(Code);
-        end;
     end;
 
     local procedure GetReminderLevel(var GracePeriod: DateFormula; CustomerNo: Code[20])

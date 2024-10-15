@@ -9,7 +9,7 @@ report 295 "Combine Shipments"
     {
         dataitem(SalesOrderHeader; "Sales Header")
         {
-            DataItemTableView = SORTING("Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "Payment Terms Code", "Payment Method Code", "Salesperson Code", "EU 3-Party Trade") WHERE("Document Type" = CONST(Order), "Combine Shipments" = CONST(true));
+            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Order), "Combine Shipments" = CONST(true));
             RequestFilterFields = "Sell-to Customer No.", "Bill-to Customer No.";
             RequestFilterHeading = 'Sales Order';
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
@@ -182,7 +182,9 @@ report 295 "Combine Shipments"
             begin
                 if GetFilter("Operation Type") <> '' then
                     Error(MissingFilterErr, FieldName("Operation Type"));
-
+                SetCurrentKey(
+		            "Sell-to Customer No.", "Bill-to Customer No.", "Currency Code", "Payment Terms Code",
+		            "Payment Method Code", "Salesperson Code", "EU 3-Party Trade");
                 SetRange("Operation Type", OperationType.Code);
 
                 if OperationDateFrom = 0D then
@@ -197,7 +199,7 @@ report 295 "Combine Shipments"
                     Error(Text000);
                 if DocDateReq = 0D then
                     Error(Text001);
-                LocalAppMgt.CheckData(PostingDateReq, DocDateReq, PostingDateTxt, DocumentDateTxt);
+                LocalAppMgt.CheckData(DocDateReq, PostingDateReq, DocumentDateTxt, PostingDateTxt);
                 Window.Open(
                   Text002 +
                   Text003 +

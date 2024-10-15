@@ -35,8 +35,11 @@ codeunit 138022 "O365 Charts Tests"
         ExpectedInventoryValueIncrease: array[5] of Decimal;
         Delta: Decimal;
         ColumnIndex: Integer;
+        OriginalWDate: Date;
     begin
         Initialize;
+        OriginalWDate := WorkDate;
+        WorkDate(CalcDate('<2Y>', WorkDate));
         BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Month;
 
         // get the aged inventory values before putting the test data
@@ -57,6 +60,7 @@ codeunit 138022 "O365 Charts Tests"
             Delta := InventoryValue - InventoryValueBeforeTestEntries[ColumnIndex + 1];
             Assert.AreEqual(ExpectedInventoryValueIncrease[ColumnIndex + 1], Delta, 'Unexpected inventory value calculated.');
         end;
+        WorkDate(OriginalWDate);
     end;
 
     [Test]
@@ -69,9 +73,12 @@ codeunit 138022 "O365 Charts Tests"
         ColumnIndex: Integer;
         StartDate: Date;
         EndDate: Date;
+        OriginalWDate: Date;
     begin
         Initialize;
+        OriginalWDate := WorkDate;
         BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Week;
+        WorkDate(CalcDate('<2M>', WorkDate)); // To avoid conflict by No. Series with Date Order
         CreateTestItemLedgerEntriesForDrilldownTest;
 
         AgedInventoryChartMgt.UpdateChart(BusinessChartBuffer);
@@ -90,6 +97,7 @@ codeunit 138022 "O365 Charts Tests"
             BusinessChartBuffer."Drill-Down X Index" := ColumnIndex;
             AgedInventoryChartMgt.DrillDown(BusinessChartBuffer);
         end;
+        WorkDate(OriginalWDate);
     end;
 
     [Test]
@@ -100,11 +108,15 @@ codeunit 138022 "O365 Charts Tests"
         TopFiveCustomersChartMgt: Codeunit "Top Five Customers Chart Mgt.";
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
+        OriginalWDate: Date;
     begin
         Initialize;
+        OriginalWDate := WorkDate;
+        WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
         TopFiveCustomersChartMgt.UpdateChart(BusinessChartBuffer);
         VerifyTopCustomerSalesMatch(BusinessChartBuffer, TestCustomerNames, TestCustomerSalesLCYs, 5);
+        WorkDate(OriginalWDate);
     end;
 
     [Test]
@@ -115,11 +127,15 @@ codeunit 138022 "O365 Charts Tests"
         TopFiveCustomersChartMgt: Codeunit "Top Five Customers Chart Mgt.";
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
+        OriginalWDate: Date;
     begin
         Initialize;
+        OriginalWDate := WorkDate;
+        WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 2);
         TopFiveCustomersChartMgt.UpdateChart(BusinessChartBuffer);
         VerifyTopCustomerSalesMatch(BusinessChartBuffer, TestCustomerNames, TestCustomerSalesLCYs, 2);
+        WorkDate(OriginalWDate);
     end;
 
     [Test]
@@ -130,11 +146,15 @@ codeunit 138022 "O365 Charts Tests"
         TopTenCustomersChartMgt: Codeunit "Top Ten Customers Chart Mgt.";
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
+        OriginalWDate: Date;
     begin
         Initialize;
+        OriginalWDate := WorkDate;
+        WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
         TopTenCustomersChartMgt.UpdateChart(BusinessChartBuffer);
         VerifyTopCustomerSalesMatch(BusinessChartBuffer, TestCustomerNames, TestCustomerSalesLCYs, 10);
+        WorkDate(OriginalWDate);
     end;
 
     [Test]
@@ -145,11 +165,15 @@ codeunit 138022 "O365 Charts Tests"
         TopTenCustomersChartMgt: Codeunit "Top Ten Customers Chart Mgt.";
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
+        OriginalWDate: Date;
     begin
         Initialize;
+        OriginalWDate := WorkDate;
+        WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 2);
         TopTenCustomersChartMgt.UpdateChart(BusinessChartBuffer);
         VerifyTopCustomerSalesMatch(BusinessChartBuffer, TestCustomerNames, TestCustomerSalesLCYs, 2);
+        WorkDate(OriginalWDate);
     end;
 
     [Test]
@@ -163,8 +187,11 @@ codeunit 138022 "O365 Charts Tests"
         ColumnIndex: Integer;
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
+        OriginalWDate: Date;
     begin
         Initialize;
+        OriginalWDate := WorkDate;
+        WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
         TopTenCustomersChartMgt.UpdateChart(BusinessChartBuffer);
 
@@ -182,6 +209,7 @@ codeunit 138022 "O365 Charts Tests"
         LibraryVariableStorage.Enqueue(TestCustomerNames[12]);
         BusinessChartBuffer."Drill-Down X Index" := 10;
         TopTenCustomersChartMgt.DrillDown(BusinessChartBuffer);
+        WorkDate(OriginalWDate);
     end;
 
     [Scope('OnPrem')]
@@ -264,6 +292,7 @@ codeunit 138022 "O365 Charts Tests"
                 // Verify
                 VerifyCustPostingGroups(BusChartBuf, "Period Length", Cust, Cust2);
             end;
+        WorkDate(RefDate);
     end;
 
     [Test]
@@ -350,6 +379,7 @@ codeunit 138022 "O365 Charts Tests"
                 // Verify
                 VerifyCustPostingGroups2(BusChartBuf, "Period Length", Cust, Cust2);
             end;
+        WorkDate(RefDate);
     end;
 
     local procedure Initialize()
@@ -402,6 +432,20 @@ codeunit 138022 "O365 Charts Tests"
         LibraryLowerPermissions.SetO365Full;
     end;
 
+    local procedure CreateCustomer(var Customer: Record Customer)
+    begin
+        LibrarySmallBusiness.CreateCustomer(Customer);
+        Customer."Payment Terms Code" := '';
+        Customer.Modify();
+    end;
+
+    local procedure CreateVendor(var Vendor: Record Vendor)
+    begin
+        LibrarySmallBusiness.CreateVendor(Vendor);
+        Vendor."Payment Terms Code" := '';
+        Vendor.Modify();
+    end;
+
     local procedure CreateTwoCustPostingGroups(var CustPostingGroup1: Code[20]; var CustPostingGroup2: Code[20])
     var
         CustPostGroup: Record "Customer Posting Group";
@@ -427,7 +471,7 @@ codeunit 138022 "O365 Charts Tests"
 
     local procedure CreateCustWithPostingGroup(var Cust: Record Customer; CustPostGroup: Code[20])
     begin
-        LibrarySmallBusiness.CreateCustomer(Cust);
+        CreateCustomer(Cust);
         Cust.Validate("Customer Posting Group", CustPostGroup);
         Cust.Modify(true);
     end;
@@ -443,10 +487,9 @@ codeunit 138022 "O365 Charts Tests"
         I: Integer;
     begin
         LibrarySmallBusiness.CreateItem(TestItem);
-
         // create 'CustomerCount' customers with salesLCY ranging from high to low.
         for I := 1 to CustomerCount do begin
-            LibrarySmallBusiness.CreateCustomer(TestCustomer);
+            CreateCustomer(TestCustomer);
             LibrarySmallBusiness.CreateSalesInvoiceHeader(TestSalesHeader, TestCustomer);
             LibrarySmallBusiness.CreateSalesLine(TestSalesLine, TestSalesHeader, TestItem, 13 - I);
             LibrarySmallBusiness.PostSalesInvoice(TestSalesHeader);
@@ -469,15 +512,15 @@ codeunit 138022 "O365 Charts Tests"
         OriginalWorkDate: Date;
     begin
         LibrarySmallBusiness.CreateItem(TestItem);
-        LibrarySmallBusiness.CreateVendor(TestVendor);
+        CreateVendor(TestVendor);
         OriginalWorkDate := WorkDate;
 
         // post test purchase invoices with backdated posting date in order to increase inventory value
-        WorkDate(CalcDate('<-10D>', WorkDate));
+        WorkDate(CalcDate('<-4M-10D>', WorkDate));
         for I := 1 to 5 do begin
             PostPurchaseInvoice(TestPurchaseHeader, TestPurchaseLine, TestVendor, TestItem, I, Format(I));
-            ExpectedInventoryValueIncrease[I] := TestPurchaseLine.Quantity * TestPurchaseLine."Direct Unit Cost";
-            WorkDate(CalcDate('<-1M>', WorkDate));
+            ExpectedInventoryValueIncrease[6 - I] := TestPurchaseLine.Quantity * TestPurchaseLine."Direct Unit Cost";
+            WorkDate(CalcDate('<1M>', WorkDate));
         end;
         WorkDate(OriginalWorkDate);
     end;
@@ -492,13 +535,14 @@ codeunit 138022 "O365 Charts Tests"
         OriginalWorkDate: Date;
     begin
         LibrarySmallBusiness.CreateItem(TestItem);
-        LibrarySmallBusiness.CreateVendor(TestVendor);
+        CreateVendor(TestVendor);
         OriginalWorkDate := WorkDate;
 
         // post test purchase invoices with backdated posting date in order to create some item ledger entries to drill down to
+        WorkDate(CalcDate('<-40D>', WorkDate));
         for I := 1 to 20 do begin
             PostPurchaseInvoice(TestPurchaseHeader, TestPurchaseLine, TestVendor, TestItem, I, Format(I));
-            WorkDate(CalcDate('<-2D>', WorkDate));
+            WorkDate(CalcDate('<2D>', WorkDate));
         end;
         WorkDate(OriginalWorkDate);
     end;

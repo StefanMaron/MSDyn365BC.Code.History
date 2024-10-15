@@ -68,14 +68,15 @@ codeunit 1380 "Batch Processing Mgt."
 
             IsHandled := false;
             OnBatchProcessOnBeforeShowMessage(CounterPosted, CounterTotal, IsHandled);
-            if not IsHandled then
-                if GuiAllowed then begin
-                    Window.Close;
+
+            if GuiAllowed then begin
+                Window.Close;
+                if not IsHandled then
                     if CounterPosted <> CounterTotal then
                         ErrorMessageHandler.NotifyAboutErrors
                     else
                         Message(BatchCompletedMsg);
-                end;
+            end;
         end;
 
         OnAfterBatchProcess(RecRef, CounterPosted);

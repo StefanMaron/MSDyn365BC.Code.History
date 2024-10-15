@@ -140,15 +140,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item Charges Plan-based E2E - NamedType TeamMemberErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1897343965 - NamedType 785109019" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The account balance is wrong.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item Costing Plan-based E2E - NamedType WrongAccountBalanceErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1734240048 - NamedType 2637377478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Apples Location]]></Val>
@@ -187,7 +178,7 @@
   </Item>
   <Item ItemId=";Codeunit 1734240048 - NamedType 1252451036" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Transfer lines does not exists after change of Transfer-From location. ]]></Val>
+      <Val><![CDATA[Transfer lines does not exists after change of Transfer-From location.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

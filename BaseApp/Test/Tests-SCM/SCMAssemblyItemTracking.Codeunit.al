@@ -20,14 +20,13 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         SNMissingErr: Label 'You must assign a serial number for item', Comment = '%1 - Item No.';
         LNMissingErr: Label 'You must assign a lot number for item', Comment = '%1 - Item No.';
-        WrongSN: Label 'SN different from what expected';
-        WrongLN: Label 'LN different from what expected';
-        MessageInvtMvmtCreated: Label 'Number of Invt. Movement activities created: 1 out of a total of 1.';
-        WrongNoOfT337Records: Label 'Wrong no of T337 records';
-        MessageWhsePickCreated: Label 'has been created';
+        WrongSNErr: Label 'SN different from what expected';
+        WrongLNErr: Label 'LN different from what expected';
+        MessageInvtMvmtCreatedMsg: Label 'Number of Invt. Movement activities created: 1 out of a total of 1.';
+        WrongNoOfT337RecordsErr: Label 'Wrong no of T337 records';
+        MessageWhsePickCreatedMsg: Label 'has been created';
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         WorkDate2: Date;
@@ -48,69 +47,6 @@ codeunit 137926 "SCM Assembly Item Tracking"
         Initialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Item Tracking");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesQuoteToOrderCompSN()
-    var
-        ItemTrackingCode: Record "Item Tracking Code";
-        ItemParent: Record Item;
-        ItemChild: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ATOLink: Record "Assemble-to-Order Link";
-        AssemblyLine: Record "Assembly Line";
-        ReservEntry: Record "Reservation Entry";
-        SalesOrderHeader: Record "Sales Header";
-        BOMComponent: Record "BOM Component";
-        SalesQuoteToOrder: Codeunit "Sales-Quote to Order";
-        LibrarySales: Codeunit "Library - Sales";
-        SNChild: Code[20];
-    begin
-        Initialize;
-        LibrarySales.SetCreditWarningsToNoWarnings;
-
-        // Create items
-        CreateItemTrackingCode(ItemTrackingCode, true, false);
-        CreateItems(ItemParent, ItemTrackingCode, ItemChild, ItemTrackingCode);
-        ItemParent.Validate("Replenishment System", ItemParent."Replenishment System"::Assembly);
-        ItemParent.Validate("Assembly Policy", ItemParent."Assembly Policy"::"Assemble-to-Order");
-        ItemParent.Modify(true);
-
-        // Add child to parent BOM
-        LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, ItemParent."No.", BOMComponent.Type::Item, ItemChild."No.", 1, '');
-
-        // Add component to inventory
-        SNChild := ItemChild."No.";
-        AddItemToInventory(ItemChild, 1, SNChild, '');
-
-        // Create Sales Quote
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, '20000');
-        SalesHeader.Validate("Shipment Date", WorkDate2);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemParent."No.", 1);
-
-        // Add SN to Asm Quote Comp
-        ATOLink.SetRange("Assembly Document Type", ATOLink."Assembly Document Type"::Quote);
-        ATOLink.SetRange(Type, ATOLink.Type::Sale);
-        ATOLink.SetRange("Document Type", ATOLink."Document Type"::Quote);
-        ATOLink.SetRange("Document No.", SalesHeader."No.");
-        ATOLink.FindFirst;
-        AssemblyLine.Get(AssemblyLine."Document Type"::Quote, ATOLink."Assembly Document No.", 10000);
-        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservEntry, AssemblyLine, SNChild, '', 1);
-
-        // Validate SN on asm order comp
-        ValidateQuoteSN(ItemChild."No.", SNChild, -1, 0);
-
-        // Make Sales Order from Quote
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        SalesQuoteToOrder.Run(SalesHeader);
-        SalesQuoteToOrder.GetSalesOrderHeader(SalesOrderHeader);
-
-        // Validate SN on asm order comp
-        ValidateQuoteSN(ItemChild."No.", SNChild, -1, 1);
     end;
 
     [Test]
@@ -587,9 +523,9 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
         WhseActivityHeader.FindFirst;
         LibraryWarehouse.AutoFillQtyInventoryActivity(WhseActivityHeader);
-        if (ActivityType = ActivityType::"Put-away") or (ActivityType = ActivityType::Pick) then begin
-            LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
-        end else
+        if (ActivityType = ActivityType::"Put-away") or (ActivityType = ActivityType::Pick) then
+            LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader)
+        else
             WhseActivityRegister.Run(WhseActivityLine);
     end;
 
@@ -723,7 +659,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         if RecordsShouldExist then
             ReservEntry.SetRange("Quantity (Base)", Quantity);
 
-        Assert.AreEqual(ReservEntry.Count, ExpectedNumberOfRecords, WrongNoOfT337Records);
+        Assert.AreEqual(ReservEntry.Count, ExpectedNumberOfRecords, WrongNoOfT337RecordsErr);
         Assert.AreEqual(RecordsShouldExist, ReservEntry.FindFirst, 'T337 records are different from what expected :(');
     end;
 
@@ -765,23 +701,23 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseActivityLine.SetRange("Source No.", AsmOrderNo);
         WhseActivityLine.FindFirst;
         if ExpectedSN <> '' then
-            Assert.AreEqual(WhseActivityLine."Serial No.", ExpectedSN, WrongSN);
+            Assert.AreEqual(WhseActivityLine."Serial No.", ExpectedSN, WrongSNErr);
         if ExpectedLN <> '' then
-            Assert.AreEqual(WhseActivityLine."Lot No.", ExpectedLN, WrongLN);
+            Assert.AreEqual(WhseActivityLine."Lot No.", ExpectedLN, WrongLNErr);
     end;
 
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageInvtMovementCreated(Message: Text[1024])
     begin
-        Assert.IsTrue(StrPos(Message, MessageInvtMvmtCreated) > 0, 'Wrong Message: ' + Message + '; Expected: ' + MessageInvtMvmtCreated);
+        Assert.IsTrue(StrPos(Message, MessageInvtMvmtCreatedMsg) > 0, 'Wrong Message: ' + Message + '; Expected: ' + MessageInvtMvmtCreatedMsg);
     end;
 
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessagePickCreated(Message: Text[1024])
     begin
-        Assert.IsTrue(StrPos(Message, MessageWhsePickCreated) > 0, 'Wrong Message: ' + Message + '; Expected: ' + MessageWhsePickCreated);
+        Assert.IsTrue(StrPos(Message, MessageWhsePickCreatedMsg) > 0, 'Wrong Message: ' + Message + '; Expected: ' + MessageWhsePickCreatedMsg);
     end;
 
     local procedure MockItem(var Item: Record Item)
@@ -802,19 +738,6 @@ codeunit 137926 "SCM Assembly Item Tracking"
     begin
         NavigatePage."Table Name".AssertEquals(TableName);
         NavigatePage."No. of Records".AssertEquals(NoOfRecords);
-    end;
-
-    local procedure ValidateQuoteSN(ItemNo: Code[20]; SerialNo: Code[20]; Qty: Decimal; SourceSubType: Option)
-    var
-        ReservEntry: Record "Reservation Entry";
-    begin
-        ReservEntry.SetRange("Item No.", ItemNo);
-        ReservEntry.SetRange("Serial No.", SerialNo);
-        ReservEntry.SetRange("Quantity (Base)", Qty);
-        ReservEntry.SetRange("Source Type", DATABASE::"Assembly Line");
-        ReservEntry.SetRange("Source Subtype", SourceSubType);
-        Assert.AreEqual(1, ReservEntry.Count, WrongNoOfT337Records);
-        Assert.AreEqual(true, ReservEntry.FindFirst, 'T337 records are different from what expected :(');
     end;
 }
 

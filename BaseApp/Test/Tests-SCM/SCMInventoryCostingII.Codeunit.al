@@ -183,6 +183,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // Exercise: Create and post a Purchase Invoice and create Charge Item Assignment for all the Shipment lines.
+        Commit();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Error message doesn't appear while posting Purchase Invoice with Qty. to Assign more than Purchase Invoice Quantity.
@@ -229,6 +230,7 @@ codeunit 137287 "SCM Inventory Costing II"
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order);
 
         // Exercise.
+        Commit();
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error message while posting Purchase Invoice.
@@ -250,6 +252,7 @@ codeunit 137287 "SCM Inventory Costing II"
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::Order);
 
         // Exercise.
+        Commit();
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error message while posting Purchase Credit Memo.
@@ -405,6 +408,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // Exercise.
+        Commit();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Error message doesn't appear while posting Purchase Invoice with Qty. to Assign more than Purchase Invoice Quantity.
@@ -425,6 +429,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Create Purchase Invoice with negative Direct Unit Cost using Charge Item and Post.
         PostPurchaseDocumentUsingSalesReturnOrder(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Return Order");
+        Commit();
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error message while posting Purchase Invoice.
@@ -446,6 +451,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Create Purchase Credit Memo with Charge Item and Post.
         PostPurchaseDocumentUsingSalesReturnOrder(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order");
+        Commit();
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error message while posting Purchase Credit Memo.
@@ -839,6 +845,7 @@ codeunit 137287 "SCM Inventory Costing II"
         UpdatePurchaseHeader(PurchaseHeader);
 
         // Exercise: Post Invoice for the invalidated item charge assignment
+        Commit();
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Post failed
@@ -904,6 +911,7 @@ codeunit 137287 "SCM Inventory Costing II"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise: Post Invoice for the invalidated item charge assignment
+        Commit();
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Post failed

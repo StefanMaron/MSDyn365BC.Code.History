@@ -32,18 +32,20 @@ codeunit 131303 "Library - Pmt Disc Setup"
 
     procedure GetPaymentTermsDiscountPct(PaymentTermsCode: Code[10]): Decimal
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
     begin
-        PaymentTerms.Get(PaymentTermsCode);
-        exit(PaymentTerms."Discount %");
+        PaymentLines.SetRange(Code, PaymentTermsCode);
+        PaymentLines.FindFirst;
+        exit(PaymentLines."Discount %");
     end;
 
     procedure GetPaymentTermsDiscountDate(PaymentTermsCode: Code[10]): Date
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
     begin
-        PaymentTerms.Get(PaymentTermsCode);
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        PaymentLines.SetRange(Code, PaymentTermsCode);
+        PaymentLines.FindFirst;
+        exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate));
     end;
 
     procedure SetAdjustForPaymentDisc(AdjustForPaymentDisc: Boolean)

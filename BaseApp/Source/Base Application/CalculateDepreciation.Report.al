@@ -104,7 +104,10 @@ report 5692 "Calculate Depreciation"
                         FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
                         if UseAutomaticDocumentNo then begin
-                            DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true);
+                            if FindLast() then
+                                DocumentNo2 := "Document No."
+                            else
+                                DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true);
                             if DocumentNo2 = '' then
                                 Error(Text000, FieldCaption("Document No."));
                         end;
@@ -150,7 +153,10 @@ report 5692 "Calculate Depreciation"
                         FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                         if UseAutomaticDocumentNo then begin
-                            DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true);
+                            if FindLast() then
+                                DocumentNo2 := "Document No."
+                            else
+                                DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true);
                             if DocumentNo2 = '' then
                                 Error(Text000, FieldCaption("Document No."));
                         end;
@@ -193,6 +199,7 @@ report 5692 "Calculate Depreciation"
                             OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount);
                         until TempGenJnlLine.Next = 0;
                 end;
+                OnAfterPostDataItem();
             end;
         }
     }
@@ -545,6 +552,11 @@ report 5692 "Calculate Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFAInsertGLAccGetBalAcc(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlNextLineNo: Integer; var BalAccount: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostDataItem()
     begin
     end;
 

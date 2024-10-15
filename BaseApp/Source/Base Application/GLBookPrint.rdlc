@@ -1444,8 +1444,8 @@ Cstr(LAST(Fields!NORMALDATE__Posting_Date__Caption.Value)) + Chr(177) +
 Cstr(LAST(Fields!GL_Book_Entry__Document_No__Caption.Value)) + Chr(177) + 
 Cstr(LAST(Fields!GL_Book_Entry__Document_Type_Caption.Value)) + Chr(177) + 
 Cstr(LAST(Fields!GL_Book_Entry__Document_Date_Caption.Value)) + Chr(177) + 
+Cstr(LAST(Fields!GL_Book_Entry__External_Document_No__Caption.Value)) + Chr(177) +
 Cstr(LAST(Fields!GL_Book_Entry__G_L_Account_No__Caption.Value)) + Chr(177) + 
-Cstr(LAST(Fields!GLAcc_NameCaption.Value)) + Chr(177) + 
 Cstr(LAST(Fields!GLAcc_NameCaption.Value)) + Chr(177) + 
 Cstr(LAST(Fields!GL_Book_Entry_DescriptionCaption.Value)) + Chr(177) + 
 Cstr(LAST(Fields!GL_Book_Entry__Debit_Amount_Caption.Value)) + Chr(177) + 

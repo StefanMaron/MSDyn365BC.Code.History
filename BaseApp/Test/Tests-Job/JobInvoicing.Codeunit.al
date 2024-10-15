@@ -1032,7 +1032,7 @@ codeunit 136306 "Job Invoicing"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandlerFalseReply')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure JobCurrencyFactorNotUpdatedWhenCancelExchRateConfOnPurchOrder()
     var
@@ -1978,6 +1978,8 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Create purchase order for item "I" and post receipt
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PurchaseHeader.Validate("Posting No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Post a billable job journal line for item "I"
@@ -2095,7 +2097,7 @@ codeunit 136306 "Job Invoicing"
         PostedDocNo: Code[20];
     begin
         // [FEATURE] [Update Job Item Cost] [Item Charge]
-        // [SCENARIO 252306] "Update Job Item Cost" should carry item charge amount from purchase entry to the applied job consumption entry
+        // [SCENARIO 252306] "Update Job Item Cost" should carry item charge amount from purchase entry to job consumption for an item with Type = Service
 
         Initialize;
 
@@ -2214,7 +2216,7 @@ codeunit 136306 "Job Invoicing"
         SalesLine.FindFirst;
         Assert.AreEqual(JobPlanningLine1.Quantity, SalesLine."Qty. to Invoice", '');
     end;
-
+	
     [Test]
     [Scope('OnPrem')]
     procedure SalesArchiveJobTaskNo()
@@ -2403,6 +2405,7 @@ codeunit 136306 "Job Invoicing"
         SalesHeader: Record "Sales Header";
     begin
         TransferJobPlanningLine(JobPlanningLine, Fraction, false, SalesHeader);
+        SalesHeader.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         with JobPlanningLine do
             Get("Job No.", "Job Task No.", "Line No.")
@@ -2610,6 +2613,7 @@ codeunit 136306 "Job Invoicing"
     local procedure Credit(JobPlanningLine: Record "Job Planning Line"; Fraction: Decimal)
     var
         SalesHeader: Record "Sales Header";
+        NoSeries: Record "No. Series";
     begin
         if Fraction = 0 then
             exit;
@@ -2624,6 +2628,8 @@ codeunit 136306 "Job Invoicing"
             Insert(true);
 
             TransferJobPlanningLine(JobPlanningLine, 1, true, SalesHeader);
+            SalesHeader.Validate("Operation Type", LibraryERM.FindOperationType(NoSeries."No. Series Type"::Sales));
+            SalesHeader.Modify();
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
         end
     end;
@@ -2866,6 +2872,23 @@ codeunit 136306 "Job Invoicing"
         end;
     end;
 
+    local procedure CreatePostingNoSeriesPurchase(): Code[10]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        PurchSetup: Record "Purchases & Payables Setup";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        LibraryERM.CreateNoSeriesLinePurchase(NoSeriesLinePurchase, NoSeries.Code, '', '');
+
+        PurchSetup.Get();
+        LibraryUtility.CreateNoSeriesRelationship(PurchSetup."Posted Invoice Nos.", NoSeries.Code);
+
+        exit(NoSeries.Code);
+    end;
+
     local procedure CreatePurchaseOrderAssignJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20]; JobTask: Record "Job Task")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
@@ -3075,8 +3098,10 @@ codeunit 136306 "Job Invoicing"
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
         PurchaseLine.FindFirst;
+
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        PurchaseHeader.Validate("Posting No. Series", CreatePostingNoSeriesPurchase);
         PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDateFrom(WorkDate, 5));
         PurchaseHeader.Modify(true);
     end;
@@ -3514,13 +3539,6 @@ codeunit 136306 "Job Invoicing"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerFalseReply(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := false;
     end;
 
     local procedure CreateJobTaskWithDimensions(var JobTask: Record "Job Task")

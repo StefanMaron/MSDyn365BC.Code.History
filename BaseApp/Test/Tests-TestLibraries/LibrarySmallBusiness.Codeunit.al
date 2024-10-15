@@ -363,6 +363,15 @@ codeunit 132213 "Library - Small Business"
         exit(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
+    procedure FindSalesOperationType(): Code[10]
+    var
+        NoSeries: Record "No. Series";
+    begin
+        NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Sales);
+        NoSeries.FindFirst;
+        exit(NoSeries.Code);
+    end;
+
     procedure PostSalesInvoice(var SalesHeader: Record "Sales Header"): Code[20]
     begin
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
@@ -481,15 +490,15 @@ codeunit 132213 "Library - Small Business"
     end;
 
     local procedure CreateZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20])
+    var
+        VATIdentifier: Record "VAT Identifier";
     begin
         with VATPostingSetup do begin
             Init;
             Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
             Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Validate(
-              "VAT Identifier",
-              LibraryUtility.GenerateRandomCode(
-                FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+            LibraryERM.CreateVATIdentifier(VATIdentifier);
+            Validate("VAT Identifier", VATIdentifier.Code);
             Validate("VAT %", 0);
             Validate("Sales VAT Account", CreateGLAccount);
             Validate("Purchase VAT Account", CreateGLAccount);

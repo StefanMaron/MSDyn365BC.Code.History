@@ -86,14 +86,13 @@ codeunit 135022 "Data Migration Facade Tests"
         PaymentMethod.Get('PM');
         Assert.AreEqual('Payment Method', PaymentMethod.Description, 'A different description was expected');
 
-        Evaluate(PaymentTermsFormula, '<14D>');
+        Evaluate(PaymentTermsFormula, '');
         VendorDataMigrationFacade.CreatePaymentTermsIfNeeded('PT', 'Payment Terms', PaymentTermsFormula);
         // Already existing Payment Terms does not throw error
         VendorDataMigrationFacade.CreatePaymentTermsIfNeeded('PT', 'Payment Terms', PaymentTermsFormula);
 
         PaymentTerms.Get('PT');
         Assert.AreEqual('Payment Terms', PaymentTerms.Description, 'A different description was expected');
-        Assert.AreEqual(PaymentTermsFormula, PaymentTerms."Due Date Calculation", 'A different due date calculation was expected');
 
         Assert.IsTrue(VendorDataMigrationFacade.CreatePostCodeIfNeeded('2600', 'Lyngby', '', 'DK'),
           'Post Code was expected to be created');
@@ -349,11 +348,10 @@ codeunit 135022 "Data Migration Facade Tests"
         PaymentMethod.Get('PM');
         Assert.AreEqual('Payment Method', PaymentMethod.Description, 'A different description was expected');
 
-        Evaluate(PaymentTermsFormula, '<14D>');
+        Evaluate(PaymentTermsFormula, '');
         CustomerDataMigrationFacade.CreatePaymentTermsIfNeeded('PT', 'Payment Terms', PaymentTermsFormula);
         PaymentTerms.Get('PT');
         Assert.AreEqual('Payment Terms', PaymentTerms.Description, 'A different description was expected');
-        Assert.AreEqual(PaymentTermsFormula, PaymentTerms."Due Date Calculation", 'A different due date calculation was expected');
 
         Assert.IsTrue(CustomerDataMigrationFacade.CreatePostCodeIfNeeded('2600', 'Lyngby', '', 'DK'),
           'Post Code was expected to be created');

@@ -265,7 +265,7 @@ codeunit 135023 "Data Migration Status Test"
 
         // [GIVEN] Customer transaction have been created
         CustomerDataMigrationFacade.CreateCustomerIfNeeded('C001', '');
-        Evaluate(CalculationFormula, '<14D>');
+        Evaluate(CalculationFormula, '');
         CustomerDataMigrationFacade.CreatePaymentTermsIfNeeded('PT', '', CalculationFormula);
         CustomerDataMigrationFacade.SetPaymentTermsCode('PT');
         CustomerDataMigrationFacade.CreatePaymentMethodIfNeeded('PM', 'Payment Method');
@@ -303,7 +303,6 @@ codeunit 135023 "Data Migration Status Test"
 
         // [GIVEN] Vendor transaction have been created
         VendorDataMigrationFacade.CreateVendorIfNeeded('V001', '');
-        Evaluate(CalculationFormula, '<14D>');
         VendorDataMigrationFacade.CreatePaymentTermsIfNeeded('PT', '', CalculationFormula);
         VendorDataMigrationFacade.SetPaymentTermsCode('PT');
         VendorDataMigrationFacade.CreatePaymentMethodIfNeeded('PM', 'Payment Method');

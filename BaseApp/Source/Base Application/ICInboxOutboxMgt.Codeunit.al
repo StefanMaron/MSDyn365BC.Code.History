@@ -2320,7 +2320,13 @@
         ICPartner: Record "IC Partner";
         ItemCrossReference: Record "Item Cross Reference";
         GLAccount: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePurchLineICPartnerReference(PurchaseLine, PurchaseHeader, ICInboxPurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ICInboxPurchLine do
             if ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::"G/L Account") and
                ("IC Partner Ref. Type" <> 0) and
@@ -2626,6 +2632,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOutBoxTransactionInsert(var ICOutboxTransaction: Record "IC Outbox Transaction"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePurchLineICPartnerReference(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ICInboxPurchLine: Record "IC Inbox Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

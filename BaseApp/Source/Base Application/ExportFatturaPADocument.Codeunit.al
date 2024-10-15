@@ -177,6 +177,11 @@ codeunit 12179 "Export FatturaPA Document"
         exit(Format(Amount, 0, '<Precision,2:2><Standard Format,9>'))
     end;
 
+    local procedure FormatAmountEightDecimalPlaces(Amount: Decimal): Text[250]
+    begin
+        exit(Format(Amount, 0, '<Sign><Integer><Decimals,8><Comma,.>'))
+    end;
+
     local procedure FormatQuantity(Amount: Decimal): Text[250]
     begin
         if Amount = 0 then
@@ -378,7 +383,7 @@ codeunit 12179 "Export FatturaPA Document"
                 AddGroupElement('ScontoMaggiorazione');
                 AddNonEmptyElement('Tipo', 'SC');
                 AddNonEmptyLastElement(
-                  'Importo', FormatAmount(TempFatturaHeader."Total Inv. Discount"));
+                  'Importo', FormatAmountEightDecimalPlaces(TempFatturaHeader."Total Inv. Discount"));
             end;
 
             // 2.1.1.9   ImportoTotaleDocumento
@@ -411,7 +416,7 @@ codeunit 12179 "Export FatturaPA Document"
                 AddNonEmptyElement('Tipo', 'SC');
                 AddNonEmptyElement('Percentuale', FormatAmount(TempFatturaLine."Discount Percent"));
                 if TempFatturaLine."Discount Percent" = 0 then
-                    AddNonEmptyElement('Importo', FormatAmount(TempFatturaLine."Discount Amount"));
+                    AddNonEmptyElement('Importo', FormatAmountEightDecimalPlaces(TempFatturaLine."Discount Amount"));
                 GetParent;
             end;
 

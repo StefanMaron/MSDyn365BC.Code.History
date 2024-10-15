@@ -928,7 +928,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     [Scope('OnPrem')]
     procedure TestCorrectInvoiceUsingGLAccount()
     var
-        GLAcc: Record "G/L Account";
         Item: Record Item;
         Vend: Record Vendor;
         PurchHeader: Record "Purchase Header";
@@ -938,26 +937,24 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchHeaderTmp: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchHeader, PurchLine);
 
-        LibraryERM.FindGLAccount(GLAcc);
-
-        LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
-        PurchLine.Validate(Type, PurchLine.Type::"G/L Account");
-        PurchLine.Validate("No.", GLAcc."No.");
-        PurchLine.Validate("Direct Unit Cost", 1);
-        PurchLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        Clear(PurchLine);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchLine.Modify(true);
 
+        Clear(PurchLine);
         LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
         PurchLine.Validate(Type, PurchLine.Type::" ");
         PurchLine.Modify(true);
 
         PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchHeader));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderTmp);
@@ -968,7 +965,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     [Scope('OnPrem')]
     procedure TestCancelInvoiceUsingGLAccount()
     var
-        GLAcc: Record "G/L Account";
         Item: Record Item;
         Vend: Record Vendor;
         PurchHeader: Record "Purchase Header";
@@ -977,26 +973,24 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchHeader, PurchLine);
 
-        LibraryERM.FindGLAccount(GLAcc);
-
+        Clear(PurchLine);
         LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
         PurchLine.Validate(Type, PurchLine.Type::" ");
         PurchLine.Modify(true);
 
-        LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
-        PurchLine.Validate(Type, PurchLine.Type::"G/L Account");
-        PurchLine.Validate("No.", GLAcc."No.");
-        PurchLine.Validate("Direct Unit Cost", 1);
-        PurchLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        Clear(PurchLine);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchLine.Modify(true);
 
         PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchHeader));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
@@ -1119,7 +1113,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Initialize;
 
         CreateItemWithCost(Item, Item.Type::Inventory, 0);
-        LibrarySmallBusiness.CreateVendor(Vendor);
+        CreateVendor(Vendor);
 
         if GLEntry.FindLast then;
 
@@ -1224,7 +1218,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
 
-        LibrarySmallBusiness.CreateVendor(Vendor);
+        CreateVendor(Vendor);
         SetupVendorToPayInCash(Vendor);
 
         BuyItem(Vendor, Item, 1, PurchInvHeader);
@@ -1397,7 +1391,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         SetNoSeries;
         PurchasesPayablesSetup.Get();
@@ -1513,8 +1506,8 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
     local procedure CreateBuyFromWithDifferentPayToVendor(var BuyFromVendor: Record Vendor; var PayToVendor: Record Vendor)
     begin
-        LibrarySmallBusiness.CreateVendor(BuyFromVendor);
-        LibrarySmallBusiness.CreateVendor(PayToVendor);
+        CreateVendor(PayToVendor);
+        CreateVendor(BuyFromVendor);
         BuyFromVendor.Validate("Pay-to Vendor No.", PayToVendor."No.");
         BuyFromVendor.Modify(true);
     end;
@@ -1522,14 +1515,14 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     local procedure CreateAndPostPurchaseInvForNewItemAndVendor(var Item: Record Item; Type: Option Inventory,Service; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
     begin
         CreateItemWithCost(Item, Type, UnitCost);
-        LibrarySmallBusiness.CreateVendor(Vendor);
+        CreateVendor(Vendor);
         BuyItem(Vendor, Item, Qty, PurchInvHeader);
     end;
 
     local procedure CreatePurchaseInvForNewItemAndVendor(var Item: Record Item; var Vendor: Record Vendor; UnitPrice: Decimal; Qty: Decimal; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
         CreateItemWithCost(Item, Item.Type::Inventory, UnitPrice);
-        LibrarySmallBusiness.CreateVendor(Vendor);
+        CreateVendor(Vendor);
         CreatePurchaseInvoiceForItem(Vendor, Item, Qty, PurchaseHeader, PurchaseLine);
     end;
 
@@ -1564,6 +1557,13 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CheckNothingIsCreated(PurchInvHeader."Pay-to Vendor No.", GLEntry);
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
         CheckNothingIsCreated(PurchInvHeader."Pay-to Vendor No.", GLEntry);
+    end;
+
+    local procedure CreateVendor(var Vendor: Record Vendor)
+    begin
+        LibrarySmallBusiness.CreateVendor(Vendor);
+        Vendor."Payment Terms Code" := '';
+        Vendor.Modify();
     end;
 
     local procedure SetupVendorToPayInCash(var Vendor: Record Vendor)

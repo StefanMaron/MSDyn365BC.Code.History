@@ -90,7 +90,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         // Setup
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        LibrarySmallBusiness.CreateCustomer(Customer);
+        CreateCustomerWithoutPaymentTerms(Customer);
         LibrarySmallBusiness.CreateItem(Item);
         LibrarySmallBusiness.CreateSalesCrMemoHeader(SalesHeader, Customer);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
@@ -125,7 +125,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         // Setup
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        LibrarySmallBusiness.CreateCustomer(Customer);
+        CreateCustomerWithoutPaymentTerms(Customer);
         LibrarySmallBusiness.CreateItem(Item);
         LibrarySmallBusiness.CreateSalesCrMemoHeader(SalesHeader, Customer);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
@@ -394,9 +394,12 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         LibrarySmallBusiness.CreateItem(Item);
         CreateCustomer(Customer);
+        Customer."Payment Terms Code" := '';
+        Customer.Modify();
 
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType);
 
         // Set item on line - if no errors than is ok
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
@@ -423,9 +426,12 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         LibrarySmallBusiness.CreateItemAsService(Item);
         CreateCustomer(Customer);
+        Customer."Payment Terms Code" := '';
+        Customer.Modify();
 
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType);
 
         // Set item as service on line - if no errors than is ok
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
@@ -456,7 +462,9 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
         Assert.AreEqual(SalesCreditMemo."Payment Terms Code".Value, '', 'Payment Terms Code should be empty by default');
-        Assert.AreEqual(SalesCreditMemo."Due Date".AsDate, SalesCreditMemo."Document Date".AsDate, 'Due Date incorrectly calculated.');
+        // Due Date is replaced by Operation Occurred Date in IT
+        Assert.AreEqual(SalesCreditMemo."Operation Occurred Date".AsDate,
+          SalesCreditMemo."Document Date".AsDate, 'Due Date incorrectly calculated.');
     end;
 
     [Test]
@@ -478,7 +486,8 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         PaymentTerms.Get(Customer."Payment Terms Code");
         SalesCreditMemo."Payment Terms Code".SetValue(PaymentTerms.Code);
         ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", SalesCreditMemo."Document Date".AsDate);
-        Assert.AreEqual(SalesCreditMemo."Due Date".AsDate, ExpectedDueDate, 'Due Date incorrectly calculated.');
+        // Due Date is replaced by Operation Occurred Date in IT
+        Assert.AreEqual(SalesCreditMemo."Operation Occurred Date".AsDate, ExpectedDueDate, 'Due Date incorrectly calculated.');
     end;
 
     [Test]
@@ -617,6 +626,13 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         NewCode := LibraryUtility.GenerateRandomCode(ResponsibilityCenter.FieldNo(Code), DATABASE::"Responsibility Center");
         ResponsibilityCenter.Validate(Code, NewCode);
         ResponsibilityCenter.Insert();
+    end;
+
+    local procedure CreateCustomerWithoutPaymentTerms(var Customer: Record Customer)
+    begin
+        LibrarySmallBusiness.CreateCustomer(Customer);
+        Customer."Payment Terms Code" := '';
+        Customer.Modify();
     end;
 }
 

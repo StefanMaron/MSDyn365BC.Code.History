@@ -28,6 +28,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DotNetRandom: DotNet "System.Random";
         isInitialized: Boolean;
         LinesAreAppliedTxt: Label 'are applied';
+        IBANMandatoryTxt: Label 'The field IBAN is mandatory.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -3336,7 +3337,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
     [Scope('OnPrem')]
     procedure TestVendMatchOnBankAccountOnly()
     var
@@ -3357,6 +3358,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
         UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
+        LibraryVariableStorage.Enqueue(IBANMandatoryTxt);
+        LibraryVariableStorage.Enqueue(true);
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
 
         // Exercise
@@ -3772,7 +3775,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
     [Scope('OnPrem')]
     procedure TestVendCertainAndMultipleAmountMatch()
     var
@@ -3794,6 +3797,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
         UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
+        LibraryVariableStorage.Enqueue(IBANMandatoryTxt);
+        LibraryVariableStorage.Enqueue(true);
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
 
         // Exercise
@@ -3808,7 +3813,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
     [Scope('OnPrem')]
     procedure TestVendCertainAndSingleAmountMatch()
     var
@@ -3829,6 +3834,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
         UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
+        LibraryVariableStorage.Enqueue(IBANMandatoryTxt);
+        LibraryVariableStorage.Enqueue(true);
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
 
         // Exercise
@@ -5785,7 +5792,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         SalesHeader.Validate("External Document No.", ExtDocNo);
 
         if DueDate <> 0D then
-            SalesHeader.Validate("Due Date", DueDate);
+            SalesHeader.Validate("Document Date", DueDate);
 
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -5808,7 +5815,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", ExtDocNo);
         if DueDate <> 0D then
-            PurchaseHeader.Validate("Due Date", DueDate);
+            PurchaseHeader.Validate("Document Date", DueDate);
 
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
@@ -6443,6 +6450,21 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry."Applied Amount", ExpectedAppliedAmount, 'Wrong amount set');
         Assert.AreEqual(AppliedPaymentEntry."Applies-to Entry No.", ExpectedAppliesToEntryNo, 'Wrong Applies-to Entry No. value is set');
         Assert.AreEqual(AppliedPaymentEntry.Quality, Quality, 'Wrong quality is set');
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    var
+        ExpectedMsg: Variant;
+        ExpectedReply: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedMsg);
+        LibraryVariableStorage.Dequeue(ExpectedReply);
+
+        Assert.IsTrue(StrPos(Question, ExpectedMsg) > 0, Question);
+
+        Reply := ExpectedReply;
     end;
 }
 

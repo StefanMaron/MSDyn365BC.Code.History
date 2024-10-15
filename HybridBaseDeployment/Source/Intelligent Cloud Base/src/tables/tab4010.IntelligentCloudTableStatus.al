@@ -4,7 +4,7 @@ table 4010 "Intelligent Cloud Table Status"
     ReplicateData = false;
     ObsoleteState = Pending;
     ObsoleteReason = 'With Text[>100] available, this table is obsolete in favor of Hybrid Replication Detail.';
-    ObsoleteTag = 'Pending in 16.0';
+    ObsoleteTag = '16.0';
 
     fields
     {

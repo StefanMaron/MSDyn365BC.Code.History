@@ -55,6 +55,7 @@ codeunit 137101 "SCM Kitting"
         PostingDateLaterErr: Label 'Posting Date on Assembly Order %1 must not be later than the Posting Date on Sales Order %2';
         UndoShipmentConfirmationMsg: Label 'Do you really want to undo the selected Shipment lines?';
         AppliesToEntryErr: Label 'Applies-to Entry on ILE should be equal to Appl. -to Item Entry on Assembly Line';
+        ModifiedAccordingToQst: Label 'will be modified according to';
         CostAmountErr: Label 'Cost Amount (Actual) was adjusted incorrectly';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         UndoShpmtNotCompleteErr: Label 'The Shipment has not been cancelled completely.';
@@ -1832,7 +1833,7 @@ codeunit 137101 "SCM Kitting"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PostSalesOrderForAssemblyItemWithUpdatedPostingDate()
     var
@@ -1847,6 +1848,8 @@ codeunit 137101 "SCM Kitting"
         CreateSalesOrderWithAssemblyItem(SalesLine);
 
         // Exercise: Update Posting Date on Sales Header
+        LibraryVariableStorage.Enqueue(ModifiedAccordingToQst);
+        LibraryVariableStorage.Enqueue(ModifiedAccordingToQst);
         UpdatePostingDateOnSalesHeader(
           SalesHeader, SalesLine."Document Type", SalesLine."Document No.",
           CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
@@ -1892,7 +1895,7 @@ codeunit 137101 "SCM Kitting"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure UpdatePostingDateOnSalesHeaderAndCreateSalesLineForAssemblyItem()
     var
@@ -1908,6 +1911,8 @@ codeunit 137101 "SCM Kitting"
         Initialize;
         CreateAssemblyItem(Item);
         PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        LibraryVariableStorage.Enqueue(ModifiedAccordingToQst);
+        LibraryVariableStorage.Enqueue(ModifiedAccordingToQst);
         CreateSalesOrderWithPostingDate(SalesLine, Item."No.", PostingDate);
 
         // Exercise: Generate an Assembly Order on Sales Line

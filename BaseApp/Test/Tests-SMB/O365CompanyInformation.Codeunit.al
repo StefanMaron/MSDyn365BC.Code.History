@@ -38,6 +38,11 @@ codeunit 138041 "O365 Company Information"
             GenJournalBatch.Modify();
         end;
 
+        // IBAN should not start with 'IT' to skip Bank."Bank Account No." update during IBAN validation
+        CompanyInformation.Get();
+        CompanyInformation.Validate(IBAN, 'GB 80 RBOS 161732 41116737');
+        CompanyInformation.Modify();
+
         // fill out bank account information in Company Information page
         BankAccPostingGroup.FindLast;
 
@@ -47,7 +52,6 @@ codeunit 138041 "O365 Company Information"
             "Bank Branch No.".SetValue('0235');
             "Bank Account No.".SetValue('3276392693');
             "SWIFT Code".SetValue('DABASTAN');
-            IBAN.SetValue('GB 80 RBOS 161732 41116737');
             BankAccountPostingGroup.SetValue(BankAccPostingGroup.Code);
             OK.Invoke;
         end;

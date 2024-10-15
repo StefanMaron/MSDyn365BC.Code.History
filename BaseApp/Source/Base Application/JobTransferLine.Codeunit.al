@@ -527,7 +527,7 @@ codeunit 1004 "Job Transfer Line"
 
             GetCurrencyRounding(JobJnlLine."Currency Code");
 
-            JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure" + NondeductibleVATAmtPrUnitLCY;
+            JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure" + Abs(NondeductibleVATAmtPrUnitLCY);
             if Type = Type::Item then begin
                 Item.Get("No.");
                 if Item."Costing Method" = Item."Costing Method"::Standard then

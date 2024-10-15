@@ -916,7 +916,7 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionSales()
     var
@@ -971,7 +971,7 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionPurch()
     var
@@ -1528,15 +1528,15 @@ codeunit 134043 "ERM Additional Currency"
 
     local procedure RunCloseIncomeStatementBatchJob(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
     var
-        GLAccount: Record "G/L Account";
         CloseIncomeStatement: Report "Close Income Statement";
     begin
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(IncStr(GenJournalLine."Document No."));
-        LibraryERM.CreateGLAccount(GLAccount);
-        LibraryVariableStorage.Enqueue(GLAccount."No.");
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
         Commit();  // Required to commit changes done.
         Clear(CloseIncomeStatement);
         CloseIncomeStatement.Run;
@@ -1829,7 +1829,11 @@ codeunit 134043 "ERM Additional Currency"
         LibraryVariableStorage.Dequeue(FieldValue);
         CloseIncomeStatement.DocumentNo.SetValue(FieldValue);
         LibraryVariableStorage.Dequeue(FieldValue);
-        CloseIncomeStatement.RetainedEarningsAcc.SetValue(FieldValue);
+        CloseIncomeStatement.NetProfitAccountNo.SetValue(FieldValue);
+        LibraryVariableStorage.Dequeue(FieldValue);
+        CloseIncomeStatement.NetLossAccountNo.SetValue(FieldValue);
+        LibraryVariableStorage.Dequeue(FieldValue);
+        CloseIncomeStatement.BalancingAccountNo.SetValue(FieldValue);
         CloseIncomeStatement.PostingDescription.SetValue('Test');
         CloseIncomeStatement.OK.Invoke;
     end;

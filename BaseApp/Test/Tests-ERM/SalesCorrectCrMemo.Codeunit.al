@@ -23,6 +23,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryPurchase: Codeunit "Library - Purchase";
+        NoSerieSalesCode: Code[20];
         IsInitialized: Boolean;
         BlockedCustomerErr: Label 'You cannot cancel this posted sales credit memo because customer %1 is blocked.', Comment = '%1 = Customer No.';
         AlreadyCancelledErr: Label 'You cannot cancel this posted sales credit memo because it has already been cancelled.';
@@ -992,6 +993,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibraryERMCountryData.UpdateFAPostingType;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        NoSerieSalesCode := LibraryERM.CreateNoSeriesSalesCode;
 
         IsInitialized := true;
         Commit();
@@ -1096,8 +1098,20 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
     local procedure CreateDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; LineType: Option; ItemNo: Code[20])
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCustNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, ItemNo, LibraryRandom.RandInt(100));
+    end;
+
+    local procedure CreateCustNo(): Code[20]
+    var
+        Customer: Record Customer;
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        VATBusinessPostingGroup.Get(Customer."VAT Bus. Posting Group");
+        VATBusinessPostingGroup.Validate("Default Sales Operation Type", NoSerieSalesCode);
+        VATBusinessPostingGroup.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CancelInvoice(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesInvHeader: Record "Sales Invoice Header")
@@ -1235,12 +1249,17 @@ codeunit 137026 "Sales Correct Cr. Memo"
     [Scope('OnPrem')]
     procedure PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; Amount: Decimal; Unapply: Boolean)
     var
+        GenJournalBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJnlLine, GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Customer,
-          SalesCrMemoHeader."Bill-to Customer No.", Amount);
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("No. Series", NoSerieSalesCode);
+        GenJournalBatch.Modify(true);
+        LibraryJournals.CreateGenJournalLine(
+          GenJnlLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Customer,
+          SalesCrMemoHeader."Bill-to Customer No.", GenJnlLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount);
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::"Credit Memo");
         GenJnlLine.Validate("Applies-to Doc. No.", SalesCrMemoHeader."No.");
         GenJnlLine.Modify(true);

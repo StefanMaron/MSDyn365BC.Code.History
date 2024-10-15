@@ -200,7 +200,7 @@ codeunit 1259 "Certificate Management"
     local procedure ValidateCertFields(var IsolatedCertificate: Record "Isolated Certificate")
     begin
         with IsolatedCertificate do begin
-            Validate("Expiry Date", DotNet_X509Certificate2.Expiration);
+            Validate("Expiry Date", DotNet_X509Certificate2.ExpirationLocalTime);
             Validate("Has Private Key", DotNet_X509Certificate2.HasPrivateKey);
             Validate(ThumbPrint, CopyStr(DotNet_X509Certificate2.Thumbprint, 1, MaxStrLen(ThumbPrint)));
             Validate("Issued By", GetIssuer(DotNet_X509Certificate2.Issuer));

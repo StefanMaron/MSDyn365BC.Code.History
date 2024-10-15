@@ -11,6 +11,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         Assert: Codeunit Assert;
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
@@ -566,6 +567,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
     local procedure CreatePurchaseInvoiceWithItemCharges(VendorNo: Code[20]; ItemNo: Code[20]; ItemChargeNo: Code[20]) PurchaseInvoiceNo: Code[20]
     var
+        PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
@@ -582,6 +584,9 @@ codeunit 135406 "Item Charges Plan-based E2E"
         PurchaseInvoice.PurchLines.ItemChargeAssignment.Invoke;
         PurchaseInvoiceNo := PurchaseInvoice."No.".Value;
         PurchaseInvoice.OK.Invoke;
+
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoiceNo);
+        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
     end;
 
     local procedure CreatePurchaseInvoiceLine(var PurchaseInvoice: TestPage "Purchase Invoice"; Type: Text; No: Code[20]; Quantity: Integer; DirectUnitCost: Decimal)

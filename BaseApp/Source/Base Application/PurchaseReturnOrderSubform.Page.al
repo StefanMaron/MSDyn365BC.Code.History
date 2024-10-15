@@ -64,6 +64,8 @@ page 6641 "Purchase Return Order Subform"
 
                         UpdateTypeText;
                         DeltaUpdateTotals;
+
+                        CurrPage.Update();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -510,7 +512,9 @@ page 6641 "Purchase Return Order Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowDeferralSchedule;
+                        CurrPage.SaveRecord();
+                        Commit();
+                        ShowDeferralSchedule();
                     end;
                 }
                 field("Returns Deferral Start Date"; "Returns Deferral Start Date")

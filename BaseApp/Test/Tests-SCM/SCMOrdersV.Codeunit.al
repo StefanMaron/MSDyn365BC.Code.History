@@ -745,7 +745,6 @@ codeunit 137158 "SCM Orders V"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostSalesOrderWithMultipleSeriesLineAndExtDocument()
     begin
@@ -753,7 +752,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 252383] Test and verify Post Sales Order with Multiple Series Line and External Document.
 
         Initialize;
-        PostSalesOrderWithMultipleSeriesLine(true);  // Use True for with External Document.
+        asserterror PostSalesOrderWithMultipleSeriesLine(true);  // Use True for with External Document.
     end;
 
     local procedure PostSalesOrderWithMultipleSeriesLine(WithExternalDocumentNo: Boolean)
@@ -1569,26 +1568,26 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase] [Purchase Line Factbox] [UI]
         // [SCENARIO 305591] "Item Availability" value in Purchase Line Details Factbox is rounded to 0.00001.
         Initialize;
-
+  
         // [GIVEN] Item "I" with 1.555555 pcs (6 digits) in inventory.
         LibraryInventory.CreateItem(Item);
-        MockItemInventory(Item."No.", 1.555555);
-
+        MockItemInventory(Item."No.",1.555555);
+  
         // [GIVEN] Purchase Order Line with "I".
         PurchaseOrder.OpenNew;
         PurchaseOrder."Buy-from Vendor No.".SETVALUE(LibraryPurchase.CreateVendorNo);
         PurchaseOrder.PurchLines.New;
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseOrder.PurchLines."No.".SetValue(Item."No.");
-
+  
         // [WHEN] Set Quantity = -1 on the sales line.
         PurchaseOrder.PurchLines.Quantity.SetValue(-1);
-
+  
         PurchaseOrder.PurchLines.Next();
         PurchaseOrder.PurchLines.Previous();
-
+  
         // [THEN] Item Availability in Purchase Line Details Factbox is equal to 0.55556 (rounded to 5 digits).
-        Evaluate(AvailQty, PurchaseOrder.Control3.Availability.Value);
+        Evaluate(AvailQty,PurchaseOrder.Control3.Availability.Value);
         Assert.AreEqual(0.55556, AvailQty, 'Wrong rounding precision of Item Availability value in the factbox.');
     end;
 

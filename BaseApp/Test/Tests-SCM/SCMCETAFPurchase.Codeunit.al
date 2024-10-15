@@ -696,7 +696,7 @@ codeunit 137601 "SCM CETAF Purchase"
           LibraryRandom.RandInt(10), WorkDate, LibraryRandom.RandDec(100, 5));
         LibraryPatterns.MAKEPurchaseReturnOrder(
           PurchaseHeader1, PurchaseLine1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", PurchaseLine.Quantity,
-          WorkDate + 1, LibraryRandom.RandDec(100, 5));
+          WorkDate, LibraryRandom.RandDec(100, 5));
 
         // Cost modification.
         // for Purchase.
@@ -891,7 +891,7 @@ codeunit 137601 "SCM CETAF Purchase"
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
             LibraryPatterns.POSTPurchaseOrderPartially(
-              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate + 1,
+              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate,
               LibraryRandom.RandDec(100, 5), true, LibraryRandom.RandDecInDecimalRange(InvoiceQty, Qty, 2), true, InvoiceQty);
         end else begin
             Qty := LibraryRandom.RandDec(100, 2);
@@ -903,7 +903,7 @@ codeunit 137601 "SCM CETAF Purchase"
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
             LibraryPatterns.POSTPurchaseOrderPartially(
-              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate + 1,
+              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate,
               LibraryRandom.RandDec(100, 5), true, Qty, true, InvoiceQty);
         end;
 

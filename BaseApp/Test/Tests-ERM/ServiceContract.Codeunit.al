@@ -934,6 +934,7 @@ codeunit 136100 "Service Contract"
 
         ServContractManagement.CreateContractLineCreditMemo(ServiceContractLine, false);
         FindServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", ServiceContractLine."Contract No.");
+        ResetNoSeriesLastDateUsed(ServiceHeader."Customer No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
@@ -1070,6 +1071,18 @@ codeunit 136100 "Service Contract"
             Validate("Starting Date", StartingDate);
             Validate("Invoice Period", InvoicePeriod);
             Validate("Contract Lines on Invoice", ContractLinesOnInvoice);
+            Modify(true);
+        end;
+    end;
+
+    local procedure ResetNoSeriesLastDateUsed(CustomerNo: Code[20])
+    var
+        NoSeriesLineSales: Record "No. Series Line Sales";
+    begin
+        with NoSeriesLineSales do begin
+            SetRange("Series Code", LibraryERM.GetDefaultOperationType(CustomerNo, DATABASE::Customer));
+            FindFirst;
+            Validate("Last Date Used", 0D);
             Modify(true);
         end;
     end;

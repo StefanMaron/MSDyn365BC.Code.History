@@ -138,7 +138,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
     end;
 
     [Test]
-    [HandlerFunctions('RHCashFlowDateList')]
+    [HandlerFunctions('ConfirmHandler,RHCashFlowDateList')]
     [Scope('OnPrem')]
     procedure BeforeAndAfterDateList()
     var
@@ -159,7 +159,6 @@ codeunit 134989 "ERM Cash Flow - Reports"
         // Setup
         Initialize;
         LibraryCFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        LibraryApplicationArea.EnableFoundationSetup;
         // Sales and purchase order source - before date list period
         CreateDocumentsOnDate('<-1D>', SalesHeader, PurchHeader, SouceTypeValuesBefore[10], CustomDateFormula);
         // Sales and purchase order source - after date list period
@@ -177,6 +176,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         TotalAmountAfter := SouceTypeValuesAfter[6] + SouceTypeValuesAfter[10] - SouceTypeValuesAfter[7] + TotalAmountPeriod;
 
         // Fill and post journal
+        LibraryApplicationArea.EnableFoundationSetup;
         ConsiderSalesPurchSources(ConsiderSource);
         FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", DocumentNoFilterText, CalcDate('<-1D>', WorkDate));
 
@@ -274,7 +274,8 @@ codeunit 134989 "ERM Cash Flow - Reports"
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentDate: Date; PaymentTermsCode: Code[10])
     begin
-        LibraryCFHelper.CreateSpecificSalesOrder(SalesHeader, '', PaymentTermsCode);
+        LibraryCFHelper.CreateSpecificSalesOrder(SalesHeader, PaymentTermsCode);
+        SalesHeader.Validate("Posting Date", DocumentDate);
         SalesHeader.Validate("Document Date", DocumentDate);
         SalesHeader.Modify(true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -283,14 +284,17 @@ codeunit 134989 "ERM Cash Flow - Reports"
 
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; DocumentDate: Date; PaymentTermsCode: Code[10])
     begin
-        LibraryCFHelper.CreateSpecificServiceOrder(ServiceHeader, '', PaymentTermsCode);
+        LibraryCFHelper.CreateSpecificServiceOrder(ServiceHeader, PaymentTermsCode);
+        ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceHeader."No.");
+        ServiceHeader.Validate("Posting Date", DocumentDate);
         ServiceHeader.Validate("Document Date", DocumentDate);
         ServiceHeader.Modify(true);
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentDate: Date; PaymentTermsCode: Code[10])
     begin
-        LibraryCFHelper.CreateSpecificPurchaseOrder(PurchaseHeader, '', PaymentTermsCode);
+        LibraryCFHelper.CreateSpecificPurchaseOrder(PurchaseHeader, PaymentTermsCode);
+        PurchaseHeader.Validate("Posting Date", DocumentDate);
         PurchaseHeader.Validate("Document Date", DocumentDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -408,6 +412,13 @@ codeunit 134989 "ERM Cash Flow - Reports"
             LibraryReportDataset.AssertElementWithValueExists('Liquidity', Amount)
         else
             LibraryReportDataset.AssertElementWithValueExists('GLBudget', Amount);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Msg: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     local procedure Initialize()

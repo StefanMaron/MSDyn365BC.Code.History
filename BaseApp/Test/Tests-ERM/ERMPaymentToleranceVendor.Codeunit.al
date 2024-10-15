@@ -1,6 +1,5 @@
 codeunit 134003 "ERM Payment Tolerance Vendor"
 {
-    Permissions = TableData "Vendor Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -965,10 +964,10 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
     local procedure GetDiscountPercent(): Decimal
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
     begin
-        PaymentTerms.Get(GetPaymentTerms);
-        exit(PaymentTerms."Discount %");
+        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
+        exit(PaymentLines."Discount %");
     end;
 
     local procedure GetPaymentTolerancePercent(): Decimal
@@ -997,10 +996,10 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
     local procedure GetDueDate(): Date
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
     begin
-        PaymentTerms.Get(GetPaymentTerms);
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
+        exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate));
     end;
 
     local procedure UpdateAppRndgPrecisionCurrency(CurrencyCode: Code[10])

@@ -1,4 +1,4 @@
-codeunit 5705 "TransferOrder-Post Receipt"
+﻿codeunit 5705 "TransferOrder-Post Receipt"
 {
     Permissions = TableData "Item Entry Relation" = i;
     TableNo = "Transfer Header";
@@ -474,6 +474,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransRcptHeader."Reason Code" := TransportReasonCode."Reason Code";
         OnBeforeTransRcptHeaderInsert(TransRcptHeader, TransHeader);
         TransRcptHeader.Insert();
+
+        OnAfterInsertTransRcptHeader(TransRcptHeader, TransHeader);
     end;
 
     local procedure InsertTransRcptLine(ReceiptNo: Code[20]; var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line")
@@ -751,6 +753,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnWriteDownDerivedLinesOnBeforeTransLineModify(var TransferLine: Record "Transfer Line"; SourceTransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertTransRcptHeader(var TransRcptHeader: Record "Transfer Receipt Header"; TransHeader: Record "Transfer Header")
     begin
     end;
 }

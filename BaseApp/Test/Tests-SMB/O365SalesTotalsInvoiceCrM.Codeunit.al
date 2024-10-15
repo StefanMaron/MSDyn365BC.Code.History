@@ -1541,6 +1541,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     begin
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType);
 
         SalesCreditMemo.SalesLines.First;
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
@@ -1635,6 +1636,8 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         CreateItem(Item, ItemUnitPrice);
         CreateCustomerWithDiscount(Customer, DiscPct, MinAmt);
+        Customer."Payment Terms Code" := '';
+        Customer.Modify();
     end;
 
     local procedure SetupDataForDiscountTypeAmt(var Item: Record Item; var ItemQuantity: Decimal; var Customer: Record Customer; var InvoiceDiscountAmount: Decimal)

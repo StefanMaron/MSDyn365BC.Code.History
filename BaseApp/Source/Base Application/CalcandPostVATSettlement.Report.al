@@ -348,10 +348,7 @@ report 20 "Calc. and Post VAT Settlement"
                                         "VAT Posting Setup"."VAT Prod. Posting Group"),
                                         '>');
                             end;
-                            GenJnlLine."VAT Bus. Posting Group" := "VAT Posting Setup"."VAT Bus. Posting Group";
-                            GenJnlLine."VAT Prod. Posting Group" := "VAT Posting Setup"."VAT Prod. Posting Group";
-                            GenJnlLine."VAT Calculation Type" := "VAT Posting Setup"."VAT Calculation Type";
-                            GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
+                            SetVatPostingSetupToGenJnlLine(GenJnlLine, "VAT Posting Setup");
                             GenJnlLine."Deductible %" := 100;
                             GenJnlLine."Posting Date" := PostingDate;
                             GenJnlLine."Operation Occurred Date" := PostingDate;
@@ -935,11 +932,11 @@ report 20 "Calc. and Post VAT Settlement"
         if PriorPeriodVATEntry.FindSet then begin
             repeat
                 PeriodInputVATYearInputVAT +=
-                  PriorPeriodVATEntry."Prior Period Input VAT" + PriorPeriodVATEntry."Prior Year Input VAT";
+                  PriorPeriodVATEntry."Prior Period Input VAT" + PriorPeriodVATEntry."Prior Year Input VAT" +
+                  PriorPeriodVATEntry."Advanced Amount";
 
                 PeriodOutputVATYearOutputVATAdvAmt +=
-                  PriorPeriodVATEntry."Prior Period Output VAT" + PriorPeriodVATEntry."Prior Year Output VAT" +
-                  PriorPeriodVATEntry."Advanced Amount";
+                  PriorPeriodVATEntry."Prior Period Output VAT" + PriorPeriodVATEntry."Prior Year Output VAT";
             until PriorPeriodVATEntry.Next = 0;
             TotalSaleRounded := FiscalRoundAmount(PeriodOutputVATYearOutputVATAdvAmt + TotalSaleAmount);
             TotalPurchRounded := FiscalRoundAmount(PeriodInputVATYearInputVAT - TotalPurchaseAmount);
@@ -1214,6 +1211,14 @@ report 20 "Calc. and Post VAT Settlement"
         PriorPeriodVATEntry2.Modify(true);
         GLSetup."Last Settlement Date" := EndDateReq;
         GLSetup.Modify();
+    end;
+    
+    local procedure SetVatPostingSetupToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
+        GenJnlLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        GenJnlLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
     end;
 
     [IntegrationEvent(false, false)]

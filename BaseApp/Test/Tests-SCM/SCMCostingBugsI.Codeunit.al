@@ -267,7 +267,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // Post sales
         SalesQty := LibraryRandom.RandIntInRange(1, PurchaseQty + OutputQty);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', SalesQty, Day1 - 90, Item."Unit Cost", true, true);
+        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', SalesQty, Day1, Item."Unit Cost", true, true);
 
         // Adjust cost
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');

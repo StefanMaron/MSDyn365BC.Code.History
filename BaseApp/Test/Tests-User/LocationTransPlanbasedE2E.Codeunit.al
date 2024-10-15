@@ -24,7 +24,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         IsInitialized: Boolean;
-        TransferLineNotExistsErrorTxt: Label 'Transfer lines does not exists after change of Transfer-From location. ', Locked = true;
+        TransferLineNotExistsErrorTxt: Label 'Transfer lines does not exists after change of Transfer-From location.', Locked = true;
 
     [Test]
     [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
@@ -583,16 +583,27 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
+        DocumentNo: Code[20];
     begin
         PurchaseInvoice.OpenNew;
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorName);
         PurchaseInvoice."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
+
         PurchaseInvoice.PurchLines.New;
         PurchaseInvoice.PurchLines."No.".SetValue(ItemNo);
         PurchaseInvoice.PurchLines."Location Code".SetValue(LocationCode);
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandDecInRange(10, 100, 2));
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(10, 100, 2));
+
+        DocumentNo := PurchaseInvoice."No.".Value;
+        PurchaseInvoice.OK.Invoke;
+
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, DocumentNo);
+        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
+
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.Post.Invoke;
     end;
 

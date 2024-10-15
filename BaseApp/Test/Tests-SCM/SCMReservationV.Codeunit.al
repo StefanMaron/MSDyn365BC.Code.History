@@ -1329,6 +1329,7 @@ codeunit 137272 "SCM Reservation V"
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Item);
             FindFirst;
+            Validate("VAT Prod. Posting Group", "VAT Prod. Posting Group");
             Validate("Return Qty. to Receive", QtyToReceive);
             Modify;
         end;

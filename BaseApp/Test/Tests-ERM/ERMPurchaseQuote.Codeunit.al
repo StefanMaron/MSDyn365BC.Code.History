@@ -28,6 +28,7 @@ codeunit 134325 "ERM Purchase Quote"
         MakeOrderQst: Label 'Do you want to convert the quote to an order?';
         OpenNewOrderTxt: Label 'The quote has been converted to order', Comment = '%1 - No. of new purchase order.';
         BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
+        DocumentDateError: Label '%1 cannot be greater than %2';
 
     [Test]
     [Scope('OnPrem')]
@@ -255,10 +256,10 @@ codeunit 134325 "ERM Purchase Quote"
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
 
         // Exercise: Create Purchase Order from Purchase Quote.
-        CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
+        asserterror CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
 
-        // Verify: Verify that New Purchase Order created from Purchase Quote with Posting Date blank.
-        VerifyPostingDateOnOrder(PurchaseHeader);
+        // Verify: Verify that it is not possible to create Purchase Order from Purchase Quote with Posting Date blank.
+        Assert.ExpectedError(StrSubstNo(DocumentDateError, PurchaseHeader.FieldCaption("Document Date"), PurchaseHeader.FieldCaption("Posting Date")));
 
         // Tear Down.
         UpdatePurchasePayablesSetup(OldDefaultPostingDate, OldDefaultPostingDate);
@@ -371,26 +372,10 @@ codeunit 134325 "ERM Purchase Quote"
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseQuoteChangePricesInclVATRefreshesPage()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseQuotePage: TestPage "Purchase Quote";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        Initialize;
-
-        // [GIVEN] Page with Prices including VAT disabled was open
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, '');
-        PurchaseQuotePage.OpenEdit;
-        PurchaseQuotePage.GotoRecord(PurchaseHeader);
-
-        // [WHEN] User checks Prices including VAT
-        PurchaseQuotePage."Prices Including VAT".SetValue(true);
-
-        // [THEN] Caption for PurchaseQuotePage.PurchLines."Direct Unit Cost" field is updated
-        Assert.AreEqual('Direct Unit Cost Incl. VAT',
-          PurchaseQuotePage.PurchLines."Direct Unit Cost".Caption,
-          'The caption for PurchaseQuotePage.PurchLines."Direct Unit Cost" is incorrect');
+        // This Country doesn't have this field on the page.
     end;
 
     [Test]
@@ -546,14 +531,6 @@ codeunit 134325 "ERM Purchase Quote"
         OldDefaultPostingDate := PurchasesPayablesSetup."Default Posting Date";
         PurchasesPayablesSetup.Validate("Default Posting Date", DefaultPostingDate);
         PurchasesPayablesSetup.Modify(true);
-    end;
-
-    local procedure VerifyPostingDateOnOrder(PurchaseHeader: Record "Purchase Header")
-    begin
-        PurchaseHeader.SetRange("Quote No.", PurchaseHeader."No.");
-        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-        PurchaseHeader.FindFirst;
-        PurchaseHeader.TestField("Posting Date", 0D);
     end;
 
     [ConfirmHandler]

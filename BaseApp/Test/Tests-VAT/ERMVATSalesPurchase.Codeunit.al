@@ -10,6 +10,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
     var
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -1245,7 +1246,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PostedInvoiceNo: Code[20];
     begin
         // [FEATURE] [Sales] [Discount]
-        // [SCENARIO] Payment Customer Ledger Entry is closed and has full Invoice Amount Including VAT in case of discount and overdue apply
+        // [SCENARIO] Payment Customer Ledger Entry is closed and has discounted Invoice Amount Including VAT in case of discount and overdue apply
         Initialize;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
@@ -1254,7 +1255,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Post Sales Invoice
         PostedInvoiceNo := CreateAndPostSalesInvoiceWithPaymentTermCode(VATPostingSetup, CustomerNo);
 
-        // [THEN] Payment Customer Ledger Entry is Closed and has "Amount (LCY)" = "A"
+        // [THEN] Payment Customer Ledger Entry is Closed and has "Amount (LCY)" = "A" - "B"
         VerifyAmountOnCustomerLedgerEntry(PostedInvoiceNo);
     end;
 
@@ -1267,7 +1268,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PostedInvoiceNo: Code[20];
     begin
         // [FEATURE] [Purchases] [Discount]
-        // [SCENARIO] Payment Vendor Ledger Entry is closed and has full Invoice Amount Including VAT in case of discount and overdue apply
+        // [SCENARIO] Payment Vendor Ledger Entry is closed and has discounted Invoice Amount Including VAT in case of discount and overdue apply
         Initialize;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
@@ -1276,7 +1277,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Post Purchase Invoice
         PostedInvoiceNo := CreateAndPostPurchaseInvoiceWithPaymentTermCode(VATPostingSetup, VendorNo);
 
-        // [THEN] Payment Customer Ledger Entry is Closed and has "Amount (LCY)" = "A"
+        // [THEN] Payment Customer Ledger Entry is Closed and has "Amount (LCY)" = "A" - "B"
         VerifyAmountOnVendorLedgerEntry(PostedInvoiceNo);
     end;
 
@@ -1922,6 +1923,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesHeader: Record "Sales Header";
         SalesLine: array[2] of Record "Sales Line";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATIdentifier: Record "VAT Identifier";
         VATProductPostingGroup: array[2] of Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
         VATPercent: Decimal;
@@ -1935,12 +1937,13 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[1]);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[2]);
         VATPercent := LibraryRandom.RandIntInRange(10, 20);
+        LibraryERM.CreateVATIdentifier(VATIdentifier);
         CreateVATPostingSetup(
           VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[1].Code,
-          VATPercent, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+          VATPercent, VATIdentifier.Code, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateVATPostingSetup(
           VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[2].Code,
-          VATPercent, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+          VATPercent, VATIdentifier.Code, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
 
         // [GIVEN] G/L Account.
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1971,6 +1974,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[2] of Record "Purchase Line";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATIdentifier: Record "VAT Identifier";
         VATProductPostingGroup: array[2] of Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
         VATPercent: Decimal;
@@ -1984,12 +1988,13 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[1]);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[2]);
         VATPercent := LibraryRandom.RandIntInRange(10, 20);
+        LibraryERM.CreateVATIdentifier(VATIdentifier);
         CreateVATPostingSetup(
           VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[1].Code,
-          VATPercent, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+          VATPercent, VATIdentifier.Code, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateVATPostingSetup(
           VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[2].Code,
-          VATPercent, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+          VATPercent, VATIdentifier.Code, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
 
         // [GIVEN] G/L Account.
         LibraryERM.CreateGLAccount(GLAccount);
@@ -2174,6 +2179,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
         LibrarySetupStorage.Restore;
         LibraryRandom.SetSeed(1);  // Generate Random Seed using Random Number Generator.
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
@@ -2183,6 +2189,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -2193,6 +2200,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
     end;
 
     local procedure SetupForSalesOrderAndVAT(var VATAmountLine: Record "VAT Amount Line")
@@ -2503,10 +2511,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Customer.Modify();
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; VATPercent: Decimal; VATCalculationType: Option)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; VATPercent: Decimal; VATIdentifierCode: Code[20]; VATCalculationType: Option)
     begin
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroupCode);
-        VATPostingSetup.Validate("VAT Identifier", VATBusinessPostingGroupCode);
+        VATPostingSetup.Validate("VAT Identifier", VATIdentifierCode);
         VATPostingSetup.Validate("VAT %", VATPercent);
         VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.Modify(true);
@@ -2949,16 +2957,19 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     local procedure VerifyAmountOnCustomerLedgerEntry(PostedInvoiceNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        SalesInvHeader: Record "Sales Invoice Header";
+        ExpectedPmtAmount: Decimal;
     begin
-        SalesInvHeader.Get(PostedInvoiceNo);
-        SalesInvHeader.CalcFields("Amount Including VAT");
         with CustLedgerEntry do begin
             SetRange("Document No.", PostedInvoiceNo);
+            SetRange("Document Type", "Document Type"::Invoice);
+            FindFirst;
+            CalcFields("Amount (LCY)");
+            ExpectedPmtAmount := -("Amount (LCY)" - "Original Pmt. Disc. Possible");
+
             SetRange("Document Type", "Document Type"::Payment);
             FindFirst;
             CalcFields("Amount (LCY)");
-            TestField("Amount (LCY)", -SalesInvHeader."Amount Including VAT");
+            TestField("Amount (LCY)", ExpectedPmtAmount);
             TestField(Open, false);
         end;
     end;
@@ -2966,16 +2977,19 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     local procedure VerifyAmountOnVendorLedgerEntry(PostedInvoiceNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        PurchInvHeader: Record "Purch. Inv. Header";
+        ExpectedPmtAmount: Decimal;
     begin
-        PurchInvHeader.Get(PostedInvoiceNo);
-        PurchInvHeader.CalcFields("Amount Including VAT");
         with VendorLedgerEntry do begin
             SetRange("Document No.", PostedInvoiceNo);
+            SetRange("Document Type", "Document Type"::Invoice);
+            FindFirst;
+            CalcFields("Amount (LCY)");
+            ExpectedPmtAmount := -("Amount (LCY)" - "Original Pmt. Disc. Possible");
+
             SetRange("Document Type", "Document Type"::Payment);
             FindFirst;
             CalcFields("Amount (LCY)");
-            TestField("Amount (LCY)", PurchInvHeader."Amount Including VAT");
+            TestField("Amount (LCY)", ExpectedPmtAmount);
             TestField(Open, false);
         end;
     end;

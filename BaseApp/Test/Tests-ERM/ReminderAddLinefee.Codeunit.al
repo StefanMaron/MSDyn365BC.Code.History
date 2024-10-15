@@ -3156,6 +3156,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibraryInventory.CreateItem(Item);
@@ -3177,6 +3178,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
+        SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibraryInventory.CreateItem(Item);

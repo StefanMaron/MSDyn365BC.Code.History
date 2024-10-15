@@ -1178,7 +1178,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
         // [THEN] Report output file created
         LibraryReportValidation.SetFullFileName(ShipmentFileName);
-        LibraryReportValidation.VerifyCellValueByRef('I', 24, 1, FindShipmentNoByLocation(TransferHeader."Transfer-from Code"));
+        LibraryReportValidation.VerifyCellValueByRef('M', 25, 1, FindShipmentNoByLocation(TransferHeader."Transfer-from Code"));
         LibraryVariableStorage.AssertEmpty;
     end;
 

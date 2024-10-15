@@ -32,6 +32,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
         DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.';
         MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
+        NotAllowedToDeletePostedDocumentsErr: Label 'You are not allowed to delete posted documents.';
 
     local procedure Initialize()
     var
@@ -977,11 +978,10 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true);
 
         // Execute
-        GraphMgtSalCrMemoBuf.PropagateOnDelete(SalesCrMemoEntityBuffer);
+        asserterror GraphMgtSalCrMemoBuf.PropagateOnDelete(SalesCrMemoEntityBuffer);
 
         // Verify
-        Assert.IsFalse(SalesCrMemoHeader.Find, 'Sales header should be deleted');
-        Assert.IsFalse(SalesCrMemoEntityBuffer.Find, 'Sales line should be deleted');
+        Assert.ExpectedError(NotAllowedToDeletePostedDocumentsErr);
     end;
 
     [Test]
@@ -1810,6 +1810,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesInvoiceLineAggregate.FieldNo("Quantity Shipped"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Calculation"), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Code"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure GetCrMemoAggregateSpecificFields(var TempField: Record "Field" temporary)
@@ -1863,6 +1864,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Value"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo(Id), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Id"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure AddFieldToBuffer(FieldNo: Integer; TableID: Integer; var TempField: Record "Field" temporary)

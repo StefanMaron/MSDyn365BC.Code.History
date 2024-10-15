@@ -868,8 +868,10 @@ codeunit 134377 "ERM Sales Blanket Order"
 
         // [GIVEN] Sales Blanket Order with "Document Date" = 01.01.2017
         // [WHEN] Create Sales Order from the Blanket Sales Order on 02.01.2017
-        // [THEN] "Document Date" of the Sales Order equals to 02.01.2017
-        VerifyDocumentDates;
+        asserterror VerifyDocumentDates;
+
+        // [THEN] Error: Document Date cannot be greater than Posting Date.
+        Assert.ExpectedError('Document Date cannot be greater than Posting Date.');
     end;
 
     [Test]
@@ -886,8 +888,10 @@ codeunit 134377 "ERM Sales Blanket Order"
 
         // [GIVEN] Sales Blanket Order with "Document Date" = 01.01.2017
         // [WHEN] Create Sales Order from the Blanket Sales Order on 02.01.2017
-        // [THEN] "Document Date" of the Sales Order equals to 02.01.2017
-        VerifyDocumentDates;
+        asserterror VerifyDocumentDates;
+
+        // [THEN] Error: Document Date must be equal to..
+        Assert.ExpectedError('Document Date must be equal to');
     end;
 
     [Test]

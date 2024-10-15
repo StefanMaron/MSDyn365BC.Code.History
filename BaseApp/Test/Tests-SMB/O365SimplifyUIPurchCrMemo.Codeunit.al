@@ -50,7 +50,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Initialize;
 
         // Setup
-        LibrarySmallBusiness.CreateVendor(Vendor);
+        CreateVendorWithoutPaymentTerms(Vendor);
         LibrarySmallBusiness.CreateItem(Item);
         LibrarySmallBusiness.CreatePurchaseCrMemoHeader(PurchaseHeader, Vendor);
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
@@ -79,7 +79,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Initialize;
 
         // Setup
-        LibrarySmallBusiness.CreateVendor(Vendor);
+        CreateVendorWithoutPaymentTerms(Vendor);
         LibrarySmallBusiness.CreateItem(Item);
         LibrarySmallBusiness.CreatePurchaseCrMemoHeader(PurchaseHeader, Vendor);
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
@@ -339,7 +339,8 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
 
         PurchaseCreditMemo."Payment Terms Code".AssertEquals('');
-        PurchaseCreditMemo."Due Date".AssertEquals(PurchaseCreditMemo."Document Date".AsDate);
+        // Due Date is replaced by Operation Occurred Date in IT
+        PurchaseCreditMemo."Operation Occurred Date".AssertEquals(PurchaseCreditMemo."Document Date".AsDate);
     end;
 
     [Test]
@@ -361,7 +362,8 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PaymentTerms.Get(Vend."Payment Terms Code");
         PurchaseCreditMemo."Payment Terms Code".SetValue(PaymentTerms.Code);
         ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", PurchaseCreditMemo."Document Date".AsDate);
-        PurchaseCreditMemo."Due Date".AssertEquals(ExpectedDueDate);
+        // Due Date is replaced by Operation Occurred Date in IT
+        PurchaseCreditMemo."Operation Occurred Date".AssertEquals(ExpectedDueDate);
     end;
 
     [Test]
@@ -550,6 +552,13 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         ExtendedTextLine.Validate("Line No.", 1);
         ExtendedTextLine.Validate(Text, Description);
         ExtendedTextLine.Insert(true);
+    end;
+
+    local procedure CreateVendorWithoutPaymentTerms(var Vendor: Record Vendor)
+    begin
+        LibrarySmallBusiness.CreateVendor(Vendor);
+        Vendor."Payment Terms Code" := '';
+        Vendor.Modify();
     end;
 
     [ConfirmHandler]

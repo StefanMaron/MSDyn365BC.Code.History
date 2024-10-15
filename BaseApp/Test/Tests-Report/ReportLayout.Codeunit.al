@@ -941,9 +941,11 @@ codeunit 132600 "Report Layout"
     procedure RHCalcPostVATSettlement(var CalcandPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     var
         GLAccount: Record "G/L Account";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         FindGLAccount(GLAccount);
-        CalcandPostVATSettlement.StartingDate.SetValue(CalcDate('<-2Y>', WorkDate));
+        GeneralLedgerSetup.Get();
+        CalcandPostVATSettlement.StartingDate.SetValue(CalcDate('<+1D>', GeneralLedgerSetup."Last Settlement Date"));
         CalcandPostVATSettlement.PostingDt.SetValue(WorkDate);
         CalcandPostVATSettlement.SettlementAcc.SetValue(GLAccount."No.");
         CalcandPostVATSettlement.DocumentNo.SetValue(GLAccount."No.");

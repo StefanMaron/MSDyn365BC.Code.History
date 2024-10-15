@@ -4325,6 +4325,20 @@ codeunit 134393 "ERM Sales Subform"
         SalesCreditMemo.SalesLines.Type.SetValue('Item');
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(ItemQuantity);
+        SalesCreditMemo."Operation Type".SetValue(
+          LibraryERM.GetDefaultOperationType(Customer."No.", DATABASE::Customer));
+
+        if DoesCustomerHaveInvDiscounts(Customer) then begin
+            LibraryVariableStorage.Enqueue('Do you');
+            LibraryVariableStorage.Enqueue(true);
+            SalesCreditMemo.CalculateInvoiceDiscount.Invoke;
+        end;
+
+        if DoesCustomerHaveInvDiscounts(Customer) then begin
+            LibraryVariableStorage.Enqueue('Do you');
+            LibraryVariableStorage.Enqueue(true);
+            SalesCreditMemo.CalculateInvoiceDiscount.Invoke;
+        end;
 
         if DoesCustomerHaveInvDiscounts(Customer) then begin
             LibraryVariableStorage.Enqueue('Do you');
@@ -4699,8 +4713,10 @@ codeunit 134393 "ERM Sales Subform"
     end;
 
     local procedure EnqueueChangeCurrencyCodeConfirmation()
+    var
+        SalesHeader: Record "Sales Header";
     begin
-        LibraryVariableStorage.Enqueue(ChangeCurrencyConfirmQst);
+        LibraryVariableStorage.Enqueue(StrSubstNo(ChangeCurrencyConfirmQst, SalesHeader.FieldCaption("Currency Code")));
         LibraryVariableStorage.Enqueue(true);
     end;
 

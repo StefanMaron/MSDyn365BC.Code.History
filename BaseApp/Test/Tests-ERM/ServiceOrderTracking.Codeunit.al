@@ -396,10 +396,10 @@ codeunit 136129 "Service Order Tracking"
     procedure LastNoUsedInPostedServiceInvoice()
     var
         ItemJournalLine: Record "Item Journal Line";
-        NoSeriesLine: Record "No. Series Line";
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         TrackingActionForSerialNo: Option "None",AssignSerialNo,AssignLotNo,SelectEntries,EnterValues,VerifyValues;
+        OperationType: Code[20];
     begin
         // Check Last No. Used In No. Series for Posted Service Invoice when Item created with Item Tracking Code.
 
@@ -410,6 +410,7 @@ codeunit 136129 "Service Order Tracking"
         LibraryVariableStorage.Enqueue(TrackingActionForSerialNo::SelectEntries);
         ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking Assign And Select Page Handler.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        OperationType := ServiceHeader."Operation Type";
 
         // 2. Exercise: Post Service Order.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -417,8 +418,7 @@ codeunit 136129 "Service Order Tracking"
         // Verify: Verify Last No. Used in No. Series of Posted Service Invoice.
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
         ServiceInvoiceHeader.FindFirst;
-        FindNoSeriesLine(NoSeriesLine);
-        NoSeriesLine.TestField("Last No. Used", ServiceInvoiceHeader."No.");
+        ServiceInvoiceHeader.TestField("No.", IncStr(OperationType));
     end;
 
     [Test]

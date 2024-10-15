@@ -15,7 +15,6 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
@@ -44,8 +43,6 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Sales Totals Quote/Order");
 
-        ClearTable(DATABASE::"Res. Ledger Entry");
-
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
 
@@ -65,18 +62,6 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Sales Totals Quote/Order");
-    end;
-
-    local procedure ClearTable(TableID: Integer)
-    var
-        ResLedgerEntry: Record "Res. Ledger Entry";
-    begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        case TableID of
-            DATABASE::"Res. Ledger Entry":
-                ResLedgerEntry.DeleteAll();
-        end;
-        LibraryLowerPermissions.SetO365Full;
     end;
 
     [Test]
@@ -1446,6 +1431,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         CreateItem(Item, ItemUnitPrice);
         CreateCustomerWithDiscount(Customer, DiscPct, MinAmt);
+        Customer."Payment Terms Code" := '';
+        Customer.Modify();
     end;
 
     local procedure SetupDataForDiscountTypeAmt(var Item: Record Item; var ItemQuantity: Decimal; var Customer: Record Customer; var InvoiceDiscountAmount: Decimal)

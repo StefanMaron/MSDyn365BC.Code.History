@@ -48,13 +48,14 @@ codeunit 134069 "ERM Edit Posting Groups"
     procedure CheckCustomerPostingGroupListPmtDiscount()
     var
         PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
         CustomerPostingGroups: TestPage "Customer Posting Groups";
     begin
         Initialize;
 
         // Payment discount accounts
-        PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll();
+        PaymentLines.SetFilter("Discount %", '<>%1', 0);
+        PaymentLines.DeleteAll();
         CustomerPostingGroups.OpenView;
         Assert.AreEqual(CustomerPostingGroups."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
         Assert.AreEqual(CustomerPostingGroups."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
@@ -134,13 +135,14 @@ codeunit 134069 "ERM Edit Posting Groups"
     procedure CheckCustomerPostingGroupCardPmtDiscount()
     var
         PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
         CustomerPostingGroupCard: TestPage "Customer Posting Group Card";
     begin
         Initialize;
 
         // Payment discount accounts
-        PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll();
+        PaymentLines.SetFilter("Discount %", '<>%1', 0);
+        PaymentLines.DeleteAll();
         CustomerPostingGroupCard.OpenView;
         Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
         Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
@@ -220,13 +222,14 @@ codeunit 134069 "ERM Edit Posting Groups"
     procedure CheckVendorPostingGroupListPmtDiscount()
     var
         PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
         VendorPostingGroups: TestPage "Vendor Posting Groups";
     begin
         Initialize;
 
         // Payment discount accounts
-        PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll();
+        PaymentLines.SetFilter("Discount %", '<>%1', 0);
+        PaymentLines.DeleteAll();
         VendorPostingGroups.OpenView;
         Assert.AreEqual(VendorPostingGroups."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
         Assert.AreEqual(VendorPostingGroups."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
@@ -306,13 +309,14 @@ codeunit 134069 "ERM Edit Posting Groups"
     procedure CheckVendorPostingGroupCardPmtDiscount()
     var
         PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
         VendorPostingGroupCard: TestPage "Vendor Posting Group Card";
     begin
         Initialize;
 
         // Payment discount accounts
-        PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll();
+        PaymentLines.SetFilter("Discount %", '<>%1', 0);
+        PaymentLines.DeleteAll();
         VendorPostingGroupCard.OpenView;
         Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
         Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
@@ -451,13 +455,13 @@ codeunit 134069 "ERM Edit Posting Groups"
     [Scope('OnPrem')]
     procedure CheckGenPostingSetupListSalesPmtDiscAccountHidden()
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
         Initialize;
 
-        PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll();
+        PaymentLines.SetFilter("Discount %", '<>%1', 0);
+        PaymentLines.DeleteAll();
         GeneralPostingSetup.OpenView;
         Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.".Visible, false, 'Sales payment discount');
         Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Credit Acc.".Visible, false, 'Sales payment discount');
@@ -566,13 +570,13 @@ codeunit 134069 "ERM Edit Posting Groups"
     [Scope('OnPrem')]
     procedure CheckGenPostingSetupListPurchPmtDiscAccountHidden()
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
         Initialize;
 
-        PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll();
+        PaymentLines.SetFilter("Discount %", '<>%1', 0);
+        PaymentLines.DeleteAll();
         GeneralPostingSetup.OpenView;
         Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.".Visible, false, 'Purch. payment discount');
         Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc.".Visible, false, 'Purch. payment discount');
@@ -681,13 +685,13 @@ codeunit 134069 "ERM Edit Posting Groups"
     [Scope('OnPrem')]
     procedure CheckGenPostingSetupCardSalesPmtDiscAccountHidden()
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
         Initialize;
 
-        PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll();
+        PaymentLines.SetFilter("Discount %", '<>%1', 0);
+        PaymentLines.DeleteAll();
         GeneralPostingSetupCard.OpenView;
         Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Debit Acc.".Visible, false, 'Sales payment discount');
         Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Credit Acc.".Visible, false, 'Sales payment discount');
@@ -796,13 +800,13 @@ codeunit 134069 "ERM Edit Posting Groups"
     [Scope('OnPrem')]
     procedure CheckGenPostingSetupCardPurchPmtDiscAccountHidden()
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
         Initialize;
 
-        PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll();
+        PaymentLines.SetFilter("Discount %", '<>%1', 0);
+        PaymentLines.DeleteAll();
         GeneralPostingSetupCard.OpenView;
         Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Debit Acc.".Visible, false, 'Purch. payment discount');
         Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Credit Acc.".Visible, false, 'Purch. payment discount');
@@ -1399,10 +1403,10 @@ codeunit 134069 "ERM Edit Posting Groups"
 
     local procedure VerifyPmtTolFieldsVisibilityOnGeneralPostingSetup(var GeneralPostingSetup: TestPage "General Posting Setup"; ExpectedVisibility: Boolean)
     begin
-        Assert.AreEqual(ExpectedVisibility, GeneralPostingSetup."Sales Pmt. Tol. Debit Acc.".Visible, '');
-        Assert.AreEqual(ExpectedVisibility, GeneralPostingSetup."Sales Pmt. Tol. Credit Acc.".Visible, '');
-        Assert.AreEqual(ExpectedVisibility, GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible, '');
-        Assert.AreEqual(ExpectedVisibility, GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible, '');
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Tol. Debit Acc.".Visible, ExpectedVisibility, '');
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Tol. Credit Acc.".Visible, ExpectedVisibility, '');
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible, ExpectedVisibility, '');
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible, ExpectedVisibility, '');
     end;
 
     [ModalPageHandler]

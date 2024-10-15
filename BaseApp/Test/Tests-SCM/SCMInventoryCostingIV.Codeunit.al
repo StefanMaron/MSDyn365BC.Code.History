@@ -1258,7 +1258,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     end;
 
     [Test]
-    [HandlerFunctions('PurchItemChargeAssignmentHandler,SalesShipmentLinePageHandler')]
+    [HandlerFunctions('PurchItemChargeAssignmentHandler,SalesShipmentLinePageHandler,MessageHandler2')]
     [Scope('OnPrem')]
     procedure VerifyCostAmountForItemChargeAssignedFromPurchInv()
     var
@@ -1298,7 +1298,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Exercise: Create and post Purchase Order as Receive and Invoice.
         // Create and post Revaluation Journal with new Unit Cost (Revalued).
-        PostPurchaseOrderAndRevaluationJournal(PurchaseLine, true, RevaluedFactor);
+        PostPurchaseOrderAndRevaluationJournal(PurchaseLine, true, RevaluedFactor, Currency.Code);
 
         // Verify: Verify Cost Amount (Actual) (ACY) on Item Ledger Entry with updating Additional Reporting Currency before revaluation.
         FindReceiptLine(PurchRcptLine, PurchaseLine."No.");
@@ -1331,7 +1331,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateCurrencyWithMultipleExchangeRates(Currency, CurrencyExchangeRate);
         RevaluedFactor := LibraryRandom.RandIntInRange(2, 5);
         UnitCostRevaluated :=
-          PostPurchaseOrderAndRevaluationJournal(PurchaseLine, true, RevaluedFactor);
+          PostPurchaseOrderAndRevaluationJournal(PurchaseLine, true, RevaluedFactor, Currency.Code);
 
         // Exercise: Run Adjust Add. Reporting Currency.
         LibraryERM.RunAddnlReportingCurrency(Currency.Code, Currency.Code, Currency."Residual Gains Account");
@@ -1365,7 +1365,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         Initialize;
         CreateCurrencyWithMultipleExchangeRates(Currency, CurrencyExchangeRate);
         RevaluedFactor := LibraryRandom.RandIntInRange(2, 5);
-        PostPurchaseOrderAndRevaluationJournal(PurchaseLine, false, RevaluedFactor);
+        PostPurchaseOrderAndRevaluationJournal(PurchaseLine, false, RevaluedFactor, Currency.Code);
 
         // Exercise: Run Adjust Add. Reporting Currency.
         LibraryERM.RunAddnlReportingCurrency(Currency.Code, Currency.Code, Currency."Residual Gains Account");
@@ -1565,7 +1565,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [GIVEN] Created and posted Purchase Order with Service Item
         CreateServiceItem(Item, LibraryRandom.RandDec(10, 1), Item."Costing Method"::FIFO);
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor, Item."No.", LibraryRandom.RandInt(10));
+          PurchaseLine,PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor, Item."No.", LibraryRandom.RandInt(10));
         PostPurchaseDocument(PurchaseLine, false);
 
         // [WHEN] Undo Purchase Receipt
@@ -1797,7 +1797,6 @@ codeunit 137289 "SCM Inventory Costing IV"
     local procedure CreateCurrencyWithMultipleExchangeRates(var Currency: Record Currency; var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
         CreateCurrencyWithExchangeRate1(Currency, CurrencyExchangeRate);
-        CreateExchangeRateForCurrency(Currency.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
 
         // Make sure report Adjust Add. Reporting Currency can be run successfully. Since there're some demo entries posted in earlier years.
         CreateExchangeRateForCurrency(
@@ -2224,9 +2223,10 @@ codeunit 137289 "SCM Inventory Costing IV"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice));
     end;
 
-    local procedure PostPurchaseOrderAndRevaluationJournal(var PurchaseLine: Record "Purchase Line"; Invoice: Boolean; RevaluedFactor: Integer) UnitCostRevaluated: Decimal
+    local procedure PostPurchaseOrderAndRevaluationJournal(var PurchaseLine: Record "Purchase Line"; Invoice: Boolean; RevaluedFactor: Integer; CurrencyCode: Code[10]) UnitCostRevaluated: Decimal
     var
         Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
         CalculatePer: Option "Item Ledger Entry",Item;
         Quantity: Decimal;
     begin
@@ -2235,12 +2235,14 @@ codeunit 137289 "SCM Inventory Costing IV"
         Quantity := LibraryRandom.RandInt(10);
         CreateAndUpdatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, Item."Unit Cost", Quantity, Quantity, Item."No.", '');
-        PostPurchaseDocument(PurchaseLine, Invoice);
+        PostPurchDocWithUpdatePostingDate(PurchaseHeader, PurchaseLine, true, Invoice);
+        CreateExchangeRateForCurrency(
+          CurrencyCode, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', PurchaseHeader."Posting Date"));
 
         // Run Adjust Cost Item Entries. Create and post Revaluation Journal with new Unit Cost (Revalued).
         LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');
         UnitCostRevaluated := CreateAndPostRevaluationJournal(
-            PurchaseLine."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate),
+            PurchaseLine."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', PurchaseHeader."Posting Date"),
             CalculatePer::Item, RevaluedFactor);
     end;
 
@@ -2431,9 +2433,7 @@ codeunit 137289 "SCM Inventory Costing IV"
             CreateCustomer, CreateItem(0, Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true, false);
 
         AssignItemChargeToSalesShptLines(PurchaseLine, PurchaseLine."Document Type"::Invoice, DocumentNo);
-
-        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+        exit(PostPurchDocWithUpdatePostingDate(PurchaseHeader, PurchaseLine, false, true));
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
@@ -2649,6 +2649,18 @@ codeunit 137289 "SCM Inventory Costing IV"
         Item.Modify(true);
     end;
 
+    local procedure PostPurchDocWithUpdatePostingDate(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; ToShipReceive: Boolean; ToInvoice: Boolean): Code[20]
+    begin
+        with PurchaseHeader do begin
+            Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+            if LibraryUtility.GetNextNoSeriesPurchaseDate("Posting No. Series") > WorkDate then begin
+                Validate("Posting Date", CalcDate('<-1D>', LibraryUtility.GetNextNoSeriesPurchaseDate("Posting No. Series")));
+                Modify(true);
+            end;
+            exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ToShipReceive, ToInvoice));
+        end;
+    end;
+
     local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; Quantity: Decimal; CostAmountActual: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -2841,6 +2853,12 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMessage);  // Dequeue Variable.
         Assert.IsTrue(StrPos(Message, ExpectedMessage) > 0, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler2(Message: Text[1024])
+    begin
     end;
 
     [ModalPageHandler]

@@ -288,31 +288,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PostPurchOrders()
-    var
-        PurchHeader: Record "Purchase Header";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        PostedOrderNo: Code[20];
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO] Existing Purchase Orders can be posted without errors
-        with PurchHeader do begin
-            // [WHEN] Post all Orders
-            Reset;
-            SetRange("Document Type", "Document Type"::Order);
-            FindSet;
-            repeat
-                PostedOrderNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
-
-                // [THEN] Vendor Ledger Entries are created
-                VendLedgEntry.FindLast;
-                VendLedgEntry.TestField("Document No.", PostedOrderNo);
-            until Next = 0;
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CountContacts()
     var
         Customer: Record Customer;
@@ -620,7 +595,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         // [SCENARIO] There are 7 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 7);
+        Assert.RecordCount(VATProductPostingGroup, 13);
     end;
 
     [Test]

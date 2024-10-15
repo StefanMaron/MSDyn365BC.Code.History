@@ -63,6 +63,7 @@ codeunit 137209 "SCM Get Item Entries"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure SaleInsideInterval()
     begin
@@ -70,6 +71,7 @@ codeunit 137209 "SCM Get Item Entries"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure SaleOutsideInterval()
     begin
@@ -77,6 +79,7 @@ codeunit 137209 "SCM Get Item Entries"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PurchInsideInterval()
     begin
@@ -84,6 +87,7 @@ codeunit 137209 "SCM Get Item Entries"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PurchOutsideInterval()
     begin
@@ -350,6 +354,13 @@ codeunit 137209 "SCM Get Item Entries"
                 end;
             end;
         until ItemLedgerEntry.Next = 0;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

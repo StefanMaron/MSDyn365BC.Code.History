@@ -234,6 +234,7 @@ codeunit 134157 "ERM Posting Rounding"
             "VAT Amount (ACY)" := NewVATAmountACY;
             "VAT Base Amount" := NewVATBaseAmount;
             "VAT Base Amount (ACY)" := NewVATBaseAmountACY;
+            FillInvPostingBufferPrimaryKey;
             Insert;
         end;
     end;

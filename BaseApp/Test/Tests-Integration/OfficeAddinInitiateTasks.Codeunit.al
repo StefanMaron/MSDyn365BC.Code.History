@@ -842,7 +842,9 @@ codeunit 139052 "Office Addin Initiate Tasks"
     local procedure CreateSalesCreditMemoLine(var SalesCreditMemo: TestPage "Sales Credit Memo")
     var
         SalesLine: Record "Sales Line";
+        LibrarySmallBusiness: Codeunit "Library - Small Business";
     begin
+        SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType);
         SalesCreditMemo.SalesLines.Type.SetValue(Format(SalesLine.Type::Item));
         SalesCreditMemo.SalesLines."No.".SetValue(CreateItem);
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(5));

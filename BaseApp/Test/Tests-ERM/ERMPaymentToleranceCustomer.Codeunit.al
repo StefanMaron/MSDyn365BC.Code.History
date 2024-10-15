@@ -1,6 +1,5 @@
 codeunit 134005 "ERM Payment Tolerance Customer"
 {
-    Permissions = TableData "Cust. Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -873,10 +872,10 @@ codeunit 134005 "ERM Payment Tolerance Customer"
 
     local procedure GetDueDate(): Date
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
     begin
-        PaymentTerms.Get(GetPaymentTerms);
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
+        exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate));
     end;
 
     local procedure GetDiscountAmount(Amount: Decimal): Decimal
@@ -886,10 +885,10 @@ codeunit 134005 "ERM Payment Tolerance Customer"
 
     local procedure GetDiscountPercent(): Decimal
     var
-        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
     begin
-        PaymentTerms.Get(GetPaymentTerms);
-        exit(PaymentTerms."Discount %");
+        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
+        exit(PaymentLines."Discount %");
     end;
 
     local procedure GetPaymentTolerancePercent(): Decimal

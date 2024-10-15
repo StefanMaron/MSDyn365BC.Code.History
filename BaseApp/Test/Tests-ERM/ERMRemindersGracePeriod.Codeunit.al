@@ -714,6 +714,8 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
         SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Document Date", PostingDate);
+        SalesHeader.Validate("Due Date", LibrarySales.CalculateDueDate(SalesHeader."Payment Terms Code", SalesHeader."Posting Date"));
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
@@ -895,8 +897,12 @@ codeunit 134376 "ERM Reminders - Grace Period"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
-        exit(CustLedgerEntry."Due Date");
+        with CustLedgerEntry do begin
+            SetRange("Document Type", "Document Type"::Payment);
+            SetRange("Document No.", PaymentNo);
+            FindFirst;
+            exit("Due Date");
+        end;
     end;
 
     local procedure IssueReminder(ReminderNo: Code[20]; ReminderDate: Date)

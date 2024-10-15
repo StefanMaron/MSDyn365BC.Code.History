@@ -90,7 +90,7 @@ codeunit 138500 "Common Demodata"
 
             Reset;
             SetRange("EU Service", true);
-            Assert.RecordCount(VATPostingSetup, 1);
+            Assert.RecordCount(VATPostingSetup, 0);
         end;
     end;
 

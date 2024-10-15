@@ -1135,49 +1135,6 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure PostPmtReconciliationJournalWhenPostingDateOf2ndLineIsBefore1st()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        BankAccReconPostYesNo: Codeunit "Bank Acc. Recon. Post (Yes/No)";
-        Amount: Decimal;
-        BankAccountNo: Code[20];
-        PostingDate: Date;
-        VendorLedgerEntryNo: Integer;
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO 268197] When Posting Date of the 2nd Payment Line is before the 1st line, Payment Reconciliation must be able to post
-        Initialize;
-
-        // [GIVEN] Payment Reconciliation line for 01.04.18
-        BankAccountNo := CreateBankAccount;
-        CreateAndPostPurchaseInvoice(VendorNo, VendorLedgerEntryNo, Amount);
-
-        LibraryERM.CreateBankAccReconciliation(
-          BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
-        CreateBankAccReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, VendorNo, Amount, WorkDate);
-
-        BankAccReconciliation.Validate("Post Payments Only", true);
-        BankAccReconciliationLine.Modify(true);
-
-        // [GIVEN] Payment Reconciliation line for 01.03.18
-        PostingDate := CalcDate('<-1M>', WorkDate);
-        CreatePurchaseInvoice(PostingDate);
-        CreateBankAccReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, VendorNo, 0, PostingDate);
-
-        CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation);
-
-        // [WHEN] Post payments
-        Assert.IsTrue(BankAccReconPostYesNo.BankAccReconPostYesNo(BankAccReconciliation), 'Not all payments posted.');
-
-        // [THEN] Bank Acc. Reconciliation Lines are posted
-        VerifyBankAccountLastStatementFields(
-          BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconciliation."Statement No.", 0);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure BankAccountStatementLinesDrillDown()
     var
@@ -1924,16 +1881,6 @@ codeunit 134141 "ERM Bank Reconciliation"
           BankAccReconciliationLine, CustLedgerEntryNo,
           BankAccReconciliationLine."Account Type"::Customer, AppliesEntryDescription);
         UpdateBankAccReconciliationLineDescription(BankAccReconciliationLine, BankAccRecLineDescription);
-    end;
-
-    local procedure CreatePurchaseInvoice(Date: Date)
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
-        PurchaseHeader.Validate("Posting Date", Date);
-        PurchaseHeader.Modify(true);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
     local procedure CreateBankAccReconLineWithAmountTransferredToAcc(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")

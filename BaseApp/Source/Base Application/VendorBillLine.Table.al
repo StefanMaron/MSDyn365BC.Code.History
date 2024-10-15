@@ -384,6 +384,8 @@ table 12182 "Vendor Bill Line"
             VendorBillWithholdingTax."Total Amount" := ComputedWithholdingTax."Total Amount" / TotalPaymentAmt * "Remaining Amount";
         VendorBillWithholdingTax."Base - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount";
         VendorBillWithholdingTax.Validate("Non Taxable Amount By Treaty", ComputedWithholdingTax."Non Taxable Remaining Amount");
+        if ComputedWithholdingTax."WHT Amount Manual" <> 0 then
+            VendorBillWithholdingTax."Withholding Tax Amount" := ComputedWithholdingTax."WHT Amount Manual";
         VendorBillWithholdingTax."Old Withholding Amount" := VendorBillWithholdingTax."Withholding Tax Amount";
         VendorBillWithholdingTax."Old Free-Lance Amount" := VendorBillWithholdingTax."Free-Lance Amount";
 

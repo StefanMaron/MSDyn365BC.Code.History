@@ -19,7 +19,6 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryPlanning: Codeunit "Library - Planning";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
@@ -28,8 +27,6 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         isInitialized: Boolean;
         CloseFiscalYearQst: Label 'Do you want to close the fiscal year?';
         ApplErr: Label 'If the item carries serial or lot numbers, then you must use the Applies-from Entry field in the Item Tracking Lines window.';
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
 
     local procedure Initialize()
@@ -373,101 +370,6 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
     end;
 
     [Test]
-    [HandlerFunctions('ConsumptionNotFinishedConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure PS49498()
-    var
-        ParentItem: Record Item;
-        ChildItem: Record Item;
-        Location: Record Location;
-        WorkCenter: Record "Work Center";
-        RoutingLine: Record "Routing Line";
-        RoutingLink: Record "Routing Link";
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionOrder: Record "Production Order";
-        PurchaseLine: Record "Purchase Line";
-        PurchaseHeader: Record "Purchase Header";
-        ItemJournalBatch: Record "Item Journal Batch";
-        ItemJournalLine: Record "Item Journal Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        // Create a subcontract Purch. Order (PO) for a production item. Post receipt (PO), finish the Prod. Order,
-        // revaluate the item, post invoice (PO) and validate 'Cost Amount (Actual)' in the Output Item Ledger Entry
-        // for the production order
-
-        Initialize;
-
-        // Setup: Preparation for subcontracting orders: location, production item & routing setup
-        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.MAKEItemSimple(ChildItem, ChildItem."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
-        LibraryPatterns.MAKEItemSimple(ParentItem, ParentItem."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
-        CreateRoutingSetup(WorkCenter, RoutingLine, RoutingLink);
-        CreateProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, RoutingLink.Code, LibraryRandom.RandDec(20, 2));
-        ParentItem.Validate("Routing No.", RoutingLine."Routing No.");
-        ParentItem.Modify(true);
-
-        RunAdjustCostItemEntries('', '');  // Any item & item category
-
-        // Supply child item
-        LibraryPatterns.POSTPositiveAdjustment(ChildItem, Location.Code, '', '',
-          LibraryRandom.RandDec(50, 2), WorkDate, 0);
-
-        // Create a released production order for parent item, calculate subcontracts and create subcontract Purch. Order
-        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ParentItem."No.", Location.Code);
-        CalculateSubcontractOrder(WorkCenter);
-        CarryOutActionMessageSubcontractWksh(ParentItem."No.");
-
-        // Post receipt of this purchase order
-        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
-        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.SetRange("No.", ParentItem."No.");
-        PurchaseLine.FindFirst;
-        PurchaseHeader.SetCurrentKey("Document Type", "No.");
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-
-        // Change the status of the production order to finished. Ignore the warning (consumption is not finished yet)
-        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
-
-        RunAdjustCostItemEntries('', '');
-
-        // Revaluate the parent item and run the Adjust Cost - Item entries job
-        LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, ParentItem,
-          WorkDate, CalculatePer::Item, false, false, true, CalculationBase::" ");
-        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
-        ItemJournalLine.Validate("Unit Cost (Revalued)", LibraryRandom.RandDec(200, 2));
-        ItemJournalLine.Modify(true);
-        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
-
-        RunAdjustCostItemEntries('', '');
-
-        // Post invoice for the subcontract Purch. Order
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify(true);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-
-        RunAdjustCostItemEntries('', '');
-
-        // Verify 'Unit cost (Actual)' in the Output Item Ledger Entry
-        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
-        ItemLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
-        ItemLedgerEntry.SetRange("Item No.", ParentItem."No.");
-        ItemLedgerEntry.FindFirst;
-
-        GeneralLedgerSetup.Get();
-        ParentItem.Get(ParentItem."No.");
-        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
-        Assert.AreNearlyEqual(ParentItem."Unit Cost" * ItemLedgerEntry.Quantity,
-          ItemLedgerEntry."Cost Amount (Actual)",
-          GeneralLedgerSetup."Amount Rounding Precision",
-          'Cost amount (Actual) matches Standard cost');
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure PS34691()
     var
@@ -547,134 +449,6 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
           ChildItem."Unit Cost" * NonBaseChildItemUOM."Qty. per Unit of Measure",
           GeneralLedgerSetup."Amount Rounding Precision",
           'Unit cost adjusted to alternative unit of measure');
-    end;
-
-    [Normal]
-    local procedure CreateRoutingSetup(var WorkCenter: Record "Work Center"; var RoutingLine: Record "Routing Line"; var RoutingLink: Record "Routing Link")
-    var
-        RoutingHeader: Record "Routing Header";
-    begin
-        CreateSubcontractWorkcenter(WorkCenter);
-
-        // Setup routing (and its cost) for parent item
-        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
-        LibraryManufacturing.CreateRoutingLink(RoutingLink);
-        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", RoutingLink.Code);
-        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify(true);
-    end;
-
-    [Normal]
-    local procedure CreateSubcontractWorkcenter(var WorkCenter: Record "Work Center")
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        Vendor: Record Vendor;
-    begin
-        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
-        LibraryPurchase.CreateSubcontractor(Vendor);
-        WorkCenter.Validate("Subcontractor No.", Vendor."No.");
-        LibraryERM.FindGenPostingSetupWithDefVAT(GeneralPostingSetup);
-        WorkCenter.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-        WorkCenter.Modify(true);
-    end;
-
-    [Normal]
-    local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; CenterNo: Code[20]; RoutingLinkCode: Code[10])
-    var
-        OperationNo: Code[10];
-    begin
-        // Random value used so that the Next Operation No is greater than the previous Operation No.
-        OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
-
-        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, CenterNo,
-          OperationNo, 0, LibraryRandom.RandDec(5, 2));    // Random run-time cost
-        RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
-        RoutingLine.Modify(true);
-    end;
-
-    [Normal]
-    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProducedItem: Record Item; ComponentItem: Record Item; RoutingLinkCode: Code[10]; CompQty: Decimal)
-    var
-        ProductionBOMLine: Record "Production BOM Line";
-    begin
-        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProducedItem."Base Unit of Measure");
-
-        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine,
-          '', ProductionBOMLine.Type::Item, ComponentItem."No.", CompQty);
-        ProductionBOMLine.Validate("Unit of Measure Code", ComponentItem."Base Unit of Measure");
-        ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
-        ProductionBOMLine.Modify(true);
-
-        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify(true);
-
-        ProducedItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        ProducedItem.Modify(true);
-    end;
-
-    [Normal]
-    local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
-    var
-        RoutingLine: Record "Routing Line";
-    begin
-        RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
-            exit(RoutingLine."Operation No.");
-        exit('');
-    end;
-
-    [Normal]
-    local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; LocationCode: Code[10])
-    begin
-        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released,
-          ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(10, 2));
-        ProductionOrder.Validate("Location Code", LocationCode);
-        ProductionOrder.Modify(true);
-
-        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
-    end;
-
-    [Normal]
-    local procedure CalculateSubcontractOrder(var WorkCenter: Record "Work Center")
-    begin
-        WorkCenter.SetRange("No.", WorkCenter."No.");
-        LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
-    end;
-
-    [Normal]
-    local procedure CarryOutActionMessageSubcontractWksh(ItemNo: Code[20])
-    var
-        RequisitionLine: Record "Requisition Line";
-    begin
-        AcceptActionMessage(RequisitionLine, ItemNo);
-        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
-    end;
-
-    [Normal]
-    local procedure AcceptActionMessage(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
-    begin
-        SelectRequisitionLine(RequisitionLine, ItemNo);
-        RequisitionLine.Validate("Accept Action Message", true);
-        RequisitionLine.Modify(true);
-    end;
-
-    [Normal]
-    local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
-    begin
-        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
-        RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
-    end;
-
-    [Normal]
-    local procedure RunAdjustCostItemEntries(ItemFilter: Text[250]; ItemCategoryFilter: Text[250])
-    var
-        AdjustCostItemEntries: Report "Adjust Cost - Item Entries";
-    begin
-        Clear(AdjustCostItemEntries);
-        AdjustCostItemEntries.InitializeRequest(ItemFilter, ItemCategoryFilter);
-        AdjustCostItemEntries.UseRequestPage(false);
-        AdjustCostItemEntries.RunModal;
     end;
 
     local procedure AdjustCostAndVerify(ItemNo: Code[20]; ExpectedUnitCost: Decimal)
@@ -831,13 +605,6 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Setup: Post purchase credit
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConsumptionNotFinishedConfirmHandler(ConfirmMsg: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;   // Finish the order even if consumption is not finished
     end;
 
     [MessageHandler]

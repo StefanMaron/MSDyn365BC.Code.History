@@ -15,6 +15,7 @@ codeunit 134893 "Background Document Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
 
     [Test]
@@ -252,6 +253,7 @@ codeunit 134893 "Background Document Posting"
 
         // [GIVEN] Purchase Invoice.
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
 
         // [WHEN] Post Purchase Invoice via Job Queue.
         PostPurchaseDocumentViaJobQueue(PurchaseHeader);
@@ -293,6 +295,7 @@ codeunit 134893 "Background Document Posting"
 
         // [GIVEN] Purchase Credit Memo.
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
 
         // [WHEN] Post Purchase Credit Memo via Job Queue.
         PostPurchaseDocumentViaJobQueue(PurchaseHeader);
@@ -465,11 +468,13 @@ codeunit 134893 "Background Document Posting"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Background Document Posting");
         LibrarySetupStorage.Restore;
 
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Background Document Posting");
         UpdateSalesAndPurchaseSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
@@ -477,6 +482,7 @@ codeunit 134893 "Background Document Posting"
 
         LibrarySetupStorage.SaveSalesSetup;
         LibrarySetupStorage.SavePurchasesSetup;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Background Document Posting");
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header")
@@ -501,6 +507,7 @@ codeunit 134893 "Background Document Posting"
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
     begin
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
         PurchaseHeader.Invoice := true;
         PurchaseHeader.Receive := true;
         PurchaseHeader.Modify();
@@ -509,6 +516,7 @@ codeunit 134893 "Background Document Posting"
     local procedure CreatePurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header")
     begin
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
         PurchaseHeader.Invoice := true;
         PurchaseHeader.Ship := true;
         PurchaseHeader.Modify();

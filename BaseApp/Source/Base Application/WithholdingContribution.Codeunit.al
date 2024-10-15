@@ -111,7 +111,7 @@ codeunit 12101 "Withholding - Contribution"
                     WithholdingTax."Tax Code" := WithholdCode."Tax Code";
                 end;
 
-                OnBeforeWithholdingTaxInsert(WithholdingTax, TempWithholdingSocSec);
+                OnBeforeWithholdingTaxInsert(WithholdingTax, TempWithholdingSocSec, GenJnlLine);
                 WithholdingTax.Insert();
 
                 if SocialSecurityApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then
@@ -665,7 +665,7 @@ codeunit 12101 "Withholding - Contribution"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWithholdingTaxInsert(var WithholdingTax: Record "Withholding Tax"; TmpWithholdingContribution: Record "Tmp Withholding Contribution")
+    local procedure OnBeforeWithholdingTaxInsert(var WithholdingTax: Record "Withholding Tax"; TmpWithholdingContribution: Record "Tmp Withholding Contribution"; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

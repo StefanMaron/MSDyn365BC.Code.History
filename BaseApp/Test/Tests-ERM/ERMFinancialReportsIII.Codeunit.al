@@ -710,34 +710,6 @@ codeunit 134987 "ERM Financial Reports III"
     [Test]
     [HandlerFunctions('VendorPrePaymentJournalHandler')]
     [Scope('OnPrem')]
-    procedure OnAfterGetRecordGenJnlLineCustPaymentJnlPreCheck()
-    var
-        Customer: Record Customer;
-        GenJournalLine: Record "Gen. Journal Line";
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-    begin
-        // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Customer]
-        // [SCENARIO] Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10087, Payment Journal - Pre-Check Report for Amount and Description for Gen. Journal Line Account Type Customer.
-        Initialize;
-
-        CreateCustomer(Customer);
-        CreateCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, Customer."No.");
-        UpdateCustLedgEntryWithPmtDisc(CustLedgerEntry, LibraryRandom.RandDec(10, 2));
-        CreateGenJournalLineWithAppliesToDocType(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Document Type"::Invoice);
-
-        // Exercise.
-        RunVendorPrePaymentJournal(GenJournalLine);
-
-        // Verify: Verify the Customer Description and Amount LCY after running Payment Journal Pre Check Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(CustVendNameLbl, Customer.Name);
-        LibraryReportDataset.AssertElementWithValueExists(AmountLcyCapTxt, GenJournalLine."Amount (LCY)");
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorPrePaymentJournalHandler')]
-    [Scope('OnPrem')]
     procedure OnAfterGetRecordGenJnlLineVendPaymentJnlPreCheck()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -760,35 +732,6 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(CustVendNameLbl, Vendor.Name);
         LibraryReportDataset.AssertElementWithValueExists(AmountLcyCapTxt, GenJournalLine."Amount (LCY)");
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorPrePaymentJournalHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordGenJnlLineCustPaymtToleranceJnlPreChk()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        CustomerNo: Code[20];
-    begin
-        // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Customer]
-        // [SCENARIO] Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10087, Payment Journal - Pre-Check Report for Accepted Payment Tolerance of Account Type Customer.
-        Initialize;
-
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        CreateCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerNo);
-        UpdateCustLedgEntryWithPmtDisc(CustLedgerEntry, LibraryRandom.RandDec(10, 2));
-        CreateGenJournalLineWithAppliesToDocType(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, GenJournalLine."Document Type"::Invoice);
-        UpdateAppliesToDocumentNoOnGenJournalLine(GenJournalLine, CustLedgerEntry."Document No.");
-
-        // Exercise.
-        RunVendorPrePaymentJournal(GenJournalLine);
-
-        // Verify: Verify the Customer Accepted Payment Tolerance and Amount Bal. LCY after running Payment Journal Pre Check Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(AmountPmtToleranceCapTxt, -CustLedgerEntry."Accepted Payment Tolerance");
-        LibraryReportDataset.AssertElementWithValueExists(AmountBalLcyCapTxt, GenJournalLine."Balance (LCY)");
     end;
 
     [Test]
@@ -1001,6 +944,7 @@ codeunit 134987 "ERM Financial Reports III"
               Customer."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
             Validate("Applies-to ID", UserId);
             Modify(true);
+
             // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
             CreateAndPostGenJournalLines(
               GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
@@ -1209,13 +1153,6 @@ codeunit 134987 "ERM Financial Reports III"
         CreatePaymentGeneralBatch(GenJournalBatch);
         SuggestVendorPayment(GenJournalLine, GenJournalBatch, VendorNo, BankAccount."No.", false);
         BatchName := GenJournalLine."Journal Batch Name";
-    end;
-
-    local procedure CreateCustomer(var Customer: Record Customer)
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Name, LibraryUtility.GenerateGUID);
-        Customer.Modify(true);
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor)

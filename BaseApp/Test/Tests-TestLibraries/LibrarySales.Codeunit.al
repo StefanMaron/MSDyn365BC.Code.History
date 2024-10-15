@@ -71,20 +71,19 @@ codeunit 130509 "Library - Sales"
         LibraryERM.FindPaymentMethod(PaymentMethod);
         LibraryERM.SetSearchGenPostingTypeSales;
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        LibraryUtility.UpdateSetupNoSeriesCode(
-          DATABASE::"Sales & Receivables Setup", SalesReceivablesSetup.FieldNo("Customer Nos."));
+        LibraryERM.FindVATPostingSetupSales(VATPostingSetup);
 
         Clear(Customer);
         Customer.Insert(true);
         Customer.Validate(Name, Customer."No.");  // Validating Name as No. because value is not important.
         Customer.Validate("Payment Method Code", PaymentMethod.Code);  // Mandatory for posting in ES build
-        Customer.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode);  // Mandatory for posting in ES build
+        Customer.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsIT);  // Mandatory for posting in ES build
         Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         Customer.Validate("Customer Posting Group", FindCustomerPostingGroup);
         Customer.Modify(true);
         CustContUpdate.OnModify(Customer);
+        LibraryERM.SetDefaultSalesOperationType(Customer."VAT Bus. Posting Group");
 
         OnAfterCreateCustomer(Customer);
     end;
@@ -131,6 +130,17 @@ codeunit 130509 "Library - Sales"
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Customer Bank Account", CustomerBankAccount.FieldNo(Code))));
         CustomerBankAccount.Insert(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCustomerBillHeader(var CustomerBillHeader: Record "Customer Bill Header"; BankAccountNo: Code[20]; PaymentMethodCode: Code[10]; Type: Option)
+    begin
+        CustomerBillHeader.Init();
+        CustomerBillHeader.Insert(true);
+        CustomerBillHeader.Validate("Bank Account No.", BankAccountNo);
+        CustomerBillHeader.Validate("Payment Method Code", PaymentMethodCode);
+        CustomerBillHeader.Validate(Type, Type);
+        CustomerBillHeader.Modify(true);
     end;
 
     procedure CreateCustomerPostingGroup(var CustomerPostingGroup: Record "Customer Posting Group")
@@ -351,6 +361,11 @@ codeunit 130509 "Library - Sales"
           "External Document No.",
           CopyStr(LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("External Document No."), DATABASE::"Sales Header"), 1, 20));
         SetCorrDocNoSales(SalesHeader);
+        SalesHeader.Validate("Operation Type", LibraryERM.GetDefaultOperationType(SellToCustomerNo, DATABASE::Customer));
+        if SalesHeader."Payment Terms Code" <> '' then
+            SalesHeader.Validate("Due Date", CalculateDueDate(SalesHeader."Payment Terms Code", SalesHeader."Document Date"))
+        else
+            SalesHeader.Validate("Due Date", SalesHeader."Document Date");
         SalesHeader.Modify(true);
 
         OnAfterCreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
@@ -613,7 +628,6 @@ codeunit 130509 "Library - Sales"
         TmpReturnReceiptHeader: Record "Return Receipt Header";
         CombineReturnReceipts: Report "Combine Return Receipts";
     begin
-        CombineReturnReceipts.InitializeRequest(PostingDate, DocDate, CalcInvDiscount, PostCreditMemos);
         if SalesHeader.HasFilter then
             TmpSalesHeader.CopyFilters(SalesHeader)
         else begin
@@ -629,6 +643,11 @@ codeunit 130509 "Library - Sales"
             TmpReturnReceiptHeader.SetRange("No.", ReturnReceiptHeader."No.");
         end;
         CombineReturnReceipts.SetTableView(TmpReturnReceiptHeader);
+
+        if (PostingDate <> 0D) and (DocDate <> 0D) then
+            TmpSalesHeader.FindFirst;
+        CombineReturnReceipts.InitializeRequest(
+          WorkDate, WorkDate, TmpSalesHeader."Operation Type", PostingDate, DocDate, CalcInvDiscount, PostCreditMemos);
         CombineReturnReceipts.UseRequestPage(false);
         CombineReturnReceipts.RunModal;
     end;
@@ -699,6 +718,21 @@ codeunit 130509 "Library - Sales"
     begin
         Clear(SalesExplodeBOM);
         SalesExplodeBOM.Run(SalesLine);
+    end;
+
+    procedure FindCustomer(var Customer: Record Customer)
+    begin
+        // Filter Customer so that errors are not generated due to mandatory fields.
+        Customer.SetFilter("Customer Posting Group", '<>''''');
+        Customer.SetFilter("Gen. Bus. Posting Group", '<>''''');
+        Customer.SetFilter("Payment Terms Code", '<>''''');
+        Customer.SetRange(Blocked, Customer.Blocked::" ");
+        // For Complete Shipping Advice, partial shipments are disallowed, hence select Partial.
+        Customer.SetRange("Shipping Advice", Customer."Shipping Advice"::Partial);
+
+        Customer.FindSet;
+
+        LibraryERM.SetDefaultSalesOperationType(Customer."VAT Bus. Posting Group");
     end;
 
     procedure FindCustomerPostingGroup(): Code[20]
@@ -779,6 +813,13 @@ codeunit 130509 "Library - Sales"
             Validate(Receive, NewShipReceive);
             Validate(Invoice, NewInvoice);
 
+            if "Operation Type" = '' then
+                Validate("Operation Type", LibraryERM.GetDefaultOperationType("Sell-to Customer No.", DATABASE::Customer));
+            if ("Applies-to Doc. No." <> '') and ("Applies-to Occurrence No." = 0) then
+                Validate("Applies-to Occurrence No.", 1);
+            if "Operation Occurred Date" = 0D then
+                Validate("Operation Occurred Date", "Posting Date");
+            Modify(true);
             case "Document Type" of
                 "Document Type"::Invoice:
                     NoSeriesCode := "Posting No. Series";  // posted sales invoice.
@@ -1094,6 +1135,22 @@ codeunit 130509 "Library - Sales"
         end;
     end;
 
+    procedure SetFatturaPAElectronicFormat(NewValue: Code[20])
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Fattura PA Electronic Format", NewValue);
+        SalesReceivablesSetup.Modify();
+    end;
+
+    procedure SetValidateDocumentOnPosting(NewValue: Boolean)
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Validate Document On Posting", NewValue);
+        SalesReceivablesSetup.Modify();
+    end;
+
     procedure UndoSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line")
     begin
         CODEUNIT.Run(CODEUNIT::"Undo Sales Shipment Line", SalesShipmentLine);
@@ -1170,6 +1227,17 @@ codeunit 130509 "Library - Sales"
         SalesSetup.Get();
         SalesSetup."Ignore Updated Addresses" := false;
         SalesSetup.Modify();
+    end;
+
+    procedure CalculateDueDate("Code": Code[20]; DocumentDate: Date): Date
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        PaymentLines.SetRange("Sales/Purchase", PaymentLines."Sales/Purchase"::" ");
+        PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
+        PaymentLines.SetRange(Code, Code);
+        PaymentLines.FindFirst;
+        exit(CalcDate(PaymentLines."Due Date Calculation", DocumentDate));
     end;
 
     procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
