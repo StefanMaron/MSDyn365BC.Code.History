@@ -150,7 +150,7 @@ page 1120 "Cost Type Balance/Budget"
 
                     trigger OnValidate()
                     begin
-                        CalcFormFields();
+                        CalculateFields();
                     end;
                 }
                 field(BudgetPct; BudgetPct)
@@ -277,14 +277,14 @@ page 1120 "Cost Type Balance/Budget"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        CalcFormFields();
-        NameIndent := Indentation;
-        Emphasize := Type <> Type::"Cost Type";
+        CalculateFields();
+        NameIndent := Rec.Indentation;
+        Emphasize := Rec.Type <> Rec.Type::"Cost Type";
     end;
 
     trigger OnOpenPage()
     begin
-        BudgetFilter := GetFilter("Budget Filter");
+        BudgetFilter := Rec.GetFilter("Budget Filter");
         FindPeriod('');
     end;
 
@@ -306,8 +306,8 @@ page 1120 "Cost Type Balance/Budget"
         Calendar: Record Date;
         PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
                 PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
@@ -315,26 +315,32 @@ page 1120 "Cost Type Balance/Budget"
         PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
         if AmountType = AmountType::"Net Change" then
             if Calendar."Period Start" = Calendar."Period End" then
-                SetRange("Date Filter", Calendar."Period Start")
+                Rec.SetRange("Date Filter", Calendar."Period Start")
             else
-                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End")
+                Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End")
         else
-            SetRange("Date Filter", 0D, Calendar."Period End");
-        DateFilter := GetFilter("Date Filter");
+            Rec.SetRange("Date Filter", 0D, Calendar."Period End");
+        DateFilter := Rec.GetFilter("Date Filter");
         CurrPage.Update(false);
     end;
 
-    local procedure CalcFormFields()
+    local procedure CalculateFields()
     begin
-        SetFilter("Budget Filter", BudgetFilter);
-        SetFilter("Cost Center Filter", CostCenterFilter);
-        SetFilter("Cost Object Filter", CostObjectFilter);
-
-        CalcFields("Net Change", "Budget Amount");
-        if "Budget Amount" = 0 then
+        Rec.SetFilter("Budget Filter", BudgetFilter);
+        Rec.SetFilter("Cost Center Filter", CostCenterFilter);
+        Rec.SetFilter("Cost Object Filter", CostObjectFilter);
+        Rec.CalcFields("Net Change", "Budget Amount");
+        if Rec."Budget Amount" = 0 then
             BudgetPct := 0
         else
-            BudgetPct := Round("Net Change" / "Budget Amount" * 100);
+            BudgetPct := Round(Rec."Net Change" / Rec."Budget Amount" * 100);
+
+        OnAfterCalculateFields(Rec, BudgetPct);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateFields(var CostType: Record "Cost Type"; var BudgetPct: Decimal);
+    begin
     end;
 }
 

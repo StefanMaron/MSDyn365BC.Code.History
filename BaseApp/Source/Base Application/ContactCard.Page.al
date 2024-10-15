@@ -1451,12 +1451,18 @@ page 5050 "Contact Card"
     trigger OnNewRecord(BelowxRec: Boolean)
     var
         Contact: Record Contact;
+        IsHandled: Boolean;
     begin
-        if GetFilter("Company No.") <> '' then begin
-            "Company No." := GetRangeMax("Company No.");
-            Type := Type::Person;
-            Contact.Get("Company No.");
-            InheritCompanyToPersonData(Contact);
+        IsHandled := false;
+        OnBeforeOnNewRecord(Rec, IsHandled);
+        If IsHandled then
+            exit;
+
+        if Rec.GetFilter("Company No.") <> '' then begin
+            Rec."Company No." := Rec.GetRangeMax("Company No.");
+            Rec.Type := Rec.Type::Person;
+            Contact.Get(Rec."Company No.");
+            Rec.InheritCompanyToPersonData(Contact);
         end;
     end;
 
@@ -1567,6 +1573,11 @@ page 5050 "Contact Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssistEditNameOnAfterContactSetRecFilter(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnNewRecord(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1527,6 +1527,175 @@ codeunit 144200 "FatturaPA Test"
         Assert.RecordCount(TempXMLBuffer, 3);
     end;
 
+    [Test]
+    procedure UnitaMisuraWhenUoMHasLongValue()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        UnitOfMeasure: Record "Unit of Measure";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        ClientFileName: Text[250];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 444574] UnitaMisura tag value when Item has Unit of Measure with Description value of length 50.
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Item.
+        CreateSalesDocument(
+            SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer(), SalesHeader."Document Type"::Invoice);
+
+        // [GIVEN] Item has Unit of Measure with Description value of length 50.
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        UpdateDescriptionOnUoM(
+            SalesLine."Unit of Measure Code",
+            CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(UnitOfMeasure.Description)), 1, MaxStrLen(UnitOfMeasure.Description)));
+        SalesLine.Validate("Unit of Measure Code");
+        SalesLine.Modify(true);
+
+        // [GIVEN] Sales Invoice is posted.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] The document is exported to FatturaPA.
+        ElectronicDocumentFormat.SendElectronically(
+            TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] UnitaMisura tag contains first 10 charachters of Description field of Unit of Measure.
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        AssertCurrentElementValue(
+            TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/UnitaMisura',
+            CopyStr(SalesLine."Unit of Measure", 1, 10));
+    end;
+
+    [Test]
+    procedure DenominazioneWhenCustomerHasLongName()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        ClientFileName: Text[250];
+        CustomerName: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 444468] 1.4.1.3.1 Denominazione tag value when Customer has Name of length 100.
+        Initialize();
+
+        // [GIVEN] Sales Invoice for Customer "C".
+        Customer.Get(CreateCustomer());
+        CreateSalesDocument(
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), Customer."No.", SalesHeader."Document Type"::Invoice);
+
+        // [GIVEN] Customer "C" has Name of length 100.
+        CustomerName := LibraryUtility.GenerateRandomXMLText(MaxStrLen(Customer.Name));
+        UpdateNameOnCustomer(Customer, CopyStr(CustomerName, 1, MaxStrLen(Customer.Name)));
+
+        // [GIVEN] Sales Invoice is posted.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] The document is exported to FatturaPA.
+        ElectronicDocumentFormat.SendElectronically(
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] 1.4.1.3.1 Denominazione tag contains first 80 charachters of Customer Name field.
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        AssertCurrentElementValue(
+          TempXMLBuffer,
+          '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/Anagrafica/Denominazione',
+          CopyStr(CustomerName, 1, 80));
+    end;
+
+    [Test]
+    procedure DenominazioneWhenVendorHasLongName()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        CompanyInformation: Record "Company Information";
+        TaxRepresentativeVendor: Record Vendor;
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        ClientFileName: Text[250];
+        VendorName: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 444468] 1.3.1.3.1 Denominazione tag value when Vendor has Name of length 100.
+        Initialize();
+
+        // [GIVEN] Company Information with Tax Representative No. "V".
+        CreateCleanTaxRepresentative(TaxRepresentativeVendor);
+        CompanyInformation.Get();
+        TaxRepresentativeVendor.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
+        TaxRepresentativeVendor.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode);
+        TaxRepresentativeVendor.Modify(true);
+
+        // [GIVEN] Sales Invoice with Item.
+        CreateSalesDocument(
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer(), SalesHeader."Document Type"::Invoice);
+
+        // [GIVEN] Vendor "V" has Name of length 100.
+        VendorName := LibraryUtility.GenerateRandomXMLText(MaxStrLen(TaxRepresentativeVendor.Name));
+        UpdateNameOnVendor(TaxRepresentativeVendor, CopyStr(VendorName, 1, MaxStrLen(TaxRepresentativeVendor.Name)));
+
+        // [GIVEN] Sales Invoice is posted.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] The document is exported to FatturaPA.
+        ElectronicDocumentFormat.SendElectronically(
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] 1.3.1.3.1 Denominazione tag contains first 80 charachters of Vendor Name field.
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        AssertCurrentElementValue(
+          TempXMLBuffer,
+          '/p:FatturaElettronica/FatturaElettronicaHeader/RappresentanteFiscale/DatiAnagrafici/Anagrafica/Denominazione',
+          CopyStr(VendorName, 1, 80));
+    end;
+
+    [Test]
+    procedure DenominazioneWhenCompanyHasLongName()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        CompanyInformation: Record "Company Information";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        ClientFileName: Text[250];
+        CompanyName: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 444468] 1.2.1.3.1 Denominazione tag value when Company has Name of length 100.
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Item.
+        CreateSalesDocument(
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer(), SalesHeader."Document Type"::Invoice);
+
+        // [GIVEN] Company has Name of length 100.
+        CompanyName := LibraryUtility.GenerateRandomXMLText(MaxStrLen(CompanyInformation.Name));
+        CompanyInformation.Get();
+        UpdateNameOnCompany(CompanyInformation, CopyStr(CompanyName, 1, MaxStrLen(CompanyInformation.Name)));
+
+        // [GIVEN] Sales Invoice is posted.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] The document is exported to FatturaPA.
+        ElectronicDocumentFormat.SendElectronically(
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] 1.2.1.3.1 Denominazione tag contains first 80 charachters of Company Name field.
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        AssertCurrentElementValue(
+          TempXMLBuffer,
+          '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore/DatiAnagrafici/Anagrafica/Denominazione',
+          CopyStr(CompanyName, 1, 80));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2161,6 +2330,33 @@ codeunit 144200 "FatturaPA Test"
         Item.Get(ItemNo);
         Item.Validate(GTIN, GTIN);
         Item.Modify(true);
+    end;
+
+    local procedure UpdateDescriptionOnUoM(UnitOfMeasureCode: Code[10]; NewDescription: Text[50])
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        UnitOfMeasure.Get(UnitOfMeasureCode);
+        UnitOfMeasure.Validate(Description, NewDescription);
+        UnitOfMeasure.Modify(true);
+    end;
+
+    local procedure UpdateNameOnCustomer(var Customer: Record Customer; CustomerName: Text[100])
+    begin
+        Customer.Validate(Name, CustomerName);
+        Customer.Modify(true);
+    end;
+
+    local procedure UpdateNameOnVendor(var Vendor: Record Vendor; VendorName: Text[100])
+    begin
+        Vendor.Validate(Name, VendorName);
+        Vendor.Modify(true);
+    end;
+
+    local procedure UpdateNameOnCompany(var CompanyInformation: Record "Company Information"; CompanyName: Text[100])
+    begin
+        CompanyInformation.Validate(Name, CompanyName);
+        CompanyInformation.Modify(true);
     end;
 
     local procedure VerifyTransmissionData(var TempXMLBuffer: Record "XML Buffer" temporary; FormatoTrasmissione: Text)

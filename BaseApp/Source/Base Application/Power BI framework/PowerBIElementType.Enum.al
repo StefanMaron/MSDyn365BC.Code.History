@@ -4,7 +4,7 @@
 /// <remarks>
 /// When displayed in a tree structure in the Web Client, the tree structure needs to be sorted by this enum. On the other hand, Web Client does not support 
 /// descending sorting. So, make sure you keep this enum IDs ordered from the larger group to the smaller group.
-/// See also: 1) Bug 335749; 2) Documentation at https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-setascending-method
+/// See also: 1) Bug 335749; 2) Documentation at https://go.microsoft.com/fwlink/?linkid=2206170
 /// </remarks>
 enum 6313 "Power BI Element Type"
 {

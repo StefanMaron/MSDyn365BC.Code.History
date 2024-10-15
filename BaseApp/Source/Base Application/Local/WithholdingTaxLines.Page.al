@@ -46,9 +46,7 @@ page 12210 "Withholding Tax Lines"
         WithholdingTax: Record "Withholding Tax";
     begin
         if GetFilter("Withholding Tax Entry No.") <> '' then
-            Evaluate(WithholdingTax."Entry No.", GetFilter("Withholding Tax Entry No."));
-        if WithholdingTax.FindFirst() then
-            TotalAmount := WithholdingTax."Base - Excluded Amount";
+            Evaluate(WithholdingTax."Entry No.", GetFilter("Withholding Tax Entry No.")); 
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -59,6 +57,11 @@ page 12210 "Withholding Tax Lines"
     var
         AmountNotEqualQst: Label 'The total amount of all lines is %1, which is not equal to the value of the Base - Excluded Amount field (%2) on the Withholding Tax Card. This will result in an error when you export the entry. \ Do you want to close the page anyway?', Comment = '%1=amount,%2=another amount';
         TotalAmount: Decimal;
+
+    procedure SetTotalAmount(TotAmount: Decimal)
+    begin
+        TotalAmount := TotAmount;
+    end;
 
     local procedure CheckAmounts(): Boolean
     var

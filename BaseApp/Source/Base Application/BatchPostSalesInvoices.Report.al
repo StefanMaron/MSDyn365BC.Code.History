@@ -107,15 +107,20 @@ report 297 "Batch Post Sales Invoices"
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
+            IsHandled: Boolean;
         begin
-            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
-                exit;
-            SalesReceivablesSetup.Get();
-            CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
-            ReplacePostingDate := false;
-            ReplaceDocumentDate := false;
-            PrintDoc := false;
-            PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+            IsHandled := false;
+            OnBeforeOnOpenPage(IsHandled);
+            if not IsHandled then begin
+                if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+                    exit;
+                SalesReceivablesSetup.Get();
+                CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
+                ReplacePostingDate := false;
+                ReplaceDocumentDate := false;
+                PrintDoc := false;
+                PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+            end;
             OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible, PostingDateReq);
         end;
     }
@@ -139,6 +144,11 @@ report 297 "Batch Post Sales Invoices"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean; var PostingDateReq: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var IsHandled: Boolean)
     begin
     end;
 

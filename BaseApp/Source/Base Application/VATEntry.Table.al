@@ -432,9 +432,10 @@
         field(86; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
-            
+
             trigger OnValidate()
             begin
+                FeatureTelemetry.LogUsage('0000I9D', VATDateFeatureTok, 'VAT Date field populated');
                 UpdateGLEntries("VAT Reporting Date");
                 UpdatePostedDocuments("VAT Reporting Date");
             end;
@@ -709,6 +710,7 @@
         Cust: Record Customer;
         Vend: Record Vendor;
         GLSetup: Record "General Ledger Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         UseAddCurrAmounts: Boolean;
         CalculateSum: Boolean;
 
@@ -717,7 +719,7 @@
         ProgressMsg: Label 'Processed entries: @2@@@@@@@@@@@@@@@@@\';
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
-
+        VATDateFeatureTok: Label 'VAT Date', Locked = true;
 
     local procedure UpdatePostedDocuments(NewDate: Date)
     var
@@ -730,57 +732,60 @@
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         RecordRef: RecordRef;
+        Updated: Boolean;
     begin
-        case "Document Type" of 
+        case "Document Type" of
             "Document Type"::Invoice:
-            begin
-                if Type = Type::Sale then begin
-                    FilterSalesInvoiceHeader(SalesInvHeader);
-                    RecordRef.GetTable(SalesInvHeader);
-                    if not UpdateVATDateFromRecordRef(RecordRef, SalesInvHeader.FieldNo("VAT Reporting Date"), NewDate) then begin
-                        FilterServInvoiceHeader(ServiceInvHeader);
-                        RecordRef.GetTable(ServiceInvHeader);
-                        UpdateVATDateFromRecordRef(RecordRef, ServiceInvHeader.FieldNo("VAT Reporting Date"), NewDate);
+                begin
+                    if Type = Type::Sale then begin
+                        FilterSalesInvoiceHeader(SalesInvHeader);
+                        RecordRef.GetTable(SalesInvHeader);
+                        Updated := UpdateVATDateFromRecordRef(RecordRef, SalesInvHeader.FieldNo("VAT Reporting Date"), NewDate);
+                        if not Updated then begin
+                            FilterServInvoiceHeader(ServiceInvHeader);
+                            RecordRef.GetTable(ServiceInvHeader);
+                            Updated := UpdateVATDateFromRecordRef(RecordRef, ServiceInvHeader.FieldNo("VAT Reporting Date"), NewDate);
+                        end;
+                    end;
+                    if Type = Type::Purchase then begin
+                        FilterPurchInvoiceHeader(PurchInvHeader);
+                        RecordRef.GetTable(PurchInvHeader);
+                        Updated := UpdateVATDateFromRecordRef(RecordRef, PurchInvHeader.FieldNo("VAT Reporting Date"), NewDate);
                     end;
                 end;
-                if Type = Type::Purchase then begin
-                    FilterPurchInvoiceHeader(PurchInvHeader);
-                    RecordRef.GetTable(PurchInvHeader);
-                    UpdateVATDateFromRecordRef(RecordRef, PurchInvHeader.FieldNo("VAT Reporting Date"), NewDate);
-                end;
-            end;
-            "Document Type"::"Credit Memo": 
-            begin
-                if Type = Type::Sale then begin
-                    FilterSalesCrMemoHeader(SalesCrMemoHeader);
-                    RecordRef.GetTable(SalesCrMemoHeader);
-                    if not UpdateVATDateFromRecordRef(RecordRef, SalesCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate) then begin
-                        FilterServCrMemoHeader(ServiceCrMemoHeader);
-                        RecordRef.GetTable(ServiceCrMemoHeader);
-                        UpdateVATDateFromRecordRef(RecordRef, ServiceCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
+            "Document Type"::"Credit Memo":
+                begin
+                    if Type = Type::Sale then begin
+                        FilterSalesCrMemoHeader(SalesCrMemoHeader);
+                        RecordRef.GetTable(SalesCrMemoHeader);
+                        Updated := UpdateVATDateFromRecordRef(RecordRef, SalesCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
+                        if not Updated then begin
+                            FilterServCrMemoHeader(ServiceCrMemoHeader);
+                            RecordRef.GetTable(ServiceCrMemoHeader);
+                            Updated := UpdateVATDateFromRecordRef(RecordRef, ServiceCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
+                        end;
+                    end;
+                    if Type = Type::Purchase then begin
+                        FilterPurchCrMemoHeader(PurchCrMemoHeader);
+                        RecordRef.GetTable(PurchCrMemoHeader);
+                        Updated := UpdateVATDateFromRecordRef(RecordRef, PurchCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
                     end;
                 end;
-                if Type = Type::Purchase then begin
-                    FilterPurchCrMemoHeader(PurchCrMemoHeader);
-                    RecordRef.GetTable(PurchCrMemoHeader);
-                    UpdateVATDateFromRecordRef(RecordRef, PurchCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
-                end;
-            end;
             "Document Type"::"Finance Charge Memo":
-            begin
-                FilterIssuedFinChrgMemoHeader(IssuedFinChargeMemoHeader);
-                RecordRef.GetTable(IssuedFinChargeMemoHeader);
-                UpdateVATDateFromRecordRef(RecordRef, IssuedFinChargeMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
-            end;
+                begin
+                    FilterIssuedFinChrgMemoHeader(IssuedFinChargeMemoHeader);
+                    RecordRef.GetTable(IssuedFinChargeMemoHeader);
+                    Updated := UpdateVATDateFromRecordRef(RecordRef, IssuedFinChargeMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
+                end;
             "Document Type"::Reminder:
-            begin
-                FilterIssuedReminderHeader(IssuedReminderHeader);
-                RecordRef.GetTable(IssuedReminderHeader);
-                UpdateVATDateFromRecordRef(RecordRef, IssuedReminderHeader.FieldNo("VAT Reporting Date"), NewDate);
-            end;
-
+                begin
+                    FilterIssuedReminderHeader(IssuedReminderHeader);
+                    RecordRef.GetTable(IssuedReminderHeader);
+                    Updated := UpdateVATDateFromRecordRef(RecordRef, IssuedReminderHeader.FieldNo("VAT Reporting Date"), NewDate);
+                end;
         end;
-        RecordRef.Modify();
+        if Updated then
+            RecordRef.Modify();
     end;
 
     local procedure UpdateVATDateFromRecordRef(var RecordRef: RecordRef; FieldId: Integer; VATDate: Date) : Boolean
@@ -800,7 +805,7 @@
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetCurrentKey("Document No.", "Posting Date");
-        GLEntry.SetRange("Document No.", "Document No.");        
+        GLEntry.SetRange("Document No.", "Document No.");
         GLEntry.SetRange("Posting Date", "Posting Date");
         GLEntry.ModifyAll("VAT Reporting Date", VATDate);
     end;
@@ -820,7 +825,7 @@
         SalesCrMemoHeader.SetRange("Posting Date", "Posting Date");
         SalesCrMemoHeader.SetRange("External Document No.", "External Document No.");
     end;
-    
+
     local procedure FilterServInvoiceHeader(var ServiceInvHeader: Record "Service Invoice Header")
     begin
         ServiceInvHeader.Reset();
@@ -853,7 +858,7 @@
     begin
         PurchInvoiceHeader.Reset();
         PurchInvoiceHeader.SetRange("No.", "Document No.");
-        PurchInvoiceHeader.SetRange("Posting Date",  "Posting Date");
+        PurchInvoiceHeader.SetRange("Posting Date", "Posting Date");
         PurchInvoiceHeader.SetRange("Vendor Invoice No.", "External Document No.");
     end;
 
@@ -863,7 +868,7 @@
         PurchCrMemoHeader.SetRange("No.", "Document No.");
         PurchCrMemoHeader.SetRange("Posting Date", "Posting Date");
     end;
-       
+
     local procedure SetVATDate(var GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."VAT Reporting Date" = 0D then

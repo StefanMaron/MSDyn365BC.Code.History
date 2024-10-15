@@ -2364,7 +2364,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.AreEqual(VATDate, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);
     end;
 
-    local procedure VerifyVATEntry(DocNr: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date) : Integer
+    local procedure VerifyVATEntry(DocNr: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date): Integer
     var
         VATEntry: Record "VAT Entry";
     begin

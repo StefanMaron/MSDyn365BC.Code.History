@@ -621,21 +621,19 @@ table 6660 "Return Receipt Header"
         exit(SalesSetup.GetLegalStatement());
     end;
 
-    procedure PrintRecords(ShowRequestForm: Boolean)
+    procedure PrintRecords(ShowDialog: Boolean)
     var
         ReportSelection: Record "Report Selections";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePrintRecords(Rec, ShowRequestForm, IsHandled);
+        OnBeforePrintRecords(Rec, ShowDialog, IsHandled);
         if IsHandled then
             exit;
 
-        with ReturnRcptHeader do begin
-            Copy(Rec);
-            ReportSelection.PrintWithDialogForCust(
-              ReportSelection.Usage::"S.Ret.Rcpt.", ReturnRcptHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
-        end;
+        ReturnRcptHeader.Copy(Rec);
+        ReportSelection.PrintWithDialogForCust(
+            ReportSelection.Usage::"S.Ret.Rcpt.", ReturnRcptHeader, ShowDialog, FieldNo("Bill-to Customer No."));
     end;
 
     procedure EmailRecords(ShowDialog: Boolean)
@@ -643,7 +641,13 @@ table 6660 "Return Receipt Header"
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEmailRecords(Rec, ShowDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         DocumentSendingProfile.TrySendToEMail(
           DummyReportSelections.Usage::"S.Ret.Rcpt.".AsInteger(), Rec, FieldNo("No."),
           ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
@@ -690,6 +694,11 @@ table 6660 "Return Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ReturnRcptHeader: Record "Return Receipt Header"; ShowDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEmailRecords(var ReturnRcptHeader: Record "Return Receipt Header"; ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

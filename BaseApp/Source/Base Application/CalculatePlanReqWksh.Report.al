@@ -176,7 +176,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnPreReport(CurrTemplateName, CurrWorksheetName, ReqLine, FromDate, ToDate);
+        OnBeforeOnPreReport(CurrTemplateName, CurrWorksheetName, ReqLine, FromDate, ToDate, IsHandled);
         if IsHandled then
             exit;
 
@@ -367,7 +367,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnPreReport(var CurrTemplateName: code[10]; var CurrWorksheetName: Code[10]; var RequistionLine: Record "Requisition Line"; var FromDate: Date; var ToDate: Date)
+    local procedure OnBeforeOnPreReport(var CurrTemplateName: code[10]; var CurrWorksheetName: Code[10]; var RequistionLine: Record "Requisition Line"; var FromDate: Date; var ToDate: Date; var IsHandled: Boolean)
     begin
     end;
 

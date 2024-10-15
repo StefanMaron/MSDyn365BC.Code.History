@@ -683,12 +683,20 @@ page 20 "General Ledger Entries"
         DimensionManagement.UseShortcutDims(Dim1Visible, Dim2Visible, Dim3Visible, Dim4Visible, Dim5Visible, Dim6Visible, Dim7Visible, Dim8Visible);
     end;
 
-    local procedure GetCaption(): Text[250]
+    local procedure GetCaption(): Text
+    var
+        IsHandled: Boolean;
+        RetCaption: Text;
     begin
-        if GLAcc."No." <> "G/L Account No." then
-            if not GLAcc.Get("G/L Account No.") then
-                if GetFilter("G/L Account No.") <> '' then
-                    if GLAcc.Get(GetRangeMin("G/L Account No.")) then;
+        IsHandled := false;
+        OnBeforeGetCaption(Rec, GLAcc, RetCaption, IsHandled);
+        if IsHandled then
+            exit(RetCaption);
+
+        if GLAcc."No." <> Rec."G/L Account No." then
+            if not GLAcc.Get(Rec."G/L Account No.") then
+                if Rec.GetFilter("G/L Account No.") <> '' then
+                    if GLAcc.Get(Rec.GetRangeMin("G/L Account No.")) then;
         exit(StrSubstNo('%1 %2', GLAcc."No.", GLAcc.Name))
     end;
 
@@ -728,5 +736,10 @@ page 20 "General Ledger Entries"
 
     var
         TooManyGLEntriesSelectedErr: Label 'You have selected too many G/L entries. Split the change to select fewer entries, or go to the Dimension Correction page and use filters to select the entries.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCaption(GLEntry: Record "G/L Entry"; GLAccount: Record "G/L Account"; var RetCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
 }
 

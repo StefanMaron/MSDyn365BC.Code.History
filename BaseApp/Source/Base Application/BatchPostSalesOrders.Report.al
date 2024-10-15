@@ -122,15 +122,19 @@
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
+            IsHandled: Boolean;
         begin
-            if ClientTypeManagement.GetCurrentClientType() <> ClientType::Background then begin
-                SalesReceivablesSetup.Get();
-                CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
-                ReplacePostingDate := false;
-                ReplaceDocumentDate := false;
-                PrintDoc := false;
-                PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
-            end;
+            IsHandled := false;
+            OnBeforeOnOpenPage(IsHandled);
+            if not IsHandled then
+                if ClientTypeManagement.GetCurrentClientType() <> ClientType::Background then begin
+                    SalesReceivablesSetup.Get();
+                    CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
+                    ReplacePostingDate := false;
+                    ReplaceDocumentDate := false;
+                    PrintDoc := false;
+                    PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+                end;
             OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
     }
@@ -171,6 +175,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesBatchPostMgt(var SalesHeader: Record "Sales Header"; var ShipReq: Boolean; var InvReq: Boolean; var SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var IsHandled: Boolean)
     begin
     end;
 

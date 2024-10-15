@@ -59,10 +59,6 @@
                 Validate("Inventory Posting Group", Item."Inventory Posting Group");
                 Validate(Quantity, xRec.Quantity);
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
-                Validate("Gross Weight", Item."Gross Weight");
-                Validate("Net Weight", Item."Net Weight");
-                Validate("Unit Volume", Item."Unit Volume");
-                Validate("Units per Parcel", Item."Units per Parcel");
                 "Item Category Code" := Item."Item Category Code";
 
                 OnAfterAssignItemValues(Rec, Item, TransHeader);
@@ -284,9 +280,9 @@
                         "Item No.":
                             Description := xRec.Description;
                         else begin
-                                CurrFieldNo := FieldNo("Item No.");
-                                Validate("Item No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                            end;
+                            CurrFieldNo := FieldNo("Item No.");
+                            Validate("Item No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                        end;
                     end;
 
                 if "Item No." <> '' then
@@ -1492,6 +1488,8 @@
     end;
 
     procedure TestStatusOpen()
+    var
+        IsHandled: Boolean;
     begin
         if StatusCheckSuspended then
             exit;
@@ -1500,9 +1498,10 @@
         if TransHeader."No." <> "Document No." then
             TransHeader.Get("Document No.");
 
-        OnBeforeTestStatusOpen(Rec, TransHeader);
-
-        TransHeader.TestField(Status, TransHeader.Status::Open);
+        IsHandled := false;
+        OnBeforeTestStatusOpen(Rec, TransHeader, IsHandled);
+        if not IsHandled then
+            TransHeader.TestField(Status, TransHeader.Status::Open);
 
         OnAfterTestStatusOpen(Rec, TransHeader);
     end;
@@ -1927,7 +1926,7 @@
     end;
 
 #if not CLEAN20
-    [Obsolete('Temporary event for compatibility', '20.0')]
+    [Obsolete('Replaced by OnAfterInitDefaultDimensionSources()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var TransferLine: Record "Transfer Line"; FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
@@ -1990,7 +1989,7 @@
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
     end;
 
 #if not CLEAN20
@@ -2024,7 +2023,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var TransferLine: Record "Transfer Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var TransferLine: Record "Transfer Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -2164,7 +2163,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestStatusOpen(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
+    local procedure OnBeforeTestStatusOpen(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 

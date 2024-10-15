@@ -1237,6 +1237,7 @@
         if ProdOrderLine.Find('-') then
             repeat
                 CalcProdOrder.CalculateProdOrderDates(ProdOrderLine, true);
+                OnCalculateRoutingBackOnAfterCalculateProdOrderDates(Rec, ProdOrderLine);
                 AdjustComponents(ProdOrderLine);
             until ProdOrderLine.Next() = 0;
     end;
@@ -1791,6 +1792,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateOfComponentsBinRequired(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; FromTrigger: Option; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingBackOnAfterCalculateProdOrderDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

@@ -469,7 +469,7 @@
                     OnCarryOutReqLineActionOnCaseReplenishmentSystemElse(ReqLine);
             end;
 
-        OnAfterCarryOutReqLineAction(ReqLine, PurchOrderHeader, SuppressCommit, OrderCounter);
+        OnAfterCarryOutReqLineAction(ReqLine, PurchOrderHeader, SuppressCommit, OrderCounter, LineCount);
     end;
 
     local procedure TryCarryOutReqLineAction(var ReqLine: Record "Requisition Line"): Boolean
@@ -1140,7 +1140,13 @@
     procedure PrintPurchOrder(PurchHeader: Record "Purchase Header")
     var
         CarryOutAction: Codeunit "Carry Out Action";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintPurchOrder(PurchHeader, PrintPurchOrders, IsHandled);
+        if IsHandled then
+            exit;
+
         if PurchHeader."No." <> '' then begin
             CarryOutAction.SetPrintOrder(PrintPurchOrders);
             CarryOutAction.PrintPurchaseOrder(PurchHeader);
@@ -1255,7 +1261,8 @@
               (PrevPurchCode <> "Purchasing Code") or
               CheckAddressDetailsResult;
 
-        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode, PrevShipToCode, UpdateAddressDetails, CheckAddressDetailsResult);
+        OnBeforeCheckInsertFinalizePurchaseOrderHeader(
+            RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode, PrevShipToCode, UpdateAddressDetails, CheckAddressDetailsResult, ReceiveDateReq);
         exit(CheckInsert);
     end;
 
@@ -1468,7 +1475,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; var PrevPurchCode: Code[10]; PrevLocationCode: Code[10]; var PrevShipToCode: Code[10]; var UpdateAddressDetails: Boolean; var CheckAddressDetailsResult: Boolean)
+    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; var PrevPurchCode: Code[10]; PrevLocationCode: Code[10]; var PrevShipToCode: Code[10]; var UpdateAddressDetails: Boolean; var CheckAddressDetailsResult: Boolean; ReceiveDateReq: Date)
     begin
     end;
 
@@ -1493,7 +1500,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCarryOutReqLineAction(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; CommitIsSuppressed: Boolean; var OrderCounter: Integer)
+    local procedure OnAfterCarryOutReqLineAction(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; CommitIsSuppressed: Boolean; var OrderCounter: Integer; var LineCount: Integer)
     begin
     end;
 
@@ -1734,6 +1741,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFinalizeOrderHeaderOnLoopLinesBeforeModifyForRecurrReqLines(var ReqLine2: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintPurchOrder(PurchaseHeader: Record "Purchase Header"; PrintPurchOrders: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

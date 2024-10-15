@@ -456,7 +456,14 @@
             Caption = 'Order Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateOrderDate(Rec, xRec, IsHandled);
+                If IsHandled then
+                    exit;
+
                 if ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and
                    not ("Order Date" = xRec."Order Date")
                 then
@@ -537,9 +544,17 @@
             Caption = 'Expected Receipt Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateExpectedReceiptDate(Rec, xRec, IsHandled);
+                If IsHandled then
+                    exit;
+
                 if "Expected Receipt Date" = 0D then
                     exit;
+
                 if "Expected Receipt Date" < "Posting Date" then
                     Validate("Operation Occurred Date", "Expected Receipt Date");
                 UpdatePurchLinesByFieldNo(FieldNo("Expected Receipt Date"), CurrFieldNo <> 0);
@@ -575,7 +590,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePaymentDiscountPercent(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not (CurrFieldNo in [0, FieldNo("Posting Date"), FieldNo("Document Date")]) then
                     TestStatusOpen();
                 GLSetup.Get();
@@ -1743,7 +1765,14 @@
             Caption = 'Send IC Document';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateSendICDocument(Rec, xRec, IsHandled);
+                If IsHandled then
+                    exit;
+
                 if "Send IC Document" then begin
                     TestField("Buy-from IC Partner Code");
                     TestField("IC Direction", "IC Direction"::Outgoing);
@@ -1936,7 +1965,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePrepmtPaymentDiscountPercent(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not (CurrFieldNo in [0, FieldNo("Posting Date"), FieldNo("Document Date")]) then
                     TestStatusOpen();
                 GLSetup.Get();
@@ -2279,7 +2315,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidatePromisedReceiptDate(Rec, xRec, IsHandled);
+                OnBeforeValidatePromisedReceiptDate(Rec, xRec, IsHandled, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -2866,7 +2902,7 @@
         Text025: Label 'You have modified the %1 field. Note that the recalculation of VAT may cause penny differences, so you must check the amounts afterwards. ';
         Text027: Label 'Do you want to update the %2 field on the lines to reflect the new value of %1?';
         Text028: Label 'Your identification is set up to process from %1 %2 only.';
-        MaxAllowedValueIs100Err: Label 'The values must be less than or equal to 100.';
+        MaxAllowedValueIs100Err: Label 'The values must be less than or equal 100.';
         Text029: Label 'Deleting this document will cause a gap in the number series for return shipments. An empty return shipment %1 will be created to fill this gap in the number series.\\Do you want to continue?', Comment = '%1 = Document No.';
         DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
         Text032: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Currency Factor.\\Do you want to update the lines?';
@@ -3970,6 +4006,7 @@
     var
         SourceCodeSetup: Record "Source Code Setup";
         OldDimSetID: Integer;
+        NewDimSetID: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3985,16 +4022,23 @@
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         OldDimSetID := "Dimension Set ID";
-        "Dimension Set ID" :=
+        NewDimSetID :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        if (OldDimSetID = 0) and (NewDimSetID <> 0) then
+            "Dimension Set ID" := NewDimSetID;
 
         OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo);
 
-        if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
+        if (OldDimSetID <> NewDimSetID) and (OldDimSetID <> 0) and guiallowed then
             if CouldDimensionsBeKept() then
                 if Confirm(DoYouWantToKeepExistingDimensionsQst) then
-                    "Dimension Set ID" := OldDimSetID;
+                    "Dimension Set ID" := OldDimSetID
+                else
+                    "Dimension Set ID" := NewDimSetID;
+
+        if ("Dimension Set ID" <> NewDimSetID) and (NewDimSetID <> 0) then
+            "Dimension Set ID" := NewDimSetID;
 
         if (OldDimSetID <> "Dimension Set ID") and PurchLinesExist() then begin
             Modify();
@@ -4009,6 +4053,8 @@
         if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> Rec."Pay-to Vendor No.") then
             exit(false);
 
+        if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
+            exit(true);
         if (xRec."Location Code" <> '') and (xRec."location Code" <> Rec."Location Code") then
             exit(true);
         if (xRec."Purchaser Code" <> '') and (xRec."Purchaser Code" <> Rec."Purchaser Code") then
@@ -4249,7 +4295,7 @@
         TestField("Ship-to Code", ShipToCode);
     end;
 
-    local procedure UpdateBuyFromCont(VendorNo: Code[20])
+    procedure UpdateBuyFromCont(VendorNo: Code[20])
     var
         ContBusRel: Record "Contact Business Relation";
         Vend: Record Vendor;
@@ -4840,10 +4886,16 @@
     end;
 
     [Scope('OnPrem')]
-    procedure FindVATExemption(var VATExemption: Record "VAT Exemption"; var Check: Boolean; CheckFirst: Boolean): Boolean
+    procedure FindVATExemption(var VATExemption: Record "VAT Exemption"; var Check: Boolean; CheckFirst: Boolean) Result: Boolean
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindVATExemption(Rec, VATExemption, Check, CheckFirst, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         Check := false;
         if VATBusPostingGroup.Get("VAT Bus. Posting Group") then
             Check := VATBusPostingGroup."Check VAT Exemption";
@@ -5698,9 +5750,12 @@
 
         GetReportSelectionsUsageFromDocumentType(ReportSelections.Usage, DocTxt);
 
-        DocumentSendingProfile.SendVendorRecords(
-          ReportSelections.Usage.AsInteger(), Rec, DocTxt, "Buy-from Vendor No.", "No.",
-          FieldNo("Buy-from Vendor No."), FieldNo("No."));
+        IsHandled := false;
+        OnSendRecordsOnBeforeSendVendorRecords(ReportSelections.Usage, Rec, DocTxt, IsHandled);
+        if not IsHandled then
+            DocumentSendingProfile.SendVendorRecords(
+                ReportSelections.Usage.AsInteger(), Rec, DocTxt, "Buy-from Vendor No.", "No.",
+                FieldNo("Buy-from Vendor No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)
@@ -5713,7 +5768,7 @@
         OnPrintRecordsOnAfterCheckMixedDropShipment(Rec);
 
         IsHandled := false;
-        OnPrintRecordsOnBeforeTrySendToPrinterVendor(Rec, IsHandled);
+        OnPrintRecordsOnBeforeTrySendToPrinterVendor(Rec, IsHandled, ShowRequestForm);
         if not IsHandled then
             DocumentSendingProfile.TrySendToPrinterVendor(
                 DummyReportSelections.Usage::"P.Order".AsInteger(), Rec, FieldNo("Buy-from Vendor No."), ShowRequestForm);
@@ -5782,7 +5837,13 @@
     procedure GetUserSetupPurchaserCode(): Code[20]
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetUserSetupPurchaserCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UserSetup.Get(UserId) then
             exit;
 
@@ -5866,6 +5927,20 @@
         if PurchaseHeader.GetFilter("Buy-from Vendor No.") = xPurchaseHeader."Buy-from Vendor No." then
             if PurchaseHeader."Buy-from Vendor No." <> xPurchaseHeader."Buy-from Vendor No." then
                 PurchaseHeader.SetRange("Buy-from Vendor No.");
+
+        SelectDefaultRemitAddress(PurchaseHeader);
+    end;
+
+    procedure SelectDefaultRemitAddress(var PurchaseHeader: Record "Purchase Header")
+    var
+        RemitAddress: Record "Remit Address";
+    begin
+        RemitAddress.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        RemitAddress.SetRange(Default, true);
+        if not RemitAddress.IsEmpty() then begin
+            RemitAddress.FindFirst();
+            PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
+        end;
     end;
 
     procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date)
@@ -6511,14 +6586,16 @@
         Vendor: Record Vendor;
         LookupStateManager: Codeunit "Lookup State Manager";
         RecVariant: Variant;
+        SearchVendorName: Text;
     begin
+        SearchVendorName := VendorName;
         Vendor.SetFilter("Date Filter", GetFilter("Date Filter"));
         if "Buy-from Vendor No." <> '' then
             Vendor.Get("Buy-from Vendor No.");
 
         if Vendor.LookupVendor(Vendor) then begin
             if Rec."Buy-from Vendor Name" = Vendor.Name then
-                VendorName := ''
+                VendorName := SearchVendorName
             else
                 VendorName := Vendor.Name;
             RecVariant := Vendor;
@@ -6736,6 +6813,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterHasDifferentPayToAddress(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeFindVATExemption(var PurchaseHeader: Record "Purchase Header"; var VATExemption: Record "VAT Exemption"; var Check: Boolean; CheckFirst: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -7493,7 +7575,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPrintRecordsOnBeforeTrySendToPrinterVendor(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnPrintRecordsOnBeforeTrySendToPrinterVendor(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; ShowRequestForm: Boolean)
     begin
     end;
 
@@ -7658,7 +7740,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePromisedReceiptDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidatePromisedReceiptDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; CUrrentFieldNo: Integer)
     begin
     end;
 
@@ -7821,5 +7903,39 @@
     local procedure OnAfterRecreatePurchLines(var PurchaseHeader: Record "Purchase Header"; ChangedFieldName: Text[100])
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateOrderDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateExpectedReceiptDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSendICDocument(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendRecordsOnBeforeSendVendorRecords(ReportUsage: Enum "Report Selection Usage"; var PurchaseHeader: Record "Purchase Header"; DocTxt: Text[150]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePaymentDiscountPercent(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtPaymentDiscountPercent(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUserSetupPurchaserCode(var PurchaseHeader: Record "Purchase Header"; IsHandled: Boolean)
+    begin
+    end;
+}

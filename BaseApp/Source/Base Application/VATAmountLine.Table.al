@@ -569,6 +569,7 @@
                     "Invoice Discount Amount" -= VATAmountLineDeduct."Invoice Discount Amount";
                     "Calculated VAT Amount" -= VATAmountLineDeduct."Calculated VAT Amount";
                     "VAT Difference" -= VATAmountLineDeduct."VAT Difference";
+                    OnDeductVATAmountLineOnBeforeModify(Rec, VATAmountLineDeduct);
                     Modify();
                 end;
             until Next() = 0;
@@ -971,6 +972,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcVATFields(var VATAmountLine: Record "VAT Amount Line"; NewPricesIncludingVAT: Boolean; NewVATBaseDiscPct: Decimal; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeductVATAmountLineOnBeforeModify(var VATAmountLine: Record "VAT Amount Line"; VATAmountLineDeduct: Record "VAT Amount Line")
     begin
     end;
 }

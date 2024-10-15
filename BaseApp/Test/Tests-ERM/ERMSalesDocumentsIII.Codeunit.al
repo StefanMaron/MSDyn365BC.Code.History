@@ -5518,6 +5518,33 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryReportDataset.AssertElementWithValueExists('AdjProfit', AdjustedProfitLCY);
     end;
 
+    [Test]
+    [HandlerFunctions('CustomerLookupSelectCustomerPageHandler')]
+    [Scope('OnPrem')]
+    procedure EnsureInsertingSearchCustomerNameInSalesInvoice()
+    var
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 447956] Inserting the customer name in a Sales Invoice without any error
+        Initialize();
+
+        // [GIVEN] Create customer
+        LibrarySales.CreateCustomer(Customer);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+
+        // [WHEN] Create new Sales Invoice and click on lookup at "Sell-to Customer Name" field
+        SalesInvoice.OpenNew();
+        SalesInvoice."Sell-to Customer Name".Lookup();
+
+        // [THEN] Verify customer name inserted to "Sell-to Customer Name" without any error
+        SalesInvoice."Sell-to Customer Name".AssertEquals(Customer.Name);
+        SalesInvoice.Close();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";

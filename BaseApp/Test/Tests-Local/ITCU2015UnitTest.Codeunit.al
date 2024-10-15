@@ -977,6 +977,49 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateBlockAbsence(5, 'AU001009');
     end;
 
+    [Test]
+    [HandlerFunctions('WithholdingTaxLinesModalPageHandlerWithCheckTotal')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxLinesDisplaysWithholdingTaxTotalForNextRec()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+        WithHoldENtryNo: array[2] of Decimal;
+        NewDate: Date;
+        VednorNo: Code[20];
+    begin
+        // [SCENARIO 441140] The Total Base - Excluded Amount Header field of the Withholding Tax Card always takes the amount from the first withholding tax card inserted in the Italian version.
+        Initialize();
+
+        // [GIVEN] Create Vendor and set Date
+        VednorNo := CreateVendor();
+        NewDate := CalcDate('1M', WorkDate());
+
+        //[GIVEN] Create 2 WithHold Tax entry with Lines.
+        WithHoldENtryNo[1] := CreateWithholdingTaxWithAU001006AndContributionEntry(
+            VednorNo, ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" ");
+        WithHoldENtryNo[2] := CreateWithholdingTaxWithAU001006AndContributionEntry(
+            VednorNo, ConstReason::A, 0, NewDate, NewDate, WithholdingTax."Non-Taxable Income Type"::" ");
+
+        // [GIVEN] Withholding tax entry with Non-taxable income type empty
+        WithholdingTax.Get(WithHoldENtryNo[2]);
+
+        // [GIVEN] Withholding Tax card page was open
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
+
+        // [GIVEN] User clicks on "Base - Excluded amount" drilldown
+        LibraryVariableStorage.Enqueue(WithholdingTax."Base - Excluded Amount");
+        WithholdingTaxCard."Base - Excluded Amount".DrillDown();
+
+        // [THEN] Withholding tax lines page opens
+        // [VERIFY] Total amount validated in WithholdingTaxLinesModalPageHandlerWithCheckTotal handler
+        LibraryVariableStorage.AssertEmpty();
+
+        // Cleanup
+        WithholdingTaxCard.Close();
+    end;
+
     local procedure Initialize()
     var
         WithholdingTax: Record "Withholding Tax";

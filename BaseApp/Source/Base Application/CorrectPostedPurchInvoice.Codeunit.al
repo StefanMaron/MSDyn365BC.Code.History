@@ -90,18 +90,27 @@
     var
         PurchaseHeader: Record "Purchase Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        IsHandled: Boolean;
     begin
         TestCorrectInvoiceIsAllowed(PurchInvHeader, CancellingOnly);
         if not CODEUNIT.Run(CODEUNIT::"Correct Posted Purch. Invoice", PurchInvHeader) then begin
             PurchCrMemoHdr.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
             if PurchCrMemoHdr.FindFirst() then begin
-                if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedCMQst, GetLastErrorText)) then
-                    PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedCMQst, GetLastErrorText)) then begin
+                    IsHandled := false;
+                    OnBeforeShowPostedPurchCreditMemo(PurchCrMemoHdr, IsHandled);
+                    if not IsHandled then
+                        PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                end;
             end else begin
                 PurchaseHeader.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
                 if PurchaseHeader.FindFirst() then begin
-                    if Confirm(StrSubstNo(PostingCreditMemoFailedOpenCMQst, GetLastErrorText)) then
-                        PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
+                    if Confirm(StrSubstNo(PostingCreditMemoFailedOpenCMQst, GetLastErrorText)) then begin
+                        IsHandled := false;
+                        OnBeforeShowPurchaseCreditMemo(PurchaseHeader, IsHandled);
+                        if not IsHandled then
+                            PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
+                    end;
                 end else
                     Error(CreatingCreditMemoFailedNothingCreatedErr, GetLastErrorText);
             end;
@@ -150,12 +159,16 @@
     var
         PurchHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
+        IsHandled: Boolean;
     begin
         PurchInvHeader.Get(InvoiceNotification.GetData(PurchInvHeader.FieldName("No.")));
         InvoiceNotification.Recall();
 
         CreateCopyDocument(PurchInvHeader, PurchHeader, PurchHeader."Document Type"::"Credit Memo", false);
-        PAGE.Run(PAGE::"Purchase Credit Memo", PurchHeader);
+        IsHandled := false;
+        OnBeforeShowPurchaseCreditMemo(PurchHeader, IsHandled);
+        if not IsHandled then
+            PAGE.Run(PAGE::"Purchase Credit Memo", PurchHeader);
     end;
 
     procedure ShowAppliedEntries(var InvoiceNotification: Notification)
@@ -872,6 +885,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCopyDocument(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPostedPurchCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPurchaseCreditMemo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

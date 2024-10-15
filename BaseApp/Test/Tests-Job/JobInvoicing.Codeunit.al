@@ -2973,6 +2973,151 @@ codeunit 136306 "Job Invoicing"
         Assert.AreEqual(1, JobPlanningLine.Quantity, 'Expected quantity to be 1.');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler,TransferToInvoiceHandler,TransferToCreditMemoHandler')]
+    [Scope('OnPrem')]
+    procedure CalcWIPToGLUpdatesJobLedgerWhenUsageQuantityIsReturned()
+    begin
+        // [SCENARIO] Calculate WIP and posted to G/L when consumed quantity on a task is returned
+        Initialize();
+        CalculateWIPWithReturnedJobUsage(1, -1, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler,TransferToInvoiceHandler,TransferToCreditMemoHandler')]
+    [Scope('OnPrem')]
+    procedure CalcWIPToGLUpdatesJobLedgerWhenUsageQuantityIsReturnedPartially()
+    begin
+        // [SCENARIO] Calculate WIP with posting to G/L when consumed quantity on a task is partially returned
+        Initialize();
+        CalculateWIPWithReturnedJobUsage(4, -1, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler,TransferToInvoiceHandler,TransferToCreditMemoHandler')]
+    [Scope('OnPrem')]
+    procedure CalcWIPUpdatesJobLedgerWhenUsageQuantityIsReturned()
+    begin
+        // [SCENARIO] Calculate WIP without posting to G/L when consumed quantity on a task is returned
+        Initialize();
+        CalculateWIPWithReturnedJobUsage(1, -1, false);
+    end;
+
+    procedure CalculateWIPWithReturnedJobUsage(QuantityOnInvoice: Integer; QuantityOnCreditmemo: Integer; PostToGL: Boolean)
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine1: Record "Job Planning Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobWIPMethod: Record "Job WIP Method";
+        JobPostingGroup: Record "Job Posting Group";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        GLSetup: Record "General Ledger Setup";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+    begin
+        // [GIVEN] Journal template name is not mandatory for this test. This saves additional data setup. 
+        GLSetup.Get();
+        GLSetup.Validate("Journal Templ. Name Mandatory", false);
+        GLSetup.Modify();
+
+        // [GIVEN] Job WIP Method
+        LibraryJob.CreateJobWIPMethod(JobWIPMethod);
+        JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+        JobWIPMethod.Validate("Recognized Sales", JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)");
+        JobWIPMethod.Validate("WIP Cost", true);
+        JobWIPMethod.Validate("WIP Sales", true);
+        JobWIPMethod.Validate(Valid, true);
+        JobWIPMethod.Modify(true);
+
+        // [GIVEN] Job where the Job WIP Method is set to the above
+        CreateJob(Job, '', false);
+        Job.Validate("WIP Method", JobWIPMethod.Code);
+        Job.Validate("WIP Posting Method", Job."WIP Posting Method"::"Per Job Ledger Entry");
+        LibraryJob.CreateJobPostingGroup(JobPostingGroup);
+        Job.Validate("Job Posting Group", JobPostingGroup.Code);
+        Job.Modify(true);
+
+        // [GIVEN] Job Task with 2 planning lines where consumed quantity is completely returned. Invoice for 1 and creditmemo for 1
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType(), JobTask, JobPlanningLine1);
+        JobPlanningLine1.Validate(Quantity, QuantityOnInvoice);
+        JobPlanningLine1.Modify(true);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType(), JobTask, JobPlanningLine2);
+        JobPlanningLine2.Validate("No.", JobPlanningLine1."No.");
+        JobPlanningLine2.Validate(Quantity, QuantityOnCreditmemo);
+        JobPlanningLine2.Modify(true);
+
+        // [GIVEN] Create Sales Invoice for the first line and post
+        Commit();
+        JobPlanningLine1.SetRecFilter();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine1, false);
+        GetSalesDocument(JobPlanningLine1, SalesHeader."Document Type"::Invoice, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Calculate WIP and Post to G/L is called
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+        if PostToGL then
+            RunJobPostWIPToGL(Job);
+
+        // [THEN] Verify Job Ledger Entry
+        FindJobLedgerEntry(JobLedgerEntry, JobTask);
+        if PostToGL then
+            JobLedgerEntry.TestField("Amt. Posted to G/L", -JobPlanningLine1."Total Price")
+        else
+            JobLedgerEntry.TestField("Amt. to Post to G/L", -JobPlanningLine1."Total Price");
+        JobLedgerEntry.CalcSums("Amt. to Post to G/L", "Amt. Posted to G/L");
+        JobTask.Find();
+        JobLedgerEntry.TestField("Amt. Posted to G/L", -JobTask."Recognized Sales G/L Amount");
+        JobLedgerEntry.TestField("Amt. to Post to G/L", -JobTask."Recognized Sales Amount");
+        //------------------------------------------------
+
+        // [GIVEN] Create Sales Creditmemo for the second line and post
+        JobPlanningLine2.SetRecFilter();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine2, true);
+        GetSalesDocument(JobPlanningLine2, SalesHeader."Document Type"::"Credit Memo", SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Calculate WIP and Post to G/L is called
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+        if PostToGL then
+            RunJobPostWIPToGL(Job);
+
+        // [THEN] Verify Job Ledger Entry
+        FindJobLedgerEntry(JobLedgerEntry, JobTask);
+        JobLedgerEntry.CalcSums("Amt. to Post to G/L", "Amt. Posted to G/L");
+        JobTask.Find();
+        JobLedgerEntry.TestField("Amt. Posted to G/L", -JobTask."Recognized Sales G/L Amount");
+        JobLedgerEntry.TestField("Amt. to Post to G/L", -JobTask."Recognized Sales Amount");
+    end;
+
+    local procedure RunJobCalculateWIP(Job: Record Job)
+    var
+        JobCalculateWIP: Report "Job Calculate WIP";
+    begin
+        Job.SetRange("No.", Job."No.");
+        Clear(JobCalculateWIP);
+        JobCalculateWIP.SetTableView(Job);
+
+        // Use Document No. as Job No. because value is not important.
+        JobCalculateWIP.InitializeRequest;
+        JobCalculateWIP.UseRequestPage(false);
+        JobCalculateWIP.Run();
+    end;
+
+    local procedure RunJobPostWIPToGL(Job: Record Job)
+    var
+        JobPostWIPToGL: Report "Job Post WIP to G/L";
+    begin
+        Job.SetRange("No.", Job."No.");
+        Clear(JobPostWIPToGL);
+        JobPostWIPToGL.SetTableView(Job);
+        JobPostWIPToGL.UseRequestPage(false);
+        JobPostWIPToGL.Run();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3395,7 +3540,9 @@ codeunit 136306 "Job Invoicing"
         CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType, GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
     end;
 
-    local procedure CreateJobPlanningLine(JobTask: Record "Job Task"; ConsumableType: Enum "Job Planning Line Type"; CodeNo: Code[20]; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20])
+    local procedure CreateJobPlanningLine(JobTask: Record "Job Task"; ConsumableType: Enum "Job Planning Line Type"; CodeNo: Code[20];
+                                                                                          GenBusPostingGroupCode: Code[20];
+                                                                                          GenProdPostingGroupCode: Code[20])
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
@@ -4233,6 +4380,7 @@ codeunit 136306 "Job Invoicing"
     [Scope('OnPrem')]
     procedure TransferToInvoiceHandler(var RequestPage: TestRequestPage "Job Transfer to Sales Invoice")
     begin
+        RequestPage.CreateNewInvoice.SetValue(true);
         RequestPage.OK.Invoke
     end;
 
@@ -4240,6 +4388,7 @@ codeunit 136306 "Job Invoicing"
     [Scope('OnPrem')]
     procedure TransferToCreditMemoHandler(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
     begin
+        JobTransferToCreditMemo.CreateNewCreditMemo.SetValue(true);
         JobTransferToCreditMemo.OK.Invoke
     end;
 

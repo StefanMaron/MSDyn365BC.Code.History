@@ -502,8 +502,12 @@ page 41 "Sales Quote"
                             var
                                 ShipToAddress: Record "Ship-to Address";
                                 ShipToAddressList: Page "Ship-to Address List";
+                                IsHandled: Boolean;
                             begin
-                                OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+                                IsHandled := false;
+                                OnBeforeValidateShipToOptions(Rec, ShipToOptions, IsHandled);
+                                if IsHandled then
+                                    exit;
 
                                 case ShipToOptions of
                                     ShipToOptions::"Default (Sell-to Address)":
@@ -1947,7 +1951,7 @@ page 41 "Sales Quote"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
+    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option; var IsHandled: Boolean)
     begin
     end;
 

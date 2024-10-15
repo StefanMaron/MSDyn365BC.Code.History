@@ -571,7 +571,13 @@
         CompItemQtyBase: Decimal;
         UOMFactor: Decimal;
         PBOMVersionCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcProdBOMCost(MfgItem, ProdBOMNo, RtngNo, MfgItemQtyBase, IsTypeItem, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd, isHandled);
+        if IsHandled then
+            exit;
+
         if ProdBOMNo = '' then
             exit;
 
@@ -586,7 +592,9 @@
             if Find('-') then
                 repeat
                     CompItemQtyBase :=
-                      CostCalcMgt.CalcCompItemQtyBase(ProdBOMLine, CalculationDate, MfgItemQtyBase, RtngNo, IsTypeItem) / UOMFactor;
+                      UOMMgt.RoundQty(
+                        CostCalcMgt.CalcCompItemQtyBase(ProdBOMLine, CalculationDate, MfgItemQtyBase, RtngNo, IsTypeItem) / UOMFactor);
+
                     OnCalcProdBOMCostOnAfterCalcCompItemQtyBase(
                       CalculationDate, MfgItem, MfgItemQtyBase, IsTypeItem, ProdBOMLine, CompItemQtyBase, RtngNo, UOMFactor);
                     case Type of
@@ -833,7 +841,7 @@
 
     local procedure IncrCost(var Cost: Decimal; UnitCost: Decimal; Qty: Decimal)
     begin
-        Cost := Cost + (Qty * UnitCost);
+        Cost := Cost + Round(Qty * UnitCost, GLSetup."Unit-Amount Rounding Precision");
     end;
 
     procedure CalculateAssemblyCostExp(AssemblyHeader: Record "Assembly Header"; var ExpCost: array[5] of Decimal)
@@ -1133,6 +1141,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetProperties(var NewCalculationDate: Date; var NewCalcMultiLevel: Boolean; var NewUseAssemblyList: Boolean; var NewLogErrors: Boolean; var NewStdCostWkshName: Text[50]; var NewShowDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcProdBOMCost(MfgItem: Record Item; ProdBOMNo: Code[20]; RtngNo: Code[20]; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; Level: Integer; var SLMat: Decimal; var RUMat: Decimal; var RUCap: Decimal; var RUSub: Decimal; var RUCapOvhd: Decimal; var RUMfgOvhd: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

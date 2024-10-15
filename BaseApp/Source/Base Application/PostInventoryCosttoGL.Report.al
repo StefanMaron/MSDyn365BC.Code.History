@@ -675,7 +675,7 @@
 
     trigger OnPreReport()
     begin
-        OnBeforePreReport(Item, ItemValueEntry, PostValueEntryToGL);
+        OnBeforePreReport(Item, ItemValueEntry, PostValueEntryToGL, Post);
 
         GLSetup.GetRecordOnce();
         if GLSetup."Journal Templ. Name Mandatory" then begin
@@ -882,7 +882,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforePreReport(var Item: Record Item; var ItemValueEntry: Record "Value Entry"; var PostValueEntryToGL: Record "Post Value Entry to G/L")
+    local procedure OnBeforePreReport(var Item: Record Item; var ItemValueEntry: Record "Value Entry"; var PostValueEntryToGL: Record "Post Value Entry to G/L"; Post: Boolean)
     begin
     end;
 
