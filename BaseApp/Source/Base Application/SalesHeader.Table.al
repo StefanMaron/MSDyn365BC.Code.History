@@ -1310,6 +1310,8 @@
 
             trigger OnValidate()
             begin
+                if "Sell-to Contact" = '' then
+                    Validate("Sell-to Contact No.", '');
                 ModifyCustomerAddress;
             end;
         }
