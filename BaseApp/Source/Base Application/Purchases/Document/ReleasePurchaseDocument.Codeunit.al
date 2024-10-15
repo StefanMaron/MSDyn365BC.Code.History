@@ -157,13 +157,15 @@ codeunit 415 "Release Purchase Document"
         PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
         if PurchaseLine.FindSet() then
             repeat
-                if InvtSetup."Location Mandatory" then
-                    if PurchaseLine.IsInventoriableItem() then begin
+                if PurchaseLine.IsInventoriableItem() then begin
+                    if InvtSetup."Location Mandatory" then begin
                         IsHandled := false;
                         OnCodeOnCheckPurchLineLocationCode(PurchaseLine, IsHandled);
                         if not IsHandled then
                             PurchaseLine.TestField("Location Code");
                     end;
+                    PurchaseLine.TestField("Unit of Measure Code");
+                end;
                 if Item.Get(PurchaseLine."No.") then
                     if Item.IsVariantMandatory() then
                         PurchaseLine.TestField("Variant Code");

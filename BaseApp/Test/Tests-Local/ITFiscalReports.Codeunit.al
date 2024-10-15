@@ -1161,6 +1161,41 @@ codeunit 144192 "IT - Fiscal Reports"
         Assert.IsTrue(LibraryReportDataset.GetNextRow(), RowMustExistErr);
     end;
 
+    [Test]
+    procedure ITDeniedVendorsListTest()
+    var
+        CountryRegion: array[2] of Record "Country/Region";
+        Vendor: array[2] of Record Vendor;
+        DummyRecordVar: Variant;
+    begin
+        // [SCENARIO 495201] IT denied vendors list contains vendors from denylisted countries
+        Initialize();
+
+        // [GIVEN] Deny listed country "XX"
+        LibraryERM.CreateCountryRegion(CountryRegion[1]);
+        SetOnDenyList(CountryRegion[1], true);
+
+        // [GIVEN] Regular country "YY"
+        LibraryERM.CreateCountryRegion(CountryRegion[2]);
+
+        // [GIVEN] Vendor "V-XX" from deny listed country "XX"
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        SetCountryRegionCode(Vendor[1], CountryRegion[1].Code);
+
+        // [GIVEN] Vendor  "V-YY" from regular country "YY"
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        SetCountryRegionCode(Vendor[2], CountryRegion[2].Code);
+
+        // [WHEN] Run IT denied vendors list report
+        LibraryReportDataset.RunReportAndLoad(Report::"Denied Vendors List", DummyRecordVar, '');
+
+        // [THEN] Report contains vendor "V-XX" from deny listed country "XX"
+        LibraryReportDataset.AssertElementWithValueExists('VendorNo', Vendor[1]."No.");
+
+        // [THEN] Report does not contain vendor "V-YY" from regular country "YY"
+        LibraryReportDataset.AssertElementWithValueNotExist('VendorNo', Vendor[2]."No.");
+    end;
+
 
     local procedure Initialize()
     begin
@@ -1430,6 +1465,12 @@ codeunit 144192 "IT - Fiscal Reports"
         VATRegister.Modify(true);
     end;
 
+    local procedure SetOnDenyList(var CountryRegion: Record "Country/Region"; NewOnDenyList: Boolean)
+    begin
+        CountryRegion.Validate("On Deny List", NewOnDenyList);
+        CountryRegion.Modify(true);
+    end;
+
     local procedure SetCompanyInformation()
     var
         CompanyInfo: Record "Company Information";
@@ -1579,6 +1620,12 @@ codeunit 144192 "IT - Fiscal Reports"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         exit(CountryRegion.Code);
+    end;
+
+    local procedure SetCountryRegionCode(var Vendor: Record Vendor; CountryRegionCode: Code[10])
+    begin
+        Vendor.Validate("Country/Region Code", CountryRegionCode);
+        Vendor.Modify(true);
     end;
 
     local procedure SetGLLastGJPrintingDate(StartDate: Date) GLLastGJPrintingDatePrevValue: Date

@@ -117,22 +117,24 @@ page 847 "Cash Flow Forecast Card"
                 }
                 field("Manual Payments From"; Rec."Manual Payments From")
                 {
+                    Caption = 'Manual Revenue/Expenses From';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a starting date from which manual payments should be included in cash flow forecast.';
+                    ToolTip = 'Specifies a starting date from which manual revenue/expenses should be included in cash flow forecast.';
 
                     trigger OnValidate()
                     begin
-                        ValidateFromDatePrecedesToDate(Rec."Manual Payments From", Rec."Manual Payments To", 'Manual Payments');
+                        ValidateFromDatePrecedesToDate(Rec."Manual Payments From", Rec."Manual Payments To", 'Manual Revenue/Expenses');
                     end;
                 }
                 field("Manual Payments To"; Rec."Manual Payments To")
                 {
+                    Caption = 'Manual Revenue/Expenses To';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a starting date to which manual payments should be included in cash flow forecast.';
+                    ToolTip = 'Specifies a starting date to which manual revenue/expenses should be included in cash flow forecast.';
 
                     trigger OnValidate()
                     begin
-                        ValidateFromDatePrecedesToDate(Rec."Manual Payments From", Rec."Manual Payments To", 'Manual Payments');
+                        ValidateFromDatePrecedesToDate(Rec."Manual Payments From", Rec."Manual Payments To", 'Manual Revenue/Expenses');
                     end;
                 }
                 field("Overdue CF Dates to Work Date"; Rec."Overdue CF Dates to Work Date")

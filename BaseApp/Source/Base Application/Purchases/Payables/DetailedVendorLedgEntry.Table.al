@@ -338,7 +338,14 @@ table 380 "Detailed Vendor Ledg. Entry"
     end;
 
     local procedure SetLedgerEntryAmount()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetLedgerEntryAmount(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Ledger Entry Amount" :=
           not (("Entry Type" = "Entry Type"::Application) or ("Entry Type" = "Entry Type"::"Appln. Rounding"));
     end;
@@ -364,6 +371,11 @@ table 380 "Detailed Vendor Ledg. Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDebitCredit(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; Correction: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLedgerEntryAmount(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 

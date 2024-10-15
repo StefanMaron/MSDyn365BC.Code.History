@@ -106,11 +106,6 @@ page 6325 "Power BI Embedded Report Part"
                     trigger ControlAddInReady()
                     begin
                         AddInReady := true;
-                        if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Windows]) then begin
-                            if ReportFrameRatio = '' then
-                                ReportFrameRatio := PowerBiServiceMgt.GetMainPageRatio();
-                            CurrPage.PowerBIAddin.InitializeFrame(FullPageMode, ReportFrameRatio);
-                        end;
 
 #if not CLEAN23
                         if not PowerBIDisplayedElement.IsEmpty() then
@@ -428,7 +423,6 @@ page 6325 "Power BI Embedded Report Part"
                 Caption = 'Expand';
                 ToolTip = 'Opens the currently selected element in a larger page.';
                 Image = PowerBI;
-                Visible = not FullPageMode;
                 Enabled = PageState = PageState::ElementVisible;
 
                 trigger OnAction()
@@ -465,7 +459,7 @@ page 6325 "Power BI Embedded Report Part"
                 Caption = 'Upload Report';
                 ToolTip = 'Uploads a report from a PBIX file.';
                 Image = Add;
-                Visible = IsSaaSUser and not FullPageMode;
+                Visible = IsSaaSUser;
                 Enabled = (PageState = PageState::ElementVisible) or (PageState = PageState::NoElementSelected) or (PageState = PageState::NoElementSelectedButDeploying) or (PageState = PageState::ShouldDeploy);
 
                 trigger OnAction()
@@ -480,7 +474,6 @@ page 6325 "Power BI Embedded Report Part"
                 Caption = 'Reset My Reports';
                 ToolTip = 'Resets all Power BI setup in Business Central, for the current user. Reports in your Power BI workspaces are not affected and need to be removed manually.';
                 Image = Reuse;
-                Visible = not FullPageMode;
 
                 trigger OnAction()
                 var
@@ -524,7 +517,7 @@ page 6325 "Power BI Embedded Report Part"
                 Caption = 'Reset Reports for All Users';
                 ToolTip = 'Resets all Power BI setup in Business Central, for all users. Reports in your Power BI workspaces are not affected and need to be removed manually.';
                 Image = Reuse;
-                Visible = IsPBIAdmin and not FullPageMode;
+                Visible = IsPBIAdmin;
 
                 trigger OnAction()
                 var
@@ -651,7 +644,6 @@ page 6325 "Power BI Embedded Report Part"
         MediaResources: Record "Media Resources";
         PowerBiServiceMgt: Codeunit "Power BI Service Mgt.";
         PowerBiFilterHelper: Codeunit "Power BI Filter Helper";
-        ClientTypeManagement: Codeunit "Client Type Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ErrorNotificationMsg: Label 'An error occurred while loading Power BI. Your Power BI embedded content might not work. Here are the error details: "%1:%2"', Comment = '%1: A short error code. %2: The tecnical details of the error.';
         ResetReportsQst: Label 'This action will clear some or all of the Power BI report setup for all users in the company you''re currently working with. Note: This action doesn''t delete reports in Power BI workspaces.';
@@ -669,7 +661,6 @@ page 6325 "Power BI Embedded Report Part"
         ReportCaptionTxt: Label '%1 (Workspace: %2)', Comment = '%1: a report name, for example "Top customers by sales"; %2: a Power BI workspace name, for example "Contoso"';
 #endif
         PageState: Option GetStarted,ShouldDeploy,NoElementSelected,NoElementSelectedButDeploying,ElementVisible;
-        ReportFrameRatio: Text;
         AvailableReportLevelFilters: JsonArray;
         PageContext: Text[30];
         AddInReady: Boolean;
@@ -678,7 +669,6 @@ page 6325 "Power BI Embedded Report Part"
 #endif
         IsSaaSUser: Boolean;
         IsPBIAdmin: Boolean;
-        FullPageMode: Boolean;
         IsPartVisible: Boolean;
         LockedToFirstElement: Boolean;
         // Telemetry labels
@@ -749,11 +739,9 @@ page 6325 "Power BI Embedded Report Part"
         PowerBiServiceMgt.SynchronizeReportsInBackground(PageContext);
     end;
 
-    [NonDebuggable]
     local procedure SetReport()
     var
         PowerBIContextSettings: Record "Power BI Context Settings";
-        AccessToken: Text;
         DashboardId: Guid;
         ReportId: Guid;
         TileId: Guid;
@@ -762,37 +750,34 @@ page 6325 "Power BI Embedded Report Part"
     begin
         FeatureTelemetry.LogUptake('0000GJR', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
 
-        AccessToken := PowerBiServiceMgt.GetEmbedAccessToken();
-
-        if AccessToken = '' then begin
-            ShowError('EmptyToken', GetLastErrorText());
-            exit;
-        end;
-
 #if not CLEAN23
         PowerBIContextSettings.CreateOrUpdateSelectedElement(PowerBIDisplayedElement);
         ClearNotifications();
+
+        CurrPage.PowerBIAddin.SetSettings(false, PowerBIDisplayedElement.ShowPanesInNormalMode, PowerBIDisplayedElement.ShowPanesInNormalMode,
+            false, true, false, false);
+        PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIAddin);
+
         case PowerBIDisplayedElement.ElementType of
             "Power BI Element Type"::"Report":
                 begin
                     PowerBIDisplayedElement.ParseReportKey(ReportId);
-                    CurrPage.PowerBIAddin.EmbedReportWithOptions(PowerBIDisplayedElement.ElementEmbedUrl, ReportId,
-                            AccessToken, PowerBIDisplayedElement.ReportPage, PowerBIDisplayedElement.ShowPanesInNormalMode);
+                    CurrPage.PowerBIAddin.EmbedPowerBIReport(PowerBIDisplayedElement.ElementEmbedUrl, ReportId, PowerBIDisplayedElement.ReportPage);
                 end;
             "Power BI Element Type"::"Report Visual":
                 begin
                     PowerBIDisplayedElement.ParseReportVisualKey(ReportId, PageName, VisualName);
-                    CurrPage.PowerBIAddin.EmbedReportVisual(PowerBIDisplayedElement.ElementEmbedUrl, ReportId, PageName, VisualName, AccessToken);
+                    CurrPage.PowerBIAddin.EmbedPowerBIReportVisual(PowerBIDisplayedElement.ElementEmbedUrl, ReportId, PageName, VisualName);
                 end;
             "Power BI Element Type"::Dashboard:
                 begin
                     PowerBIDisplayedElement.ParseDashboardKey(DashboardId);
-                    CurrPage.PowerBIAddin.EmbedDashboard(PowerBIDisplayedElement.ElementEmbedUrl, DashboardId, AccessToken);
+                    CurrPage.PowerBIAddin.EmbedPowerBIDashboard(PowerBIDisplayedElement.ElementEmbedUrl, DashboardId);
                 end;
             "Power BI Element Type"::"Dashboard Tile":
                 begin
                     PowerBIDisplayedElement.ParseDashboardTileKey(DashboardId, TileId);
-                    CurrPage.PowerBIAddin.EmbedDashboardTile(PowerBIDisplayedElement.ElementEmbedUrl, DashboardId, TileId, AccessToken);
+                    CurrPage.PowerBIAddin.EmbedPowerBIDashboardTile(PowerBIDisplayedElement.ElementEmbedUrl, DashboardId, TileId);
                 end;
             else
                 ShowError('UnsupportedElementType', StrSubstNo(UnsupportedElementTypeErr, PowerBIDisplayedElement.ElementType));
@@ -800,27 +785,31 @@ page 6325 "Power BI Embedded Report Part"
 #else
         PowerBIContextSettings.CreateOrUpdateSelectedElement(Rec);
         ClearNotifications();
+
+        CurrPage.PowerBIAddin.SetSettings(false, Rec.ShowPanesInNormalMode, Rec.ShowPanesInNormalMode,
+            false, true, false, false);
+        PowerBiServiceMgt.InitializeAddinToken(CurrPage.PowerBIAddin);
+
         case Rec.ElementType of
             "Power BI Element Type"::"Report":
                 begin
                     Rec.ParseReportKey(ReportId);
-                    CurrPage.PowerBIAddin.EmbedReportWithOptions(Rec.ElementEmbedUrl, ReportId,
-                            AccessToken, Rec.ReportPage, Rec.ShowPanesInNormalMode);
+                    CurrPage.PowerBIAddin.EmbedPowerBIReport(Rec.ElementEmbedUrl, ReportId, Rec.ReportPage);
                 end;
             "Power BI Element Type"::"Report Visual":
                 begin
                     Rec.ParseReportVisualKey(ReportId, PageName, VisualName);
-                    CurrPage.PowerBIAddin.EmbedReportVisual(Rec.ElementEmbedUrl, ReportId, PageName, VisualName, AccessToken);
+                    CurrPage.PowerBIAddin.EmbedPowerBIReportVisual(Rec.ElementEmbedUrl, ReportId, PageName, VisualName);
                 end;
             "Power BI Element Type"::Dashboard:
                 begin
                     Rec.ParseDashboardKey(DashboardId);
-                    CurrPage.PowerBIAddin.EmbedDashboard(Rec.ElementEmbedUrl, DashboardId, AccessToken);
+                    CurrPage.PowerBIAddin.EmbedPowerBIDashboard(Rec.ElementEmbedUrl, DashboardId);
                 end;
             "Power BI Element Type"::"Dashboard Tile":
                 begin
                     Rec.ParseDashboardTileKey(DashboardId, TileId);
-                    CurrPage.PowerBIAddin.EmbedDashboardTile(Rec.ElementEmbedUrl, DashboardId, TileId, AccessToken);
+                    CurrPage.PowerBIAddin.EmbedPowerBIDashboardTile(Rec.ElementEmbedUrl, DashboardId, TileId);
                 end;
             else
                 ShowError('UnsupportedElementType', StrSubstNo(UnsupportedElementTypeErr, Rec.ElementType));
@@ -938,15 +927,17 @@ page 6325 "Power BI Embedded Report Part"
 
     #region ExternalInterface
 
+#if not CLEAN25
+    [Obsolete('Setting the page ratio is no longer supported. The add-in will instead be sized based on the available space in the client.', '25.0')]
     procedure InitPageRatio(ReportFrameRatioInput: Text)
     begin
-        ReportFrameRatio := ReportFrameRatioInput;
     end;
 
+    [Obsolete('Setting full page mode is no longer supported. The add-in will instead be sized based on the available space in the client.', '25.0')]
     procedure SetFullPageMode(NewFullPageMode: Boolean)
     begin
-        FullPageMode := NewFullPageMode;
     end;
+#endif
 
     procedure SetPageContext(InputContext: Text)
     begin

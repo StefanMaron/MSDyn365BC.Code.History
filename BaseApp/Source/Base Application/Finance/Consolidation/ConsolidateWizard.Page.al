@@ -32,6 +32,8 @@ page 242 "Consolidate Wizard"
 
                     trigger OnValidate()
                     begin
+                        if TempConsolidationProcess."Starting Date" = ClosingDate(TempConsolidationProcess."Starting Date") then
+                            TempConsolidationProcess."Ending Date" := TempConsolidationProcess."Starting Date";
                         if (TempConsolidationProcess."Starting Date" <> 0D) and (TempConsolidationProcess."Ending Date" <> 0D) then
                             ConsolidateBusinessUnits.ValidateDatesForConsolidation(TempConsolidationProcess."Starting Date", TempConsolidationProcess."Ending Date", true);
                         UpdateBusinessUnitDefaultConsolidateState();
@@ -48,6 +50,8 @@ page 242 "Consolidate Wizard"
 
                     trigger OnValidate()
                     begin
+                        if TempConsolidationProcess."Ending Date" = ClosingDate(TempConsolidationProcess."Ending Date") then
+                            TempConsolidationProcess."Starting Date" := TempConsolidationProcess."Ending Date";
                         if (TempConsolidationProcess."Starting Date" <> 0D) and (TempConsolidationProcess."Ending Date" <> 0D) then
                             ConsolidateBusinessUnits.ValidateDatesForConsolidation(TempConsolidationProcess."Starting Date", TempConsolidationProcess."Ending Date", true);
                         UpdateBusinessUnitDefaultConsolidateState();
@@ -459,7 +463,7 @@ page 242 "Consolidate Wizard"
         NextActionEnabled, RequiresCurrencyTranslation : Boolean;
         BusinessUnitNotSelectedForConsolidationErr: Label 'This business unit has not been selected for consolidation.';
         NoBusinessUnitsToConsolidateErr: Label 'There are no business units configured for consolidation. You can enable the field "Consolidate" in each of the business unit''s setup page.';
-        ConsolidationScheduledMsg: Label 'The consolidation has been succesful. The current consolidation company has imported the entries from the selected business units. You can use reports like the "Consolidated Trial Balance" to view the consolidated entries';
+        ConsolidationScheduledMsg: Label 'The consolidation has been successful. The current consolidation company has imported the entries from the selected business units.';
         AccessIsAlreadyGrantedMsg: Label 'Access is already granted.';
         DescriptionTxt: Label 'Select the business units to consolidate in the period %1..%2 with the column "Consolidate".', Comment = '%1 - starting date, %2 - ending date';
         DescriptionMissingAuthTxt: Label 'The business units %1 have not been granted access. Select each of them and use the action "Grant Access" to authenticate into these companies.', Comment = '%1 - list of comma separated business units'' codes';

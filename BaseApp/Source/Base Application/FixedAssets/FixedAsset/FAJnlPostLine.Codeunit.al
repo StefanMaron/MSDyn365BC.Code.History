@@ -120,6 +120,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 MaintenanceLedgEntry."VAT Amount" := VATAmount;
                 MaintenanceLedgEntry."Transaction No." := NextTransactionNo;
                 MaintenanceLedgEntry."G/L Entry No." := NextGLEntryNo;
+                OnBeforePostMaintenanceFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount);
                 PostMaintenance();
             end else begin
                 MakeFALedgEntry.CopyFromGenJnlLine(FALedgEntry, GenJnlLine);
@@ -141,6 +142,11 @@ codeunit 5632 "FA Jnl.-Post Line"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostFixedAsset(FANo, DeprBookCode, FAPostingType, FALedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         FA.LockTable();
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
@@ -481,7 +487,13 @@ codeunit 5632 "FA Jnl.-Post Line"
     local procedure PostAllocation(var FALedgEntry: Record "FA Ledger Entry")
     var
         FAPostingGr: Record "FA Posting Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostAllocation(FALedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if FALedgEntry."G/L Entry No." = 0 then
             exit;
         case FALedgEntry."FA Posting Type" of
@@ -630,6 +642,11 @@ codeunit 5632 "FA Jnl.-Post Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforePostAllocation(var FALedgEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostBudgetAsset(var FALedgerEntry: Record "FA Ledger Entry"; BudgetNo: Code[20]; var IsHandled: Boolean)
     begin
@@ -640,13 +657,23 @@ codeunit 5632 "FA Jnl.-Post Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostDeprUntilDate(var FALedgEntry: Record "FA Ledger Entry"; var FAPostingDate: Date; Type: Option; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforePostDisposalEntry(var FALedgEntry: Record "FA Ledger Entry"; DeprBook: Record "Depreciation Book"; FANo: Code[20]; ErrorEntryNo: Integer; var IsHandled: Boolean; var FAInsertLedgEntry: Codeunit "FA Insert Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostFixedAsset(FANo: Code[20]; DeprBookCode: Code[10]; FAPostingType: Enum "FA Journal Line FA Posting Type"; FALedgEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostMaintenanceFromGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var FALedgerEntry: Record "FA Ledger Entry"; FAAmount: Decimal; VATAmount: Decimal)
     begin
     end;
 

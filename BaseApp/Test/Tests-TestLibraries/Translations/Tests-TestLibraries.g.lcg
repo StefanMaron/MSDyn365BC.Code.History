@@ -4631,6 +4631,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Kitting - NamedType POSTING_GRP_DESC)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 516414979 - NamedType 510248557" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[D365PREM SMG, EDIT]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType D365ServiceMgtEditTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 516414979 - NamedType 201636737" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[D365PREM SMG, VIEW]]></Val>

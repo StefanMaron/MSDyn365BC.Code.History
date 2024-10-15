@@ -68,7 +68,8 @@ page 849 "Cash Flow Forecast List"
                 field("Manual Payments To"; Rec."Manual Payments To")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a starting date to which manual payments should be included in cash flow forecast.';
+                    Caption = 'Manual Revenue/Expenses To';
+                    ToolTip = 'Specifies a starting date to which manual revenue/expenses should be included in cash flow forecast.';
                     Visible = false;
                 }
                 field(Comment; Rec.Comment)
@@ -86,7 +87,8 @@ page 849 "Cash Flow Forecast List"
                 field("Manual Payments From"; Rec."Manual Payments From")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a starting date from which manual payments should be included in cash flow forecast.';
+                    Caption = 'Manual Revenue/Expenses From';
+                    ToolTip = 'Specifies a starting date from which manual revenue/expenses should be included in cash flow forecast.';
                     Visible = false;
                 }
                 field("G/L Budget From"; Rec."G/L Budget From")

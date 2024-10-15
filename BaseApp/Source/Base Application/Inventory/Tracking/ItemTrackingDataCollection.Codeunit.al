@@ -999,7 +999,7 @@ codeunit 6501 "Item Tracking Data Collection"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnUpdateBinContentOnBeforeUpdateBinContent(TempEntrySummary, CurrItemTrackingCode, IsHandled);
+        OnUpdateBinContentOnBeforeUpdateBinContent(TempEntrySummary, CurrItemTrackingCode, IsHandled, TempGlobalReservEntry);
         if IsHandled then
             exit;
 
@@ -1751,12 +1751,12 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateBinContentOnBeforeUpdateBinContent(var TempEntrySummary: Record "Entry Summary" temporary; ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: boolean)
+    local procedure OnUpdateBinContentOnBeforeUpdateBinContent(var TempEntrySummary: Record "Entry Summary" temporary; ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean; var TempGlobalReservationEntry: Record "Reservation Entry" temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSelectMultipleTrackingNoOnBeforeAutoSelectTrackingNo(var SkipAutoSelectTrackingNo: boolean)
+    local procedure OnSelectMultipleTrackingNoOnBeforeAutoSelectTrackingNo(var SkipAutoSelectTrackingNo: Boolean)
     begin
     end;
 }

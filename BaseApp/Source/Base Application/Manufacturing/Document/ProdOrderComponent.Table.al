@@ -1862,6 +1862,7 @@ table 5407 "Prod. Order Component"
           DimMgt.EditDimensionSet(
             Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', Status, "Prod. Order No.", "Prod. Order Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        OnAfterShowDimensions(Rec, xRec);
     end;
 
     procedure SetIgnoreErrors()
@@ -2330,5 +2331,11 @@ table 5407 "Prod. Order Component"
     local procedure OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(var ProdOrderComponent: Record "Prod. Order Component"; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
 }
 

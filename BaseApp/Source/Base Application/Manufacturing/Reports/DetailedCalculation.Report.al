@@ -450,6 +450,11 @@ report 99000756 "Detailed Calculation"
         MfgSetup.Get();
     end;
 
+    trigger OnPreReport()
+    begin
+        OnBeforeOnPreReport(Item);
+    end;
+
     var
         MfgSetup: Record "Manufacturing Setup";
         ProdBOMHeader: Record "Production BOM Header";
@@ -505,6 +510,11 @@ report 99000756 "Detailed Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnPreDataItemBOMLoopOnProdBOMLineLevelSetFilters(var ProductionBOMLineArray: array[99] of Record "Production BOM Line"; var Level: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var Item: Record Item)
     begin
     end;
 }

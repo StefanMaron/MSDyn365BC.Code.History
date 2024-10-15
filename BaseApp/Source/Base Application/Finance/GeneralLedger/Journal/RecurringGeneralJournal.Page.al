@@ -7,6 +7,7 @@ using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Reporting;
+using Microsoft.EServices.EDocument;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Integration;
@@ -558,6 +559,11 @@ page 283 "Recurring General Journal"
                               "Journal Batch Name" = field("Journal Batch Name"),
                               "Line No." = field("Line No.");
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -861,6 +867,8 @@ page 283 "Recurring General Journal"
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         UpdateBalance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SetJobQueueVisibility();
         IsDimensionBalanceLine();
     end;
@@ -884,6 +892,11 @@ page 283 "Recurring General Journal"
         UpdateBalance();
         Rec.SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
     end;
 
     trigger OnOpenPage()
