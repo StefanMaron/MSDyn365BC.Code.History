@@ -18,10 +18,17 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         SalesCrMemoHeader.TestField("No.", "No.");
         SalesCrMemoHeader.Modify();
         Rec := SalesCrMemoHeader;
+
+        OnRunOnAfterSalesCrMemoHeaderEdit(Rec);
     end;
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeSalesCrMemoHeaderModify(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSalesCrMemoHeaderEdit(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

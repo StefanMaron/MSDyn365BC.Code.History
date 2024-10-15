@@ -179,10 +179,13 @@ table 5077 "Segment Line"
                         if Rec."Interaction Template Code" <> SegmentHeaderGlobal."Interaction Template Code" then begin
                             SegmentHeaderGlobal.CreateSegInteractions(Rec."Interaction Template Code", Rec."Segment No.", Rec."Line No.");
                             Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", ContactGlobal."Language Code");
-                            if SegInteractLanguage.Get(Rec."Segment No.", Rec."Line No.", Rec."Language Code") then begin
-                                Rec."Attachment No." := SegInteractLanguage."Attachment No.";
-                                Rec."Word Template Code" := SegInteractLanguage."Word Template Code";
-                            end;
+                            IsHandled := false;
+                            OnValidateInteractionTemplateCodeOnBeforeGetSegInteractTemplLanguage(Rec, IsHandled);
+                            if not IsHandled then
+                                if SegInteractLanguage.Get(Rec."Segment No.", Rec."Line No.", Rec."Language Code") then begin
+                                    Rec."Attachment No." := SegInteractLanguage."Attachment No.";
+                                    Rec."Word Template Code" := SegInteractLanguage."Word Template Code";
+                                end;
                         end else begin
                             Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", ContactGlobal."Language Code");
                             if SegInteractLanguage.Get(Rec."Segment No.", 0, Rec."Language Code") then begin
@@ -311,10 +314,16 @@ table 5077 "Segment Line"
             var
                 SegInteractLanguage: Record "Segment Interaction Language";
                 InteractTemplLanguage: Record "Interaction Tmpl. Language";
+                IsHandled: Boolean;
             begin
                 Rec.TestField("Interaction Template Code");
 
                 if Rec."Language Code" = xRec."Language Code" then
+                    exit;
+
+                IsHandled := false;
+                OnValidateLanguageCodeOnBeforeGetSegmentHeaderGlobal(Rec, IsHandled);
+                if IsHandled then
                     exit;
 
                 if SegmentHeaderGlobal.Get(Rec."Segment No.") then begin
@@ -826,7 +835,13 @@ table 5077 "Segment Line"
         SegmentInteractionLanguage: Record "Segment Interaction Language";
         InteractionTmplLanguage: Record "Interaction Tmpl. Language";
         InteractionTemplateLocal: Record "Interaction Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindLanguage(Rec, InteractTmplCode, ContactLanguageCode, Language, IsHandled);
+        if IsHandled then
+            exit;
+
         if SegmentHeaderGlobal.Get("Segment No.") then begin
             if not UniqueAttachmentExists() and
                ("Interaction Template Code" = SegmentHeaderGlobal."Interaction Template Code")
@@ -888,7 +903,13 @@ table 5077 "Segment Line"
     var
         Attachment: Record Attachment;
         InteractionTemplLanguage: Record "Interaction Tmpl. Language";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetInteractionAttachment(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if InteractionTemplLanguage.Get("Interaction Template Code", "Language Code") then
             if Attachment.Get(InteractionTemplLanguage."Attachment No.") then
                 "Attachment No." := InteractionTemplLanguage."Attachment No."
@@ -1888,6 +1909,26 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinishSegLineWizardBeforeLogInteraction(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateInteractionTemplateCodeOnBeforeGetSegInteractTemplLanguage(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLanguageCodeOnBeforeGetSegmentHeaderGlobal(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindLanguage(var SegmentLine: Record "Segment Line"; InteractTmplCode: Code[10]; ContactLanguageCode: Code[10]; var Language: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetInteractionAttachment(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
 }

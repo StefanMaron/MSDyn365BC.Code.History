@@ -830,7 +830,7 @@ table 156 Resource
         IsHandled := false;
         OnBeforeAssistEdit(Rec, OldRes, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with Res do begin
             Res := Rec;
