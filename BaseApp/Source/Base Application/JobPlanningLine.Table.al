@@ -1691,7 +1691,7 @@
         GetJob;
         if (Type = Type::Item) and Item.Get("No.") then
             if Item."Costing Method" = Item."Costing Method"::Standard then
-                if RetrieveCostPrice then begin
+                if RetrieveCostPrice(CurrFieldNo) then begin
                     if GetSKU then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
@@ -1700,7 +1700,7 @@
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
-                if RetrieveCostPrice then begin
+                if RetrieveCostPrice(CurrFieldNo) then begin
                     if GetSKU then
                         RetrievedCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
                     else
@@ -1720,16 +1720,34 @@
         OnAfterResourceFindCost(Rec, ResourceCost);
     end;
 #endif
-    local procedure RetrieveCostPrice(): Boolean
+    local procedure RetrieveCostPrice(CalledByFieldNo: Integer): Boolean
     var
         ShouldRetrieveCostPrice: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
         ShouldRetrieveCostPrice := false;
-        OnBeforeRetrieveCostPrice(Rec, xRec, ShouldRetrieveCostPrice, IsHandled);
+        OnBeforeRetrieveCostPrice(Rec, xRec, ShouldRetrieveCostPrice, IsHandled, CalledByFieldNo);
         if IsHandled then
             exit(ShouldRetrieveCostPrice);
+
+        if CalledByFieldNo <> 0 then
+            case Type of
+                Type::Item:
+                    if not (CalledByFieldNo in
+                            [FieldNo("No."), FieldNo(Quantity), FieldNo("Location Code"),
+                            FieldNo("Variant Code"), FieldNo("Unit of Measure Code")])
+                    then
+                        exit(false);
+                Type::Resource:
+                    if not (CalledByFieldNo in
+                         [FieldNo("No."), FieldNo(Quantity), FieldNo("Work Type Code"), FieldNo("Unit of Measure Code")])
+                    then
+                        exit(false);
+                Type::"G/L Account":
+                    if not (CalledByFieldNo in [FieldNo("No."), FieldNo(Quantity)]) then
+                        exit(false);
+            end;
 
         case Type of
             Type::Item:
@@ -1782,7 +1800,7 @@
         PriceType: Enum "Price Type";
         IsHandled: Boolean;
     begin
-        if RetrieveCostPrice and ("No." <> '') then begin
+        if RetrieveCostPrice(CalledByFieldNo) and ("No." <> '') then begin
             IsHandled := false;
             OnBeforeFindPriceAndDiscount(CalledByFieldNo, IsHandled, Rec, xRec);
             if IsHandled then
@@ -2610,7 +2628,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveCostPrice(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var ShouldRetrieveCostPrice: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeRetrieveCostPrice(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var ShouldRetrieveCostPrice: Boolean; var IsHandled: Boolean; CalledByFieldNo: Integer)
     begin
     end;
 

@@ -1156,9 +1156,9 @@
         ReservQty: Decimal;
     begin
         case ReservSummEntryNo of
-            DATABASE::"Invt. Receipt Header":
+            "Reservation Summary Type"::"Inventory Receipt".AsInteger():
                 InvtDocLine.FilterReceiptLinesForReservation(CalcReservEntry, GetAvailabilityFilter(AvailabilityDate), Positive);
-            DATABASE::"Invt. Shipment Header":
+            "Reservation Summary Type"::"Inventory Shipment".AsInteger():
                 InvtDocLine.FilterShipmentLinesForReservation(CalcReservEntry, GetAvailabilityFilter(AvailabilityDate), Positive);
         end;
 

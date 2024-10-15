@@ -229,6 +229,20 @@ codeunit 144705 "ERM Shipment Request M-11"
         CheckDimensionInItemJnlLine(true);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure M11_TransferOrder19LineNotMiss()
+    var
+        ItemNo: array[22] of Code[20];
+    begin
+        // [SCENARIO 431489] M-11 report lost a line on print form
+        // [GIVEN] Transfer Order with 22 lines
+        // [WHEN] Print M-11 Report for Transfer Order
+        PrintM11ItemReclassJnlItemNo(22, ItemNo);
+        // [THEN] Line 19 with Item[19] should exists on the report
+        LibraryReportValidation.VerifyCellValue(48, 29, ItemNo[19]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -326,8 +340,18 @@ codeunit 144705 "ERM Shipment Request M-11"
     var
         ItemJnlLine: Record "Item Journal Line";
         ShipmentRequestM11: Report "Shipment Request M-11";
-        ItemNo: array[5] of Code[20];
-        Qty: array[5] of Decimal;
+        ItemNo: array[22] of Code[20];
+        Qty: array[22] of Decimal;
+        i: Integer;
+    begin
+        exit(PrintM11ItemReclassJnlItemNo(LineQty, ItemNo))
+    end;
+
+    local procedure PrintM11ItemReclassJnlItemNo(LineQty: Integer; ItemNo: Array[22] of Code[20]) DocumentNo: Code[20]
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        ShipmentRequestM11: Report "Shipment Request M-11";
+        Qty: array[22] of Decimal;
         i: Integer;
     begin
         Initialize;

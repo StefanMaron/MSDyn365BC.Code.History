@@ -5418,6 +5418,43 @@ codeunit 136201 "Marketing Contacts"
         Vendor.TestField(Contact, '');
     end;
 
+    [Test]
+    procedure ContactBusinessRelationAfterContactMerge()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ContactList: TestPage "Contact List";
+    begin
+        // [SCENARIO 431320] "Business Relation" on Contact List should be updated if initial value = None, but Business Relation exists
+        Initialize();
+
+        // [GIVEN] Customer with Contact "C" and contact business relation.
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ChangeBusinessRelationCodeForCustomers(BusinessRelation.Code);
+        LibrarySales.CreateCustomer(Customer);
+
+        Customer.SetRange("No.", Customer."No.");
+        RunCreateContsFromCustomersReport(Customer);
+
+        FindContactBusinessRelation(
+            ContactBusinessRelation, BusinessRelation.Code, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
+        Contact.Get(ContactBusinessRelation."Contact No.");
+
+        // [GIVEN] Contact "C" has "Contact Business Relation" = None (according to hotfix scenario this happens after contacts merge)
+        Contact."Contact Business Relation" := Contact."Contact Business Relation"::None;
+        Contact.Modify();
+        Commit();
+
+        // [WHEN] Open Contact List
+        ContactList.OpenView();
+        ContactList.Filter.SetFilter("No.", Contact."No.");
+
+        // [THEN] "Business Relation" for Contact "C" = Customer
+        ContactList."Business Relation".AssertEquals(Contact."Contact Business Relation"::Customer);
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";

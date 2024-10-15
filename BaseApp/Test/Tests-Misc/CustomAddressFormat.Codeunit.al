@@ -17,6 +17,8 @@ codeunit 134448 "Custom Address Format"
         IsInitialized: Boolean;
         InvalidValueErr: Label 'Invalid array element %1 value.';
         LimitExceededErr: Label 'You cannot create more than three Custom Address Format Lines.';
+        MultyCompositePartsErr: Label 'Only one composite custom address line format can be used.';
+        CompositeFieldErr: Label 'Only the City, Post Code, and County fields can be used.';
 
     [Test]
     [Scope('OnPrem')]
@@ -204,8 +206,10 @@ codeunit 134448 "Custom Address Format"
         CountryRegion.Modify();
 
         // [GIVEN] Find defalut CustomAddressFormat wiht Field ID <> 0
-        CustomAddressFormat.SetFilter("Field ID", '<>0');
-        CustomAddressFormat.FindFirst;
+        CustomAddressFormat.SetRange("Field ID", 0);
+        CustomAddressFormat.FindFirst();
+        CustomAddressFormat.Validate("Field ID", 2); // Name
+        CustomAddressFormat.Modify();
 
         // [WHEN] Field ID is being updated to 0
         CustomAddressFormat.Validate("Field ID", 0);
@@ -410,10 +414,11 @@ codeunit 134448 "Custom Address Format"
 
         // [GIVEN] Setup first CustomAddressFormat record with different separators as [City]-[Post Code]+[County]
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
-        CustomAddressFormat.FindFirst;
-
-        CustomAddressFormat.Validate("Field ID", 0);
-        CustomAddressFormat.Modify();
+        CustomAddressFormat.SetRange("Field ID", 0);
+        CustomAddressFormat.FindFirst();
+        CustomAddressFormatLine.SetRange("Country/Region Code", CountryRegion.Code);
+        CustomAddressFormatLine.SetRange("Line No.", CustomAddressFormat."Line No.");
+        CustomAddressFormatLine.DeleteAll();
 
         CreateCustomFormatAddressLine(CustomAddressFormat, CustomAddressFormatLine, CompanyInformation.FieldNo(City));
         CustomAddressFormatLine.Validate(Separator, '-');
@@ -487,6 +492,69 @@ codeunit 134448 "Custom Address Format"
         VerifyCommonCustomAddressFormatPart(CountryRegion.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SecondCompsiteCustomAddressFieldIsNotAllowed()
+    var
+        CountryRegion: Record "Country/Region";
+        CustomAddressFormat: Record "Custom Address Format";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431391] User is not able to create second custom composite address format
+        Initialize();
+
+        // [GIVEN] Create country with custom address format
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
+        CountryRegion.Modify();
+
+        // [WHEN] Try to change "Field Id" of Custom Address Format to 0 from nonzero value
+        CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
+        CustomAddressFormat.FindFirst();
+        CustomAddressFormat.TestField("Field ID");
+        asserterror CustomAddressFormat.Validate("Field ID", 0);
+
+        // [THEN] Error "Only one composite custom address line format can be used."
+        Assert.ExpectedError(MultyCompositePartsErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomAddressFormatLineAllowedFields()
+    var
+        CountryRegion: Record "Country/Region";
+        CustomAddressFormat: Record "Custom Address Format";
+        CustomAddressFormatLine: Record "Custom Address Format Line";
+        CustomAddressFormatLines: TestPage "Custom Address Format Lines";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431391] User is able to use only City, Post Code and County fields for composite custom address format line
+        Initialize();
+
+        // [GIVEN] Create country with custom address format
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
+        CountryRegion.Modify();
+
+        // [GIVEN] Find composite custom addres format line
+        CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
+        CustomAddressFormat.SetRange("Field ID", 0);
+        CustomAddressFormat.FindFirst();
+
+        CustomAddressFormatLine.SetRange("Country/Region Code", CountryRegion.Code);
+        CustomAddressFormatLine.SetRange("Line No.", CustomAddressFormat."Line No.");
+        // [GIVEN] No errors when "Field Id" changed manually to City, Post Code and County
+        SetCustomAddressFormatLinesNewFieldId(CustomAddressFormatLine, CustomAddressFormat, CompanyInformation.FieldNo(City));
+        SetCustomAddressFormatLinesNewFieldId(CustomAddressFormatLine, CustomAddressFormat, CompanyInformation.FieldNo(County));
+        SetCustomAddressFormatLinesNewFieldId(CustomAddressFormatLine, CustomAddressFormat, CompanyInformation.FieldNo("Post Code"));
+
+        // [WHEN] Try to change "Field Id" to Country/Region Code
+        asserterror SetCustomAddressFormatLinesNewFieldId(CustomAddressFormatLine, CustomAddressFormat, CompanyInformation.FieldNo("Country/Region Code"));
+
+        // [THEN] Error "Only City, Post Code and County can be used."
+        Assert.ExpectedError(CompositeFieldErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -496,6 +564,17 @@ codeunit 134448 "Custom Address Format"
 
         IsInitialized := true;
         Commit();
+    end;
+
+    local procedure SetCustomAddressFormatLinesNewFieldId(var CustomAddressFormatLine: Record "Custom Address Format Line"; CustomAddressFormat: Record "Custom Address Format"; FieldId: Integer)
+    var
+        CustomAddressFormatLines: TestPage "Custom Address Format Lines";
+    begin
+        CustomAddressFormatLine.DeleteAll();
+        CustomAddressFormatLines.OpenEdit();
+        CustomAddressFormatLines.Filter.SetFilter("Country/Region Code", CustomAddressFormat."Country/Region Code");
+        CustomAddressFormatLines.Filter.SetFilter("Line No.", Format(CustomAddressFormat."Line No."));
+        CustomAddressFormatLines."Field ID".SetValue(FieldId);
     end;
 
     local procedure CreateCustomFormatAddressLine(CustomAddressFormat: Record "Custom Address Format"; var CustomAddressFormatLine: Record "Custom Address Format Line"; FieldID: Integer)

@@ -825,6 +825,66 @@ codeunit 136900 "Service Reports"
     [Test]
     [HandlerFunctions('ServiceInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
+    procedure ServiceInvoiceReportLineSorting()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: array[2] of Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: array[2] of Record "Service Item Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostedServiceInvoice: TestPage "Posted Service Invoice";
+        ServiceInvoice: Report "Service - Invoice";
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 428385] Service Lines are shown in groups per Service Item Line.
+        // [GIVEN] Service Order shipped and invoiced.
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryService.CreateServiceHeader(
+          ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine[1], ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine[2], ServiceHeader, ServiceItem."No.");
+        // [GIVEN] Service Line #2 linked to ServiceItemLine #2 and has "Line No." 10000
+        LibraryService.CreateServiceLine(
+          ServiceLine[2], ServiceHeader, ServiceLine[2].Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        ServiceLine[2].Validate("Service Item Line No.", ServiceItemLine[2]."Line No.");
+        UpdateQuantityServiceLine(ServiceLine[2]);
+        // [GIVEN] Service Line #1 linked to ServiceItemLine #1 and has "Line No." 20000
+        LibraryService.CreateServiceLine(
+          ServiceLine[1], ServiceHeader, ServiceLine[1].Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        ServiceLine[1].Validate("Service Item Line No.", ServiceItemLine[1]."Line No.");
+        UpdateQuantityServiceLine(ServiceLine[1]);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] Run report "Service - Invoice".
+        ServiceInvoiceHeader.Get(ServiceHeader."Last Posting No.");
+        ServiceInvoiceHeader.SetRecFilter();
+        Clear(ServiceInvoice);
+        ServiceInvoice.SetTableView(ServiceInvoiceHeader);
+        ServiceInvoice.Run();
+
+        // [THEN] Posted Service Invoice Lines are sorted so first is Service Line #1, second is Service Line #2
+        PostedServiceInvoice.OpenView();
+        PostedServiceInvoice.Filter.SetFilter("No.", ServiceInvoiceHeader."No.");
+        PostedServiceInvoice.ServInvLines.First();
+        PostedServiceInvoice.ServInvLines."No.".AssertEquals(ServiceLine[1]."No.");
+        PostedServiceInvoice.ServInvLines.Next();
+        PostedServiceInvoice.ServInvLines."No.".AssertEquals(ServiceLine[2]."No.");
+        // [THEN] ServiceInvoice report prints service line 1 and then service line 2, regardless of their "Line No."
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('No_ServiceInvHeader', ServiceInvoiceHeader."No.");
+        LibraryReportDataset.SetRange('TypeInt', 1);
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'No first line with Item');
+        LibraryReportDataset.AssertCurrentRowValueEquals('No_ServInvLine', ServiceLine[1]."No.");
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'No second line with Item');
+        LibraryReportDataset.AssertCurrentRowValueEquals('No_ServInvLine', ServiceLine[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
     procedure ServiceInvoiceReportCustomCaption()
     var
         ServiceHeader: Record "Service Header";

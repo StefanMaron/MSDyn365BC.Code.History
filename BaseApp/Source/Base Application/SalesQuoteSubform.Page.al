@@ -1,4 +1,4 @@
-page 95 "Sales Quote Subform"
+﻿page 95 "Sales Quote Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -82,6 +82,7 @@ page 95 "Sales Quote Subform"
                         CrossReferenceNoLookUp();
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -106,6 +107,7 @@ page 95 "Sales Quote Subform"
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnItemReferenceNoOnLookup(Rec);
                     end;
 
@@ -894,7 +896,8 @@ page 95 "Sales Quote Subform"
 
                         trigger OnAction()
                         begin
-                            RollupAsmPrice;
+                            RollupAsmPrice();
+                            CalculateTotals();
                         end;
                     }
                     action("Roll Up &Cost")
@@ -907,7 +910,8 @@ page 95 "Sales Quote Subform"
 
                         trigger OnAction()
                         begin
-                            RollUpAsmCost;
+                            RollUpAsmCost();
+                            CalculateTotals();
                         end;
                     }
                 }
