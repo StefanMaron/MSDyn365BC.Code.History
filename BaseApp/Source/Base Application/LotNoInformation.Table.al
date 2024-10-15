@@ -117,7 +117,7 @@ table 6505 "Lot No. Information"
         ItemTrackingComment.SetRange("Item No.", "Item No.");
         ItemTrackingComment.SetRange("Variant Code", "Variant Code");
         ItemTrackingComment.SetRange("Serial/Lot No.", "Lot No.");
-        ItemTrackingComment.DeleteAll;
+        ItemTrackingComment.DeleteAll();
     end;
 
     var

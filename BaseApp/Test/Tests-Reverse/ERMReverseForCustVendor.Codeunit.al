@@ -341,7 +341,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");

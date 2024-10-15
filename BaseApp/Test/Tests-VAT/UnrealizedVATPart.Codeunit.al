@@ -35,7 +35,7 @@ codeunit 132516 "Unrealized VAT Part"
         VATProd := VATPostingSetup."VAT Prod. Posting Group";
         isInitialized := true;
 
-        Commit;
+        Commit();
     end;
 
     [Test]

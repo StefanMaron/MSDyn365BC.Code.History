@@ -12,7 +12,7 @@ codeunit 410 "Update Analysis View"
     begin
         if Code <> '' then begin
             InitLastEntryNo;
-            LockTable;
+            LockTable();
             Find;
             UpdateOne(Rec, 2, "Last Entry No." < LastGLEntryNo - 1000);
         end;
@@ -59,16 +59,12 @@ codeunit 410 "Update Analysis View"
 
     local procedure InitLastEntryNo()
     begin
-        GLEntry.Reset;
-        GLBudgetEntry.Reset;
+        GLEntry.Reset();
+        GLBudgetEntry.Reset();
         if LastEntryNoIsInitialized then
             exit;
-        with GLEntry do
-            if FindLast then
-                LastGLEntryNo := "Entry No.";
-        with GLBudgetEntry do
-            if FindLast then
-                LastBudgetEntryNo := "Entry No.";
+        LastGLEntryNo := GLEntry.GetLastEntryNo();
+        LastBudgetEntryNo := GLBudgetEntry.GetLastEntryNo();
         LastEntryNoIsInitialized := true;
     end;
 
@@ -91,7 +87,7 @@ codeunit 410 "Update Analysis View"
         if DirectlyFromPosting then
             AnalysisView2.SetFilter("Last Entry No.", '<%1', LastGLEntryNo);
 
-        AnalysisView2.LockTable;
+        AnalysisView2.LockTable();
         if AnalysisView2.FindSet then
             repeat
                 UpdateOne(AnalysisView2, Which, not DirectlyFromPosting and (AnalysisView2."Last Entry No." < LastGLEntryNo - 1000));
@@ -103,7 +99,7 @@ codeunit 410 "Update Analysis View"
     procedure Update(var NewAnalysisView: Record "Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; ShowWindow: Boolean)
     begin
         InitLastEntryNo;
-        NewAnalysisView.LockTable;
+        NewAnalysisView.LockTable();
         NewAnalysisView.Find;
         UpdateOne(NewAnalysisView, Which, ShowWindow);
     end;
@@ -134,8 +130,8 @@ codeunit 410 "Update Analysis View"
                     Updated := true;
                 end;
         end else begin
-            CFForecastEntry.Reset;
-            CFForecastEntry.LockTable;
+            CFForecastEntry.Reset();
+            CFForecastEntry.LockTable();
             if ShowProgressWindow then
                 UpdateWindowHeader(DATABASE::"Analysis View Entry", CFForecastEntry."Entry No.");
             UpdateEntries;
@@ -148,7 +144,7 @@ codeunit 410 "Update Analysis View"
             if LastBudgetEntryNo > AnalysisView."Last Budget Entry No." then begin
                 if ShowProgressWindow then
                     UpdateWindowHeader(DATABASE::"Analysis View Budget Entry", GLBudgetEntry."Entry No.");
-                GLBudgetEntry.Reset;
+                GLBudgetEntry.Reset();
                 GLBudgetEntry.SetRange("Entry No.", AnalysisView."Last Budget Entry No." + 1, LastBudgetEntryNo);
                 UpdateBudgetEntries(AnalysisView."Last Budget Entry No." + 1);
                 AnalysisView."Last Budget Entry No." := LastBudgetEntryNo;
@@ -158,7 +154,7 @@ codeunit 410 "Update Analysis View"
         OnUpdateOneOnBeforeUpdateAnalysisView(AnalysisView, TempAnalysisViewEntry, Updated);
         if Updated then begin
             AnalysisView."Last Date Updated" := Today;
-            AnalysisView.Modify;
+            AnalysisView.Modify();
         end;
 
         if ShowProgressWindow then
@@ -167,7 +163,7 @@ codeunit 410 "Update Analysis View"
 
     local procedure UpdateEntries()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         FilterIsInitialized := false;
         if AnalysisView."Account Source" = AnalysisView."Account Source"::"G/L Account" then
             UpdateEntriesForGLAccount
@@ -255,8 +251,8 @@ codeunit 410 "Update Analysis View"
     local procedure UpdateEntriesForCFAccount()
     begin
         AnalysisViewEntry.SetRange("Analysis View Code", AnalysisView.Code);
-        AnalysisViewEntry.DeleteAll;
-        AnalysisViewEntry.Reset;
+        AnalysisViewEntry.DeleteAll();
+        AnalysisViewEntry.Reset();
         CFForecastEntry.FilterGroup(2);
         CFForecastEntry.SetFilter("Cash Flow Account No.", '<>%1', '');
         CFForecastEntry.FilterGroup(0);
@@ -300,8 +296,8 @@ codeunit 410 "Update Analysis View"
     begin
         AnalysisViewBudgetEntry.SetRange("Analysis View Code", AnalysisView.Code);
         AnalysisViewBudgetEntry.SetFilter("Entry No.", '>=%1', DeleteFromEntry);
-        AnalysisViewBudgetEntry.DeleteAll;
-        AnalysisViewBudgetEntry.Reset;
+        AnalysisViewBudgetEntry.DeleteAll();
+        AnalysisViewBudgetEntry.Reset();
 
         if AnalysisView."Account Filter" <> '' then
             GLBudgetEntry.SetFilter("G/L Account No.", AnalysisView."Account Filter");
@@ -357,7 +353,7 @@ codeunit 410 "Update Analysis View"
             TempAnalysisViewEntry."Add.-Curr. Amount" += AmountACY;
             TempAnalysisViewEntry."Add.-Curr. Debit Amount" += DebitAmountACY;
             TempAnalysisViewEntry."Add.-Curr. Credit Amount" += CreditAmountACY;
-            TempAnalysisViewEntry.Modify;
+            TempAnalysisViewEntry.Modify();
         end else begin
             TempAnalysisViewEntry.Amount := Amount;
             TempAnalysisViewEntry."Debit Amount" := DebitAmount;
@@ -365,7 +361,7 @@ codeunit 410 "Update Analysis View"
             TempAnalysisViewEntry."Add.-Curr. Amount" := AmountACY;
             TempAnalysisViewEntry."Add.-Curr. Debit Amount" := DebitAmountACY;
             TempAnalysisViewEntry."Add.-Curr. Credit Amount" := CreditAmountACY;
-            TempAnalysisViewEntry.Insert;
+            TempAnalysisViewEntry.Insert();
             NoOfEntries := NoOfEntries + 1;
         end;
         if NoOfEntries >= 10000 then
@@ -394,10 +390,10 @@ codeunit 410 "Update Analysis View"
 
         if TempAnalysisViewBudgetEntry.Find then begin
             TempAnalysisViewBudgetEntry.Amount := TempAnalysisViewBudgetEntry.Amount + GLBudgetEntry.Amount;
-            TempAnalysisViewBudgetEntry.Modify;
+            TempAnalysisViewBudgetEntry.Modify();
         end else begin
             TempAnalysisViewBudgetEntry.Amount := GLBudgetEntry.Amount;
-            TempAnalysisViewBudgetEntry.Insert;
+            TempAnalysisViewBudgetEntry.Insert();
             NoOfEntries := NoOfEntries + 1;
         end;
         if NoOfEntries >= 10000 then
@@ -442,9 +438,9 @@ codeunit 410 "Update Analysis View"
             Window.Update(6, Text011);
         if TempAnalysisViewEntry.FindSet then
             repeat
-                AnalysisViewEntry.Init;
+                AnalysisViewEntry.Init();
                 AnalysisViewEntry := TempAnalysisViewEntry;
-                if not AnalysisViewEntry.Insert then begin
+                if not AnalysisViewEntry.Insert() then begin
                     AnalysisViewEntry.Find;
                     AnalysisViewEntry.Amount :=
                       AnalysisViewEntry.Amount + TempAnalysisViewEntry.Amount;
@@ -461,10 +457,10 @@ codeunit 410 "Update Analysis View"
                     AnalysisViewEntry."Add.-Curr. Credit Amount" :=
                       AnalysisViewEntry."Add.-Curr. Credit Amount" +
                       TempAnalysisViewEntry."Add.-Curr. Credit Amount";
-                    AnalysisViewEntry.Modify;
+                    AnalysisViewEntry.Modify();
                 end;
             until TempAnalysisViewEntry.Next = 0;
-        TempAnalysisViewEntry.DeleteAll;
+        TempAnalysisViewEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
             Window.Update(6, Text010);
@@ -476,16 +472,16 @@ codeunit 410 "Update Analysis View"
             Window.Update(6, Text011);
         if TempAnalysisViewBudgetEntry.FindSet then
             repeat
-                AnalysisViewBudgetEntry.Init;
+                AnalysisViewBudgetEntry.Init();
                 AnalysisViewBudgetEntry := TempAnalysisViewBudgetEntry;
-                if not AnalysisViewBudgetEntry.Insert then begin
+                if not AnalysisViewBudgetEntry.Insert() then begin
                     AnalysisViewBudgetEntry.Find;
                     AnalysisViewBudgetEntry.Amount :=
                       AnalysisViewBudgetEntry.Amount + TempAnalysisViewBudgetEntry.Amount;
-                    AnalysisViewBudgetEntry.Modify;
+                    AnalysisViewBudgetEntry.Modify();
                 end;
             until TempAnalysisViewBudgetEntry.Next = 0;
-        TempAnalysisViewBudgetEntry.DeleteAll;
+        TempAnalysisViewBudgetEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
             Window.Update(6, Text010);
@@ -502,7 +498,7 @@ codeunit 410 "Update Analysis View"
             TempDimSetEntry."Dimension Code" := DimCode;
             TempDimSetEntry."Dimension Value Code" := '';
         end;
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         exit(TempDimSetEntry."Dimension Value Code");
     end;
 
@@ -561,7 +557,7 @@ codeunit 410 "Update Analysis View"
             repeat
                 AnalysisView2 := AnalysisView;
                 AnalysisView2."Last Budget Entry No." := NewLastBudgetEntryNo;
-                AnalysisView2.Modify;
+                AnalysisView2.Modify();
             until AnalysisView.Next = 0;
     end;
 
@@ -569,7 +565,7 @@ codeunit 410 "Update Analysis View"
     begin
         with TempDimBuf do begin
             Reset;
-            DeleteAll;
+            DeleteAll();
             Init;
             "Dimension Value Code" := DimValue;
             Insert;
@@ -583,7 +579,7 @@ codeunit 410 "Update Analysis View"
         InFilters: Boolean;
     begin
         if not FilterIsInitialized then begin
-            TempDimEntryBuffer.DeleteAll;
+            TempDimEntryBuffer.DeleteAll();
             FilterIsInitialized := true;
             AnalysisViewFilter.SetRange("Analysis View Code", AnalysisView.Code);
             FiltersExist := not AnalysisViewFilter.IsEmpty;
@@ -609,7 +605,7 @@ codeunit 410 "Update Analysis View"
             TempDimEntryBuffer."Dimension Entry No." := 1
         else
             TempDimEntryBuffer."Dimension Entry No." := 0;
-        TempDimEntryBuffer.Insert;
+        TempDimEntryBuffer.Insert();
         exit(InFilters);
     end;
 

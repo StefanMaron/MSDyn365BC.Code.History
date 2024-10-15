@@ -65,7 +65,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch Inv Disc With FA");
     end;
 
@@ -123,7 +123,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Assert: Codeunit Assert;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         PurchInvHeader.FindFirst;
         GLEntry.SetRange("Document No.", PurchInvHeader."No.");

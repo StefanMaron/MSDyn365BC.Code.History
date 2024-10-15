@@ -754,7 +754,7 @@ codeunit 136311 "Job Reports II"
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Reports II");
@@ -886,7 +886,7 @@ codeunit 136311 "Job Reports II"
         Job.Get(JobTask."Job No.");
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         UpdateJobPlanningLineForQuantity(JobPlanningLine, JobPlanningLine.Quantity, 0);  // Use zero for Qty. to Transfer to Journal.
-        Commit;  // Commit is required before running the Job Transfer to Sales Invoice Report.
+        Commit();  // Commit is required before running the Job Transfer to Sales Invoice Report.
 
         // Create Sales Invoice from Job Planning Line.
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Use False To create Sales Invoice.
@@ -942,7 +942,7 @@ codeunit 136311 "Job Reports II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."LCY Code");
     end;
 

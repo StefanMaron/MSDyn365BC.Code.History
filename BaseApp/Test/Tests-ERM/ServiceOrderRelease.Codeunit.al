@@ -90,7 +90,7 @@ codeunit 136140 "Service Order Release"
 
         // Execute: Delete a Released Order
         ServiceHeaderNo := ServiceHeader."No.";
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
 
         // Verify: Delete has succeeded.
         Assert.AreEqual(false, ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeaderNo), 'Unable to fetch record after delete');
@@ -111,7 +111,7 @@ codeunit 136140 "Service Order Release"
 
         // Execute: Delete a Released Order
         ServiceHeaderNo := ServiceHeader."No.";
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
 
         // Verify: Delete has succeeded.
         Assert.AreEqual(false, ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeaderNo), 'Unable to fetch record after delete');
@@ -3005,7 +3005,6 @@ codeunit 136140 "Service Order Release"
 
         // [GIVEN] Service Order with Item, Resource ("A" qty.), G/L Account ("B" qty.), Cost ("C" qty.)
         ServiceItemLineNo := CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", ItemQty, LocationCode);
-        ServiceHeader.Modify;
         AddResourceGLServiceLinesToOrder(ServiceHeader, ServiceItemLineNo);
 
         // [GIVEN] Create warehouse shipment from Service Order, register Pick for item
@@ -3033,7 +3032,7 @@ codeunit 136140 "Service Order Release"
         AmountIncludingVAT: Decimal;
     begin
         // [FEATURE] [Reopen]
-        // [SCENATIO 378451] VAT Amount remains after reopen Service Order
+        // [SCENARIO 378451] VAT Amount remains after reopen Service Order
         Initialize;
 
         // [GIVEN] Released service order with service lines
@@ -3157,7 +3156,7 @@ codeunit 136140 "Service Order Release"
         WMSFullLocation := GetWhiteLocation;
         YellowLocationCode := CreateYellowLocation(Location);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, WMSFullLocation, true);
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Release");
     end;
 
@@ -3192,7 +3191,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine.SetHideReplacementDialog(true);
         ServiceLine.Validate("Location Code", LocationCode);
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        ServiceLine.Modify;
+        ServiceLine.Modify();
         exit(ServiceLine."Line No.");
     end;
 
@@ -3773,7 +3772,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 

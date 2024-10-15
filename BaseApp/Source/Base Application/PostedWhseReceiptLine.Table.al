@@ -312,7 +312,7 @@ table 7319 "Posted Whse. Receipt Line"
         GetLocation(PostedWhseRcptLine."Location Code");
         if not Location."Require Put-away" then begin
             if Location.Code = '' then begin
-                WhseSetup.Get;
+                WhseSetup.Get();
                 WhseSetup.TestField("Require Put-away");
             end else
                 Location.TestField("Require Put-away");
@@ -330,6 +330,22 @@ table 7319 "Posted Whse. Receipt Line"
         end else
             if not HideValidationDialog then
                 Message(Text000);
+    end;
+
+    procedure CopyTrackingFromWhseItemEntryRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation")
+    begin
+        "Serial No." := WhseItemEntryRelation."Serial No.";
+        "Lot No." := WhseItemEntryRelation."Lot No.";
+
+        OnAfterCopyTrackingFromWhseItemEntryRelation(rec, WhseItemEntryRelation);
+    end;
+
+    procedure CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+        "Serial No." := WhseItemTrackingLine."Serial No.";
+        "Lot No." := WhseItemTrackingLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseItemTrackingLine(rec, WhseItemTrackingLine);
     end;
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
@@ -352,10 +368,40 @@ table 7319 "Posted Whse. Receipt Line"
         "Expiration Date" := ExpirationDate;
     end;
 
+    procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        SetRange("Serial No.", ItemLedgEntry."Serial No.");
+        SetRange("Lot No.", ItemLedgEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemLedgEntry(rec, ItemLedgEntry);
+    end;
+
     procedure SetTrackingFilterFromRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation")
     begin
         SetRange("Serial No.", WhseItemEntryRelation."Serial No.");
         SetRange("Lot No.", WhseItemEntryRelation."Lot No.");
+
+        OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseItemEntryRelation(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseItemEntryRelation: Record "Whse. Item Entry Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseItemTrackingLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemLedgEntry(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromRelation(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseItemEntryRelation: Record "Whse. Item Entry Relation");
+    begin
     end;
 }
 

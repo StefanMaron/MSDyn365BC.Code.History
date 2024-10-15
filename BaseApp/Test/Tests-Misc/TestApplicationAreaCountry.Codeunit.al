@@ -50,7 +50,7 @@ codeunit 139099 "Test ApplicationArea Country"
         if IsInitialized then
             exit;
 
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 

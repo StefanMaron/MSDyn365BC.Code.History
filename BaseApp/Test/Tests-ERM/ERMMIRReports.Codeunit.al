@@ -267,7 +267,7 @@ codeunit 134928 "ERM MIR Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM MIR Reports");
     end;
 
@@ -471,7 +471,7 @@ codeunit 134928 "ERM MIR Reports"
         LibraryVariableStorage.Enqueue(FinChargeMemoNo);
         LibraryVariableStorage.Enqueue(ShowMIRDetail);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Finance Charge Memo");
     end;
 
@@ -480,7 +480,7 @@ codeunit 134928 "ERM MIR Reports"
         LibraryVariableStorage.Enqueue(FinChargeMemoNo);
         LibraryVariableStorage.Enqueue(ShowMIRDetail);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Finance Charge Memo - Test");
     end;
 
@@ -489,7 +489,7 @@ codeunit 134928 "ERM MIR Reports"
         LibraryVariableStorage.Enqueue(ReminderNo);
         LibraryVariableStorage.Enqueue(ShowMIRDetail);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Reminder - Test");
     end;
 
@@ -498,7 +498,7 @@ codeunit 134928 "ERM MIR Reports"
         LibraryVariableStorage.Enqueue(ReminderNo);
         LibraryVariableStorage.Enqueue(ShowMIRDetail);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::Reminder);
     end;
 

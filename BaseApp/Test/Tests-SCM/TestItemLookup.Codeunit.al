@@ -101,7 +101,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemB);
         ItemB.Description := ItemA.Description;
         ItemB.Blocked := true;
-        ItemB.Modify;
+        ItemB.Modify();
 
         // [GIVEN] Sales Line with Type = Item and "No." = ''
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -135,7 +135,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemB);
         ItemB.Description := ItemA.Description;
         ItemB."Sales Blocked" := true;
-        ItemB.Modify;
+        ItemB.Modify();
 
         // [GIVEN] Sales Line with Type = Item and "No." = ''
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -169,7 +169,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemB);
         ItemB.Description := ItemA.Description;
         ItemB.Blocked := true;
-        ItemB.Modify;
+        ItemB.Modify();
 
         // [GIVEN] Purchase Line with Type = Item and "No." = ''
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -203,7 +203,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemB);
         ItemB.Description := ItemA.Description;
         ItemB."Purchasing Blocked" := true;
-        ItemB.Modify;
+        ItemB.Modify();
 
         // [GIVEN] Purchase Line with Type = Item and "No." = ''
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -839,7 +839,7 @@ codeunit 134835 "Test Item Lookup"
         LibraryWarehouse.CreateLocation(ToLocation);
         LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
-        TransferLine.Init;
+        TransferLine.Init();
         TransferLine.Validate("Document No.", TransferHeader."No.");
 
         // Exercise
@@ -869,7 +869,7 @@ codeunit 134835 "Test Item Lookup"
         LibraryWarehouse.CreateLocation(ToLocation);
         LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
-        TransferLine.Init;
+        TransferLine.Init();
         TransferLine.Validate("Document No.", TransferHeader."No.");
 
         // Exercise
@@ -1207,7 +1207,7 @@ codeunit 134835 "Test Item Lookup"
     begin
         LibrarySetupStorage.Restore();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Item Lookup");
-        Item.DeleteAll;
+        Item.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup();
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
 

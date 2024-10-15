@@ -205,7 +205,7 @@ codeunit 135202 "Azure AI Usage Tst"
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         EnsureThatMockDataIsFetchedFromKeyVault;
-        AzureAIUsage.DeleteAll;
+        AzureAIUsage.DeleteAll();
     end;
 
     local procedure EnsureThatMockDataIsFetchedFromKeyVault()

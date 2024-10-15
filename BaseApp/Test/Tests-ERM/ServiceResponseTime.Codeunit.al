@@ -343,7 +343,7 @@ codeunit 136106 "Service Response Time"
 
         LibraryERMCountryData.CreateVATData;
         LibraryService.SetupServiceMgtNoSeries;
-        Commit;
+        Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Response Time");
     end;
@@ -501,7 +501,7 @@ codeunit 136106 "Service Response Time"
         ServiceHour: Record "Service Hour";
     begin
         ServiceHour.SetRange("Starting Date", StartingDate);
-        ServiceHour.DeleteAll;
+        ServiceHour.DeleteAll();
     end;
 
     local procedure VerifyServiceItemLine(DocumentNo: Code[20]; ResponseTimeHours: Decimal; OrderDate: Date; StartingTime: Time)

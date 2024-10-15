@@ -1,4 +1,4 @@
-﻿page 5752 "Posted Transfer Shipments"
+page 5752 "Posted Transfer Shipments"
 {
     ApplicationArea = Location;
     Caption = 'Posted Transfer Shipments';

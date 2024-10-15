@@ -615,7 +615,7 @@ codeunit 138920 "O365 Sales Discounts"
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer; PricesIncludingVAT: Boolean)
@@ -623,7 +623,7 @@ codeunit 138920 "O365 Sales Discounts"
         LibrarySales.CreateCustomer(Customer);
         if PricesIncludingVAT then begin
             Customer.Validate("Prices Including VAT", true);
-            Customer.Modify;
+            Customer.Modify();
         end;
     end;
 

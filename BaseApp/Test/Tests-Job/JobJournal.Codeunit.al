@@ -24,6 +24,7 @@ codeunit 136305 "Job Journal"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Initialized: Boolean;
         BlankJobNoError: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12, %13=%14. It cannot be zero or empty.', Comment = '%1=Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field,%8=Field value,%9=Field,%10=Field value,%11=Field,%12=Field value,%13=Field,%14=Field value';
         JobTaskTypeError: Label '%1 must be equal to ''Posting''  in %2: %3=%4, %5=%6. Current value is ''%7''.', Comment = '%1= Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field value';
@@ -152,18 +153,21 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
+        PriceListLine: Record "Price List Line";
         JobUnitCost: Decimal;
         JobUnitPrice: Decimal;
     begin
         // [SCENARIO] Test Job Unit Cost, Job Unit Price on Job G/L Journal Line when Unit Cost Factor is defined on Job Card.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job with Job Task and Job G/L Account Price.
-        Initialize;
         CreateJobJournalBatch(GenJournalBatch);
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountNo, '');
         UpdateUnitCostFactorOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Creating Job G/L Journal Line, Taking rounding precision as used in General Journal Line Table rounding precision.
         CreateJobGLJournalLine(
@@ -419,7 +423,7 @@ codeunit 136305 "Job Journal"
         Initialize;
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
-        Commit;  // Using Commit to prevent Test Failure.
+        Commit();  // Using Commit to prevent Test Failure.
         LibraryVariableStorage.Enqueue(WorkDate);
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
         FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::Item);
@@ -671,7 +675,7 @@ codeunit 136305 "Job Journal"
         CreateAndUpdateJobJournalLine(JobJournalLine);
         Item.Get(JobJournalLine."No.");
         Item.Type := Item.Type::Service;
-        Item.Modify;
+        Item.Modify();
         ChangeItemQuantityAndVerifyNoStockWarning(JobJournalLine);
     end;
 
@@ -691,7 +695,7 @@ codeunit 136305 "Job Journal"
         CreateAndUpdateJobJournalLine(JobJournalLine);
         Item.Get(JobJournalLine."No.");
         Item.Type := Item.Type::"Non-Inventory";
-        Item.Modify;
+        Item.Modify();
         ChangeItemQuantityAndVerifyNoStockWarning(JobJournalLine);
     end;
 
@@ -742,15 +746,18 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobJournalLine: Record "Job Journal Line";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check Unit Price on Job Journal Line after updating Unit Cost Factor on Job GL Account Price.
 
         // [GIVEN] A Job with a Job Task and a job GL account price
         Initialize;
+        PriceListLine.DeleteAll();
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');
         UpdateUnitCostFactorOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Updating Unit Cost on Job Journal Line for G/L Account, take Random Unit Cost.
         UpdateUnitCostOnJobJournalLine(
@@ -833,15 +840,18 @@ codeunit 136305 "Job Journal"
     var
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check that Unit Cost Factor becomes Zero after updating Unit Price on Job G/L Account Price.
 
         // [GIVEN] A Job GL Account Price with Unit Cost Factor.
         Initialize;
+        PriceListLine.DeleteAll();
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');
         UpdateUnitCostFactorOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Updating the Unit Price on the job gl account price
         UpdateUnitPriceOnJobGLAccountPrice(JobGLAccountPrice);
@@ -857,15 +867,18 @@ codeunit 136305 "Job Journal"
     var
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check that Unit Price becomes Zero after updating Unit Cost Factor on Job G/L Account Price.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job GL Account Price with Unit Price.
-        Initialize;
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');  // Passing blank value for Currency Code.
         UpdateUnitPriceOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Updating the Unit Cost Factor on the job gl account price
         UpdateUnitCostFactorOnJobGLAccountPrice(JobGLAccountPrice);
@@ -883,16 +896,19 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobJournalLine: Record "Job Journal Line";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check Unit Price on Job Journal Line when Unit Cost Factor and Currency Code is attached on Job GL Account Price.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job task, a currency and a job gl account price
-        Initialize;
         LibraryERM.FindCurrency(Currency);
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, Currency.Code);
         UpdateUnitCostFactorOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Updating Unit Cost on Job Journal Line for G/L Account, take Random Unit Cost.
         UpdateUnitCostOnJobJournalLine(
@@ -910,15 +926,18 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobJournalLine: Record "Job Journal Line";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check that Unit Price on Job Journal Line updated according to Job GL Account Price's Unit Price.
 
         // [GIVEN] A Job GL Account Price with Unit Price.
         Initialize;
+        PriceListLine.DeleteAll();
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');  // Passing blank value for Currency Code.
         UpdateUnitPriceOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Creating Job Journal Line with Zero Unit Cost.
         UpdateUnitCostOnJobJournalLine(JobJournalLine, JobTask, JobGLAccountPrice."G/L Account No.", 0);
@@ -934,15 +953,19 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobJournalLine: Record "Job Journal Line";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check that Unit Cost on Job Journal Line updated according to Job GL Account Price's Unit Cost.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job GL Account Price with Unit Cost, Create Job Journal Line.
-        Initialize;
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');  // Passing blank value for Currency Code.
         UpdateUnitCostOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
+
         LibraryJob.CreateJobJournalLineForType(
           JobJournalLine."Line Type"::" ", JobJournalLine.Type::"G/L Account", JobTask, JobJournalLine);
 
@@ -961,15 +984,18 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobTask: Record "Job Task";
         JobJournalLine: Record "Job Journal Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check that Line Discount Percent correctly updated on Job Journal Line when Account Type is GL Account and GL Account used is from Job GL Account Price.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job GL Account Price with Discount Percent.
-        Initialize;
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');  // Passing blank value for Currency Code.
         UpdateLineDiscountPctOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Updating Unit Cost on Job Journal Line for G/L Account, take Random Unit Cost.
         UpdateUnitCostOnJobJournalLine(
@@ -988,11 +1014,13 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobPlanningLine: Record "Job Planning Line";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check Unit Price on Job Planning Line updated according to Unit Price on Job GL Account Price.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job with a Job Task and a Job GL Account Price.
-        Initialize;
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.FindGenProductPostingGroup(GenProductPostingGroup);
         GLAccount.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
@@ -1001,6 +1029,7 @@ codeunit 136305 "Job Journal"
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", GLAccount."No.", '');  // Passing blank value for Currency Code.
         UpdateUnitPriceOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Creating a job planning line
         CreateJobPlanningLine(
@@ -1018,16 +1047,20 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobPlanningLine: Record "Job Planning Line";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check Unit Price on Job Planning Line when Unit Cost Factor and Currency Code is attached on Job GL Account Price.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job Task, Find a Currency, Create and update GL Account Price with Currency, Create Job Planning Line for GL Account.
-        Initialize;
         LibraryERM.FindCurrency(Currency);
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, Currency.Code);
         UpdateUnitCostFactorOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
+
         CreateJobPlanningLine(
           JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, JobGLAccountPrice."G/L Account No.",
           JobPlanningLine.Type::"G/L Account");
@@ -1048,15 +1081,18 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobPlanningLine: Record "Job Planning Line";
         JobTask: Record "Job Task";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check Unit Cost on Job Planning Line updated according to Unit Cost on Job GL Account Price.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job with a Job Task
-        Initialize;
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');  // Passing blank value for Currency Code.
         UpdateUnitCostOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Creating a job planning line
         CreateJobPlanningLine(
@@ -1074,15 +1110,18 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice: Record "Job G/L Account Price";
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check that Line Discount Percent correctly updated on Job Planning Line.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job GL Account Price with Discount Percent.
-        Initialize;
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');  // Passing blank value for Currency Code.
         UpdateLineDiscountPctOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
 
         // [WHEN] Creating a job planning line
         CreateJobPlanningLine(
@@ -1103,17 +1142,20 @@ codeunit 136305 "Job Journal"
         JobTask: Record "Job Task";
         SalesLine: Record "Sales Line";
         JobCreateInvoice: Codeunit "Job Create-Invoice";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Check Unit Price on Sales Line created from Job Planning Line using GL Account used for Job GL Account Price.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job GL Price with Discount Percent and Unit Price, Create and Update Job Planning Line.
-        Initialize;
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobGLAccountPrice(
           JobGLAccountPrice, JobTask."Job No.", JobTask."Job Task No.", LibraryERM.CreateGLAccountWithSalesSetup, '');  // Passing blank value for Currency Code.
         UpdateUnitPriceOnJobGLAccountPrice(JobGLAccountPrice);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
         UpdateJobPlanningLine(JobPlanningLine, JobTask, JobGLAccountPrice."G/L Account No.");
-        Commit;  // Using Commit to prevent Test Failure.
+        Commit();  // Using Commit to prevent Test Failure.
 
         // [WHEN] Creating Sales Invoice from Job Planning Line.
         LibraryVariableStorage.Enqueue(WorkDate);
@@ -1136,17 +1178,21 @@ codeunit 136305 "Job Journal"
         JobTask: Record "Job Task";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
         JobCreateInvoice: Codeunit "Job Create-Invoice";
         DocumentNo: Code[20];
     begin
         // [SCENARIO] Check Unit Price, Discount Percent and Discount Amount on Job Ledger Entry after posting Sales Invoice created from Job Planning Line.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job GL Price with Discount Percent and Unit Price, Create and Update Job Planning Line, Create Sales Invoice from Job Planning Line.
-        Initialize;
         CreateJobWithJobTask(JobTask);
         CreateAndUpdateJobGLAccountPrice(JobGLAccountPrice, JobTask);
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
+
         UpdateJobPlanningLine(JobPlanningLine, JobTask, JobGLAccountPrice."G/L Account No.");
-        Commit;  // Using Commit to prevent Test Failure.
+        Commit();  // Using Commit to prevent Test Failure.
         LibraryVariableStorage.Enqueue(WorkDate);
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Passing False to avoid Credit Memo creation.
         FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::"G/L Account");
@@ -1349,16 +1395,21 @@ codeunit 136305 "Job Journal"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
         JobJournalLine: Record "Job Journal Line";
+        JobItemPrice: Record "Job Item Price";
+        PriceListLine: Record "Price List Line";
         UnitPrice: Decimal;
     begin
         // [SCENARIO] Test that after running Calculate Remaining Usage from Job Journal, correct Quantity, Unit of Measure and Unit Price updated on Job Journal Line.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job Task, Item with Two Unit of Measures, Create Item Price, Create Job Planning Line with second Unit Of Measure.
-        Initialize;
         CreateJobWithJobTask(JobTask);
         CreateItemWithTwoUnitOfMeasures(ItemUnitOfMeasure);  // Two Item Unit of Measures needed because the new Item Unit of Measure is used in Test Case.
         UnitPrice := LibraryRandom.RandDec(100, 2);  // Take Random Unit Price.
         CreateJobItemPriceWithNewItemAndUnitPrice(JobTask, ItemUnitOfMeasure."Item No.", ItemUnitOfMeasure.Code, UnitPrice);
+        CopyFromToPriceListLine.CopyFrom(JobItemPrice, PriceListLine);
+
         CreateJobPlanningLineAndModifyUOM(
           JobPlanningLine, JobTask, JobPlanningLine.Type::Item, ItemUnitOfMeasure."Item No.", ItemUnitOfMeasure.Code);
 
@@ -1386,16 +1437,21 @@ codeunit 136305 "Job Journal"
         JobPlanningLine: Record "Job Planning Line";
         JobJournalLine: Record "Job Journal Line";
         JobLedgerEntry: Record "Job Ledger Entry";
+        JobItemPrice: Record "Job Item Price";
+        PriceListLine: Record "Price List Line";
         UnitPrice: Decimal;
     begin
         // [SCENARIO] Test that after running Calculate Remaining Usage from Job Journal and Posting it, correct Quantity, Unit of Measure and Unit Price updated in Job Ledger Entries.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] A Job Task, Item with Two Unit of Measures, Create Item Price, Create Job Planning Line with other Unit of Measure and Run Calculate Remaining Usage For Job.
-        Initialize;
         CreateJobWithJobTask(JobTask);
         CreateItemWithTwoUnitOfMeasures(ItemUnitOfMeasure);
         UnitPrice := LibraryRandom.RandDec(100, 2);  // Take Random Unit Price.
         CreateJobItemPriceWithNewItemAndUnitPrice(JobTask, ItemUnitOfMeasure."Item No.", ItemUnitOfMeasure.Code, UnitPrice);
+        CopyFromToPriceListLine.CopyFrom(JobItemPrice, PriceListLine);
+
         CreateJobPlanningLineAndModifyUOM(
           JobPlanningLine, JobTask, JobPlanningLine.Type::Item, ItemUnitOfMeasure."Item No.", ItemUnitOfMeasure.Code);
         RunCalcRemainingUsageFromJobJournalPage(JobJournalBatch, JobTask."Job No.");
@@ -1562,7 +1618,7 @@ codeunit 136305 "Job Journal"
         // [GIVEN] A Job with Job Task, Update Source Code Setup for "Job G/L Journal" and "Job G/L WIP" as blank, Create Job General Journal Template with Source Code as blank, Create Job G/L Journal Line.
         Initialize;
         CreateJobWithJobTask(JobTask);
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         UpdateSourceCodeSetup('', '');
         CreateGeneralJournalTemplateAndBatch(GenJournalBatch);
         CreateJobGLJournalLine(
@@ -1603,7 +1659,7 @@ codeunit 136305 "Job Journal"
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         CreateJobPlanningLineWithTypeText(JobPlanningLine, JobPlanningLine."Line Type"::Billable, JobTask);
 
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(WorkDate);
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
         FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::Item);
@@ -1841,7 +1897,7 @@ codeunit 136305 "Job Journal"
 
         // [WHEN]  Run "Job Transfer to Sales Invoice" with "Posting Date" = 02.01
         LibraryVariableStorage.Enqueue(WorkDate + 1);
-        Commit;
+        Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
 
         // [THEN] Sales Invoice created with Exchange Rate 10,00; no confirm messages appears.
@@ -1869,7 +1925,7 @@ codeunit 136305 "Job Journal"
         // [WHEN]  Run "Job Transfer to Sales Invoice" with "Posting Date" = 04.01
         LibraryVariableStorage.Enqueue(WorkDate + 3);
         LibraryVariableStorage.Enqueue(CurrencyDateConfirmTxt);
-        Commit;
+        Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
 
         // [THEN] Sales Invoice created with Exchange Rate 10,50; Job Planning Line Exchange Rate changed to 10,50 after confirmation by user.
@@ -1899,7 +1955,7 @@ codeunit 136305 "Job Journal"
         // [WHEN]  Run "Job Transfer to Sales Invoice" with "Posting Date" = 02.01
         LibraryVariableStorage.Enqueue(WorkDate + 1);
         LibraryVariableStorage.Enqueue(CurrencyDateConfirmTxt);
-        Commit;
+        Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
 
         // [THEN] Sales Invoice created with Exchange Rate 10,00; Job Planning Line Exchange Rate changed to 10,00 after confirmation by user.
@@ -1970,7 +2026,7 @@ codeunit 136305 "Job Journal"
         Customer.Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
         Customer.Modify(true);
 
-        Commit;
+        Commit();
 
         // [WHEN] User creates sales invoice "SI" from job
         LibraryVariableStorage.Enqueue(WorkDate + 1);
@@ -2028,7 +2084,7 @@ codeunit 136305 "Job Journal"
 
         // [GIVEN] Sales invoice "I" created from "JPL"
         LibraryVariableStorage.Enqueue(WorkDate);
-        Commit;
+        Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
 
         FindSalesLine(SalesLine, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, JobPlanningLine."Job No.");
@@ -2041,7 +2097,7 @@ codeunit 136305 "Job Journal"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] GLE.Amount = ROUND(ROUND(18,318.7149 * 1) * 27.02) = "494 971,54"
-        GLEntry.SetRange("Document Type", SalesHeader."Document Type");
+        GLEntry.SetRange("Document Type", SalesHeader."Document Type".AsInteger());
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, -ExpectedTotalUnitPriceLCY);
@@ -2102,7 +2158,7 @@ codeunit 136305 "Job Journal"
         LibrarySales.SetExtDocNo(false);
 
         Initialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Journal");
@@ -2165,7 +2221,7 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
         JobPlanningLine.Validate("Qty. to Transfer to Invoice", JobPlanningLine.Quantity);
         JobPlanningLine.Modify(true);
-        Commit;  // Required to avoid test failure.
+        Commit();  // Required to avoid test failure.
         LibraryVariableStorage.Enqueue(WorkDate);
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, true);
     end;
@@ -2227,7 +2283,7 @@ codeunit 136305 "Job Journal"
 
     local procedure CreateCustomerInvoiceDiscount(var CustInvoiceDisc: Record "Cust. Invoice Disc.")
     begin
-        CustInvoiceDisc.Init;
+        CustInvoiceDisc.Init();
         CustInvoiceDisc.Code := LibraryUtility.GenerateGUID;
         CustInvoiceDisc."Discount %" := LibraryRandom.RandIntInRange(5, 10);
         CustInvoiceDisc.Insert(true);
@@ -2235,7 +2291,7 @@ codeunit 136305 "Job Journal"
 
     local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
         CurrencyExchangeRate.Validate("Starting Date", CalcDate('<-CY>', WorkDate));
 
@@ -2618,7 +2674,7 @@ codeunit 136305 "Job Journal"
         NoSeriesCode := JobJournalBatch."No. Series";  // Assigning Batch No. Series to global variable.
         LibraryVariableStorage.Enqueue(JobJournalBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(JobNo);
-        Commit;  // Commit required to avoid test failures.
+        Commit();  // Commit required to avoid test failures.
 
         // Need to Run Calc. Remaining Usage Batch Job from Job Journal page due to Code Written on Page and Job Journal Lines needed to be blank before running batch job.
         JobJournal.OpenEdit;
@@ -2667,7 +2723,7 @@ codeunit 136305 "Job Journal"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Validate("Job G/L Journal", JobGLJournal);
         SourceCodeSetup.Validate("Job G/L WIP", JobGLWIP);
         SourceCodeSetup.Modify(true);

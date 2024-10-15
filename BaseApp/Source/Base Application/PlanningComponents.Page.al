@@ -1,4 +1,4 @@
-﻿page 99000862 "Planning Components"
+page 99000862 "Planning Components"
 {
     AutoSplitKey = true;
     Caption = 'Planning Components';

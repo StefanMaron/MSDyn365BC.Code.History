@@ -1,4 +1,4 @@
-﻿page 5952 "Posted Service Cr. Memo Lines"
+page 5952 "Posted Service Cr. Memo Lines"
 {
     Caption = 'Posted Service Cr. Memo Lines';
     Editable = false;

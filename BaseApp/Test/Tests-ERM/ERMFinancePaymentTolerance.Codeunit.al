@@ -46,7 +46,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Finance Payment Tolerance");
     end;
 
@@ -2458,7 +2458,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Max. Payment Tolerance Amount");
     end;
 
@@ -2522,7 +2522,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate(
           "Payment Tolerance Posting", GeneralLedgerSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts");
         GeneralLedgerSetup.Validate(
@@ -2548,7 +2548,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PaymentDiscountGracePeriod: DateFormula;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GracePeriodDays := LibraryRandom.RandInt(5);
         Evaluate(
           PaymentDiscountGracePeriod, '<' + Format(GracePeriodDays) + 'D>');  // Using Random Number for Days.
@@ -2560,7 +2560,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", PaymentDiscountGracePeriod);
         GeneralLedgerSetup.Validate("Payment Tolerance Posting", PaymentTolerancePosting);
         GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Posting", PmtDiscTolerancePosting);
@@ -2678,7 +2678,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance Warning", PaymentToleranceWarning);
         GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Warning", PmtDiscToleranceWarning);
         GeneralLedgerSetup.Modify(true);

@@ -127,7 +127,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         if IsInitialized then
             exit;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;

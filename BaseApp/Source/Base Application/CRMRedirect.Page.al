@@ -2,6 +2,7 @@ page 5329 "CRM Redirect"
 {
     Caption = 'CRM Redirect';
     SourceTable = "CRM Redirect";
+    PageType = List;
 
     layout
     {
@@ -28,7 +29,8 @@ page 5329 "CRM Redirect"
         if not CRMIntegrationManagement.OpenCoupledNavRecordPage(CRMID, CRMEntityTypeName) then
             // TODO: Give the user the option to couple to an existing NAV entity or create one from CRM
             // For now just do nothing
-            ;
+            Error(NoCoupledEntityErr);
+        ;
 
         CurrPage.Close;
     end;
@@ -37,16 +39,18 @@ page 5329 "CRM Redirect"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
-            Error(CRMIntegrationNotEnabledErr, CRMProductName.SHORT);
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled and not CRMIntegrationManagement.IsCDSIntegrationEnabled() then
+            Error(CRMIntegrationNotEnabledErr, CRMProductName.SHORT, CDSProductNameLbl);
     end;
 
     var
-        FilterRegexTok: Label '\A%1: @\*(.*)\*\z', Locked = true;
-        CRMInfoRegexTok: Label 'CRMID:(\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\});CRMType:([a-z \/]*)\z', Locked = true;
+        FilterRegexTok: Label '%1: ([A-Za-z0-9\-].+)', Locked = true;
+        CRMInfoRegexTok: Label 'CRMID:(\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\});CRMType:([a-z0-9_ \/]*)\z', Locked = true;
         InvalidFilterErr: Label 'The URL contains an incorrectly formatted filter string and cannot be processed.';
         InvalidCRMIDErr: Label 'The %2 ID in the URL is not correctly formatted: %1.', Comment = '%1 = Whatever was passed as CRM ID in the filter, but clearly not an actual CRM ID. %2 = CRM product name';
-        CRMIntegrationNotEnabledErr: Label 'Integration with %1 is not enabled.', Comment = '%1 = CRM product name';
+        CRMIntegrationNotEnabledErr: Label 'Integration with %1 or %2 is not enabled.', Comment = '%1 = CRM product name. %2 = CDS product name';
+        CDSProductNameLbl: Label 'Common Data Service', Locked = true;
+        NoCoupledEntityErr: Label 'Coupled record not found. Check integration synchronization errors if you have turned Synch. Only Coupled Records off.';
         CRMProductName: Codeunit "CRM Product Name";
 
     procedure ExtractCRMInfoFromFilters() CRMInfo: Text

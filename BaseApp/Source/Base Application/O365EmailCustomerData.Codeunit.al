@@ -58,8 +58,8 @@ codeunit 2380 "O365 Email Customer Data"
         FileManagement: Codeunit "File Management";
         ServerFileName: Text;
     begin
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
         Clear(TempExcelBuffer);
 
         InsertCustomerData(Customer);
@@ -87,11 +87,11 @@ codeunit 2380 "O365 Email Customer Data"
         ColNo += 1;
         TempLineNumberBuffer."Old Line Number" := ColNo;
         TempLineNumberBuffer."New Line Number" := FieldNo;
-        TempLineNumberBuffer.Insert;
+        TempLineNumberBuffer.Insert();
         if FieldNo < 0 then begin
             TempNameValueBuffer.ID := FieldNo;
             TempNameValueBuffer.Name := CustomCaption;
-            TempNameValueBuffer.Insert;
+            TempNameValueBuffer.Insert();
         end;
     end;
 
@@ -222,7 +222,7 @@ codeunit 2380 "O365 Email Customer Data"
             repeat
                 if TempLineNumberBuffer."New Line Number" > 0 then begin
                     FieldRef := RecRef.Field(TempLineNumberBuffer."New Line Number");
-                    if (Format(FieldRef.Class) = 'FlowField') or (Format(FieldRef.Type) = 'BLOB') then
+                    if (FieldRef.Class = FieldClass::FlowField) or (FieldRef.Type = FieldType::BLOB) then
                         FieldRef.CalcField;
                     EnterCell(RowNo, TempLineNumberBuffer."Old Line Number", FieldRef.Value, false);
                 end else
@@ -240,7 +240,7 @@ codeunit 2380 "O365 Email Customer Data"
             repeat
                 if TempLineNumberBuffer."New Line Number" > 0 then begin
                     FieldRef := RecRef.Field(TempLineNumberBuffer."New Line Number");
-                    if (Format(FieldRef.Class) = 'FlowField') or (Format(FieldRef.Type) = 'BLOB') then
+                    if (FieldRef.Class = FieldClass::FlowField) or (FieldRef.Type = FieldType::BLOB) then
                         FieldRef.CalcField;
                     EnterCell(TempLineNumberBuffer."Old Line Number", ColNo, FieldRef.Value, false);
                 end else
@@ -270,9 +270,9 @@ codeunit 2380 "O365 Email Customer Data"
 
     local procedure ClearBuffers()
     begin
-        TempExcelBuffer.DeleteAll;
-        TempLineNumberBuffer.DeleteAll;
-        TempNameValueBuffer.DeleteAll;
+        TempExcelBuffer.DeleteAll();
+        TempLineNumberBuffer.DeleteAll();
+        TempNameValueBuffer.DeleteAll();
     end;
 
     local procedure GetCustomValue(var RecRef: RecordRef; CustomFieldNo: Integer): Text
@@ -723,7 +723,7 @@ codeunit 2380 "O365 Email Customer Data"
             exit(DocCurrencyCode);
 
         if not GeneralLedgerSetupLoaded then
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
         GeneralLedgerSetupLoaded := true;
         exit(GeneralLedgerSetup."LCY Code");
     end;

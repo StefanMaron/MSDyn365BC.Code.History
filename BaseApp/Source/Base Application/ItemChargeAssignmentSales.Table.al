@@ -4,11 +4,9 @@ table 5809 "Item Charge Assignment (Sales)"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Document No."; Code[20])
         {

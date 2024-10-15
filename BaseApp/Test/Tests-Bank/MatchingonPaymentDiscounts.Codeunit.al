@@ -53,7 +53,7 @@ codeunit 134269 "Matching on Payment Discounts"
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.CreatePaymentTerms(PaymentTermsNoDiscount);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTermsDiscount, false);
-        Commit;
+        Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Matching on Payment Discounts");
     end;
@@ -2079,7 +2079,7 @@ codeunit 134269 "Matching on Payment Discounts"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         Clear(CustLedgerEntry);
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst;
         CustLedgerEntry.CalcFields("Remaining Amount");
@@ -2113,7 +2113,7 @@ codeunit 134269 "Matching on Payment Discounts"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         Clear(VendorLedgerEntry);
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.FindFirst;
         VendorLedgerEntry.CalcFields("Remaining Amount");

@@ -75,7 +75,7 @@ report 1140 "Update Cost Acctg. Dimensions"
 
         trigger OnOpenPage()
         begin
-            CostAccSetup.Get;
+            CostAccSetup.Get();
             GetInitialDimensions;
         end;
     }

@@ -23,7 +23,7 @@ report 92 "Import Consolidation from File"
                 TempDimBuf: Record "Dimension Buffer" temporary;
             begin
                 if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 // Import G/L entries
                 while GLEntryFile.Pos <> GLEntryFile.Len do begin
@@ -31,7 +31,7 @@ report 92 "Import Consolidation from File"
                     case CopyStr(TextLine, 1, 4) of
                         '<02>':
                             begin
-                                TempGLEntry.Init;
+                                TempGLEntry.Init();
                                 Evaluate(TempGLEntry."G/L Account No.", CopyStr(TextLine, 5, 20));
                                 Evaluate(TempGLEntry."Posting Date", CopyStr(TextLine, 26, 9));
                                 Evaluate(TempGLEntry.Amount, CopyStr(TextLine, 36, 22));
@@ -43,7 +43,7 @@ report 92 "Import Consolidation from File"
                             end;
                         '<03>':
                             begin
-                                TempDimBuf.Init;
+                                TempDimBuf.Init();
                                 TempDimBuf."Table ID" := DATABASE::"G/L Entry";
                                 TempDimBuf."Entry No." := TempGLEntry."Entry No.";
                                 TempDimBuf."Dimension Code" := CopyStr(TextLine, 5, 20);
@@ -59,7 +59,7 @@ report 92 "Import Consolidation from File"
             trigger OnPreDataItem()
             begin
                 if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }
@@ -209,7 +209,7 @@ report 92 "Import Consolidation from File"
         if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then begin
             if SubsidCurrencyCode = '' then
                 SubsidCurrencyCode := BusUnit."Currency Code";
-            GLSetup.Get;
+            GLSetup.Get();
             if (SubsidCurrencyCode <> BusUnit."Currency Code") and
                (SubsidCurrencyCode <> GLSetup."LCY Code") and
                not ((BusUnit."Currency Code" = '') and (GLSetup."LCY Code" = ''))

@@ -83,7 +83,7 @@ report 5084 "Email Merge"
         SegmentLine := InSegmentLine;
         Content := InContent;
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.CalcFields(Picture);
 
         if Contact.Get(SegmentLine."Contact No.") then begin

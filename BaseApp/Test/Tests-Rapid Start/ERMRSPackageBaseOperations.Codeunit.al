@@ -185,7 +185,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         LibraryRapidStart.CreatePackage(ConfigPackage);
         ConfigLine.SetRange("Table ID", DATABASE::Customer);
         ConfigLine.SetFilter("Package Code", '%1|''''', ConfigPackage.Code);
-        ConfigLine.DeleteAll;
+        ConfigLine.DeleteAll();
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Customer);
 
         // 3. Verify that table customer added to package.
@@ -497,7 +497,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // 3. Verify Include Field is true for all fields by default
         ConfigPackageField.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageField.SetRange("Table ID", DATABASE::"VAT Posting Setup");
-        FieldCount := ConfigPackageField.Count;
+        FieldCount := ConfigPackageField.Count();
         ConfigPackageField.SetRange("Include Field", true);
 
         Assert.AreEqual(FieldCount, ConfigPackageField.Count, Fields_WrongIncludeField);
@@ -671,7 +671,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         CreatePackageForTable(ConfigPackage, ConfigPackageTable, TableID);
         // [WHEN] Set "Dimensions as Columns" to 'Yes'
         ConfigPackageTable.Validate("Dimensions as Columns", true);
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
 
         // [THEN] Inserted a Package field for table Customer, where "Dimension" is 'Yes'
         ConfigPackageField.SetRange("Package Code", ConfigPackage.Code);
@@ -831,7 +831,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         Initialize;
 
         // [GIVEN] Exported XML file with empty table "Customer Price Group"
-        CustomerPriceGroup.DeleteAll;
+        CustomerPriceGroup.DeleteAll();
         FilePath := CreateConfigPackageAndExportToXML(ConfigPackage);
 
         // [GIVEN] Add new record to XML file "Customer Price Group".Code = "TEST"
@@ -1003,7 +1003,7 @@ codeunit 136610 "ERM RS Package Base Operations"
 
         SingleEntryRecNo := 1;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Package Base Operations");
     end;
 
@@ -1031,8 +1031,8 @@ codeunit 136610 "ERM RS Package Base Operations"
         KeyValueWithRelation := GenJournalTemplate.Name;
         KeyValueWithoutRelation := GenJournalBatch.Name;
 
-        GenJournalTemplate.Delete;
-        GenJournalBatch.Delete;
+        GenJournalTemplate.Delete();
+        GenJournalBatch.Delete();
 
         // Related Table field with relation
 
@@ -1215,7 +1215,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     var
         GetPackageTables: Report "Get Package Tables";
     begin
-        Commit;  // Commit required to avoid test failure.
+        Commit();  // Commit required to avoid test failure.
         LibraryVariableStorage.Enqueue(WithDataOnly);
         GetPackageTables.Set(PackageCode);
         GetPackageTables.Run;
@@ -1225,7 +1225,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     var
         CopyPackage: Report "Copy Package";
     begin
-        Commit;  // Commit required to avoid test failure.
+        Commit();  // Commit required to avoid test failure.
         LibraryVariableStorage.Enqueue(NewPackageCode);
         LibraryVariableStorage.Enqueue(WithDataOnly);
         CopyPackage.Set(ConfigPackage);
@@ -1250,7 +1250,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable[2], ConfigPackage.Code, Field.TableNo);
         Field.FindLast;
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable[3], ConfigPackage.Code, Field.TableNo);
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePackageOf8Tables(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: array[8] of Record "Config. Package Table")
@@ -1264,24 +1264,24 @@ codeunit 136610 "ERM RS Package Base Operations"
             LibraryRapidStart.CreatePackageTable(ConfigPackageTable[I], ConfigPackage.Code, Field.TableNo);
             Field.SetRange(TableNo, Field.TableNo + 1, 10000);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSimpleConfigLine(var ConfigLine: Record "Config. Line"; LineNo: BigInteger)
     begin
-        ConfigLine.Init;
+        ConfigLine.Init();
         ConfigLine.Validate("Line No.", LineNo);
-        ConfigLine.Insert;
+        ConfigLine.Insert();
     end;
 
     local procedure CreateSimpleConfigPackageData(var ConfigPackageData: Record "Config. Package Data"; ConfigPackageDataCode: Code[20]; NewValue: BigInteger; FieldId: Integer)
     begin
-        ConfigPackageData.Init;
+        ConfigPackageData.Init();
         ConfigPackageData."Package Code" := ConfigPackageDataCode;
         ConfigPackageData."Table ID" := DATABASE::"Config. Line";
         ConfigPackageData."Field ID" := FieldId;
         ConfigPackageData.Value := Format(NewValue);
-        ConfigPackageData.Insert;
+        ConfigPackageData.Insert();
     end;
 
     local procedure FindTableWithRelatedSystemTable(var TableID: Integer; var ReleatedTableID: Integer)

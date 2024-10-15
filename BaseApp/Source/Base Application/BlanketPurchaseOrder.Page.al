@@ -1,4 +1,4 @@
-﻿page 509 "Blanket Purchase Order"
+page 509 "Blanket Purchase Order"
 {
     Caption = 'Blanket Purchase Order';
     PageType = Document;
@@ -863,6 +863,27 @@
                 trigger OnAction()
                 begin
                     DocPrint.PrintPurchHeader(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category6;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    PurchaseHeader: Record "Purchase Header";
+                    DocPrint: Codeunit "Document-Print";
+                begin
+                    PurchaseHeader := Rec;
+                    PurchaseHeader.SetRecFilter();
+                    DocPrint.PrintPurchaseHeaderToDocumentAttachment(PurchaseHeader);
                 end;
             }
         }

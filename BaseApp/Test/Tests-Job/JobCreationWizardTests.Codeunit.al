@@ -28,7 +28,7 @@ codeunit 136313 "Job Creation Wizard Tests"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Creation Wizard Tests");
     end;
 

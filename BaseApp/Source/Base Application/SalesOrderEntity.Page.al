@@ -494,7 +494,7 @@ page 5495 "Sales Order Entity"
         Clear(InvoiceDiscountAmount);
 
         PartialShipping := false;
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -509,7 +509,7 @@ page 5495 "Sales Order Entity"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Sales Invoice Entity Aggregate";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure CheckCustomerSpecified()
@@ -565,10 +565,10 @@ page 5495 "Sales Order Entity"
     begin
         UpdateCustomer := "Sell-to Customer No." = '';
         if not UpdateCustomer then begin
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
             UpdateCustomer := not TempFieldBuffer.FindFirst;
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
         end;
 
         if UpdateCustomer then begin
@@ -613,8 +613,8 @@ page 5495 "Sales Order Entity"
         if not DocumentDateSet then
             exit;
 
-        TempFieldBuffer.Reset;
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.Reset();
+        TempFieldBuffer.DeleteAll();
 
         if DocumentDateSet then begin
             "Document Date" := DocumentDateVar;

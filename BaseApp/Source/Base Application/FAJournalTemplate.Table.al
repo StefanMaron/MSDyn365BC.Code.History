@@ -35,7 +35,7 @@ table 5619 "FA Journal Template"
                 "Test Report ID" := REPORT::"Fixed Asset Journal - Test";
                 "Posting Report ID" := REPORT::"Fixed Asset Register";
                 "Maint. Posting Report ID" := REPORT::"Maintenance Register";
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 "Source Code" := SourceCodeSetup."Fixed Asset Journal";
             end;
         }
@@ -166,7 +166,7 @@ table 5619 "FA Journal Template"
         FAJnlLine.SetRange("Journal Template Name", Name);
         FAJnlLine.DeleteAll(true);
         FAJnlBatch.SetRange("Journal Template Name", Name);
-        FAJnlBatch.DeleteAll;
+        FAJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

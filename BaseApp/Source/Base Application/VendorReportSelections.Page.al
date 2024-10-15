@@ -1,6 +1,6 @@
 page 9658 "Vendor Report Selections"
 {
-    Caption = 'Vendor Report Selections';
+    Caption = 'Document Layouts';
     DataCaptionFields = "Source No.";
     DelayedInsert = true;
     PageType = List;
@@ -89,6 +89,11 @@ page 9658 "Vendor Report Selections"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send To Email';
                     ToolTip = 'Specifies that the report is used when sending emails.';
+
+                    trigger OnAssistEdit()
+                    begin
+                        ShowSelectedContacts();
+                    end;
                 }
                 field("Use for Email Body"; "Use for Email Body")
                 {
@@ -126,11 +131,54 @@ page 9658 "Vendor Report Selections"
 
     actions
     {
+        area(Processing)
+        {
+            action(CopyFromReportSelectionsAction)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Copy from Report Selection';
+                Image = Copy;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                ToolTip = 'Copy reports that are set up on the Report Selection page.';
+
+                trigger OnAction()
+                var
+                    ReportSelections: Record "Report Selections";
+                    CustomReportSelection: Record "Custom Report Selection";
+                begin
+                    CustomReportSelection := Rec;
+                    FilterVendorUsageReportSelections(ReportSelections);
+                    CopyFromReportSelections(ReportSelections, Database::Vendor, GetFilter("Source No."));
+                    CurrPage.SetRecord(CustomReportSelection);
+                end;
+            }
+
+            action(SelectFromContactsAction)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Select Email from Contacts';
+                Image = ContactFilter;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                ToolTip = 'Select an email address from the list of contacts.';
+
+                trigger OnAction()
+                var
+                    ContBusRel: Record "Contact Business Relation";
+                begin
+                    GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Vendor, GetFilter("Source No."));
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         MapTableUsageValueToPageValue;
+        GetSendToEmail(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -160,6 +208,18 @@ page 9658 "Vendor Report Selections"
             CustomReportSelection.Usage::"P.Ret.Shpt.":
                 Usage2 := Usage2::"Posted Return Shipment";
         end;
+    end;
+
+    local procedure FilterVendorUsageReportSelections(var ReportSelections: Record "Report Selections")
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+    begin
+        ReportSelections.SetFilter(
+            Usage, '%1|%2|%3|%4',
+            CustomReportSelection.Usage::"P.Order",
+            CustomReportSelection.Usage::"V.Remittance",
+            CustomReportSelection.Usage::"P.V.Remit.",
+            CustomReportSelection.Usage::"P.Ret.Shpt.");
     end;
 }
 

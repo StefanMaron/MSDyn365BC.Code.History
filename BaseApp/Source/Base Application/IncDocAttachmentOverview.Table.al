@@ -188,7 +188,7 @@ table 137 "Inc. Doc. Attachment Overview"
             exit;
 
         Clear(TempIncDocAttachmentOverview);
-        TempIncDocAttachmentOverview.Init;
+        TempIncDocAttachmentOverview.Init();
         TempIncDocAttachmentOverview."Incoming Document Entry No." := IncomingDocument."Entry No.";
         AssignSortingNo(TempIncDocAttachmentOverview, SortingOrder);
         TempIncDocAttachmentOverview.Name := CopyStr(URL, 1, MaxStrLen(TempIncDocAttachmentOverview.Name));
@@ -199,7 +199,7 @@ table 137 "Inc. Doc. Attachment Overview"
     local procedure InsertFromIncomingDocumentAttachment(var TempIncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview" temporary; IncomingDocumentAttachment: Record "Incoming Document Attachment"; var SortingOrder: Integer; AttachmentType: Option; Indentation2: Integer)
     begin
         Clear(TempIncDocAttachmentOverview);
-        TempIncDocAttachmentOverview.Init;
+        TempIncDocAttachmentOverview.Init();
         TempIncDocAttachmentOverview.TransferFields(IncomingDocumentAttachment);
         AssignSortingNo(TempIncDocAttachmentOverview, SortingOrder);
         TempIncDocAttachmentOverview."Attachment Type" := AttachmentType;
@@ -210,7 +210,7 @@ table 137 "Inc. Doc. Attachment Overview"
     local procedure InsertGroup(var TempIncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview" temporary; IncomingDocument: Record "Incoming Document"; var SortingOrder: Integer; Description: Text[50])
     begin
         Clear(TempIncDocAttachmentOverview);
-        TempIncDocAttachmentOverview.Init;
+        TempIncDocAttachmentOverview.Init();
         TempIncDocAttachmentOverview."Incoming Document Entry No." := IncomingDocument."Entry No.";
         AssignSortingNo(TempIncDocAttachmentOverview, SortingOrder);
         TempIncDocAttachmentOverview."Attachment Type" := TempIncDocAttachmentOverview."Attachment Type"::Group;

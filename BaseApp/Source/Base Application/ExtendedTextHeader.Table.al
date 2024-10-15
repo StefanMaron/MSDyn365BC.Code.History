@@ -6,11 +6,9 @@ table 279 "Extended Text Header"
 
     fields
     {
-        field(1; "Table Name"; Option)
+        field(1; "Table Name"; Enum "Extended Text Table Name")
         {
             Caption = 'Table Name';
-            OptionCaption = 'Standard Text,G/L Account,Item,Resource';
-            OptionMembers = "Standard Text","G/L Account",Item,Resource;
         }
         field(2; "No."; Code[20])
         {
@@ -91,48 +89,24 @@ table 279 "Extended Text Header"
             AccessByPermission = TableData "Purchase Header" = R;
             Caption = 'Purchase Quote';
             InitValue = true;
-
-            trigger OnValidate()
-            begin
-                if "Purchase Quote" then
-                    NoResourcePurch;
-            end;
         }
         field(16; "Purchase Invoice"; Boolean)
         {
             AccessByPermission = TableData "Purchase Header" = R;
             Caption = 'Purchase Invoice';
             InitValue = true;
-
-            trigger OnValidate()
-            begin
-                if "Purchase Invoice" then
-                    NoResourcePurch;
-            end;
         }
         field(17; "Purchase Order"; Boolean)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Purchase Order';
             InitValue = true;
-
-            trigger OnValidate()
-            begin
-                if "Purchase Order" then
-                    NoResourcePurch;
-            end;
         }
         field(18; "Purchase Credit Memo"; Boolean)
         {
             AccessByPermission = TableData "Purchase Header" = R;
             Caption = 'Purchase Credit Memo';
             InitValue = true;
-
-            trigger OnValidate()
-            begin
-                if "Purchase Credit Memo" then
-                    NoResourcePurch;
-            end;
         }
         field(19; Reminder; Boolean)
         {
@@ -157,12 +131,6 @@ table 279 "Extended Text Header"
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Purchase Blanket Order';
             InitValue = true;
-
-            trigger OnValidate()
-            begin
-                if "Purchase Blanket Order" then
-                    NoResourcePurch;
-            end;
         }
         field(23; "Prepmt. Sales Invoice"; Boolean)
         {
@@ -255,14 +223,6 @@ table 279 "Extended Text Header"
     trigger OnInsert()
     begin
         IncrementTextNo;
-
-        if "Table Name" = "Table Name"::Resource then begin
-            "Purchase Quote" := false;
-            "Purchase Invoice" := false;
-            "Purchase Blanket Order" := false;
-            "Purchase Order" := false;
-            "Purchase Credit Memo" := false;
-        end;
     end;
 
     trigger OnRename()
@@ -277,14 +237,7 @@ table 279 "Extended Text Header"
 
     var
         UntitledMsg: Label 'untitled';
-        Text001: Label 'You cannot purchase resources.';
         RenameRecordErr: Label 'You cannot rename %1 or %2.', Comment = '%1 is TableName Field %2 is No.Table Field';
-
-    local procedure NoResourcePurch()
-    begin
-        if "Table Name" = "Table Name"::Resource then
-            Error(Text001);
-    end;
 
     procedure IncrementTextNo()
     var
@@ -315,10 +268,10 @@ table 279 "Extended Text Header"
                 TmpExtTextLine := ExtTextLine;
                 TmpExtTextLine."Text No." := "Text No.";
                 TmpExtTextLine."Language Code" := "Language Code";
-                TmpExtTextLine.Insert;
+                TmpExtTextLine.Insert();
             until ExtTextLine.Next = 0;
 
-        ExtTextLine.DeleteAll;
+        ExtTextLine.DeleteAll();
     end;
 
     procedure GetCaption(): Text
@@ -355,10 +308,17 @@ table 279 "Extended Text Header"
                             Res.Get("No.");
                         Descr := Res.Name;
                     end;
+                else
+                    OnGetCaption(Rec, Descr);
             end;
             exit(StrSubstNo('%1 %2 %3 %4', "No.", Descr, "Language Code", Format("Text No.")));
         end;
         exit(UntitledMsg);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCaption(ExtendedTextHeader: Record "Extended Text Header"; var Descr: Text)
+    begin
     end;
 }
 

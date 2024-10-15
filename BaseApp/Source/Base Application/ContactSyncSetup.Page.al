@@ -71,6 +71,8 @@ page 6701 "Contact Sync. Setup"
                         end;
 
                         ProgressWindow.Close;
+
+                        SendTraceTag('0000ACM', O365SyncManagement.TraceCategory(), Verbosity::Normal, SetupTelemetryTxt, DataClassification::SystemMetadata);
                     end;
                 }
                 action(SyncO365)
@@ -159,6 +161,7 @@ page 6701 "Contact Sync. Setup"
         ConnectionSuccessMsg: Label 'Connected successfully to Exchange.';
         ConnectionFailureErr: Label 'Cannot connect to Exchange. Check your user name, password and Folder ID, and then try again.';
         EmailMissingErr: Label 'An authentication email and Exchange password must be set in order to set up contact synchronization.';
+        SetupTelemetryTxt: Label 'Contact Sync has been set up and validated.', Locked = true;
 
     local procedure GetUser(var User: Record User): Boolean
     begin

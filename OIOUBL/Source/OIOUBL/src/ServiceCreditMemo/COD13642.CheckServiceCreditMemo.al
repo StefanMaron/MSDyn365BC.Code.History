@@ -29,6 +29,8 @@ codeunit 13642 "OIOUBL-Check Service Cr. Memo"
             CompanyInfo.TESTFIELD("Bank Account No.");
         CompanyInfo.TESTFIELD("Bank Branch No.");
 
+        TESTFIELD("Payment Terms Code");
+
         OIOUBLDocumentEncode.GetOIOUBLCountryRegionCode("Bill-to Country/Region Code");
         OIOUBLDocumentEncode.GetOIOUBLCountryRegionCode(CompanyInfo."Country/Region Code");
 

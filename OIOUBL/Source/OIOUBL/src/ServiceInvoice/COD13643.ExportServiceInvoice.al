@@ -289,7 +289,7 @@ codeunit 13643 "OIOUBL-Export Service Invoice"
             DeliveryAddress.City := "Ship-to City";
             DeliveryAddress."Post Code" := "Ship-to Post Code";
             DeliveryAddress."Country/Region Code" := "Ship-to Country/Region Code";
-            OIOUBLXMLGenerator.InsertDelivery(XMLCurrNode, DeliveryAddress, CalcDate('0D'));
+            OIOUBLXMLGenerator.InsertDelivery(XMLCurrNode, DeliveryAddress, CalcDate('<0D>'));
 
             // Invoice->PaymentMeans
             OIOUBLXMLGenerator.InsertPaymentMeans(XMLCurrNode, "Due Date");
@@ -390,7 +390,7 @@ codeunit 13643 "OIOUBL-Export Service Invoice"
         end;
     end;
 
-    procedure GetPaymentChannelCode(): Text[7];
+    procedure GetPaymentChannelCode(): Text;
     begin
         exit(CompanyInfo.GetOIOUBLPaymentChannelCode());
     end;

@@ -135,7 +135,8 @@ table 7332 "Whse. Internal Put-away Line"
                 if Quantity < "Qty. Put Away" + "Put-away Qty." then
                     FieldError(Quantity, StrSubstNo(Text001, "Qty. Put Away" + "Put-away Qty."));
 
-                "Qty. (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Qty. (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
                 if CurrFieldNo = FieldNo(Quantity) then
                     CheckBinContentQty;
 
@@ -146,7 +147,7 @@ table 7332 "Whse. Internal Put-away Line"
                     DocStatus := WhseInternalPutAwayHeader.GetDocumentStatus(0);
                     if DocStatus <> WhseInternalPutAwayHeader."Document Status" then begin
                         WhseInternalPutAwayHeader.Validate("Document Status", DocStatus);
-                        WhseInternalPutAwayHeader.Modify;
+                        WhseInternalPutAwayHeader.Modify();
                     end;
                 end;
             end;
@@ -165,7 +166,8 @@ table 7332 "Whse. Internal Put-away Line"
 
             trigger OnValidate()
             begin
-                "Qty. Outstanding (Base)" := UOMMgt.CalcBaseQty("Qty. Outstanding", "Qty. per Unit of Measure");
+                "Qty. Outstanding (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Outstanding", "Qty. per Unit of Measure");
             end;
         }
         field(20; "Qty. Outstanding (Base)"; Decimal)
@@ -182,7 +184,8 @@ table 7332 "Whse. Internal Put-away Line"
 
             trigger OnValidate()
             begin
-                "Qty. Put Away (Base)" := UOMMgt.CalcBaseQty("Qty. Put Away", "Qty. per Unit of Measure");
+                "Qty. Put Away (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Put Away", "Qty. per Unit of Measure");
             end;
         }
         field(24; "Qty. Put Away (Base)"; Decimal)
@@ -366,7 +369,7 @@ table 7332 "Whse. Internal Put-away Line"
           WhseInternalPutAwayHeader.GetDocumentStatus("Line No.");
         if DocStatus <> WhseInternalPutAwayHeader."Document Status" then begin
             WhseInternalPutAwayHeader.Validate("Document Status", DocStatus);
-            WhseInternalPutAwayHeader.Modify;
+            WhseInternalPutAwayHeader.Modify();
         end;
     end;
 
@@ -660,7 +663,7 @@ table 7332 "Whse. Internal Put-away Line"
         LowerLineNo: Integer;
     begin
         WhseInternalPutAwayLine.SetRange("No.", WhseInternalPutAwayHeader."No.");
-        if WhseInternalPutAwayHeader."Sorting Method" <> WhseInternalPutAwayHeader."Sorting Method"::" " then
+        if WhseInternalPutAwayHeader."Sorting Method" <> WhseInternalPutAwayHeader."Sorting Method"::None then
             exit(GetLastLineNo + 10000);
 
         WhseInternalPutAwayLine."No." := WhseInternalPutAwayHeader."No.";
@@ -703,7 +706,7 @@ table 7332 "Whse. Internal Put-away Line"
 
         WhseInternalPutAwayLine.SetRange("No.", "No.");
         case WhseInternalPutAwayHeader."Sorting Method" of
-            WhseInternalPutAwayHeader."Sorting Method"::" ":
+            WhseInternalPutAwayHeader."Sorting Method"::None:
                 WhseInternalPutAwayLine.SetCurrentKey("No.", "Line No.");
             WhseInternalPutAwayHeader."Sorting Method"::Item:
                 WhseInternalPutAwayLine.SetCurrentKey("No.", "Item No.");

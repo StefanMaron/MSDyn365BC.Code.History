@@ -69,8 +69,8 @@ codeunit 132222 "Library - Notification Mgt."
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        TempNotificationContext.Reset;
-        TempNotificationContext.DeleteAll;
+        TempNotificationContext.Reset();
+        TempNotificationContext.DeleteAll();
     end;
 }
 

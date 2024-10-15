@@ -41,7 +41,7 @@ codeunit 137210 "SCM Copy Production BOM"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Copy Production BOM");
     end;
 

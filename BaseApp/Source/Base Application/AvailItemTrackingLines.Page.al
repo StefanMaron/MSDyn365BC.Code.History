@@ -187,32 +187,9 @@ page 6503 "Avail. - Item Tracking Lines"
     var
         Text001: Label 'Cancel reservation?';
         ReservEntry: Record "Reservation Entry";
-        SalesLine: Record "Sales Line";
-        PurchLine: Record "Purchase Line";
-        ItemJnlLine: Record "Item Journal Line";
-        ReqLine: Record "Requisition Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        PlanningComponent: Record "Planning Component";
-        TransLine: Record "Transfer Line";
-        ServiceInvLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyLine: Record "Assembly Line";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
-        AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
-        ReserveReqLine: Codeunit "Req. Line-Reserve";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
-        ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
-        ReservePlanningComponent: Codeunit "Plng. Component-Reserve";
-        ReserveTransLine: Codeunit "Transfer Line-Reserve";
-        ReserveServiceInvLine: Codeunit "Service Line-Reserve";
-        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
+        SourceRecRef: RecordRef;
         QtyToReserve: Decimal;
         CaptionText: Text;
         EnableReservations: Boolean;
@@ -221,128 +198,86 @@ page 6503 "Avail. - Item Tracking Lines"
         [InDataSet]
         FunctionButton2Visible: Boolean;
 
+    procedure SetReservSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
+    begin
+        Clear(ReservMgt);
+
+        SourceRecRef := CurrentSourceRecRef;
+        ReservEntry := CurrentReservEntry;
+
+        ReservMgt.TestItemType(SourceRecRef);
+        ReservMgt.SetReservSource(SourceRecRef, Direction);
+        CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
+    end;
+
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        CurrentSalesLine.TestField(Type, CurrentSalesLine.Type::Item);
-        SalesLine := CurrentSalesLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetSalesLine(SalesLine);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReserveSalesLine.FilterReservFor(ReservEntry, SalesLine);
-        CaptionText := ReserveSalesLine.Caption(SalesLine);
+        SourceRecRef.GetTable(CurrentSalesLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        ReqLine := CurrentReqLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetReqLine(ReqLine);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReserveReqLine.FilterReservFor(ReservEntry, ReqLine);
-        CaptionText := ReserveReqLine.Caption(ReqLine);
+        SourceRecRef.GetTable(CurrentReqLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        CurrentPurchLine.TestField(Type, CurrentPurchLine.Type::Item);
-        PurchLine := CurrentPurchLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetPurchLine(PurchLine);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReservePurchLine.FilterReservFor(ReservEntry, PurchLine);
-        CaptionText := ReservePurchLine.Caption(PurchLine);
+        SourceRecRef.GetTable(CurrentPurchLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetItemJnlLine(var CurrentItemJnlLine: Record "Item Journal Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        ItemJnlLine := CurrentItemJnlLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetItemJnlLine(ItemJnlLine);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReserveItemJnlLine.FilterReservFor(ReservEntry, ItemJnlLine);
-        CaptionText := ReserveItemJnlLine.Caption(ItemJnlLine);
+        SourceRecRef.GetTable(CurrentItemJnlLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        ProdOrderLine := CurrentProdOrderLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetProdOrderLine(ProdOrderLine);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReserveProdOrderLine.FilterReservFor(ReservEntry, ProdOrderLine);
-        CaptionText := ReserveProdOrderLine.Caption(ProdOrderLine);
+        SourceRecRef.GetTable(CurrentProdOrderLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        ProdOrderComp := CurrentProdOrderComp;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetProdOrderComponent(ProdOrderComp);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReserveProdOrderComp.FilterReservFor(ReservEntry, ProdOrderComp);
-        CaptionText := ReserveProdOrderComp.Caption(ProdOrderComp);
+        SourceRecRef.GetTable(CurrentProdOrderComp);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        PlanningComponent := CurrentPlanningComponent;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetPlanningComponent(PlanningComponent);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReservePlanningComponent.FilterReservFor(ReservEntry, PlanningComponent);
-        CaptionText := ReservePlanningComponent.Caption(PlanningComponent);
+        SourceRecRef.GetTable(CurrentPlanningComponent);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; Direction: Option Outbound,Inbound)
     begin
-        TransLine := CurrentTransLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetTransferLine(TransLine, Direction);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReserveTransLine.FilterReservFor(ReservEntry, TransLine, Direction);
-        CaptionText := ReserveTransLine.Caption(TransLine);
+        SourceRecRef.GetTable(CurrentTransLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, Direction);
     end;
 
-    procedure SetServiceInvLine(var CurrentServiceInvLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    procedure SetServiceInvLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        CurrentServiceInvLine.TestField(Type, CurrentServiceInvLine.Type::Item);
-        ServiceInvLine := CurrentServiceInvLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetServLine(ServiceInvLine);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReserveServiceInvLine.FilterReservFor(ReservEntry, ServiceInvLine);
-        CaptionText := ReserveServiceInvLine.Caption(ServiceInvLine);
+        SourceRecRef.GetTable(CurrentServiceLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
     procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        CurrentJobPlanningLine.TestField(Type, CurrentJobPlanningLine.Type::Item);
-        JobPlanningLine := CurrentJobPlanningLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetJobPlanningLine(JobPlanningLine);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        JobPlanningLineReserve.FilterReservFor(ReservEntry, JobPlanningLine);
-        CaptionText := JobPlanningLineReserve.Caption(JobPlanningLine);
+        SourceRecRef.GetTable(CurrentJobPlanningLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
     procedure SetItemTrackingLine(LookupType: Integer; LookupSubtype: Integer; CurrentReservEntry: Record "Reservation Entry"; SearchForSupply: Boolean; AvailabilityDate: Date)
@@ -355,58 +290,7 @@ page 6503 "Avail. - Item Tracking Lines"
 
     local procedure UpdateReservFrom()
     begin
-        case ReservEntry."Source Type" of
-            DATABASE::"Sales Line":
-                begin
-                    SalesLine.Find;
-                    SetSalesLine(SalesLine, ReservEntry);
-                end;
-            DATABASE::"Requisition Line":
-                begin
-                    ReqLine.Find;
-                    SetReqLine(ReqLine, ReservEntry);
-                end;
-            DATABASE::"Purchase Line":
-                begin
-                    PurchLine.Find;
-                    SetPurchLine(PurchLine, ReservEntry);
-                end;
-            DATABASE::"Item Journal Line":
-                begin
-                    ItemJnlLine.Find;
-                    SetItemJnlLine(ItemJnlLine, ReservEntry);
-                end;
-            DATABASE::"Prod. Order Line":
-                begin
-                    ProdOrderLine.Find;
-                    SetProdOrderLine(ProdOrderLine, ReservEntry);
-                end;
-            DATABASE::"Prod. Order Component":
-                begin
-                    ProdOrderComp.Find;
-                    SetProdOrderComponent(ProdOrderComp, ReservEntry);
-                end;
-            DATABASE::"Planning Component":
-                begin
-                    PlanningComponent.Find;
-                    SetPlanningComponent(PlanningComponent, ReservEntry);
-                end;
-            DATABASE::"Transfer Line":
-                begin
-                    TransLine.Find;
-                    SetTransferLine(TransLine, ReservEntry, ReservEntry."Source Subtype");
-                end;
-            DATABASE::"Service Line":
-                begin
-                    ServiceInvLine.Find;
-                    SetServiceInvLine(ServiceInvLine, ReservEntry);
-                end;
-            DATABASE::"Job Planning Line":
-                begin
-                    JobPlanningLine.Find;
-                    SetJobPlanningLine(JobPlanningLine, ReservEntry);
-                end;
-        end;
+        SetReservSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
     end;
 
     local procedure GetReservedQty(): Decimal
@@ -419,29 +303,18 @@ page 6503 "Avail. - Item Tracking Lines"
         // This procedure is intentionally left blank.
     end;
 
-    procedure SetAssemblyLine(var CurrentAsmLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        CurrentAsmLine.TestField(Type, CurrentAsmLine.Type::Item);
-        AssemblyLine := CurrentAsmLine;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        AssemblyLineReserve.FilterReservFor(ReservEntry, AssemblyLine);
-        CaptionText := AssemblyLineReserve.Caption(AssemblyLine);
+        SourceRecRef.GetTable(CurrentAssemblyLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 
-    procedure SetAssemblyHeader(var CurrentAsmHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
+    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        AssemblyHeader := CurrentAsmHeader;
-        ReservEntry := CurrentReservEntry;
-
-        Clear(ReservMgt);
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        AssemblyHeaderReserve.FilterReservFor(ReservEntry, AssemblyHeader);
-        CaptionText := AssemblyHeaderReserve.Caption(AssemblyHeader);
+        SourceRecRef.GetTable(CurrentAssemblyHeader);
+        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
     end;
 }
 

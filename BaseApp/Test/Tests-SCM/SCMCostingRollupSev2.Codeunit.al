@@ -59,7 +59,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 2");
     end;
 
@@ -72,7 +72,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         Initialize;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
         InventorySetup.Modify(true);
         // Avoid instability due to message appearing only if Automatic Cost Adjustment was not already set to Always
@@ -91,7 +91,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         Initialize;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Never);
         InventorySetup.Modify(true);
         B208054(false);
@@ -125,7 +125,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         CreateItemWithAdditionalUOM_FixedVal(ParentItem, ParSecItemUnitOfMeasure, CompItem."Costing Method"::Standard, 0, 200);
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         ParentItem."Replenishment System" := ParentItem."Replenishment System"::"Prod. Order";
-        ParentItem.Modify;
+        ParentItem.Modify();
 
         // Create Production BOM with Scrap
         CreateProductionBOM(ProductionBOMHeader, ParentItem, CompItem, ParentItem."Base Unit of Measure", '', 1, 10);
@@ -216,7 +216,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // Prepare Inventory Setup.
         Initialize;
         LibraryCosting.AdjustCostItemEntries('', '');
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
@@ -250,7 +250,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Applies-to Entry", TempItemLedgerEntry."Entry No.");
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Finish the production order.
@@ -261,7 +261,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // Invoice component at a different cost.
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         PurchaseLine.Validate("Direct Unit Cost", UnitCost + LibraryRandom.RandDec(10, 2));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // Verify: No rounding entry is generated.
@@ -298,7 +298,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Create Currency and updated then same on General Ledger Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         UpdateAddCurrencySetup(CreateCurrency);
         PostValueEntryToGLWithZeroCost;
 
@@ -325,7 +325,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // This test case verifies Post Value Entry to G/L and ACY Cost Amount is correct with Zero costs in Purchase transaction.
 
         // Setup: Create Purchase Order for Production and Component Item. Post as Receive.
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         Quantity := 10 + LibraryRandom.RandInt(100);  // Using Random value for Quantity.
         ProductionQuantity := LibraryRandom.RandInt(Quantity);  // Using Random value of Quantity for Production Quantity.
         ItemNo :=
@@ -389,10 +389,10 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         // Create and post Purchase Order, Create Purchase Return Order.
@@ -433,10 +433,10 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         CreateAndPostPurcOrderThenCreatePurchReturnOrder(Item, PurchaseHeader, PurchaseLine);
@@ -474,10 +474,10 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true, SalesReceivablesSetup."Stockout Warning");
 
         // Create and post Sales order, create Sales Return Order.
@@ -554,10 +554,10 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         CreateAndPostPurcOrderThenCreatePurchReturnOrder(Item, PurchaseHeader, PurchaseLine);
@@ -705,7 +705,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Applies-to Entry", FirstOutputItemLedgerEntry."Entry No.");
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post Output again with positive quantity, finish the Released Production Order and Adjust Cost.
@@ -753,7 +753,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         // Setup: Create Parent and Child Items in Certified Production BOM. Update Backward Flushing method on child Item. Create and post Purchase Order for Child Item. Create and Refresh a Released Production Order.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
         CreateSetupFor242530(TempItemLedgerEntry, Item, ChildItem, ProductionOrder);
@@ -786,7 +786,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         // Setup: Create Parent and Child Items in Certified Production BOM. Update Backward Flushing method on child Item. Create and post Purchase Order for Child Item. Create and Refresh a Released Production Order.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
         CreateSetupFor242530(TempItemLedgerEntry, Item, ChildItem, ProductionOrder);
@@ -912,7 +912,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Unit Cost (Revalued)", ItemJournalLine."Unit Cost (Calculated)" + LibraryRandom.RandInt(10));
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         LibraryPatterns.POSTItemJournalLineWithApplication(
@@ -955,11 +955,11 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(
           InventorySetup, true, InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Adjustment",
           InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period"::Month);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true, SalesReceivablesSetup."Stockout Warning");
 
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 966.26829);
@@ -1294,7 +1294,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
         LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Quantity);
         ItemJournalLine.Validate(Amount, Amount);
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
     end;
 
     local procedure CreateProdItemWithAvgCosting(var ComponentItem: Record Item; var ProdItem: Record Item)
@@ -1775,7 +1775,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -1784,7 +1784,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -1813,7 +1813,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
     end;

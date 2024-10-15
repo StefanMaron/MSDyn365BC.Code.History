@@ -127,19 +127,19 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
     var
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        OCRServiceSetup.Init;
+        OCRServiceSetup.Init();
         OCRServiceSetup.SetURLsToDefault;
         OCRServiceSetup."Default OCR Doc. Template" := 'TEST';
         OCRServiceSetup.Enabled := Enable;
         if not OCRServiceSetup.Modify then
-            OCRServiceSetup.Insert;
+            OCRServiceSetup.Insert();
     end;
 
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";
     begin
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;

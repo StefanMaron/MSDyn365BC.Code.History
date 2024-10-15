@@ -123,7 +123,7 @@ report 106 "Customer Detailed Aging"
                                 OverDueMonths := OverDueMonths - 1;
                         end;
                         if "Remaining Amount" = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         TempCurrencyTotalBuffer.UpdateTotal(
                           "Currency Code", "Remaining Amount", "Remaining Amt. (LCY)", Counter);
                     end;
@@ -163,7 +163,7 @@ report 106 "Customer Detailed Aging"
                         else
                             OK := TempCurrencyTotalBuffer.Next <> 0;
                         if not OK then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         TempCurrencyTotalBuffer2.UpdateTotal(
                           TempCurrencyTotalBuffer."Currency Code",
                           TempCurrencyTotalBuffer."Total Amount",
@@ -172,14 +172,14 @@ report 106 "Customer Detailed Aging"
 
                     trigger OnPostDataItem()
                     begin
-                        TempCurrencyTotalBuffer.DeleteAll;
+                        TempCurrencyTotalBuffer.DeleteAll();
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     if not CustomersWithLedgerEntriesList.Contains("No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -219,12 +219,12 @@ report 106 "Customer Detailed Aging"
                     else
                         OK := TempCurrencyTotalBuffer2.Next <> 0;
                     if not OK then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    TempCurrencyTotalBuffer2.DeleteAll;
+                    TempCurrencyTotalBuffer2.DeleteAll();
                 end;
             }
         }

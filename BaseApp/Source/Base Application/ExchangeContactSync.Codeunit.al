@@ -19,6 +19,7 @@ codeunit 6703 "Exchange Contact Sync."
         SkipDateFilters: Boolean;
         ProcessExchangeContactsMsg: Label 'Processing contacts from Exchange.';
         ProcessNavContactsMsg: Label 'Processing contacts in your company.';
+        ExchangeCountTelemetryTxt: Label 'Retrieved %1 Exchange contacts for synchronization.', Locked = true;
 
     procedure GetRequestParameters(var ExchangeSync: Record "Exchange Sync"): Text
     var
@@ -66,6 +67,7 @@ codeunit 6703 "Exchange Contact Sync."
     begin
         SkipDateFilters := FullSync;
         O365ContactSyncHelper.GetO365Contacts(ExchangeSync, TempContact);
+        SendTraceTag('0000ACN', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(ExchangeCountTelemetryTxt, TempContact.Count()), DataClassification::SystemMetadata);
 
         O365SyncManagement.ShowProgress(ProcessNavContactsMsg);
         ProcessNavContacts(ExchangeSync, TempContact, SkipDateFilters);
@@ -80,7 +82,7 @@ codeunit 6703 "Exchange Contact Sync."
 
     local procedure ProcessExchangeContacts(var ExchangeSync: Record "Exchange Sync"; var TempContact: Record Contact temporary; SkipDateFilters: Boolean)
     begin
-        TempContact.Reset;
+        TempContact.Reset();
         if not SkipDateFilters then
             TempContact.SetLastDateTimeFilter(ExchangeSync."Last Sync Date Time");
 
@@ -97,7 +99,7 @@ codeunit 6703 "Exchange Contact Sync."
             repeat
                 found := false;
                 ContactNo := '';
-                Contact.Reset;
+                Contact.Reset();
                 Clear(Contact);
                 Contact.SetRange("Search E-Mail", UpperCase(LocalContact."E-Mail"));
                 if Contact.FindFirst then begin

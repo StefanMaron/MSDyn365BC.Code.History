@@ -21,9 +21,9 @@ codeunit 130150 "Generate Test Data Mgt."
     var
         GenerateTestDataLine: Record "Generate Test Data Line";
     begin
-        GenerateTestDataLine.Reset;
+        GenerateTestDataLine.Reset();
         GenerateTestDataLine.SetFilter(Status, '<>%1', GenerateTestDataLine.Status::"In Progress");
-        GenerateTestDataLine.DeleteAll;
+        GenerateTestDataLine.DeleteAll();
 
         AddTable(GenerateTestDataLine, DATABASE::Customer, 0);
         AddTable(GenerateTestDataLine, DATABASE::"Cust. Ledger Entry", 0);
@@ -60,7 +60,7 @@ codeunit 130150 "Generate Test Data Mgt."
         RecRef: RecordRef;
     begin
         RecRef.Open(TableID);
-        TotalRecords := RecRef.Count;
+        TotalRecords := RecRef.Count();
         RecRef.Close;
     end;
 
@@ -82,7 +82,7 @@ codeunit 130150 "Generate Test Data Mgt."
             "Service Instance ID" := ServiceInstanceId;
             Validate("Added Records", 0);
             Modify;
-            Commit;
+            Commit();
 
             GenerateData(GenerateTestDataLine);
         end;
@@ -100,7 +100,7 @@ codeunit 130150 "Generate Test Data Mgt."
                 if CurrentRecNo >= ("Added Records" + RecNoToModify) then begin
                     Validate("Added Records", CurrentRecNo);
                     Modify;
-                    Commit;
+                    Commit();
                 end;
             end;
             Validate("Added Records", "Records To Add");

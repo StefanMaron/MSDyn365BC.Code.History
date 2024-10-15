@@ -70,7 +70,7 @@ table 206 "Res. Journal Template"
                     "Page ID" := PAGE::"Resource Journal";
                 "Test Report ID" := REPORT::"Resource Journal - Test";
                 "Posting Report ID" := REPORT::"Resource Register";
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 "Source Code" := SourceCodeSetup."Resource Journal";
                 if Recurring then
                     TestField("No. Series", '');
@@ -151,7 +151,7 @@ table 206 "Res. Journal Template"
         ResJnlLine.SetRange("Journal Template Name", Name);
         ResJnlLine.DeleteAll(true);
         ResJnlBatch.SetRange("Journal Template Name", Name);
-        ResJnlBatch.DeleteAll;
+        ResJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

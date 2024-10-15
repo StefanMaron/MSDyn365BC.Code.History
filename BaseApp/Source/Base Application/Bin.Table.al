@@ -34,7 +34,7 @@ table 7354 Bin
                     CheckEmptyBin(Text007);
                     if Code = '' then
                         SetUpNewLine;
-                    BinContent.Reset;
+                    BinContent.Reset();
                     BinContent.SetRange("Location Code", "Location Code");
                     BinContent.SetRange("Bin Code", Code);
                     BinContent.ModifyAll("Zone Code", "Zone Code");
@@ -58,7 +58,7 @@ table 7354 Bin
             begin
                 if "Bin Type Code" <> xRec."Bin Type Code" then begin
                     CheckEmptyBin(Text007);
-                    BinContent.Reset;
+                    BinContent.Reset();
                     BinContent.SetRange("Location Code", "Location Code");
                     BinContent.SetRange("Bin Code", Code);
                     BinContent.ModifyAll("Bin Type Code", "Bin Type Code");
@@ -74,7 +74,7 @@ table 7354 Bin
             begin
                 if "Warehouse Class Code" <> xRec."Warehouse Class Code" then begin
                     CheckEmptyBin(Text007);
-                    BinContent.Reset;
+                    BinContent.Reset();
                     BinContent.SetRange("Location Code", "Location Code");
                     BinContent.SetRange("Bin Code", Code);
                     BinContent.ModifyAll("Warehouse Class Code", "Warehouse Class Code");
@@ -90,7 +90,7 @@ table 7354 Bin
             trigger OnValidate()
             begin
                 if "Block Movement" <> xRec."Block Movement" then begin
-                    BinContent.Reset;
+                    BinContent.Reset();
                     BinContent.SetRange("Location Code", "Location Code");
                     BinContent.SetRange("Bin Code", Code);
                     BinContent.ModifyAll("Block Movement", "Block Movement");
@@ -111,7 +111,7 @@ table 7354 Bin
                 WhseActivLine: Record "Warehouse Activity Line";
             begin
                 if "Bin Ranking" <> xRec."Bin Ranking" then begin
-                    BinContent.Reset;
+                    BinContent.Reset();
                     BinContent.SetRange("Location Code", "Location Code");
                     BinContent.SetRange("Bin Code", Code);
                     BinContent.ModifyAll("Bin Ranking", "Bin Ranking");
@@ -184,7 +184,7 @@ table 7354 Bin
             trigger OnValidate()
             begin
                 if "Cross-Dock Bin" <> xRec."Cross-Dock Bin" then begin
-                    BinContent.Reset;
+                    BinContent.Reset();
                     BinContent.SetRange("Location Code", "Location Code");
                     BinContent.SetRange("Bin Code", Code);
                     BinContent.ModifyAll("Cross-Dock Bin", "Cross-Dock Bin");
@@ -199,7 +199,7 @@ table 7354 Bin
             begin
                 if Dedicated <> xRec.Dedicated then begin
                     CheckEmptyBin(Text007);
-                    BinContent.Reset;
+                    BinContent.Reset();
                     BinContent.SetRange("Location Code", "Location Code");
                     BinContent.SetRange("Bin Code", Code);
                     BinContent.ModifyAll(Dedicated, Dedicated);
@@ -253,10 +253,10 @@ table 7354 Bin
                     Error(Text003);
         end;
 
-        BinContent.Reset;
+        BinContent.Reset();
         BinContent.SetRange("Location Code", "Location Code");
         BinContent.SetRange("Bin Code", Code);
-        BinContent.DeleteAll;
+        BinContent.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -458,7 +458,7 @@ table 7354 Bin
         Weight: Decimal;
     begin
         if ("Maximum Cubage" <> 0) or ("Maximum Weight" <> 0) then begin
-            BinContent.Reset;
+            BinContent.Reset();
             BinContent.SetRange("Location Code", "Location Code");
             BinContent.SetRange("Bin Code", Code);
             if BinContent.Find('-') then
@@ -537,7 +537,7 @@ table 7354 Bin
               ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
               FieldCaption(Code), Code, WarehouseJnl.TableCaption);
 
-        WarehouseJnl.Reset;
+        WarehouseJnl.Reset();
         WarehouseJnl.SetRange("To Bin Code", Code);
         WarehouseJnl.SetRange("Location Code", "Location Code");
         if not WarehouseJnl.IsEmpty then

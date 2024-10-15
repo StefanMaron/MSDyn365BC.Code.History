@@ -1,4 +1,4 @@
-﻿page 5758 "Posted Transfer Shipment Lines"
+page 5758 "Posted Transfer Shipment Lines"
 {
     Caption = 'Posted Transfer Shipment Lines';
     Editable = false;
@@ -118,7 +118,7 @@
     var
         TransShptLine: Record "Transfer Shipment Line";
     begin
-        TempTransShptLine.Reset;
+        TempTransShptLine.Reset();
         TempTransShptLine.CopyFilters(Rec);
         TempTransShptLine.SetRange("Document No.", DocNo);
         if not TempTransShptLine.FindFirst then begin
@@ -126,7 +126,7 @@
             TransShptLine.SetRange("Document No.", DocNo);
             TransShptLine.FindFirst;
             TempTransShptLine := TransShptLine;
-            TempTransShptLine.Insert;
+            TempTransShptLine.Insert();
         end;
         if TempTransShptLine."Line No." = LineNo then
             exit(true);

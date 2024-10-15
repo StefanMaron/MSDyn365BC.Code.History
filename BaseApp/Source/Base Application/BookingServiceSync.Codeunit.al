@@ -19,12 +19,15 @@ codeunit 6705 "Booking Service Sync."
         RetrieveBookingServicesMsg: Label 'Retrieving Booking services from Exchange.';
         CreateBookingServiceTxt: Label 'Create Booking service.';
         CreateNavItemTxt: Label 'Create service item.';
+        BookingsCountTelemetryTxt: Label 'Retrieved %1 Bookings Services for synchronization.', Locked = true;
+        LocalCountTelemetryTxt: Label 'Synchronizing %1 items to Bookings.', Locked = true;
         O365SyncManagement: Codeunit "O365 Sync. Management";
 
     procedure SyncRecords(var BookingSync: Record "Booking Sync")
     begin
         O365SyncManagement.ShowProgress(RetrieveBookingServicesMsg);
         GetBookingServices(BookingSync);
+        SendTraceTag('0000ACJ', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(BookingsCountTelemetryTxt, TempItem.Count()), DataClassification::SystemMetadata);
 
         O365SyncManagement.ShowProgress(ProcessNavServiceItemsMsg);
         ProcessNavServices(BookingSync);
@@ -75,26 +78,27 @@ codeunit 6705 "Booking Service Sync."
         BookingService: Record "Booking Service";
         Counter: BigInteger;
     begin
-        TempItem.Reset;
-        TempItem.DeleteAll;
-        TempBookingServiceMapping.Reset;
-        TempBookingServiceMapping.DeleteAll;
+        TempItem.Reset();
+        TempItem.DeleteAll();
+        TempBookingServiceMapping.Reset();
+        TempBookingServiceMapping.DeleteAll();
 
         if BookingService.FindSet then
             repeat
                 Counter += 1;
                 Clear(TempItem);
-                TempItem.Init;
+                TempItem.Init();
                 TempItem."No." := Format(Counter);
 
                 if not TransferBookingServiceToNavServiceNoValidate(BookingService, TempItem) then
                     O365SyncManagement.LogActivityFailed(BookingSync.RecordId, BookingSync."User ID",
                       CreateNavItemTxt, BookingService."Display Name")
                 else begin
-                    TempItem.Insert;
+                    TempItem.Insert();
                     TempBookingServiceMapping.Map(TempItem."No.", BookingService."Service ID", BookingSync."Booking Mailbox Address");
                 end;
             until BookingService.Next = 0;
+
         Clear(BookingService);
     end;
 
@@ -109,7 +113,7 @@ codeunit 6705 "Booking Service Sync."
 
     local procedure ProcessBookingServices(var BookingSync: Record "Booking Sync")
     begin
-        TempItem.Reset;
+        TempItem.Reset();
         TempItem.SetFilter("Last DateTime Modified", '>=%1', BookingSync."Last Service Sync");
         ProcessBookingServiceRecordSet(TempItem, BookingSync);
     end;
@@ -138,7 +142,7 @@ codeunit 6705 "Booking Service Sync."
     begin
         if Item.FindSet then
             repeat
-                TempItem.Reset;
+                TempItem.Reset();
 
                 if not TransferNavServiceToBookingService(Item, BookingService, BookingSync."Booking Mailbox Address") then
                     O365SyncManagement.LogActivityFailed(BookingSync.RecordId, BookingSync."User ID",
@@ -170,7 +174,8 @@ codeunit 6705 "Booking Service Sync."
         ItemRecRef: RecordRef;
         Found: Boolean;
     begin
-        if LocalItem.FindSet then
+        if LocalItem.FindSet then begin
+            SendTraceTag('0000ACK', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(LocalCountTelemetryTxt, LocalItem.Count()), DataClassification::SystemMetadata);
             repeat
                 Clear(Item);
                 Found := FindBookingServiceInNav(LocalItem, Item);
@@ -193,6 +198,7 @@ codeunit 6705 "Booking Service Sync."
                         BookingServiceMapping.Map(Item."No.", TempBookingServiceMapping."Service ID", BookingSync."Booking Mailbox Address");
                     end;
             until (LocalItem.Next = 0)
+        end;
     end;
 
     local procedure FindNavServiceInBookings(ItemNo: Code[20]; BookingMailbox: Text[80]) Found: Boolean
@@ -204,7 +210,7 @@ codeunit 6705 "Booking Service Sync."
         if BookingServiceMapping.FindFirst then
             if TempBookingServiceMapping.Get(BookingServiceMapping."Service ID") then begin
                 TempItem.Get(TempBookingServiceMapping."Item No.");
-                TempItem.Delete;
+                TempItem.Delete();
                 Found := true;
             end;
     end;
@@ -225,7 +231,7 @@ codeunit 6705 "Booking Service Sync."
         BookingServiceMapping: Record "Booking Service Mapping";
     begin
         Clear(BookingService);
-        BookingService.Init;
+        BookingService.Init();
         BookingService.Validate(
           "Display Name", CopyStr(NavItem.Description, 1, MaxStrLen(BookingService."Display Name")));
         BookingService.Validate(Price, NavItem."Unit Price");

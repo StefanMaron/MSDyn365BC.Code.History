@@ -778,50 +778,6 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
-    [Scope('OnPrem')]
-    procedure GenJnlLineDescriptionNoTrunc()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        GLEntry: Record "G/L Entry";
-        CurrencyCode: Code[10];
-        AdjExchDocNo: Code[20];
-        Description: Text[50];
-        ExpectedDescription: Text[50];
-        DescLen: Integer;
-    begin
-        // [SCENARIO 221966] Posting Description with long Currency Code and Amount is not truncated on run "Adjust Exchange Rates" report
-        Initialize;
-
-        // [GIVEN] Currency Code "XXX" with length 3+
-        CurrencyCode := CreateCurrency;
-        Assert.IsTrue(StrLen(CurrencyCode) > 2, 'The length of currency code must be greater than 2');
-
-        // [GIVEN] Posted Gen. Journal Line with Currency Code "XXX" and Amount "YYY"
-        CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(CurrencyCode),
-          GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2), LibraryRandom.RandInt(50));
-        AdjExchDocNo := LibraryUtility.GenerateGUID;
-
-        // [GIVEN] Posting Description template string "D" = "RANDDESC %1 %2"
-        DescLen := MaxStrLen(GLEntry.Description) - StrLen(StrSubstNo(' %1 %2', GenJournalLine."Currency Code", GenJournalLine.Amount));
-        Description := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(DescLen, 0) + ' %1 %2', 1);
-
-        ExpectedDescription := StrSubstNo(Description, GenJournalLine."Currency Code", GenJournalLine.Amount);
-
-        // [WHEN] "Adjust Exchange Rates" report run with "D" as Description
-        LibraryERM.RunAdjustExchangeRates(CurrencyCode, 0D, WorkDate, Description, WorkDate, AdjExchDocNo, false);
-
-        // [THEN] Description in G/L entries is equal to "RANDDESC XXX YYY"
-        GLEntry.SetRange("Document No.", AdjExchDocNo);
-        GLEntry.SetRange("Posting Date", WorkDate);
-        GLEntry.FindSet;
-        repeat
-            GLEntry.TestField(Description, PadStr(ExpectedDescription, MaxStrLen(GLEntry.Description)));
-        until GLEntry.Next = 0;
-    end;
-
-    [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceGainsLosses()
@@ -912,7 +868,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure AdjustExchRateForBank(ExchRateAmt: Decimal)
@@ -1100,7 +1056,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Currency: Record Currency;
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.CreateCurrency(Currency);
         Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
         Currency.Modify(true);

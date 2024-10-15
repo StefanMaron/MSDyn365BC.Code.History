@@ -43,7 +43,7 @@ report 6030 "Create Contract Invoices"
                                 ServContractMgt.CalcContractAmount(ServContractHeader, InvoiceFrom, InvoiceTo),
                                 Currency."Amount Rounding Precision");
                             if InvoicedAmount = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if not "Combine Invoices" or (LastCustomer <> "Bill-to Customer No.") or not LastContractCombined
                             then begin
                                 InvoiceNo := ServContractMgt.CreateServHeader(ServContractHeader, PostingDate, ContractExist);
@@ -87,7 +87,7 @@ report 6030 "Create Contract Invoices"
                     ContractInvoicingTest.InitVariables(PostingDate, InvoiceToDate);
                     ContractInvoicingTest.SetTableView("Service Contract Header");
                     ContractInvoicingTest.RunModal;
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
 
                 if PostingDate = 0D then

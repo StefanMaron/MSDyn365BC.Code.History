@@ -44,12 +44,10 @@ table 847 "Cash Flow Forecast Entry"
             Caption = 'Cash Flow Account No.';
             TableRelation = "Cash Flow Account";
         }
-        field(14; "Source Type"; Option)
+        field(14; "Source Type"; Enum "Cash Flow Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = ' ,Receivables,Payables,Liquid Funds,Cash Flow Manual Expense,Cash Flow Manual Revenue,Sales Order,Purchase Order,Fixed Assets Budget,Fixed Assets Disposal,Service Orders,G/L Budget,,,Job,Tax,Azure AI';
-            OptionMembers = " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget",,,Job,Tax,"Azure AI";
         }
         field(15; Description; Text[250])
         {
@@ -122,9 +120,9 @@ table 847 "Cash Flow Forecast Entry"
             ELSE
             IF ("Source Type" = CONST("Fixed Assets Disposal")) "Fixed Asset"
             ELSE
-            IF ("Source Type" = CONST("Sales Order")) "Sales Header"."No." WHERE("Document Type" = CONST(Order))
+            IF ("Source Type" = CONST("Sales Orders")) "Sales Header"."No." WHERE("Document Type" = CONST(Order))
             ELSE
-            IF ("Source Type" = CONST("Purchase Order")) "Purchase Header"."No." WHERE("Document Type" = CONST(Order))
+            IF ("Source Type" = CONST("Purchase Orders")) "Purchase Header"."No." WHERE("Document Type" = CONST(Order))
             ELSE
             IF ("Source Type" = CONST("Service Orders")) "Service Header"."No." WHERE("Document Type" = CONST(Order))
             ELSE
@@ -183,6 +181,13 @@ table 847 "Cash Flow Forecast Entry"
         {
         }
     }
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure ShowDimensions()
     var

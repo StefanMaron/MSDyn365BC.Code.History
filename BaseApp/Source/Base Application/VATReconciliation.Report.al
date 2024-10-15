@@ -106,7 +106,7 @@ report 13620 "VAT Reconciliation"
                 SalesVATRevCharges := 0;
 
                 if not ShowDetails and ("VAT Amount" = 0) and not ShowTransWithoutVAT then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if "VAT Amount" <> 0 then begin
                     VATEntry.SetRange("Transaction No.", "Transaction No.");

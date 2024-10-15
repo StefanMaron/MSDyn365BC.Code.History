@@ -158,11 +158,11 @@ codeunit 139453 "O365 Customer Permission Test"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
 
         // mandatory fields for Customer creation
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Customer Nos." := NoSeries.Code;
         SalesReceivablesSetup.Modify(true);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Contact Nos." := NoSeries.Code;
         MarketingSetup.Modify(true);
     end;

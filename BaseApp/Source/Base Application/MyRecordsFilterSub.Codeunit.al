@@ -33,13 +33,21 @@ codeunit 9150 "My Records Filter Sub."
         end;
     end;
 
-    local procedure GetMyFilterText(var TextFilterText: Text; MyTableNo: Integer)
+    procedure GetMyFilterText(var TextFilterText: Text; MyTableNo: Integer)
     var
         RecRef: RecordRef;
         FieldRef: FieldRef;
         NoOfValues: Integer;
+        IsHandled: Boolean;
+        IsMyTable: Boolean;
     begin
-        if not (MyTableNo in [DATABASE::"My Customer", DATABASE::"My Vendor", DATABASE::"My Item"]) then
+        IsHandled := false;
+        IsMyTable := MyTableNo in [DATABASE::"My Customer", DATABASE::"My Vendor", DATABASE::"My Item"];
+        OnGeforeGetMyFilterText(TextFilterText, MyTableNo, IsMyTable, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not IsMyTable then
             exit;
 
         TextFilterText := '';
@@ -65,6 +73,11 @@ codeunit 9150 "My Records Filter Sub."
             FilterString := MyNo
         else
             FilterString += '|' + MyNo;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGeforeGetMyFilterText(var TextFilterText: Text; MyTableNo: Integer; var IsMyTable: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -40,7 +40,7 @@ codeunit 395 "FinChrgMemo-Issue"
             CalcFields("Interest Amount", "Additional Fee", "Remaining Amount");
             if ("Interest Amount" = 0) and ("Additional Fee" = 0) and ("Remaining Amount" = 0) then
                 Error(Text000);
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Finance Charge Memo");
             SrcCode := SourceCodeSetup."Finance Charge Memo";
 
@@ -48,7 +48,7 @@ codeunit 395 "FinChrgMemo-Issue"
                 TestField("Issuing No. Series");
                 "Issuing No." := NoSeriesMgt.GetNextNo("Issuing No. Series", "Posting Date", true);
                 Modify;
-                Commit;
+                Commit();
             end;
             if "Issuing No." = '' then
                 DocNo := "No."
@@ -85,7 +85,7 @@ codeunit 395 "FinChrgMemo-Issue"
                                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
                                 GenJnlLine."Bill-to/Pay-to No." := "Customer No.";
-                                GenJnlLine.Insert;
+                                GenJnlLine.Insert();
                             end;
                         FinChrgMemoLine.Type::"Customer Ledger Entry":
                             begin
@@ -108,14 +108,14 @@ codeunit 395 "FinChrgMemo-Issue"
                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
                 GenJnlLine."Bill-to/Pay-to No." := "Customer No.";
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
             end;
 
             if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
                 InitGenJnlLine(GenJnlLine."Account Type"::Customer, "Customer No.", true);
                 GenJnlLine.Validate(Amount, TotalAmount);
                 GenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
             end;
             if GenJnlLine.Find('-') then
                 repeat
@@ -124,7 +124,7 @@ codeunit 395 "FinChrgMemo-Issue"
                     GenJnlPostLine.RunWithCheck(GenJnlLine2);
                 until GenJnlLine.Next = 0;
 
-            GenJnlLine.DeleteAll;
+            GenJnlLine.DeleteAll();
 
             if FinChrgMemoInterestAmount <> 0 then begin
                 TestField("Fin. Charge Terms Code");
@@ -145,11 +145,8 @@ codeunit 395 "FinChrgMemo-Issue"
             InsertIssuedFinChrgMemoHeader(FinChrgMemoHeader, IssuedFinChrgMemoHeader);
 
             if NextEntryNo = 0 then begin
-                ReminderFinChargeEntry.LockTable;
-                if ReminderFinChargeEntry.FindLast then
-                    NextEntryNo := ReminderFinChargeEntry."Entry No." + 1
-                else
-                    NextEntryNo := 1;
+                ReminderFinChargeEntry.LockTable();
+                NextEntryNo := ReminderFinChargeEntry.GetLastEntryNo() + 1;
             end;
 
             FinChrgCommentLine.CopyComments(
@@ -169,7 +166,7 @@ codeunit 395 "FinChrgMemo-Issue"
                     InsertIssuedFinChrgMemoLine(FinChrgMemoLine, IssuedFinChrgMemoHeader."No.");
                 until FinChrgMemoLine.Next = 0;
 
-            FinChrgMemoLine.DeleteAll;
+            FinChrgMemoLine.DeleteAll();
             Delete;
         end;
 
@@ -218,7 +215,7 @@ codeunit 395 "FinChrgMemo-Issue"
     local procedure InitGenJnlLine(AccType: Integer; AccNo: Code[20]; SystemCreatedEntry: Boolean)
     begin
         with FinChrgMemoHeader do begin
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Line No." := GenJnlLine."Line No." + 1;
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::"Finance Charge Memo";
             GenJnlLine."Document No." := DocNo;
@@ -255,7 +252,7 @@ codeunit 395 "FinChrgMemo-Issue"
         IssuedFinChrgMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
         IssuedFinChrgMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChrgMemoHeader."No.");
-        IssuedFinChrgMemoLine.DeleteAll;
+        IssuedFinChrgMemoLine.DeleteAll();
     end;
 
     procedure IncrNoPrinted(var IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header")
@@ -264,7 +261,7 @@ codeunit 395 "FinChrgMemo-Issue"
             Find;
             "No. Printed" := "No. Printed" + 1;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -272,7 +269,7 @@ codeunit 395 "FinChrgMemo-Issue"
     begin
         with FinChrgMemoHeader do begin
             Clear(IssuedFinChrgMemoHeader);
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Deleted Document");
             SourceCode.Get(SourceCodeSetup."Deleted Document");
 
@@ -302,19 +299,19 @@ codeunit 395 "FinChrgMemo-Issue"
             if IssuedFinChrgMemoHeader."No." <> '' then begin
                 IssuedFinChrgMemoHeader."Shortcut Dimension 1 Code" := '';
                 IssuedFinChrgMemoHeader."Shortcut Dimension 2 Code" := '';
-                IssuedFinChrgMemoHeader.Insert;
-                IssuedFinChrgMemoLine.Init;
+                IssuedFinChrgMemoHeader.Insert();
+                IssuedFinChrgMemoLine.Init();
                 IssuedFinChrgMemoLine."Finance Charge Memo No." := "No.";
                 IssuedFinChrgMemoLine."Line No." := 10000;
                 IssuedFinChrgMemoLine.Description := SourceCode.Description;
-                IssuedFinChrgMemoLine.Insert;
+                IssuedFinChrgMemoLine.Insert();
             end;
         end;
     end;
 
     local procedure InsertIssuedFinChrgMemoHeader(FinChrgMemoHeader: Record "Finance Charge Memo Header"; var IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
-        IssuedFinChrgMemoHeader.Init;
+        IssuedFinChrgMemoHeader.Init();
         IssuedFinChrgMemoHeader.TransferFields(FinChrgMemoHeader);
         IssuedFinChrgMemoHeader."No. Series" := FinChrgMemoHeader."Issuing No. Series";
         IssuedFinChrgMemoHeader."No." := DocNo;
@@ -323,17 +320,17 @@ codeunit 395 "FinChrgMemo-Issue"
         IssuedFinChrgMemoHeader."Source Code" := SrcCode;
         IssuedFinChrgMemoHeader."User ID" := UserId;
         OnBeforeIssuedFinChrgMemoHeaderInsert(IssuedFinChrgMemoHeader, FinChrgMemoHeader);
-        IssuedFinChrgMemoHeader.Insert;
+        IssuedFinChrgMemoHeader.Insert();
     end;
 
     local procedure InsertIssuedFinChrgMemoLine(FinChrgMemoLine: Record "Finance Charge Memo Line"; IssuedDocNo: Code[20])
     var
         IssuedFinChrgMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
-        IssuedFinChrgMemoLine.Init;
+        IssuedFinChrgMemoLine.Init();
         IssuedFinChrgMemoLine.TransferFields(FinChrgMemoLine);
         IssuedFinChrgMemoLine."Finance Charge Memo No." := IssuedDocNo;
-        IssuedFinChrgMemoLine.Insert;
+        IssuedFinChrgMemoLine.Insert();
     end;
 
     local procedure InsertFinChargeEntry(IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header"; FinChrgMemoLine: Record "Finance Charge Memo Line")
@@ -390,7 +387,7 @@ codeunit 395 "FinChrgMemo-Issue"
         CustLedgerEntry.CalcFields("Remaining Amount");
         if CustLedgerEntry."Remaining Amount" = 0 then begin
             CustLedgerEntry."Calculate Interest" := false;
-            CustLedgerEntry.Modify;
+            CustLedgerEntry.Modify();
         end;
         CustLedgerEntry2.SetCurrentKey("Closed by Entry No.");
         CustLedgerEntry2.SetRange("Closed by Entry No.", EntryNo);

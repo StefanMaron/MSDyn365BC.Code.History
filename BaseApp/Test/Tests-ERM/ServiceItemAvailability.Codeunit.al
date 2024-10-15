@@ -53,7 +53,7 @@ codeunit 136137 "Service Item Availability"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Item Availability");
     end;
 
@@ -566,9 +566,9 @@ codeunit 136137 "Service Item Availability"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     [Normal]
@@ -588,10 +588,10 @@ codeunit 136137 "Service Item Availability"
         CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariantA, Item."No.");
         ItemVariantA.Validate(Description, Item.Description);
-        ItemVariantA.Modify;
+        ItemVariantA.Modify();
         LibraryInventory.CreateItemVariant(ItemVariantB, Item."No.");
         ItemVariantB.Validate(Description, Item.Description);
-        ItemVariantB.Modify;
+        ItemVariantB.Modify();
     end;
 
     [Normal]
@@ -616,7 +616,7 @@ codeunit 136137 "Service Item Availability"
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Validate("Variant Code", VariantCode);
         PurchaseLine.Validate("Expected Receipt Date", ReceiptDate);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         exit(PurchaseHeader."No.");
     end;
 
@@ -642,7 +642,7 @@ codeunit 136137 "Service Item Availability"
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
         SalesLine.Validate("Location Code", LocationCode);
-        SalesLine.Modify;
+        SalesLine.Modify();
         LibrarySales.AutoReserveSalesLine(SalesLine);
     end;
 
@@ -656,11 +656,11 @@ codeunit 136137 "Service Item Availability"
         FindServiceItem(ServiceItem);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         ServiceHeader.Validate("Bill-to Name", DescriptionText);
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
 
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         ServiceItemLine.Validate("Line No.", 10000);
-        ServiceItemLine.Modify;
+        ServiceItemLine.Modify();
 
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
         ServiceLine.SetHideReplacementDialog(true);
@@ -669,7 +669,7 @@ codeunit 136137 "Service Item Availability"
         ServiceLine.Validate("Variant Code", VariantCode);
         ServiceLine.Validate("Needed by Date", NeededBy);
         ServiceLine.Validate("Variant Code", VariantCode);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         exit(ServiceHeader."No.");
     end;
@@ -712,11 +712,11 @@ codeunit 136137 "Service Item Availability"
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
         Job.Validate("Description 2", DescriptionText);
-        Job.Modify;
+        Job.Modify();
 
         // Job Task Line:
         LibraryJob.CreateJobTask(Job, JobTaskLine);
-        JobTaskLine.Modify;
+        JobTaskLine.Modify();
 
         // Job Planning Line:
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTaskLine, JobPlanningLine);
@@ -728,7 +728,7 @@ codeunit 136137 "Service Item Availability"
         JobPlanningLine.Validate(Quantity, ItemQuantity);
         JobPlanningLine.Validate("Location Code", LocationCode);
         JobPlanningLine.Validate("Variant Code", VariantCode);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         exit(Job."No.");
     end;
@@ -852,7 +852,7 @@ codeunit 136137 "Service Item Availability"
     var
         ItemCard: TestPage "Item Card";
     begin
-        Commit;
+        Commit();
         ItemCard.OpenView;
         MoveItemCardtoItemNo(ItemCard, Item);
         ItemCard."<Action110>".Invoke; // <Action110> refers to Item Availability By Event.

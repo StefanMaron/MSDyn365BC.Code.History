@@ -1454,6 +1454,96 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRenameTest - NamedType NewUserNameNotFound)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 1255942961" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New permission set, %1, has been created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[New permission set, D365 Basic Set, has been created.]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType CopySuccessMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 1640382967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed to find  %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType FailedPermissionFilterErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 188587028" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Missing Expected error message: %1. \ Actual error recieved: %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType ErrorStringCom001Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 4178972386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User %1 is not in Window Login table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType UserNotFound001Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 2366907793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected LicenseType %1 but got %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType LicenseTypeIsWrongErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 1987302815" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The row does not exist on the TestPage.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType RowNotfound001Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 4130519749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The validation error count is not as expected. Actual: %1 Expected %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType ErrorStringCom002Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 2643354537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Yes]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType YesTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 2871260926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Indirect]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType IndirectTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 1418745497" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There should be at least one enabled 'SUPER' user.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType SUPERPermissionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2997012308 - NamedType 3295940436" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of fields in the word document header (%1) does not match number of fields with data (%2).]]></Val>

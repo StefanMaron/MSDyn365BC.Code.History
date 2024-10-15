@@ -15,7 +15,7 @@ table 270 "Bank Account"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     NoSeriesMgt.TestManual(GLSetup."Bank Account Nos.");
                     "No. Series" := '';
                 end;
@@ -146,7 +146,7 @@ table 270 "Bank Account"
                 if "Currency Code" = xRec."Currency Code" then
                     exit;
 
-                BankAcc.Reset;
+                BankAcc.Reset();
                 BankAcc := Rec;
                 BankAcc.CalcFields(Balance, "Balance (LCY)");
                 BankAcc.TestField(Balance, 0);
@@ -641,7 +641,7 @@ table 270 "Bank Account"
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Bank Account");
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         UpdateContFromBank.OnDelete(Rec);
 
@@ -651,7 +651,7 @@ table 270 "Bank Account"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("Bank Account Nos.");
             NoSeriesMgt.InitSeries(GLSetup."Bank Account Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -718,10 +718,10 @@ table 270 "Bank Account"
     begin
         with BankAcc do begin
             BankAcc := Rec;
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("Bank Account Nos.");
             if NoSeriesMgt.SelectSeries(GLSetup."Bank Account Nos.", OldBankAcc."No. Series", "No. Series") then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 GLSetup.TestField("Bank Account Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := BankAcc;
@@ -760,7 +760,7 @@ table 270 "Bank Account"
             UpdateContFromBank.InsertNewContact(Rec, false);
             ContBusRel.FindFirst;
         end;
-        Commit;
+        Commit();
 
         Cont.FilterGroup(2);
         Cont.SetCurrentKey("Company Name", "Company No.", Type, Name);
@@ -902,7 +902,7 @@ table 270 "Bank Account"
         if "Currency Code" = '' then
             exit(true);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit("Currency Code" = GeneralLedgerSetup.GetCurrencyCode(''));
     end;
 
@@ -996,7 +996,7 @@ table 270 "Bank Account"
             repeat
                 if not BankAccount.IsLinkedToBankStatementServiceProvider then begin
                     TempUnlinkedBankAccount := BankAccount;
-                    TempUnlinkedBankAccount.Insert;
+                    TempUnlinkedBankAccount.Insert();
                 end;
             until BankAccount.Next = 0;
     end;
@@ -1009,7 +1009,7 @@ table 270 "Bank Account"
             repeat
                 if BankAccount.IsLinkedToBankStatementServiceProvider then begin
                     TempUnlinkedBankAccount := BankAccount;
-                    TempUnlinkedBankAccount.Insert;
+                    TempUnlinkedBankAccount.Insert();
                 end;
             until BankAccount.Next = 0;
     end;
@@ -1068,7 +1068,7 @@ table 270 "Bank Account"
           CopyStr(StrSubstNo(BankStmtScheduledDownloadDescTxt, Name), 1, MaxStrLen(JobQueueEntry.Description));
         JobQueueEntry."Notify On Success" := false;
         JobQueueEntry."No. of Minutes between Runs" := 121;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
             ShowBankStatementDownloadJobQueueEntry;
     end;
@@ -1079,7 +1079,7 @@ table 270 "Bank Account"
     begin
         SetAutomaticImportJobQueueEntryFilters(JobQueueEntry);
         if not JobQueueEntry.IsEmpty then
-            JobQueueEntry.DeleteAll;
+            JobQueueEntry.DeleteAll();
     end;
 
     procedure CreateNewAccount(OnlineBankAccLink: Record "Online Bank Acc. Link")
@@ -1087,7 +1087,7 @@ table 270 "Bank Account"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CurrencyCode: Code[10];
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Init;
         Validate("Bank Account No.", OnlineBankAccLink."Bank Account No.");
         Validate(Name, OnlineBankAccLink.Name);

@@ -650,17 +650,17 @@ page 8907 "Sales & Marketing Manager RC"
             }
             group("Group15")
             {
-                Caption = 'Sales - CDS';
+                Caption = 'Sales - Common Data Service';
                 action("Sales Order List - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Sales Orders - Dynamics 365 for Sales';
+                    Caption = 'Sales Orders - Dynamics 365 Sales';
                     RunObject = Page "CRM Sales Order List";
                 }
                 action("Quotes - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Quotes - Dynamics 365 for Sales';
+                    Caption = 'Quotes - Dynamics 365 Sales';
                     RunObject = Page "CRM Sales Quote List";
                 }
                 action("Cases - Dynamics 365 for Customer Service")
@@ -672,37 +672,37 @@ page 8907 "Sales & Marketing Manager RC"
                 action("Opportunities - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Opportunities - Dynamics 365 for Sales';
+                    Caption = 'Opportunities - Dynamics 365 Sales';
                     RunObject = Page "CRM Opportunity List";
                 }
                 action("Accounts - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Accounts - Dynamics 365 for Sales';
+                    Caption = 'Accounts - Dynamics 365 Sales';
                     RunObject = Page "CRM Account List";
                 }
                 action("Transaction Currencies - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Transaction Currencies - Dynamics 365 for Sales';
+                    Caption = 'Transaction Currencies - Dynamics 365 Sales';
                     RunObject = Page "CRM TransactionCurrency List";
                 }
                 action("Unit Groups - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Unit Groups - Dynamics 365 for Sales';
+                    Caption = 'Unit Groups - Dynamics 365 Sales';
                     RunObject = Page "CRM UnitGroup List";
                 }
                 action("Products - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Products - Dynamics 365 for Sales';
+                    Caption = 'Products - Dynamics 365 Sales';
                     RunObject = Page "CRM Product List";
                 }
                 action("Contacts - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Contacts - Dynamics 365 for Sales';
+                    Caption = 'Contacts - Dynamics 365 Sales';
                     RunObject = Page "CRM Contact List";
                 }
                 action("Records Skipped For Synchronization")

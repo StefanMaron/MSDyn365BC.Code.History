@@ -49,7 +49,7 @@ page 5098 "Task Card"
                     trigger OnDrillDown()
                     begin
                         Modify;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Attendee Scheduling", Rec);
                         Get("No.");
                         CurrPage.Update;
@@ -64,7 +64,7 @@ page 5098 "Task Card"
                     trigger OnDrillDown()
                     begin
                         Modify;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Attendee Scheduling", Rec);
                         Get("No.");
                         CurrPage.Update;

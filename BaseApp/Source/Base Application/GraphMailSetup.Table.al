@@ -79,6 +79,7 @@ table 407 "Graph Mail Setup"
         GetToken;
     end;
 
+    [NonDebuggable]
     local procedure GetToken(): Text
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
@@ -111,6 +112,7 @@ table 407 "Graph Mail Setup"
         exit(AccessToken);
     end;
 
+    [NonDebuggable]
     [TryFunction]
     [Scope('OnPrem')]
     local procedure TryGetToken(ResourceId: Text; var TokenCacheState: Text; AadUserId: Text; var AccessToken: Text)
@@ -145,6 +147,7 @@ table 407 "Graph Mail Setup"
         SendWebRequest(Payload, GetToken);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SendMail(TempEmailItem: Record "Email Item" temporary; var TokenCacheState: Text)
     var
@@ -166,6 +169,7 @@ table 407 "Graph Mail Setup"
         SendTraceTag('00001QM', GraphMailCategoryTxt, VERBOSITY::Normal, GraphMailSentMsg, DATACLASSIFICATION::SystemMetadata);
     end;
 
+    [NonDebuggable]
     local procedure SendWebRequest(Payload: Text; Token: Text): Boolean
     var
         TempBlob: Codeunit "Temp Blob";
@@ -192,6 +196,7 @@ table 407 "Graph Mail Setup"
         exit(true);
     end;
 
+    [NonDebuggable]
     local procedure GetTokenCacheState() TokenCacheState: Text
     begin
         TokenCacheState := '';
@@ -200,12 +205,14 @@ table 407 "Graph Mail Setup"
         exit(TokenCacheState)
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetRefreshToken(Token: Text)
     begin
         IsolatedStorage.Set(Format(RefreshTokenKeyTxt), Token, DataScope::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure Initialize(ShowDialogs: Boolean): Boolean
     var
@@ -243,6 +250,7 @@ table 407 "Graph Mail Setup"
         exit(true);
     end;
 
+    [NonDebuggable]
     local procedure SetUserFields(Token: Text): Boolean
     var
         TempBlob: Codeunit "Temp Blob";

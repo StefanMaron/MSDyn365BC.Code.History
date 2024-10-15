@@ -15,7 +15,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryPurchase: Codeunit "Library - Purchase";
         IsInitialized: Boolean;
         WrongAccountBalanceErr: Label 'The account balance is wrong.';
 
@@ -24,8 +23,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsBusinessManager()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -38,8 +35,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Business Manager
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] The Business Manager plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -48,7 +43,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with LIFO costing
-        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders
         InventoryAccountBalanceDelta := CreateAndPostPurchaseInvoices(VendorNo, ItemNo, InventoryGLAccount);
@@ -70,8 +65,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsExternalAccountant()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -84,8 +77,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as External Accountant
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] The External Accountant plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -94,7 +85,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with LIFO costing
-        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders
         InventoryAccountBalanceDelta := CreateAndPostPurchaseInvoices(VendorNo, ItemNo, InventoryGLAccount);
@@ -116,8 +107,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsTeamMember()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -127,14 +116,12 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Team Member
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with LIFO costing
-        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders as team member
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -149,8 +136,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsEssentialISVEmbUser()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -163,8 +148,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Essential ISV Emb User
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] The Essential ISV Emb Plan
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
@@ -173,7 +156,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with LIFO costing
-        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders
         InventoryAccountBalanceDelta := CreateAndPostPurchaseInvoices(VendorNo, ItemNo, InventoryGLAccount);
@@ -195,8 +178,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsTeamMemberISVEmb()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -206,14 +187,12 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Team Member ISV Emb
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with LIFO costing
-        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders as team member ISV Emb
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -228,8 +207,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsDeviceISVEmbUser()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -242,8 +219,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Device ISV Emb User
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] The Device ISV Emb Plan
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
@@ -252,7 +227,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with LIFO costing
-        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders
         InventoryAccountBalanceDelta := CreateAndPostPurchaseInvoices(VendorNo, ItemNo, InventoryGLAccount);
@@ -274,8 +249,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsBusinessManager()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -287,8 +260,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Business Manager
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] The Business Manager plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -297,7 +268,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with Standard costing
-        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders
         VarianceAccountBalanceDelta := CreateAndPostPurchaseInvoices(VendorNo, ItemNo, VarianceGLAccount);
@@ -317,8 +288,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsExternalAccountant()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -330,8 +299,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as External Accountant
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] The External Accountant plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -340,7 +307,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with Standard costing
-        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders
         VarianceAccountBalanceDelta := CreateAndPostPurchaseInvoices(VendorNo, ItemNo, VarianceGLAccount);
@@ -360,8 +327,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsTeamMember()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -371,14 +336,12 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Team Member
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with Standard costing
-        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders as team member
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -393,8 +356,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsEssentialISVEmbUser()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -406,8 +367,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Essential ISV Emb User
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] The Essential ISV Emb Plan
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
@@ -416,7 +375,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with Standard costing
-        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders
         VarianceAccountBalanceDelta := CreateAndPostPurchaseInvoices(VendorNo, ItemNo, VarianceGLAccount);
@@ -436,8 +395,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsTeamMemberISVEmb()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -447,14 +404,12 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Team Member ISV Emb
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with Standard costing
-        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders as team member ISV Emb
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -469,8 +424,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsDeviceISVEmbUser()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -482,8 +435,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Device ISV Emb User
         Initialize;
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
         // [GIVEN] The Device ISV Emb Plan
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
@@ -492,7 +443,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
 
         // [GIVEN] A vendor, customer and an item with Standard costing
-        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo, TempCustomerDetails, TempVendorDetails);
+        CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders
         VarianceAccountBalanceDelta := CreateAndPostPurchaseInvoices(VendorNo, ItemNo, VarianceGLAccount);
@@ -514,7 +465,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Item Costing Plan-based E2E");
 
@@ -536,25 +486,22 @@ codeunit 135409 "Item Costing Plan-based E2E"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Item Costing Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
-    local procedure CreateVendorCustomerAndItemWithLIFOCosting(var VendorNo: Code[20]; var CustomerNo: Code[20]; var ItemNo: Code[20]; TempCustomer: Record Customer temporary; TempVendor: Record Vendor temporary)
+    local procedure CreateVendorCustomerAndItemWithLIFOCosting(var VendorNo: Code[20]; var CustomerNo: Code[20]; var ItemNo: Code[20])
     begin
-        VendorNo := CreateVendor(TempVendor);
-        CustomerNo := CreateCustomer(TempCustomer);
+        VendorNo := CreateVendor;
+        CustomerNo := CreateCustomer;
         ItemNo := CreateItemLIFOCosting(200);
     end;
 
-    local procedure CreateVendorCustomerAndItemWithStandardCosting(var VendorNo: Code[20]; var CustomerNo: Code[20]; var ItemNo: Code[20]; TempCustomer: Record Customer temporary; TempVendor: Record Vendor temporary)
+    local procedure CreateVendorCustomerAndItemWithStandardCosting(var VendorNo: Code[20]; var CustomerNo: Code[20]; var ItemNo: Code[20])
     begin
-        VendorNo := CreateVendor(TempVendor);
-        CustomerNo := CreateCustomer(TempCustomer);
+        VendorNo := CreateVendor;
+        CustomerNo := CreateCustomer;
         ItemNo := CreateItemStandardCosting(200, 70);
     end;
 
@@ -702,7 +649,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         PostedSalesInvoice.Close;
     end;
 
-    local procedure CreateVendor(TempVendorDetails: Record Vendor temporary) VendorNo: Code[20]
+    local procedure CreateVendor() VendorNo: Code[20]
     var
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
@@ -711,14 +658,11 @@ codeunit 135409 "Item Costing Plan-based E2E"
         VendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
         VendorCard.OpenNew;
         VendorCard.Name.SetValue(VendorName);
-        VendorCard."Gen. Bus. Posting Group".SetValue(TempVendorDetails."Gen. Bus. Posting Group");
-        VendorCard."VAT Bus. Posting Group".SetValue(TempVendorDetails."VAT Bus. Posting Group");
-        VendorCard."Vendor Posting Group".SetValue(TempVendorDetails."Vendor Posting Group");
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
     end;
 
-    local procedure CreateCustomer(TempCustomerDetails: Record Customer temporary) CustomerNo: Code[20]
+    local procedure CreateCustomer() CustomerNo: Code[20]
     var
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
@@ -727,37 +671,8 @@ codeunit 135409 "Item Costing Plan-based E2E"
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         CustomerCard.OpenNew;
         CustomerCard.Name.SetValue(CustomerName);
-        CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
-        CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");
-        CustomerCard."Customer Posting Group".SetValue(TempCustomerDetails."Customer Posting Group");
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
-    end;
-
-    local procedure FindVendorPostingAndVATSetup(var TempVendorDetails: Record Vendor temporary)
-    begin
-        TempVendorDetails.Init;
-        FindBusPostingGroups(TempVendorDetails."Gen. Bus. Posting Group", TempVendorDetails."VAT Bus. Posting Group");
-        TempVendorDetails."Vendor Posting Group" := LibraryPurchase.FindVendorPostingGroup;
-    end;
-
-    local procedure FindCustomerPostingAndVATSetup(var TempCustomerDetails: Record Customer temporary)
-    begin
-        TempCustomerDetails.Init;
-        FindBusPostingGroups(TempCustomerDetails."Gen. Bus. Posting Group", TempCustomerDetails."VAT Bus. Posting Group");
-        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup;
-    end;
-
-    local procedure FindBusPostingGroups(var GenBusPostingGroup: Code[20]; var VATBusPostingGroup: Code[20])
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        GenBusPostingGroup := GeneralPostingSetup."Gen. Bus. Posting Group";
-
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        VATBusPostingGroup := VATPostingSetup."VAT Bus. Posting Group";
     end;
 
     local procedure CreateItemLIFOCosting(UnitPrice: Decimal) ItemNo: Code[20]

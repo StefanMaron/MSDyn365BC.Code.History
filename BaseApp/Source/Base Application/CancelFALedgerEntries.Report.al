@@ -14,9 +14,9 @@ report 5688 "Cancel FA Ledger Entries"
             begin
                 Window.Update(1, "No.");
                 if Inactive or Blocked then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 FALedgEntry.SetRange("FA No.", "No.");
                 if FALedgEntry.Find('+') then
                     repeat
@@ -159,7 +159,7 @@ report 5688 "Cancel FA Ledger Entries"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;
@@ -237,7 +237,7 @@ report 5688 "Cancel FA Ledger Entries"
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
     begin
         if FirstGenJnl then begin
-            GenJnlLine.LockTable;
+            GenJnlLine.LockTable();
             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
             NoSeries2 := FAJnlSetup.GetGenNoSeries(GenJnlLine);
             if DocumentNo = '' then
@@ -276,7 +276,7 @@ report 5688 "Cancel FA Ledger Entries"
     local procedure InsertFAJnlLine(var FALedgEntry: Record "FA Ledger Entry")
     begin
         if FirstFAJnl then begin
-            FAJnlLine.LockTable;
+            FAJnlLine.LockTable();
             FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
             NoSeries3 := FAJnlSetup.GetFANoSeries(FAJnlLine);
             if DocumentNo = '' then

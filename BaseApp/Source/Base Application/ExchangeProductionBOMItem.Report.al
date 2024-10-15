@@ -21,12 +21,12 @@ report 99001043 "Exchange Production BOM Item"
                   Text004 +
                   Text005);
 
-                Window.Update(1, SelectStr(Type[1] + 1, TypeTxt));
-                Window.Update(2, No[1]);
+                Window.Update(1, SelectStr(FromBOMType + 1, TypeTxt));
+                Window.Update(2, FromBOMNo);
 
                 ProdBOMLine.SetCurrentKey(Type, "No.");
-                ProdBOMLine.SetRange(Type, Type[1]);
-                ProdBOMLine.SetRange("No.", No[1]);
+                ProdBOMLine.SetRange(Type, FromBOMType);
+                ProdBOMLine.SetRange("No.", FromBOMNo);
 
                 if ProdBOMLine.Find('+') then
                     repeat
@@ -49,11 +49,11 @@ report 99001043 "Exchange Production BOM Item"
                             if not CreateNewVersion then begin
                                 if ProdBOMLine."Version Code" <> '' then begin
                                     ProdBOMVersionList.Status := ProdBOMVersionList.Status::"Under Development";
-                                    ProdBOMVersionList.Modify;
+                                    ProdBOMVersionList.Modify();
                                     ProdBOMVersionList.Mark(true);
                                 end else begin
                                     ProdBOMHeader.Status := ProdBOMHeader.Status::"Under Development";
-                                    ProdBOMHeader.Modify;
+                                    ProdBOMHeader.Modify();
                                     ProdBOMHeader.Mark(true);
                                 end;
                             end else begin
@@ -76,12 +76,12 @@ report 99001043 "Exchange Production BOM Item"
                                         ProdBOMVersionList."Version Code" := '';
                                         ProdBOMVersionList.Insert(true);
                                     end else
-                                        ProdBOMVersionList.Insert;
+                                        ProdBOMVersionList.Insert();
 
                                     OnAfterProdBOMVersionListInsert(ProdBOMVersionList, ProdBOMHeader2);
 
                                     ProdBOMVersionList.Mark(true);
-                                    ProdBOMLine3.Reset;
+                                    ProdBOMLine3.Reset();
                                     ProdBOMLine3.SetRange("Production BOM No.", ProdBOMLine."Production BOM No.");
                                     ProdBOMLine3.SetRange("Version Code", ProdBOMLine."Version Code");
                                     if ProdBOMLine3.Find('-') then
@@ -91,33 +91,33 @@ report 99001043 "Exchange Production BOM Item"
                                             then begin
                                                 ProdBOMLine2 := ProdBOMLine3;
                                                 ProdBOMLine2."Version Code" := ProdBOMVersionList."Version Code";
-                                                ProdBOMLine2.Insert;
+                                                ProdBOMLine2.Insert();
                                             end;
                                         until ProdBOMLine3.Next = 0;
                                 end else
                                     FirstVersion := false;
                             end;
 
-                            if (No[2] <> '') and FirstVersion then
+                            if (ToBOMNo <> '') and FirstVersion then
                                 if CreateNewVersion then begin
                                     ProdBOMLine3.SetCurrentKey("Production BOM No.", "Version Code");
-                                    ProdBOMLine3.SetRange(Type, Type[1]);
-                                    ProdBOMLine3.SetRange("No.", No[1]);
+                                    ProdBOMLine3.SetRange(Type, FromBOMType);
+                                    ProdBOMLine3.SetRange("No.", FromBOMNo);
                                     ProdBOMLine3.SetRange("Production BOM No.", ProdBOMLine."Production BOM No.");
                                     ProdBOMLine3.SetRange("Version Code", ProdBOMLine."Version Code");
                                     if ProdBOMLine3.Find('-') then
                                         repeat
                                             ProdBOMLine2 := ProdBOMLine3;
                                             ProdBOMLine2."Version Code" := ProdBOMVersionList."Version Code";
-                                            ProdBOMLine2.Validate(Type, Type[2]);
-                                            ProdBOMLine2.Validate("No.", No[2]);
+                                            ProdBOMLine2.Validate(Type, ToBOMType);
+                                            ProdBOMLine2.Validate("No.", ToBOMNo);
                                             ProdBOMLine2.Validate("Quantity per", ProdBOMLine3."Quantity per" * QtyMultiply);
                                             if CopyRoutingLink then
                                                 ProdBOMLine2.Validate("Routing Link Code", ProdBOMLine3."Routing Link Code");
                                             CopyPositionFields(ProdBOMLine2, ProdBOMLine3);
                                             ProdBOMLine2."Ending Date" := 0D;
                                             OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3, QtyMultiply);
-                                            ProdBOMLine2.Insert;
+                                            ProdBOMLine2.Insert();
                                         until ProdBOMLine3.Next = 0;
                                 end else begin
                                     ProdBOMLine3.SetRange("Production BOM No.", ProdBOMLine."Production BOM No.");
@@ -128,8 +128,8 @@ report 99001043 "Exchange Production BOM Item"
                                     ProdBOMLine2 := ProdBOMLine;
                                     ProdBOMLine2."Version Code" := ProdBOMVersionList."Version Code";
                                     ProdBOMLine2."Line No." := ProdBOMLine3."Line No.";
-                                    ProdBOMLine2.Validate(Type, Type[2]);
-                                    ProdBOMLine2.Validate("No.", No[2]);
+                                    ProdBOMLine2.Validate(Type, ToBOMType);
+                                    ProdBOMLine2.Validate("No.", ToBOMNo);
                                     ProdBOMLine2.Validate("Quantity per", ProdBOMLine."Quantity per" * QtyMultiply);
                                     if CopyRoutingLink then
                                         ProdBOMLine2.Validate("Routing Link Code", ProdBOMLine."Routing Link Code");
@@ -138,12 +138,12 @@ report 99001043 "Exchange Production BOM Item"
                                     CopyPositionFields(ProdBOMLine2, ProdBOMLine3);
                                     ProdBOMLine2."Ending Date" := 0D;
                                     OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3, QtyMultiply);
-                                    ProdBOMLine2.Insert;
+                                    ProdBOMLine2.Insert();
                                     if DeleteExcComp then
                                         ProdBOMLine.Delete(true)
                                     else begin
                                         ProdBOMLine."Ending Date" := StartingDate - 1;
-                                        ProdBOMLine.Modify;
+                                        ProdBOMLine.Modify();
                                     end;
                                 end;
                         end;
@@ -162,7 +162,7 @@ report 99001043 "Exchange Production BOM Item"
                     if ProdBOMHeader.Find('-') then
                         repeat
                             ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::Certified);
-                            ProdBOMHeader.Modify;
+                            ProdBOMHeader.Modify();
                         until ProdBOMHeader.Next = 0;
 
                     ProdBOMVersionList.SetRange("Production BOM No.");
@@ -170,7 +170,7 @@ report 99001043 "Exchange Production BOM Item"
                     if ProdBOMVersionList.Find('-') then
                         repeat
                             ProdBOMVersionList.Validate(Status, ProdBOMVersionList.Status::Certified);
-                            ProdBOMVersionList.Modify;
+                            ProdBOMVersionList.Modify();
                         until ProdBOMVersionList.Next = 0;
                 end;
             end;
@@ -190,50 +190,53 @@ report 99001043 "Exchange Production BOM Item"
                     group(Exchange)
                     {
                         Caption = 'Exchange';
-                        field(ExchangeType; Type[1])
+                        field(ExchangeType; FromBOMType)
                         {
                             ApplicationArea = Manufacturing;
                             Caption = 'Type';
-                            OptionCaption = ' ,Item,Production BOM';
                             ToolTip = 'Specifies what is to be exchanged here - Item or Production BOM.';
 
                             trigger OnValidate()
                             begin
-                                No[1] := '';
+                                FromBOMNo := '';
                             end;
                         }
-                        field(ExchangeNo; No[1])
+                        field(ExchangeNo; FromBOMNo)
                         {
                             ApplicationArea = Manufacturing;
                             Caption = 'No.';
                             ToolTip = 'Specifies the number of the item.';
 
                             trigger OnLookup(var Text: Text): Boolean
+                            var
+                                IsHandled: Boolean;
                             begin
-                                case Type[1] of
-                                    Type[1] ::Item:
+                                case FromBOMType of
+                                    FromBOMType::Item:
                                         if PAGE.RunModal(0, Item) = ACTION::LookupOK then begin
                                             Text := Item."No.";
                                             exit(true);
                                         end;
-                                    Type[1] ::"Production BOM":
+                                    FromBOMType::"Production BOM":
                                         if PAGE.RunModal(0, ProdBOMHeader) = ACTION::LookupOK then begin
                                             Text := ProdBOMHeader."No.";
                                             exit(true);
                                         end;
+                                    else
+                                        OnLookupExchangeNo(FromBOMType, Text, IsHandled);
                                 end;
                             end;
 
                             trigger OnValidate()
                             begin
-                                if Type[1] = Type::" " then
+                                if FromBOMType = FromBOMType::" " then
                                     Error(Text006);
 
-                                case Type[1] of
-                                    Type[1] ::Item:
-                                        Item.Get(No[1]);
-                                    Type[1] ::"Production BOM":
-                                        ProdBOMHeader.Get(No[1]);
+                                case FromBOMType of
+                                    FromBOMType::Item:
+                                        Item.Get(FromBOMNo);
+                                    FromBOMType::"Production BOM":
+                                        ProdBOMHeader.Get(FromBOMNo);
                                 end;
                             end;
                         }
@@ -241,19 +244,18 @@ report 99001043 "Exchange Production BOM Item"
                     group("With")
                     {
                         Caption = 'With';
-                        field(WithType; Type[2])
+                        field(WithType; ToBOMType)
                         {
                             ApplicationArea = Manufacturing;
                             Caption = 'Type';
-                            OptionCaption = ' ,Item,Production BOM';
                             ToolTip = 'Specifies your new selection that will replace what you selected in the Exchange Type field - Item or Production BOM.';
 
                             trigger OnValidate()
                             begin
-                                No[2] := '';
+                                ToBOMNo := '';
                             end;
                         }
-                        field(WithNo; No[2])
+                        field(WithNo; ToBOMNo)
                         {
                             ApplicationArea = Manufacturing;
                             Caption = 'No.';
@@ -261,13 +263,13 @@ report 99001043 "Exchange Production BOM Item"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                case Type[2] of
-                                    Type[2] ::Item:
+                                case ToBOMType of
+                                    ToBOMType::Item:
                                         if PAGE.RunModal(0, Item) = ACTION::LookupOK then begin
                                             Text := Item."No.";
                                             exit(true);
                                         end;
-                                    Type[2] ::"Production BOM":
+                                    ToBOMType::"Production BOM":
                                         if PAGE.RunModal(0, ProdBOMHeader) = ACTION::LookupOK then begin
                                             Text := ProdBOMHeader."No.";
                                             exit(true);
@@ -278,14 +280,14 @@ report 99001043 "Exchange Production BOM Item"
 
                             trigger OnValidate()
                             begin
-                                if Type[1] = Type::" " then
+                                if ToBOMType = ToBOMType::" " then
                                     Error(Text006);
 
-                                case Type[2] of
-                                    Type[2] ::Item:
-                                        Item.Get(No[2]);
-                                    Type[2] ::"Production BOM":
-                                        ProdBOMHeader.Get(No[2]);
+                                case ToBOMType of
+                                    ToBOMType::Item:
+                                        Item.Get(ToBOMNo);
+                                    ToBOMType::"Production BOM":
+                                        ProdBOMHeader.Get(ToBOMNo);
                                 end;
                             end;
                         }
@@ -378,14 +380,14 @@ report 99001043 "Exchange Production BOM Item"
         if StartingDate = 0D then
             Error(Text000);
 
-        if Type[1] = Type[1] ::" " then
+        if FromBOMType = FromBOMType::" " then
             Error(Text001);
 
-        if No[1] = '' then
+        if FromBOMNo = '' then
             Error(Text002);
 
-        if (Type[1] = Type[2]) and (No[1] = No[2]) then
-            Error(ItemBOMExchangeErr, SelectStr(Type[1] + 1, TypeTxt), No[1], SelectStr(Type[2] + 1, TypeTxt), No[2]);
+        if (FromBOMType = ToBOMType) and (FromBOMNo = ToBOMNo) then
+            Error(ItemBOMExchangeErr, SelectStr(FromBOMType + 1, TypeTxt), FromBOMNo, SelectStr(ToBOMType + 1, TypeTxt), ToBOMNo);
     end;
 
     var
@@ -403,8 +405,10 @@ report 99001043 "Exchange Production BOM Item"
         ProdBOMLine2: Record "Production BOM Line";
         ProdBOMLine3: Record "Production BOM Line";
         Window: Dialog;
-        Type: array[2] of Option " ",Item,"Production BOM";
-        No: array[2] of Code[20];
+        FromBOMType: Enum "Production BOM Line Type";
+        FromBOMNo: Code[20];
+        ToBOMType: Enum "Production BOM Line Type";
+        ToBOMNo: Code[20];
         QtyMultiply: Decimal;
         CreateNewVersion: Boolean;
         StartingDate: Date;
@@ -472,6 +476,11 @@ report 99001043 "Exchange Production BOM Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertNewProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; var FromProductionBOMLine: Record "Production BOM Line"; QtyMultiply: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupExchangeNo(LineType: Enum "Production BOM Line Type"; LookupText: Text; var IsHandled: Boolean)
     begin
     end;
 }

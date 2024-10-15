@@ -7,7 +7,7 @@ codeunit 113 "Vend. Entry-Edit"
     trigger OnRun()
     begin
         VendLedgEntry := Rec;
-        VendLedgEntry.LockTable;
+        VendLedgEntry.LockTable();
         VendLedgEntry.Find;
         VendLedgEntry."On Hold" := "On Hold";
         if VendLedgEntry.Open then begin
@@ -33,7 +33,7 @@ codeunit 113 "Vend. Entry-Edit"
         VendLedgEntry.Validate("Payment Reference", "Payment Reference");
         OnBeforeVendLedgEntryModify(VendLedgEntry, Rec);
         VendLedgEntry.TestField("Entry No.", "Entry No.");
-        VendLedgEntry.Modify;
+        VendLedgEntry.Modify();
         Rec := VendLedgEntry;
     end;
 

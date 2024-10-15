@@ -8,7 +8,7 @@ codeunit 131902 "Library - Service"
     end;
 
     var
-        ServicePeriodOneMonth: Label '<1M>';
+        ServicePeriodOneMonth: Label '<1M>', Locked = true;
         PaymentChannel: Label 'Payment Channel';
         LibraryERM: Codeunit "Library - ERM";
         NonWorkDayWorkDaySequenceNotFound: Label 'No non-working day followed by a working day found within an interval of %1 days.';
@@ -20,7 +20,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateBaseCalendar(var BaseCalendar: Record "Base Calendar")
     begin
-        BaseCalendar.Init;
+        BaseCalendar.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         BaseCalendar.Validate(Code, LibraryUtility.GenerateRandomCode(BaseCalendar.FieldNo(Code), DATABASE::"Base Calendar"));
         BaseCalendar.Insert(true);
@@ -28,7 +28,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateContractGroup(var ContractGroup: Record "Contract Group")
     begin
-        ContractGroup.Init;
+        ContractGroup.Init();
 
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         ContractGroup.Validate(
@@ -50,7 +50,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateContractServiceDiscount(var ContractServiceDiscount: Record "Contract/Service Discount"; ServiceContractHeader: Record "Service Contract Header"; Type: Option; No: Code[20])
     begin
-        ContractServiceDiscount.Init;
+        ContractServiceDiscount.Init();
         ContractServiceDiscount.Validate("Contract Type", ServiceContractHeader."Contract Type");
         ContractServiceDiscount.Validate("Contract No.", ServiceContractHeader."Contract No.");
         ContractServiceDiscount.Validate(Type, Type);
@@ -68,13 +68,13 @@ codeunit 131902 "Library - Service"
         CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID);
-        ExtendedTextLine.Modify;
+        ExtendedTextLine.Modify();
         exit(ExtendedTextLine.Text);
     end;
 
     procedure CreateExtendedTextHeaderItem(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
     begin
-        ExtendedTextHeader.Init;
+        ExtendedTextHeader.Init();
         ExtendedTextHeader.Validate("Table Name", ExtendedTextHeader."Table Name"::Item);
         ExtendedTextHeader.Validate("No.", ItemNo);
         ExtendedTextHeader.Insert(true);
@@ -84,7 +84,7 @@ codeunit 131902 "Library - Service"
     var
         RecRef: RecordRef;
     begin
-        ExtendedTextLine.Init;
+        ExtendedTextLine.Init();
         ExtendedTextLine.Validate("Table Name", ExtendedTextHeader."Table Name");
         ExtendedTextLine.Validate("No.", ExtendedTextHeader."No.");
         ExtendedTextLine.Validate("Language Code", ExtendedTextHeader."Language Code");
@@ -96,7 +96,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateFaultArea(var FaultArea: Record "Fault Area")
     begin
-        FaultArea.Init;
+        FaultArea.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         FaultArea.Validate(Code, LibraryUtility.GenerateRandomCode(FaultArea.FieldNo(Code), DATABASE::"Fault Area"));
         FaultArea.Validate(Description, FaultArea.Code);  // Validating Code as Description because value is not important.
@@ -105,7 +105,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateFaultCode(var FaultCode: Record "Fault Code"; FaultAreaCode: Code[10]; SymptomCode: Code[10])
     begin
-        FaultCode.Init;
+        FaultCode.Init();
         FaultCode.Validate("Fault Area Code", FaultAreaCode);
         FaultCode.Validate("Symptom Code", SymptomCode);
         FaultCode.Validate(Code, LibraryUtility.GenerateRandomCode(FaultCode.FieldNo(Code), DATABASE::"Fault Code"));
@@ -126,7 +126,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateFaultResolCodesRlship(var FaultResolCodRelationship: Record "Fault/Resol. Cod. Relationship"; FaultCode: Record "Fault Code"; ResolutionCode: Code[10]; ServiceItemGroupCode: Code[10])
     begin
-        FaultResolCodRelationship.Init;
+        FaultResolCodRelationship.Init();
         FaultResolCodRelationship.Validate("Fault Area Code", FaultCode."Fault Area Code");
         FaultResolCodRelationship.Validate("Symptom Code", FaultCode."Symptom Code");
         FaultResolCodRelationship.Validate("Fault Code", FaultCode.Code);
@@ -137,13 +137,13 @@ codeunit 131902 "Library - Service"
 
     procedure CreateLoaner(var Loaner: Record Loaner)
     begin
-        Loaner.Init;
+        Loaner.Init();
         Loaner.Insert(true);
     end;
 
     procedure CreateReasonCode(var ReasonCode: Record "Reason Code")
     begin
-        ReasonCode.Init;
+        ReasonCode.Init();
         ReasonCode.Validate(Code, LibraryUtility.GenerateRandomCode(ReasonCode.FieldNo(Code), DATABASE::"Reason Code"));
         ReasonCode.Validate(Description, ReasonCode.Code);  // Validating Code as Description because value is not important.
         ReasonCode.Insert(true);
@@ -151,7 +151,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateRepairStatus(var RepairStatus: Record "Repair Status")
     begin
-        RepairStatus.Init;
+        RepairStatus.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         RepairStatus.Validate(Code, LibraryUtility.GenerateRandomCode(RepairStatus.FieldNo(Code), DATABASE::"Repair Status"));
         RepairStatus.Validate(Description, RepairStatus.Code);  // Validating Code as Description because value is not important.
@@ -160,7 +160,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateResolutionCode(var ResolutionCode: Record "Resolution Code")
     begin
-        ResolutionCode.Init;
+        ResolutionCode.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         ResolutionCode.Validate(Code, LibraryUtility.GenerateRandomCode(ResolutionCode.FieldNo(Code), DATABASE::"Resolution Code"));
         ResolutionCode.Validate(Description, ResolutionCode.Code);  // Validating Code as Description because value is not important.
@@ -169,7 +169,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateResponsibilityCenter(var ResponsibilityCenter: Record "Responsibility Center")
     begin
-        ResponsibilityCenter.Init;
+        ResponsibilityCenter.Init();
         ResponsibilityCenter.Validate(
           Code, LibraryUtility.GenerateRandomCode(ResponsibilityCenter.FieldNo(Code), DATABASE::"Responsibility Center"));
         ResponsibilityCenter.Validate(Name, ResponsibilityCenter.Code);  // Validating Code as Name because value is not important.
@@ -180,7 +180,7 @@ codeunit 131902 "Library - Service"
     var
         RecRef: RecordRef;
     begin
-        ServiceCommentLine.Init;
+        ServiceCommentLine.Init();
         ServiceCommentLine.Validate("Table Name", TableName);
         ServiceCommentLine.Validate("Table Subtype", TableSubtype);
         ServiceCommentLine.Validate("No.", No);
@@ -218,7 +218,7 @@ codeunit 131902 "Library - Service"
     procedure CreateServiceContractAcctGrp(var ServiceContractAccountGroup: Record "Service Contract Account Group")
     begin
         // Create Service Contract Account Group.
-        ServiceContractAccountGroup.Init;
+        ServiceContractAccountGroup.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         ServiceContractAccountGroup.Validate(
           Code, LibraryUtility.GenerateRandomCode(ServiceContractAccountGroup.FieldNo(Code), DATABASE::"Service Contract Account Group"));
@@ -234,7 +234,7 @@ codeunit 131902 "Library - Service"
     var
         ServiceContractAccountGroup: Record "Service Contract Account Group";
     begin
-        ServiceContractHeader.Init;
+        ServiceContractHeader.Init();
         ServiceContractHeader.Validate("Contract Type", ContractType);
         ServiceContractHeader.Insert(true);
         if CustomerNo = '' then
@@ -254,7 +254,7 @@ codeunit 131902 "Library - Service"
     var
         RecRef: RecordRef;
     begin
-        ServiceContractLine.Init;
+        ServiceContractLine.Init();
         ServiceContractLine.Validate("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.Validate("Contract No.", ServiceContractHeader."Contract No.");
         RecRef.GetTable(ServiceContractLine);
@@ -271,7 +271,7 @@ codeunit 131902 "Library - Service"
     begin
         FindContractAccountGroup(ServiceContractAccountGroup);
 
-        ServiceContractTemplate.Init;
+        ServiceContractTemplate.Init();
         ServiceContractTemplate.Validate("Default Service Period", DefaultServicePeriod);
         // Service Contract Account Group is required for signing Contracts.
         ServiceContractTemplate.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
@@ -280,7 +280,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServiceCost(var ServiceCost: Record "Service Cost")
     begin
-        ServiceCost.Init;
+        ServiceCost.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         ServiceCost.Validate(Code, LibraryUtility.GenerateRandomCode(ServiceCost.FieldNo(Code), DATABASE::"Service Cost"));
         ServiceCost.Validate(Description, ServiceCost.Code);  // Validating Code as Description because value is not important.
@@ -303,7 +303,7 @@ codeunit 131902 "Library - Service"
         PaymentMethod: Record "Payment Method";
         PaymentTerms: Record "Payment Terms";
     begin
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader.Validate("Document Type", DocumentType);
         ServiceHeader.Insert(true);
         if CustomerNo = '' then
@@ -348,7 +348,7 @@ codeunit 131902 "Library - Service"
             NoSeries.Get(ServiceHeader."Posting No. Series");
             NoSeries.Validate("Date Order", true);
             NoSeries.Modify(true);
-            ServiceHeader.Modify;
+            ServiceHeader.Modify();
         end;
 
         CreateServiceItem(ServiceItem, ServiceHeader."Bill-to Customer No.");
@@ -367,7 +367,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateDefaultServiceHour(var ServiceHour: Record "Service Hour"; Day: Option)
     begin
-        ServiceHour.Init;
+        ServiceHour.Init();
         // Use a random Starting Time that does not cause Ending Time to fall in the next day.
         ServiceHour.Validate(
           "Starting Time",
@@ -382,7 +382,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServiceHour(var ServiceHour: Record "Service Hour"; ServiceContractHeader: Record "Service Contract Header"; Day: Option)
     begin
-        ServiceHour.Init;
+        ServiceHour.Init();
         ServiceHour.Validate("Service Contract Type", ServiceContractHeader."Contract Type" + 1);
         ServiceHour.Validate("Service Contract No.", ServiceContractHeader."Contract No.");
         ServiceHour.Validate("Starting Date", ServiceContractHeader."Starting Date");
@@ -400,7 +400,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServiceItem(var ServiceItem: Record "Service Item"; CustomerNo: Code[20])
     begin
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Insert(true);
         if CustomerNo = '' then
             CustomerNo := LibrarySales.CreateCustomerNo;
@@ -413,7 +413,7 @@ codeunit 131902 "Library - Service"
     var
         RecRef: RecordRef;
     begin
-        ServiceItemComponent.Init;
+        ServiceItemComponent.Init();
         ServiceItemComponent.Validate(Active, true);
         ServiceItemComponent.Validate("Parent Service Item No.", ServiceItemNo);
         RecRef.GetTable(ServiceItemComponent);
@@ -425,7 +425,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServiceItemGroup(var ServiceItemGroup: Record "Service Item Group")
     begin
-        ServiceItemGroup.Init;
+        ServiceItemGroup.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         ServiceItemGroup.Validate(Code, LibraryUtility.GenerateRandomCode(ServiceItemGroup.FieldNo(Code), DATABASE::"Service Item Group"));
         ServiceItemGroup.Validate(Description, ServiceItemGroup.Code);  // Validating Code as Description because value is not important.
@@ -436,7 +436,7 @@ codeunit 131902 "Library - Service"
     var
         RecRef: RecordRef;
     begin
-        ServiceItemLine.Init;
+        ServiceItemLine.Init();
         ServiceItemLine.Validate("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.Validate("Document No.", ServiceHeader."No.");
         RecRef.GetTable(ServiceItemLine);
@@ -466,7 +466,7 @@ codeunit 131902 "Library - Service"
     begin
         // Create Service Line.
         Clear(ServiceLine);
-        ServiceLine.Init;
+        ServiceLine.Init();
         ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
         ServiceLine.Validate("Document No.", ServiceHeader."No.");
         RecRef.GetTable(ServiceLine);
@@ -507,7 +507,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServiceOrderType(var ServiceOrderType: Record "Service Order Type")
     begin
-        ServiceOrderType.Init;
+        ServiceOrderType.Init();
         ServiceOrderType.Validate(Code, LibraryUtility.GenerateRandomCode(ServiceOrderType.FieldNo(Code), DATABASE::"Service Order Type"));
         ServiceOrderType.Validate(Description, ServiceOrderType.Code);  // Validating Code as Description because value is not important.
         ServiceOrderType.Insert(true);
@@ -515,7 +515,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServicePriceGroup(var ServicePriceGroup: Record "Service Price Group")
     begin
-        ServicePriceGroup.Init;
+        ServicePriceGroup.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         ServicePriceGroup.Validate(
           Code, LibraryUtility.GenerateRandomCode(ServicePriceGroup.FieldNo(Code), DATABASE::"Service Price Group"));
@@ -525,7 +525,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServPriceAdjustmntDetail(var ServPriceAdjustmentDetail: Record "Serv. Price Adjustment Detail"; ServPriceAdjmtGrCode: Code[10]; Type: Option; No: Code[20])
     begin
-        ServPriceAdjustmentDetail.Init;
+        ServPriceAdjustmentDetail.Init();
         ServPriceAdjustmentDetail.Validate("Serv. Price Adjmt. Gr. Code", ServPriceAdjmtGrCode);
         ServPriceAdjustmentDetail.Validate(Type, Type);
         ServPriceAdjustmentDetail.Validate("No.", No);
@@ -534,7 +534,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServPriceAdjustmentGroup(var ServicePriceAdjustmentGroup: Record "Service Price Adjustment Group")
     begin
-        ServicePriceAdjustmentGroup.Init;
+        ServicePriceAdjustmentGroup.Init();
         ServicePriceAdjustmentGroup.Validate(
           Code, LibraryUtility.GenerateRandomCode(ServicePriceAdjustmentGroup.FieldNo(Code), DATABASE::"Service Price Adjustment Group"));
         ServicePriceAdjustmentGroup.Validate(
@@ -544,7 +544,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServPriceGroupSetup(var ServPriceGroupSetup: Record "Serv. Price Group Setup"; ServicePriceGroupCode: Code[10]; FaultAreaCode: Code[10]; CustPriceGroupCode: Code[10])
     begin
-        ServPriceGroupSetup.Init;
+        ServPriceGroupSetup.Init();
         ServPriceGroupSetup.Validate("Service Price Group Code", ServicePriceGroupCode);
         ServPriceGroupSetup.Validate("Fault Area Code", FaultAreaCode);
         ServPriceGroupSetup.Validate("Cust. Price Group Code", CustPriceGroupCode);
@@ -555,7 +555,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServiceZone(var ServiceZone: Record "Service Zone")
     begin
-        ServiceZone.Init;
+        ServiceZone.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         ServiceZone.Validate(Code, LibraryUtility.GenerateRandomCode(ServiceZone.FieldNo(Code), DATABASE::"Service Zone"));
         ServiceZone.Insert(true);
@@ -563,7 +563,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateStandardServiceCode(var StandardServiceCode: Record "Standard Service Code")
     begin
-        StandardServiceCode.Init;
+        StandardServiceCode.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         StandardServiceCode.Validate(
           Code, LibraryUtility.GenerateRandomCode(StandardServiceCode.FieldNo(Code), DATABASE::"Standard Service Code"));
@@ -576,7 +576,7 @@ codeunit 131902 "Library - Service"
     var
         RecRef: RecordRef;
     begin
-        StandardServiceLine.Init;
+        StandardServiceLine.Init();
         StandardServiceLine.Validate("Standard Service Code", StandardServiceCode);
         RecRef.GetTable(StandardServiceLine);
         StandardServiceLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, StandardServiceLine.FieldNo("Line No.")));
@@ -585,7 +585,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateStandardServiceItemGr(var StandardServiceItemGrCode: Record "Standard Service Item Gr. Code"; ServiceItemGroupCode: Code[10]; StandardServiceCode: Code[10])
     begin
-        StandardServiceItemGrCode.Init;
+        StandardServiceItemGrCode.Init();
         StandardServiceItemGrCode.Validate("Service Item Group Code", ServiceItemGroupCode);
         StandardServiceItemGrCode.Validate(Code, StandardServiceCode);
         StandardServiceItemGrCode.Insert(true);
@@ -593,7 +593,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateSymptomCode(var SymptomCode: Record "Symptom Code")
     begin
-        SymptomCode.Init;
+        SymptomCode.Init();
         // Use the function GenerateRandomCode to get random and unique value for the Code field.
         SymptomCode.Validate(Code, LibraryUtility.GenerateRandomCode(SymptomCode.FieldNo(Code), DATABASE::"Symptom Code"));
         SymptomCode.Validate(Description, SymptomCode.Code);  // Validating Code as Description because value is not important.
@@ -602,7 +602,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateTroubleshootingHeader(var TroubleshootingHeader: Record "Troubleshooting Header")
     begin
-        TroubleshootingHeader.Init;
+        TroubleshootingHeader.Init();
         TroubleshootingHeader.Insert(true);
     end;
 
@@ -610,7 +610,7 @@ codeunit 131902 "Library - Service"
     var
         RecRef: RecordRef;
     begin
-        TroubleshootingLine.Init;
+        TroubleshootingLine.Init();
         TroubleshootingLine.Validate("No.", TroubleshootingHeaderNo);
         RecRef.GetTable(TroubleshootingLine);
         TroubleshootingLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, TroubleshootingLine.FieldNo("Line No.")));
@@ -623,7 +623,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateTroubleshootingSetup(var TroubleshootingSetup: Record "Troubleshooting Setup"; Type: Option; No: Code[20]; TroubleshootingNo: Code[20])
     begin
-        TroubleshootingSetup.Init;
+        TroubleshootingSetup.Init();
         TroubleshootingSetup.Validate(Type, Type);
         TroubleshootingSetup.Validate("No.", No);
         TroubleshootingSetup.Validate("Troubleshooting No.", TroubleshootingNo);
@@ -697,6 +697,7 @@ codeunit 131902 "Library - Service"
     begin
         ServiceHeader.Find;
         SetCorrDocNoService(ServiceHeader);
+        OnBeforePostServiceOrder(ServiceHeader);
         ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
     end;
 
@@ -732,7 +733,7 @@ codeunit 131902 "Library - Service"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Shipment on Invoice", ShipmentOnInvoice);
         ServiceMgtSetup.Modify(true);
     end;
@@ -744,7 +745,7 @@ codeunit 131902 "Library - Service"
         LibrarySales: Codeunit "Library - Sales";
     begin
         // Setup Service Management.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
 
         // Use GetGlobalNoSeriesCode to get No. Series code.
         if ServiceMgtSetup."Service Item Nos." = '' then
@@ -867,7 +868,7 @@ codeunit 131902 "Library - Service"
         Description: Text[30];
     begin
         // Checks if the day is a working day.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         CalendarManagement.SetSource(ServiceMgtSetup, CustomizedCalendarChange);
         CustomizedCalendarChange.Date := DateToCheck;
         CalendarManagement.CheckDateStatus(CustomizedCalendarChange);
@@ -992,6 +993,11 @@ codeunit 131902 "Library - Service"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustomerModifyCreateServiceLine(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostServiceOrder(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

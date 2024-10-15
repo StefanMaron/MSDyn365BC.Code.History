@@ -15,7 +15,7 @@ report 2501 "Day Book Cust. Ledger Entry"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem(Date; Date)
@@ -250,7 +250,7 @@ report 2501 "Day Book Cust. Ledger Entry"
                     begin
                         if "G/L Account No." <> GLAcc."No." then
                             if not GLAcc.Get("G/L Account No.") then
-                                GLAcc.Init;
+                                GLAcc.Init();
 
                         if SecondStep then begin
                             if PrintGLDetails then begin
@@ -276,9 +276,9 @@ report 2501 "Day Book Cust. Ledger Entry"
                         TransactionNoFilter: Text[250];
                     begin
                         if not PrintGLDetails then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
-                        DtldCustLedgEntry.Reset;
+                        DtldCustLedgEntry.Reset();
                         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
                         DtldCustLedgEntry.SetFilter("Entry Type", '<>%1', DtldCustLedgEntry."Entry Type"::Application);
                         if DtldCustLedgEntry.FindSet then begin
@@ -296,7 +296,7 @@ report 2501 "Day Book Cust. Ledger Entry"
 
                     if "Customer No." <> Customer."No." then
                         if not Customer.Get("Customer No.") then
-                            Customer.Init;
+                            Customer.Init();
 
                     VATAmount := 0;
                     VATBase := 0;
@@ -419,7 +419,7 @@ report 2501 "Day Book Cust. Ledger Entry"
     trigger OnPreReport()
     begin
         CustLedgFilter := ReqCustLedgEntry.GetFilters;
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

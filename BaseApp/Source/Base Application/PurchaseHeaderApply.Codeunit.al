@@ -24,7 +24,7 @@ codeunit 402 "Purchase Header Apply"
             Clear(ApplyVendEntries);
             if not OK then
                 exit;
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Vendor No.", Open);
             VendLedgEntry.SetRange("Vendor No.", PayToVendorNo);
             VendLedgEntry.SetRange(Open, true);

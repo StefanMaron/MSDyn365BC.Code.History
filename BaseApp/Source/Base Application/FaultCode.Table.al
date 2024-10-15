@@ -40,7 +40,7 @@ table 5918 "Fault Code"
 
     trigger OnInsert()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if ServMgtSetup."Fault Reporting Level" = ServMgtSetup."Fault Reporting Level"::None then
             Error(
               Text000,

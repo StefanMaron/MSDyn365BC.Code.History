@@ -81,15 +81,20 @@ table 1514 "Sent Notification Entry"
     {
     }
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo(ID)))
+    end;
+
     procedure NewRecord(NotificationEntry: Record "Notification Entry"; NotificationContent: Text; NotificationMethod: Option)
     var
-        SentNotificationEntry: Record "Sent Notification Entry";
         OutStream: OutStream;
     begin
         Clear(Rec);
-        if SentNotificationEntry.FindLast then;
         TransferFields(NotificationEntry);
-        ID := SentNotificationEntry.ID + 1;
+        ID := GetLastEntryNo() + 1;
         "Notification Content".CreateOutStream(OutStream);
         OutStream.WriteText(NotificationContent);
         "Notification Method" := NotificationMethod;

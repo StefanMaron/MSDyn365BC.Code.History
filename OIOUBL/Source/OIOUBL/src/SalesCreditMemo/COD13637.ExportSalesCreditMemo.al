@@ -77,7 +77,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         CrMemoElement.Add(DiscrepancyResponseElement);
     end;
 
-    local procedure InsertCrMemoTaxTotal(var CrMemoElement: XmlElement; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesCrMemoLine: Record "Sales Cr.Memo Line"; TotalTaxAmount: Decimal; CurrencyCode: Code[10]);
+    local procedure InsertCrMemoTaxTotal(var CrMemoElement: XmlElement; var SalesCrMemoLine: Record "Sales Cr.Memo Line"; TotalTaxAmount: Decimal; CurrencyCode: Code[10]);
     var
         TaxTotalElement: XmlElement;
         TaxableAmount: Decimal;
@@ -137,7 +137,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         CrMemoElement.Add(TaxTotalElement);
     end;
 
-    local procedure InsertCrMemoLine(var CrMemoElement: XmlElement; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesCrMemoLine: Record "Sales Cr.Memo Line"; CurrencyCode: Code[10])
+    local procedure InsertCrMemoLine(var CrMemoElement: XmlElement; SalesCrMemoLine: Record "Sales Cr.Memo Line"; CurrencyCode: Code[10])
     var
         CrMemoLineElement: XmlElement;
     begin
@@ -292,7 +292,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
             SalesCrMemoLine2.CALCSUMS(Amount, "Amount Including VAT");
             TotalTaxAmount := SalesCrMemoLine2."Amount Including VAT" - SalesCrMemoLine2.Amount;
 
-            InsertCrMemoTaxTotal(XMLCurrNode, SalesCrMemoHeader, SalesCrMemoLine2, TotalTaxAmount, CurrencyCode);
+            InsertCrMemoTaxTotal(XMLCurrNode, SalesCrMemoLine2, TotalTaxAmount, CurrencyCode);
         end;
 
         // CreditMemo->LegalMonetaryTotal
@@ -315,7 +315,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
             SalesCrMemoLine.TESTFIELD(Description);
 
             ExcludeVAT(SalesCrMemoLine, SalesCrMemoHeader."Prices Including VAT");
-            InsertCrMemoLine(XMLCurrNode, SalesCrMemoHeader, SalesCrMemoLine, CurrencyCode);
+            InsertCrMemoLine(XMLCurrNode, SalesCrMemoLine, CurrencyCode);
         until SalesCrMemoLine.NEXT() = 0;
 
         OutputFile.create(FromFile);

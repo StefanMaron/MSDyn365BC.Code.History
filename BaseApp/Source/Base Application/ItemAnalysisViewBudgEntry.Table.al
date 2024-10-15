@@ -108,7 +108,7 @@ table 7156 "Item Analysis View Budg. Entry"
     var
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
-        ItemAnalysisViewEntry.Init;
+        ItemAnalysisViewEntry.Init();
         ItemAnalysisViewEntry."Analysis Area" := "Analysis Area";
         ItemAnalysisViewEntry."Analysis View Code" := "Analysis View Code";
         exit(ItemAnalysisViewEntry.GetCaptionClass(AnalysisViewDimType));

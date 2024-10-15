@@ -1980,14 +1980,14 @@ codeunit 137154 "SCM Warehouse Management II"
         BlockCust(SalesHeader[3]."Sell-to Customer No.", Cust.Blocked::Invoice);
         BlockCust(SalesHeader[4]."Sell-to Customer No.", Cust.Blocked::All);
         // Set GDPPrivacyBlocked on Customer
-        Cust.Init;
+        Cust.Init();
         Cust.Get(SalesHeader[5]."Sell-to Customer No.");
         Cust.Validate("Privacy Blocked", true);
-        Cust.Modify;
+        Cust.Modify();
 
         // Create Warehouse Source Filter like the Filter CUSTOMERS
         LibraryWarehouse.CreateWarehouseSourceFilter(WhseSourceFilter, WhseSourceFilter.Type::Outbound);
-        Commit; // Make sure the created Warehouse Source Filter goes into the table
+        Commit(); // Make sure the created Warehouse Source Filter goes into the table
 
         // Exercise: Create Warehouse Shipment and use Filters to Get Source Doucments Action
         CreateWarehouseShipmentHeaderWithLocation(WhseShipmentHeader, LocationWhite.Code);
@@ -2199,7 +2199,7 @@ codeunit 137154 "SCM Warehouse Management II"
         // [GIVEN] Sales Return Order "SRO" where "External Document No." is populated with a value "VAL1".
         CreateAndReleaseSalesReturnOrder(SalesHeader, Item."No.", LocationYellow.Code, LibraryRandom.RandDec(100, 2));
         SalesHeader."External Document No." := SalesReturnExtDoc;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [GIVEN] Whse. Receipt created for "SRO".
         LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
@@ -2208,7 +2208,7 @@ codeunit 137154 "SCM Warehouse Management II"
         // [GIVEN] Whse. Receipt's "Vendor Shipment No." is populated with a value "VAL2".
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
         WarehouseReceiptHeader."Vendor Shipment No." := VendorShipmentDoc;
-        WarehouseReceiptHeader.Modify;
+        WarehouseReceiptHeader.Modify();
 
         // [WHEN] Post Whse. Receipt.
         PostWarehouseReceipt(WarehouseReceiptLine."No.");
@@ -2350,7 +2350,7 @@ codeunit 137154 "SCM Warehouse Management II"
         LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Management II");
     end;
 
@@ -2375,7 +2375,7 @@ codeunit 137154 "SCM Warehouse Management II"
         // Open Warehouse Receipt
         LibraryVariableStorage.Enqueue(WhseSourceFilter.Code);
         LibraryVariableStorage.Enqueue(Format(DateFilter));
-        Commit;
+        Commit();
         WhseReceipt.OpenEdit;
         WhseReceipt.FILTER.SetFilter("No.", WhseReceiptHeader."No.");
 
@@ -2405,7 +2405,7 @@ codeunit 137154 "SCM Warehouse Management II"
         // Open Warehouse Shipment
         LibraryVariableStorage.Enqueue(WhseSourceFilter.Code);
         LibraryVariableStorage.Enqueue(Format(DateFilter));
-        Commit;
+        Commit();
         WhseShipment.OpenEdit;
         WhseShipment.FILTER.SetFilter("No.", WhseShipmentHeader."No.");
 
@@ -2481,7 +2481,7 @@ codeunit 137154 "SCM Warehouse Management II"
 
     local procedure CalculateInventoryOnPhysicalInventoryJournal(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item; LocationCode: Code[10])
     begin
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", PhysicalInventoryItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", PhysicalInventoryItemJournalBatch.Name);
         ItemJournalLine."Document No." := LibraryUtility.GenerateGUID;
@@ -3095,12 +3095,12 @@ codeunit 137154 "SCM Warehouse Management II"
     begin
         LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
         LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
-        WhseWorksheetLine.Init;
+        WhseWorksheetLine.Init();
         WhseWorksheetLine.Validate("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
         WhseWorksheetLine.Validate(Name, WhseWorksheetName.Name);
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
-        WhseInternalPutAwayHeader.Init;
+        WhseInternalPutAwayHeader.Init();
         LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, 0);  // Use 0 for Movement Worksheet.
     end;
 
@@ -3506,7 +3506,7 @@ codeunit 137154 "SCM Warehouse Management II"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         OldReceiptPostingPolicy := WarehouseSetup."Receipt Posting Policy";
         WarehouseSetup.Validate("Receipt Posting Policy", NewReceiptPostingPolicy);
         WarehouseSetup.Modify(true);

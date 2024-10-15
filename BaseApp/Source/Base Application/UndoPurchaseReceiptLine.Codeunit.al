@@ -76,12 +76,12 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
             Find('-');
             repeat
-                TempGlobalItemLedgEntry.Reset;
+                TempGlobalItemLedgEntry.Reset();
                 if not TempGlobalItemLedgEntry.IsEmpty then
-                    TempGlobalItemLedgEntry.DeleteAll;
-                TempGlobalItemEntryRelation.Reset;
+                    TempGlobalItemLedgEntry.DeleteAll();
+                TempGlobalItemEntryRelation.Reset();
                 if not TempGlobalItemEntryRelation.IsEmpty then
-                    TempGlobalItemEntryRelation.DeleteAll;
+                    TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
                     Window.Open(Text001);
@@ -127,7 +127,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
             until Next = 0;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -156,7 +156,8 @@ codeunit 5813 "Undo Purchase Receipt Line"
             if Correction then
                 Error(AlreadyReversedErr);
             if "Qty. Rcd. Not Invoiced" <> Quantity then
-                Error(Text004);
+                if HasInvoicedNotReturnedQuantity(PurchRcptLine) then
+                    Error(Text004);
             if Type = Type::Item then begin
                 TestField("Prod. Order No.", '');
                 TestField("Sales Order No.", '');
@@ -165,7 +166,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                 UndoPostingMgt.TestPurchRcptLine(PurchRcptLine);
                 UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Purch. Rcpt. Line",
                   "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
-                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.", "Qty. Rcd. Not Invoiced" <> Quantity);
             end;
         end;
     end;
@@ -215,9 +216,9 @@ codeunit 5813 "Undo Purchase Receipt Line"
         with PurchRcptLine do begin
             DocLineNo := GetCorrectionLineNo(PurchRcptLine);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             PurchRcptHeader.Get("Document No.");
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Purchase;
             ItemJnlLine."Item No." := "No.";
             ItemJnlLine."Posting Date" := PurchRcptHeader."Posting Date";
@@ -246,8 +247,8 @@ codeunit 5813 "Undo Purchase Receipt Line"
                 ItemJnlLine."Job Purchase" := true;
                 ItemJnlLine."Unit Cost" := "Unit Cost (LCY)";
             end;
-            ItemJnlLine.Quantity := -Quantity;
-            ItemJnlLine."Quantity (Base)" := -"Quantity (Base)";
+            ItemJnlLine.Quantity := -(Quantity - "Quantity Invoiced");
+            ItemJnlLine."Quantity (Base)" := -("Quantity (Base)" - "Qty. Invoiced (Base)");
 
             OnAfterCopyItemJnlLineFromPurchRcpt(ItemJnlLine, PurchRcptHeader, PurchRcptLine);
 
@@ -302,7 +303,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                     until TempApplyToEntryList.Next = 0;
 
             UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempApplyToEntryList,
-              Quantity, "Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
+              Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, "Qty. Rcd. Not Invoiced" <> Quantity);
 
             exit(0); // "Item Shpt. Entry No."
         end;
@@ -313,7 +314,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         NewPurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         with OldPurchRcptLine do begin
-            NewPurchRcptLine.Init;
+            NewPurchRcptLine.Init();
             NewPurchRcptLine.Copy(OldPurchRcptLine);
             NewPurchRcptLine."Line No." := DocLineNo;
             NewPurchRcptLine."Appl.-to Item Entry" := "Item Rcpt. Entry No.";
@@ -326,7 +327,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
             NewPurchRcptLine.Correction := true;
             NewPurchRcptLine."Dimension Set ID" := "Dimension Set ID";
             OnBeforeNewPurchRcptLineInsert(NewPurchRcptLine, OldPurchRcptLine);
-            NewPurchRcptLine.Insert;
+            NewPurchRcptLine.Insert();
             OnAfterNewPurchRcptLineInsert(NewPurchRcptLine, OldPurchRcptLine);
 
             InsertItemEntryRelation(TempGlobalItemEntryRelation, NewPurchRcptLine);
@@ -339,7 +340,8 @@ codeunit 5813 "Undo Purchase Receipt Line"
     begin
         with PurchRcptLine do begin
             PurchLine.Get(PurchLine."Document Type"::Order, "Order No.", "Order Line No.");
-            UndoPostingMgt.UpdatePurchLine(PurchLine, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry);
+            UndoPostingMgt.UpdatePurchLine(PurchLine, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
+            UndoPostingMgt.UpdatePurchaseLineOverRcptQty(PurchLine, "Over-Receipt Quantity");
             OnAfterUpdateOrderLine(PurchRcptLine, PurchLine);
         end;
     end;
@@ -367,7 +369,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                 BlanketOrderPurchaseLine."Qty. Received (Base)" := BlanketOrderPurchaseLine."Qty. Received (Base)" - "Quantity (Base)";
                 OnBeforeBlanketOrderInitOutstanding(BlanketOrderPurchaseLine, PurchRcptLine);
                 BlanketOrderPurchaseLine.InitOutstanding;
-                BlanketOrderPurchaseLine.Modify;
+                BlanketOrderPurchaseLine.Modify();
             end;
     end;
 
@@ -379,8 +381,74 @@ codeunit 5813 "Undo Purchase Receipt Line"
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsPurchRcptLine(NewPurchRcptLine);
-                ItemEntryRelation.Insert;
+                ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next = 0;
+    end;
+
+    local procedure HasInvoicedNotReturnedQuantity(PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ReturnedInvoicedItemLedgerEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        InvoicedQuantity: Decimal;
+        ReturnedInvoicedQuantity: Decimal;
+    begin
+        if PurchRcptLine.Type = PurchRcptLine.Type::Item then begin
+            ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
+            ItemLedgerEntry.SetRange("Document No.", PurchRcptLine."Document No.");
+            ItemLedgerEntry.SetRange("Document Line No.", PurchRcptLine."Line No.");
+            ItemLedgerEntry.FindSet();
+            repeat
+                InvoicedQuantity += ItemLedgerEntry."Invoiced Quantity";
+                if ItemApplicationEntry.AppliedOutbndEntryExists(ItemLedgerEntry."Entry No.", false, false) then
+                    repeat
+                        if ItemApplicationEntry."Item Ledger Entry No." = ItemApplicationEntry."Outbound Item Entry No." then begin
+                            ReturnedInvoicedItemLedgerEntry.Get(ItemApplicationEntry."Item Ledger Entry No.");
+                            if IsCancelled(ReturnedInvoicedItemLedgerEntry) then
+                                ReturnedInvoicedQuantity += ReturnedInvoicedItemLedgerEntry."Invoiced Quantity";
+                        end;
+                    until ItemApplicationEntry.Next() = 0;
+            until ItemLedgerEntry.Next() = 0;
+            exit(InvoicedQuantity + ReturnedInvoicedQuantity <> 0);
+        end else begin
+            PurchInvLine.SetRange("Order No.", PurchRcptLine."Order No.");
+            PurchInvLine.SetRange("Order Line No.", PurchRcptLine."Order Line No.");
+            if PurchInvLine.FindSet() then
+                repeat
+                    PurchInvHeader.Get(PurchInvLine."Document No.");
+                    PurchInvHeader.CalcFields(Cancelled);
+                    if not PurchInvHeader.Cancelled then
+                        exit(true);
+                until PurchInvLine.Next() = 0;
+
+            exit(false);
+        end;
+    end;
+
+    local procedure IsCancelled(ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
+    var
+        CancelledDocument: Record "Cancelled Document";
+        ReturnShipmentHeader: Record "Return Shipment Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+    begin
+        case ItemLedgerEntry."Document Type" of
+            ItemLedgerEntry."Document Type"::"Purchase Return Shipment":
+                begin
+                    ReturnShipmentHeader.Get(ItemLedgerEntry."Document No.");
+                    if ReturnShipmentHeader."Applies-to Doc. Type" = ReturnShipmentHeader."Applies-to Doc. Type"::Invoice then
+                        exit(CancelledDocument.Get(Database::"Purch. Inv. Header", ReturnShipmentHeader."Applies-to Doc. No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Purchase Credit Memo":
+                begin
+                    PurchCrMemoHdr.Get(ItemLedgerEntry."Document No.");
+                    if PurchCrMemoHdr."Applies-to Doc. Type" = PurchCrMemoHdr."Applies-to Doc. Type"::Invoice then
+                        exit(CancelledDocument.Get(Database::"Purch. Inv. Header", PurchCrMemoHdr."Applies-to Doc. No."));
+                end;
+        end;
+
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]

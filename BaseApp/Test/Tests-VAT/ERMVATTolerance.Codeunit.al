@@ -861,7 +861,7 @@ codeunit 134042 "ERM VAT Tolerance"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePurchaseInvWithReverseChargeVATAndPmtDisc(var PurchHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DiscountPct: Decimal): Decimal
@@ -930,13 +930,13 @@ codeunit 134042 "ERM VAT Tolerance"
     local procedure CopyPurchaseLine(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
         TempPurchaseLine := PurchaseLine;
-        TempPurchaseLine.Insert;
+        TempPurchaseLine.Insert();
     end;
 
     local procedure CopySalesLine(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
     begin
         TempSalesLine := SalesLine;
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
     end;
 
     local procedure CreateCustomerWithPmtTerms(): Code[20]
@@ -1020,7 +1020,7 @@ codeunit 134042 "ERM VAT Tolerance"
         CreatePurchaseHeader(PurchaseHeader, PricesIncludingVAT);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, FindItem(PurchaseLine."VAT Prod. Posting Group"));
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, FindItem(PurchaseLine."VAT %"));
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem(FindVATPostingSetupZeroVAT));
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);
@@ -1036,7 +1036,7 @@ codeunit 134042 "ERM VAT Tolerance"
         CreateSalesHeader(SalesHeader, PricesIncludingVAT);
         CreateSalesLine(SalesLine, SalesHeader, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
         CopySalesLine(TempSalesLine, SalesLine);
-        CreateSalesLine(SalesLine, SalesHeader, FindItem(SalesLine."VAT Prod. Posting Group"));
+        CreateSalesLine(SalesLine, SalesHeader, FindItem(SalesLine."VAT %"));
         CopySalesLine(TempSalesLine, SalesLine);
         CreateSalesLine(SalesLine, SalesHeader, CreateItem(FindVATPostingSetupZeroVAT));
         CopySalesLine(TempSalesLine, SalesLine);
@@ -1055,14 +1055,14 @@ codeunit 134042 "ERM VAT Tolerance"
         exit(Vendor."No.");
     end;
 
-    local procedure FindItem(VATId: Code[20]): Code[20]
+    local procedure FindItem(VATPct: Decimal): Code[20]
     var
         Item: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Not using Library Item Finder method to make this funtion World ready.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', VATId);
+        VATPostingSetup.SetFilter("VAT %", '>0&<>%1', VATPct);
         VATPostingSetup.FindFirst;
         Item.SetRange(Blocked, false);
         Item.FindFirst;
@@ -1136,7 +1136,7 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Pmt. Disc. Excl. VAT", true);
         GeneralLedgerSetup.Validate("VAT Tolerance %", VATTolerancePct);
         GeneralLedgerSetup.Modify(true);
@@ -1259,8 +1259,7 @@ codeunit 134042 "ERM VAT Tolerance"
         TempPurchaseLine.FindSet;
         repeat
             VATAmount := Round(TempPurchaseLine."Line Amount" * TempPurchaseLine."VAT %" / (100 + TempPurchaseLine."VAT %"));
-            VerifyVATOnStatistics(TempPurchaseLine."VAT Prod. Posting Group",
-                     VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
+            VerifyVATOnStatistics(TempPurchaseLine."VAT %", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
         until TempPurchaseLine.Next = 0;
     end;
 
@@ -1271,8 +1270,7 @@ codeunit 134042 "ERM VAT Tolerance"
         TempPurchaseLine.FindSet;
         repeat
             VATAmount := Round(TempPurchaseLine."Line Amount" * TempPurchaseLine."VAT %" / 100);
-            VerifyVATOnStatistics(TempPurchaseLine."VAT Prod. Posting Group",
-                     VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
+            VerifyVATOnStatistics(TempPurchaseLine."VAT %", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
         until TempPurchaseLine.Next = 0;
     end;
 
@@ -1283,7 +1281,7 @@ codeunit 134042 "ERM VAT Tolerance"
         TempSalesLine.FindSet;
         repeat
             VATAmount := Round(TempSalesLine."Line Amount" * TempSalesLine."VAT %" / 100);
-            VerifyVATOnStatistics(TempSalesLine."VAT Prod. Posting Group", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
+            VerifyVATOnStatistics(TempSalesLine."VAT %", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
         until TempSalesLine.Next = 0;
     end;
 
@@ -1323,7 +1321,7 @@ codeunit 134042 "ERM VAT Tolerance"
         TempSalesLine.FindSet;
         repeat
             VATAmount := Round(TempSalesLine."Line Amount" * TempSalesLine."VAT %" / (100 + TempSalesLine."VAT %"));
-            VerifyVATOnStatistics(TempSalesLine."VAT Prod. Posting Group", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
+            VerifyVATOnStatistics(TempSalesLine."VAT %", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
         until TempSalesLine.Next = 0;
     end;
 
@@ -1369,11 +1367,11 @@ codeunit 134042 "ERM VAT Tolerance"
           StrSubstNo(AmountErr, SalesLine.FieldCaption("Outstanding Amount"), OutstandingAmount, SalesLine.TableCaption));
     end;
 
-    local procedure VerifyVATOnStatistics(VATId: Code[20]; VATAmount: Decimal)
+    local procedure VerifyVATOnStatistics(VATPct: Decimal; VATAmount: Decimal)
     var
         VATAmountLine: Record "VAT Amount Line";
     begin
-        VATAmountLine.SetRange("VAT Identifier", VATId);
+        VATAmountLine.SetRange("VAT %", VATPct);
         VATAmountLine.FindFirst;
         Assert.AreNearlyEqual(
           VATAmount, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,

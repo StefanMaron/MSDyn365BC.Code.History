@@ -139,7 +139,7 @@ page 5432 "Automation - Config. Package"
               CODEUNIT::"Automation - Import RSPackage", CODEUNIT::"Automation - Failure RSPackage", true, CompanyName, CurrentDateTime + 200,
               RecordId)
         else begin
-            Commit;
+            Commit();
             ImportSessionID := 0;
             StartSession(ImportSessionID, CODEUNIT::"Automation - Import RSPackage", CompanyName, Rec);
         end;
@@ -168,7 +168,7 @@ page 5432 "Automation - Config. Package"
               CODEUNIT::"Automation - Apply RSPackage", CODEUNIT::"Automation - Failure RSPackage", true, CompanyName, CurrentDateTime + 200,
               RecordId)
         else begin
-            Commit;
+            Commit();
             ImportSessionID := 0;
             StartSession(ImportSessionID, CODEUNIT::"Automation - Apply RSPackage", CompanyName, Rec);
         end;

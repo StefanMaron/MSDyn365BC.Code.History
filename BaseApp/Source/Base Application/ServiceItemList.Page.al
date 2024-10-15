@@ -1,4 +1,4 @@
-﻿page 5981 "Service Item List"
+page 5981 "Service Item List"
 {
     ApplicationArea = Service;
     Caption = 'Service Items';

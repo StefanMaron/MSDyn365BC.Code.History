@@ -137,12 +137,12 @@ codeunit 13636 "OIOUBL-Export Sales Invoice"
             OIOUBLXMLGenerator.InsertOrderReference(OrderLineReferenceElement,
               SalesInvoiceHeader."External Document No.",
               '',
-              CalcDate('0D'))
+              CalcDate('<0D>'))
         else
             OIOUBLXMLGenerator.InsertOrderReference(OrderLineReferenceElement,
               SalesInvoiceHeader."External Document No.",
               '',
-              CalcDate('0D'));
+              CalcDate('<0D>'));
         InvoiceLineElement.Add(OrderLineReferenceElement);
     end;
 

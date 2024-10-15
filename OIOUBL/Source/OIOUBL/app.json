@@ -1,10 +1,10 @@
-﻿{
+{
     "id":  "ac762be1-e90f-4a72-b519-612a5e3ddc2e",
     "name":  "OIOUBL",
     "publisher":  "Microsoft",
     "brief":  "Easily submit business documents in the Offentlig Information Online Universal Business Language (OIOUBL) format.",
     "description":  "This extension makes it easy to meet the expectations of public authorities in Denmark for submitting invoices, credit memos, finance charge memos, and reminders for sales and services.",
-    "version":  "15.5.41926.0",
+    "version":  "16.0.11240.12076",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?linkid=865141",
@@ -16,8 +16,8 @@
     "screenshots":  [
 
                     ],
-    "platform":  "15.0.0.0",
+    "platform":  "11.0.0.0",
     "target":  "OnPrem",
     "showMyCode":  false,
-    "application":  "15.5.0.0"
+    "application":  "16.0.0.0"
 }

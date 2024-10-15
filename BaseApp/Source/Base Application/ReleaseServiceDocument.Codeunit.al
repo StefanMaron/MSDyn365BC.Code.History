@@ -42,7 +42,7 @@ codeunit 416 "Release Service Document"
                     Error(NothingToReleaseErr, "Document Type", "No.");
             end;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Location Mandatory" then begin
                 ServLine.SetCurrentKey(Type);
                 ServLine.SetRange(Type, ServLine.Type::Item);
@@ -55,7 +55,7 @@ codeunit 416 "Release Service Document"
 
             OnCodeOnAfterCheck(ServiceHeader, ServLine);
 
-            ServLine.Reset;
+            ServLine.Reset();
             Validate("Release Status", "Release Status"::"Released to Ship");
             ServLine.SetServHeader(ServiceHeader);
             ServLine.CalcVATAmountLines(0, ServiceHeader, ServLine, TempVATAmountLine0, ServLine.IsShipment);

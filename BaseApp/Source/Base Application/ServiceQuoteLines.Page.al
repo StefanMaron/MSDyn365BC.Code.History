@@ -1,4 +1,4 @@
-﻿page 5966 "Service Quote Lines"
+page 5966 "Service Quote Lines"
 {
     AutoSplitKey = true;
     Caption = 'Service Quote Lines';
@@ -554,7 +554,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowPrices;
+                        PickPrice();
                         CurrPage.Update;
                     end;
                 }
@@ -567,7 +567,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineDisc;
+                        PickDiscount();
                         CurrPage.Update;
                     end;
                 }
@@ -648,7 +648,7 @@
         ReserveServLine: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveServLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveServLine.DeleteLine(Rec);
@@ -678,7 +678,7 @@
         Clear(SelectionFilter);
         SetSelectionFilter;
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         case ServMgtSetup."Fault Reporting Level" of
             ServMgtSetup."Fault Reporting Level"::None:
                 begin
@@ -714,7 +714,6 @@
     var
         ServMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ShortcutDimCode: array[8] of Code[20];
         ServItemLineNo: Integer;
@@ -775,20 +774,6 @@
         Clear(ServOrderMgt);
         if ServOrderMgt.InsertServCost(Rec, 0, false) then
             CurrPage.Update;
-    end;
-
-    local procedure ShowPrices()
-    begin
-        ServHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetServLinePrice(ServHeader, Rec);
-    end;
-
-    local procedure ShowLineDisc()
-    begin
-        ServHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetServLineLineDisc(ServHeader, Rec);
     end;
 
     local procedure NoOnAfterValidate()

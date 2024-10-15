@@ -25,13 +25,13 @@ codeunit 131903 "Library - Rapid Start"
         end;
         ConfigPackage.DeleteAll(true);
         ConfigLine.DeleteAll(true);
-        ConfigPackageError.DeleteAll;
+        ConfigPackageError.DeleteAll();
         ClearLastError;
     end;
 
     procedure CreateConfigTemplateHeader(var ConfigTemplateHeader: Record "Config. Template Header")
     begin
-        ConfigTemplateHeader.Init;
+        ConfigTemplateHeader.Init();
         ConfigTemplateHeader.Validate(
           Code,
           LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header"));
@@ -44,7 +44,7 @@ codeunit 131903 "Library - Rapid Start"
     var
         RecRef: RecordRef;
     begin
-        ConfigTemplateLine.Init;
+        ConfigTemplateLine.Init();
         ConfigTemplateLine.Validate("Data Template Code", ConfigTemplateCode);
         RecRef.GetTable(ConfigTemplateLine);
         ConfigTemplateLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ConfigTemplateLine.FieldNo("Line No.")));
@@ -56,7 +56,7 @@ codeunit 131903 "Library - Rapid Start"
         TableMetadata: Record "Table Metadata";
         CriteriaOutStream: OutStream;
     begin
-        ConfigTmplSelectionRules.Init;
+        ConfigTmplSelectionRules.Init();
         ConfigTmplSelectionRules.Order := Order;
         ConfigTmplSelectionRules."Table ID" := ConfigTemplateHeader."Table ID";
         ConfigTmplSelectionRules."Template Code" := ConfigTemplateHeader.Code;
@@ -69,7 +69,7 @@ codeunit 131903 "Library - Rapid Start"
 
     procedure CreateQuestionnaire(var ConfigQuestionnaire: Record "Config. Questionnaire")
     begin
-        ConfigQuestionnaire.Init;
+        ConfigQuestionnaire.Init();
         ConfigQuestionnaire.Validate(
           Code,
           LibraryUtility.GenerateRandomCode(ConfigQuestionnaire.FieldNo(Code), DATABASE::"Config. Questionnaire"));
@@ -86,7 +86,7 @@ codeunit 131903 "Library - Rapid Start"
         ConfigQuestion2.SetRange("Question Area Code", ConfigQuestionArea.Code);
         if ConfigQuestion2.FindLast then;  // IF condition is required because Question may not be found.
 
-        ConfigQuestion.Init;
+        ConfigQuestion.Init();
         ConfigQuestion.Validate("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.Validate("Question Area Code", ConfigQuestionArea.Code);
         ConfigQuestion.Validate("No.", ConfigQuestion2."No." + 1);
@@ -95,7 +95,7 @@ codeunit 131903 "Library - Rapid Start"
 
     procedure CreateQuestionArea(var ConfigQuestionArea: Record "Config. Question Area"; QuestionnaireCode: Code[10])
     begin
-        ConfigQuestionArea.Init;
+        ConfigQuestionArea.Init();
         ConfigQuestionArea.Validate("Questionnaire Code", QuestionnaireCode);
         ConfigQuestionArea.Validate(
           Code,
@@ -110,7 +110,7 @@ codeunit 131903 "Library - Rapid Start"
         RecRef: RecordRef;
     begin
         RecRef.Open(DATABASE::"Config. Package");
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.Validate(
           Code,
           LibraryUtility.GenerateRandomCode(ConfigPackage.FieldNo(Code), DATABASE::"Config. Package"));
@@ -120,7 +120,7 @@ codeunit 131903 "Library - Rapid Start"
 
     procedure CreatePackageTable(var ConfigPackageTable: Record "Config. Package Table"; PackageCode: Code[20]; TableID: Integer)
     begin
-        ConfigPackageTable.Init;
+        ConfigPackageTable.Init();
         ConfigPackageTable.Validate("Package Code", PackageCode);
         ConfigPackageTable.Validate("Table ID", TableID);
         ConfigPackageTable.Insert(true);
@@ -154,18 +154,18 @@ codeunit 131903 "Library - Rapid Start"
 
     procedure CreatePackageRecord(var ConfigPackageRecord: Record "Config. Package Record"; PackageCode: Code[20]; TableID: Integer; RecNo: Integer)
     begin
-        ConfigPackageRecord.Init;
+        ConfigPackageRecord.Init();
         ConfigPackageRecord.Validate("Package Code", PackageCode);
         ConfigPackageRecord.Validate("Table ID", TableID);
         ConfigPackageRecord.Validate("No.", RecNo);
-        if ConfigPackageRecord.Insert then;
+        if ConfigPackageRecord.Insert() then;
     end;
 
     procedure CreatePackageFieldData(ConfigPackageRecord: Record "Config. Package Record"; FieldID: Integer; Value: Text[250])
     var
         ConfigPackageData: Record "Config. Package Data";
     begin
-        ConfigPackageData.Init;
+        ConfigPackageData.Init();
         ConfigPackageData.Validate("Package Code", ConfigPackageRecord."Package Code");
         ConfigPackageData.Validate("Table ID", ConfigPackageRecord."Table ID");
         ConfigPackageData.Validate("No.", ConfigPackageRecord."No.");
@@ -200,11 +200,11 @@ codeunit 131903 "Library - Rapid Start"
         NextLineNo: Integer;
     begin
         NextLineNo := 0;
-        ConfigLine.Reset;
+        ConfigLine.Reset();
         if ConfigLine.FindLast then
             NextLineNo := ConfigLine."Line No." + 10000;
 
-        ConfigLine.Init;
+        ConfigLine.Init();
         ConfigLine.Validate("Line No.", NextLineNo);
         ConfigLine.Validate("Line Type", LineType);
         if LineType = LineType::Table then
@@ -234,14 +234,14 @@ codeunit 131903 "Library - Rapid Start"
     begin
         ConfigPackageField.Get(PackageCode, TableID, FieldID);
         ConfigPackageField.Validate("Include Field", SetInclude);
-        ConfigPackageField.Modify;
+        ConfigPackageField.Modify();
     end;
 
     procedure SetIncludeFields(PackageCode: Code[20]; TableID: Integer; FromFieldID: Integer; ToFieldID: Integer; SetInclude: Boolean)
     var
         ConfigPackageField: Record "Config. Package Field";
     begin
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         ConfigPackageField.SetRange("Package Code", PackageCode);
         ConfigPackageField.SetRange("Table ID", TableID);
         ConfigPackageField.SetRange("Field ID", FromFieldID, ToFieldID);
@@ -254,7 +254,7 @@ codeunit 131903 "Library - Rapid Start"
     begin
         ConfigPackageField.Get(PackageCode, TableID, FieldID);
         ConfigPackageField.Validate("Validate Field", SetValidate);
-        ConfigPackageField.Modify;
+        ConfigPackageField.Modify();
     end;
 
     procedure SetProcessingOrderForRecord(PackageCode: Code[20]; TableID: Integer; ProcessingNo: Integer)
@@ -263,7 +263,7 @@ codeunit 131903 "Library - Rapid Start"
     begin
         ConfigPackageTable.Get(PackageCode, TableID);
         ConfigPackageTable."Processing Order" := ProcessingNo;
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
     end;
 
     procedure SetProcessingOrderForField(PackageCode: Code[20]; TableID: Integer; FieldID: Integer; ProcessingNo: Integer)
@@ -272,7 +272,7 @@ codeunit 131903 "Library - Rapid Start"
     begin
         ConfigPackageField.Get(PackageCode, TableID, FieldID);
         ConfigPackageField."Processing Order" := ProcessingNo;
-        ConfigPackageField.Modify;
+        ConfigPackageField.Modify();
     end;
 
     procedure SetCreateMissingCodesForField(PackageCode: Code[20]; TableID: Integer; FieldID: Integer; SetCreateMissingCodes: Boolean)
@@ -281,7 +281,7 @@ codeunit 131903 "Library - Rapid Start"
     begin
         ConfigPackageField.Get(PackageCode, TableID, FieldID);
         ConfigPackageField.Validate("Create Missing Codes", SetCreateMissingCodes);
-        ConfigPackageField.Modify;
+        ConfigPackageField.Modify();
     end;
 
     procedure ApplyPackage(ConfigPackage: Record "Config. Package"; SetupProcessingOrderForTables: Boolean)

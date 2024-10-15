@@ -24,7 +24,7 @@ codeunit 139022 "SMTP Page Tests"
         SMTP.Initialize();
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.UseAzureKeyvaultSecretProvider;
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
         Assert.IsFalse(SMTP.IsEnabled, 'SMTP Setup was not empty.');
 
         // [GIVEN] Some SMTP setup key vault secrets
@@ -90,7 +90,7 @@ codeunit 139022 "SMTP Page Tests"
         Assert.AreEqual('test@microsoft.com', Address, 'Wrong Email address returned from page.');
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('HandleEmailAddressChoiceDialogByProceeding')]
     [Scope('OnPrem')]
     procedure TestMail_SendTestThroughPage()
@@ -173,12 +173,12 @@ codeunit 139022 "SMTP Page Tests"
         SMTPMailSetupClear();
 
         // Add a new test record
-        SMTPMailSetup.Init;
+        SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := 'localhost';
         SMTPMailSetup."SMTP Server Port" := 9999;
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Anonymous;
-        SMTPMailSetup.Insert;
-        Commit;
+        SMTPMailSetup.Insert();
+        Commit();
     end;
 
     local procedure SMTPMailSetupBasicAuth()
@@ -211,12 +211,12 @@ codeunit 139022 "SMTP Page Tests"
     begin
         User.SetRange("User Name", UserId);
         if not User.FindFirst then begin
-            User.Reset;
-            User.Init;
+            User.Reset();
+            User.Init();
             User."User Security ID" := CreateGuid;
             User."User Name" := UserId;
             User."Authentication Email" := 'test2@test.com';
-            User.Insert;
+            User.Insert();
         end else begin
             User."Authentication Email" := 'test2@test.com';
             User.Modify();

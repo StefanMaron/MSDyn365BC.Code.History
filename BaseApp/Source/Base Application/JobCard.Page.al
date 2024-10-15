@@ -1,4 +1,4 @@
-﻿page 88 "Job Card"
+page 88 "Job Card"
 {
     Caption = 'Job Card';
     PageType = Document;
@@ -254,6 +254,22 @@
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code you want to apply when creating invoices for a job. By default, the invoice currency code for a job is based on what currency code is defined on the customer card.';
+                }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the default method of the unit price calculation.';
+                }
+                field("Cost Calculation Method"; "Cost Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the default method of the unit cost calculation.';
                 }
                 field("Exch. Calculation (Cost)"; "Exch. Calculation (Cost)")
                 {

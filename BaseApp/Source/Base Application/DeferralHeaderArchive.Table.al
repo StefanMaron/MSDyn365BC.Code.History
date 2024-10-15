@@ -38,11 +38,9 @@ table 5127 "Deferral Header Archive"
             AutoFormatType = 1;
             Caption = 'Amount to Defer (LCY)';
         }
-        field(10; "Calc. Method"; Option)
+        field(10; "Calc. Method"; Enum "Deferral Calculation Method")
         {
             Caption = 'Calc. Method';
-            OptionCaption = 'Straight-Line,Equal per Period,Days per Period,User-Defined';
-            OptionMembers = "Straight-Line","Equal per Period","Days per Period","User-Defined";
         }
         field(11; "Start Date"; Date)
         {
@@ -113,7 +111,7 @@ table 5127 "Deferral Header Archive"
         DeferralLineArchive.SetRange("Version No.", VersionNo);
         DeferralLineArchive.SetRange("Line No.", LineNo);
         if DeferralLineArchive.FindFirst then
-            DeferralLineArchive.DeleteAll;
+            DeferralLineArchive.DeleteAll();
     end;
 }
 
