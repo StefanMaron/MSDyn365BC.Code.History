@@ -22,6 +22,7 @@ codeunit 5520 "Get Unplanned Demand"
         GetUnplannedAsmLine(Rec);
         GetUnplannedServLine(Rec);
         GetUnplannedJobPlanningLine(Rec);
+        OnAfterGetUnplanned(Rec);
         Window.Close;
 
         Reset;
@@ -157,8 +158,13 @@ codeunit 5520 "Get Unplanned Demand"
                 until JobPlanningLine.Next = 0;
     end;
 
-    local procedure GetSalesLineNeededQty(SalesLine: Record "Sales Line"): Decimal
+    local procedure GetSalesLineNeededQty(SalesLine: Record "Sales Line") NeededQty: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSalesLineNeededQty(SalesLine, NeededQty, IsHandled);
+
         with SalesLine do begin
             if Planned or ("No." = '') or (Type <> Type::Item) or "Drop Shipment" or "Special Order"
             then
@@ -437,6 +443,16 @@ codeunit 5520 "Get Unplanned Demand"
             WindowUpdateDateTime := CurrentDateTime;
             Window.Update(1, Round(i / NoOfRecords * 10000, 1));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetUnplanned(var UnplannedDemand: Record "Unplanned Demand");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesLineNeededQty(SalesLine: Record "Sales Line"; var NeededQty: Decimal; var IsHandled: Boolean);
+    begin
     end;
 }
 

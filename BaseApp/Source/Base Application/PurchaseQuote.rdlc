@@ -707,6 +707,18 @@
                               <TablixRowHierarchy>
                                 <TablixMembers>
                                   <TablixMember>
+                                    <KeepWithGroup>After</KeepWithGroup>
+                                    <RepeatOnNewPage>true</RepeatOnNewPage>
+                                  </TablixMember>
+                                  <TablixMember>
+                                    <KeepWithGroup>After</KeepWithGroup>
+                                    <RepeatOnNewPage>true</RepeatOnNewPage>
+                                  </TablixMember>
+                                  <TablixMember>
+                                    <KeepWithGroup>After</KeepWithGroup>
+                                    <RepeatOnNewPage>true</RepeatOnNewPage>
+                                  </TablixMember>
+                                  <TablixMember>
                                     <Group Name="Table1_Group1">
                                       <GroupExpressions>
                                         <GroupExpression>=Fields!PurchHeadNo.Value</GroupExpression>
@@ -716,39 +728,44 @@
                                     </Group>
                                     <TablixMembers>
                                       <TablixMember>
-                                        <KeepWithGroup>After</KeepWithGroup>
-                                        <KeepTogether>true</KeepTogether>
-                                      </TablixMember>
-                                      <TablixMember>
-                                        <KeepWithGroup>After</KeepWithGroup>
-                                      </TablixMember>
-                                      <TablixMember>
-                                        <KeepWithGroup>After</KeepWithGroup>
-                                      </TablixMember>
-                                      <TablixMember>
-                                        <Group Name="Table1_Details_Group">
-                                          <DataElementName>Detail</DataElementName>
+                                        <Group Name="LineNoGroup">
+                                          <GroupExpressions>
+                                            <GroupExpression>=Fields!No_PurchLine.Value</GroupExpression>
+                                          </GroupExpressions>
                                         </Group>
                                         <TablixMembers>
                                           <TablixMember>
                                             <Visibility>
                                               <Hidden>=Iif(Fields!Type_PurchLine.Value = "0", false, true)</Hidden>
                                             </Visibility>
+                                            <KeepWithGroup>After</KeepWithGroup>
+                                            <RepeatOnNewPage>true</RepeatOnNewPage>
+                                            <KeepTogether>true</KeepTogether>
                                           </TablixMember>
                                           <TablixMember>
                                             <Visibility>
                                               <Hidden>=IIF(Fields!Description_PurchLine.Value="" OR Fields!Type_PurchLine.Value="0",TRUE,FALSE)</Hidden>
                                             </Visibility>
+                                            <KeepWithGroup>After</KeepWithGroup>
+                                            <RepeatOnNewPage>true</RepeatOnNewPage>
+                                            <KeepTogether>true</KeepTogether>
                                           </TablixMember>
                                           <TablixMember>
-                                            <Visibility>
-                                              <Hidden>=IIF(Fields!LineDimsCaption.Value="" OR Fields!ShowInternalInfo.Value="FALSE",TRUE,FALSE)</Hidden>
-                                            </Visibility>
+                                            <Group Name="Table1_Details_Group">
+                                              <DataElementName>Detail</DataElementName>
+                                            </Group>
+                                            <TablixMembers>
+                                              <TablixMember>
+                                                <Visibility>
+                                                  <Hidden>=IIF(Fields!LineDimsCaption.Value="" OR Fields!ShowInternalInfo.Value="FALSE",TRUE,FALSE)</Hidden>
+                                                </Visibility>
+                                              </TablixMember>
+                                            </TablixMembers>
+                                            <DataElementName>Detail_Collection</DataElementName>
+                                            <DataElementOutput>Output</DataElementOutput>
+                                            <KeepTogether>true</KeepTogether>
                                           </TablixMember>
                                         </TablixMembers>
-                                        <DataElementName>Detail_Collection</DataElementName>
-                                        <DataElementOutput>Output</DataElementOutput>
-                                        <KeepTogether>true</KeepTogether>
                                       </TablixMember>
                                     </TablixMembers>
                                   </TablixMember>

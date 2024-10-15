@@ -35,6 +35,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         TotalAmountCap: Label 'TotalAmount';
         TotalOneCap: Label 'Total1';
         TotalTwoCap: Label 'Total2';
+        LibraryXMLRead: Codeunit "Library - XML Read";
 
     [Test]
     [HandlerFunctions('BalanceSheetRequestPageHandler')]
@@ -459,7 +460,42 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
 
         // [THEN] Report has the line with G/L Account and it's negative net change amount
         LibraryReportValidation.OpenFile;
+        Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(Format(Amount)), 'Amount cell not found');
         Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(Amount), 'Amount cell not found');
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomeStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure IncomeStateReportShowsRoundedValueForThousands()
+    var
+        GLAccount: Record "G/L Account";
+        GLAccountNo: Code[20];
+        Amount: Decimal;
+        AmountsInWhole: Option " ",Tens,Hundreds,Thousands,"Hundred Thousands",Millions;
+    begin
+        // [FEATURE] [Income Statement] [Rounnding]
+        // [SCENARIO 332438] Income Statement report shows G/L accounts with rounded net change
+        Initialize;
+
+        // [GIVEN] G/L Account with positive balance in period was created and posted
+        GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Income Statement", true);
+        Amount := LibraryRandom.RandDec(100000, 2);
+        CreateGLEntry(GLAccountNo, '', '', WorkDate, Amount);
+
+        // [GIVEN] Amounts In Whole set up to "Thousands"
+        EnqueueValuesForIncomeStatementRequestPageHandler(GLAccountNo, '', '', AmountsInWhole::Thousands, false, false);
+        Commit;
+
+        // [WHEN] Income Statement (28025) report is run
+        REPORT.Run(REPORT::"Income Statement");
+        // UI Handled by IncomeStatementRequestPageHandler.
+
+        // [THEN] Report has the line with G/L Account the value is rounded to integer
+        LibraryXMLRead.Initialize(LibraryVariableStorage.DequeueText);
+        Assert.AreNotEqual(Format(Amount / 1000), LibraryXMLRead.GetElementValue('CurrentYTDNetChange'), 'The value is rounded');
+        Assert.AreEqual(Format(Round(Amount / 1000, 1)), LibraryXMLRead.GetElementValue('CurrentYTDNetChange'), 'The value is not rounded');
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     local procedure Initialize()
@@ -677,6 +713,16 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         LibraryReportDataset.AssertElementWithValueExists(Caption3, Value3);
     end;
 
+    local procedure EnqueueValuesForIncomeStatementRequestPageHandler(Value: Code[20]; Value2: Variant; Value3: Variant; Value4: Variant; Value5: Variant; Value6: Variant)
+    begin
+        LibraryVariableStorage.Enqueue(Value);
+        LibraryVariableStorage.Enqueue(Value2);
+        LibraryVariableStorage.Enqueue(Value3);
+        LibraryVariableStorage.Enqueue(Value4);
+        LibraryVariableStorage.Enqueue(Value5);
+        LibraryVariableStorage.Enqueue(Value6);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BalanceSheetRequestPageHandler(var BalanceSheet: TestRequestPage "Balance Sheet")
@@ -773,6 +819,8 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IncomeStatementRequestPageHandler(var IncomeStatement: TestRequestPage "Income Statement")
+    var
+        FileName: Text;
     begin
         IncomeStatement."G/L Account".SetFilter("No.", LibraryVariableStorage.DequeueText);
         IncomeStatement."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate, CalcDate('<CY>', WorkDate)));
@@ -781,7 +829,9 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         IncomeStatement.AmountsInWhole.SetValue(LibraryVariableStorage.DequeueInteger);
         IncomeStatement.HideEmptyLines.SetValue(LibraryVariableStorage.DequeueBoolean);
         IncomeStatement.ShowAmountsInAddReportingCurrency.SetValue(LibraryVariableStorage.DequeueBoolean);
-        IncomeStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FileName := LibraryReportDataset.GetFileName;
+        LibraryVariableStorage.Enqueue(FileName);
+        IncomeStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
     end;
 
     [RequestPageHandler]

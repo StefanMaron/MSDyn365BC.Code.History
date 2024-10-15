@@ -13,6 +13,7 @@ codeunit 141075 "UT REP Aged Accounts"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        FileManagement: Codeunit "File Management";
         CurrencyCodeCap: Label 'GetCurrencyCode_CurrencyCode_';
         EntryAmountCap: Label 'EntryAmount_5_';
 
@@ -191,6 +192,47 @@ codeunit 141075 "UT REP Aged Accounts"
 
         // Verify.
         VerifyValuesOnAgedAccountsBackdatingReport(ExpectedCurrencyCode, 0);  // Value 0 required for Amount.
+    end;
+
+    [Test]
+    [HandlerFunctions('AgedAccountsReceivableBackdatingAsPDFRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintAgedAccRecBackDatingAsPDF()
+    var
+        Customer: Record Customer;
+        UseAgingDate: Option "Posting Date";
+        UseCurrency: Option "Document Currency";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 333888] Report "Aged Acc. Rec. (BackDating)" can be printed without RDLC rendering errors
+        Initialize;
+
+        // [WHEN] Report "Aged Acc. Rec. (BackDating)" is being printed to PDF
+        CreateCustLedgEntriesAndRunAgedAccRecBackDatingRpt(
+          CreateCurrency, true, Customer.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0, 0);
+        // [THEN] No RDLC rendering errors
+    end;
+
+    [Test]
+    [HandlerFunctions('AgedAccountsPayableBackdatingAdPDFRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintAgedPayRecBackDatingAsPDF()
+    var
+        Vendor: Record Vendor;
+        UseAgingDate: Option "Posting Date";
+        UseCurrency: Option "Document Currency";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 333888] Report "Aged Acc. Pay. (BackDating)" can be printed without RDLC rendering errors
+        Initialize;
+		
+		// [WHEN] Report "Aged Acc. Rec. (BackDating)" is being printed to PDF
+        CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(
+          CreateCurrency, true, Vendor.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0);  // Value 0 used for Date Expression and True for Print Entry Details.
+
+        // [THEN] No RDLC rendering errors
     end;
 
     local procedure Initialize()
@@ -395,6 +437,52 @@ codeunit 141075 "UT REP Aged Accounts"
         AgedAccRecBackDating.PrintAccountDetails.SetValue(true);
         AgedAccRecBackDating.PrintEntryDetails.SetValue(PrintEntryDetails);
         AgedAccRecBackDating.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AgedAccountsReceivableBackdatingAsPDFRequestPageHandler(var AgedAccRecBackDating: TestRequestPage "Aged Acc. Rec. (BackDating)")
+    var
+        No: Variant;
+        PrintEntryDetails: Variant;
+        UseAgingDate: Variant;
+        UseCurrency: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(No);
+        LibraryVariableStorage.Dequeue(PrintEntryDetails);
+        LibraryVariableStorage.Dequeue(UseAgingDate);
+        LibraryVariableStorage.Dequeue(UseCurrency);
+        AgedAccRecBackDating.Customer.SetFilter("No.", No);
+        AgedAccRecBackDating.AgedAsOf.SetValue(WorkDate);
+        AgedAccRecBackDating.UseAgingDate.SetValue(UseAgingDate);
+        AgedAccRecBackDating.UseCurrency.SetValue(UseCurrency);
+        AgedAccRecBackDating.PrintTotalsPerCurrency.SetValue(true);
+        AgedAccRecBackDating.PrintAccountDetails.SetValue(true);
+        AgedAccRecBackDating.PrintEntryDetails.SetValue(PrintEntryDetails);
+        AgedAccRecBackDating.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AgedAccountsPayableBackdatingAdPDFRequestPageHandler(var AgedAccPayBackDating: TestRequestPage "Aged Acc. Pay. (BackDating)")
+    var
+        No: Variant;
+        PrintEntryDetails: Variant;
+        UseAgingDate: Variant;
+        UseCurrency: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(No);
+        LibraryVariableStorage.Dequeue(PrintEntryDetails);
+        LibraryVariableStorage.Dequeue(UseAgingDate);
+        LibraryVariableStorage.Dequeue(UseCurrency);
+        AgedAccPayBackDating.Vendor.SetFilter("No.", No);
+        AgedAccPayBackDating.AgedAsOf.SetValue(WorkDate);
+        AgedAccPayBackDating.UseAgingDate.SetValue(UseAgingDate);
+        AgedAccPayBackDating.UseCurrency.SetValue(UseCurrency);
+        AgedAccPayBackDating.PrintTotalsPerCurrency.SetValue(true);
+        AgedAccPayBackDating.PrintAccountDetails.SetValue(true);
+        AgedAccPayBackDating.PrintEntryDetails.SetValue(PrintEntryDetails);
+        AgedAccPayBackDating.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
 

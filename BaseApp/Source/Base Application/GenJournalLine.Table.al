@@ -1,4 +1,4 @@
-table 81 "Gen. Journal Line"
+﻿table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
     Permissions = TableData "Sales Invoice Header" = r,
@@ -2943,6 +2943,7 @@ table 81 "Gen. Journal Line"
         }
         key(Key4; "Document No.")
         {
+            SumIndexFields = "Debit Amount", "Credit Amount";
         }
         key(Key5; "Account Type", "Account No.", "Document Type", "Document No.")
         {
@@ -4153,7 +4154,6 @@ table 81 "Gen. Journal Line"
         IsHandled: Boolean;
     begin
         if (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Customer) or
-           (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor) or
            (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor)
         then
             CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", TempGenJnlLine);
@@ -4925,7 +4925,8 @@ table 81 "Gen. Journal Line"
             end;
     end;
 
-    local procedure SetJournalLineFieldsFromApplication()
+    [Scope('OnPrem')]
+    procedure SetJournalLineFieldsFromApplication()
     var
         AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
         AccNo: Code[20];

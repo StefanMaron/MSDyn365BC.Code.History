@@ -324,7 +324,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                     AutoFormatExpression = TempCurrency2.Code;
                     AutoFormatType = 1;
                 }
-                column(DataItem1450061; AccountTotalPerCurrency[5] + AccountTotalPerCurrency[4] + AccountTotalPerCurrency[3] + AccountTotalPerCurrency[2] + AccountTotalPerCurrency[1])
+                column(AccTotalPerCurrency_5__AccTotalPerCurrency_4__AccTotalPerCurrency_3__AccTotalPerCurrency_2__AccTotalPerCurrency_1_; AccountTotalPerCurrency[5] + AccountTotalPerCurrency[4] + AccountTotalPerCurrency[3] + AccountTotalPerCurrency[2] + AccountTotalPerCurrency[1])
                 {
                     AutoFormatExpression = TempCurrency2.Code;
                     AutoFormatType = 1;

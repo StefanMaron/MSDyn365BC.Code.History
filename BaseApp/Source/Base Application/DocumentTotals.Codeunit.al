@@ -106,6 +106,8 @@ codeunit 57 "Document Totals"
             SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
             VATAmount := SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount;
         end;
+
+        OnAfterCalculatePostedSalesInvoiceTotals(SalesInvoiceHeader, SalesInvoiceLine, VATAmount);
     end;
 
     procedure CalculatePostedSalesCreditMemoTotals(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var VATAmount: Decimal; SalesCrMemoLine: Record "Sales Cr.Memo Line")
@@ -114,6 +116,8 @@ codeunit 57 "Document Totals"
             SalesCrMemoHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
             VATAmount := SalesCrMemoHeader."Amount Including VAT" - SalesCrMemoHeader.Amount;
         end;
+
+        OnAfterCalculatePostedSalesCreditMemoTotals(SalesCrMemoHeader, SalesCrMemoLine, VATAmount);
     end;
 
     procedure CalcTotalPurchAmountOnlyDiscountAllowed(PurchLine: Record "Purchase Line"): Decimal
@@ -787,6 +791,16 @@ codeunit 57 "Document Totals"
 
         TempTotalPurchaseLine."Amount Including VAT" := TempTotalPurchaseLine."Line Amount" -
           TempTotalPurchaseLine."Inv. Discount Amount" + TotalVATAmount;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePostedSalesInvoiceTotals(var SalesInvoiceHeader: Record "Sales Invoice Header"; SalesInvoiceLine: Record "Sales Invoice Line"; var VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePostedSalesCreditMemoTotals(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesCrMemoLine: Record "Sales Cr.Memo Line"; var VATAmount: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

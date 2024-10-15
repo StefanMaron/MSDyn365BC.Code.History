@@ -724,10 +724,9 @@ report 393 "Suggest Vendor Payments"
                         TempPaymentBuffer."Vendor No." := VendLedgEntry."Vendor No.";
                         TempPaymentBuffer."Currency Code" := VendLedgEntry."Currency Code";
                         TempPaymentBuffer."Payment Method Code" := VendLedgEntry."Payment Method Code";
-                        TempPaymentBuffer."Creditor No." := VendLedgEntry."Creditor No.";
-                        TempPaymentBuffer."Payment Reference" := VendLedgEntry."Payment Reference";
-                        TempPaymentBuffer."Exported to Payment File" := VendLedgEntry."Exported to Payment File";
-                        TempPaymentBuffer."Applies-to Ext. Doc. No." := VendLedgEntry."External Document No.";
+
+                        TempPaymentBuffer.CopyFieldsFromVendorLedgerEntry(VendLedgEntry);
+
                         OnUpdateTempBufferFromVendorLedgerEntry(TempPaymentBuffer, VendLedgEntry);
 
                         SetTempPaymentBufferDims(DimBuf);
@@ -848,10 +847,9 @@ report 393 "Suggest Vendor Payments"
             "Applies-to Doc. Type" := TempPaymentBuffer."Vendor Ledg. Entry Doc. Type";
             "Applies-to Doc. No." := TempPaymentBuffer."Vendor Ledg. Entry Doc. No.";
             "Payment Method Code" := TempPaymentBuffer."Payment Method Code";
-            "Creditor No." := TempPaymentBuffer."Creditor No.";
-            "Payment Reference" := TempPaymentBuffer."Payment Reference";
-            "Exported to Payment File" := TempPaymentBuffer."Exported to Payment File";
-            "Applies-to Ext. Doc. No." := TempPaymentBuffer."Applies-to Ext. Doc. No.";
+
+            TempPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
+
             if EFTPayment then begin
                 "EFT Payment" := true;
                 "External Document No." := GetExternalDocumentNo(TempPaymentBuffer."Vendor Ledg. Entry No.");

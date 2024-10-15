@@ -100,7 +100,7 @@ table 409 "SMTP Mail Setup"
         exit("SMTP Server" <> '');
     end;
 
-    [Scope('OnPrem')]
+    [NonDebuggable]
     procedure SetPassword(NewPassword: Text)
     begin
         if IsNullGuid("Password Key") then
@@ -109,6 +109,7 @@ table 409 "SMTP Mail Setup"
         IsolatedStorageManagement.Set("Password Key", NewPassword, DATASCOPE::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetPassword(): Text
     var
@@ -118,10 +119,11 @@ table 409 "SMTP Mail Setup"
         exit(Value);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasPassword(): Boolean
     begin
-        exit(GetPassword <> '');
+        exit(GetPassword() <> '');
     end;
 
     [Scope('OnPrem')]

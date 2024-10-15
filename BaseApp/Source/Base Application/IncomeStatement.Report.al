@@ -125,23 +125,23 @@ report 28025 "Income Statement"
                 }
                 column(CurrentPeriodNetChange; CurrentPeriodNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(CurrentPeriodNetChange_Control1500025; -CurrentPeriodNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(LastYrCurrPeriodNetChange; LastYrCurrPeriodNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(CurrentYTDNetChange; CurrentYTDNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(LastYTDNetChange; LastYTDNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(G_L_Account___No___Control1500029; "G/L Account"."No.")
                 {
@@ -151,23 +151,23 @@ report 28025 "Income Statement"
                 }
                 column(LastYTDNetChange_Control1500031; LastYTDNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(LastYrCurrPeriodNetChange_Control1500032; LastYrCurrPeriodNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(CurrentYTDNetChange_Control1500033; CurrentYTDNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(CurrentPeriodNetChange_Control1500034; -CurrentPeriodNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(CurrentPeriodNetChange_Control1500035; CurrentPeriodNetChange)
                 {
-                    DecimalPlaces = 2 : 2;
+                    DecimalPlaces = 0 : 2;
                 }
                 column(G_L_Account___Account_Type_; "G/L Account"."Account Type")
                 {

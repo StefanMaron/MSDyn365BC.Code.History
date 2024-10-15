@@ -128,6 +128,9 @@ codeunit 1510 "Notification Management"
 
     procedure GetDocumentTypeAndNumber(var RecRef: RecordRef; var DocumentType: Text; var DocumentNo: Text)
     var
+        SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
+        PurchaseHeader: Record "Purchase Header";
         FieldRef: FieldRef;
         IsHandled: Boolean;
     begin
@@ -140,22 +143,25 @@ codeunit 1510 "Notification Management"
                 end;
             DATABASE::"Sales Header":
                 begin
-                    FieldRef := RecRef.Field(1);
-                    DocumentType := SalesTxt + ' ' + Format(FieldRef.Value);
+                    RecRef.SetTable(SalesHeader);
+                    DocumentType := SalesHeader.GetFullDocTypeTxt();
+
                     FieldRef := RecRef.Field(3);
                     DocumentNo := Format(FieldRef.Value);
                 end;
             DATABASE::"Purchase Header":
                 begin
-                    FieldRef := RecRef.Field(1);
-                    DocumentType := PurchaseTxt + ' ' + Format(FieldRef.Value);
+                    RecRef.SetTable(PurchaseHeader);
+                    DocumentType := PurchaseHeader.GetFullDocTypeTxt();
+
                     FieldRef := RecRef.Field(3);
                     DocumentNo := Format(FieldRef.Value);
                 end;
             DATABASE::"Service Header":
                 begin
-                    FieldRef := RecRef.Field(1);
-                    DocumentType := ServiceTxt + ' ' + Format(FieldRef.Value);
+                    RecRef.SetTable(ServiceHeader);
+                    DocumentType := ServiceHeader.GetFullDocTypeTxt();
+
                     FieldRef := RecRef.Field(3);
                     DocumentNo := Format(FieldRef.Value);
                 end;

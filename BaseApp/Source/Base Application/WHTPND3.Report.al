@@ -162,7 +162,7 @@ report 14309 "WHT PND 3"
             column(Total_income_and_tax_paying__including_with_Phor_Ngor_Dor_3_if_any_Caption; Total_income_and_tax_paying__including_with_Phor_Ngor_Dor_3_if_any_CaptionLbl)
             {
             }
-            column(DataItem1500048; V1_PurposeOfPaymentLbl)
+            column(V1_purpose_of_payment_eg_rental__audit__lawyer__knowledge_of_doctor__building_expenses; V1_PurposeOfPaymentLbl)
             {
             }
             column(V2_indicate_the_number_accordinglyCaption; V2_indicate_the_number_accordinglyCaptionLbl)

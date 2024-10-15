@@ -1178,7 +1178,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!discount_or_any_other_benefit_from_promoting_the_products__winning_prize_in_compitition__racing__coupon__transportation__insurance_etc_Caption.Value</Value>
+                                  <Value>=Fields!discount_or_any_other_benefit_from_promoting_the_products__winning_prize_in_compitition.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2424,8 +2424,8 @@ End Function</Code>
         <Field Name="V1_purpose_of_payment_Caption">
           <DataField>V1_purpose_of_payment_Caption</DataField>
         </Field>
-        <Field Name="DataItem1500048">
-          <DataField>DataItem1500048</DataField>
+        <Field Name="discount_or_any_other_benefit_from_promoting_the_products__winning_prize_in_compitition">
+          <DataField>discount_or_any_other_benefit_from_promoting_the_products__winning_prize_in_compitition</DataField>
         </Field>
         <Field Name="Issued_forever_indicate_2Caption">
           <DataField>Issued_forever_indicate_2Caption</DataField>
