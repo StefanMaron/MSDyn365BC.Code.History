@@ -71,6 +71,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         IncorrectQtyOnEndingDateErr: Label 'Incorrect Quantity planned for given Ending Date.';
         WrongVersionCodeErr: Label 'Wrong version code.';
         ItemPlannedForExactDemandTxt: Label 'The item is planned to cover the exact demand.';
+        SubcontractingDescriptionErr: Label 'The description in Subcontracting Worksheet must be from Work Center if available.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2924,6 +2925,98 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
         // [VERIFY] Vertify Quantity Per on Planning Component
         VerifyPlanningComponentWithZeroQuantityPer(ChildItem2)
+    end;
+
+    [Test]
+    procedure OrderDateIsCalculatedCorrectlyIfLeadTimeCalculationIsGreaterThanOneYearForItemOnCalcPlanFromReqWorksheet()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 539761] Order Date is calculated correctly for Lead Time Calculation greater than one year on Calculate Plan from Req Worksheet        
+        Initialize();
+        RequisitionLine.DeleteAll(true);
+
+        // [GIVEN] Create Item with Lead Time Calculation greater than one year
+        CreateItem(Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::"Fixed Reorder Qty.", false, 1, 1, 0, '');
+        UpdateItem(Item, Item.FieldNo("Lead Time Calculation"), '<2Y>');
+        UpdateItem(Item, Item.FieldNo("Manufacturing Policy"), Item."Manufacturing Policy"::"Make-to-Stock");
+
+        // [GIVEN] Create Purchase Order and post Purchase Receipt
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Run Calculation Plan from Req Worksheet for created Item
+        CalculatePlanForReqWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+
+        // [THEN] Verify Order Date in Requisition line is calculated correctly
+        FindRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.TestField("Order Date", CalcDate('<-CY>', WorkDate()));
+    end;
+
+    [Test]
+    procedure SubcontractingWorksheetDescriptionIsPopulatedFromWorkCenter()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        Item: array[2] of Record Item;
+        RequisitionLine: Record "Requisition Line";
+        OperationNo: Code[10];
+        Quantity: Decimal;
+        WorkCenterName: Text;
+    begin
+        // [SCENARIO 540333] When the work Center changed in Subcontracting Worksheet the description is populated.
+        Initialize();
+
+        // [GIVEN] Store Operation No., Quantity and Work Center Description in a variable.
+        OperationNo := Format(10 + LibraryRandom.RandInt(10));
+        Quantity := LibraryRandom.RandInt(10);
+        WorkCenterName := LibraryRandom.RandText(50);
+
+        // [GIVEN] Create a Subcontractig Setup and Validate Name.
+        CreateSubcontractingSetup(WorkCenter, RoutingHeader, OperationNo);
+        WorkCenter.Validate("Name 2", WorkCenterName);
+        WorkCenter.Modify(true);
+
+        // [GIVEN] Create two Items with Routing No.
+        CreateItem(Item[1], Item[1]."Replenishment System"::"Prod. Order", Item[1]."Reordering Policy"::" ", false, 0, 0, 0, RoutingHeader."No.");
+        CreateItem(Item[2], Item[2]."Replenishment System"::"Prod. Order", Item[2]."Reordering Policy"::" ", false, 0, 0, 0, RoutingHeader."No.");
+
+        // [GIVEN] Create Production BOM and Certify.
+        CreateProductionBOMAndCertify(ProductionBOMHeader, Item[1]."Base Unit of Measure", ProductionBOMLine.Type::Item, Item[1]."No.", LibraryRandom.RandInt(5));
+
+        // [GIVEN] Validate Routing No. in Item.
+        Item[1].Validate("Routing No.", RoutingHeader."No.");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProdOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item[1]."No.", Quantity, ProductionOrder."Source Type"::Item, false);
+
+        // [GIVEN] Calculate Subcontracting for Work Center.
+        WorkCenter.SetRange("No.", WorkCenter."No.");
+        LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
+
+        // [GIVEN] Find the Requisition Line of Production Order.
+        RequisitionLine.SetRange("No.", ProductionOrder."Source No.");
+        RequisitionLine.SetRange("Ref. Order Status", ProductionOrder.Status);
+        RequisitionLine.SetRange("Ref. Order No.", ProductionOrder."No.");
+        RequisitionLine.FindFirst();
+
+        // [WHEN] Validate Item No. into different Item and Validate Work Center No.
+        RequisitionLine.Validate("No.", Item[2]."No.");
+        RequisitionLine.Validate("Work Center No.", WorkCenter."No.");
+        RequisitionLine.Modify(true);
+
+        // [THEN] Description must be as same as Work Center Name.
+        Assert.AreEqual(RequisitionLine.Description, WorkCenter.Name, SubcontractingDescriptionErr);
     end;
 
     local procedure Initialize()

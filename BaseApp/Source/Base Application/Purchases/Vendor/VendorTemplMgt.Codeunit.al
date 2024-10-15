@@ -37,6 +37,7 @@ codeunit 1385 "Vendor Templ. Mgt."
 
         Vendor.SetInsertFromTemplate(true);
         Vendor.Init();
+        OnCreateVendorFromTemplateOnBeforeInitVendorNo(Vendor);
         InitVendorNo(Vendor, VendorTempl);
         Vendor.Insert(true);
         Vendor.SetInsertFromTemplate(false);
@@ -564,6 +565,11 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitVendorNo(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorFromTemplateOnBeforeInitVendorNo(var Vendor: Record Vendor)
     begin
     end;
 
