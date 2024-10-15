@@ -126,6 +126,8 @@ codeunit 29 "Error Message Handler"
             TempErrorMessage."Reg. Err. Msg. System ID" := ErrorMessage.SystemId;// This is used to link the temporary error messages with the registered (committed) error messages.
             TempErrorMessage.Modify(false);
         until TempErrorMessage.Next() = 0;
+
+        OnAfterRegisterErrorMessages(ErrorMessage, RegisterID);
     end;
 
     procedure WriteMessagesToFile(FileName: Text; ThrowLastError: Boolean) FileCreated: Boolean;
@@ -285,6 +287,11 @@ codeunit 29 "Error Message Handler"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeActivateErrorMessageHandler(var ErrorMessageHandler: Codeunit "Error Message Handler")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRegisterErrorMessages(var ErrorMessage: Record "Error Message"; var RegisterID: Guid)
     begin
     end;
 }

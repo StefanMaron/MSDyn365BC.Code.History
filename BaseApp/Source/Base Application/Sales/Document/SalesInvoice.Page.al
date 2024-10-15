@@ -1924,7 +1924,15 @@ page 43 "Sales Invoice"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(Rec, DocumentIsPosted, CloseAction, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not (SkipConfirmationDialogOnClosing or DocumentIsPosted) then
             exit(Rec.ConfirmCloseUnposted());
     end;
@@ -2238,6 +2246,11 @@ page 43 "Sales Invoice"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnDeleteRecord(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(var SalesHeader: Record "Sales Header"; DocumentIsPosted: Boolean; CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

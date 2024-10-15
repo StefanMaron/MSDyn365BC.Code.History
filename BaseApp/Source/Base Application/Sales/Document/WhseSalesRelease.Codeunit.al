@@ -62,7 +62,7 @@ codeunit 5771 "Whse.-Sales Release"
                     else
                         WhseType := WhseType::Inbound;
 
-                    OnReleaseOnBeforeCreateWhseRequest(SalesLine, OldWhseType, WhseType, First);
+                    OnReleaseOnBeforeCreateWhseRequest(SalesLine, OldWhseType, WhseType, First, SalesHeader);
 
                     if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
                         CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WarehouseRequest);
@@ -240,7 +240,7 @@ codeunit 5771 "Whse.-Sales Release"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReleaseOnBeforeCreateWhseRequest(var SalesLine: Record "Sales Line"; OldWhseType: Enum "Warehouse Request Type"; WhseType: Enum "Warehouse Request Type"; var First: Boolean)
+    local procedure OnReleaseOnBeforeCreateWhseRequest(var SalesLine: Record "Sales Line"; OldWhseType: Enum "Warehouse Request Type"; WhseType: Enum "Warehouse Request Type"; var First: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 

@@ -277,14 +277,17 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     local procedure UnApplyVendor(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
     var
         UnapplyVendEntries: Page "Unapply Vendor Entries";
+        IsHandled: Boolean;
     begin
-        OnBeforeUnApplyVendor(DtldVendLedgEntry);
-
-        DtldVendLedgEntry.TestField("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-        DtldVendLedgEntry.TestField(Unapplied, false);
-        UnapplyVendEntries.SetDtldVendLedgEntry(DtldVendLedgEntry."Entry No.");
-        UnapplyVendEntries.LookupMode(true);
-        UnapplyVendEntries.RunModal();
+        IsHandled := false;
+        OnBeforeUnApplyVendor(DtldVendLedgEntry, IsHandled);
+        if not IsHandled then begin
+            DtldVendLedgEntry.TestField("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
+            DtldVendLedgEntry.TestField(Unapplied, false);
+            UnapplyVendEntries.SetDtldVendLedgEntry(DtldVendLedgEntry."Entry No.");
+            UnapplyVendEntries.LookupMode(true);
+            UnapplyVendEntries.RunModal();
+        end;
 
         OnAfterUnApplyVendor(DtldVendLedgEntry);
     end;
@@ -750,7 +753,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUnApplyVendor(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry");
+    local procedure OnBeforeUnApplyVendor(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean);
     begin
     end;
 

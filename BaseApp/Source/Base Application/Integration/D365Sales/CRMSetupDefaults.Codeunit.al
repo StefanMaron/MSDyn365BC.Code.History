@@ -1796,6 +1796,10 @@ codeunit 5334 "CRM Setup Defaults"
           CRMUomschedule.FieldNo(UoMScheduleId), CRMUomschedule.FieldNo(ModifiedOn),
           '', '', true);
 
+        IntegrationTableMapping."Synch. After Bulk Coupling" := true;
+        IntegrationTableMapping."Create New in Case of No Match" := true;
+        IntegrationTableMapping.Modify();
+
         // "Source No." > Name - we prefix this in CRMIntTableSubscriber OnTransferFieldData
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
@@ -1803,6 +1807,11 @@ codeunit 5334 "CRM Setup Defaults"
           CRMUomschedule.FieldNo(Name),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        IntegrationFieldMapping.FindFirst();
+        IntegrationFieldMapping."Use For Match-Based Coupling" := true;
+        IntegrationFieldMapping.Modify();
 
         // "Source No." > BaseUoM Name - we prefix this in CRMIntTableSubscriber OnTransferFieldData
         InsertIntegrationFieldMapping(
@@ -1834,6 +1843,9 @@ codeunit 5334 "CRM Setup Defaults"
           CRMUom.FieldNo(UoMId), CRMUom.FieldNo(ModifiedOn),
           '', '', true);
 
+        IntegrationTableMapping."Synch. After Bulk Coupling" := true;
+        IntegrationTableMapping."Create New in Case of No Match" := true;
+
         IntegrationTableMapping."Dependency Filter" := 'UNIT GROUP';
         IntegrationTableMapping.Modify();
 
@@ -1844,6 +1856,11 @@ codeunit 5334 "CRM Setup Defaults"
           CRMUom.FieldNo(Name),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        IntegrationFieldMapping.FindFirst();
+        IntegrationFieldMapping."Use For Match-Based Coupling" := true;
+        IntegrationFieldMapping.Modify();
 
         // Quantity > UoM Quantity
         InsertIntegrationFieldMapping(
@@ -1875,6 +1892,9 @@ codeunit 5334 "CRM Setup Defaults"
           CRMUom.FieldNo(UoMId), CRMUom.FieldNo(ModifiedOn),
           '', '', true);
 
+        IntegrationTableMapping."Synch. After Bulk Coupling" := true;
+        IntegrationTableMapping."Create New in Case of No Match" := true;
+
         IntegrationTableMapping."Dependency Filter" := 'UNIT GROUP';
         IntegrationTableMapping.Modify();
 
@@ -1885,6 +1905,11 @@ codeunit 5334 "CRM Setup Defaults"
           CRMUom.FieldNo(Name),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        IntegrationFieldMapping.FindFirst();
+        IntegrationFieldMapping."Use For Match-Based Coupling" := true;
+        IntegrationFieldMapping.Modify();
 
         // Quantity > UoM Quantity
         InsertIntegrationFieldMapping(

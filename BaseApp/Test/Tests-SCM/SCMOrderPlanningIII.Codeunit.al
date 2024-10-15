@@ -2842,6 +2842,39 @@ codeunit 137088 "SCM Order Planning - III"
         Assert.RecordIsEmpty(RequisitionLine);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderPlanningLineUpdatingWithoutAnyError()
+    var
+        ProductionOrder: Record "Production Order";
+        ParentItem: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        ChildItem: Record Item;
+        OrderPlanning: TestPage "Order Planning";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 497256] Order Planning when you update the lines with Replenishment System = Prod. Order this leads to a validation error
+        Initialize();
+
+        // [GIVEN] Setup: Create Work Center, Routing, Item, and initialize random quantity
+        CreateManufacturingSetup(ParentItem, ChildItem, true, ChildItem."Order Tracking Policy"::None);
+        GlobalChildItemNo := ChildItem."No.";
+        Qty := LibraryRandom.RandDecInRange(50, 100, 2);
+
+        // [GIVEN] Create Firm Planned Production Order
+        CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, Qty);
+
+        // [THEN] Calculate Plan from Order Planning.
+        LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
+
+        // [VERIFY] Exercise And Verify : Open Order Tracking Page and updating values in fields without any error
+        OpenOrderPlanningPage(OrderPlanning, ProductionOrder."No.", ChildItem."No.");
+        OrderPlanning.Reserve.SetValue(true);
+        OrderPlanning.Quantity.SetValue(Qty - LibraryRandom.RandDecInRange(10, 20, 2));
+        OrderPlanning.Quantity.SetValue(Qty - LibraryRandom.RandDecInRange(10, 20, 2));
+        OrderPlanning.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

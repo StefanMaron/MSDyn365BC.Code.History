@@ -67,6 +67,21 @@ codeunit 131352 "Library - Document Approvals"
         User.Insert(true);
     end;
 
+    procedure CreateUserWithEmail(UserName: Code[50]; WindowsUserName: Text[208]; Email: Text)
+    var
+        User: Record User;
+        UsersCreateSuperUser: Codeunit "Users - Create Super User";
+    begin
+        User.Init();
+        User.Validate("User Security ID", CreateGuid());
+        User.Validate("User Name", UserName);
+        if WindowsUserName <> '' then
+            User.Validate("Windows Security ID", SID(WindowsUserName));
+        User.Validate("Authentication Email", Email);
+        UsersCreateSuperUser.AddUserAsSuper(User);
+        User.Insert(true);
+    end;
+
     procedure CreateNonWindowsUser(UserName: Code[50])
     var
         User: Record User;
@@ -87,6 +102,18 @@ codeunit 131352 "Library - Document Approvals"
         UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
         UserSetup."User ID" := UserID;
         UserSetup."Approver ID" := ApproverID;
+        UserSetup.Insert(true);
+    end;
+
+    procedure CreateUserSetupWithEmail(var UserSetup: Record "User Setup"; UserID: Code[50]; ApproverID: Code[50]; Email: Text)
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
+        UserSetup."User ID" := UserID;
+        UserSetup."Approver ID" := ApproverID;
+        UserSetup."E-Mail" := Email;
         UserSetup.Insert(true);
     end;
 
@@ -333,4 +360,3 @@ codeunit 131352 "Library - Document Approvals"
         ApprovalEntry.ModifyAll("Approver ID", UserSetup."User ID", true);
     end;
 }
-

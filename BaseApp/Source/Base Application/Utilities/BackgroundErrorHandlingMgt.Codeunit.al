@@ -23,6 +23,8 @@ codeunit 9079 "Background Error Handling Mgt."
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
+        JobJournalErrorsMgt: Codeunit "Job Journal Errors Mgt.";
+        ResJournalErrorsMgt: Codeunit "Res. Journal Errors Mgt.";
         TranslationHelper: Codeunit "Translation Helper";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         NullJSONTxt: Label 'null', Locked = true;
@@ -90,7 +92,7 @@ codeunit 9079 "Background Error Handling Mgt."
             TempErrorMessage.Reset();
             if TempGenJnlLine.FindSet() then
                 repeat
-                    TempErrorMessage.SetRange("Context Record ID", TempGenJnlLine.RecordId);
+                    TempErrorMessage.SetRange("Context Record ID", TempGenJnlLine.RecordId());
                     TempErrorMessage.DeleteAll();
 
                     CleanDocumentRelatedErrors(
@@ -120,7 +122,7 @@ codeunit 9079 "Background Error Handling Mgt."
     local procedure CleanItemJnlLineRelatedError(var TempErrorMessage: Record "Error Message" temporary; ItemJnlLine: Record "Item Journal Line")
     begin
         TempErrorMessage.SetRange("Context Table Number", Database::"Item Journal Line");
-        TempErrorMessage.SetRange("Context Record ID", ItemJnlLine.RecordId);
+        TempErrorMessage.SetRange("Context Record ID", ItemJnlLine.RecordId());
         TempErrorMessage.DeleteAll();
     end;
 
@@ -206,10 +208,10 @@ codeunit 9079 "Background Error Handling Mgt."
     begin
         CleanItemJnlTempErrorMessages(TempErrorMessage, ErrorHandlingParameters);
         ErrorMessageMgt.GetErrorsFromResultValues(ResultValues, TempErrorMessage);
-        JournalErrorsMgt.SetErrorMessages(TempErrorMessage);
+        ItemJournalErrorsMgt.SetErrorMessages(TempErrorMessage);
 
         if ErrorHandlingParameters."Full Batch Check" then
-            JournalErrorsMgt.SetFullBatchCheck(false);
+            ItemJournalErrorsMgt.SetFullBatchCheck(false);
     end;
 
     procedure GetErrorsFromResJnlCheckResultValues(ResultValues: List of [Text]; var TempErrorMessage: Record "Error Message" temporary; ErrorHandlingParameters: Record "Error Handling Parameters")
@@ -218,10 +220,10 @@ codeunit 9079 "Background Error Handling Mgt."
     begin
         CleanResJnlTempErrorMessages(TempErrorMessage, ErrorHandlingParameters);
         ErrorMessageMgt.GetErrorsFromResultValues(ResultValues, TempErrorMessage);
-        JournalErrorsMgt.SetErrorMessages(TempErrorMessage);
+        ResJournalErrorsMgt.SetErrorMessages(TempErrorMessage);
 
         if ErrorHandlingParameters."Full Batch Check" then
-            JournalErrorsMgt.SetFullBatchCheck(false);
+            ResJournalErrorsMgt.SetFullBatchCheck(false);
     end;
 
     procedure GetErrorsFromDocumentCheckResultValues(ResultValues: List of [Text]; var TempErrorMessage: Record "Error Message" temporary; ErrorHandlingParameters: Record "Error Handling Parameters")
@@ -249,7 +251,7 @@ codeunit 9079 "Background Error Handling Mgt."
                 TempSalesLine."Document No." := ErrorHandlingParameters."Document No.";
                 TempSalesLine."Line No." := ErrorHandlingParameters."Line No.";
                 TempErrorMessage.SetRange("Context Table Number", Database::"Sales Line");
-                TempErrorMessage.SetRange("Context Record ID", TempSalesLine.RecordId);
+                TempErrorMessage.SetRange("Context Record ID", TempSalesLine.RecordId());
                 TempErrorMessage.DeleteAll();
             end;
     end;
@@ -274,14 +276,13 @@ codeunit 9079 "Background Error Handling Mgt."
     local procedure CleanResJnlLineRelatedError(var TempErrorMessage: Record "Error Message" temporary; ResJnlLine: Record "Res. Journal Line")
     begin
         TempErrorMessage.SetRange("Context Table Number", Database::"Res. Journal Line");
-        TempErrorMessage.SetRange("Context Record ID", ResJnlLine.RecordId);
+        TempErrorMessage.SetRange("Context Record ID", ResJnlLine.RecordId());
         TempErrorMessage.DeleteAll();
     end;
 
     local procedure CheckCleanDeletedResJnlLinesErrors(var TempErrorMessage: Record "Error Message" temporary)
     var
         TempResJnlLine: Record "Res. Journal Line" temporary;
-        ResJournalErrorsMgt: Codeunit "Res. Journal Errors Mgt.";
     begin
         if ResJournalErrorsMgt.GetDeletedResJnlLine(TempResJnlLine, true) then begin
             TempErrorMessage.Reset();
@@ -310,10 +311,10 @@ codeunit 9079 "Background Error Handling Mgt."
     begin
         CleanJobJnlTempErrorMessages(TempErrorMessage, ErrorHandlingParameters);
         ErrorMessageMgt.GetErrorsFromResultValues(ResultValues, TempErrorMessage);
-        JournalErrorsMgt.SetErrorMessages(TempErrorMessage);
+        JobJournalErrorsMgt.SetErrorMessages(TempErrorMessage);
 
         if ErrorHandlingParameters."Full Batch Check" then
-            JournalErrorsMgt.SetFullBatchCheck(false);
+            JobJournalErrorsMgt.SetFullBatchCheck(false);
     end;
 
     procedure CleanJobJnlTempErrorMessages(var TempErrorMessage: Record "Error Message" temporary; ErrorHandlingParameters: Record "Error Handling Parameters")
@@ -336,14 +337,13 @@ codeunit 9079 "Background Error Handling Mgt."
     local procedure CleanJobJnlLineRelatedError(var TempErrorMessage: Record "Error Message" temporary; JobJnlLine: Record "Job Journal Line")
     begin
         TempErrorMessage.SetRange("Context Table Number", Database::"Job Journal Line");
-        TempErrorMessage.SetRange("Context Record ID", JobJnlLine.RecordId);
+        TempErrorMessage.SetRange("Context Record ID", JobJnlLine.RecordId());
         TempErrorMessage.DeleteAll();
     end;
 
     local procedure CheckCleanDeletedJobJnlLinesErrors(var TempErrorMessage: Record "Error Message" temporary)
     var
         TempJobJnlLine: Record "Job Journal Line" temporary;
-        JobJournalErrorsMgt: Codeunit "Job Journal Errors Mgt.";
     begin
         if JobJournalErrorsMgt.GetDeletedJobJnlLine(TempJobJnlLine, true) then begin
             TempErrorMessage.Reset();

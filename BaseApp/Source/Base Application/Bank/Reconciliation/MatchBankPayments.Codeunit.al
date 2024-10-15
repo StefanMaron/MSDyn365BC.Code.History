@@ -542,6 +542,13 @@ codeunit 1255 "Match Bank Payments"
                 FindTextMappings(BankAccReconciliationLine);
                 TimeTextMappings := CurrentDateTime() - StartTime;
                 TotalTimeTimeTextMappingsPerLine += TimeTextMappings;
+                OnMapLedgerEntriesToStatementLinesOnAfterCalcTotalTimeTimeTextMappingsPerLine(
+                    BankAccReconciliationLine, TempBankStatementMatchingBuffer,
+                    TotalTimeMatchingCustomerLedgerEntriesPerLine, TotalTimeMatchingVendorLedgerEntriesPerLine,
+                    TotalTimeMatchingEmployeeLedgerEntriesPerLine, TotalTimeMatchingBankLedgerEntriesPerLine, RelatedPartyMatchedInfoText,
+                    LogInfoText, TotalTimeStringNearness, UsePaymentDiscounts, TempOneToManyTempBankStatementMatchingBuffer,
+                    TempCustomerLedgerEntryMatchingBuffer, TempVendorLedgerEntryMatchingBuffer,
+                    TempEmployeeLedgerEntryMatchingBuffer, TempBankAccLedgerEntryMatchingBuffer);
 
                 ProcessedLines += 1;
                 SendTraceTag('0000DK9', PaymentkRecPreformanceCategoryLbl, Verbosity::Normal, StrSubstNo(MatchedLineTelemetryTxt, BankAccReconciliationLine.SystemId, CurrentDateTime() - LineStartTime, TimeCustomerLedgerEntries, TimeVendorLedgerEntries, TimeEmployeeLedgerEntries, TimeBankLedgerEntries, TimeTextMappings), DataClassification::SystemMetadata);
@@ -2592,6 +2599,11 @@ codeunit 1255 "Match Bank Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyLedgerEntriesToStatementLinesOnAfterUpdatePaymentMatchDetails(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Overwrite: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMapLedgerEntriesToStatementLinesOnAfterCalcTotalTimeTimeTextMappingsPerLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TotalTimeMatchingCustomerLedgerEntriesPerLine: Duration; var TotalTimeMatchingVendorLedgerEntriesPerLine: Duration; var TotalTimeMatchingEmployeeLedgerEntriesPerLine: Duration; var TotalTimeMatchingBankLedgerEntriesPerLine: Duration; var RelatedPartyMatchedInfoText: Text; LogInfoText: Boolean; var TotalTimeStringNearness: Duration; UsePaymentDiscounts: Boolean; OneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempCustomerLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempVendorLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempEmployeeLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
     begin
     end;
 }
