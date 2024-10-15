@@ -220,7 +220,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Globals!PageNumber</Value>
+                                  <Value>=1</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>

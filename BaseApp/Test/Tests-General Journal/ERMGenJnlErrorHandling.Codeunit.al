@@ -1596,6 +1596,38 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GeneralJournal.JournalErrorsFactBox.NumberOfLinesWithErrors.AssertEquals(0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowLinesWithErrorsDimError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        GeneralJournal: TestPage "General Journal";
+    begin
+        // [SCENARIO 397303] Action "Show Lines with Errors" shows lines with dimension related errors
+        Initialize();
+
+        // [GIVEN] Create journal line with G/L Account "A" for new batch "XXX" 
+        CreateGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Create mandatory dimension value for account "A"
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GenJournalLine."Account No.", DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension."Value Posting" := "Default Dimension Value Posting Type"::"Code Mandatory";
+        DefaultDimension.Modify();
+
+        // [GIVEN] Open general journal for batch "XXX"
+        GeneralJournal.Trap();
+        Page.Run(Page::"General Journal", GenJournalLine);
+
+        // [WHEN] Action "Show Lines with Errors" is being selected
+        GeneralJournal.ShowLinesWithErrors.Invoke();
+
+        // [THEN] Journal line with Account "A" is shown on the page
+        GeneralJournal."Account No.".AssertEquals(GenJournalLine."Account No.");
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

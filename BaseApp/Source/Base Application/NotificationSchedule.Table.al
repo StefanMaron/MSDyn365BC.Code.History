@@ -130,6 +130,8 @@ table 1513 "Notification Schedule"
         WritePermissionTok: Label 'Insert, Modify, and Delete permissions';
         ReadPermissionTok: Label 'Read Permission';
         NotifyLaterLbl: Label 'NOTIFYLTR', Locked = true;
+        NotificationTelemetryCategoryTxt: Label 'Notifications', Locked = true;
+        SchedulingNotificationTelemetryTxt: Label 'Scheduling notification', Locked = true;
 
     [Obsolete('Replaced by CreateNewRecord().', '17.0')]
     procedure NewRecord(NewUserID: Code[50]; NewNotificationType: Option)
@@ -292,6 +294,8 @@ table 1513 "Notification Schedule"
 
     local procedure Schedule()
     begin
+        Session.LogMessage('0000F6A', SchedulingNotificationTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, GetTelemetryDimensions());
+
         if Recurrence = Recurrence::Instantly then
             ScheduleNow
         else
@@ -354,6 +358,26 @@ table 1513 "Notification Schedule"
           CODEUNIT::"Notification Entry Dispatcher", ExcetutionDateTime, NotifyLaterLbl, NotificationEntry.GetView);
         "Last Scheduled Job" := JobQueueEntry.ID;
         Modify
+    end;
+
+    local procedure GetTelemetryDimensions() Dimensions: Dictionary of [Text, Text]
+    begin
+        Dimensions.Add('Category', NotificationTelemetryCategoryTxt);
+
+        Dimensions.Add('Recurrance', Format(Rec.Recurrence.AsInteger()));
+        Dimensions.Add('NotificationType', Format(Rec."Notification Type"));
+        Dimensions.Add('DailyFrequency', Format(Rec."Daily Frequency"));
+        Dimensions.Add('DateOfMonth', Format(Rec."Date of Month"));
+        Dimensions.Add('Monday', Format(Rec.Monday));
+        Dimensions.Add('Tuesday', Format(Rec.Tuesday));
+        Dimensions.Add('Wednesday', Format(Rec.Wednesday));
+        Dimensions.Add('Thursday', Format(Rec.Thursday));
+        Dimensions.Add('Friday', Format(Rec.Friday));
+        Dimensions.Add('Saturday', Format(Rec.Saturday));
+        Dimensions.Add('Sunday', Format(Rec.Sunday));
+        Dimensions.Add('LastScheduledJob', Format(Rec."Last Scheduled Job"));
+        Dimensions.Add('MonthlyNotificationDate', Format(Rec."Monthly Notification Date"));
+        Dimensions.Add('Time', Format(Rec.Time));
     end;
 }
 

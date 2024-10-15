@@ -195,6 +195,7 @@ codeunit 86 "Sales-Quote to Order"
         Opp: Record Opportunity;
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
         Opp.Reset();
         Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
@@ -223,6 +224,11 @@ codeunit 86 "Sales-Quote to Order"
             OnBeforeTempOpportunityEntryInsert(TempOpportunityEntry);
             TempOpportunityEntry.Insert();
             TempOpportunityEntry.SetRange("Action Taken", TempOpportunityEntry."Action Taken"::Won);
+
+            IsHandled := false;
+            OnCheckInProgressOpportunitiesOnBeforeRunCloseOpportunityPage(TempOpportunityEntry, Opp, SalesHeader, IsHandled);
+            if IsHandled then
+                exit;
             PAGE.RunModal(PAGE::"Close Opportunity", TempOpportunityEntry);
             Opp.Reset();
             Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
@@ -385,6 +391,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckInProgressOpportunitiesOnBeforeRunCloseOpportunityPage(var TempOpportunityEntry: Record "Opportunity Entry" temporary; Opp: Record Opportunity; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

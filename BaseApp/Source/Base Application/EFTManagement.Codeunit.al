@@ -498,6 +498,8 @@ codeunit 11603 "EFT Management"
         OnBeforeInitPaymentBuffer(PaymentBufferGenJournalLine, VendorNo, EFTBankAccountNo, DocumentNo, Amount);
 #endif
         OnBeforeInitPaymentBufferWithPaymentReference(PaymentBufferGenJournalLine, VendorNo, EFTBankAccountNo, DocumentNo, PaymentReference, Amount);
+        if PaymentReference = '' then
+            PaymentReference := DocumentNo;
 
         PaymentBufferGenJournalLine."Line No." += 10000;
         PaymentBufferGenJournalLine."Account No." := VendorNo;

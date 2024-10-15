@@ -386,7 +386,7 @@ report 292 "Copy Sales Document"
             [SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo"])) and
           (SalesHeader."Bill-to Customer No." in [FromSalesHeader."Bill-to Customer No.", '']);
 
-        OnBeforeValidateIncludeHeader(IncludeHeader);
+        OnBeforeValidateIncludeHeader(IncludeHeader, FromSalesHeader);
         ValidateIncludeHeader;
         OnAfterValidateIncludeHeader(IncludeHeader, RecalculateLines);
     end;
@@ -620,7 +620,7 @@ report 292 "Copy Sales Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateIncludeHeader(var DoIncludeHeader: Boolean)
+    local procedure OnBeforeValidateIncludeHeader(var DoIncludeHeader: Boolean; FromSalesHeader: Record "Sales Header")
     begin
     end;
 

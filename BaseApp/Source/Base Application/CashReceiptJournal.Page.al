@@ -1146,6 +1146,7 @@ page 255 "Cash Receipt Journal"
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(RecordId);
     end;
 

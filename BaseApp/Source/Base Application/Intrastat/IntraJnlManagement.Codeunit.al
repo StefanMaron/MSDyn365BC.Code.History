@@ -13,6 +13,7 @@ codeunit 350 IntraJnlManagement
         Text002: Label 'DEFAULT';
         Text003: Label 'Default Journal';
         OpenFromBatch: Boolean;
+        AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
 
     procedure TemplateSelection(PageID: Integer; var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var JnlSelected: Boolean)
     var
@@ -204,6 +205,123 @@ codeunit 350 IntraJnlManagement
             end else
                 ShowStatisticalValue := false;
         end;
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by Advanced Intrastat Checklist', '19.0')]
+    procedure ValidateChecklistReport(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatChecklistSetup: Record "Intrastat Checklist Setup";
+        ErrorMessage: Record "Error Message";
+    begin
+        ChecklistSetBatchContext(ErrorMessage, IntrastatJnlLine);
+        if IntrastatChecklistSetup.FindSet() then
+            repeat
+                ErrorMessage.LogIfEmpty(IntrastatJnlLine, IntrastatChecklistSetup."Field No.", ErrorMessage."Message Type"::Error);
+            until IntrastatChecklistSetup.Next() = 0;
+    end;
+#endif
+    procedure ValidateReportWithAdvancedChecklist(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ReportId: Integer; ThrowError: Boolean): Boolean
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        exit(ValidateObjectWithAdvancedChecklist(IntrastatJnlLine, AdvancedIntrastatChecklist."Object Type"::Report, ReportId, ThrowError));
+    end;
+
+    procedure ValidateCodeunitWithAdvancedChecklist(IntrastatJnlLine: Record "Intrastat Jnl. Line"; CodeunitId: Integer; ThrowError: Boolean): Boolean
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        exit(ValidateObjectWithAdvancedChecklist(IntrastatJnlLine, AdvancedIntrastatChecklist."Object Type"::Codeunit, CodeunitId, ThrowError));
+    end;
+
+    procedure IsAdvancedChecklistReportField(ReportId: Integer; FieldNo: Integer; FilterExpression: Text): Boolean
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        AdvancedIntrastatChecklist.SetRange("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
+        AdvancedIntrastatChecklist.SetRange("Object Id", ReportId);
+        AdvancedIntrastatChecklist.SetRange("Field No.", FieldNo);
+        AdvancedIntrastatChecklist.SetRange("Filter Expression", FilterExpression);
+        exit(not AdvancedIntrastatChecklist.IsEmpty());
+    end;
+
+    local procedure ValidateObjectWithAdvancedChecklist(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ObjectType: Option; ObjectId: Integer; ThrowError: Boolean): Boolean
+    var
+        ErrorMessage: Record "Error Message";
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+        AnyError: Boolean;
+    begin
+        ChecklistSetBatchContext(ErrorMessage, IntrastatJnlLine);
+        AdvancedIntrastatChecklist.SetRange("Object Type", ObjectType);
+        AdvancedIntrastatChecklist.SetRange("Object Id", ObjectId);
+        if AdvancedIntrastatChecklist.FindSet() then
+            repeat
+                if AdvancedIntrastatChecklist.LinePassesFilterExpression(IntrastatJnlLine) then
+                    AnyError :=
+                      AnyError or
+                      (ErrorMessage.LogIfEmpty(
+                         IntrastatJnlLine, AdvancedIntrastatChecklist."Field No.", ErrorMessage."Message Type"::Error) <> 0);
+            until AdvancedIntrastatChecklist.Next() = 0;
+
+        if AnyError and ThrowError then begin
+            Commit();
+            Error(AdvChecklistErr);
+        end;
+
+        exit(not AnyError);
+    end;
+
+    procedure ChecklistClearBatchErrors(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    var
+        ErrorMessage: Record "Error Message";
+    begin
+        ErrorMessage.SetContext(IntrastatJnlBatch);
+        ErrorMessage.ClearLog();
+    end;
+
+    local procedure ChecklistSetBatchContext(var ErrorMessage: Record "Error Message"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        ErrorMessage.SetContext(IntrastatJnlBatch);
+    end;
+
+    procedure CreateDefaultAdvancedIntrastatSetup()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Checklist");
+        CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Form");
+        CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Make Disk Tax Auth");
+
+        CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
+        CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
+        CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
+    end;
+
+    local procedure CreateAdvancedChecklistSetupCommonFields(ReportId: Integer)
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
+    end;
+
+    local procedure CreateAdvancedChecklistFieldSetup(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        AdvancedIntrastatChecklist.Init();
+        AdvancedIntrastatChecklist.Validate("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
+        AdvancedIntrastatChecklist.Validate("Object Id", ReportId);
+        AdvancedIntrastatChecklist.Validate("Field No.", FieldNo);
+        AdvancedIntrastatChecklist.Validate("Filter Expression", FilterExpr);
+        if AdvancedIntrastatChecklist.Insert() then;
     end;
 }
 
