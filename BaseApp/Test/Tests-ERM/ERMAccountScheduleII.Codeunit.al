@@ -1114,6 +1114,60 @@ codeunit 134994 "ERM Account Schedule II"
         ColumnLayoutPage.Show.AssertEquals(ColumnLayout.Show::Always);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleResetColumnLayoutOnAccountScheduleChange()
+    var
+        AccScheduleName: Array[2] of Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        ColumnHeader: Text[30];
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        AccountSchedule1CurrentColumnName: Text;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 423715] Account Schedule Overview not show Column Layout from previous opened Account Schedule
+        Initialize();
+
+        // [GIVEN] Column Layout "CL"
+        ColumnHeader := LibraryUtility.GenerateGUID();
+        ColumnLayoutName.Get(CreateColumnLayoutWithName(ColumnHeader[1]));
+
+        // [GIVEN] Account Schedule "AS1" with empty Default Column Layout, Account Schedule "AS2" with "Default Column Layout" = "CL"
+        LibraryERM.CreateAccScheduleName(AccScheduleName[1]);
+        LibraryERM.CreateAccScheduleName(AccScheduleName[2]);
+        AccScheduleName[2].Validate("Default Column Layout", ColumnLayoutName.Name);
+        AccScheduleName[2].Modify();
+
+        // [GIVEN] Account Schedule Overview page is opened for "AS1"
+        AccountScheduleNames.OpenEdit();
+        AccountScheduleNames.FILTER.SetFilter(Name, AccScheduleName[1].Name);
+        AccScheduleOverview.Trap();
+        AccountScheduleNames.Overview.Invoke();
+
+        // [GIVEN] As "AS1" has empty "Default Column Layout", Current Column Name = "Default" (w1) 
+        AccountSchedule1CurrentColumnName := AccScheduleOverview.CurrentColumnName.Value;
+        AccScheduleOverview.Close();
+
+        // [WHEN] Account Schedule Overview page is opened for "AS2"
+        AccountScheduleNames.FILTER.SetFilter(Name, AccScheduleName[2].Name);
+        AccScheduleOverview.Trap();
+        AccountScheduleNames.Overview.Invoke();
+
+        // [THEN] As "AS2" has empty "Default Column Layout", Current Column Name = "CL" (w1) 
+        AccScheduleOverview.CurrentColumnName.AssertEquals(ColumnLayoutName.Name);
+        AccScheduleOverview.Close();
+
+        // [WHEN] Account Schedule Overview page is reopened for "AS1"
+        AccountScheduleNames.FILTER.SetFilter(Name, AccScheduleName[1].Name);
+        AccScheduleOverview.Trap();
+        AccountScheduleNames.Overview.Invoke();
+
+        // [GIVEN] Current Column Name has not changed and is equal to previous value = "Default" (w1) 
+        AccScheduleOverview.CurrentColumnName.AssertEquals(AccountSchedule1CurrentColumnName);
+        AccScheduleOverview.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1407,6 +1461,19 @@ codeunit 134994 "ERM Account Schedule II"
         ToAccScheduleLine.TestField(Description, FromAccScheduleLine.Description);
         ToAccScheduleLine.TestField(Totaling, FromAccScheduleLine.Totaling);
         ToAccScheduleLine.TestField("Totaling Type", FromAccScheduleLine."Totaling Type");
+    end;
+
+    local procedure CreateColumnLayoutWithName(ColumnHeader: Text[30]): Code[10]
+    var
+        ColumnLayoutName: Record "Column Layout Name";
+        ColumnLayout: Record "Column Layout";
+    begin
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName.Name);
+        ColumnLayout.Validate("Column No.", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Header", ColumnHeader);
+        ColumnLayout.Modify(true);
+        exit(ColumnLayoutName.Name);
     end;
 
     [RequestPageHandler]

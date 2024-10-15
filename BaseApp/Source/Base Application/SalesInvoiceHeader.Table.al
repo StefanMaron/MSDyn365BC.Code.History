@@ -844,7 +844,12 @@ table 112 "Sales Invoice Header"
         field(27003; "Substitution Document No."; Code[20])
         {
             Caption = 'Substitution Document No.';
-            TableRelation = "Sales Invoice Header" WHERE ("Electronic Document Status" = FILTER ("Stamp Received"));
+            TableRelation = "Sales Invoice Header" WHERE("Electronic Document Status" = FILTER("Stamp Received"));
+        }
+        field(27004; "CFDI Export Code"; Code[10])
+        {
+            Caption = 'CFDI Export Code';
+            TableRelation = "CFDI Export Code";
         }
     }
 
@@ -1009,7 +1014,13 @@ table 112 "Sales Invoice Header"
     local procedure DoPrintToDocumentAttachment(SalesInvoiceHeader: Record "Sales Invoice Header"; ShowNotificationAction: Boolean)
     var
         ReportSelections: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDoPrintToDocumentAttachment(SalesInvoiceHeader, ShowNotificationAction, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesInvoiceHeader.SetRecFilter();
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"S.Invoice".AsInteger(), SalesInvoiceHeader, SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
@@ -1340,6 +1351,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ReportSelections: Record "Report Selections"; var SalesInvoiceHeader: Record "Sales Invoice Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDoPrintToDocumentAttachment(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ShowNotificationAction: Boolean; var IsHandled: Boolean)
     begin
     end;
 

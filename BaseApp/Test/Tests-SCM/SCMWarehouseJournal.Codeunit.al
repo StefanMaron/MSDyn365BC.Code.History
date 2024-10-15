@@ -2172,7 +2172,10 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [GIVEN] Set lot no. = "L1" in warehouse pick lines, set "Qty. to Handle" = 2 to pick partial quantitiy
         WarehouseActivityLine.SetRange("Item No.", ComponentItem."No.");
         WarehouseActivityLine.ModifyAll("Lot No.", LotNo);
-        WarehouseActivityLine.ModifyAll("Qty. to Handle", LibraryRandom.RandInt(DemandQty - 1));
+        if WarehouseActivityLine.FindSet() then
+            REPEAT
+                WarehouseActivityLine.Validate("Qty. to Handle", LibraryRandom.RandInt(DemandQty - 1));
+            Until WarehouseActivityLine.next = 0;
 
         // [WHEN] Register the warehouse pick
         RegisterWarehouseActivity(
@@ -3365,6 +3368,109 @@ codeunit 137153 "SCM Warehouse - Journal"
         WhseItemTrackingLine.SetRange("Item No.", Item."No.");
         WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.TestField("Qty. per Unit of Measure", QtyPerUOM);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandler')]
+    procedure DeleteWhseItemTrackingOnChangeItemNo()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 422043] Whse. item tracking lines are deleted when you change item no. on warehouse journal line.
+        Initialize();
+
+        CreateItemWithItemTrackingCode(Item, false, true);
+
+        FindBin(Bin, LocationWhite.Code, true);
+
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Lot No");
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        CreateWarehouseJournalLine(
+          WarehouseJournalLine, Bin, WarehouseJournalTemplate.Type::Item, Item."No.", LibraryRandom.RandInt(10), true);
+
+        WhseItemTrackingLine.SetRange("Item No.", Item."No.");
+        Assert.RecordIsNotEmpty(WhseItemTrackingLine);
+
+        WarehouseJournalLine.Validate("Item No.", LibraryInventory.CreateItemNo());
+
+        Assert.RecordIsEmpty(WhseItemTrackingLine);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandler')]
+    procedure DeleteWhseItemTrackingOnChangeVariantCode()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Bin: Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 422043] Whse. item tracking lines are deleted when you change variant code on warehouse journal line.
+        Initialize();
+
+        CreateItemWithItemTrackingCode(Item, false, true);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        FindBin(Bin, LocationWhite.Code, true);
+
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Lot No");
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        CreateWarehouseJournalLine(
+          WarehouseJournalLine, Bin, WarehouseJournalTemplate.Type::Item, Item."No.", LibraryRandom.RandInt(10), true);
+
+        WhseItemTrackingLine.SetRange("Item No.", Item."No.");
+        Assert.RecordIsNotEmpty(WhseItemTrackingLine);
+
+        WarehouseJournalLine.Validate("Variant Code", ItemVariant.Code);
+
+        Assert.RecordIsEmpty(WhseItemTrackingLine);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandler')]
+    procedure DeleteWhseItemTrackingOnChangeUnitOfMeasureCode()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Bin: Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 422043] Whse. item tracking lines are deleted when you change unit of measure code on warehouse journal line.
+        Initialize();
+
+        CreateItemWithItemTrackingCode(Item, false, true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 5));
+
+        FindBin(Bin, LocationWhite.Code, true);
+
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Lot No");
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        CreateWarehouseJournalLine(
+          WarehouseJournalLine, Bin, WarehouseJournalTemplate.Type::Item, Item."No.", LibraryRandom.RandInt(10), true);
+
+        WhseItemTrackingLine.SetRange("Item No.", Item."No.");
+        Assert.RecordIsNotEmpty(WhseItemTrackingLine);
+
+        WarehouseJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+
+        Assert.RecordIsEmpty(WhseItemTrackingLine);
 
         LibraryVariableStorage.AssertEmpty();
     end;

@@ -2621,7 +2621,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateRequestedDeliveryDate(Rec, IsHandled);
+                OnBeforeValidateRequestedDeliveryDate(Rec, IsHandled, xRec, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -2833,9 +2833,9 @@
         field(10044; "Transport Operators"; Integer)
         {
             Caption = 'Transport Operators';
-            CalcFormula = Count ("CFDI Transport Operator" WHERE ("Document Table ID" = CONST (36),
-                                                                 "Document Type" = FIELD ("Document Type"),
-                                                                 "Document No." = FIELD ("No.")));
+            CalcFormula = Count("CFDI Transport Operator" WHERE("Document Table ID" = CONST(36),
+                                                                 "Document Type" = FIELD("Document Type"),
+                                                                 "Document No." = FIELD("No.")));
             FieldClass = FlowField;
         }
         field(10045; "Transit-from Date/Time"; DateTime)
@@ -2870,17 +2870,17 @@
         field(10052; "Trailer 1"; Code[20])
         {
             Caption = 'Trailer 1';
-            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+            TableRelation = "Fixed Asset" WHERE("SAT Trailer Type" = FILTER(<> ''));
         }
         field(10053; "Trailer 2"; Code[20])
         {
             Caption = 'Trailer 2';
-            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+            TableRelation = "Fixed Asset" WHERE("SAT Trailer Type" = FILTER(<> ''));
         }
         field(10055; "Transit-to Location"; Code[10])
         {
             Caption = 'Transit-to Location';
-            TableRelation = Location WHERE ("Use As In-Transit" = CONST (false));
+            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
         }
         field(10056; "Medical Insurer Name"; Text[50])
         {
@@ -2926,6 +2926,11 @@
         {
             Caption = 'CFDI Relation';
             TableRelation = "SAT Relationship Type";
+        }
+        field(27004; "CFDI Export Code"; Code[10])
+        {
+            Caption = 'CFDI Export Code';
+            TableRelation = "CFDI Export Code";
         }
     }
 
@@ -3662,7 +3667,7 @@
             exit;
 
         ShouldCreateSalsesLine := TempSalesLine."Attached to Line No." = 0;
-        OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(TempSalesLine, ShouldCreateSalsesLine);
+        OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(TempSalesLine, ShouldCreateSalsesLine, SalesLine);
         if ShouldCreateSalsesLine then begin
             CreateSalesLine(TempSalesLine);
             ExtendedTextAdded := false;
@@ -6183,13 +6188,16 @@
         if Customer.Get("Bill-to Customer No.") then begin
             "CFDI Purpose" := Customer."CFDI Purpose";
             "CFDI Relation" := Customer."CFDI Relation";
+            "CFDI Export Code" := Customer."CFDI Export Code";
         end else
             if Customer.Get("Sell-to Customer No.") then begin
                 "CFDI Purpose" := Customer."CFDI Purpose";
                 "CFDI Relation" := Customer."CFDI Relation";
+                "CFDI Export Code" := Customer."CFDI Export Code";
             end else begin
                 "CFDI Purpose" := '';
                 "CFDI Relation" := '';
+                "CFDI Export Code" := '';
             end;
     end;
 
@@ -7997,7 +8005,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateRequestedDeliveryDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateRequestedDeliveryDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -8368,7 +8376,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(var TempSalesLine: Record "Sales Line"; var ShouldCreateSalsesLine: Boolean)
+    local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(var TempSalesLine: Record "Sales Line"; var ShouldCreateSalsesLine: Boolean; var SalesLine: Record "Sales Line")
     begin
     end;
 

@@ -411,6 +411,11 @@
             group(ElectronicDocument)
             {
                 Caption = 'Electronic Document';
+                field("CFDI Export Code"; "CFDI Export Code")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
                 field("Transport Operators"; "Transport Operators")
                 {
                     ApplicationArea = Location, BasicMX;
@@ -651,7 +656,7 @@
                     PromotedOnly = true;
                     RunObject = Codeunit "Release Transfer Document";
                     ShortCutKey = 'Ctrl+F9';
-                    ToolTip = 'Release the document to the next stage of processing. When a document is released, it will be included in all availability calculations from the expected receipt date of the items. You must reopen the document before you can make changes to it.';
+                    ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
                 }
                 action("Reo&pen")
                 {

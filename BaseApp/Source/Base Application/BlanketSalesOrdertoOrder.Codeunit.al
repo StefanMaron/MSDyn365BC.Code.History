@@ -292,7 +292,13 @@ codeunit 87 "Blanket Sales Order to Order"
     var
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAutoReserve(SalesLine, TempSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLine do
             if (Type = Type::Item) and
                (Reserve = Reserve::Always) and
@@ -312,7 +318,13 @@ codeunit 87 "Blanket Sales Order to Order"
     local procedure CheckAvailability(BlanketOrderSalesHeader: Record "Sales Header")
     var
         ATOLink: Record "Assemble-to-Order Link";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAvailability(BlanketOrderSalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with BlanketOrderSalesLine do begin
             SetRange("Document Type", BlanketOrderSalesHeader."Document Type");
             SetRange("Document No.", BlanketOrderSalesHeader."No.");
@@ -327,7 +339,8 @@ codeunit 87 "Blanket Sales Order to Order"
                         SalesLine."Quantity (Base)" := Round(SalesLine.Quantity * SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
                         SalesLine."Qty. to Ship" := SalesLine.Quantity;
                         SalesLine."Qty. to Ship (Base)" := SalesLine."Quantity (Base)";
-                        SalesLine.InitOutstanding;
+                        OnCheckAvailabilityOnBeforeSalesLineInitOutstanding(SalesLine, BlanketOrderSalesLine);
+                        SalesLine.InitOutstanding();
                         if ATOLink.AsmExistsForSalesLine(BlanketOrderSalesLine) then begin
                             SalesLine."Qty. to Assemble to Order" := SalesLine.Quantity;
                             SalesLine."Qty. to Asm. to Order (Base)" := SalesLine."Quantity (Base)";
@@ -372,6 +385,11 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserve(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var SalesHeader: Record "Sales Header"; var HideValidationDialog: Boolean)
     begin
     end;
@@ -412,6 +430,11 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAvailability(BlanketOrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -433,6 +456,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReserveItemsManuallyLoop(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAvailabilityOnBeforeSalesLineInitOutstanding(var SalesLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")
     begin
     end;
 

@@ -235,7 +235,7 @@ table 273 "Bank Acc. Reconciliation"
         field(31; "Total Positive Difference"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Account Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No."),
                                                                                       Type = CONST(Difference),
@@ -247,7 +247,7 @@ table 273 "Bank Acc. Reconciliation"
         field(32; "Total Negative Difference"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Account Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No."),
                                                                                       Type = CONST(Difference),
@@ -563,9 +563,10 @@ table 273 "Bank Acc. Reconciliation"
     begin
         CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation);
 
-        if ConfidenceLevelPermitToPost(BankAccReconciliation) then
+        if ConfidenceLevelPermitToPost(BankAccReconciliation) then begin
+            Commit();
             CODEUNIT.Run(CODEUNIT::"Bank Acc. Reconciliation Post", BankAccReconciliation)
-        else
+        end else
             OpenWorksheetFromProcessStatement(BankAccReconciliation);
     end;
 

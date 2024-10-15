@@ -1172,7 +1172,7 @@
         InStr: InStream;
         NodeCount: Integer;
         Counter: Integer;
-        QRCodeInput: Text[95];
+        QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
     begin
@@ -1360,7 +1360,7 @@
         InStr: InStream;
         NodeCount: Integer;
         Counter: Integer;
-        QRCodeInput: Text[95];
+        QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
     begin
@@ -1479,7 +1479,7 @@
         InStr: InStream;
         NodeCount: Integer;
         Counter: Integer;
-        QRCodeInput: Text[95];
+        QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
     begin
@@ -1597,7 +1597,7 @@
         InStr: InStream;
         NodeCount: Integer;
         Counter: Integer;
-        QRCodeInput: Text[95];
+        QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
     begin
@@ -1715,7 +1715,7 @@
         InStr: InStream;
         NodeCount: Integer;
         Counter: Integer;
-        QRCodeInput: Text[95];
+        QRCodeInput: Text;
         ErrorDescription: Text;
     begin
         GetGLSetup();
@@ -1826,7 +1826,7 @@
         InStr: InStream;
         NodeCount: Integer;
         Counter: Integer;
-        QRCodeInput: Text[95];
+        QRCodeInput: Text;
         ErrorDescription: Text;
     begin
         GetGLSetup();
@@ -3654,17 +3654,18 @@
         exit(Response)
     end;
 
-    local procedure CreateQRCodeInput(IssuerRFC: Text; CustomerRFC: Text; Amount: Decimal; UUID: Text) QRCodeInput: Text[95]
+    local procedure CreateQRCodeInput(IssuerRFC: Text; CustomerRFC: Text; Amount: Decimal; UUID: Text) QRCodeInput: Text
     begin
         QRCodeInput :=
-          '?re=' +
-          CopyStr(IssuerRFC, 1, 13) +
-          '&rr=' +
-          CopyStr(CustomerRFC, 1, 13) +
-          '&tt=' +
-          ConvertStr(Format(Amount, 0, '<Integer,10><Filler Character,0><Decimals,7>'), ',', '.') +
-          '&id=' +
-          CopyStr(Format(UUID), 1, 36);
+            'https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx' +
+            '?re=' +
+            CopyStr(IssuerRFC, 1, 13) +
+            '&rr=' +
+            CopyStr(CustomerRFC, 1, 13) +
+            '&tt=' +
+            ConvertStr(Format(Amount, 0, '<Integer,10><Filler Character,0><Decimals,7>'), ',', '.') +
+            '&id=' +
+            CopyStr(Format(UUID), 1, 36);
     end;
 
     local procedure GetDateTimeOfFirstReqSalesInv(var SalesInvoiceHeader: Record "Sales Invoice Header"): Text[50]
@@ -3760,7 +3761,7 @@
         exit('');
     end;
 
-    local procedure CreateQRCode(QRCodeInput: Text[95]; var TempBLOB: Codeunit "Temp Blob")
+    local procedure CreateQRCode(QRCodeInput: Text; var TempBLOB: Codeunit "Temp Blob")
     var
         EInvoiceObjectFactory: Codeunit "E-Invoice Object Factory";
     begin
@@ -4374,7 +4375,7 @@
         InStr: InStream;
         NodeCount: Integer;
         Counter: Integer;
-        QRCodeInput: Text[95];
+        QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
     begin
@@ -4492,7 +4493,6 @@
         ServiceSourceCode: Code[10];
         ServiceDoc: Boolean;
         InvoiceDoc: Boolean;
-        PaymentAmount: Decimal;
         UUID: Text[50];
         PaymentNo: Integer;
         AmountInclVAT: Decimal;
@@ -4505,6 +4505,8 @@
                 TempCustomer."Currency Code" := GLSetup."LCY Code";
                 "Original Currency Factor" := 1.0;
             end;
+            if "Currency Code" = '' then
+                "Currency Code" := GLSetup."LCY Code";
             AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.3');
             AddAttribute(XMLDoc, XMLCurrNode, 'Folio', "Document No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', DateTimeFirstReqSent);
@@ -4566,19 +4568,11 @@
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'FechaPago', FormatAsDateTime("Posting Date", 0T, ''));
             AddAttribute(XMLDoc, XMLCurrNode, 'FormaDePagoP', SATUtilities.GetSATPaymentMethod("Payment Method Code"));
-            if TempCustomer."Currency Code" <> '' then begin
-                AddAttribute(XMLDoc, XMLCurrNode, 'MonedaP', TempCustomer."Currency Code");// *********NEW/CHANGED
-                if (TempCustomer."Currency Code" <> 'MXN') and (TempCustomer."Currency Code" <> 'XXX') then
-                    AddAttribute(XMLDoc, XMLCurrNode, 'TipoCambioP', FormatDecimal(1 / "Original Currency Factor", 6));
-            end;
-
-            PaymentAmount := 0;
-            if TempDetailedCustLedgEntry.FindSet then
-                repeat
-                    PaymentAmount := PaymentAmount + Abs(TempDetailedCustLedgEntry.Amount);
-                until TempDetailedCustLedgEntry.Next() = 0;
-            AddAttribute(XMLDoc, XMLCurrNode, 'Monto', FormatAmount(PaymentAmount));
-            // AddAttribute(XMLDoc,XMLCurrNode,'Monto',FormatAmount(Amount));
+            AddAttribute(XMLDoc, XMLCurrNode, 'MonedaP', "Currency Code");
+            if ("Currency Code" <> 'MXN') and ("Currency Code" <> 'XXX') then
+                AddAttribute(XMLDoc, XMLCurrNode, 'TipoCambioP', FormatDecimal(1 / "Original Currency Factor", 6));
+            CalcFields(Amount);
+            AddAttribute(XMLDoc, XMLCurrNode, 'Monto', FormatAmount(abs(Amount)));
 
             if (TempCustomer."Currency Code" <> 'MXN') and (TempCustomer."Currency Code" <> 'XXX') then
                 if TempCustomer."Preferred Bank Account Code" <> '' then
@@ -4613,12 +4607,11 @@
                     AddAttribute(XMLDoc, XMLCurrNode, 'IdDocumento', UUID);// this needs to be changed
 
                     AddAttribute(XMLDoc, XMLCurrNode, 'Folio', CustLedgerEntry2."Document No.");
-                    if CustLedgerEntry2."Currency Code" <> '' then
-                        AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', CustLedgerEntry2."Currency Code")
-                    else
-                        AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', GLSetup."LCY Code");
-                    if CustLedgerEntry2."Currency Code" <> "Currency Code" then
+                    if CustLedgerEntry2."Currency Code" <> '' then begin
+                        AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', CustLedgerEntry2."Currency Code");
                         AddAttribute(XMLDoc, XMLCurrNode, 'TipoCambioDR', FormatDecimal(1 / CustLedgerEntry2."Original Currency Factor", 6));
+                    end else
+                        AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', GLSetup."LCY Code");
 
                     GetDocumentDataForPmt(AmountInclVAT, SATPaymentTerm, CustLedgerEntry2."Document No.", ServiceDoc, InvoiceDoc);
                     AddAttribute(XMLDoc, XMLCurrNode, 'MetodoDePagoDR', SATPaymentTerm);
@@ -4648,7 +4641,6 @@
         ServiceSourceCode: Code[10];
         ServiceDoc: Boolean;
         InvoiceDoc: Boolean;
-        PaymentAmount: Decimal;
         UUID: Text[50];
         PaymentNo: Integer;
         AmountInclVAT: Decimal;
@@ -4660,6 +4652,8 @@
                 TempCustomer."Currency Code" := GLSetup."LCY Code";
                 "Original Currency Factor" := 1.0;
             end;
+            if "Currency Code" = '' then
+                "Currency Code" := GLSetup."LCY Code";
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
             WriteOutStr(OutStream, '||3.3|'); // Version
@@ -4699,18 +4693,11 @@
                                                 // Pagos->Pago
             WriteOutStr(OutStream, FormatAsDateTime("Posting Date", 0T, '') + '|');// FechaPagoSetToPD
             WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|');// FormaDePagoP
-            if TempCustomer."Currency Code" <> '' then
-                WriteOutStr(OutStream, TempCustomer."Currency Code" + '|');// MonedaP
-            if (TempCustomer."Currency Code" <> 'MXN') and (TempCustomer."Currency Code" <> 'XXX') then
+            WriteOutStr(OutStream, "Currency Code" + '|');// MonedaP
+            if ("Currency Code" <> 'MXN') and ("Currency Code" <> 'XXX') then
                 WriteOutStr(OutStream, FormatDecimal(1 / "Original Currency Factor", 6) + '|'); // TipoCambioP
-
-            PaymentAmount := 0;
-            if TempDetailedCustLedgEntry.FindSet then
-                repeat
-                    PaymentAmount := PaymentAmount + Abs(TempDetailedCustLedgEntry.Amount);
-                until TempDetailedCustLedgEntry.Next() = 0;
-            WriteOutStr(OutStream, FormatAmount(PaymentAmount) + '|'); // Monto
-                                                                       // OutStream.WRITETEXT(FormatAmount(Amount) + '|'); // Monto
+            CalcFields(Amount);
+            WriteOutStr(OutStream, FormatAmount(abs(Amount)) + '|'); // Monto
 
             if (TempCustomer."Currency Code" <> 'MXN') and (TempCustomer."Currency Code" <> 'XXX') then
                 if TempCustomer."Preferred Bank Account Code" <> '' then
@@ -4742,12 +4729,11 @@
 
                     WriteOutStr(OutStream, UUID + '|');// IdDocumento
                     WriteOutStr(OutStream, CustLedgerEntry2."Document No." + '|');// Folio
-                    if CustLedgerEntry2."Currency Code" <> '' then
-                        WriteOutStr(OutStream, CustLedgerEntry2."Currency Code" + '|') // MonedaDR
-                    else
-                        WriteOutStr(OutStream, GLSetup."LCY Code" + '|'); // MonedaDR
-                    if CustLedgerEntry2."Currency Code" <> "Currency Code" then
+                    if CustLedgerEntry2."Currency Code" <> '' then begin
+                        WriteOutStr(OutStream, CustLedgerEntry2."Currency Code" + '|'); // MonedaDR
                         WriteOutStr(OutStream, FormatDecimal(1 / CustLedgerEntry2."Original Currency Factor", 6) + '|'); // TipoCambioDR
+                    end else
+                        WriteOutStr(OutStream, GLSetup."LCY Code" + '|'); // MonedaDR
 
                     GetDocumentDataForPmt(AmountInclVAT, SATPaymentTerm, CustLedgerEntry2."Document No.", ServiceDoc, InvoiceDoc);
                     WriteOutStr(OutStream, SATPaymentTerm + '|');// MetodoDePagoDr
@@ -6003,6 +5989,27 @@
     begin
         CustLedgEntry.Validate("CFDI Cancellation Reason Code", FromCustLedgEntry."CFDI Cancellation Reason Code");
         CustLedgEntry.Validate("Substitution Entry No.", FromCustLedgEntry."Substitution Entry No.");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, codeunit::"Sales Inv. Header - Edit", 'OnOnRunOnBeforeTestFieldNo', '', false, false)]
+    local procedure UpdateSalesInvHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; SalesInvoiceHeaderRec: Record "Sales Invoice Header")
+    begin
+        SalesInvoiceHeader."CFDI Cancellation Reason Code" := SalesInvoiceHeaderRec."CFDI Cancellation Reason Code";
+        SalesInvoiceHeader."Substitution Document No." := SalesInvoiceHeaderRec."Substitution Document No.";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, codeunit::"Sales Credit Memo Hdr. - Edit", 'OnBeforeSalesCrMemoHeaderModify', '', false, false)]
+    local procedure UpdateSalesCrMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        SalesCrMemoHeader."CFDI Cancellation Reason Code" := FromSalesCrMemoHeader."CFDI Cancellation Reason Code";
+        SalesCrMemoHeader."Substitution Document No." := FromSalesCrMemoHeader."Substitution Document No.";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, codeunit::"Shipment Header - Edit", 'OnBeforeSalesShptHeaderModify', '', false, false)]
+    local procedure UpdateSalesShipmentHeader(var SalesShptHeader: Record "Sales Shipment Header"; FromSalesShptHeader: Record "Sales Shipment Header")
+    begin
+        SalesShptHeader."CFDI Cancellation Reason Code" := FromSalesShptHeader."CFDI Cancellation Reason Code";
+        SalesShptHeader."Substitution Document No." := FromSalesShptHeader."Substitution Document No.";
     end;
 
     [IntegrationEvent(false, false)]

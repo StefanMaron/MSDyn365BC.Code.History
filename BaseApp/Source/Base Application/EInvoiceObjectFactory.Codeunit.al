@@ -29,7 +29,7 @@ codeunit 10147 "E-Invoice Object Factory"
             IBarCodeProvider := QRCodeProvider.QRCodeProvider;
     end;
 
-    procedure GetBarCodeBlob(QRCodeInput: Text[95]; var TempBLOB: Codeunit "Temp Blob")
+    procedure GetBarCodeBlob(QRCodeInput: Text; var TempBLOB: Codeunit "Temp Blob")
     var
         IBarCodeProvider: DotNet IBarcodeProvider;
         BlobOutStr: OutStream;

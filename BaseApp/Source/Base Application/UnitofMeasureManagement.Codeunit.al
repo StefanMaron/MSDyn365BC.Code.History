@@ -139,9 +139,10 @@ codeunit 5402 "Unit of Measure Management"
             Error(QtyImbalanceDetectedErr);
     end;
 
-    procedure RoundToItemRndPrecision(Qty: Decimal; ItemRndPrecision: Decimal): Decimal
+    procedure RoundToItemRndPrecision(Qty: Decimal; ItemRndPrecision: Decimal) Result: Decimal
     begin
-        exit(Round(RoundQty(Qty), ItemRndPrecision, '>'));
+        Result := Round(RoundQty(Qty), ItemRndPrecision, '>');
+        OnAfterRoundToItemRndPrecision(Qty, ItemRndPrecision, Result);
     end;
 
     procedure QtyRndPrecision(): Decimal
@@ -191,6 +192,11 @@ codeunit 5402 "Unit of Measure Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyFromBasePerUnitOfMeasure(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal; var QtyRounded: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRoundToItemRndPrecision(Qty: Decimal; ItemRndPrecision: Decimal; var Result: Decimal)
     begin
     end;
 

@@ -176,6 +176,7 @@ report 81 "Import Budget from Excel"
     var
         BusUnit: Record "Business Unit";
     begin
+        OnBeforeOnPreReport(TempDim);
         if ToGLBudgetName = '' then
             Error(Text000);
 
@@ -339,22 +340,26 @@ report 81 "Import Budget from Excel"
                             DimCode3 := TempDim.Code;
                         end;
                     (ExcelBuf."Row No." = DimRowNo) and (ExcelBuf."Column No." > 1) and (ImportOption = ImportOption::"Replace entries"):
-                        case DimCode3 of
-                            BusUnitDimCode:
-                                GLBudgetEntry.SetFilter("Business Unit Code", ExcelBuf."Cell Value as Text");
-                            GlobalDim1Code:
-                                GLBudgetEntry.SetFilter("Global Dimension 1 Code", ExcelBuf."Cell Value as Text");
-                            GlobalDim2Code:
-                                GLBudgetEntry.SetFilter("Global Dimension 2 Code", ExcelBuf."Cell Value as Text");
-                            BudgetDim1Code:
-                                GLBudgetEntry.SetFilter("Budget Dimension 1 Code", ExcelBuf."Cell Value as Text");
-                            BudgetDim2Code:
-                                GLBudgetEntry.SetFilter("Budget Dimension 2 Code", ExcelBuf."Cell Value as Text");
-                            BudgetDim3Code:
-                                GLBudgetEntry.SetFilter("Budget Dimension 3 Code", ExcelBuf."Cell Value as Text");
-                            BudgetDim4Code:
-                                GLBudgetEntry.SetFilter("Budget Dimension 4 Code", ExcelBuf."Cell Value as Text");
+                        begin
+                            case DimCode3 of
+                                BusUnitDimCode:
+                                    GLBudgetEntry.SetFilter("Business Unit Code", ExcelBuf."Cell Value as Text");
+                                GlobalDim1Code:
+                                    GLBudgetEntry.SetFilter("Global Dimension 1 Code", ExcelBuf."Cell Value as Text");
+                                GlobalDim2Code:
+                                    GLBudgetEntry.SetFilter("Global Dimension 2 Code", ExcelBuf."Cell Value as Text");
+                                BudgetDim1Code:
+                                    GLBudgetEntry.SetFilter("Budget Dimension 1 Code", ExcelBuf."Cell Value as Text");
+                                BudgetDim2Code:
+                                    GLBudgetEntry.SetFilter("Budget Dimension 2 Code", ExcelBuf."Cell Value as Text");
+                                BudgetDim3Code:
+                                    GLBudgetEntry.SetFilter("Budget Dimension 3 Code", ExcelBuf."Cell Value as Text");
+                                BudgetDim4Code:
+                                    GLBudgetEntry.SetFilter("Budget Dimension 4 Code", ExcelBuf."Cell Value as Text");
+                            end;
+                            OnAnalyzeDataOnAfterGLBudgetEntrySetFilters(GLBudgetEntry, ExcelBuf, DimCode3);
                         end;
+
                     ExcelBuf."Row No." = HeaderRowNo:
                         begin
                             TempExcelBuf := ExcelBuf;
@@ -519,40 +524,46 @@ report 81 "Import Budget from Excel"
     local procedure InsertGLBudgetDim(DimCode2: Code[20]; DimValCode2: Code[20]; var GLBudgetEntry2: Record "G/L Budget Entry")
     var
         DimValue: Record "Dimension Value";
+        IsHandled: Boolean;
     begin
-        if DimValCode2 = '' then
-            exit;
+        IsHandled := false;
+        OnBeforeInsertGLBudgetDim(DimCode2, IsHandled);
+        if not IsHandled then begin
+            if DimValCode2 = '' then
+                exit;
 
-        if DimCode2 <> BusUnitDimCode then begin
-            DimValue.Get(DimCode2, DimValCode2);
-            if TempDimSetEntry.Get(TempDimSetEntry."Dimension Set ID", DimCode2) then begin
-                TempDimSetEntry.Validate("Dimension Value Code", DimValCode2);
-                TempDimSetEntry.Validate("Dimension Value ID", DimValue."Dimension Value ID");
-                TempDimSetEntry.Modify(true);
-            end else begin
-                TempDimSetEntry.Init();
-                TempDimSetEntry.Validate("Dimension Code", DimCode2);
-                TempDimSetEntry.Validate("Dimension Value Code", DimValCode2);
-                TempDimSetEntry.Validate("Dimension Value ID", DimValue."Dimension Value ID");
-                TempDimSetEntry.Insert();
+            if DimCode2 <> BusUnitDimCode then begin
+                DimValue.Get(DimCode2, DimValCode2);
+                if TempDimSetEntry.Get(TempDimSetEntry."Dimension Set ID", DimCode2) then begin
+                    TempDimSetEntry.Validate("Dimension Value Code", DimValCode2);
+                    TempDimSetEntry.Validate("Dimension Value ID", DimValue."Dimension Value ID");
+                    TempDimSetEntry.Modify(true);
+                end else begin
+                    TempDimSetEntry.Init();
+                    TempDimSetEntry.Validate("Dimension Code", DimCode2);
+                    TempDimSetEntry.Validate("Dimension Value Code", DimValCode2);
+                    TempDimSetEntry.Validate("Dimension Value ID", DimValue."Dimension Value ID");
+                    TempDimSetEntry.Insert();
+                end;
+            end;
+            case DimCode2 of
+                BusUnitDimCode:
+                    GLBudgetEntry2."Business Unit Code" := CopyStr(DimValCode2, 1, MaxStrLen(GLBudgetEntry2."Business Unit Code"));
+                GlobalDim1Code:
+                    GLBudgetEntry2."Global Dimension 1 Code" := DimValCode2;
+                GlobalDim2Code:
+                    GLBudgetEntry2."Global Dimension 2 Code" := DimValCode2;
+                BudgetDim1Code:
+                    GLBudgetEntry2."Budget Dimension 1 Code" := DimValCode2;
+                BudgetDim2Code:
+                    GLBudgetEntry2."Budget Dimension 2 Code" := DimValCode2;
+                BudgetDim3Code:
+                    GLBudgetEntry2."Budget Dimension 3 Code" := DimValCode2;
+                BudgetDim4Code:
+                    GLBudgetEntry2."Budget Dimension 4 Code" := DimValCode2;
             end;
         end;
-        case DimCode2 of
-            BusUnitDimCode:
-                GLBudgetEntry2."Business Unit Code" := CopyStr(DimValCode2, 1, MaxStrLen(GLBudgetEntry2."Business Unit Code"));
-            GlobalDim1Code:
-                GLBudgetEntry2."Global Dimension 1 Code" := DimValCode2;
-            GlobalDim2Code:
-                GLBudgetEntry2."Global Dimension 2 Code" := DimValCode2;
-            BudgetDim1Code:
-                GLBudgetEntry2."Budget Dimension 1 Code" := DimValCode2;
-            BudgetDim2Code:
-                GLBudgetEntry2."Budget Dimension 2 Code" := DimValCode2;
-            BudgetDim3Code:
-                GLBudgetEntry2."Budget Dimension 3 Code" := DimValCode2;
-            BudgetDim4Code:
-                GLBudgetEntry2."Budget Dimension 4 Code" := DimValCode2;
-        end;
+        OnAfterInsertGLBudgetDim(GLBudgetEntry, DimCode2, DimValCode2);
     end;
 
     procedure IsPostingAccount(AccNo: Code[20]): Boolean
@@ -588,6 +599,7 @@ report 81 "Import Budget from Excel"
             BudgetDim4Code:
                 GLBudgetEntry2.SetRange("Budget Dimension 4 Code", DimValCode2);
         end;
+        OnAfterSetBudgetDimFilter(GLBudgetEntry2, DimValCode2, DimCode2);
     end;
 
     procedure SetFileName(NewFileName: Text)
@@ -596,7 +608,32 @@ report 81 "Import Budget from Excel"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAnalyzeDataOnAfterGLBudgetEntrySetFilters(var GLBudgetEntry: Record "G/L Budget Entry"; ExcelBuf: Record "Excel Buffer"; DimCode3: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertGLBudgetDim(var GLBudgetEntry: Record "G/L Budget Entry"; DimCode2: Code[20]; DimValCode2: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetBudgetDimFilter(var GLBudgetEntry: Record "G/L Budget Entry"; DimValCode2: Code[20]; DimCode2: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertGLBudgetDimensions(var GLBudgetEntry: Record "G/L Budget Entry"; var BudgetBuffer: Record "Budget Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertGLBudgetDim(DimCode2: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var TempDimension: Record Dimension temporary)
     begin
     end;
 }

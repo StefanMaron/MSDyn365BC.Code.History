@@ -1947,6 +1947,136 @@ codeunit 134421 "Report Selections Tests"
         Assert.AreEqual(CustomReportLayout.Code, CustomReportSelection."Custom Report Layout Code", 'Wrong custom report layout code');
     end;
 
+    [Test]
+    [HandlerFunctions('CustReportSelectionsCopyFromModalPageHandler')]
+    procedure CopyFromReportSelectionOnDocumentLayoutPageForCustomer()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+        Customer: Record Customer;
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [Custom Report Selection]
+        // [SCENARIO 423000] Run "Copy from Report Selection" action from Document Layouts page for customer.
+        Initialize();
+
+        // [GIVEN] Report Selections: Quote, Customer Statement,Reminder ("R1", "R2", "R3").
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"S.Quote", 1304);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::Reminder, 117);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"S.Shipment", 208);
+        ReportSelections.SetFilter(Usage, '%1|%2|%3', "Report Selection Usage"::"S.Quote", "Report Selection Usage"::Reminder, "Report Selection Usage"::"S.Shipment");
+
+        // [GIVEN] Customer with custom report selection "CR".
+        LibrarySales.CreateCustomer(Customer);
+        InsertCustomReportSelectionCustomer(CustomReportSelection, Customer."No.", 1306, false, false, '', '', CustomReportSelection.Usage::"S.Invoice");
+
+        // [WHEN] Open Document Layouts page from Customer Card, run "Copy from Report Selection" using modal page handler.
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToKey(Customer."No.");
+        CustomerCard.CustomerReportSelections.Invoke();
+
+        // [THEN] Custom Report Selection contains 4 records with "R1", "R2", "R3", "CR" reports for Customer.
+        VerifyCopiedCustomReportSelection(ReportSelections, Database::Customer, Customer."No.", 4);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustReportSelectionsCopyFromModalPageHandler')]
+    procedure CopyFromReportSelectionOnDocumentLayoutPageForCustomerWithSpecialChars()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+        Customer: Record Customer;
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [Custom Report Selection]
+        // [SCENARIO 423000] Run "Copy from Report Selection" action from Document Layouts page for customer with special characters in No. field.
+        Initialize();
+
+        // [GIVEN] Report Selections: Quote, Customer Statement,Reminder ("R1", "R2", "R3").
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"S.Quote", 1304);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::Reminder, 117);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"S.Shipment", 208);
+        ReportSelections.SetFilter(Usage, '%1|%2|%3', "Report Selection Usage"::"S.Quote", "Report Selection Usage"::Reminder, "Report Selection Usage"::"S.Shipment");
+
+        // [GIVEN] Customer with No. "ABC&d^" and with custom report selection "CR".
+        Customer.Validate("No.", 'ABC&d^');
+        Customer.Validate(Name, LibraryUtility.GenerateGUID());
+        Customer.Insert(true);
+        InsertCustomReportSelectionCustomer(CustomReportSelection, Customer."No.", 1306, false, false, '', '', CustomReportSelection.Usage::"S.Invoice");
+
+        // [WHEN] Open Document Layouts page from Customer Card, run "Copy from Report Selection" using modal page handler.
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToKey(Customer."No.");   // Filter.SetFilter does not work for No. with special chars
+        CustomerCard.CustomerReportSelections.Invoke();
+
+        // [THEN] Custom Report Selection contains 4 records with "R1", "R2", "R3", "CR" reports for Customer.
+        VerifyCopiedCustomReportSelection(ReportSelections, Database::Customer, Customer."No.", 4);
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorReportSelectionsCopyFromModalPageHandler')]
+    procedure CopyFromReportSelectionOnDocumentLayoutPageForVendor()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+        Vendor: Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [Custom Report Selection]
+        // [SCENARIO 423000] Run "Copy from Report Selection" action from Document Layouts page for vendor.
+        Initialize();
+
+        // [GIVEN] Report Selections: Order, Vendor Remittance, Vendor Remittance - Posted Entries, Return Shipment ("R1", "R2", "R3").
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"P.Order", 1322);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"V.Remittance", 399);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"P.Ret.Shpt.", 6636);
+        ReportSelections.SetFilter(Usage, '%1|%2|%3', "Report Selection Usage"::"P.Order", "Report Selection Usage"::"V.Remittance", "Report Selection Usage"::"P.Ret.Shpt.");
+
+        // [GIVEN] Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Open Document Layouts page from Vendor Card, run "Copy from Report Selection" using modal page handler.
+        VendorCard.OpenEdit();
+        VendorCard.GoToKey(Vendor."No.");
+        VendorCard.VendorReportSelections.Invoke();
+
+        // [THEN] Custom Report Selection contains 3 records with "R1", "R2", "R3" reports for Vendor.
+        VerifyCopiedCustomReportSelection(ReportSelections, Database::Vendor, Vendor."No.", 3);
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorReportSelectionsCopyFromModalPageHandler')]
+    procedure CopyFromReportSelectionOnDocumentLayoutPageForVendorWithSpecialChars()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+        Vendor: Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [Custom Report Selection]
+        // [SCENARIO 423000] Run "Copy from Report Selection" action from Document Layouts page for vendor with special characters in No. field.
+        Initialize();
+
+        // [GIVEN] Report Selections: Order, Vendor Remittance, Vendor Remittance - Posted Entries, Return Shipment ("R1", "R2", "R3").
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"P.Order", 1322);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"V.Remittance", 399);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"P.Ret.Shpt.", 6636);
+        ReportSelections.SetFilter(Usage, '%1|%2|%3', "Report Selection Usage"::"P.Order", "Report Selection Usage"::"V.Remittance", "Report Selection Usage"::"P.Ret.Shpt.");
+
+        // [GIVEN] Vendor with No. "&bc$".
+        Vendor.Validate("No.", '&bc$');
+        Vendor.Validate(Name, LibraryUtility.GenerateGUID());
+        Vendor.Insert(true);
+
+        // [WHEN] Open Document Layouts page from Vendor Card, run "Copy from Report Selection" using modal page handler.
+        VendorCard.OpenEdit();
+        VendorCard.GoToKey(Vendor."No.");
+        VendorCard.VendorReportSelections.Invoke();
+
+        // [THEN] Custom Report Selection contains 3 records with "R1", "R2", "R3" reports for Vendor.
+        VerifyCopiedCustomReportSelection(ReportSelections, Database::Vendor, Vendor."No.", 3);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2756,6 +2886,18 @@ codeunit 134421 "Report Selections Tests"
         CustomerReportSelections.First();
         CustomerReportSelections."Custom Report Description".Drilldown();
         CustomerReportSelections."Custom Report Description".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [ModalPageHandler]
+    procedure CustReportSelectionsCopyFromModalPageHandler(var CustomerReportSelections: TestPage "Customer Report Selections");
+    begin
+        CustomerReportSelections.CopyFromReportSelectionsAction.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure VendorReportSelectionsCopyFromModalPageHandler(var VendorReportSelections: TestPage "Vendor Report Selections");
+    begin
+        VendorReportSelections.CopyFromReportSelectionsAction.Invoke();
     end;
 
     [ModalPageHandler]
