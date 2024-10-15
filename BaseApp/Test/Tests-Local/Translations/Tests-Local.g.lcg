@@ -32,13 +32,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ANNUALDEC-Make347 Declaration - NamedType PTTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2920847200 - NamedType 4254034503" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2920847200 - NamedType 692347059" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GB]]></Val>
+      <Val><![CDATA[DE]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ANNUALDEC-Make347 Declaration - NamedType GBTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ANNUALDEC-Make347 Declaration - NamedType DETxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2920847200 - NamedType 3811488218" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

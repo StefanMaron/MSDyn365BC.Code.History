@@ -3468,7 +3468,7 @@
         end else
             if "Qty. to Ship" <> 0 then
                 "Qty. to Ship (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
+                    MaxQtyToShipBase(UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure"));
 
         CheckServItemCreation();
 
@@ -3550,6 +3550,14 @@
             exit("Return Qty. Received (Base)" + "Return Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
 
         exit("Qty. Shipped (Base)" + "Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
+    end;
+
+    procedure MaxQtyToShipBase(QtyToShipBase: Decimal): Decimal
+    begin
+        if Abs(QtyToShipBase) > Abs("Outstanding Qty. (Base)") then
+            exit("Outstanding Qty. (Base)");
+
+        exit(QtyToShipBase);
     end;
 
     procedure CalcLineAmount() LineAmount: Decimal
@@ -4247,6 +4255,7 @@
         TotalInvDiscAmount: Decimal;
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
+        TotalVATDifference: Decimal;
         TotalQuantityBase: Decimal;
         TotalVATBaseAmount: Decimal;
         IsHandled: Boolean;
@@ -4293,11 +4302,12 @@
             then begin
                 SalesLine2.SetFilter("VAT %", '<>0');
                 if not SalesLine2.IsEmpty then begin
-                    SalesLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "VAT Base Amount");
+                    SalesLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "VAT Difference", "VAT Base Amount");
                     TotalLineAmount := SalesLine2."Line Amount";
                     TotalInvDiscAmount := SalesLine2."Inv. Discount Amount";
                     TotalAmount := SalesLine2.Amount;
                     TotalAmountInclVAT := SalesLine2."Amount Including VAT";
+                    TotalVATDifference := SalesLine2."VAT Difference";
                     TotalQuantityBase := SalesLine2."Quantity (Base)";
                     TotalVATBaseAmount := SalesLine2."VAT Base Amount";
                     OnAfterUpdateTotalAmounts(Rec, SalesLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
@@ -4366,7 +4376,7 @@
                               Round(
                                 (TotalAmount + Amount) * (1 - SalesHeader."VAT Base Discount %" / 100) * ("VAT %" + "EC %") / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection) -
-                              TotalAmountInclVAT;
+                              TotalAmountInclVAT + TotalVATDifference;
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
