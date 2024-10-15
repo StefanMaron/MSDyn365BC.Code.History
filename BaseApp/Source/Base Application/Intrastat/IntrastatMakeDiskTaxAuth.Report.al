@@ -21,10 +21,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 begin
                     TotalLines := TotalLines + 1;
 #if CLEAN19
-                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true);
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false);
 #else
                     if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true)
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false)
                     else begin
                         TestField("Country/Region Code");
                         TestField("Partner VAT ID");
@@ -138,6 +138,16 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 trigger OnPreDataItem()
                 begin
                     TotalAmount := 0;
+                end;
+
+                trigger OnPostDataItem()
+                begin
+#if CLEAN19
+                    IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+#endif                
                 end;
             }
             dataitem("Intra - form Buffer"; "Intra - form Buffer")

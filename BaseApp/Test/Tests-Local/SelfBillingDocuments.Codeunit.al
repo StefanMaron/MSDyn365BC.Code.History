@@ -254,6 +254,8 @@ codeunit 144206 "Self-Billing Documents"
         ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
 
         // [THEN] The structure of single XML document for Self-Billing Document is correct
+        // [THEN] (325589) Value for the ImportoTotaleDocumento tag is equal to sum VatEntry.Base and VatEntry.Amount without negative sign.
+        // [THEN] (409700) Value for the DatiFattureCollegate tag is taken from the "External Document No." field of the purchase document
         VerifySingleSelfBillingDocument(ServerFilePath, ProgressiveNo, VATEntry);
     end;
 
@@ -782,6 +784,8 @@ codeunit 144206 "Self-Billing Documents"
         AssertElementValue(TempXMLBuffer, 'Data', FormatDate(VATEntry."Posting Date"));
         AssertElementValue(TempXMLBuffer, 'Numero', VATEntry."Document No.");
         AssertElementValue(TempXMLBuffer, 'ImportoTotaleDocumento', FormatAmount(TotalAmount));
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiFattureCollegate');
+        AssertElementValue(TempXMLBuffer, 'IdDocumento', VATEntry."External Document No.");
     end;
 
     local procedure VerifyDocLine(var TempXMLBuffer: Record "XML Buffer" temporary; VATEntry: Record "VAT Entry"; LineNo: Integer)

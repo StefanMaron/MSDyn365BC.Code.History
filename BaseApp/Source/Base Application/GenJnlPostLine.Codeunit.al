@@ -579,6 +579,7 @@
         Cust: Record Customer;
         Vend: Record Vendor;
         GeneralLedgerSetup: Record "General Ledger Setup";
+        TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary;
         FAJnlPostLine: Codeunit "FA Jnl.-Post Line";
         VATAmount: Decimal;
         VATBase: Decimal;
@@ -876,7 +877,13 @@
                                                   NondeducVATAmount, SrcCurrNondeducVATAmount, true)
                                             else begin
                                                 CreateGLEntry(GenJnlLine, FAUndGlAccNo, NondeducVATAmount, SrcCurrNondeducVATAmount, true);
-                                                FAJnlPostLine.GenJnlPostLine(GenJnlLine, NondeducVATAmount, 0, NextTransactionNo, NextEntryNo, GLReg."No.");
+                                                FAJnlPostLine.GenJnlPostLine(
+                                                    GenJnlLine, NondeducVATAmount, 0, NextTransactionNo, TempGLEntryBuf."Entry No.", GLReg."No.");
+                                                if FAJnlPostLine.FindFirstGLAcc(TempFAGLPostingBuffer) then begin
+                                                    TempGLEntryBuf."FA Entry Type" := TempFAGLPostingBuffer."FA Entry Type";
+                                                    TempGLEntryBuf."FA Entry No." := TempFAGLPostingBuffer."FA Entry No.";
+                                                    TempGLEntryBuf.Modify();
+                                                end;
                                             end;
                                         end else begin
                                             VATPostingSetup.TestField("Nondeductible VAT Account");

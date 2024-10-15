@@ -1382,6 +1382,7 @@
                 SavedPostingDate := "Posting Date";
                 "Posting Date" := CalcReversePostingDate(GenJournalLine);
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
                 MultiplyAmounts(GenJournalLine, -1);
                 TempGenJnlLine4 := GenJournalLine;
                 TempGenJnlLine4."Reversing Entry" := true;
@@ -1389,6 +1390,7 @@
                 NoOfReversingRecords := NoOfReversingRecords + 1;
                 "Posting Date" := SavedPostingDate;
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
             end;
             PostAllocations(GenJournalLine, false);
             if TmpWithholdingContribution.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
