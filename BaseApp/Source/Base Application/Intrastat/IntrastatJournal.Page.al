@@ -532,13 +532,14 @@
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeUpdateErrors(IsHandled);
         if IsHandled then
             exit;
 
         CurrPage.ErrorMessagesPart.PAGE.SetRecordID(Rec.RecordId);
         CurrPage.ErrorMessagesPart.PAGE.GetStyleOfRecord(Rec, LineStyleExpression);
-        Rec.Mark(ErrorsExistOnCurrentLine);
+        Rec.Mark(ErrorsExistOnCurrentLine());
     end;
 
     [IntegrationEvent(true, false)]

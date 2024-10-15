@@ -1434,6 +1434,7 @@ page 6640 "Purchase Return Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

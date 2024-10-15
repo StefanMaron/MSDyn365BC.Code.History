@@ -2098,6 +2098,49 @@ codeunit 137351 "SCM Inventory Reports - IV"
         InventoryAnalysisReport.ShowMatrix.Invoke();
     end;
 
+    [Test]
+    [HandlerFunctions('CostSharesBreakdownRequestPageHandler')]
+    procedure CostSharesBreakdownReportForSalesInPeriod()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesLine: Record "Sales Line";
+        ValueEntry: Record "Value Entry";
+        PrintCostShare: Option Sale,Inventory,"WIP Inventory";
+    begin
+        // [FEATURE] [Cost Shares Breakdown]
+        // [SCENARIO 389622] Cost Shares Breakdown report shows only sales between Starting Date and Ending Date set on the request page.
+        Initialize();
+
+        // [GIVEN] Post 100 pcs of an item to inventory.
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        CreateAndPostItemJournal(
+          ItemJournalLine, Item."No.", ItemJournalLine."Entry Type"::Purchase,
+          LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Post 4 sales orders, posting dates = "D1", "D2", "D3", "D4" respectively.
+        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandInt(10), WorkDate(), '');
+        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandInt(10), WorkDate() + 30, '');
+        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandInt(10), WorkDate() + 60, '');
+        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandInt(10), WorkDate() + 90, '');
+
+        // [GIVEN] Sales quantity in period "D2".."D3" = "Q".
+        // [GIVEN] Cost amount in period "D2".."D3" = "X".
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Sale);
+        ValueEntry.SetRange("Valuation Date", WorkDate() + 30, WorkDate() + 60);
+        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)");
+
+        // [WHEN] Run Cost Shares Breakdown report for sales with starting date = "D2" and ending date = "D3".
+        Commit();
+        RunCostSharesBreakdownReportForPeriod(Item."No.", WorkDate() + 30, WorkDate() + 60, PrintCostShare::Sale, false);
+
+        // [THEN] The report shows total quantity = "Q" and total cost = "X".
+        VerifyCostSharesBreakdownReportForItem(Item."No.", ValueEntry."Item Ledger Entry Quantity", ValueEntry."Cost Amount (Actual)");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2786,6 +2829,18 @@ codeunit 137351 "SCM Inventory Reports - IV"
         REPORT.Run(REPORT::"Cost Shares Breakdown", true, false, Item);
     end;
 
+    local procedure RunCostSharesBreakdownReportForPeriod(No: Code[20]; StartDate: Date; EndDate: Date; CostSharePrint: Option; ShowDetails: Boolean)
+    var
+        Item: Record Item;
+    begin
+        Item.SetRange("No.", No);
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(EndDate);
+        LibraryVariableStorage.Enqueue(CostSharePrint);
+        LibraryVariableStorage.Enqueue(ShowDetails);
+        REPORT.Run(REPORT::"Cost Shares Breakdown", true, false, Item);
+    end;
+
     local procedure RunImplementStandardCostChangeReport(StdCostWorksheetName: Code[10])
     var
         ImplementStandardCostChange: Report "Implement Standard Cost Change";
@@ -3094,6 +3149,16 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('CostShareBufNewQuantity', Quantity);
         AssertReportValue('NewMatrl_PrintInvCstShrBuf', MaterialDirectCost);
+    end;
+
+    local procedure VerifyCostSharesBreakdownReportForItem(ItemNo: Code[20]; Qty: Decimal; Amount: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('CostShareBufItemNo', ItemNo);
+        Assert.AreEqual(
+          Qty, LibraryReportDataset.Sum('CostShareBufNewQuantity'), 'Wrong total quantity in Cost Shares Breakdown report.');
+        Assert.AreEqual(
+          Amount, LibraryReportDataset.Sum('CostShareBufNewMaterial'), 'Wrong total amount in Cost Shares Breakdown report.');
     end;
 
     local procedure VerifyItemAgeCompositionReport(ItemNo: Code[20]; ExpectedValue: Decimal)
