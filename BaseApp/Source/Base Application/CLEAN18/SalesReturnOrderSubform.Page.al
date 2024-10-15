@@ -1148,6 +1148,7 @@ page 6631 "Sales Return Order Subform"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;

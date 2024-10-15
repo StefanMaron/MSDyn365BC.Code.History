@@ -108,6 +108,14 @@
         {
             AccessByPermission = TableData "Item Reference" = R;
             Caption = 'Use Item References';
+            ObsoleteReason = 'Replaced by default visibility for Item Reference''s fields and actions.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {

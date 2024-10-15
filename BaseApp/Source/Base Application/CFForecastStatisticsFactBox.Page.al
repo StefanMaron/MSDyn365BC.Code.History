@@ -135,7 +135,7 @@ page 840 "CF Forecast Statistics FactBox"
             field(SalesAdvances; CalcSourceTypeAmount(CashFlowForecastEntry."Source Type"::"Sales Advance Letters"))
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Sales Advances';
+                Caption = 'Sales Advances (Obsolete)';
                 ToolTip = 'Specifies an amount of sales advances';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
@@ -150,7 +150,7 @@ page 840 "CF Forecast Statistics FactBox"
             field(PurchaseAdvances; CalcSourceTypeAmount(CashFlowForecastEntry."Source Type"::"Purchase Advance Letters"))
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Purchase Advances';
+                Caption = 'Purchase Advances (Obsolete)';
                 ToolTip = 'Specifies an amount of purchase advances';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';

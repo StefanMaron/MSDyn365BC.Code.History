@@ -1055,7 +1055,7 @@ report 594 "Get Item Ledger Entries"
             then begin
                 Validate("Tariff No.", Item."Tariff No.");
                 "Statistic Indication" := Item."Statistic Indication";
-            end else begin                
+            end else begin
 #endif
                 Validate("Tariff No.", "Job Ledger Entry"."Tariff No.");
                 "Statistic Indication" := "Job Ledger Entry"."Statistic Indication";

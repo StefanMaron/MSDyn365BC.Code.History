@@ -9,6 +9,8 @@ codeunit 1250 "Match General Journal Lines"
         GenJnlLine.Copy(Rec);
         Code(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         Rec := GenJnlLine;
+
+        OnAfterOnRun(Rec);
     end;
 
     var
@@ -424,6 +426,11 @@ codeunit 1250 "Match General Journal Lines"
     procedure GetNormalizingFactor(): Integer
     begin
         exit(NormalizingFactor);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var GenJournalLine: Record "Gen. Journal Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

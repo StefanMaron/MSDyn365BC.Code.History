@@ -336,7 +336,7 @@ codeunit 21 "Item Jnl.-Check Line"
                                     ShowError := true;
                             until (ReservationEntry.Next() = 0) or ShowError
                         else
-                            ShowError := ItemJnlLine.LastOutputOperation(ItemJnlLine);
+                            ShowError := CheckWarehouseLastOutputOperation(ItemJnlLine);
                     end;
 
                     if WhseValidateSourceLine.WhseLinesExist(
@@ -376,6 +376,18 @@ codeunit 21 "Item Jnl.-Check Line"
               ItemJnlLine."Order No.",
               ItemJnlLine.FieldCaption("Order Line No."),
               ItemJnlLine."Order Line No.");
+    end;
+
+    local procedure CheckWarehouseLastOutputOperation(ItemJnlLine: Record "Item Journal Line") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWarehouseLastOutputOperation(ItemJnlLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := ItemJnlLine.LastOutputOperation(ItemJnlLine);
     end;
 
     local procedure WhseOrderHandlingRequired(ItemJnlLine: Record "Item Journal Line"; Location: Record Location): Boolean
@@ -669,6 +681,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouse(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarehouseLastOutputOperation(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

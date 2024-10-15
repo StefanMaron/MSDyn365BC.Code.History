@@ -661,14 +661,17 @@ table 5405 "Production Order"
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Due Date", "No.", "No. Series");
         end;
 
-        if Status = Status::Released then begin
-            if ProdOrder.Get(Status::Finished, "No.") then
-                Error(Text007, Status, TableCaption, ProdOrder."No.", ProdOrder.Status);
-            InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Production);
-            InvtAdjmtEntryOrder.SetRange("Order No.", "No.");
-            if not InvtAdjmtEntryOrder.IsEmpty() then
-                Error(Text007, Status, TableCaption, ProdOrder."No.", InvtAdjmtEntryOrder.TableCaption);
-        end;
+        IsHandled := false;
+        OnInsertOnBeforeStatusCheck(Rec, IsHandled);
+        if not IsHandled then
+            if Status = Status::Released then begin
+                if ProdOrder.Get(Status::Finished, "No.") then
+                    Error(Text007, Status, TableCaption, ProdOrder."No.", ProdOrder.Status);
+                InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Production);
+                InvtAdjmtEntryOrder.SetRange("Order No.", "No.");
+                if not InvtAdjmtEntryOrder.IsEmpty() then
+                    Error(Text007, Status, TableCaption, ProdOrder."No.", InvtAdjmtEntryOrder.TableCaption);
+            end;
 
         InitRecord;
 
@@ -687,8 +690,7 @@ table 5405 "Production Order"
     trigger OnModify()
     begin
         "Last Date Modified" := Today;
-        if Status = Status::Finished then
-            Error(Text006);
+        CheckStatusNotFinished();
     end;
 
     trigger OnRename()
@@ -823,6 +825,19 @@ table 5405 "Production Order"
             Error(
               Text002,
               Name, Status, TableCaption, "No.", CapLedgEntry.TableCaption);
+    end;
+
+    local procedure CheckStatusNotFinished()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckStatusNotFinished(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Status = Status::Finished then
+            Error(Text006);
     end;
 
     procedure DeleteProdOrderRelations()
@@ -1097,6 +1112,7 @@ table 5405 "Production Order"
         WMSManagement: Codeunit "WMS Management";
         VersionManagement: Codeunit VersionManagement;
         RoutingNo: Code[20];
+        IsHandled: Boolean;
     begin
         "Bin Code" := '';
 
@@ -1126,8 +1142,11 @@ table 5405 "Production Order"
             "Bin Code" := Location."From-Production Bin Code";
 
         // 3rd priority - default bin at location
-        if ("Bin Code" = '') and ("Source No." <> '') then
-            WMSManagement.GetDefaultBin("Source No.", '', "Location Code", "Bin Code");
+        IsHandled := false;
+        OnGetDefaultBinOnBeforeThirdPrioritySetBinCode(Rec, xRec, IsHandled);
+        if not IsHandled then
+            if ("Bin Code" = '') and ("Source No." <> '') then
+                WMSManagement.GetDefaultBin("Source No.", '', "Location Code", "Bin Code");
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -1468,6 +1487,21 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoSeries(ProductionOrder: Record "Production Order"; MfgSetup: Record "Manufacturing Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckStatusNotFinished(ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultBinOnBeforeThirdPrioritySetBinCode(var ProductionOrder: Record "Production Order"; xProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeStatusCheck(var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
     begin
     end;
 }

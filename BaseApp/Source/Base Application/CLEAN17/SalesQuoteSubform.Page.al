@@ -1128,6 +1128,7 @@ page 95 "Sales Quote Subform"
         InvoiceDiscountPct: Decimal;
         InvDiscAmountEditable: Boolean;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
         [InDataSet]

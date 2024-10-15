@@ -142,7 +142,14 @@ codeunit 368 "Format Document"
     end;
 
     procedure SetPurchaser(var SalespersonPurchaser: Record "Salesperson/Purchaser"; "Code": Code[20]; var PurchaserText: Text[50])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPurchaser(SalespersonPurchaser, "Code", PurchaserText, IsHandled);
+        if IsHandled then
+            exit;
+
         if Code = '' then begin
             SalespersonPurchaser.Init();
             PurchaserText := '';
@@ -163,7 +170,14 @@ codeunit 368 "Format Document"
     end;
 
     procedure SetSalesPerson(var SalespersonPurchaser: Record "Salesperson/Purchaser"; "Code": Code[20]; var SalesPersonText: Text[50])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSalesPerson(SalespersonPurchaser, "Code", SalesPersonText, IsHandled);
+        if IsHandled then
+            exit;
+
         if Code = '' then begin
             SalespersonPurchaser.Init();
             SalesPersonText := '';
@@ -374,6 +388,16 @@ codeunit 368 "Format Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetLogoPosition(var LogoPosition: Option "No Logo",Left,Center,Right; var CompanyInfo1: Record "Company Information"; var CompanyInfo2: Record "Company Information"; var CompanyInfo3: Record "Company Information"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPurchaser(var SalespersonPurchaser: Record "Salesperson/Purchaser"; "Code": Code[20]; var PurchaserText: Text[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalesPerson(var SalespersonPurchaser: Record "Salesperson/Purchaser"; "Code": Code[20]; var SalesPersonText: Text[50]; var IsHandled: Boolean)
     begin
     end;
 

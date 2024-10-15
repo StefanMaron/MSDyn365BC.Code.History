@@ -1019,6 +1019,7 @@ page 96 "Sales Cr. Memo Subform"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;

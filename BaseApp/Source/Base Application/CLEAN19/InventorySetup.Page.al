@@ -42,7 +42,6 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    OptionCaption = ',Item,Item & Location & Variant';
                     ToolTip = 'Specifies how costs are calculated for items using the Average costing method. Item: One average cost per item in the company is calculated. Item & Location & Variant: An average cost per item for each location and for each variant of the item in the company is calculated. This means that the average cost of this item depends on where it is stored and which variant, such as color, of the item you have selected.';
                 }
                 field("Average Cost Period"; "Average Cost Period")
@@ -68,13 +67,13 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
-                    ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
+                    ToolTip = 'Specifies a date formula that calculates the time it takes to get items ready to ship. The time element is used to calculate the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
                 }
                 field("Inbound Whse. Handling Time"; "Inbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
-                    ToolTip = 'Specifies a date formula for the time it takes to make items part of available inventory, after the items have been posted as received. The time element is used in the calculation of the expected receipt date as follows: Order Date + Lead Time Calculation = Planned Receipt Date + Inbound Warehouse Handling Time + Safety Lead Time = Expected Receipt Date.';
+                    ToolTip = 'Specifies a date formula that calculates the time it takes to make items available in inventory after they have been received. The time element is used to calculate the expected receipt date as follows: Order Date + Lead Time Calculation = Planned Receipt Date + Inbound Warehouse Handling Time + Safety Lead Time = Expected Receipt Date.';
                 }
                 field("Prevent Negative Inventory"; "Prevent Negative Inventory")
                 {
@@ -97,6 +96,17 @@ page 461 "Inventory Setup"
                     ToolTip = 'Specifies if you want to allow reservation for inventory receipts and shipments.';
                     Visible = false;
                 }
+#if not CLEAN19
+                field("Use Item References"; Rec."Use Item References")
+                {
+                    ApplicationArea = Suite, ItemReferences;
+                    ObsoleteReason = 'Replaced by default visibility for Item Reference''s fields and actions.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ToolTip = 'Specifies if you want to use item references in purchase and sales documents.';
+                    Visible = false;
+                }
+#endif
             }
             group(Location)
             {
@@ -210,32 +220,45 @@ page 461 "Inventory Setup"
                 field("Phys. Invt. Order Nos."; "Phys. Invt. Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to physical inventory orders.';
                 }
                 field("Posted Phys. Invt. Order Nos."; "Posted Phys. Invt. Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to physical inventory orders when they are posted.';
                 }
                 field("Invt. Receipt Nos."; Rec."Invt. Receipt Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
                 field("Posted Invt. Receipt Nos."; Rec."Posted Invt. Receipt Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
                 field("Invt. Shipment Nos."; Rec."Invt. Shipment Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
                 field("Posted Invt. Shipment Nos."; Rec."Posted Invt. Shipment Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Package Nos."; Rec."Package Nos.")
+                {
+                    ApplicationArea = ItemTracking;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the number series that will be used to assign numbers to item tracking packages.';
+                    Visible = PackageVisible;
                 }
             }
         }
@@ -355,16 +378,27 @@ page 461 "Inventory Setup"
         end;
 
         SetPackageVisibility();
+        SetAdjustCostWizardActionVisibility();
+
     end;
 
     var
         PackageMgt: Codeunit "Package Management";
+        SchedulingManager: Codeunit "Cost Adj. Scheduling Manager";
         [InDataSet]
         PackageVisible: Boolean;
+        AdjustCostWizardVisible: Boolean;
 
     local procedure SetPackageVisibility()
     begin
         PackageVisible := PackageMgt.IsEnabled();
+    end;
+
+    local procedure SetAdjustCostWizardActionVisibility()
+    begin
+        if (Rec."Automatic Cost Posting" = False) and (not SchedulingManager.PostInvCostToGLJobQueueExists()) or
+           (Rec."Automatic Cost Adjustment" = Rec."Automatic Cost Adjustment"::Never) and (not SchedulingManager.AdjCostJobQueueExists()) then
+            AdjustCostWizardVisible := true;
     end;
 }
 

@@ -1127,6 +1127,7 @@ page 6641 "Purchase Return Order Subform"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()

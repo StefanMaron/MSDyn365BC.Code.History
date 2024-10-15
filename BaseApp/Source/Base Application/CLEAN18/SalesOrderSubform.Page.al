@@ -1620,6 +1620,7 @@ page 46 "Sales Order Subform"
         InvDiscAmountEditable: Boolean;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
+        [InDataSet]
         IsCommentLine: Boolean;
         IsBlankNumber: Boolean;
         [InDataSet]

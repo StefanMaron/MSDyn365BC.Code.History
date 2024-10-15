@@ -34,6 +34,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         InsertedItemErr: Label 'Item inserted with wrong data';
         InsertedEmployeeErr: Label 'Employee inserted with wrong data';
         InsertedTemplateErr: Label 'Template inserted with wrong data';
+        PaymentMethodErr: Label 'that cannot be found in the related table';
 
     [Test]
     [Scope('OnPrem')]
@@ -1192,6 +1193,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Item.Validate("Global Dimension 1 Code", DimensionValue.Code);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
         Item.Validate("Global Dimension 2 Code", DimensionValue.Code);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
         Item.Modify(true);
         LibraryVariableStorage.Enqueue(Item."No.");
 
@@ -1205,6 +1208,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert.AreEqual(Item."VAT Prod. Posting Group", ItemTempl."VAT Prod. Posting Group", InsertedTemplateErr);
         Assert.AreEqual(Item."Global Dimension 1 Code", ItemTempl."Global Dimension 1 Code", InsertedTemplateErr);
         Assert.AreEqual(Item."Global Dimension 2 Code", ItemTempl."Global Dimension 2 Code", InsertedTemplateErr);
+        ItemTempl.TestField("Reordering Policy", Item."Reordering Policy");
+        ItemTempl.TestField("Replenishment System", Item."Replenishment System");
         VerifyDimensions(Database::"Item Templ.", ItemTempl.Code, Database::Item, Item."No.");
     end;
 
@@ -1626,6 +1631,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Template with data and dimensions
         LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Validate("Reordering Policy", ItemTempl."Reordering Policy"::Order);
+        ItemTempl.Modify(true);
         // [GIVEN] Nonstock item
         CreateNonstockItem(NonstockItem, ItemTempl.Code);
 
@@ -1635,6 +1642,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         // [THEN] Item inserted with data from template
         Item.Get(NonstockItem."Vendor Item No.");
         VerifyItem(Item, ItemTempl);
+        // [THEN] Item "Reordering Policy" = item template "Reordering Policy"
+        Item.TestField("Reordering Policy", ItemTempl."Reordering Policy");
     end;
 
     [Test]
@@ -1921,6 +1930,70 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
         Item.TestField("Global Dimension 1 Code", GetGlobalDim1Value());
+    end;
+
+    [Test]
+    procedure CreateItemFromTemplateWithItemCategoryCode()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemCategory: Record "Item Category";
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 418630] Creation item from template with item category code also creates item attributes
+        Initialize();
+
+        // [GIVEN] Item "I"
+        Item.Init();
+        Item.Insert(true);
+        // [GIVEN] Item category "C", Item attribute "A"
+        LibraryInventory.CreateItemCategory(ItemCategory);
+        LibraryInventory.CreateItemAttributeWithValue(ItemAttribute, ItemAttributeValue, ItemAttribute.Type::Text, LibraryUtility.GenerateGUID());
+        LibraryInventory.CreateItemAttributeValueMapping(Database::"Item Category", ItemCategory.Code, ItemAttribute.ID, ItemAttributeValue.ID);
+        // [GIVEN] Item template with "Item Category Code" = "C"
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Validate("Item Category Code", ItemCategory.Code);
+        ItemTempl.Modify(true);
+
+        // [WHEN] Apply item template (procedure also run when item created from template)
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I" has attribute "A"
+        ItemAttributeValueMapping.SetRange("Table ID", Database::Item);
+        ItemAttributeValueMapping.SetRange("No.", Item."No.");
+        Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
+    end;
+
+    [Test]
+    procedure CreateCustomerFromTemplateWithRemovedPaymentMethodCode()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        PaymentMethod: Record "Payment Method";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        // [SCENARIO 417672] Customer creation from template with payment method code that was removed
+        Initialize();
+
+        // [GIVEN] Customer "C"
+        Customer.Init();
+        Customer.Insert(true);
+        // [GIVEN] Customer template "CT" with payment method "PM"
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        CustomerTempl.Validate("Payment Method Code", PaymentMethod.Code);
+        CustomerTempl.Modify(true);
+        // [GIVEN] Removed "PM"
+        PaymentMethod.Delete(true);
+
+        // [WHEN] Apply "CT" to "C"
+        asserterror CustomerTemplMgt.ApplyCustomerTemplate(Customer, CustomerTempl);
+
+        // [THEN] Error message about related record is appeared
+        Assert.ExpectedError(PaymentMethodErr);
     end;
 
     local procedure Initialize()

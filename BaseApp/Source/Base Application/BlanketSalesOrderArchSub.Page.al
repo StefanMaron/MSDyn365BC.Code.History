@@ -36,9 +36,9 @@ page 6621 "Blanket Sales Order Arch. Sub."
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -470,7 +470,9 @@ page 6621 "Blanket Sales Order Arch. Sub."
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     trigger OnAfterGetRecord()
@@ -490,8 +492,10 @@ page 6621 "Blanket Sales Order Arch. Sub."
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif
 
     procedure ShowDocumentLineTracking()
     var
@@ -521,11 +525,11 @@ page 6621 "Blanket Sales Order Arch. Sub."
         Clear(DimMgt);
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 }
 

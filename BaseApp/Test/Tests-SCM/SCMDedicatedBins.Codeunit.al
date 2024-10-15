@@ -864,8 +864,8 @@ codeunit 137502 "SCM Dedicated Bins"
         CreateWhseLocation(Location, false, false, false, true, true, true);
         CreateBin(Bin[1], Location.Code, '', '');
         CreateBin(Bin[2], Location.Code, '', '');
-        Bin[2].Validate(Dedicated, true);
-        Bin[2].Modify(true);
+        // Bin[2].Validate(Dedicated, true); // setting dedicated bin as a default shipment bin is not supported now
+        // Bin[2].Modify(true);
 
         // [GIVEN] Set up the dedicated bin "D" as a default shipment bin.
         Location.Validate("Shipment Bin Code", Bin[2].Code);
@@ -939,8 +939,8 @@ codeunit 137502 "SCM Dedicated Bins"
         CreateWhseLocation(Location, false, false, false, true, true, true);
         CreateBin(Bin[1], Location.Code, '', '');
         CreateBin(Bin[2], Location.Code, '', '');
-        Bin[2].Validate(Dedicated, true);
-        Bin[2].Modify(true);
+        // Bin[2].Validate(Dedicated, true); // setting dedicated bin as a default shipment bin is not supported now
+        // Bin[2].Modify(true);
 
         // [GIVEN] Set up the dedicated bin "D" as a default shipment bin.
         Location.Validate("Shipment Bin Code", Bin[2].Code);

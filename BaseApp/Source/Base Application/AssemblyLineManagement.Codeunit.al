@@ -853,7 +853,7 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAssemblyLinesOnAfterCopyAssemblyData(var AssemblyLine: Record "Assembly Line"; ReplaceLinesFromBOM: Boolean)
+    local procedure OnUpdateAssemblyLinesOnAfterCopyAssemblyData(var AssemblyLine: Record "Assembly Line"; var ReplaceLinesFromBOM: Boolean)
     begin
     end;
 }

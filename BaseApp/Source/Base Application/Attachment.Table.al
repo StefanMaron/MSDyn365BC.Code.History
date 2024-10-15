@@ -831,6 +831,7 @@ table 5062 Attachment
     end;
 
 #if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeShowAttachment', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunAttachment(var SegLine: Record "Segment Line"; WordCaption: Text[260]; IsTemporary: Boolean; IsVisible: Boolean; Handler: Boolean; var iSHandled: Boolean)
     begin

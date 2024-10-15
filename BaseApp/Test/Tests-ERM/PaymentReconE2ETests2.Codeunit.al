@@ -11,6 +11,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurch: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -23,6 +24,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenBankLedgerEntriesErr: Label 'All bank account ledger entries should be closed after posting the payment reconciliation journal.';
         ClosedBankLedgerEntriesErr: Label 'All bank account ledger entries should be open after posting the payment reconciliation journal.';
         ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
+        ListEmptyMsg: Label 'No bank transaction lines exist. Choose the Import Bank Transactions action to fill in the lines from a file, or enter lines manually.';
+        LinesForReviewNotificationMsg: Label 'One or more lines must be reviewed before posting, because they were matched automatically with rules that require review.', Comment = '%1 number of lines for review';
         SEPA_CAMT_Txt: Label 'SEPA CAMT';
 
     [Test]
@@ -1806,6 +1809,137 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PostedPaymentReconLine.TestField("Statement No.", PostedPaymentReconHdr."Statement No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MsgHandler,ReviewRequiredSendNotificationHandler')]
+    procedure ShowReviewRequiredNotification()
+    var
+        SalesHeader: Record "Sales Header";
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+        TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [UI] [Application Rules] [Notification]
+        // [SCENARIO 413337] Stan doesn't get "Review Required" notification when system does not have any rule with "Review Required" = true
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader.CalcFields("Amount Including VAT");
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        CopyApplRulesToTemp(TempBankPmtApplRule);
+        BankPmtApplRule.ModifyAll("Review Required", false, false);
+
+        LibraryVariableStorage.Enqueue(ListEmptyMsg);
+        LibraryVariableStorage.Enqueue(ListEmptyMsg);
+
+        CreatePaymentReconciliationAndMatchAutomatically(PaymentReconciliationJournal, InvoiceNo, SalesHeader."Amount Including VAT");
+
+        PaymentReconciliationJournal."Match Confidence".AssertEquals(BankPmtApplRule."Match Confidence"::Medium);
+
+        RestoreApplRulesReviewRequiredFromTemp(TempBankPmtApplRule);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BalanceAfterPostingConsidersBankAccountLines()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        Amounts: array[2] of Decimal;
+    begin
+        // [FEATURE] [UI] [Payment Reconciliation Journal]
+        // [SCENARIO 419580] System considers reconsilation lines with Account Type = "Bank Account" when it calculates ending balance after posting. 
+        Initialize();
+
+        // [GIVEN] Payment Reconciliation Journal for the Bank Acount "B1" with two lines
+        // [GIVEN] [1]: "Account Type" = "G/L Account", "Account No." = 2910, "Applied Amount" = 100
+        // [GIVEN] [2]: "Account Type" = "Bank Account", "Account No." = "B2", "Applied Amount" = 1000
+        Amounts[1] := LibraryRandom.RandIntInRange(100, 200);
+        Amounts[2] := LibraryRandom.RandIntInRange(1000, 2000);
+
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
+
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+
+        PaymentReconciliationJournal.Trap();
+
+        BankAccReconciliation.OpenWorksheet(BankAccReconciliation);
+
+        PaymentReconciliationJournal."Transaction Date".SetValue(WorkDate());
+        PaymentReconciliationJournal."Statement Amount".SetValue(Amounts[1]);
+        PaymentReconciliationJournal."Account Type".SetValue(BankAccReconciliationLine."Account Type"::"G/L Account");
+        PaymentReconciliationJournal."Account No.".SetValue(LibraryERM.CreateGLAccountNo());
+
+        PaymentReconciliationJournal.Next();
+
+        PaymentReconciliationJournal."Transaction Date".SetValue(WorkDate());
+        PaymentReconciliationJournal."Statement Amount".SetValue(Amounts[2]);
+        PaymentReconciliationJournal."Account Type".SetValue(BankAccReconciliationLine."Account Type"::"Bank Account");
+        PaymentReconciliationJournal."Account No.".SetValue(LibraryERM.CreateBankAccountNo());
+
+        // [WHEN] When validate amounts on the given lines
+        // [THEN] "Balance After Posting" = 100 + 1000 = 1100.
+        PaymentReconciliationJournal.BalanceOnBankAccountAfterPostingFixedLayout.AssertEquals(Amounts[1] + Amounts[2]);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentRecJnlStatementEndingBalanceZero()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        PmtReconJnl: TestPage "Payment Reconciliation Journal";
+        TempBlobUTF8: Codeunit "Temp Blob";
+    begin
+        // [FEATURE] [Payment Reconciliation Journal] [UT]
+        // [SCENARIO 421360] Statement Ending Balance field is not visible if it is 0
+        Initialize();
+
+        // [GIVEN] Mock Bank reconciliation "BR" with "Statement Ending Balance" = 0
+        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        BankAccRecon.TestField("Statement Ending Balance", 0);
+
+        // [WHEN] Open Payment Reconcilation Journal for "BR"
+        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
+
+        // [THEN] Statement Ending Balance field is invisible
+        Assert.IsFalse(PmtReconJnl.StatementEndingBalanceFixedLayout.Visible(), 'Statement Ending Balance must be invisible');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentRecJnlStatementEndingBalanceNotZero()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        PmtReconJnl: TestPage "Payment Reconciliation Journal";
+        TempBlobUTF8: Codeunit "Temp Blob";
+        OutStream: OutStream;
+    begin
+        // [FEATURE] [Payment Reconciliation Journal] [UT]
+        // [SCENARIO 421360] Statement Ending Balance field is visible if it is <> 0
+        Initialize();
+
+        // [GIVEN] Mock Bank reconciliation "BR" with "Statement Ending Balance" <> 0
+        CreateOnePurchOnePmtOutstream(VendLedgEntry, OutStream, TempBlobUTF8);
+        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
+        BankAccRecon.TestField("Statement Ending Balance");
+
+        // [WHEN] Open Payment Reconcilation Journal for "BR"
+        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
+
+        // [THEN] Statement Ending Balance field is visible
+        Assert.IsTrue(PmtReconJnl.StatementEndingBalanceFixedLayout.Visible(), 'Statement Ending Balance must be visible');
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1813,6 +1947,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
+        LibraryVariableStorage.Clear();
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests 2");
         BankPmtApplSettings.DeleteAll();
 
@@ -1824,6 +1959,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 2");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
+
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
@@ -1902,6 +2038,27 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         Commit();
+    end;
+
+    local procedure CreatePaymentReconciliationAndMatchAutomatically(var PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal"; InvoiceNo: Code[20]; PaymentAmount: Decimal)
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
+
+        PaymentReconciliationJournal.Trap();
+        BankAccReconciliation.OpenWorksheet(BankAccReconciliation);
+        PaymentReconciliationJournal."Transaction Date".SetValue(WorkDate());
+        PaymentReconciliationJournal."Transaction Text".SetValue(InvoiceNo);
+        PaymentReconciliationJournal."Statement Amount".SetValue(PaymentAmount);
+        PaymentReconciliationJournal."Account Type".SetValue(BankAccReconciliationLine."Account Type"::Customer);
+        PaymentReconciliationJournal."Match Confidence".AssertEquals(BankAccReconciliationLine."Match Confidence"::None);
+
+        PaymentReconciliationJournal.ApplyAutomatically.Invoke();
     end;
 
     local procedure CreateBankAccReconAndImportStmt(var BankAccRecon: Record "Bank Acc. Reconciliation"; var TempBlobUTF8: Codeunit "Temp Blob"; CurrencyCode: Code[10])
@@ -2003,6 +2160,33 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
             Modify(true);
             TransferRemainingAmountToAccount;
         end;
+    end;
+
+    local procedure CopyApplRulesToTemp(var TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary)
+    var
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+    begin
+        TempBankPmtApplRule.Reset();
+        TempBankPmtApplRule.DeleteAll();
+
+        if BankPmtApplRule.FindSet() then
+            repeat
+                TempBankPmtApplRule := BankPmtApplRule;
+                TempBankPmtApplRule.Insert();
+            until BankPmtApplRule.Next() = 0;
+    end;
+
+    local procedure RestoreApplRulesReviewRequiredFromTemp(var TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary)
+    var
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+    begin
+        if TempBankPmtApplRule.FindSet() then
+            repeat
+                if BankPmtApplRule.Get(TempBankPmtApplRule."Match Confidence", TempBankPmtApplRule.Priority) then begin
+                    BankPmtApplRule."Review Required" := TempBankPmtApplRule."Review Required";
+                    BankPmtApplRule.Modify();
+                end;
+            until TempBankPmtApplRule.Next() = 0;
     end;
 
     local procedure OpenPmtReconJnl(BankAccRecon: Record "Bank Acc. Reconciliation"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")
@@ -2968,6 +3152,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
         PostPmtsAndRecBankAcc.OK.Invoke();
+    end;
+
+    [SendNotificationHandler]
+    procedure ReviewRequiredSendNotificationHandler(var SentNotification: Notification): Boolean
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), SentNotification.Message);
     end;
 }
 

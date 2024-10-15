@@ -409,13 +409,19 @@ codeunit 5704 "TransferOrder-Post Shipment"
             exit(TransLine3."Line No." + 10000);
     end;
 
-    local procedure InsertShptEntryRelation(var TransShptLine: Record "Transfer Shipment Line"): Integer
+    local procedure InsertShptEntryRelation(var TransShptLine: Record "Transfer Shipment Line") Result: Integer
     var
         TempHandlingSpecification2: Record "Tracking Specification" temporary;
         ItemEntryRelation: Record "Item Entry Relation";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhseSplitSpecification: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertShptEntryRelation(TransShptLine, TransLine, ItemJnlLine, WhsePosting, ItemJnlPostLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if WhsePosting then begin
             TempWhseSplitSpecification.Reset();
             TempWhseSplitSpecification.DeleteAll();
@@ -481,6 +487,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     var
         TransShptLine: Record "Transfer Shipment Line";
         IsHandled: Boolean;
+        ShouldRunPosting: Boolean;
     begin
         OnBeforeInsertTransShipmentLine(TransLine);
 
@@ -510,8 +517,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 if WhseShptLine.FindFirst then
                     CreatePostedShptLineFromWhseShptLine(TransShptLine);
             end;
-            OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine, TransLine, SuppressCommit, WhsePosting);
-            if WhsePosting then
+            ShouldRunPosting := WhsePosting;
+            OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine, TransLine, SuppressCommit, WhsePosting, ShouldRunPosting);
+            if ShouldRunPosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase);
         end;
 
@@ -687,7 +695,13 @@ codeunit 5704 "TransferOrder-Post Shipment"
     local procedure CheckItemInInventoryAndWarehouse(var TransLine: Record "Transfer Line"; NeedCheckWarehouse: Boolean)
     var
         TransLine2: Record "Transfer Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemInInventoryAndWarehouse(TransLine, NeedCheckWarehouse, IsHandled);
+        if IsHandled then
+            exit;
+
         TransLine2.CopyFilters(TransLine);
         TransLine2.FindSet();
         repeat
@@ -875,6 +889,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemInInventoryAndWarehouse(var TransLine: Record "Transfer Line"; NeedCheckWarehouse: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyTransLines(TransferHeader: Record "Transfer Header")
     begin
     end;
@@ -915,6 +934,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertShptEntryRelation(var TransShptLine: Record "Transfer Shipment Line"; TransferLine: Record "Transfer Line"; var ItemJnlLine: Record "Item Journal Line"; WhsePosting: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeNewTransferLineInsert(var NewTransferLine: Record "Transfer Line"; TransferLine: Record "Transfer Line"; var NextLineNo: Integer)
     begin
     end;
@@ -950,7 +974,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; SuppressCommit: Boolean; var WhsePosting: Boolean)
+    local procedure OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; SuppressCommit: Boolean; var WhsePosting: Boolean; var ShouldRunPosting: Boolean)
     begin
     end;
 

@@ -688,7 +688,7 @@ table 7326 "Whse. Worksheet Line"
         if IsHandled then
             exit(AvailableQty);
 
-        GetItem("Item No.", Description);
+        GetItem("Item No.");
         GetLocation("Location Code");
 
         if Location."Directed Put-away and Pick" then begin
@@ -821,6 +821,13 @@ table 7326 "Whse. Worksheet Line"
                 ItemDescription := Item.Description;
 
         OnAfterGetItem(Rec, Item, ItemDescription);
+    end;
+
+    local procedure GetItem(ItemNo: Code[20])
+    var
+        ItemDescription: Text[100];
+    begin
+        GetItem(ItemNo, ItemDescription);
     end;
 
     local procedure GetItemUnitOfMeasure()

@@ -1,4 +1,4 @@
-﻿#if not CLEAN17
+#if not CLEAN17
 report 20 "Calc. and Post VAT Settlement"
 {
     DefaultLayout = RDLC;

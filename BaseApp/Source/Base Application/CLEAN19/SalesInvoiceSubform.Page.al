@@ -1169,6 +1169,7 @@ page 47 "Sales Invoice Subform"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
         [InDataSet]

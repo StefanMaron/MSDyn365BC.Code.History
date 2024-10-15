@@ -280,6 +280,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                     ItemJnlLine,
                     DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
                     TempWhseJnlLine."Reference Document"::"Posted Shipment", TempWhseJnlLine, NextLineNo);
+            OnPostItemJnlLineOnAfterInsertTempWhseJnlLine(SalesShptLine, ItemJnlLine, TempWhseJnlLine, NextLineNo);
 
             if GetInvoicedShptEntries(SalesShptLine, ItemLedgEntryNotInvoiced) then begin
                 RemQtyBase := -("Quantity (Base)" - "Qty. Invoiced (Base)");
@@ -662,6 +663,11 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterSalesShptLineSetFilters(var SalesShptLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterInsertTempWhseJnlLine(SalesShptLine: Record "Sales Shipment Line"; var ItemJnlLine: Record "Item Journal Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer)
     begin
     end;
 

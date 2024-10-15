@@ -99,9 +99,9 @@ page 46 "Sales Order Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -1591,9 +1591,14 @@ page 46 "Sales Order Subform"
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate(); // NAVCZ
+    end;
+
     trigger OnModifyRecord(): Boolean
     begin
-        DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
+        DocumentTotals.SalesDocTotalsNotUpToDate(); // NAVCZ
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1610,7 +1615,9 @@ page 46 "Sales Order Subform"
         SetOpenPage();
 
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -1651,10 +1658,13 @@ page 46 "Sales Order Subform"
         InvDiscAmountEditable: Boolean;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
+        [InDataSet]
         IsCommentLine: Boolean;
         IsBlankNumber: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif        
         VATAmount: Decimal;
 
     local procedure SetOpenPage()
@@ -2063,12 +2073,12 @@ page 46 "Sales Order Subform"
         OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure SetDefaultType()
     var

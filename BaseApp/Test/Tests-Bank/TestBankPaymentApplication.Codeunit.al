@@ -17,6 +17,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
@@ -1604,6 +1605,46 @@ codeunit 134263 "Test Bank Payment Application"
         PmtReconJnl.Difference.AssertEquals(0);
     end;
 
+    [Test]
+    [HandlerFunctions('PostAndReconcilePageHandlerWithNewDate')]
+    [Scope('OnPrem')]
+    procedure PostPmtWithDateLessThanInvoicePostingDateByUpdateStatementDate()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountStatement: Record "Bank Account Statement";
+        StatementDate: Date;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 419948] When posting Bank Payment Reconciliation users can edit Statement Date before posting
+        Initialize();
+
+        // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = 15.01
+        LibraryERM.CreateBankAccount(BankAccount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate(), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Posted Sales Invoice applied to this Bank Account Reconciliation Line
+        CreateCustAndPostSalesInvoice(CustLedgerEntry, '');
+        ApplyCustLedgEntry(BankAccReconciliationLine, CustLedgerEntry);
+        CustLedgerEntry."Applies-to ID" := BankAccReconciliationLine.GetAppliesToID();
+        CustLedgerEntry.Modify();
+
+        // [GIVEN] Prepare Bank Account Reconciliation for posting
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
+
+        // [WHEN] Post the Bank Account Reconciliation with changing date on page to 20.01
+        StatementDate := WorkDate() + LibraryRandom.RandInt(10);
+        LibraryVariableStorage.Enqueue(StatementDate);
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+
+        // [THEN] Satement Date on posted Statement is 20.01
+        BankAccountStatement.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+        BankAccountStatement.TestField("Statement Date", StatementDate);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1915,6 +1956,14 @@ codeunit 134263 "Test Bank Payment Application"
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandlerWithNewDate(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.StatementDate.SetValue(LibraryVariableStorage.DequeueDate());
         PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 }

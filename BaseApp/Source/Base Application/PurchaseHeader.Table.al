@@ -481,6 +481,9 @@
                    not ("Posting Date" = xRec."Posting Date")
                 then
                     PriceMessageIfPurchLinesExist(FieldCaption("Posting Date"));
+
+                ResetInvoiceDiscountValue();
+
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor();
                     if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
@@ -671,6 +674,8 @@
                 if not (CurrFieldNo in [0, FieldNo("Posting Date")]) or ("Currency Code" <> xRec."Currency Code") then
                     TestStatusOpen();
 #if CLEAN17
+                ResetInvoiceDiscountValue();
+
                 if (CurrFieldNo <> FieldNo("Currency Code")) and ("Currency Code" = xRec."Currency Code") then
                     UpdateCurrencyFactor
                 else
@@ -678,6 +683,8 @@
                         UpdateCurrencyFactor
                     else
 #else
+                ResetInvoiceDiscountValue();
+
                 if (CurrFieldNo <> FieldNo("Currency Code")) and ("Currency Code" = xRec."Currency Code") then begin
                     UpdateCurrencyFactor();
                     // NAVCZ
@@ -716,6 +723,8 @@
             trigger OnValidate()
             begin
 #if CLEAN17
+                ResetInvoiceDiscountValue();
+
                 if "Currency Factor" <> xRec."Currency Factor" then
                     UpdatePurchLinesByFieldNo(FieldNo("Currency Factor"), CurrFieldNo <> 0);
 #else
@@ -943,7 +952,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateAppliesToDocNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Applies-to Doc. No." <> '' then
                     TestField("Bal. Account No.", '');
 
@@ -3652,6 +3668,15 @@
         exit(not PurchLine.IsEmpty);
     end;
 
+    local procedure ResetInvoiceDiscountValue()
+    begin
+        if "Invoice Discount Value" <> 0 then begin
+            CalcFields("Invoice Discount Amount");
+            if "Invoice Discount Amount" = 0 then
+                "Invoice Discount Value" := 0;
+        end;
+    end;
+
     procedure RecreatePurchLines(ChangedFieldName: Text[100])
     var
         TempPurchLine: Record "Purchase Line" temporary;
@@ -3718,8 +3743,8 @@
                         PurchLine.Validate(Type, TempPurchLine.Type);
                         OnRecreatePurchLinesOnAfterValidateType(PurchLine, TempPurchLine);
                         if TempPurchLine."No." = '' then begin
-                            PurchLine.Validate(Description, TempPurchLine.Description);
-                            PurchLine.Validate("Description 2", TempPurchLine."Description 2");
+                            PurchLine.Description := TempPurchLine.Description;
+                            PurchLine."Description 2" := TempPurchLine."Description 2";
                         end else begin
                             PurchLine.Validate("No.", TempPurchLine."No.");
                             IsHandled := false;
@@ -3761,6 +3786,8 @@
                     RestorePurchCommentLine(TempPurchCommentLine, TempPurchLine."Line No.", PurchLine."Line No.");
                     OnRecreatePurchLineOnAfterProcessAttachedToLineNo(TempPurchLine, PurchLine);
                 until TempPurchLine.Next() = 0;
+
+                OnRecreatePurchLinesOnAfterProcessTempPurchLines(TempPurchLine, Rec, xRec, ChangedFieldName);
 
                 RestorePurchCommentLine(TempPurchCommentLine, 0, 0);
 
@@ -5577,6 +5604,8 @@
         end;
         if BuyFromVendorNo <> '' then
             Validate("Buy-from Vendor No.", BuyFromVendorNo);
+
+        OnAfterSetBuyFromVendorFromFilter(Rec);
     end;
 
     procedure CopyBuyFromVendorFilter()
@@ -6520,7 +6549,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateEmptySellToCustomerAndLocation(Rec, Vend, IsHandled);
+        OnBeforeValidateEmptySellToCustomerAndLocation(Rec, Vend, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -6998,6 +7027,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetBuyFromVendorFromFilter(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetShipToForSpecOrder(var PurchaseHeader: Record "Purchase Header"; Location: Record Location; CompanyInformation: Record "Company Information")
     begin
     end;
@@ -7211,6 +7245,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAppliesToDocNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupReceivingNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7341,7 +7380,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateEmptySellToCustomerAndLocation(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor; var IsHandled: Boolean)
+    local procedure OnBeforeValidateEmptySellToCustomerAndLocation(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor; var IsHandled: Boolean; var xPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -7420,6 +7459,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLineOnAfterProcessAttachedToLineNo(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreatePurchLinesOnAfterProcessTempPurchLines(var TempPurchaseLine: Record "Purchase Line" temporary; var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; ChangedFieldName: Text[100])
     begin
     end;
 

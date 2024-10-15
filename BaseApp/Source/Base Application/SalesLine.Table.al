@@ -466,7 +466,7 @@
                 if IsHandled then
                     exit;
 
-                if Type = Type::" " then
+                if not HasTypeToFillMandatoryFields() then
                     exit;
 
                 if "No." <> '' then
@@ -3645,7 +3645,9 @@
         if not SalesCommentLine.IsEmpty() then
             SalesCommentLine.DeleteAll();
 
-        ModifyVATFields; // NAVCZ
+#if not CLEAN18
+        RemoveVATCorrection(); // NAVCZ
+#endif
         // In case we have roundings on VAT or Sales Tax, we should update some other line
         if (Type <> Type::" ") and ("Line No." <> 0) and ("Attached to Line No." = 0) and ("Job Contract Entry No." = 0) and
            (Quantity <> 0) and (Amount <> 0) and (Amount <> "Amount Including VAT") and not StatusCheckSuspended
@@ -3680,7 +3682,9 @@
         OnInsertOnAfterCheckInventoryConflict(Rec, xRec, SalesLine2);
         if ("Deferral Code" <> '') and (GetDeferralAmount <> 0) then
             UpdateDeferralAmounts();
-        ModifyVATFields; // NAVCZ
+#if not CLEAN18
+        RemoveVATCorrection(); // NAVCZ
+#endif
     end;
 
     trigger OnModify()
@@ -3701,7 +3705,9 @@
 
         if ((Quantity <> 0) or (xRec.Quantity <> 0)) and ItemExists(xRec."No.") and not FullReservedQtyIsForAsmToOrder then
             VerifyChangeForSalesLineReserve(0);
-        ModifyVATFields; // NAVCZ
+#if not CLEAN18
+        RemoveVATCorrection(); // NAVCZ
+#endif
     end;
 
     trigger OnRename()
@@ -4313,6 +4319,8 @@
             Currency.Get(SalesHeader."Currency Code");
             Currency.TestField("Amount Rounding Precision");
         end;
+
+        OnAfterSetSalesHeader(Rec, SalesHeader, Currency);
     end;
 
     procedure GetSalesHeader()
@@ -5739,6 +5747,7 @@
 
         GetSalesHeader();
         Currency.Initialize(SalesHeader."Currency Code");
+        OnShowItemChargeAssgntOnAfterCurrencyInitialize(Rec, SalesHeader, Currency);
         if ("Inv. Discount Amount" = 0) and ("Line Discount Amount" = 0) and
            (not SalesHeader."Prices Including VAT")
         then
@@ -5959,6 +5968,7 @@
             exit;
 
         Currency.Initialize(SalesHeader."Currency Code");
+        OnUpdateVATOnLinesOnAfterCurrencyInitialize(Rec, SalesHeader, Currency);
 
         TempVATAmountLineRemainder.DeleteAll();
 
@@ -6169,6 +6179,7 @@
             exit;
 
         Currency.Initialize(SalesHeader."Currency Code");
+        OnCalcVATAmountLinesOnAfterCurrencyInitialize(Rec, SalesHeader, Currency);
 
 #if not CLEAN18
         // NAVCZ
@@ -6398,6 +6409,8 @@
         "VAT Correction" := false; // NAVCZ
 #endif
         NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
+
+        OnAfterCalcInvDiscToInvoice(Rec, OldInvDiscAmtToInv);
     end;
 
     procedure UpdateWithWarehouseShip()
@@ -7718,7 +7731,14 @@
     end;
 
     procedure InitType()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitType(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document No." <> '' then begin
             if not SalesHeader.Get("Document Type", "Document No.") then
                 exit;
@@ -7894,26 +7914,33 @@
         GLSetupRead := true;
     end;
 
-#endif
-    local procedure ModifyVATFields()
+    local procedure RemoveVATCorrection()
     var
-        ModSalesLine: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
     begin
         // NAVCZ
-        ModSalesLine.Reset();
-        ModSalesLine.SetRange("Document Type", "Document Type");
-        ModSalesLine.SetRange("Document No.", "Document No.");
-        ModSalesLine.SetFilter("Line No.", '<>%1', "Line No.");
-        ModSalesLine.SetFilter(Type, '>%1', ModSalesLine.Type::" ");
-#if not CLEAN18
-        ModSalesLine.SetRange("VAT Correction", true);
-#endif
-        ModSalesLine.ModifyAll("VAT Difference", 0);
-#if not CLEAN18
-        ModSalesLine.ModifyAll("VAT Difference (LCY)", 0);
-        ModSalesLine.ModifyAll("VAT Correction", false);
-#endif
+        SalesLine3.Reset();
+        SalesLine3.SetRange("Document Type", "Document Type");
+        SalesLine3.SetRange("Document No.", "Document No.");
+        SalesLine3.SetFilter("Line No.", '<>%1', "Line No.");
+        SalesLine3.SetFilter("VAT Difference", '<>0');
+        if SalesLine3.FindSet() then
+            repeat
+                SalesLine3."VAT Difference" := 0;
+                SalesLine3."VAT Difference (LCY)" := 0;
+                SalesLine3."VAT Correction" := false;
+                SalesLine3.UpdateAmounts();
+                SalesLine3.Modify();
+            until SalesLine3.Next() = 0;
+
+        if "VAT Difference" <> 0 then begin
+            "VAT Difference" := 0;
+            "VAT Difference (LCY)" := 0;
+            "VAT Correction" := false;
+            UpdateAmounts();
+        end;
     end;
+#endif
 
     local procedure DivideAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
     begin
@@ -8386,7 +8413,8 @@
 
         IsHandled := false;
         OnBeforeUpdateLocationCode(Rec, IsHandled);
-        "Location Code" := SalesHeader."Location Code";
+        if not IsHandled then
+            "Location Code" := SalesHeader."Location Code";
     end;
 
     local procedure InitDeferralCode()
@@ -9133,6 +9161,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesHeader(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterShowNonStock(var SalesLine: Record "Sales Line"; NonstockItem: Record "Nonstock Item")
     begin
     end;
@@ -9322,6 +9355,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitQtyToShip(var SalesLine: Record "Sales Line"; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9586,6 +9624,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcInvDiscToInvoice(var SalesLine: Record "Sales Line"; OldInvDiscAmtToInv: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalcVATAmountLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping)
     begin
     end;
@@ -9733,6 +9776,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnShowItemChargeAssgntOnBeforeCalcItemCharge(var SalesLine: Record "Sales Line"; var ItemChargeAssgntLineAmt: Decimal; Currency: Record Currency; var IsHandled: Boolean; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowItemChargeAssgntOnAfterCurrencyInitialize(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var Currency: Record Currency)
     begin
     end;
 
@@ -10055,6 +10103,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnAfterCurrencyInitialize(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateDescriptionOnBeforeCannotFindDescrError(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -10083,6 +10136,12 @@
     local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(var SalesLine: Record "Sales Line")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnAfterCurrencyInitialize(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var Currency: Record Currency)
+    begin
+    end;
+
 #if not CLEAN18
     [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
@@ -10344,7 +10403,7 @@
 
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCancelAdvanceLetterRelations(var SalesLine: Record "Sales Line"; var IsHandled : boolean)
+    local procedure OnBeforeCancelAdvanceLetterRelations(var SalesLine: Record "Sales Line"; var IsHandled: boolean)
     begin
     end;
 #endif

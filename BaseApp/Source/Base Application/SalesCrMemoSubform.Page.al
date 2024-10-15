@@ -96,9 +96,9 @@ page 96 "Sales Cr. Memo Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -1047,9 +1047,14 @@ page 96 "Sales Cr. Memo Subform"
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate(); // NAVCZ
+    end;
+
     trigger OnModifyRecord(): Boolean
     begin
-        DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
+        DocumentTotals.SalesDocTotalsNotUpToDate(); // NAVCZ
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1066,7 +1071,9 @@ page 96 "Sales Cr. Memo Subform"
         SetOpenPage();
 
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -1104,9 +1111,12 @@ page 96 "Sales Cr. Memo Subform"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif
         VATAmount: Decimal;
 
     local procedure SetOpenPage()
@@ -1326,12 +1336,12 @@ page 96 "Sales Cr. Memo Subform"
         OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")

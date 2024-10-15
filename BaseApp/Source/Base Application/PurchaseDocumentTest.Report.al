@@ -1804,7 +1804,7 @@ report 402 "Purchase Document - Test"
         TotalText: Text[50];
         TotalInclVATText: Text[50];
         TotalExclVATText: Text[50];
-        QtyToHandleCaption: Text[30];
+        QtyToHandleCaption: Text[80];
         MaxQtyToBeInvoiced: Decimal;
         RemQtyToBeInvoiced: Decimal;
         QtyToBeInvoiced: Decimal;

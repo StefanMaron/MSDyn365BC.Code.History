@@ -1,4 +1,4 @@
-﻿#if not CLEAN18
+#if not CLEAN18
 report 595 "Adjust Exchange Rates"
 {
     DefaultLayout = RDLC;
@@ -510,7 +510,7 @@ report 595 "Adjust Exchange Rates"
             trigger OnAfterGetRecord()
             begin
                 VATEntryNo := VATEntryNo + 1;
-                Window.Update(1, Round(VATEntryNo / VATEntryNoTotal * 10000, 1));
+                Window.Update(1, 10000 * VATEntryNo div VATEntryNoTotal);
 
                 VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                 VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
@@ -592,11 +592,15 @@ report 595 "Adjust Exchange Rates"
                 then
                     CurrReport.Break();
 
+                VATEntryNoTotal := VATEntry.Count();
+
+                if VATEntryNoTotal = 0 then
+                    CurrReport.Break();
+
                 Window.Open(
                   Text012Txt +
                   Text013Txt);
 
-                VATEntryNoTotal := VATEntry.Count();
                 if not
                    VATEntry.SetCurrentKey(
                      Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
@@ -1379,13 +1383,13 @@ report 595 "Adjust Exchange Rates"
                 if TempAdjExchRateBuffer2.TotalGainsAmount <> 0 then
                     PostAdjmt(
                         TempCurrencyToAdjust.GetUnrealizedGainsAccount(),
-                        -TempAdjExchRateBuffer2.TotalGainsAmount, CurrAdjBase,
+                        -TempAdjExchRateBuffer2.TotalGainsAmount, -TempAdjExchRateBuffer2.AdjBase,
                         TempAdjExchRateBuffer2."Currency Code", TempDimSetEntry,
                         TempAdjExchRateBuffer2."Posting Date", TempAdjExchRateBuffer2."IC Partner Code");
                 if TempAdjExchRateBuffer2.TotalLossesAmount <> 0 then
                     PostAdjmt(
                         TempCurrencyToAdjust.GetUnrealizedLossesAccount(),
-                        -TempAdjExchRateBuffer2.TotalLossesAmount, CurrAdjBase,
+                        -TempAdjExchRateBuffer2.TotalLossesAmount, -TempAdjExchRateBuffer2.AdjBase,
                         TempAdjExchRateBuffer2."Currency Code", TempDimSetEntry,
                         TempAdjExchRateBuffer2."Posting Date", TempAdjExchRateBuffer2."IC Partner Code");
             until TempAdjExchRateBuffer2.Next() = 0;

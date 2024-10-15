@@ -523,6 +523,14 @@ table 14 Location
         {
             Caption = 'Shipment Bin Code';
             TableRelation = Bin.Code WHERE("Location Code" = FIELD(Code));
+
+            trigger OnValidate()
+            begin
+                if "Shipment Bin Code" <> '' then begin
+                    Bin.Get(Code, "Shipment Bin Code");
+                    Bin.TestField(Dedicated, false);
+                end;
+            end;
         }
         field(7326; "Cross-Dock Bin Code"; Code[20])
         {

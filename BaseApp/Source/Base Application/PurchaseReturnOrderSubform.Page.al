@@ -97,9 +97,9 @@ page 6641 "Purchase Return Order Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the cross-referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -165,6 +165,7 @@ page 6641 "Purchase Return Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
                 }
@@ -1142,8 +1143,6 @@ page 6641 "Purchase Return Order Subform"
         UnitofMeasureCodeIsChangeable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         TotalPurchaseHeader: Record "Purchase Header";
@@ -1161,6 +1160,7 @@ page 6641 "Purchase Return Order Subform"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()

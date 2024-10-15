@@ -21,7 +21,6 @@ codeunit 132574 "Payment Export Validation UT"
         BankImportDoesNotExistErr: Label 'The Bank Export/Import Setup does not exist.';
         EmptyPaymentDetailsErr: Label '%1 or %2 must be used for payments.', Comment = '%1=Field;%2=Field';
         FieldBlankErr: Label '%1 must have a value in %2.', Comment = '%1=table name, %2=field name. Example: Customer must have a value in Name.';
-        FieldIsNotEmptyErr: Label '%1 cannot be used while %2 has a value.', Comment = '%1=Field;%2=Field';
         FieldKeyBlankErr: Label '%1 %2 must have a value in %3.', Comment = '%1=table name, %2=key field value, %3=field name. Example: Customer 10000 must have a value in Name.';
         FieldMustHaveValueErr: Label '%1 must have a value';
         FormatNotDefinedErr: Label 'The %1 does not exist. Identification fields and values: Code=''%2''';
@@ -1103,7 +1102,8 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        Initialize;
+        // [SCENARIO 416562] Stan can specify / validate "Creditor No." and "Recipient Bank Account" on the same Vendor Ledger Entry
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -1120,15 +1120,16 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
 
         // Exercise
         CreateVendorBankAccount(VendorBankAcc, Vendor."No.");
-        asserterror VendLedgEntry.Validate("Recipient Bank Account", VendorBankAcc.Code);
 
-        // Verify
-        Assert.ExpectedError(
-          StrSubstNo(FieldIsNotEmptyErr, VendLedgEntry.FieldCaption("Recipient Bank Account"), VendLedgEntry.FieldCaption("Creditor No.")));
+        // Bug: 
+        VendLedgEntry.Validate("Recipient Bank Account", VendorBankAcc.Code);
+
+        VendLedgEntry.TestField("Creditor No.");
+        VendLedgEntry.TestField("Recipient Bank Account");
     end;
 
     [Test]
@@ -1140,7 +1141,8 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        // [SCENARIO 416562] Stan can specify / validate "Creditor No." and "Recipient Bank Account" on the same Vendor Ledger Entry
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -1155,14 +1157,13 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
 
         // Exercise
-        asserterror VendLedgEntry.Validate("Creditor No.", LibraryPaymentExport.GetRandomCreditorNo);
+        VendLedgEntry.Validate("Creditor No.", LibraryPaymentExport.GetRandomCreditorNo);
 
-        // Verify
-        Assert.ExpectedError(
-          StrSubstNo(FieldIsNotEmptyErr, VendLedgEntry.FieldCaption("Creditor No."), VendLedgEntry.FieldCaption("Recipient Bank Account")));
+        VendLedgEntry.TestField("Creditor No.");
+        VendLedgEntry.TestField("Recipient Bank Account");
     end;
 
     [Test]

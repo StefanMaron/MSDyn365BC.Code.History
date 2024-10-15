@@ -614,6 +614,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccount: Record "Bank Account";
     begin
         with BankAccount do begin
+            SetLoadFields("Last Statement No.");
             Get(BankAccountNo);
             if "Last Statement No." <> '' then
                 "Last Statement No." := IncStr("Last Statement No.")

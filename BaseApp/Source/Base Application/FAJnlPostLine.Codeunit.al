@@ -705,12 +705,12 @@ codeunit 5632 "FA Jnl.-Post Line"
         end;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterFAJnlPostLine(var FAJournalLine: Record "FA Journal Line")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -720,12 +720,12 @@ codeunit 5632 "FA Jnl.-Post Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeFAJnlPostLine(var FAJournalLine: Record "FA Journal Line")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;

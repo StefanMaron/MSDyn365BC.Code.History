@@ -4,6 +4,11 @@ xmlport 31072 "Sales Price Import"
     Caption = 'Sales Price Import';
     DefaultFieldsValidation = true;
     Direction = Import;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+#pragma warning disable AS0072
+    ObsoleteTag = '19.0';
+#pragma warning restore AS0072
 
     schema
     {
