@@ -228,6 +228,7 @@
 
                 GetLocationCode();
                 OnValidateVendorNoOnAfterGetLocationCode(Rec);
+                GetDefaultBinCode();
 
                 "Order Address Code" := '';
 
@@ -3543,6 +3544,19 @@
             ShouldGetDefaultBin := ("Bin Code" = '') and Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
             OnBeforeGetDefaultBin(Rec, ShouldGetDefaultBin);
             if ShouldGetDefaultBin then
+                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+        end;
+    end;
+    
+    local procedure GetDefaultBinCode()
+    begin
+        if Rec."Replenishment System" <> Rec."Replenishment System"::Purchase then
+            exit;
+        if (Rec."Sales Order No." <> '') and Rec."Drop Shipment" then
+            exit;
+        if ("Location Code" <> '') and ("No." <> '') then begin
+            GetLocation("Location Code");
+            if ("Bin Code" = '') and Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
         end;
     end;

@@ -118,7 +118,7 @@ codeunit 12134 "Declaration of Intent Export"
               404, 12, ConstFormat::AN, FlatFileManagement.CleanPhoneNumber(CompanyInformation."Phone No."), true); // B-28
         FlatFileManagement.WritePositionalValue(416, 100, ConstFormat::AN, CompanyInformation."E-Mail", false); // B-29
 
-        CreateRecordBStatement(VATExemption, DescriptionOfGoods, AmountToDeclare);
+        CreateRecordBStatement(VATExemption, DescriptionOfGoods, AmountToDeclare, Vendor.IsCustomAuthorityVendor());
         CreateRecordBDeclarationDestination(Vendor);
         CreateRecordBSignature(CeilingType, ExportFlags);
         CreateRecordBIntermediarySection(CompanyInformation."Tax Representative No.");
@@ -196,10 +196,14 @@ codeunit 12134 "Declaration of Intent Export"
         FlatFileManagement.WritePositionalValue(402, 2, ConstFormat::PR, SigningCompanyOfficials."Birth County", false); // B-26
     end;
 
-    local procedure CreateRecordBStatement(var VATExemption: Record "VAT Exemption"; DescriptionOfGoods: Text[100]; AmountToDeclare: Decimal)
+    local procedure CreateRecordBStatement(var VATExemption: Record "VAT Exemption"; DescriptionOfGoods: Text[100]; AmountToDeclare: Decimal; IsCustomAuthoruty: Boolean)
     begin
-        FlatFileManagement.WritePositionalValue(516, 1, ConstFormat::CB, '1', false); // B-30
-        FlatFileManagement.WritePositionalValue(517, 1, ConstFormat::CB, '0', false); // B-31
+        if not IsCustomAuthoruty then
+            FlatFileManagement.WritePositionalValue(516, 1, ConstFormat::CB, '1', false); // B-30
+        if IsCustomAuthoruty then
+            FlatFileManagement.WritePositionalValue(517, 1, ConstFormat::CB, '1', false) // B-31
+        else
+            FlatFileManagement.WritePositionalValue(517, 1, ConstFormat::CB, '0', false); // B-31
         FlatFileManagement.WritePositionalValue(
           518, 4, ConstFormat::NU, Format(Date2DMY(VATExemption."VAT Exempt. Starting Date", 3)), false); // B-32
         FlatFileManagement.WritePositionalValue(522, 16, ConstFormat::VP, '0', false); // B-33
@@ -214,7 +218,10 @@ codeunit 12134 "Declaration of Intent Export"
     var
         TaxCode: Code[20];
     begin
-        FlatFileManagement.WritePositionalValue(690, 1, ConstFormat::CB, '0', false); // B-40
+        if Vendor.IsCustomAuthorityVendor() then
+            FlatFileManagement.WritePositionalValue(690, 1, ConstFormat::CB, '1', false) // B-40
+        else
+            FlatFileManagement.WritePositionalValue(690, 1, ConstFormat::CB, '0', false); // B-40
         TaxCode := Vendor.GetTaxCode();
         if TaxCode <> '' then
             FlatFileManagement.WritePositionalValue(691, 16, ConstFormat::CF, TaxCode, false) // B-41

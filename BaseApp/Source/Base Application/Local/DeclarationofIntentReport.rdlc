@@ -3399,7 +3399,7 @@
                                     <Paragraph>
                                       <TextRuns>
                                         <TextRun>
-                                          <Value />
+                                          <Value>=Fields!CustomAuthorityFlagValue.Value</Value>
                                           <Style>
                                             <FontSize>9pt</FontSize>
                                           </Style>
@@ -5915,6 +5915,9 @@ End Function
         </Field>
         <Field Name="DealerSignature_Caption">
           <DataField>DealerSignature_Caption</DataField>
+        </Field>
+        <Field Name="CustomAuthorityFlagValue">
+          <DataField>CustomAuthorityFlagValue</DataField>
         </Field>
       </Fields>
       <Query>

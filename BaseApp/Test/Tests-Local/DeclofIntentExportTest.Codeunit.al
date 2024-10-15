@@ -65,6 +65,7 @@ codeunit 144088 "Decl. of Intent Export Test"
         // [THEN] Record B fields 11, 12 are blanked, 13 = "CRONUS Italia S.p.A.", 14 = "22222222222" (TFS 296019)
         // [THEN] Record B fields 41 and 42 = "44444444444", 45 = "London Postmaster" (TFS 296019)
         // [THEN] Record B fields 38, 39 (pos 670, 686) are blanked from February 2021 (TFS 381364)
+        // [THEN] Record B fields: B-30 = '1', B-31 = '0', B-40 = '0' (TFS 472473)
         LoadFile(FileName);
 
         // Verify line structure
@@ -119,7 +120,7 @@ codeunit 144088 "Decl. of Intent Export Test"
         Commit();
         DeclarationOfIntentReport.Run();
 
-        // [THEN] The content of report reflects the data in NAV
+        // [THEN] The content of report reflects the data in NAV, 'CustomAuthorityFlagValue' = '', Recipient data is printed for the vendor. (TFS 477441)
         // [THEN] Section "Declaration Data" field "Surname or company's name" = "CRONUS Italia S.p.A." (TFS 296019)
         VerifyDeclOfIntentReport(VATExemption, Vendor, VendorTaxRepresentative, SigningCompanyOfficials, AmountToDeclare);
         VerifyReportParameters(ExportFlags, false, '', '');
@@ -172,6 +173,107 @@ codeunit 144088 "Decl. of Intent Export Test"
         LibraryReportDataset.AssertCurrentRowValueEquals('VATExemptIntRegistryNo_Value', VATExemption[2]."VAT Exempt. Int. Registry No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDeclOfIntentForCustomAuthorityVendor()
+    var
+        CompanyInformation: Record "Company Information";
+        VendorTaxRepresentative: Record Vendor;
+        Vendor: Record Vendor;
+        VATExemption: Record "VAT Exemption";
+        SigningCompanyOfficials: Record "Company Officials";
+        DeclarationOfIntentExport: Codeunit "Declaration of Intent Export";
+        FileName: Text;
+        AmountToDeclare: Decimal;
+        ExportFlags: array[6] of Boolean;
+        Index: Integer;
+    begin
+        // [SCENARIO 476267] Export the Declaration of Intent for custom authority vendor
+        Setup(CompanyInformation, VendorTaxRepresentative);
+
+        // [GIVEN] CompanyInformation."Name" = "CRONUS Italia S.p.A.", "Fiscal Code" = "11111111111", "VAT Registration No." = "22222222222"
+        // [GIVEN] Vendor with "Name" = "London Postmaster", "Fiscal Code" = "33333333333", "VAT Registration No." = "44444444444"
+        // [GIVEN] Vendor as a Custom Authority,a VAT Exemption for a Vendor
+        CreateVendor(Vendor, false);
+        CreateVATExemption(VATExemption, Vendor);
+        CreateCustomAuthorityVendor(Vendor."No.");
+
+        // [GIVEN] A Company Official to sign the declaration
+        CreateCompanyOfficial(SigningCompanyOfficials);
+
+        // [GIVEN] An Amount to declare
+        AmountToDeclare := 1234.56;
+
+        // [WHEN] The Declaration of Intent is exported
+        FileName := TemporaryPath + LibraryUtility.GenerateGUID + '.ivi';
+        ExportFlags[1] := false;
+        ExportFlags[2] := false;
+        ExportFlags[3] := false;
+        ExportFlags[4] := false;
+        ExportFlags[5] := false;
+        ExportFlags[6] := false;
+        DeclarationOfIntentExport.SetServerFileName(FileName);
+        DeclarationOfIntentExport.Export(
+          VATExemption, 'Description of Goods', SigningCompanyOfficials."No.", AmountToDeclare, 0, ExportFlags, false, '', '');
+
+        // [THEN] File is exported
+        // [THEN] Record B fields: B-30 = '', B-31 = '1', B-40 = '1'
+        LoadFile(FileName);
+        for Index := 1 to Round(TextFile.Length / 1900, 1, '>') do
+            LibrarySpesometro.VerifyLine(TextFile, Index);
+        VerifyHeader(1);
+        VerifyBRecord(2, Vendor, SigningCompanyOfficials, AmountToDeclare, VATExemption, VendorTaxRepresentative);
+        VerifyFooter(3);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeclOfIntentReportHandler')]
+    [Scope('OnPrem')]
+    procedure PrintDeclOfIntentForCustomAuthorityVendor()
+    var
+        CompanyInformation: Record "Company Information";
+        VendorTaxRepresentative: Record Vendor;
+        Vendor: Record Vendor;
+        VATExemption: Record "VAT Exemption";
+        SigningCompanyOfficials: Record "Company Officials";
+        DeclarationOfIntentReport: Report "Declaration of Intent Report";
+        AmountToDeclare: Decimal;
+        ExportFlags: array[6] of Boolean;
+    begin
+        // [SCENARIO 477441] Print the Declaration of Intent Report for custom authority vendor
+        Setup(CompanyInformation, VendorTaxRepresentative);
+
+        // [GIVEN] CompanyInformation."Name" = "CRONUS Italia S.p.A."
+        // [GIVEN] Vendor as a Custom Authority, a VAT Exemption for a Vendor
+        CreateVendor(Vendor, false);
+        CreateVATExemption(VATExemption, Vendor);
+        CreateCustomAuthorityVendor(Vendor."No.");
+
+        // [GIVEN] A Company Official to sign the declaration
+        CreateCompanyOfficial(SigningCompanyOfficials);
+
+        // [GIVEN] An Amount to declare
+        AmountToDeclare := 1234.56;
+
+        // [WHEN] The Declaration of Intent is printed
+        ExportFlags[1] := false;
+        ExportFlags[2] := false;
+        ExportFlags[3] := false;
+        ExportFlags[4] := false;
+        ExportFlags[5] := false;
+        ExportFlags[6] := false;
+
+        DeclarationOfIntentReport.Initialize(
+          'Description of Goods', SigningCompanyOfficials."No.", AmountToDeclare, 0, ExportFlags, false, '', '');
+        DeclarationOfIntentReport.SetTableView(VATExemption);
+        Commit();
+        DeclarationOfIntentReport.Run();
+
+        // [THEN] The dataset of then report contains 'CustomAuthorityFlagValue' = 'X'; Recipient data is empty.
+        VerifyDeclOfIntentReport(VATExemption, Vendor, VendorTaxRepresentative, SigningCompanyOfficials, AmountToDeclare);
+        VerifyReportParameters(ExportFlags, false, '', '');
+    end;
+
     local procedure VerifyHeader(LineNo: Integer)
     var
         CompanyInformation: Record "Company Information";
@@ -203,8 +305,10 @@ codeunit 144088 "Decl. of Intent Export Test"
     local procedure VerifyBRecord(LineNo: Integer; Vendor: Record Vendor; SigningCompanyOfficials: Record "Company Officials"; AmountToDeclare: Decimal; VATExemption: Record "VAT Exemption"; VendorTaxRepresentative: Record Vendor)
     var
         CompanyInformation: Record "Company Information";
+        B30, B31, B40 : Text[10];
     begin
         CompanyInformation.Get();
+        GetCustomAuthorityValues(B30, B31, B40, Vendor.IsCustomAuthorityVendor);
         LibrarySpesometro.VerifyValue(TextFile, 'B', LineNo, 1, 1, ConstFormat::AN); // B-1
         // Assuming the Fiscal Code is set on Company Information:
         LibrarySpesometro.VerifyValue(TextFile, CompanyInformation."Fiscal Code", LineNo, 2, 16, ConstFormat::CF); // B-2
@@ -231,8 +335,8 @@ codeunit 144088 "Decl. of Intent Export Test"
             LibrarySpesometro.VerifyValue(TextFile, FlatFileManagement.CleanPhoneNumber(CompanyInformation."Phone No."),
               LineNo, 404, 12, ConstFormat::AN); // B-28
         LibrarySpesometro.VerifyValue(TextFile, CompanyInformation."E-Mail", LineNo, 416, 100, ConstFormat::AN); // B-29
-        LibrarySpesometro.VerifyValue(TextFile, '1', LineNo, 516, 1, ConstFormat::CB); // B-30
-        LibrarySpesometro.VerifyValue(TextFile, '0', LineNo, 517, 1, ConstFormat::CB); // B-31
+        LibrarySpesometro.VerifyValue(TextFile, B30, LineNo, 516, 1, ConstFormat::CB); // B-30
+        LibrarySpesometro.VerifyValue(TextFile, B31, LineNo, 517, 1, ConstFormat::CB); // B-31
         LibrarySpesometro.VerifyValue(TextFile,
           Format(Date2DMY(VATExemption."VAT Exempt. Starting Date", 3)), LineNo, 518, 4, ConstFormat::NU); // B-32
         LibrarySpesometro.VerifyValue(TextFile, '0', LineNo, 522, 16, ConstFormat::VP); // B-33
@@ -243,6 +347,7 @@ codeunit 144088 "Decl. of Intent Export Test"
         LibrarySpesometro.VerifyValue(TextFile, 'DESCRIPTION OF GOODS', LineNo, 570, 100, ConstFormat::AN); // B-36
         LibrarySpesometro.VerifyValue(TextFile, '', LineNo, 670, 16, ConstFormat::AN); // B-38
         LibrarySpesometro.VerifyValue(TextFile, '', LineNo, 686, 4, ConstFormat::AN); // B-39
+        LibrarySpesometro.VerifyValue(TextFile, B40, LineNo, 690, 1, ConstFormat::CB); // B-40
         LibrarySpesometro.VerifyValue(TextFile, Vendor."VAT Registration No.", LineNo, 691, 16, ConstFormat::CF); // B-41
         LibrarySpesometro.VerifyValue(TextFile, Vendor."VAT Registration No.", LineNo, 707, 11, ConstFormat::PI); // B-42
         LibrarySpesometro.VerifyValue(TextFile, Vendor.Name, LineNo, 762, 60, ConstFormat::AN); // B-45
@@ -330,6 +435,28 @@ codeunit 144088 "Decl. of Intent Export Test"
         VATExemption."VAT Exempt. No." :=
           LibraryUtility.GenerateRandomCode(VATExemption.FieldNo("VAT Exempt. No."), DATABASE::"VAT Exemption");
         VATExemption.Insert();
+    end;
+
+    local procedure CreateCustomAuthorityVendor(VendorNo: Code[20])
+    var
+        CustomsAuthorityVendor: Record "Customs Authority Vendor";
+    begin
+        CustomsAuthorityVendor.Init();
+        CustomsAuthorityVendor.Validate("Vendor No.", VendorNo);
+        CustomsAuthorityVendor.Insert(true);
+    end;
+
+    local procedure GetCustomAuthorityValues(var B30: Text[10]; var B31: Text[10]; var B40: Text[10]; IsCustomAuthority: Boolean)
+    begin
+        if IsCustomAuthority then begin
+            B30 := '';
+            B31 := '1';
+            B40 := '1';
+        end else begin
+            B30 := '1';
+            B31 := '0';
+            B40 := '0';
+        end;
     end;
 
     local procedure CreateCompanyOfficial(var CompanyOfficials: Record "Company Officials")
@@ -450,14 +577,17 @@ codeunit 144088 "Decl. of Intent Export Test"
         VendorName: Text;
         VendorFirstName: Text;
         VendorGender: Code[1];
+        VendorCustomAuthorityFlag: Text[10];
+        VendorVATRegNo: Text[20];
     begin
-        if Vendor."Fiscal Code" <> '' then
-            VendorFiscalCode := Vendor."Fiscal Code" // B-41
-        else
-            if Vendor."VAT Registration No." <> '' then
-                VendorFiscalCode := Vendor."VAT Registration No."; // B-41
+        if not Vendor.IsCustomAuthorityVendor then
+            if Vendor."Fiscal Code" <> '' then
+                VendorFiscalCode := Vendor."Fiscal Code" // B-41
+            else
+                if Vendor."VAT Registration No." <> '' then
+                    VendorFiscalCode := Vendor."VAT Registration No."; // B-41
 
-        if Vendor."Last Name" <> '' then begin
+        if not Vendor.IsCustomAuthorityVendor and (Vendor."Last Name" <> '') then begin
             VendorFirstName := Vendor."First Name";
             VendorName := Vendor."Last Name";
             VendorGender := GetVendorGender(Vendor);
@@ -467,11 +597,20 @@ codeunit 144088 "Decl. of Intent Export Test"
             VendorGender := '';
         end;
 
+        if Vendor.IsCustomAuthorityVendor() then begin
+            VendorCustomAuthorityFlag := 'X';
+            VendorVATRegNo := '';
+        end else begin
+            VendorCustomAuthorityFlag := '';
+            VendorVATRegNo := Vendor."VAT Registration No.";
+        end;
+
         LibraryReportDataset.AssertElementWithValueExists('VendorFiscalCode_Value', VendorFiscalCode);
         LibraryReportDataset.AssertElementWithValueExists('VendorGender_Value', VendorGender);
         LibraryReportDataset.AssertElementWithValueExists('VendorLastName', VendorName);
         LibraryReportDataset.AssertElementWithValueExists('VendorFirstName', VendorFirstName);
-        LibraryReportDataset.AssertElementWithValueExists('VendoRVATRegNo_Value', Vendor."VAT Registration No.");
+        LibraryReportDataset.AssertElementWithValueExists('VendoRVATRegNo_Value', VendorVATRegNo);
+        LibraryReportDataset.AssertElementWithValueExists('CustomAuthorityFlagValue', VendorCustomAuthorityFlag);
     end;
 
     local procedure VerifyVendorTaxRepresentative(VendorTaxRepresentative: Record Vendor)

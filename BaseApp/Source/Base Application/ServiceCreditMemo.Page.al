@@ -832,13 +832,15 @@
                     var
                         InstructionMgt: Codeunit "Instruction Mgt.";
                         PreAssignedNo: Code[20];
+                        xLastPostingNo: Code[20];
                     begin
-                        PreAssignedNo := "No.";
+                        PreAssignedNo := Rec."No.";
+                        xLastPostingNo := Rec."Last Posting No.";
 
                         DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
 
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                            ShowPostedConfirmationMessage(PreAssignedNo);
+                            ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
                     end;
                 }
                 action(Preview)
@@ -1104,13 +1106,17 @@
         CurrPage.Update();
     end;
 
-    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        ServiceCrMemoHeader.SetCurrentKey("Pre-Assigned No.");
-        ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            ServiceCrMemoHeader.SetRange("No.", Rec."Last Posting No.")
+        else begin
+            ServiceCrMemoHeader.SetCurrentKey("Pre-Assigned No.");
+            ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        end;
         if ServiceCrMemoHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedServiceCrMemoQst, ServiceCrMemoHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

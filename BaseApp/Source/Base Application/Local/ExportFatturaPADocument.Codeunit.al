@@ -588,7 +588,7 @@ codeunit 12179 "Export FatturaPA Document"
                     if TempFatturaLine."Related Line No." <> 0 then
                         AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Related Line No."));
                     if TempFatturaLine."Customer Purchase Order No." <> '' then begin
-                        AddNonEmptyElement('IdDocumento', TempFatturaLine."Customer Purchase Order No.");
+                        AddNonEmptyElement('IdDocumento', CopyStr(TempFatturaLine."Customer Purchase Order No.", 1, 20));
                         LineInfoExists := true;
                     end;
                     if TempFatturaLine."Fattura Project Code" <> '' then begin
@@ -602,7 +602,7 @@ codeunit 12179 "Export FatturaPA Document"
                     Finished := TempFatturaLine.Next() = 0;
                 until Finished or (OrderNo <> TempFatturaLine."Document No.");
                 if not LineInfoExists then begin
-                    AddNonEmptyElement('IdDocumento', TempFatturaHeader."Customer Purchase Order No.");
+                    AddNonEmptyElement('IdDocumento', CopyStr(TempFatturaHeader."Customer Purchase Order No.", 1, 20));
                     AddNonEmptyElement('CodiceCUP', TempFatturaHeader."Fattura Project Code");
                     AddNonEmptyElement('CodiceCIG', TempFatturaHeader."Fattura Tender Code");
                 end;
