@@ -1348,6 +1348,8 @@
     procedure PrintExternalDocNoOnDraftSalesInvoiceReport()
     var
         SalesHeader: Record "Sales Header";
+        ExtDocNoRowNo: Integer;
+        ExtDocColNo: Integer;
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 257521] External Document Number is printed in report "Standard Sales - Draft Invoice".
@@ -1364,8 +1366,9 @@
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
         // [THEN] Saved Excel file contains "External Doc No.".
-        LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(23, 18, SalesHeader."External Document No.");
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet('External Document No.', 1, ExtDocNoRowNo, ExtDocColNo);
+        LibraryReportValidation.VerifyCellValue(ExtDocNoRowNo, ExtDocColNo + 4, SalesHeader."External Document No.");
     end;
 
     [Test]
@@ -1575,8 +1578,8 @@
 
         // [THEN] Saved Excel file has only one sheet.
         VerifyNoOfWorksheetsInExcel(1);
-	end;
-	
+    end;
+
     [Test]
     [HandlerFunctions('StdSalesInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
