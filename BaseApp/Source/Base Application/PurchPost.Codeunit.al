@@ -6004,6 +6004,7 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         TempReservationEntry: Record "Reservation Entry" temporary;
+        JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -6032,6 +6033,9 @@
                     if ItemLedgEntry.FindFirst() then
                         ItemJournalLine."Item Shpt. Entry No." := ItemLedgEntry."Entry No.";
                 end;
+                JobPlanningLine.SetLoadFields("Job Contract Entry No.");
+                if JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.") then
+                    ItemJournalLine."Job Contract Entry No." := JobPlanningLine."Job Contract Entry No.";
                 ItemJournalLine."Source Type" := ItemJournalLine."Source Type"::Customer;
                 ItemJournalLine."Discount Amount" := 0;
 
@@ -6051,7 +6055,9 @@
                 if IsHandled then
                     exit;
 
-                ValidateMatchingJobPlanningLine(PurchLine);
+                if PurchLine."Job Line Type" = PurchLine."Job Line Type"::" " then
+                    ValidateMatchingJobPlanningLine(PurchLine);
+
                 if QtyToBeInvoiced <> 0 then begin
                     "Qty. to Invoice" := QtyToBeInvoiced;
 #if not CLEAN20
@@ -9564,6 +9570,10 @@
             PurchaseHeader."VAT Reporting Date" := GLSetup.GetVATDate(PurchaseHeader."Posting Date", PurchaseHeader."Document Date");
             PurchaseHeader.Modify();
         end;
+        
+        // VAT only checked on Invoice
+        if PurchaseHeader.Receive or PurchaseHeader.Ship then
+            exit;
 
         // check whether VAT Date is within allowed VAT Periods
         GenJnlCheckLine.CheckVATDateAllowed(PurchaseHeader."VAT Reporting Date");

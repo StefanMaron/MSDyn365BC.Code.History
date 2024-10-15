@@ -446,6 +446,18 @@ report 10477 "Elec. Sales Invoice MX"
                         column(TempSalesInvoiceLine__Amount_Including_VAT____TempSalesInvoiceLine_AmountCaption; TempSalesInvoiceLine__Amount_Including_VAT____TempSalesInvoiceLine_AmountCaptionLbl)
                         {
                         }
+                        column(Line_SATClassificationLbl; SATClassificationLbl)
+                        {
+                        }
+                        column(Line_UnitOfMeasureCodeLbl; UnitOfMeasureCodeLbl)
+                        {
+                        }
+                        column(Line_SATClassification; SATClassification)
+                        {
+                        }
+                        column(Line_UnitOfMeasureCode; TempSalesInvoiceLine."Unit of Measure Code")
+                        {
+                        }
                         dataitem(AsmLoop; "Integer")
                         {
                             DataItemTableView = SORTING(Number);
@@ -485,6 +497,8 @@ report 10477 "Elec. Sales Invoice MX"
                         }
 
                         trigger OnAfterGetRecord()
+                        var
+                            SATUtilities: Codeunit "SAT Utilities";
                         begin
                             OnLineNumber := OnLineNumber + 1;
 
@@ -546,6 +560,8 @@ report 10477 "Elec. Sales Invoice MX"
                                 else
                                     UnitPriceToPrint := Round(AmountExclInvDisc / Quantity, 0.00001);
                                 TotalAmountIncludingVAT += "Amount Including VAT";
+
+                                SATClassification := SATUtilities.GetSATItemClassification(Type, "No.");
                             end;
 
                             CollectAsmInformation(TempSalesInvoiceLine);
@@ -975,6 +991,9 @@ report 10477 "Elec. Sales Invoice MX"
         SATTipoRelacion: Text[100];
         SATFolioFiscal: Text[100];
         TipoRelacionTxt: Label '07 CFDI por aplicacion de anticipo';
+        UnitOfMeasureCodeLbl: Label 'UoM';
+        SATClassificationLbl: Label 'Classification';
+        SATClassification: Code[10];
 
     procedure InitLogInteraction()
     begin

@@ -392,6 +392,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Simplify UI Sales Invoice - NamedType CannotCreatePurchaseOrderWithoutVendorErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2523966737 - NamedType 3908984908" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The shipments are now combined]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Simplify UI Sales Invoice - NamedType CombineShipmentMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2523966737 - NamedType 1612216320" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Control should be disabled]]></Val>

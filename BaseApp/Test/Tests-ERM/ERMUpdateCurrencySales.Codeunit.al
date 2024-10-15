@@ -588,7 +588,6 @@
 #endif
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ExchRateAdjustmentOrder()
     var
@@ -608,7 +607,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ExchRateAdjustmentInvoice()
     var
@@ -800,7 +798,6 @@
 #endif
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure EntriesAfterExchRateAdjustment()
     var
@@ -833,7 +830,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure LossEntryExchRateAdjustment()
     var
@@ -866,7 +862,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ApplyEntryPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ApplyEntryPageHandler')]
     [Scope('OnPrem')]
     procedure PaymentAfterExchRateAdjustment()
     var
@@ -907,7 +903,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure LossExchRateAdjustmentForBank()
     var
@@ -939,7 +934,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ExchRateAdjustmentForBank()
     var
@@ -1406,6 +1400,7 @@
           CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
           DocumentNo, true, false);
         ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
         ExchRateAdjustment.Run();
     end;
 
