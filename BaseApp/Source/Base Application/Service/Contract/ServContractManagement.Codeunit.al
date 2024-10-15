@@ -194,7 +194,7 @@ codeunit 5940 ServContractManagement
                             NoOfPayments := NoOfPayments + 1;
                             WDate := CalcDate(DateExpression, WDate);
                             OnCreateServiceLedgEntryOnAfterWDateLoop(ServContractHeader, WDate);
-                        until (WDate >= InvToDate) or
+                        until (WDate > InvToDate) or
                               ((WDate > ServContractLine."Contract Expiration Date") and
                                (ServContractLine."Contract Expiration Date" <> 0D));
                         CountOfEntryLoop := NoOfPayments;
@@ -213,7 +213,7 @@ codeunit 5940 ServContractManagement
                         end;
 
                         if ServContractLine."Contract Expiration Date" <> 0D then
-                            if CalcDate('<1D>', ServContractLine."Contract Expiration Date") < WDate then
+                            if ServContractLine."Contract Expiration Date" <= WDate then
                                 if Days = 0 then begin
                                     Days := Date2DMY(ServContractLine."Contract Expiration Date", 1);
                                     CountOfEntryLoop := CountOfEntryLoop - 1;

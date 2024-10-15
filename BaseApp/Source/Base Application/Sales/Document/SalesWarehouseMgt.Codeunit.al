@@ -292,7 +292,7 @@ codeunit 5991 "Sales Warehouse Mgt."
 #if not CLEAN23
         WhseCreateSourceDocument.RunOnBeforeFromSalesLine2ShptLine(SalesLine, Result, IsHandled);
 #endif
-        OnBeforeFromSalesLine2ShptLine(SalesLine, Result, IsHandled);
+        OnBeforeFromSalesLine2ShptLine(SalesLine, Result, IsHandled, WarehouseShipmentHeader);
         if IsHandled then
             exit(Result);
 
@@ -502,7 +502,7 @@ codeunit 5991 "Sales Warehouse Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFromSalesLine2ShptLine(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFromSalesLine2ShptLine(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 

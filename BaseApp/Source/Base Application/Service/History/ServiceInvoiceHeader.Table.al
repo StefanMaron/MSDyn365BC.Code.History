@@ -437,6 +437,10 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Document Date';
         }
+        field(100; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';

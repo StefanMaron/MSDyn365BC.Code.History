@@ -78,7 +78,7 @@ codeunit 455 "Job Queue User Handler"
             exit;
         if not (JobQueueEntry.WritePermission and JobQueueEntry.ReadPermission) then
             exit;
-        if not (JobQueueEntry.TryCheckRequiredPermissions()) then
+        if not (JobQueueEntry.HasRequiredPermissions()) then
             exit;
         if not TaskScheduler.CanCreateTask() then
             exit;

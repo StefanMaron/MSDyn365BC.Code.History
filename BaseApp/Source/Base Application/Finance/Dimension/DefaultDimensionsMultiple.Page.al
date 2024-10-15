@@ -55,6 +55,11 @@ page 542 "Default Dimensions-Multiple"
                     begin
                         Rec.TestField("Dimension Code");
                         Rec.TestField("Value Posting", Rec."Value Posting"::"Code Mandatory");
+                        if Rec."Allowed Values Filter" <> '' then begin
+                            TempDimValuePerAccount.Reset();
+                            DimMgt.SyncTempDimValuePerAccountWithDimValues(Rec, TempDimValuePerAccount);
+                            Rec.UpdateDimValuesPerAccountFromAllowedValuesFilter(TempDimValuePerAccount);
+                        end;
                         DimMgt.OpenAllowedDimValuesPerAccountDimMultiple(Rec, TempDimValuePerAccount);
                         Rec."Allowed Values Filter" := CopyStr(Rec.GetFullAllowedValuesFilter(TempDimValuePerAccount), 1, MaxStrLen(Rec."Allowed Values Filter"));
                         UpdateTempDimValuePerAcount(TempDimValuePerAccount);
@@ -62,9 +67,13 @@ page 542 "Default Dimensions-Multiple"
                     end;
 
                     trigger OnValidate()
+                    var
+                        DimMgt: Codeunit DimensionManagement;
                     begin
                         TempDimValuePerAccount.Reset();
+                        DimMgt.SyncTempDimValuePerAccountWithDimValues(Rec, TempDimValuePerAccount);
                         Rec.UpdateDimValuesPerAccountFromAllowedValuesFilter(TempDimValuePerAccount);
+                        UpdateTempDimValuePerAcount(TempDimValuePerAccount);
                     end;
                 }
             }
