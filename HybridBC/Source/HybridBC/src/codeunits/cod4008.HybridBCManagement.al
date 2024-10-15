@@ -1,7 +1,9 @@
 codeunit 4008 "Hybrid BC Management"
 {
+    Permissions = tabledata "Intelligent Cloud Table Status" = rimd;
+
     var
-        SqlCompatibilityErr: Label 'SQL database must be at comptibility level 130 or higher.';
+        SqlCompatibilityErr: Label 'SQL database must be at compatibility level 130 or higher.';
         DatabaseTooLargeErr: Label 'The maximum replicated data size of 150 GB has been exceeded.';
         TableNotExistsErr: Label 'The table does not exist in the local instance.';
         SchemaMismatchErr: Label 'The local table schema differs from the Business Central cloud table.';
@@ -10,9 +12,17 @@ codeunit 4008 "Hybrid BC Management"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Message Management", 'OnResolveMessageCode', '', false, false)]
     local procedure GetBCMessageOnResolveMessageCode(MessageCode: Code[10]; InnerMessage: Text; var Message: Text)
+    var
+        ErrorCodePosition: Integer;
     begin
         if Message <> '' then
             exit;
+
+        if MessageCode = '' then begin
+            ErrorCodePosition := StrPos(InnerMessage, 'SqlErrorNumber=');
+            if ErrorCodePosition > 0 then
+                MessageCode := CopyStr(InnerMessage, ErrorCodePosition + 15, 5);
+        end;
 
         case MessageCode of
             '50001':
@@ -33,73 +43,40 @@ codeunit 4008 "Hybrid BC Management"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Cloud Management", 'OnReplicationRunCompleted', '', false, false)]
     local procedure UpdateStatusOnHybridReplicationCompleted(RunId: Text[50]; SubscriptionId: Text; NotificationText: Text)
     var
+        HybridReplicationDetail: Record "Hybrid Replication Detail";
+        HybridReplicationSummary: Record "Hybrid Replication Summary";
+        IntelligentCloudTableStatus: Record "Intelligent Cloud Table Status";
         HybridCloudManagement: Codeunit "Hybrid Cloud Management";
         HybridBCWizard: Codeunit "Hybrid BC Wizard";
-        JsonManagement: Codeunit "JSON Management";
-        Value: Text;
+        HybridMessageManagement: Codeunit "Hybrid Message Management";
+        ErrorMessage: Text;
     begin
         if not HybridCloudManagement.CanHandleNotification(SubscriptionId, HybridBCWizard.ProductId()) then
             exit;
 
-        // Get table information, iterate through and create detail records for each
-        JsonManagement.InitializeObject(NotificationText);
-
-        if JsonManagement.GetArrayPropertyValueAsStringByName('IncrementalTables', Value) then
-            ParseTableDetails(RunId, Value);
-
-        if JsonManagement.GetArrayPropertyValueAsStringByName('FullTables', Value) then
-            ParseTableDetails(RunId, Value);
-    end;
-
-    local procedure ParseTableDetails(RunId: Text[50]; ResultCollection: Text)
-    var
-        HybridReplicationDetail: Record "Hybrid Replication Detail";
-        HybridReplicationSummary: Record "Hybrid Replication Summary";
-        HybridMessageManagement: Codeunit "Hybrid Message Management";
-        JsonManagement: Codeunit "JSON Management";
-        ErrorMessage: Text;
-        Errors: Text;
-        ErrorCode: Text;
-        Result: Text;
-        ResultCount: Integer;
-        Value: Text;
-        i: Integer;
-    begin
         HybridReplicationSummary.Get(RunId);
-        JsonManagement.InitializeCollection(ResultCollection);
-        ResultCount := JsonManagement.GetCollectionCount();
 
-        for i := 0 TO ResultCount - 1 do begin
-            JsonManagement.GetObjectFromCollectionByIndex(Result, i);
-            JsonManagement.InitializeObject(Result);
+        IntelligentCloudTableStatus.SetFilter("Run ID", RunId);
+        if IntelligentCloudTableStatus.FindSet() then
+            repeat
+                HybridReplicationDetail.Init();
+                HybridReplicationDetail."Run ID" := RunId;
+                HybridReplicationDetail."Start Time" := HybridReplicationSummary."Start Time";
+                HybridReplicationDetail."End Time" := HybridReplicationSummary."End Time";
 
-            HybridReplicationDetail.Init();
-            HybridReplicationDetail."Run ID" := RunId;
-            HybridReplicationDetail."Start Time" := HybridReplicationSummary."Start Time";
-            HybridReplicationDetail."End Time" := HybridReplicationSummary."End Time";
+                HybridReplicationDetail."Table Name" := IntelligentCloudTableStatus."Table Name";
+                HybridReplicationDetail."Company Name" := IntelligentCloudTableStatus."Company Name";
+                HybridReplicationDetail.Status := HybridReplicationDetail.Status::Successful;
 
-            JsonManagement.GetStringPropertyValueByName('TableName', Value);
-            HybridReplicationDetail."Table Name" := CopyStr(Value, 1, 250);
-
-            JsonManagement.GetStringPropertyValueByName('CompanyName', Value);
-            HybridReplicationDetail."Company Name" := CopyStr(Value, 1, 250);
-
-            HybridReplicationDetail.Status := HybridReplicationDetail.Status::Successful;
-
-            if JsonManagement.GetStringPropertyValueByName('ErrorCode', ErrorCode) or
-               JsonManagement.GetStringPropertyValueByName('ErrorMessage', ErrorMessage) or
-               JsonManagement.GetStringPropertyValueByName('Errors', Errors) then begin
-                if ErrorMessage = '' then
-                    ErrorMessage := Errors;
-
-                if not (ErrorMessage in ['', '[]']) or (ErrorCode <> '') then begin
-                    ErrorMessage := HybridMessageManagement.ResolveMessageCode(CopyStr(ErrorCode, 1, 10), ErrorMessage);
-                    HybridMessageManagement.SetHybridReplicationDetailStatus(ErrorCode, HybridReplicationDetail);
+                if (IntelligentCloudTableStatus."Error Message" <> '') or
+                    (IntelligentCloudTableStatus."Error Code" <> '') then begin
+                    ErrorMessage := HybridMessageManagement.ResolveMessageCode(CopyStr(IntelligentCloudTableStatus."Error Code", 1, 10), IntelligentCloudTableStatus."Error Message");
+                    HybridMessageManagement.SetHybridReplicationDetailStatus(IntelligentCloudTableStatus."Error Code", HybridReplicationDetail);
                     HybridReplicationDetail.SetErrors(ErrorMessage);
                 end;
-            end;
 
-            HybridReplicationDetail.Insert();
-        end;
+                HybridReplicationDetail.Insert();
+            until IntelligentCloudTableStatus.Next() = 0;
+        IntelligentCloudTableStatus.DeleteAll();
     end;
 }

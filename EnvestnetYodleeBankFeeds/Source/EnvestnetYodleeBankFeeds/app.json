@@ -4,30 +4,20 @@
     "publisher":  "Microsoft",
     "brief":  "Envestnet Yodlee Bank Feeds enables you to process payments and reconcile bank accounts faster and safer.",
     "description":  "To quickly reconcile payments made to your bank accounts, Envestnet Yodlee Bank Feeds extension (a third-party service) allows you to link your system bank account to your online bank account. This means that the latest bank statement is automatically or manually fed into your reconciliation journal, ensuring that you are always processing the latest payments with minimal risk of errors.\u0026#13;\u0026#10;\u0026#13;\u0026#10;The Envestnet Yodlee Bank Feeds extension provides the following benefits for Dynamics 365 Business Central:\u0026#13;\u0026#10;\u0026#8226; Removes the need for manual entry\u0026#13;\u0026#10;\u0026#8226; Improves efficiency and accuracy when doing payment reconciliation\u0026#13;\u0026#10;\u0026#8226; Supports a large number of banks\u0026#13;\u0026#10;\u0026#8226; Allows up-to-date information about bank transactions\u0026#13;\u0026#10;\u0026#8226; Supports manual as well as automatic bank feeds\u0026#13;\u0026#10;\u0026#8226; Enables outsourcing of payment reconciliation to an accountant by providing access to bank statements.",
-    "version":  "15.2.39040.0",
+    "version":  "15.3.40074.40822",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?LinkId=829784",
     "url":  "https://go.microsoft.com/fwlink/?LinkId=829783",
     "logo":  "ExtensionLogo.png",
     "dependencies":  [
-                         {
-                             "appId":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
-                             "name":  "Base Application",
-                             "publisher":  "Microsoft",
-                             "version":  "15.2.0.0"
-                         },
-                         {
-                             "appId":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
-                             "name":  "System Application",
-                             "publisher":  "Microsoft",
-                             "version":  "15.2.0.0"
-                         }
+
                      ],
     "screenshots":  [
 
                     ],
     "platform":  "15.0.0.0",
     "target":  "OnPrem",
-    "showMyCode":  false
+    "showMyCode":  false,
+    "application":  "15.3.0.0"
 }

@@ -9,7 +9,7 @@ page 9800 Users
     PromotedActionCategories = 'New,Process,Report,Navigate';
     RefreshOnActivate = true;
     SourceTable = User;
-    SourceTableView = SORTING("User Name");
+    SourceTableView = sorting("User Name");
     UsageCategory = Lists;
 
     layout
@@ -39,13 +39,14 @@ page 9800 Users
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Full Name';
-                    Editable = NOT SoftwareAsAService;
+                    Editable = not IsSaaS;
                     ToolTip = 'Specifies the full name of the user.';
                 }
                 field(State; State)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the user''s login is enabled.';
+                    Visible = not IsSaaS;
                 }
                 field("Windows Security ID"; "Windows Security ID")
                 {
@@ -58,41 +59,9 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Caption = 'Windows User Name';
                     ToolTip = 'Specifies the user''s name on Windows.';
-                    Visible = NOT SoftwareAsAService;
-
-                    trigger OnAssistEdit()
-                    var
-                        [RunOnClient]
-                        DSOP: DotNet DSObjectPickerWrapper;
-                        result: Text;
-                    begin
-                        DSOP := DSOP.DSObjectPickerWrapper;
-                        result := DSOP.InvokeDialogAndReturnSid;
-                        if result <> '' then begin
-                            "Windows Security ID" := result;
-                            ValidateSid;
-                            WindowsUserName := IdentityManagement.UserName("Windows Security ID");
-                            SetUserName;
-                        end;
-                    end;
-
-                    trigger OnValidate()
-                    var
-                        UserSID: Text;
-                    begin
-                        if WindowsUserName = '' then
-                            "Windows Security ID" := ''
-                        else begin
-                            UserSID := Sid(WindowsUserName);
-                            WindowsUserName := IdentityManagement.UserName(UserSID);
-                            if WindowsUserName <> '' then begin
-                                "Windows Security ID" := UserSID;
-                                ValidateSid;
-                                SetUserName;
-                            end else
-                                Error(Text001Err, WindowsUserName);
-                        end;
-                    end;
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Desktop client is not supported in versions 15 and higher.';
                 }
                 field("License Type"; "License Type")
                 {
@@ -107,45 +76,52 @@ page 9800 Users
                     Editable = false;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the Microsoft account that this user signs into Office 365 or SharePoint Online with.';
-                    Visible = SoftwareAsAService;
+                    Visible = IsSaaS;
                 }
             }
         }
         area(factboxes)
         {
+            part(Plans; "User Plans FactBox")
+            {
+                Caption = 'Licenses';
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "User Security ID" = field("User Security ID");
+                Visible = IsSaaS;
+            }
             part(Control18; "Permission Sets FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "User Security ID" = FIELD("User Security ID");
+                SubPageLink = "User Security ID" = field("User Security ID");
             }
             part("User Group Memberships"; "User Group Memberships FactBox")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Group Memberships';
-                SubPageLink = "User Security ID" = FIELD("User Security ID");
+                SubPageLink = "User Security ID" = field("User Security ID");
             }
             part(Control20; "User Setup FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "User ID" = FIELD("User Name");
+                SubPageLink = "User ID" = field("User Name");
             }
             part(Control33; "User Personalization FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "User SID" = FIELD("User Security ID");
+                SubPageLink = "User SID" = field("User Security ID");
             }
             part(Control32; "Printer Selections FactBox")
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                SubPageLink = "User ID" = FIELD("User Name");
+                SubPageLink = "User ID" = field("User Name");
             }
             part(Control28; "My Customers")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 ShowFilter = false;
-                SubPageLink = "User ID" = FIELD("User Name");
+                SubPageLink = "User ID" = field("User Name");
                 Visible = false;
             }
             part(Control29; "My Vendors")
@@ -153,7 +129,7 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 ShowFilter = false;
-                SubPageLink = "User ID" = FIELD("User Name");
+                SubPageLink = "User ID" = field("User Name");
                 Visible = false;
             }
             part(Control30; "My Items")
@@ -161,7 +137,7 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 ShowFilter = false;
-                SubPageLink = "User ID" = FIELD("User Name");
+                SubPageLink = "User ID" = field("User Name");
                 Visible = false;
             }
             systempart(Control11; Notes)
@@ -311,12 +287,14 @@ page 9800 Users
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Assign the Administrator status to your user account.';
-                Visible = NoUserExists AND (NOT SoftwareAsAService);
+                Visible = NoUserExists and (not IsSaaS);
 
                 trigger OnAction()
+                var
+                    FormatedMessage: Text;
                 begin
-                    if Confirm(StrSubstNo(CreateQst, UserId), false) then
-                        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
+                    if Confirm(CreateQst, false, UserId) then
+                        Codeunit.Run(Codeunit::"Users - Create Super User");
                 end;
             }
             action("Get Users from Office 365")
@@ -329,7 +307,7 @@ page 9800 Users
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Retrieve new users or new user information from the Office 365 portal. Note that existing, unchanged users will not be updated.';
-                Visible = SoftwareAsAService;
+                Visible = IsSaaS;
 
                 trigger OnAction()
                 var
@@ -349,26 +327,51 @@ page 9800 Users
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Set up an external accountant with access to your Dynamics 365.';
-                Visible = SoftwareAsAService;
+                Visible = IsSaaS;
 
                 trigger OnAction()
                 begin
-                    PAGE.Run(PAGE::"Invite External Accountant");
+                    Page.Run(Page::"Invite External Accountant");
                     CurrPage.Update(false);
+                end;
+            }
+            action(UpdateUserFromAzureGraph)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Update users from Office 365';
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Update the names, authentication email addresses, and contact email addresses from Office 365 for the selected users.';
+                Visible = IsSaaS;
+
+                trigger OnAction()
+                var
+                    User: Record User;
+                    AzureADUserManagement: Codeunit "Azure AD User Management";
+                begin
+                    CurrPage.SetSelectionFilter(User);
+
+                    if Confirm(UpdateAllSelectedUsersQst) then begin
+                        if User.FindSet() then
+                            repeat
+                                AzureADUserManagement.UpdateUserFromGraph(User);
+                            until User.Next() = 0;
+                    end;
                 end;
             }
             action("Restore User Default User Groups")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Restore User''s Default User Groups';
-                Enabled = CurrentUserIsSuper AND RestoreUserGroupsForAnotherUser AND (NOT NoUserExists) AND (NOT IsIntelligentCloud);
+                Enabled = CurrentUserIsSuper and RestoreUserGroupsForAnotherUser and (not NoUserExists) and (not IsIntelligentCloud);
                 Image = UserInterface;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Restore the default user groups based on changes to the related plan.';
-                Visible = SoftwareAsAService;
+                Visible = IsSaaS;
 
                 trigger OnAction()
                 var
@@ -385,14 +388,14 @@ page 9800 Users
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Refresh User Groups';
-                Enabled = CanManageUsers AND (NOT NoUserExists);
+                Enabled = CanManageUsers and (not NoUserExists);
                 Image = SKU;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Refresh selected users'' user groups with changes to the related plan.';
-                Visible = SoftwareAsAService;
+                Visible = IsSaaS;
 
                 trigger OnAction()
                 var
@@ -420,6 +423,15 @@ page 9800 Users
         }
     }
 
+    views
+    {
+        view(OnlyEnabled)
+        {
+            Caption = 'Enabled';
+            Filters = where(State = Const(Enabled));
+        }
+    }
+
     trigger OnAfterGetRecord()
     begin
         WindowsUserName := IdentityManagement.UserName("Windows Security ID");
@@ -439,7 +451,7 @@ page 9800 Users
         PermissionManager: Codeunit "Permission Manager";
         UserPermissions: Codeunit "User Permissions";
     begin
-        SoftwareAsAService := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS;
         CurrentUserIsSuper := UserPermissions.IsSuper(UserSecurityId);
         CanManageUsers := PermissionManager.CanCurrentUserManagePlansAndGroups;
         IsIntelligentCloud := PermissionManager.IsIntelligentCloud;
@@ -460,13 +472,9 @@ page 9800 Users
     end;
 
     trigger OnOpenPage()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         NoUserExists := IsEmpty;
-
         HideExternalUsers;
-        IsSaaS := EnvironmentInfo.IsSaaS;
     end;
 
     var
@@ -479,11 +487,13 @@ page 9800 Users
         Text004Err: Label '%1 cannot be empty.', Comment = '%1=user name';
         NoUserExists: Boolean;
         CreateQst: Label 'Do you want to create %1 as super user?', Comment = '%1=user name, e.g. europe\myaccountname';
-        SoftwareAsAService: Boolean;
+        CreateFirstUserYesMsg: Label 'Yes';
+        CreateFirstUserNoMsg: Label 'No';
         RestoreUserGroupsToDefaultQst: Label 'Do you want to restore the default user groups to for user %1?', Comment = 'Do you want to restore the default user groups to for user Annie?';
         CurrentUserIsSuper: Boolean;
         RestoreUserGroupsForAnotherUser: Boolean;
         RefreshAllUserPlansQst: Label 'Do you want to refresh plans for all users?';
+        UpdateAllSelectedUsersQst: Label 'Do you want to update details about the selected users with information from Office 365?';
         RefreshAllSelectedUserPlansQst: Label 'Do you want to refresh plans for all selected users?';
         MixedSKUsWithoutBasicErr: Label 'You cannot mix plans of type Essential and Premium. Make sure all users are on the same plan.';
         CanManageUsers: Boolean;

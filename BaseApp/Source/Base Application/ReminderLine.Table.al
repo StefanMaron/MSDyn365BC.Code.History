@@ -520,6 +520,9 @@ table 296 "Reminder Line"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Reminder No.", Description)
+        {
+        }
     }
 
     trigger OnDelete()

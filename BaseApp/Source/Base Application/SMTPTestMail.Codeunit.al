@@ -50,14 +50,20 @@ codeunit 412 "SMTP Test Mail"
         SMTPMail: Codeunit "SMTP Mail";
         MailManagement: Codeunit "Mail Management";
         SendToList: List of [Text];
+        SenderEmail: Text;
     begin
         SMTPMailSetup.GetSetup;
 
         SendToList.Add(EmailAddress);
 
+        if SMTPMailSetup.Authentication = SMTPMailSetup.Authentication::Anonymous then
+            SenderEmail := EmailAddress
+        else
+            SenderEmail := MailManagement.GetSenderEmailAddress;
+
         SMTPMail.CreateMessage(
           '',
-          MailManagement.GetSenderEmailAddress,
+          SenderEmail,
           SendToList,
           TestMailTitleTxt,
           StrSubstNo(

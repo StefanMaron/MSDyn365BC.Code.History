@@ -80,10 +80,12 @@ codeunit 9011 "Azure AD Graph User Impl."
             ModifyUser := true;
         end;
 
-        TempString := CopyStr(Format(GraphUser.Mail()), 1, MaxStrLen(User."Contact Email"));
-        if LowerCase(User."Contact Email") <> LowerCase(TempString) then begin
-            User."Contact Email" := CopyStr(TempString, 1, MaxStrLen(User."Contact Email"));
-            ModifyUser := true;
+        if not IsNull(GraphUser.Mail()) then begin
+            TempString := CopyStr(Format(GraphUser.Mail()), 1, MaxStrLen(User."Contact Email"));
+            if LowerCase(User."Contact Email") <> LowerCase(TempString) then begin
+                User."Contact Email" := CopyStr(TempString, 1, MaxStrLen(User."Contact Email"));
+                ModifyUser := true;
+            end;
         end;
 
         TempString := CopyStr(Format(GraphUser.UserPrincipalName()), 1, MaxStrLen(User."Authentication Email"));
@@ -109,8 +111,8 @@ codeunit 9011 "Azure AD Graph User Impl."
     procedure EnsureAuthenticationEmailIsNotInUse(AuthenticationEmail: Text)
     var
         User: Record User;
-        GraphUser: DotNet UserInfo;
         ModifiedUser: Record User;
+        GraphUserLocal: DotNet UserInfo;
         UserSecurityId: Guid;
         GraphUserExists: Boolean;
     begin
@@ -121,16 +123,16 @@ codeunit 9011 "Azure AD Graph User Impl."
         repeat
             UserSecurityId := User."User Security ID";
 
-            GraphUserExists := GetGraphUser(UserSecurityId, GraphUser);
+            GraphUserExists := GetGraphUser(UserSecurityId, GraphUserLocal);
 
             User."Authentication Email" := '';
             User.Modify();
 
             if GraphUserExists then begin
                 // Cascade changes to authentication email, terminates at the first time an authentication email is not found.
-                EnsureAuthenticationEmailIsNotInUse(GraphUser.UserPrincipalName());
+                EnsureAuthenticationEmailIsNotInUse(GraphUserLocal.UserPrincipalName());
                 if ModifiedUser.Get(UserSecurityId) then
-                    UpdateAuthenticationEmail(ModifiedUser, GraphUser);
+                    UpdateAuthenticationEmail(ModifiedUser, GraphUserLocal);
             end;
         until User.Next() = 0;
     end;
@@ -188,9 +190,11 @@ codeunit 9011 "Azure AD Graph User Impl."
         if LowerCase(User."Full Name") <> LowerCase(TempString) then
             exit(true);
 
-        TempString := CopyStr(Format(GraphUser.Mail()), 1, MaxStrLen(User."Contact Email"));
-        if LowerCase(User."Contact Email") <> LowerCase(TempString) then
-            exit(true);
+        if not IsNull(GraphUser.Mail()) then begin
+            TempString := CopyStr(Format(GraphUser.Mail()), 1, MaxStrLen(User."Contact Email"));
+            if LowerCase(User."Contact Email") <> LowerCase(TempString) then
+                exit(true);
+        end;
 
         TempString := CopyStr(Format(GraphUser.UserPrincipalName()), 1, MaxStrLen(User."Authentication Email"));
         if LowerCase(User."Authentication Email") <> LowerCase(TempString) then
@@ -213,10 +217,8 @@ codeunit 9011 "Azure AD Graph User Impl."
 
     local procedure SetUserLanguage(PreferredLanguage: Text)
     var
-        Language: Record Language;
         UserPersonalization: Record "User Personalization";
         LanguageManagement: Codeunit Language;
-        EnvironmentInfo: Codeunit "Environment Information";
         LanguageCode: Code[10];
         LanguageId: Integer;
         NonDefaultLanguageId: Integer;

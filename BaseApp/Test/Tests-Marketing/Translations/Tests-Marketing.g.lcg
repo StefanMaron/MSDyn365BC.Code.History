@@ -1058,6 +1058,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Task Management - NamedType WrongSalespersonCodeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2322295678 - NamedType 2818337400" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot delete the salesperson/purchaser with code %1 because it has open opportunities.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Task Management - NamedType CannotDeleteSalespersonDueToActiveOpportunitiesErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3120133182 - NamedType 1313708435" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Company No. must have a value in Contact: No.=%1. It cannot be zero or empty.]]></Val>

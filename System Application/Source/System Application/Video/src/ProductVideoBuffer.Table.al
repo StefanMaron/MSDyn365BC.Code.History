@@ -9,7 +9,6 @@ table 1470 "Product Video Buffer"
     Extensible = false;
     Caption = 'Product Video Buffer';
     ReplicateData = false;
-    Permissions = Tabledata "NAV App" = r;
 
     fields
     {
@@ -66,7 +65,7 @@ table 1470 "Product Video Buffer"
         {
             Caption = 'Extension Name';
             FieldClass = FlowField;
-            CalcFormula = Lookup ("NAV App".Name where("Package ID" = FIELD("App ID")));
+            CalcFormula = Lookup ("NAV App".Name where(ID = FIELD("App ID"), "Tenant Visible" = CONST(true)));
             Editable = false;
         }
         field(10; Category; Enum "Video Category")

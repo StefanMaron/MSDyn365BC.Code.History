@@ -122,6 +122,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AI Usage Tst - NamedType ProcessingTimeLessThanZeroErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2563049213 - NamedType 2864708005" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SENDINV]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Must be max. 10 chars and no spacing. (Send Invoice)]D;]A;(LookupHint=Codeunit Document Mailing Tests - NamedType MailingJobCategoryCodeTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3250438326 - NamedType 1207365956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Customer@consoto.com]]></Val>

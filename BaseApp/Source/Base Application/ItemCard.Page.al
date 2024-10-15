@@ -655,7 +655,7 @@
 
                     trigger OnValidate()
                     begin
-                        EnablePlanningControls
+                        EnablePlanningControls();
                     end;
                 }
                 field(Reserve; Reserve)
@@ -2484,6 +2484,8 @@
         DampenerPeriodEnable := DampenerPeriodEnabled;
         DampenerQtyEnable := DampenerQtyEnabled;
         OverflowLevelEnable := OverflowLevelEnabled;
+
+        OnAfterEnablePlanningControls();
     end;
 
     local procedure EnableCostingControls()
@@ -2520,6 +2522,8 @@
         TimeBucketEnable := true;
         "Costing Method" := "Costing Method"::FIFO;
         UnitCostEditable := true;
+
+        OnAfterInitControls();
     end;
 
     local procedure UpdateSpecialPricesAndDiscountsTxt()
@@ -2583,7 +2587,17 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterInitControls()
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
     local procedure OnAfterOnOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterEnablePlanningControls()
     begin
     end;
 

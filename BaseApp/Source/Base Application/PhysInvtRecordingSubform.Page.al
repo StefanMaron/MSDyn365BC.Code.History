@@ -50,6 +50,7 @@ page 5881 "Phys. Invt. Recording Subform"
                 field("Use Item Tracking"; "Use Item Tracking")
                 {
                     ApplicationArea = Warehouse;
+                    Editable = true;
                     ToolTip = 'Specifies if it is necessary to record the item using serial numbers or lot numbers.';
                 }
                 field("Serial No."; "Serial No.")

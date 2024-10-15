@@ -77,6 +77,8 @@ page 345 Reconciliation
 
     local procedure SaveNetChange(AccType: Integer; AccNo: Code[20]; NetChange: Decimal)
     begin
+        OnBeforeSaveNetChange(Rec, GenJnlLine, AccType, AccNo, NetChange);
+
         if AccNo = '' then
             exit;
         case AccType of
@@ -134,6 +136,11 @@ page 345 Reconciliation
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Integer; AccNo: Code[20]; var NetChange: Decimal)
     begin
     end;
 }

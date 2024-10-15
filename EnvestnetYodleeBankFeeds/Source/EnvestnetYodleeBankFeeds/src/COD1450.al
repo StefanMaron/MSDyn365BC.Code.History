@@ -138,6 +138,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         VideoBankintegrationTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828679', Locked = true;
         RequestUnsuccessfulErr: Label 'The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.';
         UnauthorizedResponseCodeTok: Label '(401)', Locked = true;
+        UnableToInsertUnlinkedBankAccToBufferErr: Label 'Unable to insert information about account that is linked on Yodlee. ProviderAccount id - %1, AccountId - %2.', Locked = true;
 
     procedure SetValuesToDefault(var MSYodleeBankServiceSetup: Record 1450);
     var
@@ -1412,7 +1413,8 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         TempMSYodleeBankAccLink."Automatic Logon Possible" :=
           IsAutomaticLogonPossible(SiteID, BankAccountID, BankAccountNode);
 
-        TempMSYodleeBankAccLink.INSERT();
+        IF NOT TempMSYodleeBankAccLink.INSERT() THEN
+            SendTraceTag('0000BI8', YodleeTelemetryCategoryTok, Verbosity::Normal, StrSubstNo(UnableToInsertUnlinkedBankAccToBufferErr, TempMSYodleeBankAccLink."Online Bank ID", TempMSYodleeBankAccLink."No."), DataClassification::SystemMetadata);
     end;
 
     local procedure GetBankAccountName(BankAccountNode: XmlNode): Text;
@@ -1549,6 +1551,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
     local procedure ExecuteWebServiceRequest(URL: Text; Method: Text[6]; BodyText: Text; AuthorizationHeaderValue: Text; var ErrorText: Text);
     var
         MSYodleeBankServiceSetup: Record 1450;
+        DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
         IsSuccessful: Boolean;
         Client: HttpClient;
         RequestMessage: HttpRequestMessage;
@@ -1558,8 +1561,10 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         RequestHeaders: HttpHeaders;
         ContentHeaders: HttpHeaders;
         BankFeedText: Text;
+        LinkedBankAccountsText: Text;
         ApiVersion: Text;
         CobrandEnvironmentName: Text;
+        UnsuccessfulRequestTelemetryTxt: Text;
     begin
         IF NOT TryCheckCredentials(ErrorText) THEN
             ERROR(ErrorText);
@@ -1605,6 +1610,9 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         if IsSuccessful then
             ResponseMessage.Content().ReadAs(GLBResponseInStream)
         else begin
+            DotNetExceptionHandler.Collect();
+            UnsuccessfulRequestTelemetryTxt := DotNetExceptionHandler.GetMessage();
+            SENDTRACETAG('0000B4T', YodleeTelemetryCategoryTok, Verbosity::Error, UnsuccessfulRequestTelemetryTxt, DataClassification::SystemMetadata);
             SENDTRACETAG('00009S2', YodleeTelemetryCategoryTok, Verbosity::Error, RequestUnsuccessfulErr, DataClassification::SystemMetadata);
             Error(RequestUnsuccessfulErr);
         end;
@@ -1615,6 +1623,11 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         IF URL.ToLower().Contains('transactions') THEN BEGIN
             ResponseMessage.Content().ReadAs(BankFeedText);
             SENDTRACETAG('000083Y', YodleeTelemetryCategoryTok, Verbosity::Normal, BankFeedText, DataClassification::CustomerContent);
+        END;
+
+        IF URL.ToLower().Contains('accounts?status=active') THEN BEGIN
+            ResponseMessage.Content().ReadAs(LinkedBankAccountsText);
+            SENDTRACETAG('0000BI7', YodleeTelemetryCategoryTok, Verbosity::Normal, LinkedBankAccountsText, DataClassification::CustomerContent);
         END;
     end;
 

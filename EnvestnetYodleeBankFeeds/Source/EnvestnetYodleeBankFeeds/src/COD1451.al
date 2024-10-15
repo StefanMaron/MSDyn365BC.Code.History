@@ -18,13 +18,13 @@ codeunit 1451 "MS - Yodlee Import Bank Feed"
 
     var
         PrePostProcessXMLImport: Codeunit 1262;
-        BankAccountIDPathTxt: Label '/root/root/searchResult/transactions/account/itemAccountId', Locked = true;
-        BalanceAmountPathTxt: Label '/root/root/searchResult/transactions/account/accountBalance/amount', Locked = true;
+        BankAccountIDPathTxt: Label '/root/root/transaction/accountId', Locked = true;
+        BalanceAmountPathTxt: Label '/root/root/transaction/runningBalance/amount', Locked = true;
         BankAccCurrErr: Label 'The bank feed that you are importing contains transactions in currencies other than the %1 %2 of bank account %3.', Comment = '%1 %2 = Currency Code EUR; %3 = Bank Account No.';
         BankAccIDErr: Label 'The bank feed that you are importing contains transactions for a different bank account.';
         BankAccNotLinkedErr: Label 'This bank account is not linked to an online bank account.';
-        BalanceCurrencyPathTxt: Label '/root/root/searchResult/transactions/account/accountBalance/currencyCode', Locked = true;
-        TransactionCurrencyPathTxt: Label '/root/root/searchResult/transactions/amount/currencyCode', Locked = true;
+        BalanceCurrencyPathTxt: Label '/root/root/transaction/runningBalance/currency', Locked = true;
+        TransactionCurrencyPathTxt: Label '/root/root/transaction/amount/currency', Locked = true;
 
     local procedure PreProcess(BankAccReconciliationLine: Record 274);
     var

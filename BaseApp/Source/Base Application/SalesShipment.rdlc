@@ -2472,7 +2472,11 @@ Cstr(Fields!SalesShipmentHeaderShipmentDateCaption.Value) + Chr(177) +
 Cstr(Fields!SalesShipmentHeaderNoCaption.Value) + Chr(177) + 
 Cstr(Fields!EmailCaption.Value) + Chr(177) + 
 Cstr(Fields!DocumentDateCaption.Value) + Chr(177) +
-Cstr(Fields!PageCaption.Value)
+Cstr(Fields!PageCaption.Value) + Chr(177) + 
+Cstr(Fields!ExternalDocumentNoCaption_SalesShptHeader.Value) + Chr(177) + 
+Cstr(Fields!ExternalDocumentNo_SalesShptHeader.Value) + Chr(177) + 
+Cstr(Fields!OrderNoCaption_SalesShptHeader.Value) + Chr(177) + 
+Cstr(Fields!OrderNo_SalesShptHeader.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style />
@@ -3729,7 +3733,7 @@ Cstr(Fields!PageCaption.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!ExternalDocumentNo_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(44,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3758,7 +3762,7 @@ Cstr(Fields!PageCaption.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!OrderNo_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(46,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3787,7 +3791,7 @@ Cstr(Fields!PageCaption.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!OrderNoCaption_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(45,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3816,7 +3820,7 @@ Cstr(Fields!PageCaption.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!ExternalDocumentNoCaption_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(43,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>

@@ -105,13 +105,13 @@ table 1452 "MS - Yodlee Data Exchange Def"
         DataExchLineDef.INSERT();
         InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 2, 'transactionId', '/root/root/transaction/id', '');
         InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 3, 'description', '/root/root/transaction/description/original', '');
-        InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 5, 'postDate', '/root/root/transaction/postDate', '');
+        InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 5, 'postDate', '/root/root/transaction/date', '');
         InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 7, 'amount', '/root/root/transaction/amount/amount', '');
         InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 8, 'currencyCode', '/root/root/transaction/amount/currency', '');
         InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 10, 'itemAccountId', '/root/root/transaction/accountId', '');
         InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 21, 'balanceAmount', '/root/root/transaction/runningBalance/amount', '');
         InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 22, 'balanceCurrencyCode', '/root/root/transaction/runningBalance/currency', '');
-        InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 23, 'transactionType', '/root/root/transaction/baseType', 'debit');
+        InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 23, 'transactionType', '/root/root/transaction/baseType', 'DEBIT');
         InsertDataExchColumnDef(DataExchDef, DataExchLineDef, 24, 'checkNumber', '/root/root/transaction/checkNumber', '');
         DataExchMapping."Data Exch. Def Code" := DataExchDef.Code;
         DataExchMapping."Data Exch. Line Def Code" := DataExchLineDef.Code;

@@ -278,9 +278,51 @@ codeunit 134331 "ERM Purchase Payables"
     end;
 
     [Test]
-    [HandlerFunctions('BatchPostPurchInvCountHandler')]
+    [HandlerFunctions('BatchPostPurchInvCountHandler,ShowErrorsNotificationHandler')]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceBatchPostCount()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ErrorMessages: TestPage "Error Messages";
+        RecID: RecordID;
+    begin
+        // [SCENARIO] One of two invoices is posted by "Batch Post Purchase Invoices" report if errors occurred in the first document.
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        RecID := PurchaseHeader[1].RecordId;
+        // [GIVEN] no unposted purchase invoices
+        PurchaseHeader[1].SetRange("Document Type", PurchaseHeader[1]."Document Type"::Invoice);
+        PurchaseHeader[1].DeleteAll;
+        // [GIVEN] Created Purchase Invoice '1001', where "Vendor Invoice No." is blank
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseLine, PurchaseHeader[1]."Document Type"::Invoice);
+        PurchaseHeader[1]."Vendor Invoice No." := '';
+        PurchaseHeader[1].Modify;
+        // [GIVEN] Created Purchase Invoice '1002'
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseLine, PurchaseHeader[2]."Document Type"::Invoice);
+
+        // [WHEN] Run Batch Post Purchase Orders Report.
+        ErrorMessages.Trap;
+        BatchPostPurchaseInvoiceRun;
+
+        // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
+        Assert.ExpectedMessage(NotificationBatchPurchHeaderMsg, LibraryVariableStorage.DequeueText);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(RecID);
+        LibraryVariableStorage.AssertEmpty;
+        // [THEN] Click "Details" - opened "Error Messages" page, where is one record:
+        // [THEN] Description is 'You need to enter the document number...', "Record ID" is 'Invoice,1001'
+        Assert.ExpectedMessage(VendorInvNoErr, ErrorMessages.Description.Value);
+        ErrorMessages.Context.AssertEquals(Format(PurchaseHeader[1].RecordId));
+        ErrorMessages.Close;
+        // [THEN] Invoice '1001' is not posted, Invoice '1002' is posted
+        Assert.IsTrue(PurchaseHeader[1].Find, '1st Invoice does not exist');
+        Assert.IsFalse(PurchaseHeader[2].Find, '2nd Invoice is not posted');
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchInvCountHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceBatchPostCountBackground()
     var
         PurchaseHeader: array[2] of Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -288,8 +330,9 @@ codeunit 134331 "ERM Purchase Payables"
         JobQueueEntry: Record "Job Queue Entry";
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
-        // [SCENARIO] One of two invoices is posted by "Batch Post Purchase Invoices" report if errors occurred in the first document.
+        // [SCENARIO] One of two invoices is posted (in background) by "Batch Post Purchase Invoices" report if errors occurred in the first document.
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         // [GIVEN] no unposted purchase invoices
@@ -338,9 +381,50 @@ codeunit 134331 "ERM Purchase Payables"
     end;
 
     [Test]
-    [HandlerFunctions('BatchPostPurchCountHandler')]
+    [HandlerFunctions('BatchPostPurchCountHandler,ShowErrorsNotificationHandler')]
     [Scope('OnPrem')]
     procedure PurchaseOrderBatchPostCount()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ErrorMessages: TestPage "Error Messages";
+        RecID: RecordID;
+    begin
+        // [SCENARIO] Purchase Order is posted via Batch Post Purchase Orders Report.
+
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        RecID := PurchaseHeader[1].RecordId;
+        PurchaseHeader[1].DeleteAll;
+        // [GIVEN] Created Purchase Document 'A', where is nothing to post
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseLine, PurchaseHeader[2]."Document Type"::Order);
+        PurchaseLine.Validate(Quantity, 0);
+        PurchaseLine.Modify(true);
+        // [GIVEN] Created Purchase Document 'B', ready to post
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseLine, PurchaseHeader[2]."Document Type"::Order);
+
+        // [WHEN] Run Batch Post Purchase Orders Report.
+        ErrorMessages.Trap;
+        BatchPostPurchaseOrderRun;
+
+        // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
+        Assert.ExpectedMessage(NotificationBatchPurchHeaderMsg, LibraryVariableStorage.DequeueText);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(RecID);
+        LibraryVariableStorage.AssertEmpty;
+        // [THEN] Click "Details" - opened "Error Messages" page, where is one record:
+        Assert.ExpectedMessage(NothingToPostErr, ErrorMessages.Description.Value);
+        ErrorMessages.Context.AssertEquals(Format(PurchaseHeader[1].RecordId));
+        ErrorMessages.Close;
+
+        // [THEN] Order 'A' is not posted, Order 'B' is posted
+        Assert.IsTrue(PurchaseHeader[1].Find, '1st Order does not exist');
+        Assert.IsFalse(PurchaseHeader[2].Find, '2nd Order is not posted');
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchCountHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderBatchPostCountBackground()
     var
         PurchaseHeader: array[2] of Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -350,9 +434,10 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryDimension: Codeunit "Library - Dimension";
     begin
-        // [SCENARIO] Purchase Order is posted via Batch Post Purchase Orders Report.
+        // [SCENARIO] Purchase Order is posted (in background) via Batch Post Purchase Orders Report.
 
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         PurchaseHeader[1].DeleteAll;
@@ -384,10 +469,52 @@ codeunit 134331 "ERM Purchase Payables"
     end;
 
     [Test]
-    //[HandlerFunctions('BatchPostPurchCountHandler,SendNotificationHandler')]
-    [HandlerFunctions('BatchPostPurchCountHandler')]
+    [HandlerFunctions('BatchPostPurchCountHandler,SendNotificationHandler')]
     [Scope('OnPrem')]
     procedure PurchaseOrderBatchPostInvDisc()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
+        RecID: RecordID;
+        InvoiceDiscountAmount: Decimal;
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO] Invoice Discount is calculated and flowed in Posted Purchase Invoice Line via batch posting.
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        RecID := PurchaseHeader.RecordId;
+        PurchaseHeader.DeleteAll;
+
+        // [GIVEN] Turn on "Calc. Inv. Discount" in Purchases & Payables Setup
+        LibraryPurchase.SetCalcInvDiscount(true);
+        // [GIVEN] Released Purchase Order 'A' with invoice discount 'X'
+        PostedDocumentNo := CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+        PurchCalcDiscount.CalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
+        InvoiceDiscountAmount := PurchaseLine."Inv. Discount Amount";
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Created Purchase Order 'B', where is nothing to post
+        PostedDocumentNo := CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+        PurchaseLine.Validate(Quantity, 0);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Run Batch Post Purchase Orders Report.
+        BatchPostPurchaseOrderRun;
+
+        // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
+        Assert.ExpectedMessage(NotificationBatchPurchHeaderMsg, LibraryVariableStorage.DequeueText);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(RecID);
+        LibraryVariableStorage.AssertEmpty;
+
+        // Verify: Verify Posted Purchase Invoice Line.
+        VerifyPurchaseInvoiceLine(PostedDocumentNo, InvoiceDiscountAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchCountHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderBatchPostInvDiscBackground()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -401,8 +528,9 @@ codeunit 134331 "ERM Purchase Payables"
         InvoiceDiscountAmount: Decimal;
         PostedDocumentNo: Code[20];
     begin
-        // [SCENARIO] Invoice Discount is calculated and flowed in Posted Purchase Invoice Line via batch posting.
+        // [SCENARIO] Invoice Discount is calculated and flowed in Posted Purchase Invoice Line via batch posting (in background).
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         PurchaseHeader.DeleteAll;
@@ -440,9 +568,39 @@ codeunit 134331 "ERM Purchase Payables"
     end;
 
     [Test]
-    [HandlerFunctions('BatchPostPurchDocDateHandler')]
+    [HandlerFunctions('BatchPostPurchDocDateHandler,SendNotificationHandler')]
     [Scope('OnPrem')]
     procedure PurchaseOrderBatchReplaceDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RecID: RecordID;
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO] Replace Document Date option of Batch Post Purchase Orders Report.
+
+        // [GIVEN] Create Purchase Document.
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        RecID := PurchaseHeader.RecordId;
+        PostedDocumentNo := CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        // [WHEN] Run Batch Post Purchase Orders Report.
+        BatchPostPurchaseOrderRun;
+
+        // [THEN] Verify Posted Purchase Invoice Header for modified Document Date.
+        VerifyPurchaseInvoiceHeader(PostedDocumentNo, LibraryVariableStorage.DequeueDate);
+
+        // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
+        Assert.ExpectedMessage(NotificationBatchPurchHeaderMsg, LibraryVariableStorage.DequeueText);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(RecID);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchDocDateHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderBatchReplaceDateBackground()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -450,10 +608,11 @@ codeunit 134331 "ERM Purchase Payables"
         RecID: RecordID;
         PostedDocumentNo: Code[20];
     begin
-        // [SCENARIO] Replace Document Date option of Batch Post Purchase Orders Report.
+        // [SCENARIO] Replace Document Date option of Batch Post Purchase Orders Report (in background).
 
-        // [GIVEN] Crete Purchase Document.
+        // [GIVEN] Create Purchase Document.
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         RecID := PurchaseHeader.RecordId;

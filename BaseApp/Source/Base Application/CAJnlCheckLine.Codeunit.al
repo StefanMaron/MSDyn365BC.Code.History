@@ -21,7 +21,10 @@ codeunit 1101 "CA Jnl.-Check Line"
     var
         CostType: Record "Cost Type";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        IsHandled: Boolean;
     begin
+        OnBeforeRunCheck(CostJnlLine);
+
         with CostJnlLine do begin
             TestField("Posting Date");
             TestField("Document No.");
@@ -55,8 +58,11 @@ codeunit 1101 "CA Jnl.-Check Line"
                     Error(Text003, "Line No.", "Document No.", Amount);
             end;
 
-            if GenJnlCheckLine.DateNotAllowed("Posting Date") then
-                FieldError("Posting Date", Text005);
+            IsHandled := false;
+            OnRunCheckOnBeforeDateNotAllowed(CostJnlLine, IsHandled);
+            if not IsHandled then
+                if GenJnlCheckLine.DateNotAllowed("Posting Date") then
+                    FieldError("Posting Date", Text005);
         end;
 
         OnAfterCheckCostJnlLine(CostJnlLine);
@@ -64,6 +70,16 @@ codeunit 1101 "CA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckCostJnlLine(var CostJnlLine: Record "Cost Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCheck(var CostJnlLine: Record "Cost Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnBeforeDateNotAllowed(var CostJnlLine: Record "Cost Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

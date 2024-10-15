@@ -300,7 +300,7 @@ codeunit 1458 "Yodlee API Strings"
     procedure GetLinkedBankAccountsURL(ProviderAccountId: Text): Text;
     begin
         if MSYodleeBankServiceSetup.IsSetUpForYSL11() then
-            exit(GetFullURL(StrSubstNo('/accounts?status=ACTIVE&container=bank&providerAccountId=%1&include=holder,autoRefresh', ProviderAccountId)));
+            exit(GetFullURL(StrSubstNo('/accounts?status=ACTIVE&providerAccountId=%1&include=holder,autoRefresh', ProviderAccountId)));
 
         exit(GetFullURL('/jsonsdk/DataService/getItemSummariesForSite'));
     end;
