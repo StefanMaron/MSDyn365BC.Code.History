@@ -225,14 +225,7 @@
                             InitQtyToReceive;
                     end;
                     UpdateWithWarehouseReceive;
-                    if xRec."Job No." <> '' then
-                        Validate("Job No.", xRec."Job No.");
-                    "Job Line Type" := xRec."Job Line Type";
-                    if xRec."Job Task No." <> '' then begin
-                        Validate("Job Task No.", xRec."Job Task No.");
-                        if "No." = xRec."No." then
-                            Validate("Job Planning Line No.", xRec."Job Planning Line No.");
-                    end;
+                    UpdateJobFields();
                 end;
 
                 CreateDim(
@@ -568,7 +561,10 @@
                 if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
                     OnBeforeVerifyReservedQty(Rec, xRec, FieldNo(Quantity));
                     ReservePurchLine.VerifyQuantity(Rec, xRec);
-                    WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
+                    IsHandled := false;
+                    OnValidateQuantityOnBeforePurchaseLineVerifyChange(Rec, StatusCheckSuspended, IsHandled);
+                    if not IsHandled then
+                        WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
                     CheckApplToItemLedgEntry;
                 end;
 
@@ -997,6 +993,7 @@
             trigger OnValidate()
             var
                 Job: Record Job;
+                IsHandled: Boolean;
             begin
                 TestField("Drop Shipment", false);
                 TestField("Special Order", false);
@@ -1007,10 +1004,7 @@
                 if CheckReservationForJobNo then
                     TestField("Job No.", '');
 
-                if "Job No." <> xRec."Job No." then begin
-                    Validate("Job Task No.", '');
-                    Validate("Job Planning Line No.", 0);
-                end;
+                InitJobFields();
 
                 if "Job No." = '' then begin
                     CreateDim(
@@ -1022,6 +1016,12 @@
                 end;
 
                 VerifyLineTypeForJob();
+
+                IsHandled := false;
+                OnValidateJobNoOnBeforeGetJob(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 Job.Get("Job No.");
                 Job.TestBlocked;
                 "Job Currency Code" := Job."Currency Code";
@@ -1478,7 +1478,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBlanketOrderLineNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Quantity Received", 0);
                 if "Blanket Order Line No." <> 0 then begin
                     PurchLine2.Get("Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.");
@@ -1879,7 +1886,14 @@
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobTaskNo(xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
 
                 if "Job Task No." <> xRec."Job Task No." then begin
@@ -2696,8 +2710,6 @@
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(5713; "Special Order"; Boolean)
@@ -3781,6 +3793,21 @@
         OnAfterInitHeaderDefaults(Rec, PurchHeader);
     end;
 
+    local procedure InitJobFields()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitJobFields(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Job No." <> xRec."Job No." then begin
+            Validate("Job Task No.", '');
+            Validate("Job Planning Line No.", 0);
+        end;
+    end;
+
     procedure MaxQtyToInvoice(): Decimal
     var
         MaxQty: Decimal;
@@ -4256,11 +4283,11 @@
             if PurchHeader."Prices Including VAT" then
                 "Unit Cost" :=
                   ("Direct Unit Cost" - DiscountAmountPerQty) * (1 + "Indirect Cost %" / 100) / (1 + "VAT %" / 100) +
-                  GetOverheadRateFCY - "VAT Difference"
+                  GetOverheadRateFCY() - "VAT Difference"
             else
                 "Unit Cost" :=
                   ("Direct Unit Cost" - DiscountAmountPerQty) * (1 + "Indirect Cost %" / 100) +
-                  GetOverheadRateFCY;
+                  GetOverheadRateFCY();
 
         OnUpdateUnitCostOnBeforeUpdateUnitCostLCY(Rec, xRec, PurchHeader, CurrFieldNo, Item, SKU, Currency, GLSetup);
 
@@ -4342,6 +4369,25 @@
         CalcPrepaymentToDeduct;
 
         OnAfterUpdateAmountsDone(Rec, xRec, CurrFieldNo);
+    end;
+
+    local procedure UpdateJobFields()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateJobFields(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if xRec."Job No." <> '' then
+            Validate("Job No.", xRec."Job No.");
+        "Job Line Type" := xRec."Job Line Type";
+        if xRec."Job Task No." <> '' then begin
+            Validate("Job Task No.", xRec."Job Task No.");
+            if "No." = xRec."No." then
+                Validate("Job Planning Line No.", xRec."Job Planning Line No.");
+        end;
     end;
 
     procedure UpdateVATAmounts()
@@ -4845,8 +4891,13 @@
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+        IsHandled := false;
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
 
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
         VerifyItemLineDim;
@@ -4855,7 +4906,14 @@
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
+
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
@@ -5648,6 +5706,7 @@
             GetItem(Item);
             QtyPerUOM := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
         end;
+        OnAfterGetQtyPerUOM(QtyPerUOM);
 
         exit(
           CurrExchRate.ExchangeAmtLCYToFCY(
@@ -5857,7 +5916,13 @@
         Item: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
         FoundNo: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindOrCreateRecordByNo(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit("No.");
+
         GetPurchSetup;
 
         if Type = Type::Item then begin
@@ -5952,7 +6017,7 @@
         if ("Qty. to Invoice" <> 0) and ("Prepmt. Amt. Inv." <> 0) then begin
             GetPurchHeader;
             if ("Prepayment %" = 100) and not IsFinalInvoice then
-                "Prepmt Amt to Deduct" := GetLineAmountToHandle("Qty. to Invoice")
+                "Prepmt Amt to Deduct" := GetLineAmountToHandle("Qty. to Invoice") - "Inv. Disc. Amount to Invoice"
             else
                 "Prepmt Amt to Deduct" :=
                   Round(
@@ -6008,9 +6073,9 @@
         else
             DocType := DocType::Invoice;
 
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) then
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) then
             if PurchasePostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
-                exit("Prepmt Amt to Deduct");
+                exit("Prepmt Amt to Deduct" + "Inv. Disc. Amount to Invoice");
         exit(GetLineAmountToHandle(QtyToHandle));
     end;
 
@@ -7219,6 +7284,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetQtyPerUOM(var QtyPerUOM: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesTaxCalculate(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Currency: Record Currency)
     begin
@@ -7390,7 +7460,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindOrCreateRecordByNo(var PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatType(PurchaseLine: Record "Purchase Line"; var FormattedType: Text[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitJobFields(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7416,6 +7496,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobTaskIsSet(PurchLine: Record "Purchase Line"; var IsJobLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -7465,6 +7550,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateJobFields(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLeadTimeFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7510,6 +7600,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBlanketOrderLineNo(var PurchaseLine: Record "Purchase Line"; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDescription(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
     begin
     end;
@@ -7540,7 +7635,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; IsHandled: Boolean)
     begin
     end;
 
@@ -7635,6 +7730,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateJobNoOnBeforeGetJob(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateExpectedReceiptDateOnBeforeCheckDateConflict(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7711,6 +7811,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeInitQtyToReceive(var PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforePurchaseLineVerifyChange(var PurchaseLine: Record "Purchase Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean);
     begin
     end;
 
@@ -7805,6 +7910,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLineAmount(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; Currency: Record Currency; var LineAmountChanged: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateJobTaskNo(xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

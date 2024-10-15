@@ -4646,7 +4646,7 @@ codeunit 134976 "ERM Sales Report"
     local procedure VerifyYourReferenceSalesCrMemo(YourReference: Text[35])
     begin
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(16, 14, YourReference);
+        LibraryReportValidation.VerifyCellValue(16, 20, YourReference);
     end;
 
     local procedure VerifyAmountsSalesInvoiceReport(ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)

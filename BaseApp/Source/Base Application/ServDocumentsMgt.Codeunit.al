@@ -566,6 +566,7 @@
             PServItemLine.Reset();
             PServItemLine.SetRange("Document Type", "Document Type");
             PServItemLine.SetRange("Document No.", "No.");
+            OnPrepareDocumentOnAfterSetPServItemLineFilters(PServItemLine);
             if PServItemLine.Find('-') then
                 repeat
                     ServItemLine.Copy(PServItemLine);
@@ -949,6 +950,7 @@
         PServLine.Reset();
         PServLine.SetRange("Document Type", ServHeader."Document Type");
         PServLine.SetRange("Document No.", ServHeader."No.");
+        OnFinalizeDeleteLinesOnAfterSetPServLineFilters(PServLine);
         PServLine.DeleteAll();
 
         ServLine.Reset();
@@ -1002,7 +1004,7 @@
             until ServShptLine.Next = 0;
         ServShptLine.DeleteAll();
 
-        OnAfterFinalizeShipmentDocument(ServShptHeader);
+        OnAfterFinalizeShipmentDocument(ServShptHeader, ServHeader);
     end;
 
     local procedure FinalizeInvoiceDocument()
@@ -1029,7 +1031,7 @@
             until ServInvLine.Next = 0;
         ServInvLine.DeleteAll();
 
-        OnAfterFinalizeInvoiceDocument(ServInvHeader);
+        OnAfterFinalizeInvoiceDocument(ServInvHeader, ServHeader);
     end;
 
     local procedure FinalizeCrMemoDocument()
@@ -1056,7 +1058,7 @@
             until ServCrMemoLine.Next = 0;
         ServCrMemoLine.DeleteAll();
 
-        OnAfterFinalizeCrMemoDocument(ServCrMemoHeader);
+        OnAfterFinalizeCrMemoDocument(ServCrMemoHeader, ServHeader);
     end;
 
     local procedure GetAndCheckCustomer()
@@ -1329,7 +1331,7 @@
                             TestField("Shipment No.");
                     end;
 
-                    if (Type = Type::Item) and ("No." <> '') then
+                    if (Type = Type::Item) and ("No." <> '') and ("Qty. Shipped (Base)" = 0) and ("Qty. Consumed (Base)" = 0) then
                         TestField("Unit of Measure Code");
 
                     if "Qty. per Unit of Measure" = 0 then
@@ -2082,17 +2084,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFinalizeCrMemoDocument(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    local procedure OnAfterFinalizeCrMemoDocument(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ServiceHeader: record "Service Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFinalizeInvoiceDocument(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    local procedure OnAfterFinalizeInvoiceDocument(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceHeader: record "Service Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFinalizeShipmentDocument(var ServiceShipmentHeader: Record "Service Shipment Header")
+    local procedure OnAfterFinalizeShipmentDocument(var ServiceShipmentHeader: Record "Service Shipment Header"; ServiceHeader: record "Service Header")
     begin
     end;
 
@@ -2263,6 +2265,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFinalizeDeleteLinesOnAfterSetPServLineFilters(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFinalizeItemLinesOnAfterSetFilters(var ServiceItemLine: Record "Service Item Line")
     begin
     end;
@@ -2299,6 +2306,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentLinesOnBeforeRoundAmount(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareDocumentOnAfterSetPServItemLineFilters(var PServItemLine: Record "Service Item Line")
     begin
     end;
 

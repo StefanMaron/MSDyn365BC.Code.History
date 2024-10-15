@@ -1328,9 +1328,9 @@ codeunit 137088 "SCM Order Planning - III"
         // [THEN] A new purchase order for "B" is successfully created.
         FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
         PurchaseHeader.TestField("Buy-from Vendor No.", Item."Vendor No.");
-	
-	// Tear down.
-	BlockedItem.Validate(Blocked, false);
+
+        // Tear down.
+        BlockedItem.Validate(Blocked, false);
         BlockedItem.Modify(true);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1435,6 +1435,51 @@ codeunit 137088 "SCM Order Planning - III"
         PurchaseOrder.PurchLines."No.".AssertEquals(Item[1]."No.");
         PurchaseOrder.PurchLines.Next();
         PurchaseOrder.PurchLines."No.".AssertEquals(Item[2]."No.");
+        PurchaseOrder.Close();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchOrderCreatedForItemWithParanthesisInNoField()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Sales] [Purchase] [Order]
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Item with vendor and No. has ( and ) characters.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", VendorNo);
+        Item.Modify(true);
+        Item.Rename(StrSubstNo('%1(1)', CopyStr(Item."No.", 1, MaxStrLen(Item."No.") - 3)));
+
+        // [GIVEN] Sales order with a line for breated item on location "BLUE".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, LocationBlue.Code, WorkDate);
+
+        // [WHEN] Create purchase order from the sales order.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        LibraryVariableStorage.Enqueue(true);
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] The line in the purchase order matches the sales order.
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines."No.".AssertEquals(Item."No.");
         PurchaseOrder.Close();
 
         LibraryVariableStorage.AssertEmpty();

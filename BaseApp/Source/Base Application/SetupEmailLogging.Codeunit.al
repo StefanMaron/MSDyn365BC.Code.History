@@ -59,7 +59,10 @@ codeunit 1641 "Setup Email Logging"
         RootFolderPathTemplateTxt: Label '\%1\', Locked = true;
         PublicFolderPathTemplateTxt: Label '\%1\%2\', Locked = true;
         FolderDoesNotExistErr: Label 'The specified Exchange folder does not exist.';
-        SetupConnectionTxt: Label 'Set up email logging';
+        SetupEmailLoggingTitleTxt: Label 'Set up email logging';
+        SetupEmailLoggingHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115467', Locked = true;
+        VideoUrlSetupEmailLoggingTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843360', Locked = true;
+        SetupEmailLoggingDescriptionTxt: Label 'Track email exchanges between your sales team and customers and prospects, and then turning them into actionable opportunities.';
         EmptyAccessTokenTxt: Label 'Access token is empty.', Locked = true;
         CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token %1.', Locked = true;
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
@@ -595,21 +598,21 @@ codeunit 1641 "Setup Email Logging"
     procedure RegisterAssistedSetup()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
+        Language: Codeunit Language;
+        ModuleInfo: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
+        VideoCategory: Enum "Video Category";
+        CurrentGlobalLanguage: Integer;
     begin
-        NavApp.GetCurrentModuleInfo(Info);
-        if not AssistedSetup.Exists(Page::"Setup Email Logging") then
-            AssistedSetup.Add(Info.Id(), Page::"Setup Email Logging", SetupConnectionTxt, AssistedSetupGroup::Customize);
-    end;
+        if AssistedSetup.Exists(Page::"Setup Email Logging") then
+            exit;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnRegister', '', true, true)]
-    local procedure HandleAssistedSetupOnRegister()
-    var
-        EnvironmentInformation: Codeunit "Environment Information";
-    begin
-        if EnvironmentInformation.IsSaaS() then
-            RegisterAssistedSetup();
+        CurrentGlobalLanguage := GLOBALLANGUAGE;
+        NavApp.GetCurrentModuleInfo(ModuleInfo);
+        AssistedSetup.Add(ModuleInfo.Id(), Page::"Setup Email Logging", SetupEmailLoggingTitleTxt, AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt, SetupEmailLoggingDescriptionTxt);
+        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+        AssistedSetup.AddTranslation(Page::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTitleTxt);
+        GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 
     [Scope('OnPrem')]

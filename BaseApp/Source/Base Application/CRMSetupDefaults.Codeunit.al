@@ -24,7 +24,13 @@ codeunit 5334 "CRM Setup Defaults"
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         ConnectionName: Text;
         EnqueueJobQueEntries: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetConfiguration(CRMConnectionSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData;
         ConnectionName := RegisterTempConnectionIfNeeded(CRMConnectionSetup, TempCRMConnectionSetup);
         if ConnectionName <> '' then
@@ -1661,6 +1667,11 @@ codeunit 5334 "CRM Setup Defaults"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddEntityTableMapping(var CRMEntityTypeName: Text; var TableID: Integer; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetConfiguration(var CRMConnectionSetup: Record "CRM Connection Setup"; var IsHandled: Boolean)
     begin
     end;
 }

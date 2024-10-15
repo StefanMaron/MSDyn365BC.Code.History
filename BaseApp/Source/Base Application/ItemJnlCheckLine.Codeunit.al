@@ -448,7 +448,14 @@ codeunit 21 "Item Jnl.-Check Line"
     end;
 
     local procedure CheckPhysInventory(ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPhysInventory(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemJnlLine do begin
             if not
                ("Entry Type" in
@@ -538,6 +545,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDateNotAllowed(ItemJnlLine: Record "Item Journal Line"; var DateCheckDone: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPhysInventory(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1,4 +1,4 @@
-table 45 "G/L Register"
+﻿table 45 "G/L Register"
 {
     Caption = 'G/L Register';
     LookupPageID = "G/L Registers";
@@ -100,6 +100,7 @@ table 45 "G/L Register"
     procedure Initialize(NextRegNo: Integer; FromEntryNo: Integer; FromVATEntryNo: Integer; SourceCode: Code[10]; BatchName: Code[10]; TemplateName: Code[10])
     begin
         Init;
+        OnInitializeOnAfterGLRegisterInit(Rec, TemplateName);
         "No." := NextRegNo;
         "Creation Date" := Today;
         "Creation Time" := Time;
@@ -109,6 +110,12 @@ table 45 "G/L Register"
         "From VAT Entry No." := FromVATEntryNo;
         "Journal Batch Name" := BatchName;
         Clear(TemplateName);
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializeOnAfterGLRegisterInit(var GLRegister: record "G/L Register"; TemplateName: Code[10])
+    begin
     end;
 }
 
