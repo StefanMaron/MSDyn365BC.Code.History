@@ -29,6 +29,7 @@ codeunit 99000840 "Plng. Component-Reserve"
     procedure CreateReservation(PlanningComponent: Record "Planning Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
+        IsHandled: Boolean;
     begin
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text004);
@@ -51,13 +52,17 @@ codeunit 99000840 "Plng. Component-Reserve"
             ExpectedReceiptDate := PlanningComponent."Due Date";
         end;
 
-        CreateReservEntry.CreateReservEntryFor(
-          Database::"Planning Component", 0,
-          PlanningComponent."Worksheet Template Name", PlanningComponent."Worksheet Batch Name",
-          PlanningComponent."Worksheet Line No.", PlanningComponent."Line No.",
-          PlanningComponent."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForReservEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(PlanningComponent, Quantity, QuantityBase, ForReservEntry, FromTrackingSpecification, IsHandled, ExpectedReceiptDate, Description, ShipmentDate);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+              Database::"Planning Component", 0,
+              PlanningComponent."Worksheet Template Name", PlanningComponent."Worksheet Batch Name",
+              PlanningComponent."Worksheet Line No.", PlanningComponent."Line No.",
+              PlanningComponent."Qty. per Unit of Measure",
+              Quantity, QuantityBase, ForReservEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
           PlanningComponent."Item No.", PlanningComponent."Variant Code", PlanningComponent."Location Code",
           Description, ExpectedReceiptDate, ShipmentDate, 0);
@@ -522,6 +527,11 @@ codeunit 99000840 "Plng. Component-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewPlanningComponent: Record "Planning Component"; OldPlanningComponent: Record "Planning Component"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var PlanningComponent: Record "Planning Component"; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry"; var FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 }

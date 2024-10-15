@@ -200,6 +200,7 @@ codeunit 18467 "Subcontracting Post Batch"
         PurchLine: Record "Purchase Line";
         PurchLineToUpdate: Record "Purchase Line";
         PurchPost: Codeunit "Purch.-Post";
+        LineAmount: Decimal;
     begin
         if not Confirm(PostConfirmationQst) then
             Error('');
@@ -226,6 +227,7 @@ codeunit 18467 "Subcontracting Post Batch"
         PurchLine.SetRange(Subcontracting, true);
         if PurchLine.FindSet() then
             repeat
+                LineAmount := PurchLine.Amount;
                 PurchHeader.SetRange("Document Type", PurchLine."Document Type");
                 PurchHeader.SetRange("No.", PurchLine."Document No.");
                 PurchHeader.SetRange("Subcon. Multiple Receipt", false);
@@ -239,6 +241,7 @@ codeunit 18467 "Subcontracting Post Batch"
                 end;
                 PurchLineToUpdate.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
                 PurchLineToUpdate."Applies-to ID (Receipt)" := '';
+                PurchLineToUpdate."Line Amount" := LineAmount;
                 PurchLineToUpdate.Modify();
             until PurchLine.Next() = 0
         else

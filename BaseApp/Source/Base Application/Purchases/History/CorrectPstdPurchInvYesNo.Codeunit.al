@@ -56,7 +56,7 @@ codeunit 1324 "Correct PstdPurchInv (Yes/No)"
         if ConfirmManagement.GetResponse(CorrectPostedInvoiceQst, false) then begin
             CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeader);
             IsHandled := false;
-            OnCancelPostedInvoiceOnBeforeShowPurchaseInvoice(PurchaseHeader, IsHandled);
+            OnCancelPostedInvoiceOnBeforeShowPurchaseInvoice(PurchaseHeader, IsHandled, PurchInvHeader);
             if not IsHandled then
                 PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
             exit(true);
@@ -110,7 +110,7 @@ codeunit 1324 "Correct PstdPurchInv (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCancelPostedInvoiceOnBeforeShowPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnCancelPostedInvoiceOnBeforeShowPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 }

@@ -150,12 +150,13 @@ codeunit 1012 "Job Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetNextEntryNo(JobJnlLine, NextEntryNo, IsHandled);
+        OnBeforeGetNextEntryNo(JobJnlLine, NextEntryNo, IsHandled, JobLedgerEntry);
         if not IsHandled then
             if JobLedgerEntry."Entry No." = 0 then begin
                 JobLedgerEntry.LockTable();
                 NextEntryNo := JobLedgerEntry.GetLastEntryNo() + 1;
             end;
+        OnAfterGetNextEntryNo(JobLedgerEntry, NextEntryNo);
     end;
 
     local procedure InsertJobRegister()
@@ -933,12 +934,17 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetNextEntryNo(var JobJournalLine: Record "Job Journal Line"; var NextEntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeGetNextEntryNo(var JobJournalLine: Record "Job Journal Line"; var NextEntryNo: Integer; var IsHandled: Boolean; var JobLedgerEntry: Record "Job Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnIsertJobRegisterOnBeforeInsert(var JobJournalLine: Record "Job Journal Line"; var JobRegister: Record "Job Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNextEntryNo(var JobLedgerEntry: Record "Job Ledger Entry"; var NextEntryNo: Integer)
     begin
     end;
 }

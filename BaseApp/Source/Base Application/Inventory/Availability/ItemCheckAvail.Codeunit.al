@@ -78,6 +78,8 @@ codeunit 311 "Item-Check Avail."
         if SalesLineShowWarning(SalesLine) then
             Rollback := ShowAndHandleAvailabilityPage(SalesLine.RecordId);
 
+        OnSalesLineCheckOnAfterSalesLineShowWarning(SalesLine, Rollback);
+
         if not Rollback then
             if ATOLink.SalesLineCheckAvailShowWarning(SalesLine, TempAsmHeader, TempAsmLine) then
                 Rollback := ShowAsmWarningYesNo(TempAsmHeader, TempAsmLine);
@@ -310,7 +312,7 @@ codeunit 311 "Item-Check Avail."
                 GrossReq := GrossReq + OldItemNetChange;
         end;
 
-        OnCalculateOnBeforeCalcInitialQtyAvailable(Item, SchedRcpt, ReservedRcpt, GrossReq, ReservedReq, OldItemNetResChange, NewItemNetResChange, ContextInfo);
+        OnCalculateOnBeforeCalcInitialQtyAvailable(Item, SchedRcpt, ReservedRcpt, GrossReq, ReservedReq, OldItemNetResChange, NewItemNetResChange, ContextInfo, InventoryQty);
         InitialQtyAvailable :=
           InventoryQty +
           (SchedRcpt - ReservedRcpt) - (GrossReq - ReservedReq) -
@@ -902,7 +904,7 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateOnBeforeCalcInitialQtyAvailable(Item: Record Item; var SchedRcpt: Decimal; var ReservedRcpt: Decimal; var GrossReq: Decimal; var ReservedReq: Decimal; OldItemNetResChange: Decimal; NewItemNetResChange: Decimal; ContextInfo: Dictionary of [Text, Text])
+    local procedure OnCalculateOnBeforeCalcInitialQtyAvailable(Item: Record Item; var SchedRcpt: Decimal; var ReservedRcpt: Decimal; var GrossReq: Decimal; var ReservedReq: Decimal; OldItemNetResChange: Decimal; NewItemNetResChange: Decimal; ContextInfo: Dictionary of [Text, Text]; var InventoryQty: Decimal)
     begin
     end;
 
@@ -944,6 +946,11 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnJobPlanningLineShowWarningOnAfterFindingPrevJobPlanningLineQtyWithinPeriod(JobPlanningLine: Record "Job Planning Line"; OldJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineCheckOnAfterSalesLineShowWarning(var SalesLine: Record "Sales Line"; var Rollback: Boolean);
     begin
     end;
 }

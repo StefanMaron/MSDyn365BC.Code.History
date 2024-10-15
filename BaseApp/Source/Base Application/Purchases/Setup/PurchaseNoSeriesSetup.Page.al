@@ -102,6 +102,13 @@ page 1402 "Purchase No. Series Setup"
         ReturnOrderNosVisible := (DocType = DocType::"Return Order");
         InvoiceNosVisible := (DocType = DocType::Invoice);
         CreditMemoNosVisible := (DocType = DocType::"Credit Memo");
+
+        OnAfterSetFieldsVisibility(DocType);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetFieldsVisibility(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    begin
     end;
 }
 

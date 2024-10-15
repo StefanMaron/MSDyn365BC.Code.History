@@ -8,6 +8,15 @@ table 6420 "FS Customer Asset"
     TableType = CRM;
     Description = 'Specify Customer Asset.';
     DataClassification = SystemMetadata;
+    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+#if not CLEAN25
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#endif
+
 
     fields
     {
@@ -230,7 +239,9 @@ table 6420 "FS Customer Asset"
             ExternalType = 'Lookup';
             Description = 'Top-Level Asset, (if this asset is a sub asset)';
             Caption = 'Top-Level Asset';
+#if not CLEAN25
             TableRelation = "FS Customer Asset".CustomerAssetId;
+#endif
             DataClassification = SystemMetadata;
         }
         field(41; ParentAsset; GUID)
@@ -239,7 +250,9 @@ table 6420 "FS Customer Asset"
             ExternalType = 'Lookup';
             Description = 'Parent Asset';
             Caption = 'Parent Asset';
+#if not CLEAN25
             TableRelation = "FS Customer Asset".CustomerAssetId;
+#endif
             DataClassification = SystemMetadata;
         }
         field(42; Product; GUID)
@@ -254,7 +267,9 @@ table 6420 "FS Customer Asset"
         field(46; MasterAssetName; Text[100])
         {
             FieldClass = FlowField;
+#if not CLEAN25
             CalcFormula = lookup("FS Customer Asset".Name where(CustomerAssetId = field(MasterAsset)));
+#endif
             ExternalName = 'msdyn_masterassetname';
             ExternalType = 'String';
             ExternalAccess = Read;
@@ -262,7 +277,9 @@ table 6420 "FS Customer Asset"
         field(47; ParentAssetName; Text[100])
         {
             FieldClass = FlowField;
+#if not CLEAN25
             CalcFormula = lookup("FS Customer Asset".Name where(CustomerAssetId = field(ParentAsset)));
+#endif
             ExternalName = 'msdyn_parentassetname';
             ExternalType = 'String';
             ExternalAccess = Read;

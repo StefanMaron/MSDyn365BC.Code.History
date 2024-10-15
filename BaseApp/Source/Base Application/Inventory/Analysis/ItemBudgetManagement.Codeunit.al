@@ -106,8 +106,12 @@ codeunit 7130 "Item Budget Management"
             ColumnDimCode := Text003;
         end;
 
+        OnBeforeSetLineAndColumnDim(ItemBudgetName, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
+
         LineDimType := DimCodeToType(LineDimCode, ItemBudgetName);
         ColumnDimType := DimCodeToType(ColumnDimCode, ItemBudgetName);
+
+        OnAfterSetLineAndColumnDim(ItemBudgetName, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
     end;
 
     procedure FindRecord(ItemBudgetName: Record "Item Budget Name"; DimType: Enum "Item Budget Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Text; SourceNoFilter: Text; PeriodType: Enum "Analysis Period Type"; DateFilter: Text; var PeriodInitialized: Boolean; InternalDateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text): Boolean
@@ -363,13 +367,19 @@ codeunit 7130 "Item Budget Management"
         end;
     end;
 
-    local procedure DimCodeToType(DimCode: Code[20]; ItemBudgetName: Record "Item Budget Name"): Enum "Item Budget Dimension Type"
+    local procedure DimCodeToType(DimCode: Code[20]; ItemBudgetName: Record "Item Budget Name") Result: Enum "Item Budget Dimension Type"
     var
         Location: Record Location;
         Item: Record Item;
         Cust: Record Customer;
         Vend: Record Vendor;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDimCodeToType(DimCode, ItemBudgetName, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetGLSetup();
         case DimCode of
             '':
@@ -424,6 +434,7 @@ codeunit 7130 "Item Budget Management"
         if ItemBudgetName."Budget Dimension 3 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, ItemBudgetName."Budget Dimension 3 Code", '');
 
+        OnGetDimSelectionOnBeforeDimSelectionRunModal(DimSelection, ItemBudgetName);
         DimSelection.LookupMode := true;
         if DimSelection.RunModal() = ACTION::LookupOK then
             exit(DimSelection.GetDimSelCode());
@@ -462,13 +473,19 @@ codeunit 7130 "Item Budget Management"
             PeriodInitialized := false;
     end;
 
-    procedure DimCodeNotAllowed(DimCode: Text[30]; ItemBudgetName: Record "Item Budget Name"): Boolean
+    procedure DimCodeNotAllowed(DimCode: Text[30]; ItemBudgetName: Record "Item Budget Name") Result: Boolean
     var
         Item: Record Item;
         Cust: Record Customer;
         Vend: Record Vendor;
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDimCodeNotAllowed(DimCode, ItemBudgetName, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetGLSetup();
         exit(
           not (UpperCase(DimCode) in
@@ -738,6 +755,31 @@ codeunit 7130 "Item Budget Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnNextRecOnBeforeVendorFindNext(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDimCodeToType(DimCode: Text[30]; ItemBudgetName: Record "Item Budget Name"; var Result: Enum "Item Budget Dimension Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDimSelectionOnBeforeDimSelectionRunModal(var DimensionSelection: Page "Dimension Selection"; var ItemBudgetName: Record "Item Budget Name")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDimCodeNotAllowed(DimCode: Text[30]; ItemBudgetName: Record "Item Budget Name"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLineAndColumnDim(ItemBudgetName: Record "Item Budget Name"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Budget Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Budget Dimension Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLineAndColumnDim(ItemBudgetName: Record "Item Budget Name"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Budget Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Budget Dimension Type")
     begin
     end;
 }
