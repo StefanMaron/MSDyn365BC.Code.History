@@ -1658,6 +1658,32 @@ codeunit 137038 "SCM Transfers"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PostTransferOrderPartiallyWhenItemIsBlocked_Direct()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SCENARIO] Direct Transfer Order shipped with blocked item on a previously shipped line
+        Initialize();
+
+        // [GIVEN] Inventory Setup is configured for "Direct Transfer Posting" = "Receipt and Shipment"
+        InventorySetup.Get();
+        InventorySetup.Validate("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Receipt and Shipment");
+        InventorySetup.Modify();
+
+        PostTransferShipmentPartiallyWithBlockedItem(true); //DirectTransfer = true
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostTransferOrderPartiallyWhenItemIsBlocked_InTransitShipment()
+    begin
+        // [SCENARIO] Intransit Transfer Order shipped with blocked item on a previously shipped line
+        Initialize();
+        PostTransferShipmentPartiallyWithBlockedItem(false); //DirectTransfer = false
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PostTransferOrderWhenLocationFromContainsSpecialChars()
     var
         Location: array[2] of Record Location;
@@ -2820,6 +2846,55 @@ codeunit 137038 "SCM Transfers"
 
         UpdateLocation(LocationCode[1], false, HandlingTime, HandlingTime2);
         UpdateLocation(LocationCode[5], true, HandlingTime2, HandlingTime2);
+    end;
+
+    local procedure PostTransferShipmentPartiallyWithBlockedItem(DirectTransfer: Boolean)
+    var
+        Location: array[3] of Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: array[2] of Record "Transfer Line";
+        Item: array[2] of Record Item;
+    begin
+        // [GIVEN] Locations "L1" and "L2". "L1" Code field contains special characters, that are used in filters.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // [GIVEN] An intransit location if it is not a direct transfer
+        if not DirectTransfer then
+            LibraryWarehouse.CreateInTransitLocation(Location[3]);
+
+        // [GIVEN] Item with stock at Location "L1".
+        CreateItemWithPositiveInventory(Item[1], Location[1].Code, 10);
+        CreateItemWithPositiveInventory(Item[2], Location[1].Code, 10);
+
+        // [GIVEN] Transfer Order From = "L1" To = "L2". Intransit is "L3" (which is empty on direct transfer)
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
+        TransferHeader.Validate("Direct Transfer", DirectTransfer);
+        TransferHeader.Modify();
+
+        // [GIVEN] Two transfer lines - one will not be posted yet
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine[1], Item[1]."No.", 1);
+        TransferLine[1].Validate("Qty. to Ship", 0);
+        TransferLine[1].Validate("Qty. to Receive", 0);
+        TransferLine[1].Modify();
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine[2], Item[2]."No.", 1);
+
+        // [GIVEN] One line of the transfer order is posted
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true); //Ship and receive
+        TransferHeader.Get(TransferHeader."No.");
+        Item[2].Get(Item[2]."No.");
+
+        // [GIVEN] The item which was just posted is now "Blocked" 
+        Item[2].Validate(Blocked, true);
+        Item[2].Modify();
+
+        // [WHEN] the other line is posted 
+        TransferLine[1].Get(TransferLine[1]."Document No.", TransferLine[1]."Line No.");
+        TransferLine[1].Validate("Qty. to Ship", 1);
+        TransferLine[1].Modify(); //Qty. to receieve gets set to 1 automatically when shipped
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true); //Ship and receive
+
+        // [THEN] No error occurs
     end;
 
     local procedure CreateUpdateStockKeepUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: array[4] of Code[20])

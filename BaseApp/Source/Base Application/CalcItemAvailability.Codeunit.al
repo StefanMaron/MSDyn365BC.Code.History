@@ -626,13 +626,13 @@ codeunit 5530 "Calc. Item Availability"
     begin
         NextProdForecastEntry.Copy(ProdForecastEntry);
         NextProdForecastEntry.SetRange("Forecast Date", ProdForecastEntry."Forecast Date" + 1, ToDate);
-        if NextProdForecastEntry.FindFirst then
+        if NextProdForecastEntry.FindSet() then
             repeat
                 NextProdForecastEntry.SetRange("Forecast Date", NextProdForecastEntry."Forecast Date");
                 NextProdForecastEntry.CalcSums("Forecast Quantity (Base)");
                 if NextProdForecastEntry."Forecast Quantity (Base)" = 0 then begin
                     NextProdForecastEntry.SetRange("Forecast Date", NextProdForecastEntry."Forecast Date" + 1, ToDate);
-                    if not NextProdForecastEntry.FindLast then
+                    if NextProdForecastEntry.Next() = 0 then
                         NextProdForecastEntry."Forecast Date" := ToDate + 1;
                 end else
                     NextForecastExist := true;
