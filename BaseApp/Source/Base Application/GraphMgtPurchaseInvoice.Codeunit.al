@@ -56,7 +56,7 @@ codeunit 5527 "Graph Mgt - Purchase Invoice"
             end;
     end;
 
-    procedure BuyFromVendorAddressToJSON(PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate") JSON: Text
+    procedure BuyFromVendorAddressToJSON(var PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
@@ -65,7 +65,7 @@ codeunit 5527 "Graph Mgt - Purchase Invoice"
               "Buy-from City", "Buy-from County", "Buy-from Country/Region Code", "Buy-from Post Code", JSON);
     end;
 
-    procedure PayToVendorAddressToJSON(PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate") JSON: Text
+    procedure PayToVendorAddressToJSON(var PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
@@ -74,7 +74,7 @@ codeunit 5527 "Graph Mgt - Purchase Invoice"
               "Pay-to City", "Pay-to County", "Pay-to Country/Region Code", "Pay-to Post Code", JSON);
     end;
 
-    procedure ShipToVendorAddressToJSON(PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate") JSON: Text
+    procedure ShipToVendorAddressToJSON(var PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin

@@ -1,31 +1,25 @@
 codeunit 9178 "Application Area Mgmt."
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         OnlyBasicAppAreaMsg: Label 'You do not have access to this page, because your experience is set to Basic.';
         ValuesNotAllowedErr: Label 'The selected experience is not supported.\\In the Application Area window, you define what is shown in the user interface.';
-        InvoicingExpTierErr: Label 'The Invoicing application area must be the only enabled area.';
         HideApplicationAreaError: Boolean;
         PremiumSubscriptionNeededMsg: Label 'You cannot upgrade to the Premium experience because you do not have a Premium license assigned to you. Your administrator must assign the license to you in Office 365 and then synchronize the license information in Business Central from the Users page.';
         AppAreaNotSupportedErr: Label 'Application area Basic %1 is not supported.', Comment = '%1 = application area';
 
     local procedure GetApplicationAreaSetupRec(var ApplicationAreaSetup: Record "Application Area Setup"): Boolean
     var
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         AllProfile: Record "All Profile";
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
         if ApplicationAreaSetup.IsEmpty then
             exit(false);
 
-        if not ApplicationAreaSetup.Get('', '', UserId) then begin
+        if not ApplicationAreaSetup.Get('', '', UserId()) then begin
             ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
             if not ApplicationAreaSetup.Get('', AllProfile."Profile ID") then
-                if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then
-                    exit(ApplicationAreaSetup.Get);
+                if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName()) then
+                    exit(ApplicationAreaSetup.Get());
         end;
         exit(true);
     end;
@@ -37,27 +31,23 @@ codeunit 9178 "Application Area Mgmt."
     end;
 
     [Scope('OnPrem')]
-    procedure GetApplicationAreaSetup() ApplicationAreas: Text
+    procedure GetApplicationAreas() ApplicationAreas: Text
     var
-        ApplicationAreaSetup: Record "Application Area Setup";
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-        FieldIndex: Integer;
+        ApplicationAreaCache: Codeunit "Application Area Cache";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+        if ApplicationAreaCache.GetApplicationAreasForUser(ApplicationAreas) then
             exit(ApplicationAreas);
 
-        RecRef.GetTable(ApplicationAreaSetup);
+        if ApplicationAreaCache.GetApplicationAreasForProfile(ApplicationAreas) then
+            exit(ApplicationAreas);
 
-        for FieldIndex := 1 to RecRef.FieldCount do begin
-            FieldRef := RecRef.FieldIndex(FieldIndex);
-            if not IsInPrimaryKey(FieldRef) then
-                if FieldRef.Value then
-                    if ApplicationAreas = '' then
-                        ApplicationAreas := '#' + DelChr(FieldRef.Name)
-                    else
-                        ApplicationAreas := ApplicationAreas + ',#' + DelChr(FieldRef.Name);
-        end;
+        if ApplicationAreaCache.GetApplicationAreasForCompany(ApplicationAreas) then
+            exit(ApplicationAreas);
+
+        if ApplicationAreaCache.GetApplicationAreasCrossCompany(ApplicationAreas) then
+            exit(ApplicationAreas);
+
+        exit('');
     end;
 
     [Scope('OnPrem')]
@@ -71,13 +61,13 @@ codeunit 9178 "Application Area Mgmt."
         GetApplicationAreaSetupRec(ApplicationAreaSetup);
         RecRef.GetTable(ApplicationAreaSetup);
 
-        for FieldIndex := GetFirstPublicAppAreaFieldIndex to RecRef.FieldCount do begin
+        for FieldIndex := GetFirstPublicAppAreaFieldIndex() to RecRef.FieldCount() do begin
             FieldRef := RecRef.FieldIndex(FieldIndex);
             if not IsInPrimaryKey(FieldRef) then begin
-                TempApplicationAreaBuffer."Field No." := FieldRef.Number;
+                TempApplicationAreaBuffer."Field No." := FieldRef.Number();
                 TempApplicationAreaBuffer."Application Area" :=
                   CopyStr(FieldRef.Caption, 1, MaxStrLen(TempApplicationAreaBuffer."Application Area"));
-                TempApplicationAreaBuffer.Selected := FieldRef.Value;
+                TempApplicationAreaBuffer.Selected := FieldRef.Value();
                 TempApplicationAreaBuffer.Insert(true);
             end;
         end;
@@ -94,8 +84,8 @@ codeunit 9178 "Application Area Mgmt."
         GetApplicationAreaBuffer(ExistingTempApplicationAreaBuffer);
         RecRef.GetTable(ApplicationAreaSetup);
 
-        TempApplicationAreaBuffer.FindFirst;
-        ExistingTempApplicationAreaBuffer.FindFirst;
+        TempApplicationAreaBuffer.FindSet();
+        ExistingTempApplicationAreaBuffer.FindSet();
         repeat
             FieldRef := RecRef.Field(TempApplicationAreaBuffer."Field No.");
             FieldRef.Value := TempApplicationAreaBuffer.Selected;
@@ -112,16 +102,16 @@ codeunit 9178 "Application Area Mgmt."
         UserPreference.SetFilter("User ID", UserId);
         UserPreference.DeleteAll();
 
-        SetupApplicationArea;
+        SetupApplicationArea();
     end;
 
     local procedure TrySaveApplicationArea(var TempApplicationAreaBuffer: Record "Application Area Buffer" temporary; ApplicationAreaSetup: Record "Application Area Setup"; NoApplicationAreaExist: Boolean) IsApplicationAreaChanged: Boolean
     var
         OldApplicationArea: Text;
     begin
-        OldApplicationArea := ApplicationArea;
+        OldApplicationArea := ApplicationArea();
         SaveApplicationArea(TempApplicationAreaBuffer, ApplicationAreaSetup, NoApplicationAreaExist);
-        IsApplicationAreaChanged := OldApplicationArea <> ApplicationArea;
+        IsApplicationAreaChanged := OldApplicationArea <> ApplicationArea();
     end;
 
     [Scope('OnPrem')]
@@ -131,7 +121,7 @@ codeunit 9178 "Application Area Mgmt."
         NoCompanyApplicationAreasExist: Boolean;
     begin
         if not ApplicationAreaSetup.Get(CompanyName) then begin
-            ApplicationAreaSetup."Company Name" := CompanyName;
+            ApplicationAreaSetup."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(ApplicationAreaSetup."Company Name"));
             NoCompanyApplicationAreasExist := true;
         end;
 
@@ -145,8 +135,8 @@ codeunit 9178 "Application Area Mgmt."
         ApplicationAreaSetup: Record "Application Area Setup";
         NoUserApplicationAreasExist: Boolean;
     begin
-        if not ApplicationAreaSetup.Get('', '', UserId) then begin
-            ApplicationAreaSetup."User ID" := UserId;
+        if not ApplicationAreaSetup.Get('', '', UserId()) then begin
+            ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, MaxStrLen(ApplicationAreaSetup."User ID"));
             NoUserApplicationAreasExist := true;
         end;
 
@@ -157,14 +147,14 @@ codeunit 9178 "Application Area Mgmt."
     [Scope('OnPrem')]
     procedure SetupApplicationArea()
     begin
-        ApplicationArea(GetApplicationAreaSetup);
+        ApplicationArea(GetApplicationAreas());
     end;
 
     local procedure GetApplicationAreaSetupFromSession() ApplicationAreas: Text
     begin
         ApplicationAreas := ApplicationArea();
         if ApplicationAreas = '' then
-            ApplicationAreas := GetApplicationAreaSetup();
+            ApplicationAreas := GetApplicationAreas();
     end;
 
     local procedure IsApplicationAreaEnabled(ApplicationAreaName: Text): Boolean
@@ -173,11 +163,6 @@ codeunit 9178 "Application Area Mgmt."
     begin
         ApplicationAreaList := GetApplicationAreaSetupFromSession().Split(',');
         exit(ApplicationAreaList.Contains('#' + ApplicationAreaName.Replace(' ', '')));
-    end;
-
-    local procedure IsApplicationAreaTheOnlyOneEnabled(ApplicationAreaName: Text): Boolean
-    begin
-        exit(GetApplicationAreaSetupFromSession() = ('#' + ApplicationAreaName.Replace(' ', '')));
     end;
 
     [Scope('OnPrem')]
@@ -203,7 +188,7 @@ codeunit 9178 "Application Area Mgmt."
     [Scope('OnPrem')]
     procedure IsAdvancedEnabled(): Boolean
     begin
-        exit(not IsFoundationEnabled);
+        exit(not IsFoundationEnabled());
     end;
 
     [Scope('OnPrem')]
@@ -356,14 +341,6 @@ codeunit 9178 "Application Area Mgmt."
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
         exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Reservation)));
-    end;
-
-    [Scope('OnPrem')]
-    procedure IsInvoicingOnlyEnabled(): Boolean
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
-    begin
-        exit(IsApplicationAreaTheOnlyOneEnabled(ApplicationAreaSetup.FieldName(Invoicing)));
     end;
 
     [Scope('OnPrem')]
@@ -526,7 +503,7 @@ codeunit 9178 "Application Area Mgmt."
     [Scope('OnPrem')]
     procedure IsAllDisabled(): Boolean
     begin
-        exit(not IsAnyEnabled);
+        exit(not IsAnyEnabled());
     end;
 
     local procedure IsAnyEnabled(): Boolean
@@ -540,20 +517,20 @@ codeunit 9178 "Application Area Mgmt."
         PlanIds: Codeunit "Plan Ids";
         AzureADPlan: Codeunit "Azure AD Plan";
     begin
-        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetPremiumPlanId) then
+        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetPremiumPlanId()) then
             exit(true);
 
-        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetPremiumISVPlanId) then
+        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetPremiumISVPlanId()) then
             exit(true);
 
-        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetViralSignupPlanId) then
+        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetViralSignupPlanId()) then
             exit(true);
     end;
 
     [Scope('OnPrem')]
     procedure CheckAppAreaOnlyBasic()
     begin
-        if IsBasicOnlyEnabled then begin
+        if IsBasicOnlyEnabled() then begin
             Message(OnlyBasicAppAreaMsg);
             Error('');
         end;
@@ -568,7 +545,7 @@ codeunit 9178 "Application Area Mgmt."
         if EnvironmenInformation.IsOnPrem() then
             exit(true);
 
-        if (SelectedExperienceTier <> ExperienceTierSetup.FieldName(Premium)) or IsPremiumEnabled then
+        if (SelectedExperienceTier <> ExperienceTierSetup.FieldName(Premium)) or IsPremiumEnabled() then
             exit(true);
 
         Message(PremiumSubscriptionNeededMsg);
@@ -581,11 +558,11 @@ codeunit 9178 "Application Area Mgmt."
         KeyRef: KeyRef;
         FieldIndex: Integer;
     begin
-        RecRef := FieldRef.Record;
+        RecRef := FieldRef.Record();
 
         KeyRef := RecRef.KeyIndex(1);
-        for FieldIndex := 1 to KeyRef.FieldCount do
-            if KeyRef.FieldIndex(FieldIndex).Number = FieldRef.Number then
+        for FieldIndex := 1 to KeyRef.FieldCount() do
+            if KeyRef.FieldIndex(FieldIndex).Number() = FieldRef.Number() then
                 exit(true);
 
         exit(false);
@@ -602,7 +579,7 @@ codeunit 9178 "Application Area Mgmt."
         RecRef.GetTable(ApplicationAreaSetup);
         FirstPublicAppAreaFieldRef := RecRef.Field(ApplicationAreaSetup.FieldNo(Basic));
         for i := 1 to RecRef.FieldCount do
-            if RecRef.FieldIndex(i).Number = FirstPublicAppAreaFieldRef.Number then
+            if RecRef.FieldIndex(i).Number() = FirstPublicAppAreaFieldRef.Number() then
                 exit(i);
     end;
 
@@ -622,12 +599,12 @@ codeunit 9178 "Application Area Mgmt."
         GetExperienceTierRec(ExperienceTierSetup);
         RecRef.GetTable(ExperienceTierSetup);
 
-        for FieldIndex := 1 to RecRef.FieldCount do begin
+        for FieldIndex := 1 to RecRef.FieldCount() do begin
             FieldRef := RecRef.FieldIndex(FieldIndex);
             if not IsInPrimaryKey(FieldRef) then begin
-                TempExperienceTierBuffer."Field No." := FieldRef.Number;
-                TempExperienceTierBuffer."Experience Tier" := FieldRef.Caption;
-                TempExperienceTierBuffer.Selected := FieldRef.Value;
+                TempExperienceTierBuffer."Field No." := FieldRef.Number();
+                TempExperienceTierBuffer."Experience Tier" := CopyStr(FieldRef.Caption(), 1, MaxStrLen(TempExperienceTierBuffer."Experience Tier"));
+                TempExperienceTierBuffer.Selected := FieldRef.Value();
                 TempExperienceTierBuffer.Insert(true);
             end;
         end;
@@ -642,7 +619,7 @@ codeunit 9178 "Application Area Mgmt."
         GetExperienceTierBuffer(TempExperienceTierBuffer);
         if NewExperienceTier <> '' then begin
             TempExperienceTierBuffer.SetRange("Experience Tier", NewExperienceTier);
-            if TempExperienceTierBuffer.FindFirst then;
+            if TempExperienceTierBuffer.FindFirst() then;
             TempExperienceTierBuffer.SetRange("Experience Tier");
         end;
 
@@ -657,17 +634,16 @@ codeunit 9178 "Application Area Mgmt."
         if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Basic)) then
             TempExperienceTierBuffer.Delete();
 
+        if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Invoicing)) then
+            TempExperienceTierBuffer.Delete();
+
         GetExperienceTierRec(ExperienceTierSetup);
         if not ExperienceTierSetup.Custom then
             if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Custom)) then
                 TempExperienceTierBuffer.Delete();
 
-        if not ExperienceTierSetup.Invoicing then
-            if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Invoicing)) then
-                TempExperienceTierBuffer.Delete();
-
         OnBeforeLookupExperienceTier(TempExperienceTierBuffer);
-        if PAGE.RunModal(0, TempExperienceTierBuffer, TempExperienceTierBuffer."Experience Tier") = ACTION::LookupOK then begin
+        if page.RunModal(0, TempExperienceTierBuffer, TempExperienceTierBuffer."Experience Tier") = action::LookupOK then begin
             NewExperienceTier := TempExperienceTierBuffer."Experience Tier";
             exit(true);
         end;
@@ -689,22 +665,22 @@ codeunit 9178 "Application Area Mgmt."
 
         GetExperienceTierBuffer(TempExperienceTierBuffer);
         TempExperienceTierBuffer.SetRange("Experience Tier", NewExperienceTier);
-        if not TempExperienceTierBuffer.FindFirst then
+        if not TempExperienceTierBuffer.FindFirst() then
             exit(false);
 
         if not GetExperienceTierRec(ExperienceTierSetup) then begin
-            ExperienceTierSetup."Company Name" := CompanyName;
+            ExperienceTierSetup."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(ExperienceTierSetup."Company Name"));
             ExperienceTierSetup.Insert();
         end else
             if not ExperienceTierChanged then begin
-                Company.Get(CompanyName);
+                Company.Get(CompanyName());
                 if (NewExperienceTier = ExperienceTierSetup.FieldCaption(Custom)) or Company."Evaluation Company" then
                     exit(false);
             end;
 
         RecRef.GetTable(ExperienceTierSetup);
         FieldRef := RecRef.Field(TempExperienceTierBuffer."Field No.");
-        SelectedAlreadySaved := FieldRef.Value;
+        SelectedAlreadySaved := FieldRef.Value();
         if not SelectedAlreadySaved then begin
             RecRef.Init();
             FieldRef.Value := true;
@@ -723,7 +699,7 @@ codeunit 9178 "Application Area Mgmt."
         Clear(ExperienceTier);
         GetExperienceTierBuffer(TempExperienceTierBuffer);
         TempExperienceTierBuffer.SetRange(Selected, true);
-        if TempExperienceTierBuffer.FindFirst then
+        if TempExperienceTierBuffer.FindFirst() then
             ExperienceTier := TempExperienceTierBuffer."Experience Tier";
         exit(ExperienceTier <> '');
     end;
@@ -749,11 +725,6 @@ codeunit 9178 "Application Area Mgmt."
                 GetEssentialExperienceAppAreas(TempApplicationAreaSetup);
             ExperienceTierSetup.Premium:
                 GetPremiumExperienceAppAreas(TempApplicationAreaSetup);
-            ExperienceTierSetup.Invoicing:
-                begin
-                    TempApplicationAreaSetup.Init();
-                    TempApplicationAreaSetup.Invoicing := true;
-                end;
             else begin
                     OnSetExperienceTier(ExperienceTierSetup, TempApplicationAreaSetup, ApplicationAreasSet);
                     if not ApplicationAreasSet then
@@ -769,7 +740,7 @@ codeunit 9178 "Application Area Mgmt."
 
         ApplicationAreaSetup.TransferFields(TempApplicationAreaSetup, false);
         ApplicationAreaSetup.Modify();
-        SetupApplicationArea;
+        SetupApplicationArea();
     end;
 
     [Scope('OnPrem')]
@@ -797,11 +768,11 @@ codeunit 9178 "Application Area Mgmt."
 
         for FieldIndex := 1 to RecRef.FieldCount do begin
             FieldRef := RecRef.FieldIndex(FieldIndex);
-            if CheckBaseOnly and (FieldRef.Number >= 49999) then
+            if CheckBaseOnly and (FieldRef.Number() >= 49999) then
                 exit(true);
             FieldRef2 := RecRef2.FieldIndex(FieldIndex);
             if not IsInPrimaryKey(FieldRef) then
-                if not (FieldRef.Value = FieldRef2.Value) then
+                if not (FieldRef.Value() = FieldRef2.Value()) then
                     exit(false);
         end;
         exit(true);
@@ -855,8 +826,8 @@ codeunit 9178 "Application Area Mgmt."
         IsPreDefinedExperience: Boolean;
     begin
         IsPreDefinedExperience :=
-          IsBasicExperienceEnabled or IsEssentialExperienceEnabled or IsPremiumExperienceEnabled or
-          IsAdvancedExperienceEnabled or IsInvoicingOnlyEnabled;
+          IsBasicExperienceEnabled() or IsEssentialExperienceEnabled() or IsPremiumExperienceEnabled() or
+          IsAdvancedExperienceEnabled();
 
         exit(not IsPreDefinedExperience);
     end;
@@ -868,10 +839,10 @@ codeunit 9178 "Application Area Mgmt."
         TempApplicationAreaSetup: Record "Application Area Setup" temporary;
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSandbox then
+        if EnvironmentInfo.IsSandbox() then
             exit(true);
 
-        if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then
+        if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName()) then
             exit(true);
 
         exit(ApplicationAreaSetupsMatch(ApplicationAreaSetup, TempApplicationAreaSetup, false));
@@ -934,30 +905,23 @@ codeunit 9178 "Application Area Mgmt."
 
     [TryFunction]
     local procedure ValidateApplicationAreasSet(ExperienceTierSetup: Record "Experience Tier Setup"; TempApplicationAreaSetup: Record "Application Area Setup" temporary)
-    var
-        TempApplicationAreaSetup2: Record "Application Area Setup" temporary;
     begin
-        if TempApplicationAreaSetup.Invoicing then begin
-            TempApplicationAreaSetup2.Invoicing := true;
-            if not ApplicationAreaSetupsMatch(TempApplicationAreaSetup, TempApplicationAreaSetup2, false) then
-                Error(InvoicingExpTierErr);
-        end else
-            TempApplicationAreaSetup.TestField(Basic, true);
+        TempApplicationAreaSetup.TestField(Basic, true);
 
         OnValidateApplicationAreas(ExperienceTierSetup, TempApplicationAreaSetup);
     end;
 
-    [IntegrationEvent(FALSE, FALSE)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
     end;
 
-    [IntegrationEvent(FALSE, FALSE)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
     end;
 
-    [IntegrationEvent(FALSE, FALSE)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
     end;

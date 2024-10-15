@@ -43,33 +43,35 @@ codeunit 2129 "O365 Export Invoices + Email"
         FileManagement: Codeunit "File Management";
         EmailSuccess: Boolean;
         ServerFileName: Text;
+        File: File;
+        Instream: Instream;
     begin
         SalesInvoiceHeader.SetRange("Document Date", StartDate, EndDate);
 
-        if not SalesInvoiceHeader.FindSet then begin
+        if not SalesInvoiceHeader.FindSet() then begin
             Session.LogMessage('000023Z', ExportInvoicesFailedNoInvoicesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExportInvoicesCategoryLbl);
             Error(NoInvoicesExportedErr);
         end;
 
         TempExcelBuffer.Reset();
-        InsertHeaderTextForSalesInvoices;
-        InsertHeaderTextForSalesLines;
-        InsertSalesInvoices;
+        InsertHeaderTextForSalesInvoices();
+        InsertHeaderTextForSalesLines();
+        InsertSalesInvoices();
 
         ServerFileName := FileManagement.ServerTempFileName('xlsx');
         TempExcelBuffer.CreateBook(ServerFileName, InvoicesSheetNameTxt);
         TempExcelBuffer.WriteSheet(InvoicesSheetNameTxt, CompanyName, UserId);
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
 
-        CODEUNIT.Run(CODEUNIT::"O365 Setup Email");
+        Codeunit.Run(Codeunit::"O365 Setup Email");
 
-        with TempEmailItem do begin
-            Validate("Send to", Email);
-            Validate(Subject, StrSubstNo(ExportInvoicesEmailSubjectTxt, StartDate, EndDate));
-            "Attachment File Path" := CopyStr(ServerFileName, 1, 250);
-            Validate("Attachment Name", AttachmentNameTxt);
-            EmailSuccess := Send(true);
-        end;
+        TempEmailItem.Validate("Send to", Email);
+        TempEmailItem.Validate(Subject, StrSubstNo(ExportInvoicesEmailSubjectTxt, StartDate, EndDate));
+        File.Open(ServerFileName);
+        File.CreateInStream(InStream);
+        TempEmailItem.AddAttachment(InStream, AttachmentNameTxt);
+        File.Close();
+        EmailSuccess := TempEmailItem.Send(true);
 
         if EmailSuccess then begin
             Session.LogMessage('0000240', ExportInvoicesSuccessTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExportInvoicesCategoryLbl);

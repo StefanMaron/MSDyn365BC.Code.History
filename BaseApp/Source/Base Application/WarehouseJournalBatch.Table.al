@@ -1,4 +1,4 @@
-table 7310 "Warehouse Journal Batch"
+﻿table 7310 "Warehouse Journal Batch"
 {
     Caption = 'Warehouse Journal Batch';
     DataCaptionFields = Name, Description;
@@ -74,7 +74,13 @@ table 7310 "Warehouse Journal Batch"
             trigger OnValidate()
             var
                 Location: Record Location;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnValidateLocationCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 Location.Get("Location Code");
                 Location.TestField("Directed Put-away and Pick", true);
             end;
@@ -145,6 +151,11 @@ table 7310 "Warehouse Journal Batch"
         "No. Series" := WhseJnlTemplate."No. Series";
         "Registering No. Series" := WhseJnlTemplate."Registering No. Series";
         "Reason Code" := WhseJnlTemplate."Reason Code";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnValidateLocationCode(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -2400,6 +2400,7 @@
         LoanerEntry: Record "Loaner Entry";
         ServAllocMgt: Codeunit ServAllocationManagement;
         ReservMgt: Codeunit "Reservation Management";
+        ShowPostedDocsToPrint: Boolean;
     begin
         if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center") then
             Error(Text000, UserSetupMgt.GetServiceFilter);
@@ -2499,10 +2500,11 @@
           ServDocLog."Document Type"::"Posted Credit Memo");
         ServDocLog.DeleteAll();
 
-        if (ServShptHeader."No." <> '') or
+        ShowPostedDocsToPrint := (ServShptHeader."No." <> '') or
            (ServInvHeader."No." <> '') or
-           (ServCrMemoHeader."No." <> '')
-        then
+           (ServCrMemoHeader."No." <> '');
+        OnBeforeShowPostedDocsToPrintCreatedMsg(ShowPostedDocsToPrint);
+        if ShowPostedDocsToPrint then
             Message(PostedDocsToPrintCreatedMsg);
     end;
 
@@ -4503,6 +4505,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalespersonCode(var ServiceHeader: Record "Service Header"; SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeShowPostedDocsToPrintCreatedMsg(var ShowPostedDocsToPrint: Boolean)
     begin
     end;
 

@@ -674,6 +674,7 @@ codeunit 550 "VAT Rate Change Conversion"
         end;
 
         UpdateSalesBlanketOrder(NewSalesLine, SalesLine."Line No.");
+        UpdateAttachedToLineNoSales(NewSalesLine, SalesLine."Line No.");
 
         OldReservationEntry.Reset();
         OldReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
@@ -767,6 +768,32 @@ codeunit 550 "VAT Rate Change Conversion"
                         end;
                     end;
                 until SalesLine2.Next() = 0;
+        end;
+    end;
+
+    local procedure UpdateAttachedToLineNoSales(SalesLine: Record "Sales Line"; OriginalLineNo: Integer)
+    var
+        SalesLine2: Record "Sales Line";
+    begin
+        if SalesLine."Document Type" = SalesLine."Document Type"::"Blanket Order" then begin
+            SalesLine2.SetRange("Document No.", SalesLine."Document No.");
+            SalesLine2.SetRange(Type, SalesLine2.Type::" ");
+            SalesLine2.SetRange("Attached to Line No.", OriginalLineNo);
+            if not SalesLine2.IsEmpty() then
+                SalesLine2.ModifyAll("Attached to Line No.", SalesLine."Line No.");
+        end;
+    end;
+
+    local procedure UpdateAttachedToLineNoPurch(PurchLine: Record "Purchase Line"; OriginalLineNo: Integer)
+    var
+        PurchLine2: Record "Purchase Line";
+    begin
+        if PurchLine."Document Type" = PurchLine."Document Type"::"Blanket Order" then begin
+            PurchLine2.SetRange("Document No.", PurchLine."Document No.");
+            PurchLine2.SetRange(Type, PurchLine2.Type::" ");
+            PurchLine2.SetRange("Attached to Line No.", OriginalLineNo);
+            if not PurchLine2.IsEmpty() then
+                PurchLine2.ModifyAll("Attached to Line No.", PurchLine."Line No.");
         end;
     end;
 
@@ -1027,6 +1054,7 @@ codeunit 550 "VAT Rate Change Conversion"
         end;
 
         UpdatePurchaseBlanketOrder(NewPurchaseLine, PurchaseLine."Line No.");
+        UpdateAttachedToLineNoPurch(NewPurchaseLine, PurchaseLine."Line No.");
 
         OldReservationEntry.Reset();
         OldReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");

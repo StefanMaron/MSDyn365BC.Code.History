@@ -1,4 +1,4 @@
-table 700 "Error Message"
+﻿table 700 "Error Message"
 {
     Caption = 'Error Message';
     DrillDownPageID = "Error Messages Part";
@@ -178,6 +178,7 @@ table 700 "Error Message"
         FieldRef: FieldRef;
         EmptyFieldRef: FieldRef;
         NewDescription: Text;
+        IsHandled: Boolean;
     begin
         if not DataTypeManagement.GetRecordRefAndFieldRef(RecRelatedVariant, FieldNumber, RecordRef, FieldRef) then
             exit(0);
@@ -186,6 +187,11 @@ table 700 "Error Message"
         EmptyFieldRef := TempRecordRef.Field(FieldNumber);
 
         if FieldRef.Value <> EmptyFieldRef.Value then
+            exit(0);
+
+        IsHandled := false;
+        OnLogIfEmptyOnAfterCheckEmptyValue(FieldRef, EmptyFieldRef, IsHandled);
+        if IsHandled then
             exit(0);
 
         NewDescription := StrSubstNo(IfEmptyErr, FieldRef.Caption, Format(RecordRef.RecordId));
@@ -724,6 +730,11 @@ table 700 "Error Message"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLogSimpleMessage(MessageType: Option; NewDescription: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogIfEmptyOnAfterCheckEmptyValue(FieldRef: FieldRef; EmptyFieldRef: FieldRef; IsHandled: Boolean)
     begin
     end;
 }

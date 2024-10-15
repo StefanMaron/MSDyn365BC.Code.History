@@ -1,4 +1,4 @@
-page 26 "Vendor Card"
+﻿page 26 "Vendor Card"
 {
     Caption = 'Vendor Card';
     PageType = Card;
@@ -35,7 +35,7 @@ page 26 "Vendor Card"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Name 2"; "Name 2")
@@ -1580,11 +1580,6 @@ page 26 "Vendor Card"
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
     end;
 
-    trigger OnAfterGetRecord()
-    begin
-        ActivateFields;
-    end;
-
     trigger OnInit()
     begin
         ContactEditable := true;
@@ -1633,10 +1628,6 @@ page 26 "Vendor Card"
         FormatAddress: Codeunit "Format Address";
         [InDataSet]
         ContactEditable: Boolean;
-        [InDataSet]
-        SocialListeningSetupVisible: Boolean;
-        [InDataSet]
-        SocialListeningVisible: Boolean;
         OpenApprovalEntriesExistCurrUser: Boolean;
         OpenApprovalEntriesExist: Boolean;
         ShowWorkflowStatus: Boolean;
@@ -1665,7 +1656,6 @@ page 26 "Vendor Card"
 
     local procedure ActivateFields()
     begin
-        SetSocialListeningFactboxVisibility;
         ContactEditable := "Primary Contact No." = '';
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
         if OfficeMgt.IsAvailable then
@@ -1675,14 +1665,6 @@ page 26 "Vendor Card"
     local procedure ContactOnAfterValidate()
     begin
         ActivateFields;
-    end;
-
-    [Obsolete('Microsoft Social Engagement has been discontinued.', '17.0')]
-    local procedure SetSocialListeningFactboxVisibility()
-    var
-        SocialListeningMgt: Codeunit "Social Listening Management";
-    begin
-        SocialListeningMgt.GetVendFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
     end;
 
     local procedure RunReport(ReportNumber: Integer)
@@ -1728,7 +1710,7 @@ page 26 "Vendor Card"
         Vendor: Record Vendor;
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
     begin
-        OnBeforeCreateVendorFromTemplate(NewMode);
+        OnBeforeCreateVendorFromTemplate(NewMode, Vendor);
 
         if not NewMode then
             exit;
@@ -1774,7 +1756,7 @@ page 26 "Vendor Card"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateVendorFromTemplate(var NewMode: Boolean)
+    local procedure OnBeforeCreateVendorFromTemplate(var NewMode: Boolean; var Vendor: Record Vendor)
     begin
     end;
 }
