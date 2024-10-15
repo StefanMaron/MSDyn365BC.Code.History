@@ -145,7 +145,7 @@ codeunit 393 "Reminder-Issue"
             Delete;
         end;
 
-        OnAfterIssueReminder(ReminderHeader, IssuedReminderHeader."No.");
+        OnAfterIssueReminder(ReminderHeader, IssuedReminderHeader."No.", GenJnlPostLine);
     end;
 
     var
@@ -500,7 +500,7 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterIssueReminder(var ReminderHeader: Record "Reminder Header"; IssuedReminderNo: Code[20])
+    local procedure OnAfterIssueReminder(var ReminderHeader: Record "Reminder Header"; IssuedReminderNo: Code[20]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

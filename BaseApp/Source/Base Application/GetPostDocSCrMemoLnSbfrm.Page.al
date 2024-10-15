@@ -357,7 +357,15 @@
     end;
 
     local procedure IsShowRec(SalesCrMemoLine2: Record "Sales Cr.Memo Line"): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsShowRec(Rec, SalesCrMemoLine2, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         with SalesCrMemoLine2 do begin
             if "Document No." <> SalesCrMemoHeader."No." then
                 SalesCrMemoHeader.Get("Document No.");
@@ -392,6 +400,11 @@
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsShowRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var SalesCrMemoLine2: Record "Sales Cr.Memo Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -34,6 +34,8 @@ report 2000006 "File Non Euro SEPA Payments"
 
             trigger OnPreDataItem()
             begin
+                OnBeforePreDataItemPaymentJournalLine("Payment Journal Line");
+
                 if ExecutionDate <> 0D then
                     ModifyAll("Posting Date", ExecutionDate);
 
@@ -59,6 +61,8 @@ report 2000006 "File Non Euro SEPA Payments"
 
             trigger OnPreDataItem()
             begin
+                OnBeforePreDataItemSeparatePmtJnlLine(SeparatePmtJnlLine);
+
                 Copy("Payment Journal Line");
                 SetRange("Separate Line", true);
             end;
@@ -322,6 +326,7 @@ report 2000006 "File Non Euro SEPA Payments"
 
     local procedure ExportPaymentInformation(XMLNodeCurr: DotNet XmlNode; PmtJnlLine: Record "Payment Journal Line")
     var
+        ExportProtocol: Record "Export Protocol";
         XMLNewChild: DotNet XmlNode;
         RootNode: DotNet XmlNode;
         AddressLine1: Text[110];
@@ -337,7 +342,12 @@ report 2000006 "File Non Euro SEPA Payments"
 
         AddElement(XMLNodeCurr, 'PmtInfId', MessageId + '-' + Format(PaymentInformationCounter), '', XMLNewChild);
         AddElement(XMLNodeCurr, 'PmtMtd', 'TRF', '', XMLNewChild);
-        AddElement(XMLNodeCurr, 'BtchBookg', 'false', '', XMLNewChild);
+
+        ExportProtocol.Get(PmtJnlLine."Export Protocol Code");
+        if ExportProtocol."Grouped Payment" then
+            AddElement(XMLNodeCurr, 'BtchBookg', 'true', '', XMLNewChild)
+        else
+            AddElement(XMLNodeCurr, 'BtchBookg', 'false', '', XMLNewChild);
         AddElement(XMLNodeCurr, 'PmtTpInf', '', '', XMLNewChild);
 
         XMLNodeCurr := XMLNewChild;
@@ -618,6 +628,8 @@ report 2000006 "File Non Euro SEPA Payments"
         if (CustomerNo <> CustomerBankAcc."Customer No.") or (BankAccCode <> CustomerBankAcc.Code) then
             if not CustomerBankAcc.Get(CustomerNo, BankAccCode) then
                 CustomerBankAcc.Init;
+
+        OnAfterGetCustomerBankAccount(CustomerBankAcc, "Payment Journal Line");
     end;
 
     [Scope('OnPrem')]
@@ -653,7 +665,6 @@ report 2000006 "File Non Euro SEPA Payments"
         exit('NORM');
     end;
 
-    [Scope('OnPrem')]
     procedure CheckNewGroup(PmtJnlLine: Record "Payment Journal Line"): Boolean
     begin
         if EmptyConsolidatedPayment then
@@ -716,7 +727,7 @@ report 2000006 "File Non Euro SEPA Payments"
             ConsolidatedPmtMessage := CopyStr(NewMessage, 1, MaxStrLen(ConsolidatedPmtMessage));
     end;
 
-    local procedure IsPaymentMessageTooLong(PaymentMessage: Text[100]): Boolean
+    procedure IsPaymentMessageTooLong(PaymentMessage: Text[100]): Boolean
     begin
         if not EBSetup."Cut off Payment Message Texts" then
             exit(StrLen(ConcatenatedPmtMessage(PaymentMessage)) > MaxStrLen(ConsolidatedPmtMessage));
@@ -801,6 +812,21 @@ report 2000006 "File Non Euro SEPA Payments"
         GenJnlTemplate.Get(GenJnlLine."Journal Template Name");
         if GenJnlTemplate.Type <> GenJnlTemplate.Type::General then
             Error(Text002, GenJnlTemplate.Name);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; PaymentJournalLine: Record "Payment Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreDataItemPaymentJournalLine(var PaymentJournalLine: Record "Payment Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreDataItemSeparatePmtJnlLine(var PaymentJournalLine: Record "Payment Journal Line");
+    begin
     end;
 }
 

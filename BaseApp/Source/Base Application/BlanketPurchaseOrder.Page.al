@@ -220,7 +220,7 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
@@ -361,6 +361,15 @@
                         Caption = 'Name';
                         Importance = Promoted;
                         ToolTip = 'Specifies the name of the vendor sending the invoice.';
+
+                        trigger OnValidate()
+                        begin
+                            if GetFilter("Pay-to Vendor No.") = xRec."Pay-to Vendor No." then
+                                if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
+                                    SetRange("Pay-to Vendor No.");
+
+                            CurrPage.Update;
+                        end;
                     }
                     field("Pay-to Address"; "Pay-to Address")
                     {

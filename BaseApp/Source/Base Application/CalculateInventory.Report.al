@@ -26,8 +26,12 @@ report 790 "Calculate Inventory"
 
                     if ColumnDim <> '' then
                         TransferDim("Dimension Set ID");
+
                     if not "Drop Shipment" then
                         ByBin := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
+
+                    OnAfterGetRecordItemLedgEntryOnBeforeUpdateBuffer(Item, "Item Ledger Entry", ByBin);
+                    
                     if not SkipCycleSKU("Location Code", "Item No.", "Variant Code") then
                         if ByBin then begin
                             if not TempSKU.Get("Location Code", "Item No.", "Variant Code") then begin
@@ -78,6 +82,8 @@ report 790 "Calculate Inventory"
                         TempDimBufIn.SetRange("Table ID", DATABASE::"Item Ledger Entry");
                     TempDimBufIn.SetRange("Entry No.");
                     TempDimBufIn.DeleteAll;
+
+                    OnItemLedgerEntryOnAfterPreDataItem("Item Ledger Entry", Item);
                 end;
             }
             dataitem("Warehouse Entry"; "Warehouse Entry")
@@ -88,6 +94,7 @@ report 790 "Calculate Inventory"
                 begin
                     if not "Item Ledger Entry".IsEmpty then
                         CurrReport.Skip;   // Skip if item has any record in Item Ledger Entry.
+
                     Clear(QuantityOnHandBuffer);
                     QuantityOnHandBuffer."Item No." := "Item No.";
                     QuantityOnHandBuffer."Location Code" := "Location Code";
@@ -96,6 +103,8 @@ report 790 "Calculate Inventory"
                     GetLocation("Location Code");
                     if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                         QuantityOnHandBuffer."Bin Code" := "Bin Code";
+
+                    OnBeforeQuantityOnHandBufferFindAndInsert(QuantityOnHandBuffer);
                     if not QuantityOnHandBuffer.Find then
                         QuantityOnHandBuffer.Insert;   // Insert a zero quantity line.
                 end;
@@ -480,6 +489,7 @@ report 790 "Calculate Inventory"
                 end;
             end;
         end;
+
         OnAfterFunctionInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ItemJnlLine);
     end;
 
@@ -689,6 +699,7 @@ report 790 "Calculate Inventory"
             "Location Code" := "Item Ledger Entry"."Location Code";
             "Dimension Entry No." := DimEntryNo;
             "Bin Code" := BinCode;
+            OnRetrieveBufferOnBeforeFind(QuantityOnHandBuffer, "Item Ledger Entry");
             exit(Find);
         end;
     end;
@@ -828,6 +839,11 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemLedgEntryOnBeforeUpdateBuffer(var Item: Record Item; ItemLedgEntry: Record "Item Ledger Entry"; var ByBin: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -838,12 +854,27 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnItemLedgerEntryOnAfterPreDataItem(var ItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFunctionInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeQuantityOnHandBufferFindAndInsert(var InventoryBuffer: Record "Inventory Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFunctionInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveBufferOnBeforeFind(var InventoryBuffer: Record "Inventory Buffer"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

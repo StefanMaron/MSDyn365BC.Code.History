@@ -566,7 +566,7 @@ codeunit 135510 "Sales Invoice E2E Test"
           'Page and API Invoice do not match');
 
         // tear down
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
     end;
 
     [Test]

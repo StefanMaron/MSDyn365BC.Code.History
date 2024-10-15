@@ -253,7 +253,6 @@ report 2000019 "Suggest Vendor Payments EB"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetPaymJnlLine()
     var
         DimMgt: Codeunit DimensionManagement;

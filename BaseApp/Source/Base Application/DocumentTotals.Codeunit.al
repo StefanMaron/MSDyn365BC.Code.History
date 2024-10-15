@@ -196,14 +196,12 @@ codeunit 57 "Document Totals"
           PurchaseHeader, TempPurchaseLine, 0, TempTotalPurchaseLine, TempTotalPurchaseLineLCY, VATAmount, VATAmountText);
     end;
 
-    [Scope('OnPrem')]
     procedure RefreshSalesLine(var SalesLine: Record "Sales Line")
     begin
         if NeedRefreshSalesLine and (SalesLine."Line No." <> 0) then
             if SalesLine.Find then;
     end;
 
-    [Scope('OnPrem')]
     procedure RefreshPurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
         if NeedRefreshPurchaseLine and (PurchaseLine."Line No." <> 0) then
@@ -307,13 +305,11 @@ codeunit 57 "Document Totals"
         SalesRedistributeInvoiceDiscountAmounts(TempSalesLine, VATAmount, TempSalesLineTotal);
     end;
 
-    [Scope('OnPrem')]
     procedure SalesDocTotalsNotUpToDate()
     begin
         TotalsUpToDate := false;
     end;
 
-    [Scope('OnPrem')]
     procedure SalesCheckIfDocumentChanged(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
     begin
         if (SalesLine."Document No." <> xSalesLine."Document No.") or
@@ -325,9 +321,10 @@ codeunit 57 "Document Totals"
            (SalesLine."Currency Code" <> xSalesLine."Currency Code")
         then
             TotalsUpToDate := false;
+
+        OnAfterSalesCheckIfDocumentChanged(SalesLine, xSalesLine, TotalsUpToDate);
     end;
 
-    [Scope('OnPrem')]
     procedure SalesCheckAndClearTotals(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal)
     begin
         SalesLine.FilterGroup(4);
@@ -342,7 +339,6 @@ codeunit 57 "Document Totals"
         SalesLine.FilterGroup(0);
     end;
 
-    [Scope('OnPrem')]
     procedure SalesDeltaUpdateTotals(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal)
     var
         InvDiscountBaseAmount: Decimal;
@@ -475,13 +471,11 @@ codeunit 57 "Document Totals"
         PurchaseRedistributeInvoiceDiscountAmounts(TempPurchaseLine, VATAmount, TempPurchaseLineTotal);
     end;
 
-    [Scope('OnPrem')]
     procedure PurchaseDocTotalsNotUpToDate()
     begin
         TotalsUpToDate := false;
     end;
 
-    [Scope('OnPrem')]
     procedure PurchaseCheckIfDocumentChanged(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
     begin
         if (PurchaseLine."Document No." <> xPurchaseLine."Document No.") or
@@ -493,9 +487,10 @@ codeunit 57 "Document Totals"
            (PurchaseLine."Currency Code" <> xPurchaseLine."Currency Code")
         then
             TotalsUpToDate := false;
+
+        OnAfterPurchaseCheckIfDocumentChanged(PurchaseLine, xPurchaseLine, TotalsUpToDate);
     end;
 
-    [Scope('OnPrem')]
     procedure PurchaseCheckAndClearTotals(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TotalPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal)
     begin
         PurchaseLine.FilterGroup(4);
@@ -510,7 +505,6 @@ codeunit 57 "Document Totals"
         PurchaseLine.FilterGroup(0);
     end;
 
-    [Scope('OnPrem')]
     procedure PurchaseDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TotalPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal)
     var
         InvDiscountBaseAmount: Decimal;
@@ -863,12 +857,22 @@ codeunit 57 "Document Totals"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesCheckIfDocumentChanged(SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var TotalsUpToDate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSalesLineSetFilters(var TotalSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesRedistributeInvoiceDiscountAmounts(var TempSalesLine: Record "Sales Line" temporary; var TempTotalSalesLine: Record "Sales Line" temporary; var VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchaseCheckIfDocumentChanged(PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var TotalsUpToDate: Boolean)
     begin
     end;
 

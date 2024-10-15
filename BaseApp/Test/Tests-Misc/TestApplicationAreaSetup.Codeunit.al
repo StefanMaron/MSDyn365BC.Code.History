@@ -378,6 +378,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup.Validate(Suite, true);
         ApplicationAreaSetup.Validate("Fixed Assets", true);
         ApplicationAreaSetup.Insert(true);
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsTrue(ApplicationAreaMgmtFacade.IsFoundationEnabled, 'Has Foundation, FoundationEnabled return true');
@@ -386,6 +387,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         // Setup Clear Foundation
         ApplicationAreaSetup.Suite := false;
         ApplicationAreaSetup.Modify;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsFoundationEnabled, 'Foundation false, FoundationEnabled return false');
@@ -703,6 +705,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Basic := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Basic Application Area is expected to be enabled.');
@@ -713,6 +716,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Suite := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Suite Application Area is expected to be enabled.');
@@ -723,6 +727,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup."Fixed Assets" := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Fixed Assets Application Area is expected to be enabled.');
@@ -733,6 +738,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Jobs := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Jobs Application Area is expected to be enabled.');
@@ -753,6 +759,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Location := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Location Application Area is expected to be enabled.');
@@ -763,6 +770,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.BasicHR := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'BasicHR Application Area is expected to be enabled.');
@@ -773,6 +781,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Intercompany := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Intercompany Application Area is expected to be enabled.');
@@ -783,6 +792,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup."Item Charges" := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Item Charges Application Area is expected to be enabled.');
@@ -793,6 +803,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Assembly := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Assembly Application Area is expected to be enabled.');
@@ -803,6 +814,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup."Cost Accounting" := true;
         ApplicationAreaSetup.Insert;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
         Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Cost Accounting Application Area is expected to be enabled.');
@@ -1128,6 +1140,28 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // [THEN] Field "Responsibility Center" visible
         Assert.IsTrue(CompanyInformation."Responsibility Center".Visible, 'Responsibility Center should be visible.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SpecialSalesPricesDiscountsOnItemList()
+    var
+        ItemList: TestPage "Item List";
+    begin
+        // [FEATURE] [Special Price] [Application Area] [UI]
+        // [SCENARIO 324319] On the item list page there is a link to Special Price and Discount for customers in SaaS
+        Initialize;
+
+        // [GIVEN] Set Application Area = Suite
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // [WHEN] Open Item List
+        ItemList.OpenEdit;
+
+        // [THEN] Links to Special Prices, Discounts and Overview pages are present
+        Assert.IsTrue(ItemList.Sales_Prices.Visible, '');
+        Assert.IsTrue(ItemList.Sales_LineDiscounts.Visible, '');
+        Assert.IsTrue(ItemList.PricesDiscountsOverview.Visible, '');
     end;
 
     local procedure Initialize()

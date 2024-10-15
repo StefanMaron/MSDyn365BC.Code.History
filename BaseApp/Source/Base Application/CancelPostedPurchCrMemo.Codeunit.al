@@ -275,6 +275,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     local procedure TestGenPostingSetup(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     var
         GenPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
     begin
         with GenPostingSetup do begin
             Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
@@ -285,8 +286,9 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             TestField("Purch. Line Disc. Account");
             TestGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
             if PurchCrMemoLine.Type = PurchCrMemoLine.Type::Item then begin
-                TestField("COGS Account");
-                TestGLAccount("COGS Account", PurchCrMemoLine);
+                Item.Get(PurchCrMemoLine."No.");
+                if Item.IsInventoriableType then
+                    TestGLAccount(GetCOGSAccount, PurchCrMemoLine);
             end;
         end;
     end;

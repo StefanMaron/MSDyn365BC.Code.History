@@ -55,11 +55,6 @@ codeunit 5478 "Graph Mgt - Journal Lines"
         end
     end;
 
-    local procedure EnableAccountODataWebService()
-    begin
-        UpdateIntegrationRecords(false);
-    end;
-
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -73,7 +68,6 @@ codeunit 5478 "Graph Mgt - Journal Lines"
     [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
-        EnableAccountODataWebService;
         UpdateIds;
     end;
 

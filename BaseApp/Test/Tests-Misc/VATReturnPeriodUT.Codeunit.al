@@ -123,6 +123,7 @@ codeunit 134281 "VAT Return Period UT"
     begin
         // [FEATURE] [Job]
         // [SCENARIO 258181] COD 737 "VAT Report Mgt.".CreateAndStartAutoUpdateVATReturnPeriodJob()
+        // [SCENARIO 324828] By default, the Job runs only on working days (Monday-Friday) with max no. of attempts to run = 1
         Initialize;
         SetAutoReceivePeriodCUID(VATReportSetup."Update Period Job Frequency"::Daily, CODEUNIT::TestCodeunitRunMessage);
 
@@ -134,6 +135,14 @@ codeunit 134281 "VAT Return Period UT"
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", VATReportSetup."Auto Receive Period CU ID");
             FindFirst;
+            TestField("Run on Mondays", true);
+            TestField("Run on Tuesdays", true);
+            TestField("Run on Wednesdays", true);
+            TestField("Run on Thursdays", true);
+            TestField("Run on Fridays", true);
+            TestField("Run on Saturdays", false);
+            TestField("Run on Sundays", false);
+            TestField("Maximum No. of Attempts to Run", 1);
         end;
     end;
 

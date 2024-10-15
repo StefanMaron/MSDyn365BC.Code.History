@@ -34,6 +34,8 @@ report 2000005 "File SEPA Payments"
 
             trigger OnPreDataItem()
             begin
+                OnBeforePreDataItemPaymentJournalLine("Payment Journal Line");
+
                 if ExecutionDate <> 0D then
                     ModifyAll("Posting Date", ExecutionDate);
 
@@ -59,6 +61,8 @@ report 2000005 "File SEPA Payments"
 
             trigger OnPreDataItem()
             begin
+                OnBeforePreDataItemSeparatePmtJnlLine(SeparatePmtJnlLine);
+
                 Copy("Payment Journal Line");
                 SetRange("Separate Line", true);
             end;
@@ -655,7 +659,7 @@ report 2000005 "File SEPA Payments"
         end;
     end;
 
-    local procedure CheckNewGroup(PmtJnlLine: Record "Payment Journal Line"): Boolean
+    procedure CheckNewGroup(PmtJnlLine: Record "Payment Journal Line"): Boolean
     var
         ReturnValue: Boolean;
     begin
@@ -727,7 +731,7 @@ report 2000005 "File SEPA Payments"
             ConsolidatedPmtMessage := CopyStr(NewMessage, 1, MaxStrLen(ConsolidatedPmtMessage));
     end;
 
-    local procedure IsPaymentMessageTooLong(PaymentMessage: Text[100]): Boolean
+    procedure IsPaymentMessageTooLong(PaymentMessage: Text[100]): Boolean
     begin
         if not EBSetup."Cut off Payment Message Texts" then
             exit(StrLen(ConcatenatedPmtMessage(PaymentMessage)) > MaxStrLen(ConsolidatedPmtMessage));
@@ -849,6 +853,16 @@ report 2000005 "File SEPA Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostPaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; var PaymentJournalLine: Record "Payment Journal Line"; AutomaticPosting: Boolean; BalancingPostingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreDataItemPaymentJournalLine(var PaymentJournalLine: Record "Payment Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreDataItemSeparatePmtJnlLine(var PaymentJournalLine: Record "Payment Journal Line");
     begin
     end;
 }

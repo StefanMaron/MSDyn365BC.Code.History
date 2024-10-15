@@ -145,7 +145,7 @@ table 5700 "Stockkeeping Unit"
                         "Lead Time Calculation" := Vend."Lead Time Calculation";
             end;
         }
-        field(32; "Vendor Item No."; Text[20])
+        field(32; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }

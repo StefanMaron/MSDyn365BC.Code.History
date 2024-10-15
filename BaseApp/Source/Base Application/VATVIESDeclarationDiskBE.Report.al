@@ -606,14 +606,27 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
     local procedure RefreshBufferOnZeroBalance(CountryRegionCode: Code[10]; VATRegistrationNo: Code[20])
     begin
-        Country.Get(CountryRegionCode);
         with Buffer do begin
-            SetRange("VAT Registration No.", FormatBufferVATNo(Country."EU Country/Region Code", VATRegistrationNo));
+            SetRange("VAT Registration No.", FormatBufferVATNo(GetEUCountryRegionCode(CountryRegionCode), VATRegistrationNo));
             CalcSums(Amount);
             if Amount = 0 then
                 DeleteAll;
             SetRange("VAT Registration No.");
         end;
+    end;
+
+    local procedure GetEUCountryRegionCode(CountryRegionCode: Code[10]): Code[10]
+    var
+        CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+    begin
+        if CountryRegionCode = '' then begin
+            CompanyInformation.Get();
+            CountryRegionCode := CompanyInformation."Country/Region Code";
+        end;
+
+        CountryRegion.Get(CountryRegionCode);
+        exit(CountryRegion."EU Country/Region Code");
     end;
 }
 

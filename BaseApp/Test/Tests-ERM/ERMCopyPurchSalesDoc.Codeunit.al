@@ -2484,6 +2484,46 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseLineItem.TestField("Qty. to Assign", 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPostedPurchaseInvoiceWithStandardText()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        CopiedPurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        StandardText: Record "Standard Text";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 323428] Posted Sales Invoice is copied to Corrective Credit Memo with item charge of zero unit cost.
+        Initialize;
+
+        // [GIVEN] Purchase invoice with two lines - first with standard text, second one with item
+        UpdatePurchaseSetupForCorrectiveMemo(false, true);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibrarySales.CreateStandardText(StandardText);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::" ",
+          StandardText.Code, LibraryRandom.RandInt(10));
+        CreatePurchaseLine(
+          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo,
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Posted purchase invoice
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Invoke "Create Corrective Credit Memo" from posted purchase invoice
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeader);
+
+        // [THEN] Two purchase lines are created for corrective credit memo. First - with standard text
+        CopiedPurchaseLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        Assert.RecordCount(CopiedPurchaseLine, 2);
+        CopiedPurchaseLine.FindFirst;
+        CopiedPurchaseLine.TestField(Type, CopiedPurchaseLine.Type::" ");
+        CopiedPurchaseLine.TestField("No.", StandardText.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2498,6 +2538,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibrarySales.SetStockoutWarning(false);
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -3266,6 +3307,16 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         PurchasesPayablesSetup.Get;
         PurchasesPayablesSetup.Validate("Calc. Inv. Discount", CalcInvDiscount);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure UpdatePurchaseSetupForCorrectiveMemo(ReceiptOnInvoice: Boolean; ExactCostReversingMandatory: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Validate("Receipt on Invoice", ReceiptOnInvoice);
+        PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         PurchasesPayablesSetup.Modify(true);
     end;
 

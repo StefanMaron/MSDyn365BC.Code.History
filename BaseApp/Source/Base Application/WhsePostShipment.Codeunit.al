@@ -478,9 +478,13 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
 
                         if Print then begin
-                            TransShptHeader."No." := TransHeader."Last Shipment No.";
-                            TransShptHeader.SetRecFilter;
-                            TransShptHeader.PrintRecords(false);
+                            IsHandled := false;
+                            OnPostSourceDocumentOnBeforePrintTransferShipment(TransShptHeader, IsHandled);
+                            if not IsHandled then begin
+                                TransShptHeader."No." := TransHeader."Last Shipment No.";
+                                TransShptHeader.SetRecFilter;
+                                TransShptHeader.PrintRecords(false);
+                            end;
                         end;
 
                         OnAfterTransferPostShipment(WhseShptLine, TransHeader);
@@ -572,6 +576,8 @@ codeunit 5763 "Whse.-Post Shipment"
             end;
             WhseShptHeaderParam.Modify;
         end;
+
+        OnAfterPostUpdateWhseDocuments(WhseShptHeaderParam);
     end;
 
     procedure GetResultMessage()
@@ -986,7 +992,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             PurchLine.Validate("Qty. to Invoice", 0);
                         end;
                     end;
-                    OnBeforePurchLineModify(PurchLine, WhseShptLine, ModifyLine);
+                    OnBeforePurchLineModify(PurchLine, WhseShptLine, ModifyLine, Invoice);
                     if ModifyLine then
                         PurchLine.Modify;
                 until PurchLine.Next = 0;
@@ -1180,6 +1186,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostUpdateWhseDocuments(var WhseShptHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostWhseJnlLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
@@ -1205,7 +1216,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line"; WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean)
+    local procedure OnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line"; WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean; Invoice: Boolean)
     begin
     end;
 
@@ -1306,6 +1317,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforePrintPurchReturnShipment(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePrintTransferShipment(var Transfer: Record "Transfer Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 }

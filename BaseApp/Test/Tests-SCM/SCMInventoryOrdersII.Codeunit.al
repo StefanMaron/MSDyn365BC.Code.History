@@ -33,6 +33,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPlanning: Codeunit "Library - Planning";
+        LibraryErrorMessage: Codeunit "Library - Error Message";
         IsInitialized: Boolean;
         TrackingQuantity: Decimal;
         AssignLotNo: Boolean;
@@ -1975,6 +1976,80 @@ codeunit 137068 "SCM Inventory Orders-II"
         Assert.RecordCount(PurchaseLine, 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchasingCodeFromItemToSalesLine()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Purchasing: Record Purchasing;
+    begin
+        // [FEATURE] [Sales] [Purchasing Code] [UT]
+        // [SCENARIO 277218] Purchasing code copied to sales line from item card
+        Initialize;
+
+        // [GIVEN] Item "I" with Purchasing Code = "PC"
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purchasing Code", Purchasing.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order 
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [WHEN] Item "I" is being selected in the sales line
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [THEN] Sales line has Purchasing Line = "PC"
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostOrderStrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure DropShipmentErrorHandling()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Purchasing: Record Purchasing;
+        NamedForwardLink: Record "Named Forward Link";
+        SalesOrder: TestPage "Sales Order";
+        ErrorMessagesPage: TestPage "Error Messages";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+    begin
+        // [FEATURE] [Sales] [Purchasing Code] [UT]
+        // [SCENARIO 328639] Error message record about Posting drop shipment without link to purchase order has Context field name Purchasing Code and Support URL to "Make Drop Shipments" help topic
+        Initialize;
+
+        // [GIVEN] Item "I" with Purchasing Code = "PC" with "Drop Shipment" = Yes
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        Purchasing."Drop Shipment" := true;
+        Purchasing.Modify();
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purchasing Code", Purchasing.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order with item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Sales order is being posted
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        LibraryVariableStorage.Enqueue(3); // ship and invoice
+        LibraryErrorMessage.TrapErrorMessages;
+        SalesOrder.Post.Invoke();
+
+        // [THEN] Error Messages page has Context Field Name = "Purchasing Code"
+        LibraryErrorMessage.GetTestPage(ErrorMessagesPage);
+        ErrorMessagesPage."Context Field Name".AssertEquals(SalesLine.FieldName("Purchasing Code"));
+        // [THEN] Error Messages page has Support URL = "https://go.microsoft.com/fwlink/?linkid=2104945"
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForSalesLineDropShipmentErr());
+        ErrorMessagesPage."Support Url".AssertEquals(NamedForwardLink.Link);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2612,7 +2687,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesLine.OpenItemTrackingLines;
     end;
 
-    local procedure CreateSalesLineWithLocationCodeAndPurchasing(var SalesLine: Record "Sales Line";SalesHeader: Record "Sales Header";LocationCode: Code[10];PurchasingCode: Code[10])
+    local procedure CreateSalesLineWithLocationCodeAndPurchasing(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LocationCode: Code[10]; PurchasingCode: Code[10])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         SalesLine.Validate("Location Code", LocationCode);
@@ -3598,6 +3673,13 @@ codeunit 137068 "SCM Inventory Orders-II"
     procedure ItemChargeAssignMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         Choice := 1;  // Using 1 for Assign Equally Option.
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure PostOrderStrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := LibraryVariableStorage.DequeueInteger;
     end;
 
     [RequestPageHandler]

@@ -746,6 +746,9 @@ table 112 "Sales Invoice Header"
         key(Key11; "Due Date")
         {
         }
+        key(Key12; "Salesperson Code")
+        {
+        }
     }
 
     fieldgroups

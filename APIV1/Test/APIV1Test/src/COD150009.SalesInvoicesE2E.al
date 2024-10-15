@@ -252,6 +252,7 @@ codeunit 150009 "Sales Invoices E2E"
         Customer: Record "Customer";
         LibrarySales: Codeunit "Library - Sales";
         DueDate: Date;
+        PostingDate: Date;
         InvoiceDate: Date;
         CustomerNo: Text;
         ResponseText: Text;
@@ -270,9 +271,11 @@ codeunit 150009 "Sales Invoices E2E"
 
         InvoiceDate := WORKDATE();
         DueDate := CALCDATE('<1D>', InvoiceDate);
+        PostingDate := CALCDATE('<1D>', InvoiceDate);
 
         InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceJSON, 'invoiceDate', FORMAT(InvoiceDate, 0, 9));
         InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceJSON, 'dueDate', FORMAT(DueDate, 0, 9));
+        InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceJSON, 'postingDate', FORMAT(PostingDate, 0, 9));
         COMMIT();
 
         // [WHEN] we POST the JSON to the web service
@@ -292,6 +295,7 @@ codeunit 150009 "Sales Invoices E2E"
         Assert.IsTrue(SalesHeader.FINDFIRST(), 'The unposted invoice should exist');
         Assert.AreEqual(InvoiceDate, SalesHeader."Document Date", 'The invoice should have the correct document date');
         Assert.AreEqual(DueDate, SalesHeader."Due Date", 'The invoice should have the correct due date');
+        Assert.AreEqual(PostingDate, SalesHeader."Posting Date", 'The invoice should have the correct posting date');
     end;
 
     [Test]
@@ -586,7 +590,7 @@ codeunit 150009 "Sales Invoices E2E"
           'Page and API Invoice do not match');
 
         // tear down
-        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryApplicationArea.EnableEssentialSetup();
     end;
 
     [Test]

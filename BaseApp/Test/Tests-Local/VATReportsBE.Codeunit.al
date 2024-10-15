@@ -656,6 +656,38 @@ codeunit 144010 "VAT Reports BE"
           37, 3, Format(ExpectedValue[2], 0, '<Integer Thousand><Decimals,3><Filler Character,0>'), '1');
     end;
 
+    [Test]
+    [HandlerFunctions('VATVIESDeclarationDiskRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATViesOnCustomerWithBlankCountryRegionCode()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        FileName: Text;
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 325903] Run report "VAT-VIES Declaration Disk" in case one of the Customers has blank "Country/Region Code".
+        Initialize;
+
+        // [GIVEN] Posted Sales document for Customer with blank "Country/Region Code".
+        CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate);
+        CustomerNo := Customer."No.";
+        Customer."Country/Region Code" := '';
+        Customer.Modify;
+
+        // [GIVEN] Posted Sales document for Customer with non-blank "Country/Region Code".
+        CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate);
+        Customer.TestField("Country/Region Code");
+
+        // [WHEN] Run report "VAT-VIES Declaration Disk".
+        FileName := VATVIESDeclarationDiskOpen(0, WorkDate, true, '', StrSubstNo('%1|%2', CustomerNo, Customer."No."));
+
+        // [THEN] XML file is created.
+        Assert.IsTrue(FILE.Exists(FileName), StrSubstNo('%1 %2', FileName, NotFoundMsg));
+    end;
+
     local procedure Initialize()
     var
         VATVIESCorrection: Record "VAT VIES Correction";
@@ -1042,6 +1074,8 @@ codeunit 144010 "VAT Reports BE"
     var
         DequeuedVar: Variant;
     begin
+        VATVIESDeclarationDiskReport."VAT Entry".SetFilter("VAT Bus. Posting Group", '');
+        VATVIESDeclarationDiskReport."VAT Entry".SetFilter("VAT Prod. Posting Group", '');
         // Choice
         // Setting this to 0 to run the report on a month base
         LibraryVariableStorage.Dequeue(DequeuedVar);

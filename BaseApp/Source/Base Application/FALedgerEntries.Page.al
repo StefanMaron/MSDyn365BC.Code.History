@@ -165,7 +165,7 @@
                 field("G/L Entry No."; "G/L Entry No.")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the G/L number for the entry that was created in the general ledger for this fixed asset transaction.';
+                    ToolTip = 'Specifies the entry number of the corresponding G/L entry that was created in the general ledger for this fixed asset transaction.';
                 }
                 field("Entry No."; "Entry No.")
                 {

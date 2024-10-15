@@ -21,6 +21,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
@@ -32,6 +33,9 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
         DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.';
         MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
+        SalesAccountIsMissingTxt: Label 'Sales Account is missing in General Posting Setup.';
+        CogsAccountIsMissingTxt: Label 'COGS Account is missing in General Posting Setup.';
+        SalesVatAccountIsMissingTxt: Label 'Sales VAT Account is missing in VAT Posting Setup.';
 
     local procedure Initialize()
     var
@@ -1160,6 +1164,205 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         VerifyAggregateTableIsUpdatedForInvoice(SalesHeader."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSalesInvoiceModifyWithCurrencyAndJobQueueStatus()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        Currency: Record Currency;
+        ZeroGuid: Guid;
+    begin
+        // [FEATURE] [Batch Posting] [Background Posting] [UT]
+        // [SCENARIO 328249] Ids stays the same (not updated) when modify sales header with "Job Queue Status" = "Posting" or "Scheduled for Posting" (batch posting emulation).
+        // System skips "Sales Header" OnModify subscribers while batch posting ("Job Queue Status" updated to "Scheduled for Posting" or "Posting")
+        Initialize;
+
+        // [GIVEN] Currency
+        LibraryERM.CreateCurrency(Currency);
+        // [GIVEN] Invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        // [GIVEN] Assigned "Currency Code" and "Job Queue Status" = "Scheduled for Posting"
+        SalesHeader."Currency Code" := Currency.Code;
+        SalesHeader."Job Queue Status" := SalesHeader."Job Queue Status"::"Scheduled for Posting";
+        // [WHNE] Modify sales header (triggers OnModify subscribers)
+        SalesHeader.Modify;
+        Commit;
+
+        // [THEN] Ids are empty (the same as before modify sales header) in sales invoice entity aggregate
+        SalesInvoiceEntityAggregate.Reset;
+        SalesInvoiceEntityAggregate.SetRange(Id, SalesHeader.Id);
+        Assert.IsTrue(SalesInvoiceEntityAggregate.FindFirst, 'The unposted invoice should exist');
+        Assert.AreEqual(ZeroGuid, SalesInvoiceEntityAggregate."Currency Id", 'The Id of the currency should be blank.');
+        Assert.AreEqual('', SalesInvoiceEntityAggregate."Currency Code", 'The code of the currency should be blank.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSalesOrderModifyWithCurrencyAndJobQueueStatus()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
+        Currency: Record Currency;
+        ZeroGuid: Guid;
+    begin
+        // [FEATURE] [Batch Posting] [Background Posting] [UT]
+        // [SCENARIO 328249] Ids stays the same (not updated) when modify sales header with "Job Queue Status" = "Posting" or "Scheduled for Posting" (batch posting emulation).
+        // System skips "Sales Header" OnModify subscribers while batch posting ("Job Queue Status" updated to "Scheduled for Posting" or "Posting")
+        Initialize;
+
+        // [GIVEN] Currency
+        LibraryERM.CreateCurrency(Currency);
+        // [GIVEN] Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        // [GIVEN] Assigned "Currency Code" and "Job Queue Status" = "Scheduled for Posting"
+        SalesHeader."Currency Code" := Currency.Code;
+        SalesHeader."Job Queue Status" := SalesHeader."Job Queue Status"::"Scheduled for Posting";
+        // [WHNE] Modify sales header (triggers OnModify subscribers)
+        SalesHeader.Modify;
+        Commit;
+
+        // [THEN] Ids are empty (the same as before modify sales header) in sales order entity buffer
+        SalesOrderEntityBuffer.Reset;
+        SalesOrderEntityBuffer.SetRange(Id, SalesHeader.Id);
+        Assert.IsTrue(SalesOrderEntityBuffer.FindFirst, 'The unposted order should exist');
+        Assert.AreEqual(ZeroGuid, SalesOrderEntityBuffer."Currency Id", 'The Id of the currency should be blank.');
+        Assert.AreEqual('', SalesOrderEntityBuffer."Currency Code", 'The code of the currency should be blank.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSalesCrMemoModifyWithCurrencyAndJobQueueStatus()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
+        Currency: Record Currency;
+        ZeroGuid: Guid;
+    begin
+        // [FEATURE] [Batch Posting] [Background Posting] [UT]
+        // [SCENARIO 328249] Ids stays the same (not updated) when modify sales header with "Job Queue Status" = "Posting" or "Scheduled for Posting" (batch posting emulation).
+        // System skips "Sales Header" OnModify subscribers while batch posting ("Job Queue Status" updated to "Scheduled for Posting" or "Posting")
+        Initialize;
+
+        // [GIVEN] Currency
+        LibraryERM.CreateCurrency(Currency);
+        // [GIVEN] Credit Memo
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        // [GIVEN] Assigned "Currency Code" and "Job Queue Status" = "Scheduled for Posting"
+        SalesHeader."Currency Code" := Currency.Code;
+        SalesHeader."Job Queue Status" := SalesHeader."Job Queue Status"::"Scheduled for Posting";
+        // [WHNE] Modify sales header (triggers OnModify subscribers)
+        SalesHeader.Modify;
+        Commit;
+
+        // [THEN] Ids are empty (the same as before modify sales header) in sales credit memo entity buffer
+        SalesCrMemoEntityBuffer.Reset;
+        SalesCrMemoEntityBuffer.SetRange(Id, SalesHeader.Id);
+        Assert.IsTrue(SalesCrMemoEntityBuffer.FindFirst, 'The unposted credit memo should exist');
+        Assert.AreEqual(ZeroGuid, SalesCrMemoEntityBuffer."Currency Id", 'The Id of the currency should be blank.');
+        Assert.AreEqual('', SalesCrMemoEntityBuffer."Currency Code", 'The code of the currency should be blank.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPurchaseInvoiceModifyWithCurrencyAndJobQueueStatus()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        Currency: Record Currency;
+        ZeroGuid: Guid;
+    begin
+        // [FEATURE] [Batch Posting] [Background Posting] [UT]
+        // [SCENARIO 328249] Ids stays the same (not updated) when modify purchase header with "Job Queue Status" = "Posting" or "Scheduled for Posting" (batch posting emulation).
+        // System skips "Purchase Header" OnModify subscribers while batch posting ("Job Queue Status" updated to "Scheduled for Posting" or "Posting")
+        Initialize;
+
+        // [GIVEN] Currency
+        LibraryERM.CreateCurrency(Currency);
+        // [GIVEN] Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        // [GIVEN] Assigned "Currency Code" and "Job Queue Status" = "Scheduled for Posting"
+        PurchaseHeader."Currency Code" := Currency.Code;
+        PurchaseHeader."Job Queue Status" := PurchaseHeader."Job Queue Status"::"Scheduled for Posting";
+        // [WHNE] Modify purchase header (triggers OnModify subscribers)
+        PurchaseHeader.Modify;
+        Commit;
+
+        // [THEN] Ids are empty (the same as before modify purchase header) in purchase invoice entity aggregate
+        PurchInvEntityAggregate.Reset;
+        PurchInvEntityAggregate.SetRange(Id, PurchaseHeader.Id);
+        Assert.IsTrue(PurchInvEntityAggregate.FindFirst, 'The unposted purchase invoice should exist');
+        Assert.AreEqual(ZeroGuid, PurchInvEntityAggregate."Currency Id", 'The Id of the currency should be blank.');
+        Assert.AreEqual('', PurchInvEntityAggregate."Currency Code", 'The code of the currency should be blank.');
+    end;
+
+    [TestPermissions(TestPermissions::NonRestrictive)]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceLineLimitedPermissionCreation()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        StandardText: Record "Standard Text";
+        Customer: Record Customer;
+        MyNotifications: Record "My Notifications";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [FEATURE] [Permissions]
+        // [SCENARIO 325667] Sales Line without type is added when user has limited permissions.
+        Initialize;
+
+        // [GIVEN] Standard text.
+        LibrarySales.CreateStandardText(StandardText);
+        // [GIVEN] Enabled notification about missing G/L account.
+        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
+        // [GIVEN] Sales header.
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [GIVEN] Permisson to create sales invoices.
+        LibraryLowerPermissions.SetSellReturn;
+
+        // [WHEN] Add Sales Line with standard text, but whithout type.
+        SalesLine.Init;
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate("No.", StandardText.Code);
+        SalesLine.Insert(true);
+
+        // [THEN] Sales line is created.
+        Assert.RecordIsNotEmpty(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceLineWithoutAccountCreation()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        MyNotifications: Record "My Notifications";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [SCENARIO 325667] Notification is shown when Sales Line is added and G/L Account is missing in posting group.
+        Initialize;
+
+        // [GIVEN] Enabled notification about missing G/L account.
+        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
+        // [GIVEN] Sales header with "Gen. Business Posting Group" and "VAT Bus. Posting Group" are not in Posting Setup.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerrWithNewPostingGroups);
+
+        // [WHEN] Add Purchase Line (SendNotificationHandler).
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+
+        // [THEN] Notification "Sales Account is missing in General Posting Setup." is sent.
+        Assert.ExpectedMessage(SalesAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        // [THEN] Notification "COGS Account is missing in General Posting Setup." is sent.
+        Assert.ExpectedMessage(CogsAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        // [THEN] Notification "Sales VAT Account is missing in VAT Posting Setup." is sent.
+        Assert.ExpectedMessage(SalesVatAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; minAmount: Decimal)
     begin
         CreateCustomer(Customer);
@@ -1171,6 +1374,24 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LibrarySales.CreateCustomer(Customer);
         Customer.Name := Customer."No.";
         Customer.Modify;
+    end;
+
+    local procedure CreateCustomerrWithNewPostingGroups(): Code[20]
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        Customer.Init;
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        Customer.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        Customer.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        Customer.Insert(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateItem(var Item: Record Item; UnitPrice: Decimal)
@@ -2002,6 +2223,13 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
             then
                 exit(true)
         end;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+        LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
 

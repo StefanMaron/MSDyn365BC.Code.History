@@ -1053,12 +1053,12 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetNoSeriesCode(var ReminderHeader: Record "Reminder Header"; SalesSetup: Record "Sales & Receivables Setup"; NoSeriesCode: Code[20])
+    local procedure OnAfterGetNoSeriesCode(var ReminderHeader: Record "Reminder Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetIssuingNoSeriesCode(var ReminderHeader: Record "Reminder Header"; IssuingNos: Code[20])
+    local procedure OnAfterGetIssuingNoSeriesCode(var ReminderHeader: Record "Reminder Header"; var IssuingNos: Code[20])
     begin
     end;
 
@@ -1083,7 +1083,7 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetNoSeriesCode(var ReminderHeader: Record "Reminder Header"; SalesSetup: Record "Sales & Receivables Setup"; NoSeriesCode: Code[20]; IsHandled: Boolean)
+    local procedure OnBeforeGetNoSeriesCode(var ReminderHeader: Record "Reminder Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
