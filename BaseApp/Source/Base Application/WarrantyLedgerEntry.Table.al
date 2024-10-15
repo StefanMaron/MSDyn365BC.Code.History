@@ -172,7 +172,7 @@ table 5908 "Warranty Ledger Entry"
             Caption = 'Vendor No.';
             TableRelation = Vendor."No.";
         }
-        field(36; "Vendor Item No."; Text[20])
+        field(36; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }

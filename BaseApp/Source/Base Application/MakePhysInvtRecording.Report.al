@@ -88,6 +88,8 @@ report 5881 "Make Phys. Invt. Recording"
             else
                 Message(DifferentOrdersMsg, HeaderCount);
         end;
+
+        OnAfterOnPostReport(PhysInvtRecordHeader, HeaderCount);
     end;
 
     trigger OnPreReport()
@@ -123,6 +125,7 @@ report 5881 "Make Phys. Invt. Recording"
                 PhysInvtRecordLine2.SetRange("Variant Code", "Variant Code");
                 PhysInvtRecordLine2.SetRange("Location Code", "Location Code");
                 PhysInvtRecordLine2.SetRange("Bin Code", "Bin Code");
+                OnCheckOrderLineOnAfterSetFilters(PhysInvtRecordLine2, PhysInvtOrderLine);
                 if PhysInvtRecordLine2.FindFirst then
                     exit(false);
             end;
@@ -160,9 +163,31 @@ report 5881 "Make Phys. Invt. Recording"
             "Use Item Tracking" := PhysInvtOrderLine."Use Item Tracking";
             Validate("Unit of Measure Code", PhysInvtOrderLine."Base Unit of Measure Code");
             Recorded := false;
+            OnBeforePhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
             Insert;
+            OnAfterPhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
             NextLineNo := NextLineNo + 10000;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPostReport(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; HeadCount: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPhysInvtRecordLineInsert(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePhysInvtRecordLineInsert(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckOrderLineOnAfterSetFilters(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
     end;
 }
 

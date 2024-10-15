@@ -3812,6 +3812,8 @@ codeunit 134341 "UT Page Actions & Controls"
         TableID: Integer;
     begin
         // - Lookup Table ID on Config. Lines.
+        // [FEATURE] [Rapid Start]
+
         ConfigLine.DeleteAll(true);
         TableID := DATABASE::Customer;
         LibraryVariableStorage.Enqueue(TableID);
@@ -3824,6 +3826,62 @@ codeunit 134341 "UT Page Actions & Controls"
 
         ConfigLine.FindFirst;
         Assert.AreEqual(TableID, ConfigLine."Table ID", 'Incorrect Table ID.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerStatisticsFactbox()
+    var
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        CustomerStatisticsFactBox: TestPage "Customer Statistics FactBox";
+    begin
+        // [SCENARIO 323686] "Refund (LCY)" is visible on Customer Statistics Factbox.
+        // [FEATURE] [Customer] [Sales] [Refund]
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+
+        CustomerStatisticsFactBox.OpenView;
+        Assert.IsTrue(CustomerStatisticsFactBox."Balance (LCY)".Visible, 'Balance (LCY) is not visible in SaaS');
+
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorStatisticsFactbox()
+    var
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        VendorStatisticsFactBox: TestPage "Vendor Statistics FactBox";
+    begin
+        // [SCENARIO 323686] "Refund (LCY)" is visible on Vendor Statistics Factbox.
+        // [FEATURE] [Vendor] [Purchases] [Refund]
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+
+        VendorStatisticsFactBox.OpenView;
+        Assert.IsTrue(VendorStatisticsFactBox."Balance (LCY)".Visible, 'Balance (LCY) is not visible in SaaS');
+
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+    end;
+
+    [Test]
+    [HandlerFunctions('TimeZoneLookup')]
+    [Scope('OnPrem')]
+    procedure PostCodesLookUpTimeZone()
+    var
+        PostCode: Record "Post Code";
+        TimeZone: Record "Time Zone";
+        PostCodes: TestPage "Post Codes";
+    begin
+        // [SCENARIO 323341] Lookup TimeZone in Post Codes
+        CreatePostCode(PostCode);
+        PostCodes.OpenEdit;
+        PostCodes.FILTER.SetFilter(City, PostCode.City);
+        TimeZone.FindSet;
+        TimeZone.Next(TimeZone.Count);
+        LibraryVariableStorage.Enqueue(TimeZone.ID);
+        PostCodes.TimeZone.Lookup;
+        PostCodes.Close;
+        PostCode.Find;
+        PostCode.TestField("Time Zone", TimeZone.ID);
     end;
 
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
@@ -4614,6 +4672,14 @@ codeunit 134341 "UT Page Actions & Controls"
         AllObjWithCaption.FindFirst;
         ObjectsPage.GotoRecord(AllObjWithCaption);
         ObjectsPage.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure TimeZoneLookup(var TimeZones: TestPage "Time Zones")
+    begin
+        TimeZones.FILTER.SetFilter(ID, LibraryVariableStorage.DequeueText);
+        TimeZones.OK.Invoke;
     end;
 }
 

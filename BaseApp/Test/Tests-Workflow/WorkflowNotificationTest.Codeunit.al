@@ -1871,7 +1871,7 @@ codeunit 134301 "Workflow Notification Test"
         NotificationManagement.CreateDefaultNotificationSetup(NotificationSetup."Notification Type"::Approval);
         LibraryDocumentApprovals.SetupUserWithApprover(UserSetup);
         LibraryWorkflow.CreateNotificationSetup(
-          NotificationSetup,UserSetup."User ID",
+          NotificationSetup, UserSetup."User ID",
           NotificationSetup."Notification Type"::Approval,
           NotificationSetup."Notification Method"::Email);
         NotificationSetup.GetNotificationSetupForUser(NotificationEntry.Type::Approval, UserSetup."Approver ID");
@@ -2618,6 +2618,7 @@ codeunit 134301 "Workflow Notification Test"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         EntryPointStepID: Integer;
         FirstResponse: Integer;
+        RejectResponse: Integer;
         SecondResponse: Integer;
         SecondStepID: Integer;
     begin
@@ -2641,7 +2642,9 @@ codeunit 134301 "Workflow Notification Test"
         SecondStepID :=
           LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode, SecondResponse);
 
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode, SecondStepID);
+        RejectResponse :=
+            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode, SecondStepID);
+        LibraryWorkflow.SetNotifySenderInResponse(Workflow.Code, RejectResponse);
 
         LibraryWorkflow.EnableWorkflow(Workflow);
     end;

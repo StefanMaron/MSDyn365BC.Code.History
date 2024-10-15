@@ -470,6 +470,7 @@
 
                 trigger OnAction()
                 begin
+                    ReturnRcptHeader := Rec;
                     CurrPage.SetSelectionFilter(ReturnRcptHeader);
                     ReturnRcptHeader.PrintRecords(true);
                 end;

@@ -121,7 +121,7 @@
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
                     Visible = false;
 
@@ -1029,8 +1029,6 @@
     end;
 
     trigger OnInit()
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         PurchasesPayablesSetup.Get;
         Currency.InitRoundingPrecision;
@@ -1049,14 +1047,9 @@
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         InitType;
-        // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        SetDefaultType();
 
         Clear(ShortcutDimCode);
         UpdateTypeText;
@@ -1081,6 +1074,7 @@
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ShortcutDimCode: array[8] of Code[20];
         VATAmount: Decimal;
         InvoiceDiscountAmount: Decimal;
@@ -1231,6 +1225,18 @@
         Clear(DimMgt);
     end;
 
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if not IsHandled then // Set default type Item
+            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                if xRec."Document No." = '' then
+                    Type := Type::Item;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
     begin
@@ -1238,6 +1244,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

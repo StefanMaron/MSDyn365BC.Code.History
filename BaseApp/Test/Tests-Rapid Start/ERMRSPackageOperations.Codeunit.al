@@ -2161,6 +2161,81 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.RecordCount(ConfigPackageTable, 2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImportPackageWithOptionsAndEnums()
+    var
+        OptionAndEnumRS: Record OptionAndEnumRS;
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        FilePath: Text;
+    begin
+        // Init
+        Initialize();
+        OptionAndEnumRS.DeleteAll();
+
+        // [GIVEN] that we have tables with both enums and options
+        InsertOptionAndEnumRs(0, OptionAndEnumRS.OptionField::Zero, OptionAndEnumRS.EnumField::Eight);
+        InsertOptionAndEnumRs(1, OptionAndEnumRS.OptionField::One, OptionAndEnumRS.EnumField::Nine);
+        InsertOptionAndEnumRs(2, OptionAndEnumRS.OptionField::Two, OptionAndEnumRS.EnumField::Ten);
+
+        // [GIVEN] a rapidstart package is create from that table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::OptionAndEnumRS);
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // Cleanup before import
+        OptionAndEnumRS.DeleteAll();
+        LibraryRapidStart.CleanUp(ConfigPackage.Code);
+
+        // [WHEN] the rapidstart package is imported and applied
+        ConfigXMLExchange.ImportPackageXML(FilePath);
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] the options and enums are properly applied
+        VerifyEnumsAndOptionsAfterApplyingPackage()
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImportPackageWithTranslatedOptionsAndEnums()
+    var
+        OptionAndEnumRS: Record OptionAndEnumRS;
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        FilePath: Text;
+        LanguageId: Integer;
+    begin
+        // Init
+        Initialize();
+        OptionAndEnumRS.DeleteAll();
+
+        // [GIVEN] that the system is running in a different language
+        LanguageId := GlobalLanguage();
+        // Change to DAN
+        GlobalLanguage(1030);
+
+        // [GIVEN] that we have tables with both enums and options
+        InsertOptionAndEnumRs(0, OptionAndEnumRS.OptionField::Zero, OptionAndEnumRS.EnumField::Eight);
+        InsertOptionAndEnumRs(1, OptionAndEnumRS.OptionField::One, OptionAndEnumRS.EnumField::Nine);
+        InsertOptionAndEnumRs(2, OptionAndEnumRS.OptionField::Two, OptionAndEnumRS.EnumField::Ten);
+
+        // [GIVEN] a rapidstart package is create from that table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::OptionAndEnumRS);
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // Cleanup before import
+        OptionAndEnumRS.DeleteAll();
+        LibraryRapidStart.CleanUp(ConfigPackage.Code);
+
+        // [WHEN] the rapidstart package is imported and applied
+        ConfigXMLExchange.ImportPackageXML(FilePath);
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] the option and enums are properly applied
+        VerifyEnumsAndOptionsAfterApplyingPackage();
+        GlobalLanguage(LanguageId);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3220,6 +3295,33 @@ codeunit 136603 "ERM RS Package Operations"
                 FindFirst;
             end;
         end;
+    end;
+
+    local procedure InsertOptionAndEnumRs(PK: Integer; OptionInt: Integer; EnumInt: Integer)
+    var
+        OptionAndEnumRS: Record OptionAndEnumRS;
+    begin
+        OptionAndEnumRS.PK := PK;
+        OptionAndEnumRS.OptionField := OptionInt;
+        OptionAndEnumRS.EnumField := EnumInt;
+        OptionAndEnumRS.Insert();
+    end;
+
+    local procedure VerifyEnumsAndOptionsAfterApplyingPackage()
+    var
+        OptionAndEnumRS: Record OptionAndEnumRS;
+    begin
+        OptionAndEnumRS.Get(0);
+        Assert.AreEqual(OptionAndEnumRS.OptionField::Zero, OptionAndEnumRS.OptionField, 'Option or Enum values differ after rapidstart import');
+        Assert.AreEqual(OptionAndEnumRS.EnumField::Eight, OptionAndEnumRS.EnumField, 'Option or Enum values differ after rapidstart import');
+
+        OptionAndEnumRS.Get(1);
+        Assert.AreEqual(OptionAndEnumRS.OptionField::One, OptionAndEnumRS.OptionField, 'Option or Enum values differ after rapidstart import');
+        Assert.AreEqual(OptionAndEnumRS.EnumField::Nine, OptionAndEnumRS.EnumField, 'Option or Enum values differ after rapidstart import');
+
+        OptionAndEnumRS.Get(2);
+        Assert.AreEqual(OptionAndEnumRS.OptionField::Two, OptionAndEnumRS.OptionField, 'Option or Enum values differ after rapidstart import');
+        Assert.AreEqual(OptionAndEnumRS.EnumField::Ten, OptionAndEnumRS.EnumField, 'Option or Enum values differ after rapidstart import');
     end;
 
     [ModalPageHandler]

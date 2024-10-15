@@ -59,14 +59,8 @@ page 20047 "APIV1 - Purchase Invoice Lines"
                         RegisterFieldSet(FIELDNO("No."));
                         RegisterFieldSet(FIELDNO("Item Id"));
 
-                        Item.SETRANGE(Id, "Item Id");
-
-                        IF NOT Item.FINDFIRST() THEN BEGIN
+                        IF NOT Item.GetBySystemId("Item Id") THEN BEGIN
                             InsertItem := TRUE;
-                            CheckIntegrationIdInUse();
-
-                            Item.Id := "Item Id";
-                            RegisterFieldSet(Item.FIELDNO(Id));
                             EXIT;
                         END;
 
@@ -385,8 +379,6 @@ page 20047 "APIV1 - Purchase Invoice Lines"
         CannotChangeIdNoErr: Label 'The value for id cannot be modified.', Locked = true;
         CannotChangeDocumentIdNoErr: Label 'The value for documentId cannot be modified.', Locked = true;
         CannotChangeLineNoErr: Label 'The value for sequence cannot be modified. Delete and insert the line again.', Locked = true;
-        ItemWasDeletedErr: Label 'The item was deleted.', Locked = true;
-        IdIsAlreadyUsedErr: Label 'The id is already in use.', Locked = true;
         BothItemIdAndAccountIdAreSpecifiedErr: Label 'Both itemId and accountId are specified. Specify only one of them.';
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -435,19 +427,6 @@ page 20047 "APIV1 - Purchase Invoice Lines"
         TempItemFieldSet.TableNo := DATABASE::Item;
         TempItemFieldSet.VALIDATE("No.", FieldNo);
         TempItemFieldSet.INSERT(TRUE);
-    end;
-
-    local procedure CheckIntegrationIdInUse()
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        IF NOT IntegrationRecord.GET("Item Id") THEN
-            EXIT;
-
-        IF IntegrationRecord."Table ID" = DATABASE::Item THEN
-            ERROR(ItemWasDeletedErr);
-
-        ERROR(IdIsAlreadyUsedErr);
     end;
 
     local procedure InsertItemOnTheFly()

@@ -17,6 +17,7 @@ codeunit 139031 "Change Log"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryPermissions: Codeunit "Library - Permissions";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         OldChangeLogActivated: Boolean;
@@ -1750,6 +1751,61 @@ codeunit 139031 "Change Log"
         Assert.AreEqual(0, ChangeLogEntry.Count, 'Not all entries deleted');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure InsertTenantPermissionSetsIsLogged()
+    var
+        ChangeLogSetup: Record "Change Log Setup";
+        TenantPermissionSet: Record "Tenant Permission Set";
+        ChangeLogEntry: Record "Change Log Entry";
+        ZeroGuid: Guid;
+    begin
+        // [SCENARIO 223616] Change log entry is created when Tenant Permission Set record is inserted.
+        Initialize;
+
+        // [GIVEN] Change Log is activated.
+        ChangeLogSetup.Get;
+        ChangeLogSetup.Validate("Change Log Activated",true);
+        ChangeLogSetup.Modify;
+
+        // [WHEN] Insert new Tenant Permission Set.
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID, ZeroGuid);
+
+        // [THEN] Change Log Entry is created for Tenant Permission Set.
+        ChangeLogEntry.SetRange("Table No.", DATABASE::"Tenant Permission Set");
+        ChangeLogEntry.SetRange("New Value", TenantPermissionSet."Role ID");
+        Assert.RecordIsNotEmpty(ChangeLogEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InsertTenantPermissionIsLogged()
+    var
+        ChangeLogSetup: Record "Change Log Setup";
+        TenantPermissionSet: Record "Tenant Permission Set";
+        TenantPermission: Record "Tenant Permission";
+        ChangeLogEntry: Record "Change Log Entry";
+        ZeroGuid: Guid;
+    begin
+        // [SCENARIO 223616] Change log entry is created when Tenant Permission record is inserted.
+        Initialize;
+
+        // [GIVEN] Change Log is activated.
+        ChangeLogSetup.Get;
+        ChangeLogSetup.Validate("Change Log Activated", true);
+        ChangeLogSetup.Modify;
+
+        // [WHEN] Insert new Tenant Permission.
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID, ZeroGuid);
+        CreateTenantPermission(TenantPermission, ZeroGuid, GenerateRandomTenantPermissionRoleID,
+          TenantPermission."Object Type"::Table, 0);
+
+        // [THEN] Change Log Entry is created for Tenant Permission.
+        ChangeLogEntry.SetRange("Table No.", DATABASE::"Tenant Permission");
+        ChangeLogEntry.SetRange("New Value", TenantPermission."Role ID");
+        Assert.RecordIsNotEmpty(ChangeLogEntry);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -1818,6 +1874,23 @@ codeunit 139031 "Change Log"
     procedure REP510RequestPageHandlerRunDeletion(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete.OK.Invoke;
+    end;
+
+    local procedure CreateTenantPermission(var TenantPermission: Record "Tenant Permission"; AppID: Guid; RoleID: Code[20]; ObjectType: Option; ObjectID: Integer);
+    begin
+        LibraryPermissions.AddTenantPermission(AppID, RoleID, ObjectType, ObjectID);
+        TenantPermission.SetRange("App ID", AppID);
+        TenantPermission.SetRange("Role ID", RoleID);
+        TenantPermission.SetRange("Object Type", ObjectType);
+        TenantPermission.SetRange("Object ID", ObjectID);
+        TenantPermission.FindFirst;
+    end;
+
+    local procedure GenerateRandomTenantPermissionRoleID() : Code[20]
+    var
+      TenantPermission: Record "Tenant Permission";
+    begin
+      exit(LibraryUtility.GenerateRandomCode20(TenantPermission.FieldNo("Role ID"), DATABASE::"Tenant Permission"));
     end;
 
     local procedure CreateChangeLogEntry(EventDate: Date)

@@ -22,11 +22,26 @@ page 1392 "Help And Chart Wrapper"
             {
                 ApplicationArea = Basic, Suite, Invoicing;
 
+                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                    BusinessChartBuffer.SetDrillDownIndexes(point);
+                    ChartManagement.DataPointClicked(BusinessChartBuffer, SelectedChartDefinition);
+                end;
+
+                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                end;
+
                 trigger AddInReady()
                 begin
                     IsChartAddInReady := true;
                     ChartManagement.AddinReady(SelectedChartDefinition, BusinessChartBuffer);
                     InitializeSelectedChart;
+                end;
+
+                trigger Refresh()
+                begin
+                    UpdateChart
                 end;
             }
         }

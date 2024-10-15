@@ -42,6 +42,7 @@ page 9850 "Tenant Permissions"
                         OptionCaption = 'Only In Permission Set,All';
                         ToolTip = 'Specifies if the selected value is shown in the window.';
                         Visible = ControlsAreEditable;
+                        Editable = SingleFilterSelected;
 
                         trigger OnValidate()
                         begin
@@ -55,6 +56,7 @@ page 9850 "Tenant Permissions"
                     Caption = 'Add Read Permission to Related Tables';
                     ToolTip = 'Specifies that all tables that are related to the selected table will be added to the window with Read permission.';
                     Visible = ControlsAreEditable;
+                    Editable = SingleFilterSelected;
                 }
                 field(CopiedFromSystemRoleId; CopiedFromSystemRoleId)
                 {
@@ -130,10 +132,20 @@ page 9850 "Tenant Permissions"
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies the name of the object that the permissions apply to.';
                 }
+                field(ObjectCaption; ObjectCaption)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Object Caption';
+                    Editable = false;
+                    Visible = false;
+                    Style = Strong;
+                    StyleExpr = ZeroObjStyleExpr;
+                    ToolTip = 'Specifies the caption of the object that the permissions apply to.';
+                }
                 field(Control8; "Read Permission")
                 {
                     ApplicationArea = Basic, Suite;
-                    Enabled = IsTableData;
+                    Enabled = IsTableData and SingleFilterSelected;
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies if the permission set has read permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have read permission.';
@@ -141,7 +153,7 @@ page 9850 "Tenant Permissions"
                 field(Control7; "Insert Permission")
                 {
                     ApplicationArea = Basic, Suite;
-                    Enabled = IsTableData;
+                    Enabled = IsTableData and SingleFilterSelected;
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies if the permission set has insert permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have insert permission.';
@@ -149,7 +161,7 @@ page 9850 "Tenant Permissions"
                 field(Control6; "Modify Permission")
                 {
                     ApplicationArea = Basic, Suite;
-                    Enabled = IsTableData;
+                    Enabled = IsTableData and SingleFilterSelected;
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies if the permission set has modify permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have modify permission.';
@@ -157,7 +169,7 @@ page 9850 "Tenant Permissions"
                 field(Control5; "Delete Permission")
                 {
                     ApplicationArea = Basic, Suite;
-                    Enabled = IsTableData;
+                    Enabled = IsTableData and SingleFilterSelected;
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies if the permission set has delete permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have delete permission.';
@@ -165,7 +177,7 @@ page 9850 "Tenant Permissions"
                 field(Control4; "Execute Permission")
                 {
                     ApplicationArea = Basic, Suite;
-                    Enabled = NOT IsTableData;
+                    Enabled = NOT IsTableData and SingleFilterSelected;
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies if the permission set has execute permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have execute permission.';
@@ -173,7 +185,7 @@ page 9850 "Tenant Permissions"
                 field("Security Filter"; "Security Filter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Enabled = IsTableData;
+                    Enabled = IsTableData and SingleFilterSelected;
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies a security filter that applies to this permission set to limit the access that this permission set has to the data contained in this table.';
@@ -510,7 +522,7 @@ page 9850 "Tenant Permissions"
                     AccessByPermission = TableData "Tenant Permission" = I;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Add Read Permission to Related Tables';
-                    Enabled = IsEditable;
+                    Enabled = IsEditable and SingleFilterSelected;
                     Image = Relationship;
                     ToolTip = 'Define read access to tables that are related to the object.';
 
@@ -524,7 +536,7 @@ page 9850 "Tenant Permissions"
                     AccessByPermission = TableData "Tenant Permission" = ID;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Include/Exclude Permission Set';
-                    Enabled = IsEditable;
+                    Enabled = IsEditable and SingleFilterSelected;
                     Image = Edit;
                     ToolTip = 'Add or remove a specific permission set.';
 
@@ -537,6 +549,31 @@ page 9850 "Tenant Permissions"
                         AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
                         AddSubtractPermissionSet.RunModal;
                         FillTempPermissions;
+                    end;
+                }
+                action(FilterPermissionSet)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Select Permission Set';
+                    Image = Filter;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Specifies the filter of the permission sets that the object applies to.';
+
+                    trigger OnAction()
+                    var
+                        AggregatePermissionSet: Record "Aggregate Permission Set";
+                        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+                        PermissionSetList: Page "Permission Set List";
+                    begin
+                        PermissionSetList.LookupMode(true);
+                        if PermissionSetList.RunModal() = Action::LookupOK then begin
+                            PermissionSetList.GetSelectionFilter(AggregatePermissionSet);
+                            AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
+                            CurrentRoleID := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet);
+                            Reset();
+                            FillTempPermissions();
+                        end;
                     end;
                 }
             }
@@ -601,7 +638,8 @@ page 9850 "Tenant Permissions"
             PermissionRecExists := TenantPermission.Find;
         end else
             PermissionRecExists := false;
-        AllowChangePrimaryKey := not PermissionRecExists and (Show = Show::"Only In Permission Set");
+        SingleFilterSelected := GetRangeMin("Role ID") = GetRangeMax("Role ID");
+        AllowChangePrimaryKey := not PermissionRecExists and (Show = Show::"Only In Permission Set") and SingleFilterSelected;
         ZeroObjStyleExpr := PermissionRecExists and ("Object ID" = 0);
     end;
 
@@ -709,7 +747,7 @@ page 9850 "Tenant Permissions"
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
         if GetFilter("App ID") <> '' then
-            CurrentAppID := GetRangeMin("App ID")
+            CurrentAppID := GetFilter("App ID")
         else
             if TenantPermissionSet.FindFirst then
                 CurrentAppID := TenantPermissionSet."App ID";
@@ -719,22 +757,21 @@ page 9850 "Tenant Permissions"
 
         if CurrentRoleID = '' then
             if GetFilter("Role ID") <> '' then
-                CurrentRoleID := GetRangeMin("Role ID")
+                CurrentRoleID := GetFilter("Role ID")
             else
                 if TenantPermissionSet.FindFirst then
                     CurrentRoleID := TenantPermissionSet."Role ID";
-
         CopiedFromSystemRoleId := PermissionSetLink.GetSourceForLinkedPermissionSet(CurrentRoleID);
-
         Reset;
         FillTempPermissions;
         IsEditable := CurrPage.Editable;
+        SingleFilterSelected := GetRangeMin("Role ID") = GetRangeMax("Role ID");
     end;
 
     var
         LogTablePermissions: Codeunit "Log Table Permissions";
-        CurrentAppID: Guid;
-        CurrentRoleID: Code[20];
+        CurrentAppID: Text;
+        CurrentRoleID: Text;
         CopiedFromSystemRoleId: Code[20];
         Show: Option "Only In Permission Set",All;
         AddRelatedTables: Boolean;
@@ -753,6 +790,8 @@ page 9850 "Tenant Permissions"
         ObjectName: Text;
         IsEditable: Boolean;
         CannotChangeExtensionPermissionErr: Label 'You cannot change permissions sets of type Extension.';
+        ObjectCaption: Text;
+        SingleFilterSelected: Boolean;
 
     local procedure FillTempPermissions()
     var
@@ -763,8 +802,8 @@ page 9850 "Tenant Permissions"
         TempTenantPermission.Reset;
         TempTenantPermission.DeleteAll;
         FilterGroup(2);
-        SetRange("Role ID", CurrentRoleID);
-        TenantPermission.SetRange("Role ID", CurrentRoleID);
+        SetFilter("Role ID", CurrentRoleID);
+        TenantPermission.SetFilter("Role ID", CurrentRoleID);
         FilterGroup(0);
 
         if TenantPermission.FindSet then
@@ -989,12 +1028,18 @@ page 9850 "Tenant Permissions"
     end;
 
     local procedure SetObjectZeroName(var TenantPermission: Record "Tenant Permission")
+    var
+        AllObj: Record AllObj;
     begin
         if TenantPermission."Object ID" <> 0 then begin
             TenantPermission.CalcFields("Object Name");
-            ObjectName := TenantPermission."Object Name";
-        end else
+            ObjectCaption := TenantPermission."Object Name";
+            AllObj.Get(TenantPermission."Object Type", TenantPermission."Object ID");
+            ObjectName := AllObj."Object Name";
+        end else begin
             ObjectName := CopyStr(StrSubstNo(AllObjTxt, TenantPermission."Object Type"), 1, MaxStrLen(TenantPermission."Object Name"));
+            ObjectCaption := ObjectName;
+        end;
     end;
 
     procedure SetControlsAsEditable()

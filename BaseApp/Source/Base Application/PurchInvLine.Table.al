@@ -205,7 +205,7 @@ table 123 "Purch. Inv. Line"
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
         }
-        field(70; "Vendor Item No."; Text[20])
+        field(70; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }
@@ -840,7 +840,7 @@ table 123 "Purch. Inv. Line"
                     if Abs(TempItemLedgEntry."Remaining Quantity") > Abs(TempItemLedgEntry.Quantity) then
                         TempItemLedgEntry."Remaining Quantity" := Abs(TempItemLedgEntry.Quantity);
                 end;
-                OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry);
+                OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
                 if TempItemLedgEntry.Insert then;
             until ValueEntry.Next = 0;
     end;
@@ -930,7 +930,7 @@ table 123 "Purch. Inv. Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; ValueEntry: Record "Value Entry")
+    local procedure OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; ValueEntry: Record "Value Entry"; SetQuantity: Boolean)
     begin
     end;
 }

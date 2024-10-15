@@ -5243,6 +5243,33 @@
       <Cmt Name="Dev"><![CDATA[%1 - Invoice No.]D;]A;(LookupHint=Codeunit ERM Purchase Invoice - NamedType ConfirmCreateEmptyPostedInvMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 3484674928" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[P&P-Q/O/I/R/C]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType PAndPqoircPermissionSetTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 554590824" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Purch. Account is missing in General Posting Setup.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType PurchaseAccountIsMissingTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 215349889" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Purchase VAT Account is missing in VAT Posting Setup.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType PurchaseVatAccountIsMissingTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 3742820574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of Lines for %1 and %2  must be Equal.]]></Val>
@@ -7079,6 +7106,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Invoice Aggregate UT - NamedType MultipleDocumentsFoundForIdErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1819602085 - NamedType 1234654185" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales Account is missing in General Posting Setup.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Invoice Aggregate UT - NamedType SalesAccountIsMissingTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1819602085 - NamedType 699839425" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[COGS Account is missing in General Posting Setup.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Invoice Aggregate UT - NamedType CogsAccountIsMissingTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1819602085 - NamedType 3144324600" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales VAT Account is missing in VAT Posting Setup.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Invoice Aggregate UT - NamedType SalesVatAccountIsMissingTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3999279336 - NamedType 3499056126" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT Amount must be %1 in %2.]]></Val>
@@ -7313,6 +7367,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Order - NamedType QuoteNoMustNotBeVisibleErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3999279336 - NamedType 442966263" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Order - NamedType ConfirmEmptyEmailQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 586932656 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -7410,6 +7473,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Application - NamedType TemplateLogicErrorMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4208132312 - NamedType 2542521227" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType COGSAccountEmptyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2847078927 - NamedType 1921413626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7680,6 +7752,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Quotes - NamedType CopyCustTemplateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2154995965 - NamedType 1560321052" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code]D;]A;(LookupHint=Codeunit ERM Sales Quotes - NamedType DifferentCustomerTemplateMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3883241108 - NamedType 1646674215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9923,6 +10004,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - g/l account no.]D;]A;(LookupHint=Codeunit Purch. Correct Cr. Memo - NamedType DirectPostingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 381986451 - NamedType 2542521227" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purch. Correct Cr. Memo - NamedType COGSAccountEmptyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 523317442 - NamedType 2627172048" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Posting Date is not within your range of allowed posting dates.]]></Val>
@@ -10443,6 +10533,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - g/l account no.]D;]A;(LookupHint=Codeunit Sales Correct Cr. Memo - NamedType DirectPostingErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1582923157 - NamedType 2542521227" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Correct Cr. Memo - NamedType COGSAccountEmptyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3682866832 - NamedType 2627172048" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

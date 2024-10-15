@@ -104,7 +104,7 @@ page 1233 "Positive Pay Export"
         LastUploadTime: Time;
         CutoffUploadDate: Date;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure UpdateSubForm()
     begin
         CurrPage.PosPayExportDetail.PAGE.Set(LastUploadDateEntered, CutoffUploadDate, "No.");

@@ -445,14 +445,14 @@ codeunit 138028 "O365 Adjust Inventory"
     [Test]
     [HandlerFunctions('AdjustInventoryFilterByLocationModalPageHandler')]
     [Scope('OnPrem')]
-    procedure LocationWithDirectedPutAwayAndPickCannotBeUsedInAdjustInventory()
+    procedure LocationWithMandatoryBinCannotBeUsedInAdjustInventory()
     var
         Item: Record Item;
         Location: Record Location;
         ItemList: TestPage "Item List";
     begin
-        // [FEATURE] [Location] [Directed Put-away and Pick] [UT] [UI]
-        // [SCENARIO 319788] You cannot update inventory via Adjust Inventory on a location with directed put-away and pick.
+        // [FEATURE] [Location] [Bin] [UT] [UI]
+        // [SCENARIO 319788] You cannot update inventory via Adjust Inventory on a location with mandatory bin.
         Initialize;
         LibraryApplicationArea.EnableLocationsSetup;
 
@@ -460,7 +460,6 @@ codeunit 138028 "O365 Adjust Inventory"
 
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Bin Mandatory", true);
-        Location.Validate("Directed Put-away and Pick", true);
         Location.Modify(true);
 
         ItemList.OpenEdit;
@@ -470,7 +469,7 @@ codeunit 138028 "O365 Adjust Inventory"
         ItemList.AdjustInventory.Invoke;
 
         Assert.IsFalse(
-          LibraryVariableStorage.DequeueBoolean, 'Directed put-away and pick locations are not available for Adjust Inventory.');
+          LibraryVariableStorage.DequeueBoolean, 'Locations with mandatory bin are not available for Adjust Inventory.');
 
         LibraryVariableStorage.AssertEmpty;
     end;

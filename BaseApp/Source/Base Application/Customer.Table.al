@@ -1602,6 +1602,9 @@ table 18 Customer
         key(Key15; "Primary Contact No.")
         {
         }
+        key(Key16; "Salesperson Code")
+        {
+        }
     }
 
     fieldgroups
@@ -2470,6 +2473,24 @@ table 18 Customer
             Clear(Customer);
 
         exit(Customer."No.");
+    end;
+
+    [Scope('OnPrem')]
+    procedure LookupCustomer(var Customer: Record Customer): Boolean
+    var
+        CustomerLookup: Page "Customer Lookup";
+        Result: Boolean;
+    begin
+        CustomerLookup.SetTableView(Customer);
+        CustomerLookup.SetRecord(Customer);
+        CustomerLookup.LookupMode := true;
+        Result := CustomerLookup.RunModal = ACTION::LookupOK;
+        if Result then
+            CustomerLookup.GetRecord(Customer)
+        else
+            Clear(Customer);
+
+        exit(Result);
     end;
 
     local procedure MarkCustomersByFilters(var Customer: Record Customer)

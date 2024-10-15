@@ -110,7 +110,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
             EntryNoBeforeApplication := FindLastApplDtldCustLedgEntry;
 
-            OnBeforePostApplyCustLedgEntry(GenJnlLine, CustLedgEntry);
+            OnBeforePostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
             GenJnlPostLine.CustPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry);
             OnAfterPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
 
@@ -296,7 +296,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             GenJnlLine."System-Created Entry" := true;
             Window.Open(UnapplyingMsg);
 
-            OnBeforePostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2);
+            OnBeforePostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine);
             CollectAffectedLedgerEntries(TempCustLedgerEntry, DtldCustLedgEntry2);
             GenJnlPostLine.UnapplyCustLedgEntry(GenJnlLine, DtldCustLedgEntry2);
             AdjustExchangeRates.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
@@ -484,12 +484,12 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostApplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnBeforePostApplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUnapplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    local procedure OnBeforePostUnapplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

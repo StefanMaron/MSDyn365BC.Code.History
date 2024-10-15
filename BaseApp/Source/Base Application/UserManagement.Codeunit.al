@@ -98,7 +98,7 @@ codeunit 418 "User Management"
     var
         Text001Qst: Label 'You are renaming an existing user. This will also update all related records. Are you sure that you want to rename the user?';
         Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
-        Text003Err: Label 'You do not have permissions for this action.';
+        Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
         UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1 and %2 are supported in the online environment.', Comment = '%1= license type, %2= license type';
         DisableUserMsg: Label 'To permanently disable a user, go to your Office 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Office 365.';
@@ -313,8 +313,8 @@ codeunit 418 "User Management"
         OnBeforeRenameUser(OldUserName, NewUserName);
 
         if OldUserName = UserID then
-             if not confirm(CurrentUserQst, true, UserID) then
-                 error('');
+            if not confirm(CurrentUserQst, true, UserID) then
+                error('');
 
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
         Field.SetRange(RelationTableNo, DATABASE::User);
@@ -346,7 +346,7 @@ codeunit 418 "User Management"
                             TableInformation.SetRange("Table No.", Field.TableNo);
                             if TableInformation.FindFirst then
                                 if TableInformation."No. of Records" > 0 then
-                                    Error(Text003Err);
+                                    Error(Text003Err, Field.TableName);
                         end;
                         RecRef.Close;
                     end;
