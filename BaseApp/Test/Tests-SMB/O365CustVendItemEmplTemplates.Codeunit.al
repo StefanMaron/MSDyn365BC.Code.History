@@ -34,6 +34,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         InsertedItemErr: Label 'Item inserted with wrong data';
         InsertedEmployeeErr: Label 'Employee inserted with wrong data';
         InsertedTemplateErr: Label 'Template inserted with wrong data';
+        PaymentMethodErr: Label 'that cannot be found in the related table';
 
     [Test]
     [Scope('OnPrem')]
@@ -1575,6 +1576,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Item.Validate("Global Dimension 1 Code", DimensionValue.Code);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
         Item.Validate("Global Dimension 2 Code", DimensionValue.Code);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
         Item.Modify(true);
         LibraryVariableStorage.Enqueue(Item."No.");
 
@@ -1588,6 +1591,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert.AreEqual(Item."VAT Prod. Posting Group", ItemTempl."VAT Prod. Posting Group", InsertedTemplateErr);
         Assert.AreEqual(Item."Global Dimension 1 Code", ItemTempl."Global Dimension 1 Code", InsertedTemplateErr);
         Assert.AreEqual(Item."Global Dimension 2 Code", ItemTempl."Global Dimension 2 Code", InsertedTemplateErr);
+        ItemTempl.TestField("Reordering Policy", Item."Reordering Policy");
+        ItemTempl.TestField("Replenishment System", Item."Replenishment System");
         VerifyDimensions(Database::"Item Templ.", ItemTempl.Code, Database::Item, Item."No.");
     end;
 
@@ -2009,6 +2014,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Template with data and dimensions
         LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Validate("Reordering Policy", ItemTempl."Reordering Policy"::Order);
+        ItemTempl.Modify(true);
         // [GIVEN] Nonstock item
         CreateNonstockItem(NonstockItem, ItemTempl.Code);
 
@@ -2018,6 +2025,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         // [THEN] Item inserted with data from template
         Item.Get(NonstockItem."Vendor Item No.");
         VerifyItem(Item, ItemTempl);
+        // [THEN] Item "Reordering Policy" = item template "Reordering Policy"
+        Item.TestField("Reordering Policy", ItemTempl."Reordering Policy");
     end;
 
     [Test]
@@ -2282,26 +2291,37 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     [Scope('OnPrem')]
     procedure ItemTemplCardControls()
     var
-        Item: Record Item;
         ItemCardPageControlField: Record "Page Control Field";
         ItemTemplCardPageControlField: Record "Page Control Field";
+        ItemField: Record Field;
         ItemTemplField: Record Field;
         FieldExclusionList: List of [Integer];
     begin
-        FieldExclusionList.Add(Item.FieldNo("Prevent Negative Inventory"));
-        FieldExclusionList.Add(Item.FieldNo("Stockout Warning"));
+        FillItemFieldExclusionList(FieldExclusionList);
 
+        // Verify fields in "Item" and "Item Templ." tables, all fields should match or added in the exclusion list
+        ItemField.SetRange(TableNo, Database::Item);
+        ItemField.SetRange(Class, ItemField.Class::Normal);
+        ItemField.SetRange(ObsoleteState, ItemField.ObsoleteState::No);
+        if ItemField.FindSet() then
+            repeat
+                if not FieldExclusionList.Contains(ItemField."No.") then
+                    if not ItemTemplField.Get(Database::"Item Templ.", ItemField."No.") then
+                        Error('%1 field should exist in "Item Templ." table or added to exclusion list', ItemField.FieldName);
+            until ItemField.Next() = 0;
+
+        // Verify controls on "Item Card" and "Item Templ. Card" pages, all controls should match or added in the exclusion list
         ItemTemplCardPageControlField.SetRange(PageNo, Page::"Item Templ. Card");
-
         ItemCardPageControlField.SetRange(PageNo, Page::"Item Card");
         ItemCardPageControlField.SetFilter(FieldNo, '<>0');
         if ItemCardPageControlField.FindSet() then
             repeat
-                if ItemTemplField.Get(Database::"Item Templ.", ItemCardPageControlField.FieldNo) and not (FieldExclusionList.Contains(ItemCardPageControlField.FieldNo)) then begin
-                    ItemTemplCardPageControlField.SetRange(FieldNo, ItemCardPageControlField.FieldNo);
-                    if ItemTemplCardPageControlField.IsEmpty then
-                        Error('%1 should exist on the Item template card.', ItemCardPageControlField.ControlName);
-                end;
+                if not FieldExclusionList.Contains(ItemCardPageControlField.FieldNo) then
+                    if ItemTemplField.Get(Database::"Item Templ.", ItemCardPageControlField.FieldNo) then begin
+                        ItemTemplCardPageControlField.SetRange(FieldNo, ItemCardPageControlField.FieldNo);
+                        if ItemTemplCardPageControlField.IsEmpty then
+                            Error('%1 control should exist on the item template card or added to exclusion list.', ItemCardPageControlField.ControlName);
+                    end;
             until ItemCardPageControlField.Next() = 0;
     end;
 
@@ -2375,6 +2395,70 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
         Item.TestField("Global Dimension 1 Code", GetGlobalDim1Value());
+    end;
+
+    [Test]
+    procedure CreateItemFromTemplateWithItemCategoryCode()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemCategory: Record "Item Category";
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 418630] Creation item from template with item category code also creates item attributes
+        Initialize();
+
+        // [GIVEN] Item "I"
+        Item.Init();
+        Item.Insert(true);
+        // [GIVEN] Item category "C", Item attribute "A"
+        LibraryInventory.CreateItemCategory(ItemCategory);
+        LibraryInventory.CreateItemAttributeWithValue(ItemAttribute, ItemAttributeValue, ItemAttribute.Type::Text, LibraryUtility.GenerateGUID());
+        LibraryInventory.CreateItemAttributeValueMapping(Database::"Item Category", ItemCategory.Code, ItemAttribute.ID, ItemAttributeValue.ID);
+        // [GIVEN] Item template with "Item Category Code" = "C"
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Validate("Item Category Code", ItemCategory.Code);
+        ItemTempl.Modify(true);
+
+        // [WHEN] Apply item template (procedure also run when item created from template)
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I" has attribute "A"
+        ItemAttributeValueMapping.SetRange("Table ID", Database::Item);
+        ItemAttributeValueMapping.SetRange("No.", Item."No.");
+        Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
+    end;
+
+    [Test]
+    procedure CreateCustomerFromTemplateWithRemovedPaymentMethodCode()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        PaymentMethod: Record "Payment Method";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        // [SCENARIO 417672] Customer creation from template with payment method code that was removed
+        Initialize();
+
+        // [GIVEN] Customer "C"
+        Customer.Init();
+        Customer.Insert(true);
+        // [GIVEN] Customer template "CT" with payment method "PM"
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        CustomerTempl.Validate("Payment Method Code", PaymentMethod.Code);
+        CustomerTempl.Modify(true);
+        // [GIVEN] Removed "PM"
+        PaymentMethod.Delete(true);
+
+        // [WHEN] Apply "CT" to "C"
+        asserterror CustomerTemplMgt.ApplyCustomerTemplate(Customer, CustomerTempl);
+
+        // [THEN] Error message about related record is appeared
+        Assert.ExpectedError(PaymentMethodErr);
     end;
 
     local procedure Initialize()
@@ -2565,6 +2649,54 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     begin
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
         exit(DimensionValue.Code);
+    end;
+
+    local procedure FillItemFieldExclusionList(var FieldExclusionList: List of [Integer])
+    var
+        Item: Record Item;
+    begin
+        FieldExclusionList.Add(Item.FieldNo("Prevent Negative Inventory"));
+        FieldExclusionList.Add(Item.FieldNo("Stockout Warning"));
+        FieldExclusionList.Add(Item.FieldNo("No."));
+        FieldExclusionList.Add(Item.FieldNo("No. 2"));
+        FieldExclusionList.Add(Item.FieldNo("Description"));
+        FieldExclusionList.Add(Item.FieldNo("Search Description"));
+        FieldExclusionList.Add(Item.FieldNo("Description 2"));
+        FieldExclusionList.Add(Item.FieldNo("Last Direct Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Cost is Adjusted"));
+        FieldExclusionList.Add(Item.FieldNo("Allow Online Adjustment"));
+        FieldExclusionList.Add(Item.FieldNo("Last DateTime Modified"));
+        FieldExclusionList.Add(Item.FieldNo("Last Date Modified"));
+        FieldExclusionList.Add(Item.FieldNo("Last Time Modified"));
+        FieldExclusionList.Add(Item.FieldNo("Picture"));
+        FieldExclusionList.Add(Item.FieldNo("Application Wksh. User ID"));
+        FieldExclusionList.Add(Item.FieldNo("Coupled to CRM"));
+        FieldExclusionList.Add(Item.FieldNo("Low-Level Code"));
+        FieldExclusionList.Add(Item.FieldNo("Last Unit Cost Calc. Date"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Material Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Capacity Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Inventory Value Zero"));
+        FieldExclusionList.Add(Item.FieldNo("Sales Unit of Measure"));
+        FieldExclusionList.Add(Item.FieldNo("Purch. Unit of Measure"));
+        FieldExclusionList.Add(Item.FieldNo("Created From Nonstock Item"));
+        FieldExclusionList.Add(Item.FieldNo("Put-away Unit of Measure Code"));
+        FieldExclusionList.Add(Item.FieldNo("Last Counting Period Update"));
+        FieldExclusionList.Add(Item.FieldNo("Next Counting Start Date"));
+        FieldExclusionList.Add(Item.FieldNo("Next Counting End Date"));
+        FieldExclusionList.Add(Item.FieldNo("Id"));
+        FieldExclusionList.Add(Item.FieldNo("Unit of Measure Id"));
+        FieldExclusionList.Add(Item.FieldNo("Tax Group Id"));
+        FieldExclusionList.Add(Item.FieldNo("Item Category Id"));
+        FieldExclusionList.Add(Item.FieldNo("Inventory Posting Group Id"));
+        FieldExclusionList.Add(Item.FieldNo("Gen. Prod. Posting Group Id"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Material Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Capacity Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Subcontrd. Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Cap. Ovhd Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Mfg. Ovhd Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Subcontracted Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Mfg. Ovhd Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Cap. Overhead Cost"));
     end;
 
     local procedure VerifyTemplateGlobalDimensionIsDefaultDimension(TemplateTableId: Integer; TemplateCode: Code[20]; GlobalDim1CodeValue: Code[20]; GlobalDim2CodeValue: Code[20])

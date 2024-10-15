@@ -33,9 +33,23 @@ table 1170 "User Task"
             TableRelation = User."User Security ID" WHERE("License Type" = CONST("Full User"));
 
             trigger OnValidate()
+            var
+                UserTaskOccurencies: Record "User Task";
             begin
-                if not IsNullGuid("Assigned To") then
+                if not IsNullGuid("Assigned To") then begin
                     Clear("User Task Group Assigned To");
+
+                    if "Parent ID" <> 0 then begin
+                        UserTaskOccurencies.SetRange("Parent ID", "Parent ID");
+                        UserTaskOccurencies.SetFilter(ID, '<>%1', ID);
+                        if UserTaskOccurencies.FindSet(true, false) then
+                            repeat
+                                UserTaskOccurencies."Assigned To" := "Assigned To";
+                                UserTaskOccurencies."User Task Group Assigned To" := '';
+                                UserTaskOccurencies.Modify(true);
+                            until UserTaskOccurencies.Next() = 0;
+                    end;
+                end;
             end;
         }
         field(7; "Completed By"; Guid)
@@ -164,10 +178,24 @@ table 1170 "User Task"
             TableRelation = "User Task Group".Code;
 
             trigger OnValidate()
+            var
+                UserTaskOccurencies: Record "User Task";
             begin
                 if "User Task Group Assigned To" <> '' then begin
                     Clear("Assigned To");
                     Clear("Assigned To User Name");
+                end;
+
+                if "Parent ID" <> 0 then begin
+                    UserTaskOccurencies.SetRange("Parent ID", "Parent ID");
+                    UserTaskOccurencies.SetFilter(ID, '<>%1', ID);
+                    if UserTaskOccurencies.FindSet(true, false) then
+                        repeat
+                            Clear(UserTaskOccurencies."Assigned To");
+                            Clear(UserTaskOccurencies."Assigned To User Name");
+                            UserTaskOccurencies."User Task Group Assigned To" := "User Task Group Assigned To";
+                            UserTaskOccurencies.Modify(true);
+                        until UserTaskOccurencies.Next() = 0;
                 end;
             end;
         }

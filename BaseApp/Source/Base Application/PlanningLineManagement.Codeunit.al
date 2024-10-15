@@ -80,6 +80,8 @@ codeunit 99000809 "Planning Line Management"
             TransferFromReqLine(ReqLine);
             TransferFromRoutingLine(RoutingLine);
 
+            OnTransferRoutingLineOnBeforeCalcRoutingCostPerUnit(PlanningRoutingLine, ReqLine, RoutingLine);
+
             CostCalcMgt.RoutingCostPerUnit(
               Type, "No.", "Direct Unit Cost", "Indirect Cost %", "Overhead Rate", "Unit Cost per", "Unit Cost Calculation");
             OnTransferRoutingLineOnBeforeValidateDirectUnitCost(ReqLine, RoutingLine, PlanningRoutingLine);
@@ -986,6 +988,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferRoutingLineOnBeforeValidateDirectUnitCost(var ReqLine: Record "Requisition Line"; var RoutingLine: Record "Routing Line"; var PlanningRoutingLine: Record "Planning Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferRoutingLineOnBeforeCalcRoutingCostPerUnit(var PlanningRoutingLine: Record "Planning Routing Line"; ReqLine: Record "Requisition Line"; RoutingLine: Record "Routing Line")
     begin
     end;
 

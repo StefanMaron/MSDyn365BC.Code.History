@@ -61,7 +61,11 @@ codeunit 5478 "Graph Mgt - Journal Lines"
         if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then begin
             GenJournalLine.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type");
             GenJournalLine.Validate("Bal. Account No.", GenJournalBatch."Bal. Account No.");
-        end
+        end;
+        if TempGenJournalLine."VAT Prod. Posting Group" <> GenJournalLine."VAT Prod. Posting Group" then
+            GenJournalLine.Validate("VAT Prod. Posting Group", TempGenJournalLine."VAT Prod. Posting Group");
+        if TempGenJournalLine."Tax Group Code" <> GenJournalLine."Tax Group Code" then
+            GenJournalLine.Validate("Tax Group Code", TempGenJournalLine."Tax Group Code");
     end;
 
     procedure SetPaymentsValues(var GenJournalLine: Record "Gen. Journal Line"; TempGenJournalLine: Record "Gen. Journal Line" temporary)

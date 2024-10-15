@@ -683,15 +683,6 @@ codeunit 9520 "Mail Management"
         exit(true);
     end;
 
-    local procedure FilterEventSubscription(var EventSubscription: Record "Event Subscription"; FunctionNameFilter: Text)
-    begin
-        EventSubscription.SetRange("Subscriber Codeunit ID", CODEUNIT::"Mail Management");
-        EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Table);
-        EventSubscription.SetRange("Publisher Object ID", DATABASE::"Report Selections");
-        EventSubscription.SetFilter("Published Function", '%1', FunctionNameFilter);
-        EventSubscription.SetFilter("Active Manual Instances", '>%1', 0);
-    end;
-
     procedure IsHandlingGetEmailBody(): Boolean
     begin
         if IsHandlingGetEmailBodyCustomer then
@@ -702,21 +693,17 @@ codeunit 9520 "Mail Management"
 
     procedure IsHandlingGetEmailBodyCustomer(): Boolean
     var
-        EventSubscription: Record "Event Subscription";
         Result: Boolean;
     begin
-        FilterEventSubscription(EventSubscription, 'OnAfterGetEmailBodyCustomer');
-        Result := not EventSubscription.IsEmpty();
+        OnSetIsHandlingGetEmailBodyCustomer(Result);
         exit(Result);
     end;
 
     procedure IsHandlingGetEmailBodyVendor(): Boolean
     var
-        EventSubscription: Record "Event Subscription";
         Result: Boolean;
     begin
-        FilterEventSubscription(EventSubscription, 'OnAfterGetEmailBodyVendor');
-        Result := not EventSubscription.IsEmpty();
+        OnSetIsHandlingGetEmailBodyVendor(Result);
         exit(Result);
     end;
 
@@ -730,10 +717,35 @@ codeunit 9520 "Mail Management"
     begin
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnSetIsHandlingGetEmailBodyCustomer', '', false, false)]
+    local procedure HandleOnOnSetIsHandlingGetEmailBodyCustomer(var Result: Boolean)
+    begin
+        Result := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnSetIsHandlingGetEmailBodyVendor', '', false, false)]
+    local procedure HandleOnSetIsHandlingGetEmailBodyVendor(var Result: Boolean)
+    begin
+        Result := true;
+    end;
+
     [IntegrationEvent(false, false)]
+    local procedure OnSetIsHandlingGetEmailBodyCustomer(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetIsHandlingGetEmailBodyVendor(var Result: Boolean)
+    begin
+    end;
+    
+#if not CLEAN19
+    [IntegrationEvent(false, false)]
+    [Obsolete('SMTP Mail codeunit has been obsolete', '19.3')]
     local procedure OnAfterSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail"; var MailSent: Boolean; HideSMTPError: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckValidEmailAddresses(Recipients: Text; var IsHandled: Boolean)
@@ -770,10 +782,13 @@ codeunit 9520 "Mail Management"
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
+    [Obsolete('SMTP Mail codeunit has been obsolete', '19.3')]
     local procedure OnBeforeSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateEmailAddressField(var EmailAddress: Text; var IsHandled: Boolean)
@@ -837,8 +852,11 @@ codeunit 9520 "Mail Management"
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
+    [Obsolete('SMTP Mail codeunit has been obsolete', '19.3')]
     local procedure OnSendViaSMTPOnBeforeSMTPMailAddAttachment(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
     begin
     end;
+#endif
 }

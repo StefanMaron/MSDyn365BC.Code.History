@@ -589,6 +589,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder.FindFirst;
         SelectProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
         CostCalculationManagement.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
+        Assert.AreEqual(1, ShareOfTotalCapCost, '');
         CostCalculationManagement.CalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost,
           ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
 
@@ -1249,6 +1250,8 @@ codeunit 137304 "SCM Manufacturing Reports"
     local procedure CreateWorkCenter(var WorkCenter: Record "Work Center")
     begin
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        WorkCenter.Modify(true);
     end;
 
     local procedure CreateMachineCenter(var MachineCenter: Record "Machine Center"; WorkCenterNo: Code[20])
