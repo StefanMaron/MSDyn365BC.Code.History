@@ -2561,6 +2561,7 @@
                     end;
                     FromSalesShptHeader.TestField("Prices Including VAT", ToSalesHeader."Prices Including VAT");
                     FromSalesHeader.TransferFields(FromSalesShptHeader);
+                    OnCopySalesShptLinesToDocOnAfterFromSalesHeaderTransferFields(FromSalesShptHeader, FromSalesHeader);
                     FillExactCostRevLink :=
                       IsSalesFillExactCostRevLink(ToSalesHeader, 0, FromSalesHeader."Currency Code");
                     FromSalesLine.TransferFields(FromSalesShptLine);
@@ -2868,6 +2869,7 @@
                         TransferOldExtLines.ClearLineNumbers;
                     end;
                     FromSalesHeader.TransferFields(FromSalesCrMemoHeader);
+                    OnCopySalesCrMemoLinesToDocOnAfterFromSalesHeaderTransferFields(FromSalesCrMemoHeader, FromSalesHeader);
                     FillExactCostRevLink :=
                       IsSalesFillExactCostRevLink(ToSalesHeader, 3, FromSalesHeader."Currency Code");
                     FromSalesLine.TransferFields(FromSalesCrMemoLine);
@@ -3021,6 +3023,7 @@
                         TransferOldExtLines.ClearLineNumbers;
                     end;
                     FromSalesHeader.TransferFields(FromReturnRcptHeader);
+                    OnCopySalesReturnRcptLinesToDocOnAfterFromSalesHeaderTransferFields(FromReturnRcptHeader, FromSalesHeader);
                     FillExactCostRevLink :=
                       IsSalesFillExactCostRevLink(ToSalesHeader, 2, FromSalesHeader."Currency Code");
                     FromSalesLine.TransferFields(FromReturnRcptLine);
@@ -8189,6 +8192,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopySalesReturnRcptLinesToDocOnAfterFromSalesHeaderTransferFields(FromReturnRcptHeader: Record "Return Receipt Header"; var FromSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyPurchRcptLinesToDocOnBeforeCopyPurchLine(ToPurchaseHeader: Record "Purchase Header"; var FromPurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -8205,6 +8213,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchReturnShptLinesToDocOnBeforeCopyPurchLine(ToPurchaseHeader: Record "Purchase Header"; var FromPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySalesShptLinesToDocOnAfterFromSalesHeaderTransferFields(FromSalesShptHeader: Record "Sales Shipment Header"; var FromSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8235,6 +8248,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesInvLinesToDocOnAfterFromSalesHeaderTransferFields(var FromSalesHeader: Record "Sales Header"; FromSalesInvHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySalesCrMemoLinesToDocOnAfterFromSalesHeaderTransferFields(FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var FromSalesHeader: Record "Sales Header")
     begin
     end;
 

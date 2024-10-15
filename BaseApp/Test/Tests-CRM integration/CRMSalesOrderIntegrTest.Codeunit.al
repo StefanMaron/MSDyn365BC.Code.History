@@ -998,6 +998,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesLine.TestField("No.", Resource."No.");
     end;
 
+    [Test]
     [Scope('OnPrem')]
     procedure LongProductDescriptionItem()
     var
@@ -1022,6 +1023,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         VerifySalesLinesDescription(SalesHeader, CRMSalesorderdetail.ProductDescription);
     end;
 
+    [Test]
     [Scope('OnPrem')]
     procedure LongProductDescriptionResource()
     var
@@ -1073,9 +1075,10 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
 
         // [THEN] Created NAV Sales Order contains 5 lines, long description split by 5 pieces for 50 symbols
-        VerifySalesLinesDescription(SalesHeader, CRMSalesorderdetail.ProductDescription);
+        VerifySalesLinesWriteInDescription(SalesHeader, CRMSalesorderdetail.ProductDescription);
     end;
 
+    [Test]
     [Scope('OnPrem')]
     procedure LineItemDescriptionUsedInsteadOfProductDescription()
     var
@@ -1103,7 +1106,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [THEN] Created NAV Sales Order is using CRMSalesorderdetail.Description as Description
         CRMSalesorderdetail.CalcFields(Description);
-        CRMSalesorderdetail.Description.CreateInStream(InStream, TEXTENCODING::UTF8);
+        CRMSalesorderdetail.Description.CreateInStream(InStream, TEXTENCODING::UTF16);
         InStream.Read(SalesHeaderDescriptionText);
 
         VerifySalesLinesDescription(SalesHeader, SalesHeaderDescriptionText);
@@ -1765,6 +1768,19 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     end;
 
     local procedure VerifySalesLinesDescription(SalesHeader: Record "Sales Header"; ProductDescription: Text)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindSet;
+        repeat
+            SalesLine.Next;
+            VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
+        until StrLen(ProductDescription) = 0;
+    end;
+
+    local procedure VerifySalesLinesWriteInDescription(SalesHeader: Record "Sales Header"; ProductDescription: Text)
     var
         SalesLine: Record "Sales Line";
     begin

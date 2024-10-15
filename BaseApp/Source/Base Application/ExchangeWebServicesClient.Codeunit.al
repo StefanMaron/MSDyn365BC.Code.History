@@ -13,16 +13,53 @@ codeunit 5320 "Exchange Web Services Client"
         Text002: Label 'Folders with a path that exceeds 250 characters have been omitted.';
         ServiceOnServer: DotNet ExchangeServiceWrapper;
         LongPathsDetected: Boolean;
+        CategoryTxt: Label 'AL EWS Client', Locked = true;
+        FolderFoundOnServerTxt: Label 'Folder has been found on server.', Locked = true;
+        FolderFoundOnClientTxt: Label 'Folder has been found on client.', Locked = true;
+        FolderNotFoundOnServerTxt: Label 'Folder has not been found on server.', Locked = true;
+        FolderNotFoundOnClientTxt: Label 'Folder has not been found on client.', Locked = true;
+        InitializedOnServerWithImpersonationTxt: Label 'Service has been initialized on server with impersonation.', Locked = true;
+        InitializedOnServerTxt: Label 'Service has been initialized on server.', Locked = true;
+        InitializedOnClientTxt: Label 'Service has been initialized on client.', Locked = true;
+        NotInitializedOnServerWithImpersonationTxt: Label 'Service has not been initialized on server with impersonation.', Locked = true;
+        NotInitializedOnServerTxt: Label 'Service has not been initialized on server.', Locked = true;
+        NotInitializedOnClientTxt: Label 'Service has not been initialized on client.', Locked = true;
+        ServiceInvalidatedTxt: Label 'Service has been invlidated.', Locked = true;
+        ConnectionFailedTxt: Label 'Connection to the Exchange server failed.', Locked = true;
+        InvalidCredentialsOnClientTxt: Label 'Invalid credentials on client.', Locked = true;
+        InvalidCredentialsOnServerTxt: Label 'Invalid credentials on server.', Locked = true;
+        ValidCredentialsOnServerTxt: Label 'Credentials successfully validated on server.', Locked = true;
+        ValidCredentialsOnClientTxt: Label 'Credentials successfully validated on server.', Locked = true;
+        PublicFolderFoundOnClientTxt: Label 'Public folder has been found on client.', Locked = true;
+        PublicFolderFoundOnServerTxt: Label 'Public folder has been found on server.', Locked = true;
+        PublicFolderNotFoundTxt: Label 'Public folder has not been found.', Locked = true;
+        PublicFolderCachedTxt: Label 'Public folder is cached.', Locked = true;
+        ServiceOnServerLastErrorTxt: Label 'Service on server last error: %1.', Locked = true;
+        ServiceOnClientLastErrorTxt: Label 'Service on client last error: %1.', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetPublicFolders(var ExchangeFolder: Record "Exchange Folder"): Boolean
     begin
-        if not IsServiceValid then
+        if not IsServiceValid then begin
+            SendTraceTag('0000D87', CategoryTxt, Verbosity::Normal, ConnectionFailedTxt, DataClassification::SystemMetadata);
             Error(Text001);
+        end;
 
-        if IsNull(ServiceOnServer) then
-            exit(GetPublicFoldersOnClient(ExchangeFolder));
-        exit(GetPublicFoldersOnServer(ExchangeFolder));
+        if IsNull(ServiceOnServer) then begin
+            if GetPublicFoldersOnClient(ExchangeFolder) then begin
+                SendTraceTag('0000D88', CategoryTxt, Verbosity::Normal, PublicFolderFoundOnClientTxt, DataClassification::SystemMetadata);
+                exit(true);
+            end;
+            SendTraceTag('0000DA2', CategoryTxt, Verbosity::Normal, PublicFolderNotFoundTxt, DataClassification::SystemMetadata);
+            exit(false);
+        end;
+
+        if GetPublicFoldersOnServer(ExchangeFolder) then begin
+            SendTraceTag('0000D89', CategoryTxt, Verbosity::Normal, PublicFolderFoundOnServerTxt, DataClassification::SystemMetadata);
+            exit(true);
+        end;
+        SendTraceTag('0000D8A', CategoryTxt, Verbosity::Normal, PublicFolderNotFoundTxt, DataClassification::SystemMetadata);
+        exit(false);
     end;
 
     local procedure GetPublicFoldersOnClient(var ExchangeFolder: Record "Exchange Folder") FoundAny: Boolean
@@ -32,8 +69,10 @@ codeunit 5320 "Exchange Web Services Client"
         [RunOnClient]
         SubFolders: DotNet FolderInfoEnumerator;
     begin
-        if ExchangeFolder.Cached then
-            exit;
+        if ExchangeFolder.Cached then begin
+            SendTraceTag('0000D8B', CategoryTxt, Verbosity::Normal, PublicFolderCachedTxt, DataClassification::SystemMetadata);
+            exit(false);
+        end;
 
         if ExchangeFolder."Unique ID".HasValue then begin
             ParentInfo := ParentInfo.FolderInfo(ExchangeFolder.GetUniqueID, ExchangeFolder.FullPath);
@@ -70,12 +109,10 @@ codeunit 5320 "Exchange Web Services Client"
             ReadBuffer(ExchangeFolder);
         end;
 
-        if IsNull(ServiceOnServer) then begin
-            if ServiceOnServer.LastError <> '' then
-                Message(ServiceOnServer.LastError);
-        end else
-            if ServiceOnServer.LastError <> '' then
-                Message(ServiceOnServer.LastError);
+        if ServiceOnClient.LastError <> '' then begin
+            SendTraceTag('0000D8C', CategoryTxt, Verbosity::Normal, StrSubstNo(ServiceOnClientLastErrorTxt, ServiceOnClient.LastError), DataClassification::CustomerContent);
+            Message(ServiceOnClient.LastError);
+        end;
 
         exit(FoundAny);
     end;
@@ -85,8 +122,10 @@ codeunit 5320 "Exchange Web Services Client"
         ParentInfo: DotNet FolderInfo;
         SubFolders: DotNet FolderInfoEnumerator;
     begin
-        if ExchangeFolder.Cached then
-            exit;
+        if ExchangeFolder.Cached then begin
+            SendTraceTag('0000D8D', CategoryTxt, Verbosity::Normal, PublicFolderCachedTxt, DataClassification::SystemMetadata);
+            exit(false);
+        end;
 
         if ExchangeFolder."Unique ID".HasValue then begin
             ParentInfo := ParentInfo.FolderInfo(ExchangeFolder.GetUniqueID, ExchangeFolder.FullPath);
@@ -123,12 +162,10 @@ codeunit 5320 "Exchange Web Services Client"
             ReadBuffer(ExchangeFolder);
         end;
 
-        if IsNull(ServiceOnServer) then begin
-            if ServiceOnServer.LastError <> '' then
-                Message(ServiceOnServer.LastError);
-        end else
-            if ServiceOnServer.LastError <> '' then
-                Message(ServiceOnServer.LastError);
+        if ServiceOnServer.LastError <> '' then begin
+            SendTraceTag('0000D8E', CategoryTxt, Verbosity::Normal, StrSubstNo(ServiceOnServerLastErrorTxt, ServiceOnServer.LastError), DataClassification::CustomerContent);
+            Message(ServiceOnServer.LastError);
+        end;
 
         exit(FoundAny);
     end;
@@ -139,6 +176,7 @@ codeunit 5320 "Exchange Web Services Client"
         ClientTypeManagement: Codeunit "Client Type Management";
         [RunOnClient]
         ServiceFactoryOnClient: DotNet ServiceWrapperFactory;
+        Initialized: Boolean;
     begin
         if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Windows then
             exit(false);
@@ -150,15 +188,23 @@ codeunit 5320 "Exchange Web Services Client"
         if ServiceUri <> '' then
             ServiceOnClient.ExchangeServiceUrl := ServiceUri;
 
-        if ServiceOnClient.ExchangeServiceUrl = '' then
-            exit(ServiceOnClient.AutodiscoverServiceUrl(AutodiscoveryEmail));
-        exit(true);
+        Initialized := ServiceOnClient.ExchangeServiceUrl <> '';
+        if not Initialized then
+            Initialized := ServiceOnClient.AutodiscoverServiceUrl(AutodiscoveryEmail);
+
+        if Initialized then
+            SendTraceTag('0000D8F', CategoryTxt, Verbosity::Normal, InitializedOnClientTxt, DataClassification::SystemMetadata)
+        else
+            SendTraceTag('0000D8G', CategoryTxt, Verbosity::Normal, NotInitializedOnClientTxt, DataClassification::SystemMetadata);
+
+        exit(Initialized);
     end;
 
     [Scope('OnPrem')]
     procedure InitializeOnServer(AutodiscoveryEmail: Text[250]; ServiceUri: Text; Credentials: DotNet NetworkCredential): Boolean
     var
         ServiceFactoryOnServer: DotNet ServiceWrapperFactory;
+        Initialized: Boolean;
     begin
         if IsNull(ServiceOnServer) then begin
             InvalidateService;
@@ -168,15 +214,23 @@ codeunit 5320 "Exchange Web Services Client"
         if ServiceUri <> '' then
             ServiceOnServer.ExchangeServiceUrl := ServiceUri;
 
-        if ServiceOnServer.ExchangeServiceUrl = '' then
-            exit(ServiceOnServer.AutodiscoverServiceUrl(AutodiscoveryEmail));
-        exit(true);
+        Initialized := ServiceOnServer.ExchangeServiceUrl <> '';
+        if not Initialized then
+            Initialized := ServiceOnServer.AutodiscoverServiceUrl(AutodiscoveryEmail);
+
+        if Initialized then
+            SendTraceTag('0000D8H', CategoryTxt, Verbosity::Normal, InitializedOnServerTxt, DataClassification::SystemMetadata)
+        else
+            SendTraceTag('0000D8I', CategoryTxt, Verbosity::Normal, NotInitializedOnServerTxt, DataClassification::SystemMetadata);
+
+        exit(Initialized);
     end;
 
     [Scope('OnPrem')]
     procedure InitializeOnServerWithImpersonation(AutodiscoveryEmail: Text[250]; ServiceUri: Text; Credentials: DotNet OAuthCredentials): Boolean
     var
         ServiceFactoryOnServer: DotNet ServiceWrapperFactory;
+        Initialized: Boolean;
     begin
         if IsNull(ServiceOnServer) then begin
             InvalidateService();
@@ -189,19 +243,41 @@ codeunit 5320 "Exchange Web Services Client"
         if ServiceUri <> '' then
             ServiceOnServer.ExchangeServiceUrl := ServiceUri;
 
-        if ServiceOnServer.ExchangeServiceUrl = '' then
-            exit(ServiceOnServer.AutodiscoverServiceUrl(AutodiscoveryEmail));
-        exit(true);
+        Initialized := ServiceOnServer.ExchangeServiceUrl <> '';
+        if not Initialized then
+            Initialized := ServiceOnServer.AutodiscoverServiceUrl(AutodiscoveryEmail);
+
+        if Initialized then
+            SendTraceTag('0000D8J', CategoryTxt, Verbosity::Normal, InitializedOnServerWithImpersonationTxt, DataClassification::SystemMetadata)
+        else
+            SendTraceTag('0000D8K', CategoryTxt, Verbosity::Normal, NotInitializedOnServerWithImpersonationTxt, DataClassification::SystemMetadata);
+
+        exit(Initialized);
     end;
 
     [Scope('OnPrem')]
     procedure FolderExists(UniqueID: Text): Boolean
+    var
+        Exists: Boolean;
     begin
-        if not IsServiceValid then
+        if not IsServiceValid then begin
+            SendTraceTag('0000D8L', CategoryTxt, Verbosity::Normal, ConnectionFailedTxt, DataClassification::SystemMetadata);
             Error(Text001);
-        if IsNull(ServiceOnServer) then
-            exit(ServiceOnClient.FolderExists(UniqueID));
-        exit(ServiceOnServer.FolderExists(UniqueID));
+        end;
+        if IsNull(ServiceOnServer) then begin
+            Exists := ServiceOnClient.FolderExists(UniqueID);
+            if Exists then
+                SendTraceTag('0000D8M', CategoryTxt, Verbosity::Normal, FolderFoundOnClientTxt, DataClassification::SystemMetadata)
+            else
+                SendTraceTag('0000D8N', CategoryTxt, Verbosity::Normal, FolderNotFoundOnClientTxt, DataClassification::SystemMetadata);
+        end else begin
+            Exists := ServiceOnServer.FolderExists(UniqueID);
+            if Exists then
+                SendTraceTag('0000D8O', CategoryTxt, Verbosity::Normal, FolderFoundOnServerTxt, DataClassification::SystemMetadata)
+            else
+                SendTraceTag('0000D8P', CategoryTxt, Verbosity::Normal, FolderNotFoundOnServerTxt, DataClassification::SystemMetadata);
+        end;
+        exit(Exists);
     end;
 
     procedure ReadBuffer(var DestExchangeFolder: Record "Exchange Folder"): Boolean
@@ -245,18 +321,29 @@ codeunit 5320 "Exchange Web Services Client"
     begin
         Clear(ServiceOnClient);
         Clear(ServiceOnServer);
+        SendTraceTag('0000D8Q', CategoryTxt, Verbosity::Normal, ServiceInvalidatedTxt, DataClassification::SystemMetadata);
     end;
 
     [Scope('OnPrem')]
     procedure ValidateCredentialsOnServer(): Boolean
     begin
-        exit(ServiceOnServer.ValidateCredentials);
+        if not ServiceOnServer.ValidateCredentials() then begin
+            SendTraceTag('0000D8R', CategoryTxt, Verbosity::Normal, InvalidCredentialsOnServerTxt, DataClassification::SystemMetadata);
+            exit(false);
+        end;
+        SendTraceTag('0000D8S', CategoryTxt, Verbosity::Normal, ValidCredentialsOnServerTxt, DataClassification::SystemMetadata);
+        exit(true);
     end;
 
     [Scope('OnPrem')]
     procedure ValidateCredentialsOnClient(): Boolean
     begin
-        exit(ServiceOnClient.ValidateCredentials);
+        if not ServiceOnClient.ValidateCredentials() then begin
+            SendTraceTag('0000D8T', CategoryTxt, Verbosity::Normal, InvalidCredentialsOnClientTxt, DataClassification::SystemMetadata);
+            exit(false);
+        end;
+        SendTraceTag('0000D8U', CategoryTxt, Verbosity::Normal, ValidCredentialsOnClientTxt, DataClassification::SystemMetadata);
+        exit(true);
     end;
 }
 
