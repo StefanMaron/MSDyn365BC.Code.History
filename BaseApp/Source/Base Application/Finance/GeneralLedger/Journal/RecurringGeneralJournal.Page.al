@@ -953,7 +953,7 @@ page 283 "Recurring General Journal"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := true;
+        IsHandled := false;
         OnBeforeUpdateBalance(Rec, xRec, Balance, TotalBalance, ShowBalance, ShowTotalBalance, IsHandled);
         if not IsHandled then
             GenJnlManagement.CalcBalance(

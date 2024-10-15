@@ -797,7 +797,13 @@ table 15 "G/L Account"
         ICGLAccount: Record "IC G/L Account";
         MoveEntries: Codeunit MoveEntries;
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;	
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+	        
         if ("Account Type" = "Account Type"::Heading) then begin
             GLAcc := Rec;
             if GLAcc.Next() <> 0 then
@@ -1127,6 +1133,11 @@ table 15 "G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGenProdPostingGroup(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 }

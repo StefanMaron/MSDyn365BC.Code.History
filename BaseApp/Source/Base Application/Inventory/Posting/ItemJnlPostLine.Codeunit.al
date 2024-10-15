@@ -1326,7 +1326,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     if GlobalItemLedgEntry.Positive then
                         GlobalItemLedgEntry.Modify();
                     IsHandled := false;
-                    OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled, VarianceAmount, VarianceAmountACY);
+                    OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled, VarianceAmount, VarianceAmountACY, OverheadAmount, OverheadAmountACY);
                     if not IsHandled then
                         if ((GlobalValueEntry."Valued Quantity" > 0) or
                             (("Applies-to Entry" <> 0) and ("Entry Type" in ["Entry Type"::Purchase, "Entry Type"::"Assembly Output"]))) and
@@ -1347,7 +1347,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     InsertBalanceExpCostRevEntry(GlobalValueEntry);
 
                 IsHandled := false;
-                OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled, VarianceAmount, VarianceAmountACY);
+                OnItemValuePostingOnBeforeInsertOHValueEntry(ItemJnlLine, GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo, IsHandled, VarianceAmount, VarianceAmountACY, OverheadAmount, OverheadAmountACY);
                 if not IsHandled then
                     if ((GlobalValueEntry."Valued Quantity" > 0) or
                         (("Applies-to Entry" <> 0) and ("Entry Type" in ["Entry Type"::Purchase, "Entry Type"::"Assembly Output"]))) and
@@ -1858,7 +1858,6 @@ codeunit 22 "Item Jnl.-Post Line"
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         AppliesFromItemLedgEntry: Record "Item Ledger Entry";
-        EntryFindMethod: Text[1];
         AppliedQty: Decimal;
         FirstReservation: Boolean;
         FirstApplication: Boolean;
@@ -1957,28 +1956,11 @@ codeunit 22 "Item Jnl.-Post Line"
                         OnApplyItemLedgEntryOnAfterTestFirstApplyItemLedgEntry(OldItemLedgEntry, ItemLedgEntry);
                     end else
                         exit;
-                end else begin
-                    if FirstApplication then begin
-                        FirstApplication := false;
-                        ApplyItemLedgEntrySetFilters(ItemLedgEntry2, ItemLedgEntry, GlobalItemTrackingCode);
-
-                        if Item."Costing Method" = Item."Costing Method"::LIFO then
-                            EntryFindMethod := '+'
-                        else
-                            EntryFindMethod := '-';
-                        if not ItemLedgEntry2.Find(EntryFindMethod) then
-                            exit;
-                    end else
-                        case EntryFindMethod of
-                            '-':
-                                if ItemLedgEntry2.Next() = 0 then
-                                    exit;
-                            '+':
-                                if ItemLedgEntry2.Next(-1) = 0 then
-                                    exit;
-                        end;
-                    OldItemLedgEntry.Copy(ItemLedgEntry2)
-                end;
+                end else
+                    if FindOpenItemLedgEntryToApply(ItemLedgEntry2, ItemLedgEntry, FirstApplication) then
+                        OldItemLedgEntry.Copy(ItemLedgEntry2)
+                    else
+                        exit;
 
                 OldItemLedgEntry.CalcReservedQuantity();
                 OnAfterApplyItemLedgEntryOnBeforeCalcAppliedQty(OldItemLedgEntry, ItemLedgEntry);
@@ -2215,6 +2197,17 @@ codeunit 22 "Item Jnl.-Post Line"
                 Error(
                   Text022,
                   ItemLedgEntry."Entry Type", OldItemLedgEntry."Entry Type", OldItemLedgEntry."Item No.", OldItemLedgEntry."Order No.");
+    end;
+
+    local procedure FindOpenItemLedgEntryToApply(var OpenItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry"; var FirstApplication: Boolean): Boolean
+    begin
+        if FirstApplication then begin
+            FirstApplication := false;
+            ApplyItemLedgEntrySetFilters(OpenItemLedgEntry, ItemLedgEntry, GlobalItemTrackingCode);
+            OpenItemLedgEntry.Ascending(Item."Costing Method" <> Item."Costing Method"::LIFO);
+            exit(OpenItemLedgEntry.FindSet());
+        end else
+            exit(OpenItemLedgEntry.Next() <> 0);
     end;
 
     local procedure TestFirstApplyItemLedgerEntryTracking(ItemLedgEntry: Record "Item Ledger Entry"; OldItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code");
@@ -4426,6 +4419,21 @@ codeunit 22 "Item Jnl.-Post Line"
             OnCheckExpirationDateOnBeforeTestFieldExpirationDate(TempTrackingSpecification, EntriesExist, ExistingExpirationDate);
             if EntriesExist then
                 TempTrackingSpecification.TestField("Expiration Date", ExistingExpirationDate);
+
+            if (ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer) and (ItemJnlLine2."Order Type" = ItemJnlLine2."Order Type"::Transfer) then begin
+                ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);
+                ItemTrackingMgt.ExistingExpirationDateAndQty(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", ItemTrackingSetup, SumOfEntries);
+
+                if TempTrackingSpecification."New Serial No." <> '' then
+                    SumLot := SignFactor * ItemTrackingMgt.SumNewLotOnTrackingSpec(TempTrackingSpecification)
+                else
+                    SumLot := SignFactor * TempTrackingSpecification."Quantity (Base)";
+
+                if (SumOfEntries > 0) and
+                   ((SumOfEntries <> SumLot) or (TempTrackingSpecification."New Lot No." <> TempTrackingSpecification."Lot No."))
+                then
+                    TempTrackingSpecification.TestField("New Expiration Date", ExistingExpirationDate);
+            end;
         end else   // Demand
             if ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer then begin
                 ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);
@@ -7564,7 +7572,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnItemValuePostingOnBeforeInsertOHValueEntry(var ItemJnlLine: Record "Item Journal Line"; var GlobalValueEntry: Record "Value Entry"; var GlobalItemLedgEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var IsHandled: Boolean; var VarianceAmount: Decimal; var VarianceAmountACY: Decimal)
+    local procedure OnItemValuePostingOnBeforeInsertOHValueEntry(var ItemJnlLine: Record "Item Journal Line"; var GlobalValueEntry: Record "Value Entry"; var GlobalItemLedgEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var IsHandled: Boolean; var VarianceAmount: Decimal; var VarianceAmountACY: Decimal; var OverheadAmount: Decimal; var OverheadAmountACY: Decimal)
     begin
     end;
 

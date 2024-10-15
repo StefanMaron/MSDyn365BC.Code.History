@@ -29,6 +29,9 @@ codeunit 144046 "ERM Employee Name"
         FullNameTxt: Label '%1 %2 %3';
         NameMustExistOnCaptionMsg: Label 'Name must exist on Caption.';
         SecondFamilyNameCap: Label 'Second Family Name';
+        PictureTxt: Label 'Picture';
+        ImagePathTxt: Label '\App\Test\Files\ImageAnalysis\AllowedImage.jpg';
+        SecondFamilyNameMustBeBlankErr: Label 'Second Family Name must be blank.';
 
     [Test]
     [Scope('OnPrem')]
@@ -118,6 +121,51 @@ codeunit 144046 "ERM Employee Name"
           StrSubstNo(FullNameTxt, Employee.Name, Employee."First Family Name", Employee."Second Family Name"), Employee.FullName(), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure BlankSecondFamilyNameShouldGiveNoErrorWhenImportEmployeePicture()
+    var
+        Employee: Record Employee;
+        EmployeeCard: TestPage "Employee Card";
+    begin
+        // [SCENARIO 487554] Wrong Testfield in ES version in EmployeePicture.Page.al which prevents users to import a picturerd 
+
+        // [GIVEN] Create an Employee.
+        LibraryHumanResource.CreateEmployee(Employee);
+
+        // [GIVEN] Import a Picture of Employee.
+        Employee.Image.ImportFile(GetImagePath(), PictureTxt);
+
+        // [GIVEN] Validate Name, First Family Name & keep Second Family Name as blank.
+        Employee.Validate(Name, LibraryUtility.GenerateGUID());
+        Employee.Validate("First Family Name", LibraryUtility.GenerateGUID());
+        Employee.Validate("Second Family Name", '');
+        Employee.Modify();
+
+        // [WHEN] Open Employee Card Page & run Import Picture action.
+        EmployeeCard.OpenEdit();
+        EmployeeCard.Filter.SetFilter("No.", Employee."No.");
+        EmployeeCard.Control3.ImportPicture.Invoke();
+        EmployeeCard.Close();
+
+        // [VERIFY] Verify Second Family Name is blank.
+        Assert.AreEqual('', Employee."Second Family Name", SecondFamilyNameMustBeBlankErr);
+
+        // [GIVEN] Validate Name as blank, First Family Name & Second Family Name.
+        Employee.Validate(Name, '');
+        Employee.Validate("First Family Name", LibraryUtility.GenerateGUID());
+        Employee.Validate("Second Family Name", LibraryUtility.GenerateGUID());
+        Employee.Modify();
+
+        // [WHEN] Open Employee Card Page & run Import Picture action.
+        EmployeeCard.OpenEdit();
+        EmployeeCard.Filter.SetFilter("No.", Employee."No.");
+
+        // [VERIFY] Verify that Import Picture gives an error when Name is blank.
+        asserterror EmployeeCard.Control3.ImportPicture.Invoke();
+    end;
+
     local procedure CreateEmployee(var Employee: Record Employee)
     begin
         LibraryHumanResource.CreateEmployee(Employee);
@@ -125,6 +173,18 @@ codeunit 144046 "ERM Employee Name"
         Employee.Validate("First Family Name", LibraryUtility.GenerateGUID());
         Employee.Validate("Second Family Name", LibraryUtility.GenerateGUID());
         Employee.Modify(true);
+    end;
+
+    local procedure GetImagePath(): Text
+    begin
+        exit(LibraryUtility.GetInetRoot + ImagePathTxt);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

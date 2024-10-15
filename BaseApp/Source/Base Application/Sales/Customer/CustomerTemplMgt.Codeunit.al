@@ -84,7 +84,7 @@ codeunit 1381 "Customer Templ. Mgt."
         FieldExclusionList: List of [Integer];
     begin
         IsHandled := false;
-        OnBeforeApplyTemplate(Customer, CustomerTempl, IsHandled);
+        OnBeforeApplyTemplate(Customer, CustomerTempl, IsHandled, UpdateExistingValues);
         if IsHandled then
             exit;
 
@@ -117,7 +117,7 @@ codeunit 1381 "Customer Templ. Mgt."
             Customer."Payment Days Code" := CustomerTempl."Payment Days Code";
         if CustomerTempl."Non-Paymt. Periods Code" <> '' then
             Customer."Non-Paymt. Periods Code" := CustomerTempl."Non-Paymt. Periods Code";
-        OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl);
+        OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl, UpdateExistingValues);
         Customer.Modify(true);
     end;
 
@@ -434,12 +434,12 @@ codeunit 1381 "Customer Templ. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyTemplateOnBeforeCustomerModify(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    local procedure OnApplyTemplateOnBeforeCustomerModify(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; UpdateExistingValues: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean)
+    local procedure OnBeforeApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean; UpdateExistingValues: Boolean)
     begin
     end;
 

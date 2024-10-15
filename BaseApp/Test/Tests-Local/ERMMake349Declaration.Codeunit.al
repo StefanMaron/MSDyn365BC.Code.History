@@ -5549,6 +5549,330 @@ codeunit 144117 "ERM Make 349 Declaration"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandlerWithQuarter,ConfirmHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler')]
+    procedure SalesCreditMemosWithCorrectiveInvoiceWhenSamePeriodQuarter()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: array[2] of Record "Sales Cr.Memo Header";
+        Customer: Record Customer;
+        PostingDateInvoice: Date;
+        PostingDateCrMemo: array[2] of Date;
+        FileName: Text;
+        LineText: Text;
+        CustLinesCount: Integer;
+        OriginalDeclaredAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 488756] Run Make 349 report on multiple Sales Credit Memos when they correct invoice from the same Quarter period.
+        Initialize();
+        PostingDateInvoice := LibraryRandom.RandDateFrom(CalcDate('<CQ + 1D>', GetFirstDateInEmptyFY()), 10);
+        PostingDateCrMemo[1] := CalcDate('<+1M>', PostingDateInvoice);
+        PostingDateCrMemo[2] := CalcDate('<+2M>', PostingDateInvoice);
+        OriginalDeclaredAmount := 0;
+
+        // [GIVEN] VAT Prod. Posting Group with Delivery Operation Code = " ".
+        CreateVATPostingSetup(VATPostingSetup, false);
+        UpdateDeliveryOperCodeOnVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group", DeliveryOperationCode::" ");
+
+        // [GIVEN] Posted Sales Invoice "SI" with Posting Date 10.01.25 and Amount 10000.
+        // [GIVEN] Posted Sales Credit Memo "CM1" with Posting Date 10.02.25, Amount 1500 and "Corrected Invoice No." = "PI".
+        // [GIVEN] Posted Sales Credit Memo "CM2" with Posting Date 10.03.25, Amount 1000 and "Corrected Invoice No." = "PI".
+        CreateAndPostSalesInvoiceWithVATSetup(SalesInvoiceHeader, VATPostingSetup, false, PostingDateInvoice);
+        Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
+        CreateAndPostSalesCreditMemoWithVATSetup(SalesCrMemoHeader[1], VATPostingSetup, Customer."No.", SalesInvoiceHeader."No.", false, PostingDateCrMemo[1]);
+        CreateAndPostSalesCreditMemoWithVATSetup(SalesCrMemoHeader[2], VATPostingSetup, Customer."No.", SalesInvoiceHeader."No.", false, PostingDateCrMemo[2]);
+        Commit();
+
+        // [WHEN] Run Make 349 Declaration report for 1T period (1st quarter), set Include Correction for both Credit Memos. Original Declaration Period/Amount remain unchanged.
+        LibraryVariableStorage.Enqueue(PostingDateCrMemo[1]);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(GetPostingPeriodForMake349Declaration(PostingDateCrMemo[1], 0));
+        LibraryVariableStorage.Enqueue(OriginalDeclaredAmount);
+        RunMake349DeclarationReportSimple(FileName, PostingDateCrMemo[1]);
+
+        // [THEN] One normal line for Vendor is exported.
+        // [THEN] Format is "E" + <Invoice Amount - CM1 Amount - CM2 Amount>, i.e. E0000000750000.
+        CustLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40);
+        Assert.AreEqual(1, CustLinesCount, '');
+        LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Customer.Name));
+        VerifyNormalLine(LineText, 'E', SalesInvoiceHeader.Amount - SalesCrMemoHeader[1].Amount - SalesCrMemoHeader[2].Amount);
+
+        LibraryVariableStorage.DequeueDate();       // Posting Date
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandler,ConfirmHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler')]
+    procedure SalesCreditMemosWithCorrectiveInvoiceWhenSamePeriodMonth()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: array[2] of Record "Sales Cr.Memo Header";
+        Customer: Record Customer;
+        PostingDateInvoice: Date;
+        PostingDateCrMemo: array[2] of Date;
+        FileName: Text;
+        LineText: Text;
+        CustLinesCount: Integer;
+        OriginalDeclaredAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 488756] Run Make 349 report on multiple Sales Credit Memos when they correct invoice from the same Month period.
+        Initialize();
+        PostingDateInvoice := LibraryRandom.RandDateFrom(CalcDate('<CM + 1D>', GetFirstDateInEmptyFY()), 10);
+        PostingDateCrMemo[1] := CalcDate('<+2D>', PostingDateInvoice);
+        PostingDateCrMemo[2] := CalcDate('<+4D>', PostingDateInvoice);
+        OriginalDeclaredAmount := 0;
+
+        // [GIVEN] VAT Prod. Posting Group with Delivery Operation Code = " ".
+        CreateVATPostingSetup(VATPostingSetup, false);
+        UpdateDeliveryOperCodeOnVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group", DeliveryOperationCode::" ");
+
+        // [GIVEN] Posted Sales Invoice "SI" with Posting Date 10.01.25 and Amount 10000.
+        // [GIVEN] Posted Sales Credit Memo "CM1" with Posting Date 12.01.25, Amount 1500 and "Corrected Invoice No." = "PI".
+        // [GIVEN] Posted Sales Credit Memo "CM2" with Posting Date 14.01.25, Amount 1000 and "Corrected Invoice No." = "PI".
+        CreateAndPostSalesInvoiceWithVATSetup(SalesInvoiceHeader, VATPostingSetup, false, PostingDateInvoice);
+        Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
+        CreateAndPostSalesCreditMemoWithVATSetup(SalesCrMemoHeader[1], VATPostingSetup, Customer."No.", SalesInvoiceHeader."No.", false, PostingDateCrMemo[1]);
+        CreateAndPostSalesCreditMemoWithVATSetup(SalesCrMemoHeader[2], VATPostingSetup, Customer."No.", SalesInvoiceHeader."No.", false, PostingDateCrMemo[2]);
+        Commit();
+
+        // [WHEN] Run Make 349 Declaration report for January period, set Include Correction for both Credit Memos. Original Declaration Period/Amount remain unchanged.
+        LibraryVariableStorage.Enqueue(PostingDateCrMemo[1]);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(GetPostingPeriodForMake349Declaration(PostingDateCrMemo[1], 0));
+        LibraryVariableStorage.Enqueue(OriginalDeclaredAmount);
+        RunMake349DeclarationReportSimple(FileName, PostingDateCrMemo[1]);
+
+        // [THEN] One normal line for Vendor is exported.
+        // [THEN] Format is "E" + <Invoice Amount - CM1 Amount - CM2 Amount>, i.e. E0000000750000.
+        CustLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40);
+        Assert.AreEqual(1, CustLinesCount, '');
+        LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Customer.Name));
+        VerifyNormalLine(LineText, 'E', SalesInvoiceHeader.Amount - SalesCrMemoHeader[1].Amount - SalesCrMemoHeader[2].Amount);
+
+        LibraryVariableStorage.DequeueDate();       // Posting Date
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandlerAnnualPeriod,ConfirmHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler')]
+    procedure SalesCreditMemosWithCorrectiveInvoiceWhenSamePeriodYear()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: array[2] of Record "Sales Cr.Memo Header";
+        Customer: Record Customer;
+        PostingDateInvoice: Date;
+        PostingDateCrMemo: array[2] of Date;
+        FileName: Text;
+        LineText: Text;
+        CustLinesCount: Integer;
+        OriginalDeclaredAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 488756] Run Make 349 report on multiple Sales Credit Memos when they correct invoice from the same Year period.
+        Initialize();
+        PostingDateInvoice := LibraryRandom.RandDateFrom(CalcDate('<CY + 1D>', GetFirstDateInEmptyFY()), 10);
+        PostingDateCrMemo[1] := CalcDate('<+3M>', PostingDateInvoice);
+        PostingDateCrMemo[2] := CalcDate('<+6M>', PostingDateInvoice);
+        OriginalDeclaredAmount := 0;
+
+        // [GIVEN] VAT Prod. Posting Group with Delivery Operation Code = " ".
+        CreateVATPostingSetup(VATPostingSetup, false);
+        UpdateDeliveryOperCodeOnVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group", DeliveryOperationCode::" ");
+
+        // [GIVEN] Posted Sales Invoice "SI" with Posting Date 10.01.25 and Amount 10000.
+        // [GIVEN] Posted Sales Credit Memo "CM1" with Posting Date 10.04.25, Amount 1500 and "Corrected Invoice No." = "PI".
+        // [GIVEN] Posted Sales Credit Memo "CM2" with Posting Date 10.07.25, Amount 1000 and "Corrected Invoice No." = "PI".
+        CreateAndPostSalesInvoiceWithVATSetup(SalesInvoiceHeader, VATPostingSetup, false, PostingDateInvoice);
+        Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
+        CreateAndPostSalesCreditMemoWithVATSetup(SalesCrMemoHeader[1], VATPostingSetup, Customer."No.", SalesInvoiceHeader."No.", false, PostingDateCrMemo[1]);
+        CreateAndPostSalesCreditMemoWithVATSetup(SalesCrMemoHeader[2], VATPostingSetup, Customer."No.", SalesInvoiceHeader."No.", false, PostingDateCrMemo[2]);
+        Commit();
+
+        // [WHEN] Run Make 349 Declaration report for 0A period 2025, set Include Correction for both Credit Memos. Original Declaration Period/Amount remain unchanged.
+        LibraryVariableStorage.Enqueue(PostingDateCrMemo[1]);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(GetPostingPeriodForMake349Declaration(PostingDateCrMemo[1], 0));
+        LibraryVariableStorage.Enqueue(OriginalDeclaredAmount);
+        RunMake349DeclarationReportSimple(FileName, PostingDateCrMemo[1]);
+
+        // [THEN] One normal line for Vendor is exported.
+        // [THEN] Format is "E" + <Invoice Amount - CM1 Amount - CM2 Amount>, i.e. E0000000750000.
+        CustLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40);
+        Assert.AreEqual(1, CustLinesCount, '');
+        LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Customer.Name));
+        VerifyNormalLine(LineText, 'E', SalesInvoiceHeader.Amount - SalesCrMemoHeader[1].Amount - SalesCrMemoHeader[2].Amount);
+
+        LibraryVariableStorage.DequeueDate();       // Posting Date
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandlerWithQuarter,ConfirmHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler')]
+    procedure PurchaseCreditMemosWithCorrectiveInvoiceWhenSamePeriodQuarter()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: array[2] of Record "Purch. Cr. Memo Hdr.";
+        Vendor: Record Vendor;
+        PostingDateInvoice: Date;
+        PostingDateCrMemo: array[2] of Date;
+        FileName: Text;
+        LineText: Text;
+        VendLinesCount: Integer;
+        OriginalDeclaredAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 488756] Run Make 349 report on multiple Purchase Credit Memos when they correct invoice from the same Quarter period.
+        Initialize();
+        PostingDateInvoice := LibraryRandom.RandDateFrom(CalcDate('<CQ + 1D>', GetFirstDateInEmptyFY()), 10);
+        PostingDateCrMemo[1] := CalcDate('<+1M>', PostingDateInvoice);
+        PostingDateCrMemo[2] := CalcDate('<+2M>', PostingDateInvoice);
+        OriginalDeclaredAmount := 0;
+
+        // [GIVEN] VAT Prod. Posting Group with Delivery Operation Code = " ".
+        CreateVATPostingSetup(VATPostingSetup, false);
+        UpdateDeliveryOperCodeOnVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group", DeliveryOperationCode::" ");
+
+        // [GIVEN] Posted Purchase Invoice "PI" with Posting Date 10.01.25 and Amount 10000.
+        // [GIVEN] Posted Purchase Credit Memo "CM1" with Posting Date 10.02.25, Amount 1500 and "Corrected Invoice No." = "PI".
+        // [GIVEN] Posted Purchase Credit Memo "CM2" with Posting Date 10.03.25, Amount 1000 and "Corrected Invoice No." = "PI".
+        CreateAndPostPurchaseInvoiceWithVATSetup(PurchInvHeader, VATPostingSetup, PostingDateInvoice);
+        Vendor.Get(PurchInvHeader."Buy-from Vendor No.");
+        CreateAndPostPurchaseCreditMemoWithVATSetup(PurchCrMemoHdr[1], VATPostingSetup, Vendor."No.", PurchInvHeader."No.", PostingDateCrMemo[1]);
+        CreateAndPostPurchaseCreditMemoWithVATSetup(PurchCrMemoHdr[2], VATPostingSetup, Vendor."No.", PurchInvHeader."No.", PostingDateCrMemo[2]);
+        Commit();
+
+        // [WHEN] Run Make 349 Declaration report for 1T period (1st quarter), set Include Correction for both Credit Memos. Original Declaration Period/Amount remain unchanged.
+        LibraryVariableStorage.Enqueue(PostingDateCrMemo[1]);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(GetPostingPeriodForMake349Declaration(PostingDateCrMemo[1], 0));
+        LibraryVariableStorage.Enqueue(OriginalDeclaredAmount);
+        RunMake349DeclarationReportSimple(FileName, PostingDateCrMemo[1]);
+
+        // [THEN] One normal line for Vendor is exported.
+        // [THEN] Format is "A" + <Invoice Amount - CM1 Amount - CM2 Amount>, i.e. A0000000750000.
+        VendLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40);
+        Assert.AreEqual(1, VendLinesCount, '');
+        LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Vendor.Name));
+        VerifyNormalLine(LineText, 'A', PurchInvHeader.Amount - PurchCrMemoHdr[1].Amount - PurchCrMemoHdr[2].Amount);
+
+        LibraryVariableStorage.DequeueDate();       // Posting Date
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandler,ConfirmHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler')]
+    procedure PurchaseCreditMemosWithCorrectiveInvoiceWhenSamePeriodMonth()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: array[2] of Record "Purch. Cr. Memo Hdr.";
+        Vendor: Record Vendor;
+        PostingDateInvoice: Date;
+        PostingDateCrMemo: array[2] of Date;
+        FileName: Text;
+        LineText: Text;
+        VendLinesCount: Integer;
+        OriginalDeclaredAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 488756] Run Make 349 report on multiple Purchase Credit Memos when they correct invoice from the same Month period.
+        Initialize();
+        PostingDateInvoice := LibraryRandom.RandDateFrom(CalcDate('<CM + 1D>', GetFirstDateInEmptyFY()), 10);
+        PostingDateCrMemo[1] := CalcDate('<+2D>', PostingDateInvoice);
+        PostingDateCrMemo[2] := CalcDate('<+4D>', PostingDateInvoice);
+        OriginalDeclaredAmount := 0;
+
+        // [GIVEN] VAT Prod. Posting Group with Delivery Operation Code = " ".
+        CreateVATPostingSetup(VATPostingSetup, false);
+        UpdateDeliveryOperCodeOnVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group", DeliveryOperationCode::" ");
+
+        // [GIVEN] Posted Purchase Invoice "PI" with Posting Date 10.01.25 and Amount 10000.
+        // [GIVEN] Posted Purchase Credit Memo "CM1" with Posting Date 12.01.25, Amount 1500 and "Corrected Invoice No." = "PI".
+        // [GIVEN] Posted Purchase Credit Memo "CM2" with Posting Date 14.01.25, Amount 1000 and "Corrected Invoice No." = "PI".
+        CreateAndPostPurchaseInvoiceWithVATSetup(PurchInvHeader, VATPostingSetup, PostingDateInvoice);
+        Vendor.Get(PurchInvHeader."Buy-from Vendor No.");
+        CreateAndPostPurchaseCreditMemoWithVATSetup(PurchCrMemoHdr[1], VATPostingSetup, Vendor."No.", PurchInvHeader."No.", PostingDateCrMemo[1]);
+        CreateAndPostPurchaseCreditMemoWithVATSetup(PurchCrMemoHdr[2], VATPostingSetup, Vendor."No.", PurchInvHeader."No.", PostingDateCrMemo[2]);
+        Commit();
+
+        // [WHEN] Run Make 349 Declaration report for January period, set Include Correction for both Credit Memos. Original Declaration Period/Amount remain unchanged.
+        LibraryVariableStorage.Enqueue(PostingDateCrMemo[1]);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(GetPostingPeriodForMake349Declaration(PostingDateCrMemo[1], 0));
+        LibraryVariableStorage.Enqueue(OriginalDeclaredAmount);
+        RunMake349DeclarationReportSimple(FileName, PostingDateCrMemo[1]);
+
+        // [THEN] One normal line for Vendor is exported.
+        // [THEN] Format is "A" + <Invoice Amount - CM1 Amount - CM2 Amount>, i.e. A0000000750000.
+        VendLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40);
+        Assert.AreEqual(1, VendLinesCount, '');
+        LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Vendor.Name));
+        VerifyNormalLine(LineText, 'A', PurchInvHeader.Amount - PurchCrMemoHdr[1].Amount - PurchCrMemoHdr[2].Amount);
+
+        LibraryVariableStorage.DequeueDate();       // Posting Date
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandlerAnnualPeriod,ConfirmHandler,CustomerVendorWarnings349IncludeAllEntriesPageHandler')]
+    procedure PurchaseCreditMemosWithCorrectiveInvoiceWhenSamePeriodYear()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: array[2] of Record "Purch. Cr. Memo Hdr.";
+        Vendor: Record Vendor;
+        PostingDateInvoice: Date;
+        PostingDateCrMemo: array[2] of Date;
+        FileName: Text;
+        LineText: Text;
+        VendLinesCount: Integer;
+        OriginalDeclaredAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 488756] Run Make 349 report on multiple Purchase Credit Memos when they correct invoice from the same Year period.
+        Initialize();
+        PostingDateInvoice := LibraryRandom.RandDateFrom(CalcDate('<CY + 1D>', GetFirstDateInEmptyFY()), 10);
+        PostingDateCrMemo[1] := CalcDate('<+3M>', PostingDateInvoice);
+        PostingDateCrMemo[2] := CalcDate('<+6M>', PostingDateInvoice);
+        OriginalDeclaredAmount := 0;
+
+        // [GIVEN] VAT Prod. Posting Group with Delivery Operation Code = " ".
+        CreateVATPostingSetup(VATPostingSetup, false);
+        UpdateDeliveryOperCodeOnVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group", DeliveryOperationCode::" ");
+
+        // [GIVEN] Posted Purchase Invoice "PI" with Posting Date 10.01.25 and Amount 10000.
+        // [GIVEN] Posted Purchase Credit Memo "CM1" with Posting Date 10.04.25, Amount 1500 and "Corrected Invoice No." = "PI".
+        // [GIVEN] Posted Purchase Credit Memo "CM2" with Posting Date 10.07.25, Amount 1000 and "Corrected Invoice No." = "PI".
+        CreateAndPostPurchaseInvoiceWithVATSetup(PurchInvHeader, VATPostingSetup, PostingDateInvoice);
+        Vendor.Get(PurchInvHeader."Buy-from Vendor No.");
+        CreateAndPostPurchaseCreditMemoWithVATSetup(PurchCrMemoHdr[1], VATPostingSetup, Vendor."No.", PurchInvHeader."No.", PostingDateCrMemo[1]);
+        CreateAndPostPurchaseCreditMemoWithVATSetup(PurchCrMemoHdr[2], VATPostingSetup, Vendor."No.", PurchInvHeader."No.", PostingDateCrMemo[2]);
+        Commit();
+
+        // [WHEN] Run Make 349 Declaration report for 0A period 2025, set Include Correction for both Credit Memos. Original Declaration Period/Amount remain unchanged.
+        LibraryVariableStorage.Enqueue(PostingDateCrMemo[1]);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(GetPostingPeriodForMake349Declaration(PostingDateCrMemo[1], 0));
+        LibraryVariableStorage.Enqueue(OriginalDeclaredAmount);
+        RunMake349DeclarationReportSimple(FileName, PostingDateCrMemo[1]);
+
+        // [THEN] One normal line for Vendor is exported.
+        // [THEN] Format is "A" + <Invoice Amount - CM1 Amount - CM2 Amount>, i.e. A0000000750000.
+        VendLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40);
+        Assert.AreEqual(1, VendLinesCount, '');
+        LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Vendor.Name));
+        VerifyNormalLine(LineText, 'A', PurchInvHeader.Amount - PurchCrMemoHdr[1].Amount - PurchCrMemoHdr[2].Amount);
+
+        LibraryVariableStorage.DequeueDate();       // Posting Date
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -5809,7 +6133,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         CreatePurchLineWithVATProdGrp(PurchaseLine, PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group");
-        PurchaseLine.Validate("Unit Cost", PurchaseLine."Unit Cost" * 10);  // invoice amount must be greater than credit memo amount
+        PurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" * 10);  // invoice amount must be greater than credit memo amount
         PurchaseLine.Modify(true);
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
         PurchInvHeader.CalcFields(Amount);
@@ -6840,6 +7164,19 @@ codeunit 144117 "ERM Make 349 Declaration"
           LibraryTextFileValidation.ReadValue(LibraryTextFileValidation.FindLineWithValue(
               ExportFileName, StartingPosition, StrLen(ExpectedValue), ExpectedValue), StartingPosition, StrLen(ExpectedValue));
         Assert.AreEqual('', FieldValue, '');
+    end;
+
+    local procedure VerifyNormalLine(LineText: Text; ExpOperationType: Text[1]; ExpAmount: Decimal)
+    var
+        OperationType: Text[1];
+        LineAmount: Decimal;
+    begin
+        OperationType := CopyStr(LineText, 133, 1);
+        Evaluate(LineAmount, CopyStr(LineText, 134, 13));
+        LineAmount := LineAmount / 100;
+
+        Assert.AreEqual(ExpOperationType, OperationType, '');
+        Assert.AreEqual(ExpAmount, LineAmount, '');
     end;
 
     local procedure VerifyRectificationLine(LineText: Text; ExpOperationType: Text[1]; PostingDate: Date; ExpOriginalDeclarationAmt: Decimal; ExpPrevDeclarationAmt: Decimal)

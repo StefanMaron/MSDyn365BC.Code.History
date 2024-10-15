@@ -80,7 +80,6 @@ table 5225 "Employee Payment Buffer"
         {
             Caption = 'Payment Reference';
             DataClassification = SystemMetadata;
-            Numeric = true;
             TableRelation = "Employee Ledger Entry"."Payment Reference" where("Entry No." = field("Employee Ledg. Entry No."));
         }
         field(172; "Payment Method Code"; Code[10])

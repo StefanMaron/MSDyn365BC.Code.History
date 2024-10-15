@@ -1156,6 +1156,7 @@ table 99000829 "Planning Component"
                             BinCode :=
                                 ProdOrderWarehouseMgt.GetProdCenterBinCode(
                                     PlanningRoutingLine.Type, PlanningRoutingLine."No.", "Location Code", true, "Flushing Method");
+                    OnGetRefOrderTypeBinOnAfterGetBinCodeFromRoutingLine(Rec, PlanningRoutingLine, ReqLine, BinCode);
                     if BinCode <> '' then
                         exit(BinCode);
                     BinCode := GetFlushingMethodBin();
@@ -1342,6 +1343,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetRefOrderTypeBin(PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line"; Location: Record Location; var BinCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRefOrderTypeBinOnAfterGetBinCodeFromRoutingLine(var PlanningComponent: Record "Planning Component"; var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line"; var BinCode: Code[20])
     begin
     end;
 }

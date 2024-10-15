@@ -1,4 +1,4 @@
-﻿#if not CLEAN21
+#if not CLEAN21
 namespace Microsoft.Purchases.Pricing;
 
 using Microsoft.Finance.Currency;
@@ -77,7 +77,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                 Type::Item:
                     begin
                         Item.Get("No.");
-                        Vend.Get("Pay-to Vendor No.");
+                        Vend.Get(PurchHeader."Pay-to Vendor No.");
                         PriceInSKU := SKU.Get("Location Code", "No.", "Variant Code");
                         PurchLinePriceExists(PurchHeader, PurchLine, false);
                         CalcBestDirectUnitCost(TempPurchPrice);

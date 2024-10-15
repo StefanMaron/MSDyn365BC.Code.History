@@ -12,6 +12,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
     var
         Assert: Codeunit Assert;
+        Any: Codeunit Any;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
@@ -754,6 +755,36 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DestinationSalesHeader."Document Type", DestinationSalesHeader."No.");
         // [THEN] 2 extended text lines are attached to item line // TFS 215250
         VerifySalesAttachedLines(DestinationSalesHeader, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopySalesOrderToDocWithRecalculateLinesAndAutomaticExtText()
+    var
+        SalesHeader: Record "Sales Header";
+        DestinationSalesHeader: Record "Sales Header";
+        ItemNoWithExtText: Code[20];
+    begin
+        // [FEATURE] [Sales] [Extended Text]
+        // [SCENARIO] Extended text lines should be recreated when Option RecalculateLines is set
+        Initialize();
+
+        // [GIVEN] Shipped Sales Order with 2 lines of extended text divided by an empty line
+        ItemNoWithExtText := CreateItemWithExtText();
+        CreateSalesDocWithExtLines(SalesHeader, SalesHeader."Document Type"::Order, ItemNoWithExtText);
+
+        // [GIVEN] Extended Text of Item is updated and "Automatic Ext. Text" for Item is enabled
+        UpdateExtendedTextOfItem(ItemNoWithExtText);
+        SetAutomaticExtTextForItem(ItemNoWithExtText, true);
+
+        // [WHEN] Copy Shipped Sales Order to Sales Order
+        CreateSalesHeaderForCustomer(DestinationSalesHeader, DestinationSalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+        RunCopySalesDoc(SalesHeader."No.", DestinationSalesHeader, Enum::"Sales Document Type From"::Order, false, true);
+
+        // [THEN] 2 extended text lines are attached to item line
+        VerifySalesAttachedLines(DestinationSalesHeader, 2);
+        // [THEN] The texts of the extended text lines and the attached lines are identical
+        VerifySalesAttachedLinesAreFromMasterData(DestinationSalesHeader);
     end;
 
     [Test]
@@ -7171,13 +7202,17 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     end;
 
     local procedure CreateSalesDocWithExtLines(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
+    begin
+        CreateSalesDocWithExtLines(SalesHeader, DocumentType, CreateItemWithExtText());
+    end;
+
+    local procedure CreateSalesDocWithExtLines(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNoWithExtText: Code[20])
     var
         SalesLine: Record "Sales Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithExtText,
-          LibraryRandom.RandInt(100));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNoWithExtText, LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Modify(true);
         TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, true);
@@ -7401,6 +7436,28 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         UpdateTextInExtendedTextLine(ExtendedTextLine, Item."No.");
         exit(Item."No.");
+    end;
+
+    local procedure SetAutomaticExtTextForItem(ItemNoWithExtText: Code[20]; AutomaticExtTexts: Boolean)
+    var
+        Item: Record Item;
+    begin
+        Item.Get(ItemNoWithExtText);
+        Item.Validate("Automatic Ext. Texts", AutomaticExtTexts);
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateExtendedTextOfItem(ItemNoWithExtText: Code[20])
+    var
+        ExtendedTextLine: Record "Extended Text Line";
+    begin
+        ExtendedTextLine.SetRange("Table Name", ExtendedTextLine."Table Name"::Item);
+        ExtendedTextLine.SetRange("No.", ItemNoWithExtText);
+        ExtendedTextLine.FindSet();
+        repeat
+            ExtendedTextLine.Text := CopyStr(Any.AlphabeticText(MaxStrLen(ExtendedTextLine.Text)), 1, MaxStrLen(ExtendedTextLine.Text));
+            ExtendedTextLine.Modify(true);
+        until ExtendedTextLine.Next() = 0;
     end;
 
     local procedure CreatePostSalesDocWithShiptoAddr(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ShiptoCode: Code[10]): Code[20]
@@ -8105,6 +8162,34 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.SetRange("Attached to Line No.", SalesLine."Line No.");
         SalesLine.SetRange(Type, SalesLine.Type::" ");
         Assert.RecordCount(SalesLine, ExpectedCount);
+    end;
+
+    local procedure VerifySalesAttachedLinesAreFromMasterData(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        AttachedSalesLine: Record "Sales Line";
+        ExtendedTextLine: Record "Extended Text Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindFirst();
+        ExtendedTextLine.SetRange("Table Name", ExtendedTextLine."Table Name"::Item);
+        ExtendedTextLine.SetRange("No.", SalesLine."No.");
+
+        AttachedSalesLine.SetRange("Document Type", SalesLine."Document Type");
+        AttachedSalesLine.SetRange("Document No.", SalesLine."Document No.");
+        AttachedSalesLine.SetRange("Attached to Line No.", SalesLine."Line No.");
+        AttachedSalesLine.SetRange(Type, SalesLine.Type::" ");
+
+        Assert.RecordCount(AttachedSalesLine, ExtendedTextLine.Count());
+
+        ExtendedTextLine.FindSet();
+        AttachedSalesLine.FindSet();
+        repeat
+            Assert.AreEqual(ExtendedTextLine.Text, AttachedSalesLine.Description, AttachedSalesLine.FieldCaption(Description));
+            ExtendedTextLine.Next();
+        until AttachedSalesLine.Next() = 0;
     end;
 
     local procedure VerifyPurchaseLineAndStepNext(var PurchaseLine: Record "Purchase Line"; ExpectedType: Enum "Purchase Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text; StepNext: Boolean)

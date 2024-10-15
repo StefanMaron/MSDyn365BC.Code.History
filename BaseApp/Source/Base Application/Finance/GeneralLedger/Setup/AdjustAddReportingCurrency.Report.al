@@ -58,14 +58,19 @@ report 86 "Adjust Add. Reporting Currency"
             trigger OnPreDataItem()
             var
                 GLSetup: Record "General Ledger Setup";
+                IsHandled: Boolean;
             begin
                 Window.Open(Text002Txt);
                 if Count > 0 then
                     VATEntryStep := 10000 * 100000 div Count;
 
-                GLSetup.Get();
-                if not GLSetup."Unrealized VAT" then
-                    SetRange(Closed, false);
+                IsHandled := false;
+                OnPreDataItemVatEntryOnBeforeSetFilterOnClosedVATEntries("VAT Entry", IsHandled);
+                if not IsHandled then begin
+                    GLSetup.Get();
+                    if not GLSetup."Unrealized VAT" then
+                        SetRange(Closed, false);
+                end;
             end;
         }
         dataitem("G/L Entry"; "G/L Entry")
@@ -654,6 +659,11 @@ report 86 "Adjust Add. Reporting Currency"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertGLEntryOnBeforeGLEntryInsert(var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreDataItemVatEntryOnBeforeSetFilterOnClosedVATEntries(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean)
     begin
     end;
 }

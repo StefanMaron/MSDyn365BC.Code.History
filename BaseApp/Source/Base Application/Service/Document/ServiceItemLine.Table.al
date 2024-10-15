@@ -1197,11 +1197,11 @@ table 5901 "Service Item Line"
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
-                        begin
+            begin
                 if "Service Item No." <> '' then
                     Error(
                       Text016,
-                      FieldCaption("Variant Code"), FieldCaption("Service Item No."))
+                      FieldCaption("Variant Code"), FieldCaption("Service Item No."));
             end;
         }
         field(41; "Service Item Loaner Comment"; Boolean)
@@ -1365,11 +1365,9 @@ table 5901 "Service Item Line"
                 Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
-        field(130; "Release Status"; Option)
+        field(130; "Release Status"; Enum "Service Doc. Release Status")
         {
             Caption = 'Release Status';
-            OptionCaption = 'Open,Released to Ship';
-            OptionMembers = Open,"Released to Ship";
         }
         field(480; "Dimension Set ID"; Integer)
         {

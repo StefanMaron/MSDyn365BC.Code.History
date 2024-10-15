@@ -857,7 +857,7 @@ codeunit 80 "Sales-Post"
 
             CheckSalesLines(SalesHeader);
 
-            OnAfterCheckSalesDoc(SalesHeader, SuppressCommit, WhseShip, WhseReceive);
+            OnAfterCheckSalesDoc(SalesHeader, SuppressCommit, WhseShip, WhseReceive, PreviewMode, ErrorMessageMgt);
             if not LogErrorMode then
                 ErrorMessageMgt.Finish(RecordId);
         end;
@@ -5875,6 +5875,7 @@ codeunit 80 "Sales-Post"
             ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeader);
             OrderArchived := true;
         end;
+        OnAfterArchiveUnpostedOrder(SalesHeader, SalesLine, OrderArchived);
     end;
 
     local procedure SynchBOMSerialNo(var ServItemTmp3: Record "Service Item" temporary; var ServItemTmpCmp3: Record "Service Item Component" temporary)
@@ -8246,14 +8247,8 @@ codeunit 80 "Sales-Post"
                         SalesHeader, TrackingSpecificationExists, ItemEntryRelation, TempTrackingSpecification, ReturnRcptLine);
 
                     UpdateChargeItemReturnRcptLineGenProdPostingGroup(ReturnRcptLine);
-                    ReturnRcptLine.TestField("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
-                    ReturnRcptLine.TestField(Type, SalesLine.Type);
-                    ReturnRcptLine.TestField("No.", SalesLine."No.");
-                    ReturnRcptLine.TestField("Gen. Bus. Posting Group", SalesLine."Gen. Bus. Posting Group");
-                    ReturnRcptLine.TestField("Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
-                    ReturnRcptLine.TestField("Job No.", SalesLine."Job No.");
-                    ReturnRcptLine.TestField("Unit of Measure Code", SalesLine."Unit of Measure Code");
-                    ReturnRcptLine.TestField("Variant Code", SalesLine."Variant Code");
+                    CheckReturnRcptLine(ReturnRcptLine, SalesLine);
+
                     if SalesLine."Qty. to Invoice" * ReturnRcptLine.Quantity < 0 then
                         SalesLine.FieldError("Qty. to Invoice", ReturnReceiptSameSignErr);
                     UpdateQtyToBeInvoicedForReturnReceipt(
@@ -8310,6 +8305,25 @@ codeunit 80 "Sales-Post"
                       SalesLine."Return Receipt Line No.", SalesLine."Return Receipt No.");
             end;
         end;
+    end;
+
+    local procedure CheckReturnRcptLine(var ReturnReceiptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReturnRcptLine(ReturnReceiptLine, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnReceiptLine.TestField("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
+        ReturnReceiptLine.TestField(Type, SalesLine.Type);
+        ReturnReceiptLine.TestField("No.", SalesLine."No.");
+        ReturnReceiptLine.TestField("Gen. Bus. Posting Group", SalesLine."Gen. Bus. Posting Group");
+        ReturnReceiptLine.TestField("Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        ReturnReceiptLine.TestField("Job No.", SalesLine."Job No.");
+        ReturnReceiptLine.TestField("Unit of Measure Code", SalesLine."Unit of Measure Code");
+        ReturnReceiptLine.TestField("Variant Code", SalesLine."Variant Code");    
     end;
 
     local procedure IsEndLoopForReceivedNotInvoiced(RemQtyToBeInvoiced: Decimal; TrackingSpecificationExists: Boolean; var ReturnReceiptLine: Record "Return Receipt Line"; var TempTrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line") EndLoop: Boolean
@@ -9187,7 +9201,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean)
+    local procedure OnAfterCheckSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean; PreviewMode: Boolean; var ErrorMessageMgt: Codeunit "Error Message Management")
     begin
     end;
 
@@ -12381,6 +12395,16 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessPostingLinesOnBeforePostDropOrderShipment(SalesHeader: Record "Sales Header"; TotalSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterArchiveUnpostedOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; OrderArchived: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReturnRcptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

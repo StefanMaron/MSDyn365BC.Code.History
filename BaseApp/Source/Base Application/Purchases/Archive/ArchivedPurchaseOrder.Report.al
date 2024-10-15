@@ -884,28 +884,11 @@ report 416 "Archived Purchase Order"
 
                 trigger OnAfterGetRecord()
                 var
-                    PurchLineArchive: Record "Purchase Line Archive";
                     TempPurchHeader: Record "Purchase Header" temporary;
                     TempPurchLine: Record "Purchase Line" temporary;
                 begin
-                    Clear(TempPurchaseLineArchive);
-                    TempPurchaseLineArchive.DeleteAll();
-                    PurchLineArchive.SetRange("Document Type", "Purchase Header Archive"."Document Type");
-                    PurchLineArchive.SetRange("Document No.", "Purchase Header Archive"."No.");
-                    PurchLineArchive.SetRange("Version No.", "Purchase Header Archive"."Version No.");
-                    if PurchLineArchive.FindSet() then
-                        repeat
-                            TempPurchaseLineArchive := PurchLineArchive;
-                            TempPurchaseLineArchive.Insert();
-                            TempPurchLine.TransferFields(PurchLineArchive);
-                            TempPurchLine.Insert();
-                        until PurchLineArchive.Next() = 0;
+                    InitTempLines(TempPurchHeader, TempPurchLine);
 
-                    TempVATAmountLine.DeleteAll();
-
-                    TempPurchHeader.TransferFields("Purchase Header Archive");
-                    TempPurchLine."Prepayment Line" := true;  // used as flag in CalcVATAmountLines -> not invoice rounding
-                    TempPurchLine.CalcVATAmountLines(0, TempPurchHeader, TempPurchLine, TempVATAmountLine);
                     VATAmount := TempVATAmountLine.GetTotalVATAmount();
                     VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                     VATDiscountAmount :=
@@ -1122,6 +1105,16 @@ report 416 "Archived Purchase Order"
             ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
             VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
         end;
+    end;
+
+    local procedure InitTempLines(var TempPurchHeader: Record "Purchase Header" temporary; var TempPurchLine: Record "Purchase Line" temporary)
+    begin
+        TempPurchaseLineArchive.CopyTempLines("Purchase Header Archive", TempPurchLine);
+
+        TempVATAmountLine.DeleteAll();
+        TempPurchHeader.TransferFields("Purchase Header Archive");
+        TempPurchLine."Prepayment Line" := true;  // used as flag in CalcVATAmountLines -> not invoice rounding
+        TempPurchLine.CalcVATAmountLines(0, TempPurchHeader, TempPurchLine, TempVATAmountLine);
     end;
 }
 

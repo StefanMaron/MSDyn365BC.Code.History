@@ -113,7 +113,7 @@ codeunit 1385 "Vendor Templ. Mgt."
             Vendor."Payment Days Code" := VendorTempl."Payment Days Code";
         if VendorTempl."Non-Paymt. Periods Code" <> '' then
             Vendor."Non-Paymt. Periods Code" := VendorTempl."Non-Paymt. Periods Code";
-        OnApplyTemplateOnBeforeVendorModify(Vendor, VendorTempl);
+        OnApplyTemplateOnBeforeVendorModify(Vendor, VendorTempl, UpdateExistingValues);
         Vendor.Modify(true);
     end;
 
@@ -422,7 +422,7 @@ codeunit 1385 "Vendor Templ. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyTemplateOnBeforeVendorModify(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    local procedure OnApplyTemplateOnBeforeVendorModify(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ."; UpdateExistingValues: Boolean)
     begin
     end;
 

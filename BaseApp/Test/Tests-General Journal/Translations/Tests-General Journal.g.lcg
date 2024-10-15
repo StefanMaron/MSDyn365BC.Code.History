@@ -536,6 +536,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Batch Approval - NamedType NoApprovalCommentExistsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 396517504 - NamedType 286473105" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You can't modify a record pending approval. Add a comment or reject the approval to modify the record.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Batch Approval - NamedType PreventModifyRecordWithOpenApprovalEntryMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 396517504 - NamedType 2404932207" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot use %1 for this action.]]></Val>

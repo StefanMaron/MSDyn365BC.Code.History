@@ -307,8 +307,7 @@ report 10710 "Make 349 Declaration"
                                 repeat
                                     CorrectedInvPostingDate := GetCorrectedInvoicePostingDate(CustVendWarning349);
                                     if IsCorrectiveCrMemo(CustVendWarning349) and
-                                       (GetYearAsText(CorrectedInvPostingDate) = FiscalYear) and
-                                       ((GetMonthAsText(CorrectedInvPostingDate) = GetPeriodAsText()) or (Period = Period::"0A"))    // 0A - Annual
+                                       ((CorrectedInvPostingDate >= FromDate) and (CorrectedInvPostingDate <= ToDate))
                                     then begin
                                         // Credit Memo corrects Invoice from the same period
                                         if "VAT Registration No." <> '' then begin
@@ -593,8 +592,7 @@ report 10710 "Make 349 Declaration"
                                 repeat
                                     CorrectedInvPostingDate := GetCorrectedInvoicePostingDate(CustVendWarning349);
                                     if IsCorrectiveCrMemo(CustVendWarning349) and
-                                       (GetYearAsText(CorrectedInvPostingDate) = FiscalYear) and
-                                       ((GetMonthAsText(CorrectedInvPostingDate) = GetPeriodAsText()) or (Period = Period::"0A"))    // 0A - Annual
+                                    ((CorrectedInvPostingDate >= FromDate) and (CorrectedInvPostingDate <= ToDate))
                                     then begin
                                         // Credit Memo corrects Invoice from the same period
                                         if "VAT Registration No." <> '' then begin
@@ -1725,28 +1723,6 @@ report 10710 "Make 349 Declaration"
 
         PeriodInt := Period;
         exit(Format(PeriodInt, 2, '<Integer,2><Filler Character,0>'));
-    end;
-
-    local procedure GetMonthAsText(DateValue: Date): Text[2]
-    var
-        MonthInt: Integer;
-    begin
-        if DateValue = 0D then
-            exit('00');
-
-        MonthInt := Date2DMY(DateValue, 2);
-        exit(Format(MonthInt, 2, '<Integer,2><Filler Character,0>'));
-    end;
-
-    local procedure GetYearAsText(DateValue: Date): Text[4]
-    var
-        YearInt: Integer;
-    begin
-        if DateValue = 0D then
-            exit('0000');
-
-        YearInt := Date2DMY(DateValue, 3);
-        exit(Format(YearInt));
     end;
 
     local procedure GetPrevDeclaredAmount(var CustomerVendorWarning349: Record "Customer/Vendor Warning 349"): Decimal

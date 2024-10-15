@@ -680,6 +680,7 @@ table 167 Job
                 JobPlanningLine: Record "Job Planning Line";
                 JobLedgerEntry: Record "Job Ledger Entry";
                 JobUsageLink: Record "Job Usage Link";
+                NewApplyUsageLink: Boolean;
             begin
                 if "Apply Usage Link" then begin
                     JobLedgerEntry.SetCurrentKey("Job No.");
@@ -694,13 +695,18 @@ table 167 Job
                     JobPlanningLine.SetCurrentKey("Job No.");
                     JobPlanningLine.SetRange("Job No.", "No.");
                     JobPlanningLine.SetRange("Schedule Line", true);
-                    if JobPlanningLine.FindSet() then
+                    if JobPlanningLine.FindSet() then begin
                         repeat
                             JobPlanningLine.Validate("Usage Link", true);
                             if JobPlanningLine."Planning Date" = 0D then
                                 JobPlanningLine.Validate("Planning Date", WorkDate());
                             JobPlanningLine.Modify(true);
                         until JobPlanningLine.Next() = 0;
+
+                        NewApplyUsageLink := "Apply Usage Link";
+                        RefreshModifiedRec();
+                        "Apply Usage Link" := NewApplyUsageLink;
+                    end;
                 end;
             end;
         }
@@ -2563,6 +2569,11 @@ table 167 Job
             else
                 exit(Result::Partial);
         end;
+    end;
+
+    local procedure RefreshModifiedRec()
+    begin
+        Rec.Find('=');
     end;
 
     [IntegrationEvent(TRUE, false)]

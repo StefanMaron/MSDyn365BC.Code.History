@@ -249,6 +249,13 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the customer is not registered in Spanish tax agency.';
                 }
+                field(Priority; Rec.Priority)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    Visible = false;
+                    ToolTip = 'Specifies a number that corresponds to the priority you give the customer. The higher the number, the higher the priority.';
+                }
             }
             group("Address & Contact")
             {

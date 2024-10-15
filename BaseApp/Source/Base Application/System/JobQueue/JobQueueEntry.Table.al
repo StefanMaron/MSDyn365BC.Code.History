@@ -802,6 +802,24 @@ table 472 "Job Queue Entry"
             Error(NoPermissionsErr, DummyErrorMessage.TableName());
     end;
 
+    procedure HasRequiredPermissions(): Boolean
+    var
+        DummyJobQueueLogEntry: Record "Job Queue Log Entry";
+        DummyErrorMessageRegister: Record "Error Message Register";
+        DummyErrorMessage: Record "Error Message";
+    begin
+        if not DummyJobQueueLogEntry.WritePermission() then
+            exit(false);
+
+        if not DummyErrorMessageRegister.WritePermission() then
+            exit(false);
+
+        if not DummyErrorMessage.WritePermission() then
+            exit(false);
+
+        exit(true);
+    end;
+
     [TryFunction]
     internal procedure TryCheckRequiredPermissions()
     begin

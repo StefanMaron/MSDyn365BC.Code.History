@@ -20,33 +20,52 @@ codeunit 1441 "RC Headlines Executor"
 
     procedure ScheduleTask(RoleCenterPageID: Integer)
     var
-        JQE: Record "Job Queue Entry";
+        JobQueueEntry: Record "Job Queue Entry";
         Tomorrow: Date;
     begin
-        JQE.SetRange("Object Type to Run", JQE."Object Type to Run"::Codeunit);
-        JQE.SetRange("Object ID to Run", Codeunit::"RC Headlines Executor");
-        JQE.SetRange("Parameter String", Format(RoleCenterPageID));
-        JQE.SetFilter(Status, '%1|%2', JQE.Status::"In Process", JQE.Status::Ready);
-        if not JQE.IsEmpty() then
+        if not JobQueueEntry.ReadPermission() then
             exit;
 
-        JQE.SetFilter(Status, '%1|%2', JQE.Status::Error, JQE.Status::"On Hold");
-        if JQE.FindFirst() then begin
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"RC Headlines Executor");
+        JobQueueEntry.SetRange("Parameter String", Format(RoleCenterPageID));
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::"In Process", JobQueueEntry.Status::Ready);
+        if not JobQueueEntry.IsEmpty() then
+            exit;
+
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Error, JobQueueEntry.Status::"On Hold");
+        if JobQueueEntry.FindFirst() then begin
             // restart the job tomorrow
             Tomorrow := CalcDate('<+1d>');
-            JQE."Earliest Start Date/Time" := CreateDateTime(Tomorrow, Time());
+            JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(Tomorrow, Time());
         end else begin
             // create a new job
-            JQE.Init();
-            JQE."Object Type to Run" := JQE."Object Type to Run"::Codeunit;
-            JQE."Object ID to Run" := Codeunit::"RC Headlines Executor";
-            JQE."Parameter String" := Format(RoleCenterPageID);
+            JobQueueEntry.Init();
+            JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+            JobQueueEntry."Object ID to Run" := Codeunit::"RC Headlines Executor";
+            JobQueueEntry."Parameter String" := Format(RoleCenterPageID);
         end;
 
-        if TaskScheduler.CanCreateTask() and JQE.WritePermission then
-            Codeunit.Run(Codeunit::"Job Queue - Enqueue", JQE)
+        if TaskSchedulerAvailable() then
+            Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry)
         else
-            OnTaskSchedulerUnavailable(JQE);
+            OnTaskSchedulerUnavailable(JobQueueEntry);
+    end;
+
+    local procedure TaskSchedulerAvailable(): Boolean
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        if not JobQueueEntry.WritePermission() then
+            exit(false);
+
+        if not JobQueueEntry.HasRequiredPermissions() then
+            exit(false);
+
+        if not TaskScheduler.CanCreateTask() then
+            exit(false);
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

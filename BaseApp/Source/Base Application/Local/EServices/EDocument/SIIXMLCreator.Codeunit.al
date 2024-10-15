@@ -1797,7 +1797,13 @@ codeunit 10750 "SII XML Creator"
     var
         VATEntry: Record "VAT Entry";
         NoTaxableEntry: Record "No Taxable Entry";
+        IsHandled: Boolean; 
     begin
+        IsHandled := false;
+        OnBeforeCalculateTotalVatAndBaseAmounts(LedgerEntryRecRef, TotalBaseAmount, TotalNonExemptVATBaseAmount, TotalVATAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         TotalBaseAmount := 0;
         TotalVATAmount := 0;
 
@@ -3033,6 +3039,11 @@ codeunit 10750 "SII XML Creator"
 
     [IntegrationEvent(false, false)]
     local procedure OnFillThirdPartyIdOnBeforeAssignValues(SIIDocUploadState: Record "SII Doc. Upload State"; var CountryCode: Code[20]; var Name: Text; var VatNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotalVatAndBaseAmounts(LedgerEntryRecRef: RecordRef; var TotalBaseAmount: Decimal; var TotalNonExemptVATBaseAmount: Decimal; var TotalVATAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

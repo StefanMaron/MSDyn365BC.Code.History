@@ -19,6 +19,7 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         PrepaymentsWithNDVATErr: Label 'You cannot post prepayment that contains Non-Deductible VAT.';
+        AmountMustBeEqualErr: Label 'Amount must be equal.';
 
     [Test]
     procedure NormalVATNonDeductibleAmountsAfterPostingPurchInvEndToEnd()
@@ -289,6 +290,66 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         Assert.ExpectedError(PrepaymentsWithNDVATErr);
     end;
 
+    [Test]
+    procedure HundredPctPurchInvWithCurrencyAndRounding()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        GLEntry: Record "G/L Entry";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        VendorNo: Code[20];
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 492296] Stan can post the purchase invoice with 100 % Non-Deductible VAT, currency and rounding
+        Initialize();
+
+        // [GIVEN] Enable "Use For Item Cost" on VAT Setup
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+
+        // [GIVEN] Create Currency and Currency Exchange Rate
+        CreateCurrencyWithExchangeRateFor492296(CurrencyExchangeRate, Currency);
+
+        // [GIVEN] Create VAT Posting Setup with Non Dedutible setup
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 20, 100);
+
+        // [GIVEN] Create Vendor with Currency Code
+        VendorNo := CreateVendorWithCurrencyCode(VATPostingSetup, Currency.Code);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+
+        // [GIVEN] Create Purchase Line with Non Deductible VAT Posting Setup
+        CreatePurchLineItemWithVATProdPostingGroup(PurchaseLine, PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Update Direct unit Cost to 123.05 for not getting the Inconsistency error
+        PurchaseLine.Validate(Quantity, 1);
+        PurchaseLine.Validate("Direct Unit Cost", 123.05);
+        PurchaseLine.Modify();
+
+        // [WHEN] Post purchase document and save document no
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify VAT entry posted
+        FindVATEntry(VATEntry, DocNo);
+        Assert.RecordCount(VATEntry, 1);
+        VerifyVATEntryFor492296(VATEntry);
+
+        // [WHEN] Find G/l Entry of Non Deductible G/L Account
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        FilterGLEntry(GLEntry, DocNo, GeneralPostingSetup."Purch. Account");
+        GLEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLEntry.FindFirst();
+
+        // [VERIFY] G/L Entries has been created for Non Deductible G/L
+        Assert.AreEqual(VATEntry."Non-Deductible VAT Amount", GLEntry."Non-Deductible VAT Amount", AmountMustBeEqualErr);
+        Assert.AreEqual(VATEntry."Non-Deductible VAT Amount", GLEntry."VAT Amount", AmountMustBeEqualErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -354,5 +415,42 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
+    end;
+
+    local procedure CreateVendorWithCurrencyCode(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]): Code[20];
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify();
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateCurrencyWithExchangeRateFor492296(var CurrencyExchangeRate: Record "Currency Exchange Rate"; var Currency: Record Currency)
+    var
+        CurrCode: Code[10];
+    begin
+        CurrCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
+        Currency.Get(CurrCode);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, 0D);
+        UpdateExchangeRatesFor492296(CurrencyExchangeRate);
+    end;
+
+    local procedure UpdateExchangeRatesFor492296(var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 100);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 100);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 82.05);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", 82.05);
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure VerifyVATEntryFor492296(VATEntry: Record "VAT Entry")
+    begin
+        Assert.AreEqual(0, VATEntry.Base, AmountMustBeEqualErr);
+        Assert.AreEqual(0, VATEntry.Amount, AmountMustBeEqualErr);
+        Assert.AreEqual(100.96, VATEntry."Non-Deductible VAT Base", AmountMustBeEqualErr);
+        Assert.AreEqual(20.20, VATEntry."Non-Deductible VAT Amount", AmountMustBeEqualErr);
     end;
 }
