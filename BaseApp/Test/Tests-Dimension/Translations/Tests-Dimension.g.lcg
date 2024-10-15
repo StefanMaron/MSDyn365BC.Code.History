@@ -797,6 +797,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Sales - NamedType UpdateLineDimQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2453870435 - NamedType 1417987097" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BD_TEMP_B]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Shortcuts - NamedType TempBatchNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2488707860 - NamedType 1606245354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in Gen. Journal Line Template Name=''%3'',Journal Batch Name=''%4'',Line No.=''%5''.]]></Val>

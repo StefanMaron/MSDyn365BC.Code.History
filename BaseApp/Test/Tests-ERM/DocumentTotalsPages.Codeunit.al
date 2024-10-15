@@ -24,6 +24,7 @@ codeunit 134344 "Document Totals Pages"
         InvoiceDiscountPercentErr: Label 'Invoice discount percent';
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
+        WrongDecimalErr: Label 'Wrong count of decimals', Locked = true;
 
     [Test]
     [HandlerFunctions('ChangeExchangeRateMPH')]
@@ -923,6 +924,426 @@ codeunit 134344 "Document Totals Pages"
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(PurchaseHeader."Invoice Discount Value");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesBlanketPurchaseOrderSubform()
+    var
+        BlanketPurchaseOrderTestPage: TestPage "Blanket Purchase Order";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Blanket Paurchase Order Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Blanket Purchase Order"
+        BlanketPurchaseOrderTestPage.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        BlanketPurchaseOrderTestPage."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(BlanketPurchaseOrderTestPage.PurchLines.AmountBeforeDiscount.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(BlanketPurchaseOrderTestPage.PurchLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(BlanketPurchaseOrderTestPage.PurchLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(BlanketPurchaseOrderTestPage.PurchLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(BlanketPurchaseOrderTestPage.PurchLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesBlanketSalesOrderSubform()
+    var
+        BlanketSalesOrderTestPage: TestPage "Blanket Sales Order";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Blanket Sales Order Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Blanket Sales Order"
+        BlanketSalesOrderTestPage.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        BlanketSalesOrderTestPage."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] SubtotalExclVAT ends with '.000'
+        Assert.IsTrue(BlanketSalesOrderTestPage.SalesLines.SubtotalExclVAT.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(BlanketSalesOrderTestPage.SalesLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(BlanketSalesOrderTestPage.SalesLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(BlanketSalesOrderTestPage.SalesLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(BlanketSalesOrderTestPage.SalesLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesPurchaseOrderSubform()
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Purchase Order Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Purchase Order"
+        PurchaseOrder.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        PurchaseOrder."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(PurchaseOrder.PurchLines.AmountBeforeDiscount.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(PurchaseOrder.PurchLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseOrder.PurchLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(PurchaseOrder.PurchLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesPurchaseQuoteSubform()
+    var
+        PurchaseQuote: TestPage "Purchase Quote";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Purchase Quote Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Purchase Quote"
+        PurchaseQuote.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        PurchaseQuote."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(PurchaseQuote.PurchLines.AmountBeforeDiscount.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(PurchaseQuote.PurchLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseQuote.PurchLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(PurchaseQuote.PurchLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseQuote.PurchLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesPurchaseReturnOrderSubform()
+    var
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Purchase Return Order Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Purchase Return Order"
+        PurchaseReturnOrder.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        PurchaseReturnOrder."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines.AmountBeforeDiscount.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesPurchaseCrMemoSubform()
+    var
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Purchase Cr. Memo Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Purchase Credit Memo"
+        PurchaseCreditMemo.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        PurchaseCreditMemo."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines.AmountBeforeDiscount.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesPurchaseInvoiceSubform()
+    var
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Purchase Invoice Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Purchase Invoice"
+        PurchaseInvoice.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        PurchaseInvoice."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(PurchaseInvoice.PurchLines.AmountBeforeDiscount.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesSalesCrMemoSubform()
+    var
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Sales Cr. Memo Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Sales Credit Memo"
+        SalesCreditMemo.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        SalesCreditMemo."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(SalesCreditMemo.SalesLines."TotalSalesLine.""Line Amount""".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesSalesInvoiceSubform()
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Sales Invoice Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Sales Invoice"
+        SalesInvoice.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        SalesInvoice."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(SalesInvoice.SalesLines."TotalSalesLine.""Line Amount""".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(SalesInvoice.SalesLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(SalesInvoice.SalesLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(SalesInvoice.SalesLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(SalesInvoice.SalesLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesSalesOrderSubform()
+    var
+        SalesOrder: TestPage "Sales Order";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Sales Order Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Sales Order"
+        SalesOrder.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        SalesOrder."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(SalesOrder.SalesLines."TotalSalesLine.""Line Amount""".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(SalesOrder.SalesLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(SalesOrder.SalesLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(SalesOrder.SalesLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(SalesOrder.SalesLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesSalesQuoteSubform()
+    var
+        SalesQuote: TestPage "Sales Quote";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Sales Quote Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Sales Quote"
+        SalesQuote.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        SalesQuote."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(SalesQuote.SalesLines."Subtotal Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(SalesQuote.SalesLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(SalesQuote.SalesLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(SalesQuote.SalesLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(SalesQuote.SalesLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalDecimalPlacesSalesReturnOrderSubform()
+    var
+        SalesReturnOrder: TestPage "Sales Return Order";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 388998] Count of decimals in totaling fields of "Sales Return Order Subform" must be equal to currency from header
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Page "Sales Return Order"
+        SalesReturnOrder.OpenNew();
+
+        // [WHEN] Set "Currency Code" = "C"
+        SalesReturnOrder."Currency Code".SetValue(CurrencyCode);
+
+        // [THEN] AmountBeforeDiscount ends with '.000'
+        Assert.IsTrue(SalesReturnOrder.SalesLines.SubtotalExclVAT.Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Invoice Discount Amount" ends with '.000'
+        Assert.IsTrue(SalesReturnOrder.SalesLines."Invoice Discount Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Excl. VAT" ends with '.000'
+        Assert.IsTrue(SalesReturnOrder.SalesLines."Total Amount Excl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total VAT Amount" ends with '.000'
+        Assert.IsTrue(SalesReturnOrder.SalesLines."Total VAT Amount".Value.EndsWith('.000'), WrongDecimalErr);
+
+        // [THEN] "Total Amount Incl. VAT" ends with '.000'
+        Assert.IsTrue(SalesReturnOrder.SalesLines."Total Amount Incl. VAT".Value.EndsWith('.000'), WrongDecimalErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1074,6 +1495,19 @@ codeunit 134344 "Document Totals Pages"
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
         LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+    end;
+
+    local procedure CreateCurrencyWithDecimalPlaces(): Code[10]
+    var
+        Currency: Record Currency;
+        CurrencyCode: Code[10];
+    begin
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1);
+        Currency.Get(CurrencyCode);
+        Currency.Validate("Amount Decimal Places", '3:3');
+        Currency.Validate("Amount Rounding Precision", 0.001);
+        Currency.Modify(true);
+        exit(CurrencyCode);
     end;
 
     [ModalPageHandler]

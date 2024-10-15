@@ -100,7 +100,7 @@
                 "Sell-to IC Partner Code" := Cust."IC Partner Code";
                 "Send IC Document" := ("Sell-to IC Partner Code" <> '') and ("IC Direction" = "IC Direction"::Outgoing);
 
-                Validate("Ship-to Code", Cust."Ship-to Code");
+                UpdateShipToCodeFromCust();
                 SetBillToCustomerNo(Cust);
 
                 GetShippingTime(FieldNo("Sell-to Customer No."));
@@ -2798,6 +2798,7 @@
         Text028: Label 'You cannot change the %1 when the %2 has been filled in.';
         Text030: Label 'Deleting this document will cause a gap in the number series for return receipts. An empty return receipt %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text031: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Shipment Date.\\Do you want to update the lines?';
+        ReadingDataSkippedMsg: Label 'Loading field %1 will be skipped because there was an error when reading the data.\To fix the current data, contact your administrator.\Alternatively, you can overwrite the current data by entering data in the field.', Comment = '%1=field caption';
         SalesSetup: Record "Sales & Receivables Setup";
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
@@ -4368,6 +4369,18 @@
         OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
     end;
 
+    local procedure UpdateShipToCodeFromCust()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateShipToCodeFromCust(Rec, Cust, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Ship-to Code", Cust."Ship-to Code");
+    end;
+
     procedure ShowDocDim()
     var
         OldDimSetID: Integer;
@@ -5722,7 +5735,7 @@
         if ("Ship-to Code" = '') or ("Sell-to Customer No." <> BillToCustomer."No.") then
             "Tax Liable" := BillToCustomer."Tax Liable";
 
-        OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer);
+        OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer, xRec);
     end;
 
     procedure SetShipToAddress(ShipToName: Text[100]; ShipToName2: Text[50]; ShipToAddress: Text[100]; ShipToAddress2: Text[50]; ShipToCity: Text[30]; ShipToPostCode: Code[20]; ShipToCounty: Text[30]; ShipToCountryRegionCode: Code[10])
@@ -6035,14 +6048,15 @@
         Modify;
     end;
 
-    procedure GetWorkDescription(): Text
+    procedure GetWorkDescription() WorkDescription: Text
     var
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        if not TypeHelper.TryReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator(), WorkDescription) then
+            Message(ReadingDataSkippedMsg, FieldCaption("Work Description"));
     end;
 
     local procedure LookupContact(CustomerNo: Code[20]; ContactNo: Code[20]; var Contact: Record Contact)
@@ -6740,7 +6754,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
+    local procedure OnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -7141,6 +7155,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateShipToAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateShipToCodeFromCust(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

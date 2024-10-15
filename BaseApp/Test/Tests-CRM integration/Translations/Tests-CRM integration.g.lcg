@@ -790,7 +790,7 @@
   </Item>
   <Item ItemId=";Codeunit 882869326 - NamedType 3586624132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The synchronization has been skipped.]]></Val>
+      <Val><![CDATA[The synchronization has been skipped. The Customer record is already coupled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -826,7 +826,7 @@
   </Item>
   <Item ItemId=";Codeunit 1223386046 - NamedType 2275657490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The contact cannot be created because the company does not exist.]]></Val>
+      <Val><![CDATA[The contact cannot be synchronized because the company does not exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1256,13 +1256,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Synch. Notifications - NamedType UnexpectedNotificationErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 849336762 - NamedType 509532877" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 849336762 - NamedType 2275657490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The contact cannot be created because the company does not exist]]></Val>
+      <Val><![CDATA[The contact cannot be synchronized because the company does not exist]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Synch. Rules Test - NamedType ContactCannotBeCreatedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Synch. Rules Test - NamedType ContactMissingCompanyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1002680501 - NamedType 544198257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1330,7 +1330,7 @@
   </Item>
   <Item ItemId=";Codeunit 1002680501 - NamedType 3586624132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The synchronization has been skipped.]]></Val>
+      <Val><![CDATA[The synchronization has been skipped. The Customer record was marked as skipped before.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

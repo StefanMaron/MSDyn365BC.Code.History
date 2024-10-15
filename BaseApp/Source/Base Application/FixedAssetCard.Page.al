@@ -23,7 +23,7 @@ page 5600 "Fixed Asset Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
 
                     trigger OnValidate()
@@ -687,6 +687,8 @@ page 5600 "Fixed Asset Card"
         Acquirable: Boolean;
         ShowAddMoreDeprBooksLbl: Boolean;
         BookValue: Decimal;
+        FAPostingGroupChangeDeniedMsg: Label 'The current FA posting group is %1 but the FA subclass %2 has the default FA posting group %3. \Because there are posted FA ledger entries we will not change the FA posting group.', Comment = '%1 = FA Posting Group Code, %2 = FA Subclass Code, %3 = Default FA Posting Group. Example: The current FA posting group is MACHINERY but the FA subclass TANGIBLE has the default FA posting group CAR. \Because there are posted FA ledger entries we will not change the FA posting group.';
+        FAPostingGroupChangeConfirmTxt: Label 'The current FA posting group is %1, but the FA subclass %2 has the default FA posting group %3. \Do you want to update the FA posting group?', Comment = '%1 = FA Posting Group Code, %2 = FA Subclass Code, %3 = Default FA Posting Group. The current FA posting group is MACHINERY, but the FA subclass TANGIBLE has the default FA posting group CAR. \Do you want to update the FA posting group?';
 
     local procedure ShowAcquisitionNotification()
     var
@@ -718,13 +720,19 @@ page 5600 "Fixed Asset Card"
     end;
 
     procedure SaveSimpleDepreciationBook(FixedAssetNo: Code[20])
-    var
-        FixedAsset: Record "Fixed Asset";
     begin
         if not SimpleFADepreciationBookHasChanged() then
             exit;
 
-        if Simple and FixedAsset.Get(FixedAssetNo) then begin
+        if Simple then
+            UpdateDepreciationBook(FixedAssetNo);
+    end;
+
+    procedure UpdateDepreciationBook(FixedAssetNo: Code[20])
+    var
+        FixedAsset: Record "Fixed Asset";
+    begin
+        if FixedAsset.Get(FixedAssetNo) then begin
             if FADepreciationBook."Depreciation Book Code" <> '' then
                 if FADepreciationBook."FA No." = '' then begin
                     FADepreciationBook.Validate("FA No.", FixedAssetNo);
@@ -748,14 +756,45 @@ page 5600 "Fixed Asset Card"
 
     local procedure SetDefaultPostingGroup()
     var
+        FALedgerEntry: Record "FA Ledger Entry";
         FASubclass: Record "FA Subclass";
+        ConfirmManagement: Codeunit "Confirm Management";
+        UpdateAllowed: Boolean;
+        UpdateConfirmed: Boolean;
     begin
-        if FADepreciationBook."FA Posting Group" <> '' then
-            exit;
-
         if FASubclass.Get("FA Subclass Code") then;
-        FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
-        SaveSimpleDepreciationBook("No.");
+        UpdateAllowed := true;
+        UpdateConfirmed := true;
+
+        if (FADepreciationBook."FA Posting Group" <> '') and 
+           (FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group") 
+        then begin
+            FALedgerEntry.SetRange("FA No.","No.");  
+            UpdateAllowed := FALedgerEntry.IsEmpty();
+
+            if UpdateAllowed then
+                UpdateConfirmed := ConfirmManagement.GetResponseOrDefault(
+                    StrSubstNo(
+                        FAPostingGroupChangeConfirmTxt,
+                        FADepreciationBook."FA Posting Group",
+                        FASubclass.Code,
+                        FASubclass."Default FA Posting Group"),
+                    true)
+        end;
+
+        if UpdateConfirmed and UpdateAllowed then begin
+            FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
+            if Simple then
+                SaveSimpleDepreciationBook("No.")
+            else
+                UpdateDepreciationBook("No.");
+        end;
+        if not UpdateAllowed then
+            Message(
+                FAPostingGroupChangeDeniedMsg,
+                FADepreciationBook."FA Posting Group",
+                FASubclass.Code,
+                FASubclass."Default FA Posting Group");
     end;
 
     protected procedure SimpleFADepreciationBookHasChanged(): Boolean

@@ -1,4 +1,4 @@
-codeunit 7321 "Create Inventory Put-away"
+﻿codeunit 7321 "Create Inventory Put-away"
 {
     TableNo = "Warehouse Activity Header";
 
@@ -650,6 +650,7 @@ codeunit 7321 "Create Inventory Put-away"
             WhseActivHeader.Insert(true);
             UpdateWhseActivHeader(WhseRequest);
             NextLineNo := 10000;
+            OnInsertWhseActivLineOnBeforeCommit(NewWhseActivLine, WhseActivHeader);
             Commit();
         end;
         NewWhseActivLine."No." := WhseActivHeader."No.";
@@ -928,6 +929,11 @@ codeunit 7321 "Create Inventory Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertWhseActivLineOnBeforeAutoCreation(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservationFound: Boolean; SNRequired: Boolean; LNRequired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertWhseActivLineOnBeforeCommit(var WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseActivHeader: Record "Warehouse Activity Header")
     begin
     end;
 }

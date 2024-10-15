@@ -3049,7 +3049,7 @@ codeunit 134386 "ERM Sales Documents II"
     [Test]
     [HandlerFunctions('SendNotificationHandler,CheckCrLimitGetOverdueAmountModalPageHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
-    procedure BalanceDueLCYConsidersOnlyEntriesWithDueDateLessThanWorkDateOnCheckCrLimitPage()
+    procedure BalanceDueLCYConsidersOnlyEntriesWithDueDateLessThanTodayOnCheckCrLimitPage()
     var
         SalesHeader: Record "Sales Header";
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
@@ -3057,16 +3057,15 @@ codeunit 134386 "ERM Sales Documents II"
         OverdueAmount: Decimal;
     begin
         // [FEAUTURE] [UI] [UT]
-        // [SCENARIO 218532] "Balance Due (LCY)" considers only Customer Ledger Entries with "Due Date" less than work date on "Check Credit Limit" page
-        // TFS 272033: Overdue balance calculates based on Due Date less than WorkDate on Credit Limit Warning page
+        // [SCENARIO 384838] "Balance Due (LCY)" considers only Customer Ledger Entries with "Due Date" less than today on "Check Credit Limit" page
 
         Initialize;
 
-        // [GIVEN] Work date is 24.01.19
+        // [GIVEN] Today date is 24.01.19
         // [GIVEN] Customer with two entries
         // [GIVEN] First entry has "Due Date" = 25.01.19 and Amount = 100
         // [GIVEN] Second entry has "Due Date" = 24.01.19 and Amount = 50
-        CreateSalesOrderWithOverdueCust(SalesHeader, OverdueAmount, WorkDate, WorkDate - 1);
+        CreateSalesOrderWithOverdueCust(SalesHeader, OverdueAmount, Today, Today - 1);
         LibraryVariableStorage.Enqueue(SalesHeader."Bill-to Customer No.");
 
         // [WHEN] Run Credit Limit check by function SalesHeaderCheck in codeunit "Cust-Check Cr. Limit"
@@ -3089,15 +3088,15 @@ codeunit 134386 "ERM Sales Documents II"
         OverdueAmount: Decimal;
     begin
         // [FEAUTURE] [UI] [UT]
-        // [SCENARIO 218532] Only Customer Ledger Entries with "Due Date" less than work date shows when drill-down field "Balance Due (LCY)" on "Check Credit Limit" page
+        // [SCENARIO 384838] Only Customer Ledger Entries with "Due Date" less than today shows when drill-down field "Balance Due (LCY)" on "Check Credit Limit" page
 
         Initialize;
 
-        // [GIVEN] Work date is 24.01.19
+        // [GIVEN] Today is 24.01.19
         // [GIVEN] Customer with two entries
         // [GIVEN] First entry has "Due Date" = 24.01.19 and Amount = 100
         // [GIVEN] Second entry has "Due Date" = 23.01.19 and Amount = 50
-        CreateSalesOrderWithOverdueCust(SalesHeader, OverdueAmount, WorkDate, WorkDate - 1);
+        CreateSalesOrderWithOverdueCust(SalesHeader, OverdueAmount, Today, Today - 1);
         LibraryVariableStorage.Enqueue(SalesHeader."Bill-to Customer No.");
 
         // [GIVEN] Credit Limit check called and "Check Credit Limit" page is opened
@@ -3121,15 +3120,15 @@ codeunit 134386 "ERM Sales Documents II"
         OverdueAmount: Decimal;
     begin
         // [FEAUTURE] [UI] [UT]
-        // [SCENARIO 218532] Only Customer Ledger Entries with "Due Date" less than work date shows when drill-down field "Balance Due (LCY)" on "Customer Statistics Factbox" page
+        // [SCENARIO 218532] Only Customer Ledger Entries with "Due Date" less than today shows when drill-down field "Balance Due (LCY)" on "Customer Statistics Factbox" page
 
         Initialize;
 
-        // [GIVEN] Work date is 24.01.19
+        // [GIVEN] Today is 24.01.19
         // [GIVEN] Customer with two entries
         // [GIVEN] First entry has "Due Date" = 24.01.19 and Amount = 100
         // [GIVEN] Second entry has "Due Date" = 23.01.19 and Amount = 50
-        CreateSalesOrderWithOverdueCust(SalesHeader, OverdueAmount, WorkDate, WorkDate - 1);
+        CreateSalesOrderWithOverdueCust(SalesHeader, OverdueAmount, Today, Today - 1);
 
         // [GIVEN] "Customer List" page opens for Customer with Overdue balance = 50
         CustomerList.OpenView;
@@ -4627,7 +4626,7 @@ codeunit 134386 "ERM Sales Documents II"
             Init;
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := CustNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := DueDate;
             "Due Date" := DueDate;
             Open := true;
             Insert;
@@ -4644,7 +4643,7 @@ codeunit 134386 "ERM Sales Documents II"
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Cust. Ledger Entry No." := CustLedgEntryNo;
             "Customer No." := CustNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := DueDate;
             "Initial Entry Due Date" := DueDate;
             Amount := LibraryRandom.RandDecInRange(100, 500, 2);
             "Amount (LCY)" := Amount;

@@ -4039,6 +4039,162 @@ codeunit 134341 "UT Page Actions & Controls"
         ProfileCustomizationList.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('PostedSalesShipmentsPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredPostedSalesShipmentsPageOpensPassedRecord()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        // [SCENARIO 386212] Filtered Posted Sales Shipments page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(SalesShipmentHeader, PAGE::"Posted Sales Shipments");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesInvoicesPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredPostedSalesInvoicesPageOpensPassedRecord()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [SCENARIO 386212] Filtered Posted Sales Invoices page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(SalesInvoiceHeader, PAGE::"Posted Sales Invoices");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesCreditMemosPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredPostedSalesCreditMemosPageOpensPassedRecord()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [SCENARIO 386212] Filtered Posted Sales Credit Memos page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(SalesCrMemoHeader, PAGE::"Posted Sales Credit Memos");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedReturnReceiptsPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredPostedReturnReceiptsPageOpensPassedRecord()
+    var
+        ReturnReceiptHeader: Record "Return Receipt Header";
+    begin
+        // [SCENARIO 386212] Filtered Posted Return Receipts page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(ReturnReceiptHeader, PAGE::"Posted Return Receipts");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchaseReceiptsPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredPostedPurchaseReceiptsPageOpensPassedRecord()
+    var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+    begin
+        // [SCENARIO 386212] Filtered Posted Purchase Receipts page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(PurchRcptHeader, PAGE::"Posted Purchase Receipts");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchaseInvoicesPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredPostedPurchaseInvoicesPageOpensPassedRecord()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        // [SCENARIO 386212] Filtered Posted Purchase Invoices page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(PurchInvHeader, PAGE::"Posted Purchase Invoices");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchaseCreditMemosPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredPostedPurchaseCreditMemosPageOpensPassedRecord()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+    begin
+        // [SCENARIO 386212] Filtered Posted Purchase Credit Memos page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(PurchCrMemoHdr, PAGE::"Posted Purchase Credit Memos");
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralLedgerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredGeneralLedgerEntriesPageOpensPassedRecord()
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        // [SCENARIO 386212] Filtered General Ledger Entries page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(GLEntry, PAGE::"General Ledger Entries");
+    end;
+
+    [Test]
+    [HandlerFunctions('ResourceLedgerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredResourceLedgerEntriesPageOpensPassedRecord()
+    var
+        ResLedgerEntry: Record "Res. Ledger Entry";
+    begin
+        // [SCENARIO 386212] Filtered Resource Ledger Entries page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(ResLedgerEntry, PAGE::"Resource Ledger Entries");
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerLedgerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredCustomerLedgerEntriesPageOpensPassedRecord()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [SCENARIO 386212] Filtered Customer Ledger Entries page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(CustLedgerEntry, PAGE::"Customer Ledger Entries");
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorLedgerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredVendorLedgerEntriesPageOpensPassedRecord()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 386212] Filtered Vendor Ledger Entries page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(VendorLedgerEntry, PAGE::"Vendor Ledger Entries");
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckLedgerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredCheckLedgerEntriesPageOpensPassedRecord()
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+    begin
+        // [SCENARIO 386212] Filtered Check Ledger Entries page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(CheckLedgerEntry, PAGE::"Check Ledger Entries");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemLedgerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure FilteredItemLedgerEntriesPageOpensPassedRecord()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [SCENARIO 386212] Filtered Item Ledger Entries page opens passed record.
+
+        MockThreeRecordsAndOpenSecondOnFilteredPage(ItemLedgerEntry, PAGE::"Item Ledger Entries");
+    end;
+
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
     var
         PostCode: Record "Post Code";
@@ -4149,6 +4305,20 @@ codeunit 134341 "UT Page Actions & Controls"
         EnqueueValuesAndRunFilteredPage(KeyValueFirst, ActionOption::Verify, PageNo, RecVar);
     end;
 
+    local procedure MockThreeRecordsAndOpenSecondOnFilteredPage(RecVar: Variant; PageNo: Integer)
+    var
+        KeyValueMiddle: Variant;
+        ActionOption: Option Set,Verify;
+        Index: Integer;
+    begin
+        for Index := 1 to 3 do
+            MockRecordWithKeyValue(RecVar);
+
+        GetMiddleKeyFieldValueAndSetFilter(KeyValueMiddle, RecVar);
+
+        EnqueueValuesAndRunFilteredPage(KeyValueMiddle, ActionOption::Verify, PageNo, RecVar);
+    end;
+
     local procedure MockRecordWithKeyValue(RecVar: Variant): Code[10]
     var
         RecRef: RecordRef;
@@ -4240,6 +4410,36 @@ codeunit 134341 "UT Page Actions & Controls"
         RecRef.SetTable(RecVar);
 
         KeyValueFirst := FieldRef.Value;
+    end;
+
+    local procedure GetMiddleKeyFieldValueAndSetFilter(var KeyValueMiddle: Variant; var RecVar: Variant)
+    var
+        RecRefToFilter: RecordRef;
+        RecRef: RecordRef;
+        KeyRef: KeyRef;
+        FieldRef: FieldRef;
+        KeyValueFirst: Variant;
+        KeyValueLast: Variant;
+    begin
+        RecRef.GetTable(RecVar);
+
+        RecRefToFilter.Open(RecRef.Number);
+        KeyRef := RecRefToFilter.KeyIndex(1);
+        FieldRef := KeyRef.FieldIndex(1);
+
+        RecRefToFilter.FindFirst();
+        KeyValueFirst := FieldRef.Value;
+        RecRefToFilter.Next(RecRef.Count div 2);
+        KeyValueMiddle := FieldRef.Value;
+        RecRefToFilter.FindLast();
+        KeyValueLast := FieldRef.Value;
+
+        FieldRef := RecRef.Field(FieldRef.Number);
+        FieldRef.SetRange(KeyValueMiddle, KeyValueMiddle);
+        RecRef.FindFirst();
+        FieldRef.SetRange(KeyValueFirst, KeyValueLast);
+
+        RecRef.SetTable(RecVar);
     end;
 
     local procedure OpenPostedSalesShipment(var PostedSalesShipment: TestPage "Posted Sales Shipment"; SalesHeader: Record "Sales Header")
