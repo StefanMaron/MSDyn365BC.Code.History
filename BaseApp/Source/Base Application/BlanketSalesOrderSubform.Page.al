@@ -1011,6 +1011,11 @@ page 508 "Blanket Sales Order Subform"
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
     end;
 
+    procedure ClearTotalSalesHeader();
+    begin
+        Clear(TotalSalesHeader);
+    end;
+
     procedure CalculateTotals()
     begin
         DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
@@ -1040,7 +1045,9 @@ page 508 "Blanket Sales Order Subform"
         IsCommentLine := not Rec.HasTypeToFillMandatoryFields();
         IsBlankNumber := IsCommentLine;
 
-        InvDiscAmountEditable := CurrPage.Editable and not SalesReceivablesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable := 
+            CurrPage.Editable and not SalesReceivablesSetup."Calc. Inv. Discount" and
+            (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;

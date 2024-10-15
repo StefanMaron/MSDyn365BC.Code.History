@@ -9,6 +9,7 @@ codeunit 5340 "CRM Integration Table Synch."
         ConnectionName: Text;
         LatestModifiedOn: array[2] of DateTime;
         isHandled: Boolean;
+        PrevStatus: Option;
     begin
         OnBeforeRun(Rec, IsHandled);
         If IsHandled then
@@ -20,13 +21,13 @@ codeunit 5340 "CRM Integration Table Synch."
         if "Int. Table UID Field Type" = Field.Type::Option then
             SynchOption(Rec)
         else begin
-            SetOriginalCRMJobQueueEntryOnHold(Rec, OriginalJobQueueEntry);
+            SetOriginalCRMJobQueueEntryOnHold(Rec, OriginalJobQueueEntry, PrevStatus);
             if Direction in [Direction::ToIntegrationTable, Direction::Bidirectional] then
                 LatestModifiedOn[DateType::Local] := PerformScheduledSynchToIntegrationTable(Rec);
             if Direction in [Direction::FromIntegrationTable, Direction::Bidirectional] then
                 LatestModifiedOn[DateType::Integration] := PerformScheduledSynchFromIntegrationTable(Rec);
             UpdateTableMappingModifiedOn(Rec, LatestModifiedOn);
-            SetOriginalCRMJobQueueEntryReady(Rec, OriginalJobQueueEntry);
+            SetOriginalCRMJobQueueEntryStatus(Rec, OriginalJobQueueEntry, PrevStatus);
         end;
 
         CloseConnection(ConnectionName);
@@ -595,25 +596,34 @@ codeunit 5340 "CRM Integration Table Synch."
 
     internal procedure SetOriginalCRMJobQueueEntryOnHold(IntegrationTableMapping: Record "Integration Table Mapping"; var JobQueueEntry: Record "Job Queue Entry")
     var
+        PrevStatus: Option;
+    begin
+        SetOriginalCRMJobQueueEntryOnHold(IntegrationTableMapping, JobQueueEntry, PrevStatus);
+    end;
+
+    local procedure SetOriginalCRMJobQueueEntryOnHold(IntegrationTableMapping: Record "Integration Table Mapping"; var JobQueueEntry: Record "Job Queue Entry"; var PrevStatus: Option)
+    var
         OriginalIntegrationTableMapping: Record "Integration Table Mapping";
     begin
         if IntegrationTableMapping."Full Sync is Running" then begin
             OriginalIntegrationTableMapping.Get(IntegrationTableMapping."Parent Name");
             JobQueueEntry.SetRange("Record ID to Process", OriginalIntegrationTableMapping.RecordId);
-            if JobQueueEntry.FindFirst then
+            if JobQueueEntry.FindFirst() then begin
+                PrevStatus := JobQueueEntry.Status;
                 JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
+            end;
         end;
     end;
 
-    local procedure SetOriginalCRMJobQueueEntryReady(IntegrationTableMapping: Record "Integration Table Mapping"; var JobQueueEntry: Record "Job Queue Entry")
+    local procedure SetOriginalCRMJobQueueEntryStatus(IntegrationTableMapping: Record "Integration Table Mapping"; var JobQueueEntry: Record "Job Queue Entry"; Status: Option)
     var
         OriginalIntegrationTableMapping: Record "Integration Table Mapping";
     begin
         if IntegrationTableMapping."Full Sync is Running" then begin
             OriginalIntegrationTableMapping.Get(IntegrationTableMapping."Parent Name");
             OriginalIntegrationTableMapping.CopyModifiedOnFilters(IntegrationTableMapping);
-            if JobQueueEntry.FindFirst then
-                JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
+            if JobQueueEntry.FindFirst() then
+                JobQueueEntry.SetStatus(Status);
         end;
     end;
 
@@ -708,6 +718,9 @@ codeunit 5340 "CRM Integration Table Synch."
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         CRMFullSynchReviewLine.OnBeforeModifyJobQueueEntry(Rec);
     end;
 

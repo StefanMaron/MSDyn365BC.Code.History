@@ -35,6 +35,9 @@ codeunit 5066 "Rlshp. Msgt. Comm. Line Subs"
     [EventSubscriber(ObjectType::Table, Database::"Rlshp. Mgt. Comment Line", 'OnAfterRenameEvent', '', false, false)]
     local procedure SetContactDateTimeModifiedOnAfterCommentLineRename(var Rec: Record "Rlshp. Mgt. Comment Line"; var xRec: Record "Rlshp. Mgt. Comment Line"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if xRec."No." = Rec."No." then
             TouchContact(Rec."No.")
         else begin
