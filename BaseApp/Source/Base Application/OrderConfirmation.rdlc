@@ -6099,6 +6099,7 @@
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6410,6 +6411,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6630,6 +6632,7 @@
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                       <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
@@ -6985,6 +6988,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7599,6 +7603,7 @@
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8121,6 +8126,7 @@ Fields!OrderConfirmCopyCaption.Value+ "  " +Fields!No_SalesHeader.Value,1)</Valu
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8624,6 +8630,7 @@ Fields!OrderConfirmCopyCaption.Value+ "  " +Fields!No_SalesHeader.Value,1)</Valu
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -9010,6 +9017,7 @@ Fields!OrderConfirmCopyCaption.Value+ "  " +Fields!No_SalesHeader.Value,1)</Valu
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

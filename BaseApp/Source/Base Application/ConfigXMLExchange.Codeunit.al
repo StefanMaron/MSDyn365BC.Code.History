@@ -265,7 +265,7 @@ codeunit 8614 "Config. XML Exchange"
                         FieldRef := RecRef.Field(ConfigPackageField."Field ID");
                         if TypeHelper.GetField(RecRef.Number, FieldRef.Number, Field) then begin
                             FieldNode :=
-                              PackageXML.CreateElement(GetFieldElementName(ConfigValidateMgt.CheckName(FieldRef.Name)));
+                              PackageXML.CreateElement(GetFieldElementName(ConfigPackageField.GetValidatedElementName()));
                             FieldNode.InnerText := FormatFieldValue(FieldRef, ConfigPackage);
                             if Advanced and ConfigPackageField."Localize Field" then
                                 AddXMLComment(PackageXML, FieldNode, '_locComment_text="{MaxLength=' + Format(Field.Len) + '}"');
@@ -304,7 +304,7 @@ codeunit 8614 "Config. XML Exchange"
                 repeat
                     FieldRef := RecRef.Field(ConfigPackageField."Field ID");
                     FieldNode :=
-                      PackageXML.CreateElement(GetFieldElementName(ConfigValidateMgt.CheckName(FieldRef.Name)));
+                      PackageXML.CreateElement(GetFieldElementName(ConfigPackageField.GetValidatedElementName()));
                     FieldNode.InnerText := '';
                     RecordNode.AppendChild(FieldNode);
                     if not ExcelMode then
@@ -951,10 +951,10 @@ codeunit 8614 "Config. XML Exchange"
                             ConfigPackageData."Table ID" := TempConfigPackageField."Table ID";
                             ConfigPackageData."Field ID" := TempConfigPackageField."Field ID";
                             ConfigPackageData."No." := ConfigPackageRecord."No.";
-                            if FieldNodeExists(RecordNode, GetElementName(TempConfigPackageField."Field Name")) or
+                            if FieldNodeExists(RecordNode, TempConfigPackageField.GetElementName()) or
                                TempConfigPackageField.Dimension
                             then
-                                GetConfigPackageDataValue(ConfigPackageData, RecordNode, GetElementName(TempConfigPackageField."Field Name"));
+                                GetConfigPackageDataValue(ConfigPackageData, RecordNode, TempConfigPackageField.GetElementName());
                             ConfigPackageData.Insert();
 
                             if not TempConfigPackageField.Dimension then begin

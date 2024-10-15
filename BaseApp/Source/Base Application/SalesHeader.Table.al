@@ -762,6 +762,7 @@
                                         SalesLine."Line Amount" := SalesLine."Amount Including VAT" + SalesLine."Inv. Discount Amount"
                                     else
                                         SalesLine."Line Amount" := SalesLine.Amount + SalesLine."Inv. Discount Amount";
+                                UpdatePrepmtAmounts(SalesLine);
                             end;
                             OnValidatePricesIncludingVATOnBeforeSalesLineModify(Rec, SalesLine, Currency, RecalculatePrice);
                             SalesLine.Modify();
@@ -964,7 +965,8 @@
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             CalcFormula = Sum("Sales Line".Amount WHERE("Document Type" = FIELD("Document Type"),
-                                                         "Document No." = FIELD("No.")));
+                                                         "Document No." = FIELD("No."),
+                                                         "Quote Variant" = FILTER(<> Variant)));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -6622,6 +6624,19 @@
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
     begin
         CalledFromWhseDoc := NewCalledFromWhseDoc;
+    end;
+
+    local procedure UpdatePrepmtAmounts(var SalesLine: Record "Sales Line")
+    var
+        Currency: Record Currency;
+    begin
+        Currency.Initialize("Currency Code");
+        if "Document Type" = "Document Type"::Order then begin
+            SalesLine."Prepmt. Line Amount" := Round(
+                SalesLine."Line Amount" * SalesLine."Prepayment %" / 100, Currency."Amount Rounding Precision");
+            if Abs(SalesLine."Inv. Discount Amount" + SalesLine."Prepmt. Line Amount") > Abs(SalesLine."Line Amount") then
+                SalesLine."Prepmt. Line Amount" := SalesLine."Line Amount" - SalesLine."Inv. Discount Amount";
+        end;
     end;
 
     [IntegrationEvent(false, false)]

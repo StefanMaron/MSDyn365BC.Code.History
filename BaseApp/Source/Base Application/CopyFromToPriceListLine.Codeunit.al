@@ -31,26 +31,53 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine."Price List Code" := '';
                 PriceListLine.Validate("Source Type", ConvertToSourceType(SalesPrice));
                 PriceListLine.Validate("Source No.", SalesPrice."Sales Code");
-                PriceListLine."VAT Bus. Posting Gr. (Price)" := SalesPrice."VAT Bus. Posting Gr. (Price)";
-                PriceListLine."Starting Date" := SalesPrice."Starting Date";
-                PriceListLine."Ending Date" := SalesPrice."Ending Date";
-                PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
-                PriceListLine.Validate("Asset No.", SalesPrice."Item No.");
-                PriceListLine.Validate("Variant Code", SalesPrice."Variant Code");
-                PriceListLine.Validate("Unit of Measure Code", SalesPrice."Unit of Measure Code");
-                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
-                PriceListLine."Unit Price" := SalesPrice."Unit Price";
-                PriceListLine."Allow Invoice Disc." := SalesPrice."Allow Invoice Disc.";
-                PriceListLine."Allow Line Disc." := SalesPrice."Allow Line Disc.";
-                PriceListLine."Currency Code" := SalesPrice."Currency Code";
-                PriceListLine."Minimum Quantity" := SalesPrice."Minimum Quantity";
-                PriceListLine."Price Includes VAT" := SalesPrice."Price Includes VAT";
-                PriceListLine.Status := PriceListLine.Status::Active;
-                PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-                OnCopyFromSalesPrice(SalesPrice, PriceListLine);
-                InsertPriceListLine(PriceListLine);
+                if PriceListLine."Source No." = SalesPrice."Sales Code" then begin
+                    PriceListLine."VAT Bus. Posting Gr. (Price)" := SalesPrice."VAT Bus. Posting Gr. (Price)";
+                    PriceListLine."Starting Date" := SalesPrice."Starting Date";
+                    PriceListLine."Ending Date" := SalesPrice."Ending Date";
+                    PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+                    PriceListLine.Validate("Asset No.", SalesPrice."Item No.");
+                    if PriceListLine."Asset No." = SalesPrice."Item No." then
+                        if VerifySalesPriceConsistency(SalesPrice) then begin
+                            PriceListLine.Validate("Variant Code", SalesPrice."Variant Code");
+                            PriceListLine.Validate("Unit of Measure Code", SalesPrice."Unit of Measure Code");
+                            PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+                            PriceListLine."Unit Price" := SalesPrice."Unit Price";
+                            PriceListLine."Allow Invoice Disc." := SalesPrice."Allow Invoice Disc.";
+                            PriceListLine."Allow Line Disc." := SalesPrice."Allow Line Disc.";
+                            PriceListLine."Currency Code" := SalesPrice."Currency Code";
+                            PriceListLine."Minimum Quantity" := SalesPrice."Minimum Quantity";
+                            PriceListLine."Price Includes VAT" := SalesPrice."Price Includes VAT";
+                            PriceListLine.Status := PriceListLine.Status::Active;
+                            PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
+                            OnCopyFromSalesPrice(SalesPrice, PriceListLine);
+                            InsertPriceListLine(PriceListLine);
+                        end;
+                end;
             until SalesPrice.Next() = 0;
         SalesPrice := OrigSalesPrice;
+    end;
+
+    local procedure VerifySalesPriceConsistency(SalesPrice: Record "Sales Price"): Boolean;
+    var
+        Currency: Record Currency;
+        ItemVariant: Record "Item Variant";
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        if SalesPrice."Variant Code" <> '' then
+            if not ItemVariant.Get(SalesPrice."Item No.", SalesPrice."Variant Code") then
+                exit(false);
+        if SalesPrice."Unit of Measure Code" <> '' then begin
+            if not UnitofMeasure.Get(SalesPrice."Unit of Measure Code") then
+                exit(false);
+            if not ItemUnitofMeasure.Get(SalesPrice."Item No.", SalesPrice."Unit of Measure Code") then
+                exit(false);
+        end;
+        if SalesPrice."Currency Code" <> '' then
+            if not Currency.Get(SalesPrice."Currency Code") then
+                exit(false);
+        exit(true);
     end;
 
     procedure CopyFrom(var SalesLineDiscount: Record "Sales Line Discount"; var PriceListLine: Record "Price List Line")
@@ -68,31 +95,60 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine."Price List Code" := '';
                 PriceListLine.Validate("Source Type", ConvertToSourceType(SalesLineDiscount));
                 PriceListLine.Validate("Source No.", SalesLineDiscount."Sales Code");
-                PriceListLine."Starting Date" := SalesLineDiscount."Starting Date";
-                PriceListLine."Ending Date" := SalesLineDiscount."Ending Date";
-                case SalesLineDiscount.Type of
-                    SalesLineDiscount.Type::Item:
-                        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
-                    SalesLineDiscount.Type::"Item Disc. Group":
-                        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Item Discount Group");
+                if PriceListLine."Source No." = SalesLineDiscount."Sales Code" then begin
+                    PriceListLine."Starting Date" := SalesLineDiscount."Starting Date";
+                    PriceListLine."Ending Date" := SalesLineDiscount."Ending Date";
+                    case SalesLineDiscount.Type of
+                        SalesLineDiscount.Type::Item:
+                            PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+                        SalesLineDiscount.Type::"Item Disc. Group":
+                            PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Item Discount Group");
+                    end;
+                    PriceListLine.Validate("Asset No.", SalesLineDiscount.Code);
+                    if PriceListLine."Asset No." = SalesLineDiscount.Code then
+                        if VerifySalesLineDiscConsistency(SalesLineDiscount) then begin
+                            if SalesLineDiscount.Type = SalesLineDiscount.Type::Item then begin
+                                PriceListLine.Validate("Variant Code", SalesLineDiscount."Variant Code");
+                                PriceListLine.Validate("Unit of Measure Code", SalesLineDiscount."Unit of Measure Code");
+                            end;
+                            PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+                            PriceListLine."Line Discount %" := SalesLineDiscount."Line Discount %";
+                            PriceListLine."Currency Code" := SalesLineDiscount."Currency Code";
+                            PriceListLine."Minimum Quantity" := SalesLineDiscount."Minimum Quantity";
+                            PriceListLine."Allow Invoice Disc." := false;
+                            PriceListLine."Allow Line Disc." := false;
+                            PriceListLine.Status := PriceListLine.Status::Active;
+                            PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
+                            OnCopyFromSalesLineDiscount(SalesLineDiscount, PriceListLine);
+                            InsertPriceListLine(PriceListLine);
+                        end;
                 end;
-                PriceListLine.Validate("Asset No.", SalesLineDiscount.Code);
-                if SalesLineDiscount.Type = SalesLineDiscount.Type::Item then begin
-                    PriceListLine.Validate("Variant Code", SalesLineDiscount."Variant Code");
-                    PriceListLine.Validate("Unit of Measure Code", SalesLineDiscount."Unit of Measure Code");
-                end;
-                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
-                PriceListLine."Line Discount %" := SalesLineDiscount."Line Discount %";
-                PriceListLine."Currency Code" := SalesLineDiscount."Currency Code";
-                PriceListLine."Minimum Quantity" := SalesLineDiscount."Minimum Quantity";
-                PriceListLine."Allow Invoice Disc." := false;
-                PriceListLine."Allow Line Disc." := false;
-                PriceListLine.Status := PriceListLine.Status::Active;
-                PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-                OnCopyFromSalesLineDiscount(SalesLineDiscount, PriceListLine);
-                InsertPriceListLine(PriceListLine);
             until SalesLineDiscount.Next() = 0;
         SalesLineDiscount := OrigSalesLineDiscount;
+    end;
+
+    local procedure VerifySalesLineDiscConsistency(SalesLineDiscount: Record "Sales Line Discount"): Boolean;
+    var
+        Currency: Record Currency;
+        ItemVariant: Record "Item Variant";
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        if SalesLineDiscount.Type = SalesLineDiscount.Type::Item then begin
+            if SalesLineDiscount."Variant Code" <> '' then
+                if not ItemVariant.Get(SalesLineDiscount.Code, SalesLineDiscount."Variant Code") then
+                    exit(false);
+            if SalesLineDiscount."Unit of Measure Code" <> '' then begin
+                if not UnitofMeasure.Get(SalesLineDiscount."Unit of Measure Code") then
+                    exit(false);
+                if not ItemUnitofMeasure.Get(SalesLineDiscount.Code, SalesLineDiscount."Unit of Measure Code") then
+                    exit(false);
+            end;
+        end;
+        if SalesLineDiscount."Currency Code" <> '' then
+            if not Currency.Get(SalesLineDiscount."Currency Code") then
+                exit(false);
+        exit(true);
     end;
 
     local procedure ConvertToSourceType(SalesPrice: Record "Sales Price") SourceType: Enum "Price Source Type";
@@ -230,35 +286,61 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine.Init();
                 PriceListLine."Price List Code" := '';
                 PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-                SetJobAsSource(JobItemPrice."Job No.", JobItemPrice."Job Task No.", PriceListLine);
-                PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
-                PriceListLine.Validate("Asset No.", JobItemPrice."Item No.");
-                PriceListLine.Validate("Variant Code", JobItemPrice."Variant Code");
-                PriceListLine.Validate("Unit of Measure Code", JobItemPrice."Unit of Measure Code");
-                PriceListLine."Currency Code" := JobItemPrice."Currency Code";
-                PriceListLine."Allow Invoice Disc." := false;
-                if JobItemPrice."Apply Job Price" then begin
-                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
-                    PriceListLine."Unit Price" := JobItemPrice."Unit Price";
-                    PriceListLine."Cost Factor" := JobItemPrice."Unit Cost Factor";
-                    PriceListLine."Allow Line Disc." := JobItemPrice."Apply Job Discount";
-                    PriceListLine.Status := PriceListLine.Status::Active;
-                    InsertPriceListLine(PriceListLine);
-                end;
+                if SetJobAsSource(JobItemPrice."Job No.", JobItemPrice."Job Task No.", PriceListLine) then begin
+                    PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+                    PriceListLine.Validate("Asset No.", JobItemPrice."Item No.");
+                    if PriceListLine."Asset No." = JobItemPrice."Item No." then
+                        if VerifyJobItemPriceConsistency(JobItemPrice) then begin
+                            PriceListLine.Validate("Variant Code", JobItemPrice."Variant Code");
+                            PriceListLine.Validate("Unit of Measure Code", JobItemPrice."Unit of Measure Code");
+                            PriceListLine."Currency Code" := JobItemPrice."Currency Code";
+                            PriceListLine."Allow Invoice Disc." := false;
+                            if JobItemPrice."Apply Job Price" then begin
+                                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+                                PriceListLine."Unit Price" := JobItemPrice."Unit Price";
+                                PriceListLine."Cost Factor" := JobItemPrice."Unit Cost Factor";
+                                PriceListLine."Allow Line Disc." := JobItemPrice."Apply Job Discount";
+                                PriceListLine.Status := PriceListLine.Status::Active;
+                                InsertPriceListLine(PriceListLine);
+                            end;
 
-                if JobItemPrice."Apply Job Discount" then begin
-                    PriceListLine."Price List Code" := '';
-                    PriceListLine.Status := PriceListLine.Status::Draft;
-                    PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);
-                    PriceListLine."Unit Price" := 0;
-                    PriceListLine."Cost Factor" := 0;
-                    PriceListLine."Line Discount %" := JobItemPrice."Line Discount %";
-                    PriceListLine.Status := PriceListLine.Status::Active;
-                    InsertPriceListLine(PriceListLine);
+                            if JobItemPrice."Apply Job Discount" then begin
+                                PriceListLine."Price List Code" := '';
+                                PriceListLine.Status := PriceListLine.Status::Draft;
+                                PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);
+                                PriceListLine."Unit Price" := 0;
+                                PriceListLine."Cost Factor" := 0;
+                                PriceListLine."Line Discount %" := JobItemPrice."Line Discount %";
+                                PriceListLine.Status := PriceListLine.Status::Active;
+                                InsertPriceListLine(PriceListLine);
+                            end;
+                            OnCopyFromJobItemPrice(JobItemPrice, PriceListLine);
+                        end;
                 end;
-                OnCopyFromJobItemPrice(JobItemPrice, PriceListLine);
             until JobItemPrice.Next() = 0;
         JobItemPrice := OrigJobItemPrice;
+    end;
+
+    local procedure VerifyJobItemPriceConsistency(JobItemPrice: Record "Job Item Price"): Boolean;
+    var
+        Currency: Record Currency;
+        ItemVariant: Record "Item Variant";
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        if JobItemPrice."Variant Code" <> '' then
+            if not ItemVariant.Get(JobItemPrice."Item No.", JobItemPrice."Variant Code") then
+                exit(false);
+        if JobItemPrice."Unit of Measure Code" <> '' then begin
+            if not UnitofMeasure.Get(JobItemPrice."Unit of Measure Code") then
+                exit(false);
+            if not ItemUnitofMeasure.Get(JobItemPrice."Item No.", JobItemPrice."Unit of Measure Code") then
+                exit(false);
+        end;
+        if JobItemPrice."Currency Code" <> '' then
+            if not Currency.Get(JobItemPrice."Currency Code") then
+                exit(false);
+        exit(true);
     end;
 
     procedure CopyFrom(var JobGLAccountPrice: Record "Job G/L Account Price"; var PriceListLine: Record "Price List Line")
@@ -274,41 +356,55 @@ Codeunit 7009 CopyFromToPriceListLine
             repeat
                 PriceListLine.Init();
                 PriceListLine."Price List Code" := '';
-                SetJobAsSource(JobGLAccountPrice."Job No.", JobGLAccountPrice."Job Task No.", PriceListLine);
-                PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"G/L Account");
-                PriceListLine.Validate("Asset No.", JobGLAccountPrice."G/L Account No.");
-                PriceListLine."Currency Code" := JobGLAccountPrice."Currency Code";
-                PriceListLine."Line Discount %" := JobGLAccountPrice."Line Discount %";
-                PriceListLine."Unit Price" := JobGLAccountPrice."Unit Price";
-                PriceListLine."Cost Factor" := JobGLAccountPrice."Unit Cost Factor";
-                PriceListLine."Allow Invoice Disc." := false;
-                PriceListLine."Allow Line Disc." := true;
-                if PriceListLine."Line Discount %" = 0 then
-                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price
-                else
-                    if (PriceListLine."Unit Price" = 0) and (PriceListLine."Cost Factor" = 0) then begin
-                        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
-                        PriceListLine."Allow Line Disc." := false;
-                    end;
-                PriceListLine.Status := PriceListLine.Status::Active;
-                PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-                OnCopyFromJobGLAccountPrice(JobGLAccountPrice, PriceListLine);
-                InsertPriceListLine(PriceListLine);
+                if SetJobAsSource(JobGLAccountPrice."Job No.", JobGLAccountPrice."Job Task No.", PriceListLine) then begin
+                    PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"G/L Account");
+                    PriceListLine.Validate("Asset No.", JobGLAccountPrice."G/L Account No.");
+                    if PriceListLine."Asset No." = JobGLAccountPrice."G/L Account No." then
+                        if VerifyJobGLAccountPriceConsistency(JobGLAccountPrice) then begin
+                            PriceListLine."Currency Code" := JobGLAccountPrice."Currency Code";
+                            PriceListLine."Line Discount %" := JobGLAccountPrice."Line Discount %";
+                            PriceListLine."Unit Price" := JobGLAccountPrice."Unit Price";
+                            PriceListLine."Cost Factor" := JobGLAccountPrice."Unit Cost Factor";
+                            PriceListLine."Allow Invoice Disc." := false;
+                            PriceListLine."Allow Line Disc." := true;
+                            if PriceListLine."Line Discount %" = 0 then
+                                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price
+                            else
+                                if (PriceListLine."Unit Price" = 0) and (PriceListLine."Cost Factor" = 0) then begin
+                                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+                                    PriceListLine."Allow Line Disc." := false;
+                                end;
+                            PriceListLine.Status := PriceListLine.Status::Active;
+                            PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
+                            OnCopyFromJobGLAccountPrice(JobGLAccountPrice, PriceListLine);
+                            InsertPriceListLine(PriceListLine);
 
-                if JobGLAccountPrice."Unit Cost" <> 0 then begin
-                    PriceListLine."Price List Code" := '';
-                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
-                    PriceListLine."Line Discount %" := 0;
-                    PriceListLine."Unit Price" := 0;
-                    PriceListLine."Cost Factor" := 0;
-                    PriceListLine."Allow Line Disc." := false;
-                    PriceListLine."Unit Cost" := JobGLAccountPrice."Unit Cost";
-                    PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
-                    OnCopyFromJobGLAccountPrice(JobGLAccountPrice, PriceListLine);
-                    InsertPriceListLine(PriceListLine);
+                            if JobGLAccountPrice."Unit Cost" <> 0 then begin
+                                PriceListLine."Price List Code" := '';
+                                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+                                PriceListLine."Line Discount %" := 0;
+                                PriceListLine."Unit Price" := 0;
+                                PriceListLine."Cost Factor" := 0;
+                                PriceListLine."Allow Line Disc." := false;
+                                PriceListLine."Unit Cost" := JobGLAccountPrice."Unit Cost";
+                                PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
+                                OnCopyFromJobGLAccountPrice(JobGLAccountPrice, PriceListLine);
+                                InsertPriceListLine(PriceListLine);
+                            end;
+                        end;
                 end;
             until JobGLAccountPrice.Next() = 0;
         JobGLAccountPrice := OrigJobGLAccountPrice;
+    end;
+
+    local procedure VerifyJobGLAccountPriceConsistency(JobGLAccountPrice: Record "Job G/L Account Price"): Boolean;
+    var
+        Currency: Record Currency;
+    begin
+        if JobGLAccountPrice."Currency Code" <> '' then
+            if not Currency.Get(JobGLAccountPrice."Currency Code") then
+                exit(false);
+        exit(true);
     end;
 
     procedure CopyFrom(var JobResourcePrice: Record "Job Resource Price"; var PriceListLine: Record "Price List Line")
@@ -325,44 +421,72 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine.Init();
                 PriceListLine."Price List Code" := '';
                 PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-                SetJobAsSource(JobResourcePrice."Job No.", JobResourcePrice."Job Task No.", PriceListLine);
-                case JobResourcePrice.Type of
-                    JobResourcePrice.Type::All,
-                    JobResourcePrice.Type::Resource:
-                        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
-                    JobResourcePrice.Type::"Group(Resource)":
-                        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Resource Group");
-                end;
-                PriceListLine.Validate("Asset No.", JobResourcePrice.Code);
-                PriceListLine."Work Type Code" := JobResourcePrice."Work Type Code";
-                PriceListLine."Currency Code" := JobResourcePrice."Currency Code";
-                PriceListLine."Allow Invoice Disc." := false;
-                if JobResourcePrice."Apply Job Price" then begin
-                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
-                    PriceListLine."Unit Price" := JobResourcePrice."Unit Price";
-                    PriceListLine."Cost Factor" := JobResourcePrice."Unit Cost Factor";
-                    PriceListLine."Allow Line Disc." := JobResourcePrice."Apply Job Discount";
-                    PriceListLine.Status := PriceListLine.Status::Active;
-                    InsertPriceListLine(PriceListLine);
-                end;
+                if SetJobAsSource(JobResourcePrice."Job No.", JobResourcePrice."Job Task No.", PriceListLine) then begin
+                    case JobResourcePrice.Type of
+                        JobResourcePrice.Type::All,
+                        JobResourcePrice.Type::Resource:
+                            PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
+                        JobResourcePrice.Type::"Group(Resource)":
+                            PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Resource Group");
+                    end;
+                    PriceListLine.Validate("Asset No.", JobResourcePrice.Code);
+                    if PriceListLine."Asset No." = JobResourcePrice.Code then
+                        if VerifyJobResourcePriceConsistency(JobResourcePrice) then begin
+                            PriceListLine."Work Type Code" := JobResourcePrice."Work Type Code";
+                            PriceListLine."Currency Code" := JobResourcePrice."Currency Code";
+                            PriceListLine."Allow Invoice Disc." := false;
+                            if JobResourcePrice."Apply Job Price" then begin
+                                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+                                PriceListLine."Unit Price" := JobResourcePrice."Unit Price";
+                                PriceListLine."Cost Factor" := JobResourcePrice."Unit Cost Factor";
+                                PriceListLine."Allow Line Disc." := JobResourcePrice."Apply Job Discount";
+                                PriceListLine.Status := PriceListLine.Status::Active;
+                                InsertPriceListLine(PriceListLine);
+                            end;
 
-                if JobResourcePrice."Apply Job Discount" then begin
-                    PriceListLine."Price List Code" := '';
-                    PriceListLine.Status := PriceListLine.Status::Draft;
-                    PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);
-                    PriceListLine."Unit Price" := 0;
-                    PriceListLine."Cost Factor" := 0;
-                    PriceListLine."Line Discount %" := JobResourcePrice."Line Discount %";
-                    PriceListLine.Status := PriceListLine.Status::Active;
-                    InsertPriceListLine(PriceListLine);
+                            if JobResourcePrice."Apply Job Discount" then begin
+                                PriceListLine."Price List Code" := '';
+                                PriceListLine.Status := PriceListLine.Status::Draft;
+                                PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);
+                                PriceListLine."Unit Price" := 0;
+                                PriceListLine."Cost Factor" := 0;
+                                PriceListLine."Line Discount %" := JobResourcePrice."Line Discount %";
+                                PriceListLine.Status := PriceListLine.Status::Active;
+                                InsertPriceListLine(PriceListLine);
+                            end;
+                            OnCopyFromJobResourcePrice(JobResourcePrice, PriceListLine);
+                        end;
                 end;
-                OnCopyFromJobResourcePrice(JobResourcePrice, PriceListLine);
             until JobResourcePrice.Next() = 0;
         JobResourcePrice := OrigJobResourcePrice;
     end;
 
-    local procedure SetJobAsSource(JobNo: Code[20]; JobTaskNo: Code[20]; var PriceListLine: Record "Price List Line")
+    local procedure VerifyJobResourcePriceConsistency(JobResourcePrice: Record "Job Resource Price"): Boolean;
+    var
+        Currency: Record Currency;
+        WorkType: Record "Work Type";
     begin
+        if JobResourcePrice."Currency Code" <> '' then
+            if not Currency.Get(JobResourcePrice."Currency Code") then
+                exit(false);
+        if JobResourcePrice."Work Type Code" <> '' then
+            if not WorkType.Get(JobResourcePrice."Work Type Code") then
+                exit(false);
+        exit(true);
+    end;
+
+    local procedure SetJobAsSource(JobNo: Code[20]; JobTaskNo: Code[20]; var PriceListLine: Record "Price List Line"): Boolean;
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+    begin
+        if JobNo <> '' then
+            if not Job.Get(JobNo) then
+                exit(false);
+        if JobTaskNo <> '' then
+            if not JobTask.Get(JobNo, JobTaskNo) then
+                exit(false);
+
         if JobTaskNo = '' then begin
             PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Job);
             PriceListLine.Validate("Source No.", JobNo);
@@ -371,6 +495,7 @@ Codeunit 7009 CopyFromToPriceListLine
             PriceListLine.Validate("Parent Source No.", JobNo);
             PriceListLine.Validate("Source No.", JobTaskNo);
         end;
+        exit(true);
     end;
 
     procedure CopyFrom(var ResourceCost: Record "Resource Cost"; var PriceListLine: Record "Price List Line")
@@ -399,21 +524,34 @@ Codeunit 7009 CopyFromToPriceListLine
                         PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Resource Group");
                 end;
                 PriceListLine.Validate("Asset No.", ResourceCost.Code);
-                PriceListLine."Work Type Code" := ResourceCost."Work Type Code";
-                PriceListLine."Unit Cost" := ResourceCost."Unit Cost";
-                PriceListLine."Direct Unit Cost" := ResourceCost."Direct Unit Cost";
-                PriceListLine."Allow Invoice Disc." := false;
-                PriceListLine."Allow Line Disc." := true;
-                PriceListLine.Status := PriceListLine.Status::Active;
-                OnCopyFromResourceCost(ResourceCost, PriceListLine);
-                InsertPriceListLine(PriceListLine);
-                TempResourceCost := ResourceCost;
-                TempResourceCost.Insert();
+                if PriceListLine."Asset No." = ResourceCost.Code then
+                    if VerifyResourceCostConsistency(ResourceCost) then begin
+                        PriceListLine."Work Type Code" := ResourceCost."Work Type Code";
+                        PriceListLine."Unit Cost" := ResourceCost."Unit Cost";
+                        PriceListLine."Direct Unit Cost" := ResourceCost."Direct Unit Cost";
+                        PriceListLine."Allow Invoice Disc." := false;
+                        PriceListLine."Allow Line Disc." := true;
+                        PriceListLine.Status := PriceListLine.Status::Active;
+                        OnCopyFromResourceCost(ResourceCost, PriceListLine);
+                        InsertPriceListLine(PriceListLine);
+                        TempResourceCost := ResourceCost;
+                        TempResourceCost.Insert();
+                    end;
             until ResourceCost.Next() = 0;
 
         CopySpecialCostTypes(TempResourceCost, PriceListLine);
 
         ResourceCost := OrigResourceCost;
+    end;
+
+    local procedure VerifyResourceCostConsistency(ResourceCost: Record "Resource Cost"): Boolean;
+    var
+        WorkType: Record "Work Type";
+    begin
+        if ResourceCost."Work Type Code" <> '' then
+            if not WorkType.Get(ResourceCost."Work Type Code") then
+                exit(false);
+        exit(true);
     end;
 
     local procedure CopySpecialCostTypes(var TempResourceCost: Record "Resource Cost" temporary; var PriceListLine: Record "Price List Line")
@@ -462,14 +600,17 @@ Codeunit 7009 CopyFromToPriceListLine
                     PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Jobs");
                     PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
                     PriceListLine.Validate("Asset No.", Resource."No.");
-                    PriceListLine."Work Type Code" := ResourceCost."Work Type Code";
-                    PriceListLine."Unit Cost" := NewResourceCost."Unit Cost";
-                    PriceListLine."Direct Unit Cost" := NewResourceCost."Direct Unit Cost";
-                    PriceListLine."Allow Invoice Disc." := false;
-                    PriceListLine."Allow Line Disc." := true;
-                    PriceListLine.Status := PriceListLine.Status::Active;
-                    OnCopyFromResourceCost(ResourceCost, PriceListLine);
-                    InsertPriceListLine(PriceListLine);
+                    if PriceListLine."Asset No." = Resource."No." then
+                        if VerifyResourceCostConsistency(ResourceCost) then begin
+                            PriceListLine."Work Type Code" := ResourceCost."Work Type Code";
+                            PriceListLine."Unit Cost" := NewResourceCost."Unit Cost";
+                            PriceListLine."Direct Unit Cost" := NewResourceCost."Direct Unit Cost";
+                            PriceListLine."Allow Invoice Disc." := false;
+                            PriceListLine."Allow Line Disc." := true;
+                            PriceListLine.Status := PriceListLine.Status::Active;
+                            OnCopyFromResourceCost(ResourceCost, PriceListLine);
+                            InsertPriceListLine(PriceListLine);
+                        end;
                 end;
             end;
         until Resource.Next() = 0;
@@ -504,18 +645,35 @@ Codeunit 7009 CopyFromToPriceListLine
                         PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Resource Group");
                 end;
                 PriceListLine.Validate("Asset No.", ResourcePrice.Code);
-                PriceListLine."Currency Code" := ResourcePrice."Currency Code";
-                PriceListLine."Work Type Code" := ResourcePrice."Work Type Code";
-                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
-                PriceListLine."Unit Price" := ResourcePrice."Unit Price";
-                PriceListLine."Allow Invoice Disc." := false;
-                PriceListLine."Allow Line Disc." := true;
-                PriceListLine.Status := PriceListLine.Status::Active;
-                PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-                OnCopyFromResourcePrice(ResourcePrice, PriceListLine);
-                InsertPriceListLine(PriceListLine);
+                if PriceListLine."Asset No." = ResourcePrice.Code then
+                    if VerifyResourcePriceConsistency(ResourcePrice) then begin
+                        PriceListLine."Currency Code" := ResourcePrice."Currency Code";
+                        PriceListLine."Work Type Code" := ResourcePrice."Work Type Code";
+                        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+                        PriceListLine."Unit Price" := ResourcePrice."Unit Price";
+                        PriceListLine."Allow Invoice Disc." := false;
+                        PriceListLine."Allow Line Disc." := true;
+                        PriceListLine.Status := PriceListLine.Status::Active;
+                        PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
+                        OnCopyFromResourcePrice(ResourcePrice, PriceListLine);
+                        InsertPriceListLine(PriceListLine);
+                    end;
             until ResourcePrice.Next() = 0;
         ResourcePrice := OrigResourcePrice;
+    end;
+
+    local procedure VerifyResourcePriceConsistency(ResourcePrice: Record "Resource Price"): Boolean;
+    var
+        Currency: Record Currency;
+        WorkType: Record "Work Type";
+    begin
+        if ResourcePrice."Currency Code" <> '' then
+            if not Currency.Get(ResourcePrice."Currency Code") then
+                exit(false);
+        if ResourcePrice."Work Type Code" <> '' then
+            if not WorkType.Get(ResourcePrice."Work Type Code") then
+                exit(false);
+        exit(true);
     end;
 
     procedure CopyFrom(var PurchasePrice: Record "Purchase Price"; var PriceListLine: Record "Price List Line")
@@ -533,24 +691,51 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine."Price List Code" := '';
                 PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Vendor);
                 PriceListLine.Validate("Source No.", PurchasePrice."Vendor No.");
-                PriceListLine."Starting Date" := PurchasePrice."Starting Date";
-                PriceListLine."Ending Date" := PurchasePrice."Ending Date";
-                PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
-                PriceListLine.Validate("Asset No.", PurchasePrice."Item No.");
-                PriceListLine.Validate("Variant Code", PurchasePrice."Variant Code");
-                PriceListLine.Validate("Unit of Measure Code", PurchasePrice."Unit of Measure Code");
-                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
-                PriceListLine."Direct Unit Cost" := PurchasePrice."Direct Unit Cost";
-                PriceListLine."Currency Code" := PurchasePrice."Currency Code";
-                PriceListLine."Minimum Quantity" := PurchasePrice."Minimum Quantity";
-                PriceListLine."Allow Invoice Disc." := false;
-                PriceListLine."Allow Line Disc." := true;
-                PriceListLine.Status := PriceListLine.Status::Active;
-                PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
-                OnCopyFromPurchasePrice(PurchasePrice, PriceListLine);
-                InsertPriceListLine(PriceListLine);
+                if PriceListLine."Source No." = PurchasePrice."Vendor No." then begin
+                    PriceListLine."Starting Date" := PurchasePrice."Starting Date";
+                    PriceListLine."Ending Date" := PurchasePrice."Ending Date";
+                    PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+                    PriceListLine.Validate("Asset No.", PurchasePrice."Item No.");
+                    if PriceListLine."Asset No." = PurchasePrice."Item No." then
+                        if VerifyPurchPriceConsistency(PurchasePrice) then begin
+                            PriceListLine.Validate("Variant Code", PurchasePrice."Variant Code");
+                            PriceListLine.Validate("Unit of Measure Code", PurchasePrice."Unit of Measure Code");
+                            PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+                            PriceListLine."Direct Unit Cost" := PurchasePrice."Direct Unit Cost";
+                            PriceListLine."Currency Code" := PurchasePrice."Currency Code";
+                            PriceListLine."Minimum Quantity" := PurchasePrice."Minimum Quantity";
+                            PriceListLine."Allow Invoice Disc." := false;
+                            PriceListLine."Allow Line Disc." := true;
+                            PriceListLine.Status := PriceListLine.Status::Active;
+                            PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
+                            OnCopyFromPurchasePrice(PurchasePrice, PriceListLine);
+                            InsertPriceListLine(PriceListLine);
+                        end;
+                end;
             until PurchasePrice.Next() = 0;
         PurchasePrice := OrigPurchasePrice;
+    end;
+
+    local procedure VerifyPurchPriceConsistency(PurchasePrice: Record "Purchase Price"): Boolean;
+    var
+        Currency: Record Currency;
+        ItemVariant: Record "Item Variant";
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        if PurchasePrice."Variant Code" <> '' then
+            if not ItemVariant.Get(PurchasePrice."Item No.", PurchasePrice."Variant Code") then
+                exit(false);
+        if PurchasePrice."Unit of Measure Code" <> '' then begin
+            if not UnitofMeasure.Get(PurchasePrice."Unit of Measure Code") then
+                exit(false);
+            if not ItemUnitofMeasure.Get(PurchasePrice."Item No.", PurchasePrice."Unit of Measure Code") then
+                exit(false);
+        end;
+        if PurchasePrice."Currency Code" <> '' then
+            if not Currency.Get(PurchasePrice."Currency Code") then
+                exit(false);
+        exit(true);
     end;
 
     procedure CopyFrom(var PurchaseLineDiscount: Record "Purchase Line Discount"; var PriceListLine: Record "Price List Line")
@@ -568,24 +753,51 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine."Price List Code" := '';
                 PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Vendor);
                 PriceListLine.Validate("Source No.", PurchaseLineDiscount."Vendor No.");
-                PriceListLine."Starting Date" := PurchaseLineDiscount."Starting Date";
-                PriceListLine."Ending Date" := PurchaseLineDiscount."Ending Date";
-                PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
-                PriceListLine.Validate("Asset No.", PurchaseLineDiscount."Item No.");
-                PriceListLine.Validate("Variant Code", PurchaseLineDiscount."Variant Code");
-                PriceListLine.Validate("Unit of Measure Code", PurchaseLineDiscount."Unit of Measure Code");
-                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
-                PriceListLine."Line Discount %" := PurchaseLineDiscount."Line Discount %";
-                PriceListLine."Currency Code" := PurchaseLineDiscount."Currency Code";
-                PriceListLine."Minimum Quantity" := PurchaseLineDiscount."Minimum Quantity";
-                PriceListLine."Allow Invoice Disc." := false;
-                PriceListLine."Allow Line Disc." := false;
-                PriceListLine.Status := PriceListLine.Status::Active;
-                PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
-                OnCopyFromPurchLineDiscount(PurchaseLineDiscount, PriceListLine);
-                InsertPriceListLine(PriceListLine);
+                if PriceListLine."Source No." = PurchaseLineDiscount."Vendor No." then begin
+                    PriceListLine."Starting Date" := PurchaseLineDiscount."Starting Date";
+                    PriceListLine."Ending Date" := PurchaseLineDiscount."Ending Date";
+                    PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+                    PriceListLine.Validate("Asset No.", PurchaseLineDiscount."Item No.");
+                    if PriceListLine."Asset No." = PurchaseLineDiscount."Item No." then
+                        if VerifyPurchLineDiscConsistency(PurchaseLineDiscount) then begin
+                            PriceListLine.Validate("Variant Code", PurchaseLineDiscount."Variant Code");
+                            PriceListLine.Validate("Unit of Measure Code", PurchaseLineDiscount."Unit of Measure Code");
+                            PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+                            PriceListLine."Line Discount %" := PurchaseLineDiscount."Line Discount %";
+                            PriceListLine."Currency Code" := PurchaseLineDiscount."Currency Code";
+                            PriceListLine."Minimum Quantity" := PurchaseLineDiscount."Minimum Quantity";
+                            PriceListLine."Allow Invoice Disc." := false;
+                            PriceListLine."Allow Line Disc." := false;
+                            PriceListLine.Status := PriceListLine.Status::Active;
+                            PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
+                            OnCopyFromPurchLineDiscount(PurchaseLineDiscount, PriceListLine);
+                            InsertPriceListLine(PriceListLine);
+                        end;
+                end;
             until PurchaseLineDiscount.Next() = 0;
         PurchaseLineDiscount := OrigPurchaseLineDiscount;
+    end;
+
+    local procedure VerifyPurchLineDiscConsistency(PurchaseLineDiscount: Record "Purchase Line Discount"): Boolean;
+    var
+        Currency: Record Currency;
+        ItemVariant: Record "Item Variant";
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        if PurchaseLineDiscount."Variant Code" <> '' then
+            if not ItemVariant.Get(PurchaseLineDiscount."Item No.", PurchaseLineDiscount."Variant Code") then
+                exit(false);
+        if PurchaseLineDiscount."Unit of Measure Code" <> '' then begin
+            if not UnitofMeasure.Get(PurchaseLineDiscount."Unit of Measure Code") then
+                exit(false);
+            if not ItemUnitofMeasure.Get(PurchaseLineDiscount."Item No.", PurchaseLineDiscount."Unit of Measure Code") then
+                exit(false);
+        end;
+        if PurchaseLineDiscount."Currency Code" <> '' then
+            if not Currency.Get(PurchaseLineDiscount."Currency Code") then
+                exit(false);
+        exit(true);
     end;
 
     local procedure InsertPriceListLine(var PriceListLine: Record "Price List Line")
