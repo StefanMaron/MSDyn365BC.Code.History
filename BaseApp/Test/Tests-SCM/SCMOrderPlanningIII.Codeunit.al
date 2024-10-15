@@ -2659,6 +2659,57 @@ codeunit 137088 "SCM Order Planning - III"
         PurchaseLine.TestField("Job Task No.", JobPlanningLine."Job Task No.");
         PurchaseLine.TestField("Job Planning Line No.", JobPlanningLine."Line No.");
     end;
+    
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure VerifyItemFromJobIsNotSuggestedWhenPurchaseOrderCreatedFromOrderPlanningIsPostedReceipt()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 472230] Item from job is not suggested when purchase order created from order planning is posted receipt
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+        Item."Vendor No." := LibraryPurchase.CreateVendorNo();
+        Item.Modify();
+
+        // [GIVEN] Job, Job Task and Job Planning Line for item 
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", '');
+
+        // [GIVEN] Calculate Order Planning for job planning line
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [GIVEN] Find the planning line for item "I".
+        FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", Item."No.", '');
+        VendorNo := RequisitionLine."Supply From";
+
+        // [GIVEN] Make a purchase order to supply the job planning line.
+        MakeSupplyOrders(
+          RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
+          ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
+
+        // [GIVEN] Check that Job No., Job Task No., and Job Planning Line No. are populated on the new purchase line
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+
+        // [WHEN] Post Purchase Receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Calculate Order Planning for job planning line
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [THEN] Find the planning line for item
+        RequisitionLine.SetRange("Demand Order No.", JobPlanningLine."Job No.");
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
 
     local procedure Initialize()
     var
@@ -3451,10 +3502,7 @@ codeunit 137088 "SCM Order Planning - III"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders";
-
-    var
-        Response: Action)
+    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
     begin
         Response := ACTION::LookupOK;
     end;

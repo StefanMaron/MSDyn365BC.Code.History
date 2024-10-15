@@ -4575,11 +4575,15 @@
           (DocumentLine."Unit Price/Direct Unit Cost" + Power(10, -DecimalsUnitPrice) / 2 - Power(10, -12));
         MaxValue := Round(MaxValue, 0.000001, '>');
 
+        InRange := (DocumentLine.Amount > MinValue) and (DocumentLine.Amount <= MaxValue);
+        if InRange then
+            exit;
+
         Amount := DocumentLine.Quantity * DocumentLine."Unit Price/Direct Unit Cost";
         RoundingPrecision := 0.01;
         InRange := false;
         repeat
-            TestAmount := Round(Amount, RoundingPrecision);
+            TestAmount := Round(Amount, RoundingPrecision, '<');
             InRange := (TestAmount > MinValue) and (TestAmount <= MaxValue);
             RoundingPrecision := RoundingPrecision / 10;
         until InRange or (RoundingPrecision = 0.000001);
@@ -4860,11 +4864,13 @@
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustLedgerEntryLoc: Record "Cust. Ledger Entry";
         CustLedgerEntryLoc2: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntryAppln: Record "Detailed Cust. Ledg. Entry";
     begin
         StampedAmount := 0;
         PaymentNo := 1;
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Invoice);
+        DetailedCustLedgEntry.SetRange(Unapplied, false);
         if DetailedCustLedgEntry.FindFirst() then begin
             CustLedgerEntryLoc.SetRange("Entry No.", DetailedCustLedgEntry."Cust. Ledger Entry No.");
             if CustLedgerEntryLoc.FindFirst() then begin
@@ -4873,8 +4879,17 @@
                 CustLedgerEntryLoc2.SetCurrentKey("Entry No.");
                 if CustLedgerEntryLoc2.FindSet() then
                     repeat
-                        StampedAmount += CustLedgerEntryLoc2."Closed by Amount";
                         PaymentNo += 1;
+                        if ConvertCurrency(CustLedgerEntryLoc."Currency Code") = ConvertCurrency(CustLedgerEntryLoc2."Currency Code") then
+                            StampedAmount += CustLedgerEntryLoc2."Closed by Amount"
+                        else begin
+                            DetailedCustLedgEntryAppln.SetRange("Entry Type", DetailedCustLedgEntryAppln."Entry Type"::Application);
+                            DetailedCustLedgEntryAppln.SetRange("Cust. Ledger Entry No.", CustLedgerEntryLoc."Entry No.");
+                            DetailedCustLedgEntryAppln.SetRange("Applied Cust. Ledger Entry No.", CustLedgerEntryLoc2."Entry No.");
+                            DetailedCustLedgEntryAppln.SetRange(Unapplied, false);
+                            if DetailedCustLedgEntryAppln.FindFirst() then
+                                StampedAmount += DetailedCustLedgEntryAppln.Amount;
+                        end;
                     until CustLedgerEntryLoc2.Next() = 0;
             end;
         end;
