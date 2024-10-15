@@ -329,7 +329,7 @@ report 10123 "Purchase Quote NA"
                                                         BrkIdx := BrkIdx - 1;
                                                         BreakdownLabel[BrkIdx] := Text004;
                                                     end else
-                                                        BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
+                                                        BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
                                                 end;
                                                 BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                                                 TaxAmount := TaxAmount + "Tax Amount";

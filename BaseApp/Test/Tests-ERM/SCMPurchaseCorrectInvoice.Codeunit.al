@@ -827,6 +827,74 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         VerifyPurchLineWithTrackedQty(PurchHeaderCorrection, PurchLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler')]
+    procedure CancelPurchaseInvoiceFromOrderWithItemTracking()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ReservationEntry: Record "Reservation Entry";
+        TrackingSpecification: Record "Tracking Specification";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        QtyToReceive: Decimal;
+        LotNo: Code[50];
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 387956] Item Tracking Lines for the original Purchase Order Lines have "Qty. Handled (Base)" and "Qty. Invoiced (Base)" values reverted when canceling Posted Purchase Invoice
+        Initialize();
+
+        // [GIVEN] Item with Lot Tracking
+        Item.Get(CreateTrackedItem());
+
+        // [GIVEN] Purchase Order for 15 PCS of the Item, with "Qty. to Receive" = "Qty. to Invoice" = 5 PCS
+        QtyToReceive := LibraryRandom.RandDec(10, 2);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseOrderForItem(Vendor, Item, 3 * QtyToReceive, PurchaseHeader, PurchaseLine);
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Item Tracking Line for Lot "L", Quantity = "Qty. to Handle" = 5 PCS
+        LotNo := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(QtyToReceive);
+        LibraryVariableStorage.Enqueue(QtyToReceive);
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [GIVEN] Purchase Order posted with Receive and Invoice
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Cancel the Posted Purchase Invoice 
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        // [THEN] Item Tracking for the original Purchase Order has "Quantity Handled (Base)" = 0
+        PurchaseLine.Find();
+        TrackingSpecification.SetSourceFilter(
+            Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.",
+            PurchaseLine."Line No.", false);
+        Assert.RecordIsEmpty(TrackingSpecification);
+
+        // [THEN] Item Tracking for the original Purchase Order has "Quantity Invoiced (Base)" = 0
+        ReservationEntry.SetSourceFilter(
+            Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.",
+            PurchaseLine."Line No.", false);
+        ReservationEntry.FindFirst();
+        Assert.AreEqual(ReservationEntry."Quantity Invoiced (Base)", 0, 'Quantity Invoiced must be 0.');
+
+        // [THEN] The Purchase Order can be posted again
+        PurchaseHeader.Find();
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         PurchasesSetup: Record "Purchases & Payables Setup";
@@ -1158,6 +1226,15 @@ codeunit 137025 "SCM Purchase Correct Invoice"
             ItemTrackingMode::"Select Entries":
                 ItemTrackingLines."Select Entries".Invoke;
         end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure SetLotItemWithQtyToHandleTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemTrackingLines.OK.Invoke;
     end;
 

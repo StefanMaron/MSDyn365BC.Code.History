@@ -5135,7 +5135,7 @@ Cstr(Fields!DocDateCaption.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!AmtIncludingVATAmtFormat.Value</Format>
+                                                      <Format>=Fields!LineAmt_SalesInvLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
