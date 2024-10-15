@@ -88,7 +88,9 @@ codeunit 1385 "Vendor Templ. Mgt."
                 VendorFldRef := VendorRecRef.Field(VendorTemplFldRef.Number);
                 EmptyVendorFldRef := EmptyVendorRecRef.Field(VendorTemplFldRef.Number);
                 EmptyVendorTemplFldRef := EmptyVendorTemplRecRef.Field(VendorTemplFldRef.Number);
-                if (VendorFldRef.Value = EmptyVendorFldRef.Value) and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value) or UpdateExistingValues then
+                if (not UpdateExistingValues and (VendorFldRef.Value = EmptyVendorFldRef.Value) and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value)) or
+                   (UpdateExistingValues and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value))
+                then
                     VendorFldRef.Value := VendorTemplFldRef.Value;
             end;
         end;
@@ -523,5 +525,24 @@ codeunit 1385 "Vendor Templ. Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Config. Template Management", 'OnBeforeInsertRecordWithKeyFields', '', false, false)]
+    local procedure OnBeforeInsertRecordWithKeyFieldsHandler(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
+    var
+        Vendor: Record Vendor;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        FldRef: FieldRef;
+    begin
+        if RecRef.Number = Database::Vendor then begin
+            if ConfigTemplateHeader."Instance No. Series" = '' then
+                exit;
+
+            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
+            FldRef := RecRef.Field(Vendor.FieldNo("No."));
+            FldRef.Value := Vendor."No.";
+            FldRef := RecRef.Field(Vendor.FieldNo("No. Series"));
+            FldRef.Value := Vendor."No. Series";
+        end;
     end;
 }

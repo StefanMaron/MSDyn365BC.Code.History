@@ -20,7 +20,7 @@ report 10707 "Make 347 Declaration"
                 ToDate := DMY2Date(31, 12, NumFiscalYear);
                 NotIn347Amt := 0;
 
-                OutFile.Write(PadStr('', 500, ' '));
+                OutFile.Write(PadStr('', 499, ' '));
             end;
         }
         dataitem(Customer; Customer)
@@ -538,6 +538,12 @@ report 10707 "Make 347 Declaration"
     trigger OnInitReport()
     begin
         CompanyInfo.Get();
+        if CopyStr(CompanyInfo."VAT Registration No.", 1, StrLen(CompanyInfo."Country/Region Code")) =
+           CompanyInfo."Country/Region Code"
+        then
+            CompanyInfo."VAT Registration No." :=
+              CopyStr(CompanyInfo."VAT Registration No.", StrLen(CompanyInfo."Country/Region Code") + 1,
+                MaxStrLen(CompanyInfo."VAT Registration No."));
         VATRegNo := CopyStr(DelChr(CompanyInfo."VAT Registration No.", '=', '.-/'), 1, 9);
         while StrLen(VATRegNo) < 9 do
             VATRegNo := '0' + VATRegNo;
@@ -560,8 +566,9 @@ report 10707 "Make 347 Declaration"
                        Customer.FieldCaption("VAT Registration No.")), false)
                 then begin
                     OutFile.Seek(0);
-                    CreateFileHeader;
-                    OutFile.Close;
+                    CreateFileHeader();
+                    OutFile.Close();
+                    ConvertFileEncoding(FileName, Utf8Lbl, Iso88591Lbl);
                     if IsSilentMode then
                         FileManagement.CopyServerFile(FileName, ToTestFileName, true)
                     else
@@ -578,8 +585,9 @@ report 10707 "Make 347 Declaration"
                 end;
             end else begin
                 OutFile.Seek(0);
-                CreateFileHeader;
-                OutFile.Close;
+                CreateFileHeader();
+                OutFile.Close();
+                ConvertFileEncoding(FileName, Utf8Lbl, Iso88591Lbl);
                 if IsSilentMode then
                     FileManagement.CopyServerFile(FileName, ToTestFileName, true)
                 else
@@ -629,7 +637,7 @@ report 10707 "Make 347 Declaration"
         OutFile.WriteMode := true;
         FileName := FileMgt.ServerTempFileName('');
         ToFile := StrSubstNo(FileNameTxt, FiscalYear);
-        OutFile.Create(FileName);
+        OutFile.Create(FileName, TextEncoding::UTF8);
         EmptyVATRegNo := false;
         CreateCountryRegionFilter;
     end;
@@ -709,7 +717,6 @@ report 10707 "Make 347 Declaration"
         MissingVendorPostalCodeErr: Label 'Postal Code is missing on vendor card %1.', Comment = '%1=Vendor No.';
         NothingToExportMsg: Label 'No records were found to be included in the declaration. The process has been aborted. No file will be created.';
         ProcessAbortedMsg: Label 'The process has been aborted. No file will be generated.';
-        SpanishSpecialCharactersTxt: Label 'ÁÀÉÈÊÍÌÓÒÛÚÙÑÜÇ()"&´ÄËÏØÖ¹Ü$''ºª', Locked = true;
         FileNameTxt: Label 'Declaration 347 year %1.txt', Comment = '%1=declaration year';
         WrongFiscalYearErr: Label 'Fiscal Year must be %1 digits without spaces or digital characters.', Comment = '%1=number of digits';
         WrongPreviousDeclarationNoErr: Label 'Previous Declaration Number must be %1 digits without spaces or special characters.', Comment = '%1=number of digits';
@@ -726,6 +733,8 @@ report 10707 "Make 347 Declaration"
         CollectionsGenerated: Integer;
         CollectionsGeneratedMsg: Label '%1 collection(-s) in cash were created.', Comment = '%1 = 3 collection(-s) in cash were created';
         GenerateCollectionsInCashLbl: Label 'Generate collections in cash';
+        Iso88591Lbl: Label 'ISO-8859-1';
+        Utf8Lbl: Label 'Utf-8';
 
     [Scope('OnPrem')]
     procedure StatementNo(FullText: Text[30]) NumberR: Text[5]
@@ -893,7 +902,7 @@ report 10707 "Make 347 Declaration"
     begin
         Clear(Result);
 
-        TempString := ConvertStr(UpperCase(NameString), SpanishSpecialCharactersTxt, 'AAEEEIIOOUUUÐUÃ     AEIOOOU    ');
+        TempString := UpperCase(NameString);
         if StrLen(TempString) > 0 then
             repeat
                 TempString1 := CopyStr(TempString, 1, 1);
@@ -1547,6 +1556,32 @@ report 10707 "Make 347 Declaration"
         CountryRegion.SetRange(Code, CountryCode);
         CountryRegion.SetFilter("EU Country/Region Code", '%1|%2', ESCountryCodeTxt, '');
         exit(not CountryRegion.IsEmpty);
+    end;
+
+    local procedure ConvertFileEncoding(FileName: Text; OldEncodingCode: Text; NewEncodingCode: Text)
+    var
+        DotNetEncoding: Codeunit DotNet_Encoding;
+        DotNetStreamWriter: Codeunit DotNet_StreamWriter;
+        OriginalEncoding: Dotnet Encoding;
+        NewEncoding: DotNet Encoding;
+        OutStr: OutStream;
+        FileContents: Text;
+    begin
+        OriginalEncoding := OriginalEncoding.GetEncoding(OldEncodingCode);
+        NewEncoding := NewEncoding.GetEncoding(NewEncodingCode);
+        DotNetEncoding.SetEncoding(NewEncoding);
+        FileContents := FileManagement.GetFileContents(FileName);
+        IF not Erase(FileName) then
+            exit;
+        OutFile.Create(FileName);
+        OutFile.CreateOutStream(OutStr);
+
+        DotNetStreamWriter.StreamWriter(OutStr, DotNetEncoding);
+        DotNetStreamWriter.Write(
+            NewEncoding.GetString(
+                NewEncoding.Convert(OriginalEncoding, NewEncoding, OriginalEncoding.GetBytes(FileContents))));
+        DotNetStreamWriter.Close();
+        OutFile.Close();
     end;
 }
 

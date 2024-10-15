@@ -114,7 +114,9 @@ codeunit 1381 "Customer Templ. Mgt."
                 CustomerFldRef := CustomerRecRef.Field(CustomerTemplFldRef.Number);
                 EmptyCustomerFldRef := EmptyCustomerRecRef.Field(CustomerTemplFldRef.Number);
                 EmptyCustomerTemplFldRef := EmptyCustomerTemplRecRef.Field(CustomerTemplFldRef.Number);
-                if (CustomerFldRef.Value = EmptyCustomerFldRef.Value) and (CustomerTemplFldRef.Value <> EmptyCustomerTemplFldRef.Value) or UpdateExistingValues then
+                if (not UpdateExistingValues and (CustomerFldRef.Value = EmptyCustomerFldRef.Value) and (CustomerTemplFldRef.Value <> EmptyCustomerTemplFldRef.Value)) or
+                   (UpdateExistingValues and (CustomerTemplFldRef.Value <> EmptyCustomerTemplFldRef.Value))
+                then
                     CustomerFldRef.Value := CustomerTemplFldRef.Value;
             end;
         end;
@@ -598,5 +600,24 @@ codeunit 1381 "Customer Templ. Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Config. Template Management", 'OnBeforeInsertRecordWithKeyFields', '', false, false)]
+    local procedure OnBeforeInsertRecordWithKeyFieldsHandler(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
+    var
+        Customer: Record Customer;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        FldRef: FieldRef;
+    begin
+        if RecRef.Number = Database::Customer then begin
+            if ConfigTemplateHeader."Instance No. Series" = '' then
+                exit;
+
+            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Customer."No.", Customer."No. Series");
+            FldRef := RecRef.Field(Customer.FieldNo("No."));
+            FldRef.Value := Customer."No.";
+            FldRef := RecRef.Field(Customer.FieldNo("No. Series"));
+            FldRef.Value := Customer."No. Series";
+        end;
     end;
 }

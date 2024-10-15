@@ -878,6 +878,8 @@ report 1306 "Standard Sales - Invoice"
 
                     TotalVATBaseLCY += VATBaseLCY;
                     TotalVATAmountLCY += VATAmountLCY;
+                    TotalVATBaseOnVATAmtLine += "VAT Base";
+                    TotalVATAmountOnVATAmtLine += "VAT Amount";
                     TotalECAmountLCY += ECAmountLCY;
 
                     if ShowVATClause("VAT Clause Code") then begin
@@ -893,6 +895,8 @@ report 1306 "Standard Sales - Invoice"
 
                     TotalVATBaseLCY := 0;
                     TotalVATAmountLCY := 0;
+                    TotalVATBaseOnVATAmtLine := 0;
+                    TotalVATAmountOnVATAmtLine := 0;
                     TotalECAmountLCY := 0;
                 end;
             }
@@ -1113,6 +1117,12 @@ report 1306 "Standard Sales - Invoice"
                 {
                 }
                 column(TotalAmountExclInclVATText; TotalAmountExclInclVATTextValue)
+                {
+                }
+                column(TotalVATBaseOnVATAmtLine; TotalVATBaseOnVATAmtLine)
+                {
+                }
+                column(TotalVATAmountOnVATAmtLine; TotalVATAmountOnVATAmtLine)
                 {
                 }
                 column(CurrencyCode; CurrCode)
@@ -1422,6 +1432,8 @@ report 1306 "Standard Sales - Invoice"
         TotalECAmountLCY: Decimal;
         TotalVATBaseLCY: Decimal;
         TotalVATAmountLCY: Decimal;
+        TotalVATBaseOnVATAmtLine: Decimal;
+        TotalVATAmountOnVATAmtLine: Decimal;
         PrevLineAmount: Decimal;
         TotalAmountExclInclVATValue: Decimal;
         TotalECAmount: Decimal;

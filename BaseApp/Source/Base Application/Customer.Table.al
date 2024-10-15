@@ -1147,6 +1147,10 @@
         {
             Caption = 'Partner Type';
         }
+        field(133; "Intrastat Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Intrastat Partner Type';
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
@@ -1939,6 +1943,7 @@
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
+        DocumentTypeFilterTxt: Label '<=%1', Locked = true, Comment = '%1 = document type';
         ForceUpdateContact: Boolean;
 
     procedure AssistEdit(OldCust: Record Customer): Boolean
@@ -2258,6 +2263,16 @@
         CustomerSalesYTD.SetRange("Date Filter", StartDate, EndDate);
         CustomerSalesYTD.CalcFields("Sales (LCY)");
         exit(CustomerSalesYTD."Sales (LCY)");
+    end;
+
+    procedure GetTopCustomerHeadlineQueryDocumentTypeFilter() DocumentTypeFilter: Text
+    var
+        DummyCustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        DummyCustLedgerEntry.SetFilter("Document Type", DocumentTypeFilterTxt, "Gen. Journal Document Type"::Refund);
+        DocumentTypeFilter := DummyCustLedgerEntry.GetFilter("Document Type");
+
+        OnAfterGetTopCustomerHeadlineQueryDocumentTypeFilter(DocumentTypeFilter);
     end;
 
     procedure CalcAvailableCredit(): Decimal
@@ -3270,6 +3285,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromNewCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTopCustomerHeadlineQueryDocumentTypeFilter(var DocumentTypeFilter: Text)
     begin
     end;
 
