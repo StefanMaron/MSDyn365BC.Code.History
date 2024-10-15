@@ -15,6 +15,7 @@ codeunit 136900 "Service Reports"
         LibraryResource: Codeunit "Library - Resource";
         LibraryService: Codeunit "Library - Service";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -707,7 +708,7 @@ codeunit 136900 "Service Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,ContractTemplateListHandler,MessageHandler,MaintenancePerformanceReportHandler')]
+    [HandlerFunctions('ConfirmHandlerTrue,ContractTemplateListHandler,MessageHandler,MaintenancePerformanceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure MaintenancePerformanceReport()
     var
@@ -743,6 +744,37 @@ codeunit 136900 "Service Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('AnnualAmount', Round(ServiceContractHeader."Annual Amount", 1.0));
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with annual amount');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,ContractTemplateListHandler,MessageHandler,MaintenancePerformanceToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure MaintenancePerformanceSaveToExcel()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        SignServContractDoc: Codeunit SignServContractDoc;
+    begin
+        // [SCENARIO 332702] Run report "Maintenance Performance" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Signed Service Contract Header with Type = Contract.
+        LibraryService.CreateServiceContractHeader(
+            ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
+        CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
+        AmountsInServiceContractHeader(ServiceContractHeader);
+        SignServContractDoc.SignContract(ServiceContractHeader);
+        Commit();
+
+        // [WHEN] Run report "Maintenance Performance", save report output to Excel file.
+        ServiceContractHeader.SetRecFilter();
+        Report.Run(Report::"Maintenance Performance", true, false, ServiceContractHeader);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 11, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Maintenance Performance'), '');
     end;
 
     [Test]
@@ -1252,7 +1284,7 @@ codeunit 136900 "Service Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerFalse,ServiceContractQuoteReportHandler')]
+    [HandlerFunctions('ConfirmHandlerFalse,ServiceContractQuoteRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ServiceContractQuoteReport()
     var
@@ -1276,7 +1308,7 @@ codeunit 136900 "Service Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerFalse,ServiceContractQuoteReportHandler')]
+    [HandlerFunctions('ConfirmHandlerFalse,ServiceContractQuoteRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ServiceContractQuoteComment()
     var
@@ -1301,6 +1333,34 @@ codeunit 136900 "Service Reports"
         // 3. Verify: Verify values on Service Contract Quote Report.
         VerifyServiceContractLine(ServiceContractLine);
         VerifyCommentOnReport(ServiceCommentLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse,ServiceContractQuoteToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceContractQuoteSaveToExcel()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+    begin
+        // [SCENARIO 332702] Run report "Service Contract Quote" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Service Contract Header with Type = Quote.
+        LibraryService.CreateServiceContractHeader(
+            ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, LibrarySales.CreateCustomerNo());
+        CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
+        Commit();
+
+        // [WHEN] Run report "Service Contract Quote", save report output to Excel file.
+        ServiceContractHeader.SetRecFilter();
+        Report.Run(Report::"Service Contract Quote", true, false, ServiceContractHeader);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 15, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Service Contract Quote'), '');
     end;
 
     [Test]
@@ -3017,9 +3077,16 @@ codeunit 136900 "Service Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure MaintenancePerformanceReportHandler(var MaintenancePerformance: TestRequestPage "Maintenance Performance")
+    procedure MaintenancePerformanceRequestPageHandler(var MaintenancePerformance: TestRequestPage "Maintenance Performance")
     begin
         MaintenancePerformance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure MaintenancePerformanceToExcelRequestPageHandler(var MaintenancePerformance: TestRequestPage "Maintenance Performance")
+    begin
+        MaintenancePerformance.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3052,9 +3119,16 @@ codeunit 136900 "Service Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure ServiceContractQuoteReportHandler(var ServiceContractQuote: TestRequestPage "Service Contract Quote")
+    procedure ServiceContractQuoteRequestPageHandler(var ServiceContractQuote: TestRequestPage "Service Contract Quote")
     begin
         ServiceContractQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceContractQuoteToExcelRequestPageHandler(var ServiceContractQuote: TestRequestPage "Service Contract Quote")
+    begin
+        ServiceContractQuote.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]

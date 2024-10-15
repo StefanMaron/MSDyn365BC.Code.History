@@ -365,22 +365,18 @@ table 7347 "Internal Movement Line"
         BinContent.FilterGroup(2);
         BinContent.SetRange("Location Code", "Location Code");
         BinContent.FilterGroup(0);
-        BinContent."Location Code" := "Location Code";
-        BinContent."Bin Code" := "From Bin Code";
-        BinContent."Item No." := "Item No.";
+        BinContent.SetFilter("Item No.", "Item No.");
         if "Variant Code" <> '' then begin
             TestField("Item No.");
-            BinContent."Variant Code" := "Variant Code";
+            BinContent.SetRange("Variant Code", "Variant Code");
         end;
-        if "Unit of Measure Code" <> '' then begin
+        if "Unit of Measure Code" <> '' then
             TestField("Item No.");
-            BinContent."Unit of Measure Code" := "Unit of Measure Code";
-        end;
         if PAGE.RunModal(0, BinContent) = ACTION::LookupOK then begin
             if BinContent."Block Movement" in [BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All]
             then
                 BinContent.FieldError("Block Movement");
-            Validate("Location Code", BinContent."Location Code");
+            Validate("Location Code");
             Validate(Quantity, 0);
             Validate("From Bin Code", BinContent."Bin Code");
             Validate("Item No.", BinContent."Item No.");

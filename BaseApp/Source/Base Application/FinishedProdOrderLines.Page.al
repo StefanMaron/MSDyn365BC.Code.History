@@ -84,15 +84,17 @@
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Time';
                     ToolTip = 'Specifies the entry''s starting time, which is retrieved from the production order routing.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Date';
                     ToolTip = 'Specifies the entry''s starting date, which is retrieved from the production order routing.';
                     Visible = false;
                 }
@@ -101,15 +103,17 @@
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Time';
                     ToolTip = 'Specifies the entry''s ending time, which is retrieved from the production order routing.';
                     Visible = false;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Date';
                     ToolTip = 'Specifies the entry''s ending date, which is retrieved from the production order routing.';
                     Visible = false;
                 }
@@ -227,11 +231,16 @@
     begin
         DescriptionIndent := 0;
         DescriptionOnFormat;
+        GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
     var
         [InDataSet]
         DescriptionIndent: Integer;
+        StartingTime: Time;
+        EndingTime: Time;
+        StartingDate: Date;
+        EndingDate: Date;
 
     local procedure ShowComponents()
     var

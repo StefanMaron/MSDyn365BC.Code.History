@@ -338,6 +338,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
+
+            SetJournalLineFieldsFromApplication;
+
             if Modify then;
             if Amount <> 0 then
                 if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
@@ -397,6 +400,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
+
+            SetJournalLineFieldsFromApplication;
+
             if Modify then;
             if Amount <> 0 then
                 if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
@@ -435,6 +441,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
+
+            SetJournalLineFieldsFromApplication;
+
             if Modify then;
         end;
 

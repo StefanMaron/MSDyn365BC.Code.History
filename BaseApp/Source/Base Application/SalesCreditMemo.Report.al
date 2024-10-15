@@ -4,6 +4,8 @@ report 207 "Sales - Credit Memo"
     RDLCLayout = './SalesCreditMemo.rdlc';
     Caption = 'Sales - Credit Memo';
     Permissions = TableData "Sales Shipment Buffer" = rimd;
+    ObsoleteReason = 'Replaced with report 1307 Standard Sales - Credit Memo';
+    ObsoleteState = Pending;
 
     dataset
     {

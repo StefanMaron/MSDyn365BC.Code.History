@@ -241,6 +241,7 @@ table 272 "Check Ledger Entry"
         Customer: Record Customer;
         GLAccount: Record "G/L Account";
         BankAccount: Record "Bank Account";
+        Employee: Record Employee;
     begin
         case "Bal. Account Type" of
             "Bal. Account Type"::"G/L Account":
@@ -265,6 +266,11 @@ table 272 "Check Ledger Entry"
                 end;
             "Bal. Account Type"::"Fixed Asset":
                 Payee := "Bal. Account No.";
+            "Bal. Account Type"::Employee:
+                if "Bal. Account No." <> '' then begin
+                    Employee.Get("Bal. Account No.");
+                    Payee := Employee.FullName;
+                end;
         end;
     end;
 

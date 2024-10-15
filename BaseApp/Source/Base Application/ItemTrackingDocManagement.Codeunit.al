@@ -216,32 +216,38 @@ codeunit 6503 "Item Tracking Doc. Management"
     procedure RetrieveDocumentItemTracking(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; SourceType: Integer; SourceSubType: Option): Integer
     var
         Found: Boolean;
+        IsHandled: Boolean;
     begin
         // retrieves Item Tracking for Purchase Header, Sales Header, Sales Shipment Header, Sales Invoice Header
         TempTrackingSpecBuffer.DeleteAll;
-        case SourceType of
-            DATABASE::"Purchase Header":
-                RetrieveTrackingPurchase(TempTrackingSpecBuffer, SourceID, SourceSubType);
-            DATABASE::"Sales Header":
-                RetrieveTrackingSales(TempTrackingSpecBuffer, SourceID, SourceSubType);
-            DATABASE::"Service Header":
-                RetrieveTrackingService(TempTrackingSpecBuffer, SourceID, SourceSubType);
-            DATABASE::"Purch. Rcpt. Header":
-                RetrieveTrackingPurchaseReceipt(TempTrackingSpecBuffer, SourceID);
-            DATABASE::"Sales Shipment Header":
-                RetrieveTrackingSalesShipment(TempTrackingSpecBuffer, SourceID);
-            DATABASE::"Sales Invoice Header":
-                RetrieveTrackingSalesInvoice(TempTrackingSpecBuffer, SourceID);
-            DATABASE::"Service Shipment Header":
-                RetrieveTrackingServiceShipment(TempTrackingSpecBuffer, SourceID);
-            DATABASE::"Service Invoice Header":
-                RetrieveTrackingServiceInvoice(TempTrackingSpecBuffer, SourceID);
-            else begin
-                    OnRetrieveDocumentItemTracking(TempTrackingSpecBuffer, SourceID, Found, SourceType, SourceSubType);
-                    if not Found then
-                        Error(TableNotSupportedErr, SourceType);
-                end;
-        end;
+
+        IsHandled := false;
+        OnBeforeRetrieveDocumentItemTracking(TempTrackingSpecBuffer, SourceID, SourceType, SourceSubType, IsHandled);
+        if not IsHandled then
+            case SourceType of
+                DATABASE::"Purchase Header":
+                    RetrieveTrackingPurchase(TempTrackingSpecBuffer, SourceID, SourceSubType);
+                DATABASE::"Sales Header":
+                    RetrieveTrackingSales(TempTrackingSpecBuffer, SourceID, SourceSubType);
+                DATABASE::"Service Header":
+                    RetrieveTrackingService(TempTrackingSpecBuffer, SourceID, SourceSubType);
+                DATABASE::"Purch. Rcpt. Header":
+                    RetrieveTrackingPurchaseReceipt(TempTrackingSpecBuffer, SourceID);
+                DATABASE::"Sales Shipment Header":
+                    RetrieveTrackingSalesShipment(TempTrackingSpecBuffer, SourceID);
+                DATABASE::"Sales Invoice Header":
+                    RetrieveTrackingSalesInvoice(TempTrackingSpecBuffer, SourceID);
+                DATABASE::"Service Shipment Header":
+                    RetrieveTrackingServiceShipment(TempTrackingSpecBuffer, SourceID);
+                DATABASE::"Service Invoice Header":
+                    RetrieveTrackingServiceInvoice(TempTrackingSpecBuffer, SourceID);
+                else begin
+                        OnRetrieveDocumentItemTracking(TempTrackingSpecBuffer, SourceID, Found, SourceType, SourceSubType);
+                        if not Found then
+                            Error(TableNotSupportedErr, SourceType);
+                    end;
+            end;
+
         TempTrackingSpecBuffer.Reset;
         exit(TempTrackingSpecBuffer.Count);
     end;
@@ -665,6 +671,11 @@ codeunit 6503 "Item Tracking Doc. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillTrackingSpecBufferFromTrackingEntries(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRetrieveDocumentItemTracking(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; SourceType: Integer; SourceSubType: Option; var IsHandled: Boolean);
     begin
     end;
 

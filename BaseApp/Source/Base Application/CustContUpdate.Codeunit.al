@@ -90,10 +90,14 @@ codeunit 5056 "CustCont-Update"
             OnAfterTransferFieldsFromCustToCont(Cont, Cust);
             Validate(Name);
             Validate("E-Mail");
-            "No." := '';
-            "No. Series" := '';
-            RMSetup.TestField("Contact Nos.");
-            NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+            IsHandled := false;
+            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled);
+            if not IsHandled then begin
+                "No." := '';
+                "No. Series" := '';
+                RMSetup.TestField("Contact Nos.");
+                NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+            end;
             Type := Type::Company;
             TypeChange;
             SetSkipDefault;
@@ -191,6 +195,11 @@ codeunit 5056 "CustCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertNewContactPersonOnBeforeContactModify(var Contact: Record Contact; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean);
     begin
     end;
 }

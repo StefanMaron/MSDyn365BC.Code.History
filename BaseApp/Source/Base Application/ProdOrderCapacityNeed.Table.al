@@ -223,6 +223,14 @@ table 5410 "Prod. Order Capacity Need"
             "Ending Date-Time" := 0DT;
     end;
 
+    [Scope('OnPrem')]
+    procedure GetStartingEndingDateAndTime(var StartingTime: Time; var EndingTime: Time; var CurrDate: Date)
+    begin
+        StartingTime := DT2Time("Starting Date-Time");
+        EndingTime := DT2Time("Ending Date-Time");
+        CurrDate := DT2Date("Ending Date-Time");
+    end;
+
     procedure SetFilters(Type2: Option; No2: Code[20])
     begin
         SetCurrentKey(Type, "No.", "Ending Date-Time", "Starting Date-Time");

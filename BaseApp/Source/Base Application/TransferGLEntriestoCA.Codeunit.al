@@ -175,6 +175,7 @@ codeunit 1105 "Transfer GL Entries to CA"
         TempCostJnlLine."Source Code" := SourceCodeSetup."G/L Entry to CA";
         TempCostJnlLine."G/L Entry No." := GLEntry."Entry No.";
         TempCostJnlLine."System-Created Entry" := true;
+        OnBeforeInsertCostJournalLine(TempCostJnlLine, GLEntry);
         TempCostJnlLine.Insert;
         OnAfterInsertCostJournalLine(TempCostJnlLine);
 
@@ -276,6 +277,11 @@ codeunit 1105 "Transfer GL Entries to CA"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertCostJournalLine(var TempCostJnlLine: Record "Cost Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertCostJournalLine(var TempCostJnlLine: Record "Cost Journal Line" temporary; GLEntry: Record "G/L Entry")
     begin
     end;
 }

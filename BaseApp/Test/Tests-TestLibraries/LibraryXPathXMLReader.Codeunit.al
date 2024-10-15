@@ -20,6 +20,9 @@ codeunit 131337 "Library - XPath XML Reader"
         UnexpectedAttributeErr: Label 'Unepexted %1 attribute in the node %2.';
         SkipDefaultNamespace: Boolean;
         NodeIndexOutOfBoundsErr: Label 'Node <%1> index %2  is out of bounds (%3 total nodes exist).';
+        DeclarationEncodingErr: Label 'XMLDeclaration: Wrong Encoding property.';
+        DeclarationStandaloneErr: Label 'XMLDeclaration: Wrong Standalone property.';
+        DeclarationVersionErr: Label 'XMLDeclaration: Wrong Version property.';
 
     procedure Initialize(FullFilePath: Text; NameSpace: Text)
     var
@@ -372,6 +375,17 @@ codeunit 131337 "Library - XPath XML Reader"
           StrSubstNo('Unexpected empty value in xml file for element <%1>', ElementName));
         Assert.IsTrue(Evaluate(InstrId, Actual),
           StrSubstNo('Unexpected value type in xml file for element <%1>. Expecting GUID.', ElementName));
+    end;
+
+    [Scope('OnPrem')]
+    procedure VerifyXMLDeclaration(Version: Text; Encoding: Text; Standalone: Text)
+    var
+        XMLDeclaration: DotNet XmlDeclaration;
+    begin
+        XMLDeclaration := XMLDocOut.FirstChild;
+        Assert.AreEqual(Version, XMLDeclaration.Version, DeclarationVersionErr);
+        Assert.AreEqual(Encoding, XMLDeclaration.Encoding, DeclarationEncodingErr);
+        Assert.AreEqual(Standalone, XMLDeclaration.Standalone, DeclarationStandaloneErr);
     end;
 
     local procedure Replace(SourceText: Text; FindText: Text; ReplaceText: Text): Text
