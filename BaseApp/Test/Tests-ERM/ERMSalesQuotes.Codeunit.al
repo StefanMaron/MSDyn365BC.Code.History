@@ -1656,8 +1656,31 @@ codeunit 134379 "ERM Sales Quotes"
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderFromSalesQuoteWithTransactionType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Order]
+        // [SCENARIO 379229] "Transaction Type" is populated from Intrastat Setup on Sales Order from Sales Quote
+        Initialize();
+
+        // [GIVEN] Set Default Transaction Types on Intrastat Setup and created Sales Quote
+        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup();
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
+
+        // [WHEN] Create Sales Order from Sales Quote.
+        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
+
+        // [THEN] Verify that New Sales Order created from Sales Quote has Transaction Type on Header and Line
+        VerifyTransactionTypeOnOrder(SalesHeader, SalesHeader."No.");
+    end;
+
     local procedure Initialize()
     var
+        IntrastatSetup: Record "Intrastat Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
@@ -1672,10 +1695,29 @@ codeunit 134379 "ERM Sales Quotes"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        if not IntrastatSetup.Get() then begin
+            IntrastatSetup.Init();
+            IntrastatSetup.Insert();
+        end;
+        LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Quotes");
+    end;
+
+    local procedure VerifyTransactionTypeOnOrder(SalesHeader: Record "Sales Header"; QuoteNo: Code[20])
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+        SalesLine: Record "Sales Line";
+    begin
+        IntrastatSetup.Get();
+        SalesHeader.SetRange("Quote No.", QuoteNo);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.FindFirst();
+        SalesHeader.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
+        FindSalesLine(SalesLine, QuoteNo);
+        SalesLine.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
     end;
 
     local procedure CreateSimpleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
