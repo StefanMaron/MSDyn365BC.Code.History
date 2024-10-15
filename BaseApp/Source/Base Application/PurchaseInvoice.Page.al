@@ -1660,6 +1660,7 @@
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
         CalcFields("Invoice Discount Amount");
     end;

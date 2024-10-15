@@ -39,16 +39,44 @@ codeunit 5550 "Fixed Asset Acquisition Wizard"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        if not GenJournalBatch.Get(SelectFATemplate, GenJournalBatchNameTxt) then begin
+        if not GenJournalBatch.Get(SelectFATemplate, GetDefaultGenJournalBatchName()) then begin
             GenJournalBatch.Init();
             GenJournalBatch."Journal Template Name" := SelectFATemplate;
-            GenJournalBatch.Name := GenJournalBatchNameTxt;
+            GenJournalBatch.Name := CopyStr(GetDefaultGenJournalBatchName(), 1,
+                MaxStrLen(GenJournalBatch.Name));
             GenJournalBatch.Description := SimpleJnlDescriptionTxt;
             GenJournalBatch.SetupNewBatch;
             GenJournalBatch.Insert();
         end;
 
         exit(GenJournalBatch.Name);
+    end;
+
+    procedure GetGenJournalBatchName(FANo: Code[20]): Code[10]
+    var
+        FAJournalSetup: Record "FA Journal Setup";
+        FADepreciationBookCode: Code[10];
+    begin
+        if FANo <> '' then
+            FADepreciationBookCode := GetFADeprBookCode(FANo);
+        if FADepreciationBookCode <> '' then begin
+            if FAJournalSetup.Get(FADepreciationBookCode, UserId()) then
+                if FAJournalSetup."Gen. Jnl. Batch Name" <> '' then
+                    exit(FAJournalSetup."Gen. Jnl. Batch Name");
+            if FAJournalSetup.Get(FADepreciationBookCode, '') then
+                if FAJournalSetup."Gen. Jnl. Batch Name" <> '' then
+                    exit(FAJournalSetup."Gen. Jnl. Batch Name");
+        end;
+        exit(GetAutogenJournalBatch())
+    end;
+
+    local procedure GetFADeprBookCode(FANo: Code[20]): Code[10]
+    var
+        FADepreciationBook: Record "FA Depreciation Book";
+    begin
+        FADepreciationBook.SetRange("FA No.", FANo);
+        if FADepreciationBook.FindFirst() then
+            exit(FADepreciationBook."Depreciation Book Code");
     end;
 
     procedure SelectFATemplate() ReturnValue: Code[10]
@@ -77,6 +105,11 @@ codeunit 5550 "Fixed Asset Acquisition Wizard"
     procedure GetNotificationFANoDataItemID(): Text
     begin
         exit('FixedAssetNo');
+    end;
+
+    procedure GetDefaultGenJournalBatchName(): Text
+    begin
+        exit(GenJournalBatchNameTxt);
     end;
 
     [EventSubscriber(ObjectType::Page, 5600, 'OnClosePageEvent', '', false, false)]
