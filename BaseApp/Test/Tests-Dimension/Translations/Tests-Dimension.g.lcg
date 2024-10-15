@@ -122,6 +122,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - a number.]D;]A;(LookupHint=Codeunit ERM Change Global Dimensions - NamedType UnexpectedTableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 228437368 - NamedType 1167856001" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[All records were successfully updated. To apply the updates, close the General Ledger Setup page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Change Global Dimensions - NamedType SessionUpdateRequiredMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2479698982 - NamedType 1556756297" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. Select a Dimension Value Code for the Dimension Code %4 for Customer %5.]]></Val>

@@ -1805,6 +1805,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Caption of field "Recognized Costs", %2 - Caption of value "Recognized Costs"::"Usage (Total Cost)"]D;]A;(LookupHint=Codeunit UT T Job WIP Method - NamedType Text003Txt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1301911645 - NamedType 3079716593" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to set the %1 on every %2 of type %3?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = The WIP Method field name; %2 = The name of the Job Task table; %3 = The current job task's WIP Total type]D;]A;(LookupHint=Codeunit UT T Job WIP Method - NamedType WIPMethodQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 279663154 - NamedType 3114637384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rolling back changes...]]></Val>

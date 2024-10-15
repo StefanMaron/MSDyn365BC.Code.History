@@ -435,7 +435,7 @@ codeunit 950 "Time Sheet Management"
         JobPlanningLine.SetRange("Planning Date", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
         if JobPlanningLine.FindSet then
             repeat
-                SkipLine := false;
+                SkipLine := TimesheetLineWithJobPlanningLineExists(TimeSheetHeader, JobPlanningLine);
                 OnCheckInsertJobPlanningLine(JobPlanningLine, JobPlanningLineBuffer, SkipLine);
                 if not SkipLine then begin
                     JobPlanningLineBuffer.SetRange("Job No.", JobPlanningLine."Job No.");
@@ -448,6 +448,17 @@ codeunit 950 "Time Sheet Management"
                 end;
             until JobPlanningLine.Next = 0;
         JobPlanningLineBuffer.Reset;
+    end;
+
+    local procedure TimesheetLineWithJobPlanningLineExists(TimeSheetHeader: Record "Time Sheet Header"; JobPlanningLine: Record "Job Planning Line"): Boolean
+    var
+        TimeSheetLine: Record "Time Sheet Line";
+    begin
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
+        TimeSheetLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        TimeSheetLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        exit(not TimeSheetLine.IsEmpty());
     end;
 
     procedure FindTimeSheet(var TimeSheetHeader: Record "Time Sheet Header"; Which: Option Prev,Next): Code[20]

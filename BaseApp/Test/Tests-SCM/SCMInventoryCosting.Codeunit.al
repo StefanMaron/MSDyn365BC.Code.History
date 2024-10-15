@@ -848,6 +848,63 @@ codeunit 137007 "SCM Inventory Costing"
         InventorySetup.TestField("Average Cost Calc. Type", InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutomaticCostAdjustmentOnPostingInventoryOrder()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
+        GLEntry: Record "G/L Entry";
+    begin
+        // [FEATURE] [Physical Inventory Order] [Adjust Cost Item Entries] [Automatic Cost Adjustment]
+        // [SCENARIO 349094] Automatic cost adjustment and automatic cost posting on posting physical inventory order.
+        Initialize();
+
+        // [GIVEN] Enable automatic cost adjustment and automatic cost posting on Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
+
+        // [GIVEN] Create item with unit cost.
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
+
+        // [GIVEN] Post the item to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create physical inventory order and calculate remaining quantity.
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
+        PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
+        PhysInvtOrderLine.Modify();
+
+        // [GIVEN] Create and finish a recording for the physical inventory.
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderHeader."No.");
+        LibraryInventory.CreatePhysInvtRecordLine(
+          PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", LibraryRandom.RandInt(10));
+        CODEUNIT.Run(CODEUNIT::"Phys. Invt. Rec.-Finish", PhysInvtRecordHeader);
+        CODEUNIT.Run(CODEUNIT::"Phys. Invt. Order-Finish", PhysInvtOrderHeader);
+
+        // [WHEN] Post the physical inventory to post the difference between expected and recorded inventory to the item ledger.
+        CODEUNIT.Run(CODEUNIT::"Phys. Invt. Order-Post", PhysInvtOrderHeader);
+
+        // [THEN] The cost is automatically adjusted.
+        Item.Find();
+        Item.TestField("Cost is Adjusted");
+
+        // [THEN] The value entries for the cost adjustment are posted to the general ledger.
+        PstdPhysInvtOrderLine.SetRange("Item No.", Item."No.");
+        PstdPhysInvtOrderLine.FindFirst();
+        GLEntry.SetRange("Document No.", PstdPhysInvtOrderLine."Document No.");
+        Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
