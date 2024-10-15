@@ -1,0 +1,1821 @@
+codeunit 134263 "Test Bank Payment Application"
+{
+    Subtype = Test;
+    TestPermissions = NonRestrictive;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Bank Payment Application]
+    end;
+
+    var
+        LibraryERM: Codeunit "Library - ERM";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurch: Codeunit "Library - Purchase";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryDim: Codeunit "Library - Dimension";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Initialized: Boolean;
+        ExcessiveAmtErr: Label 'You must apply the excessive amount of %1 %2 manually.', Comment = '%1 a decimal number, %2 currency code';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPmtWithDim()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        DimValue: Record "Dimension Value";
+        DimValue2: Record "Dimension Value";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        LibraryDim.GetGlobalDimCodeValue(1, DimValue);
+        LibraryDim.GetGlobalDimCodeValue(2, DimValue2);
+        BankAcc.Validate("Global Dimension 1 Code", DimValue.Code);
+        BankAcc.Validate("Global Dimension 2 Code", DimValue2.Code);
+        BankAcc.Modify(true);
+
+        // Create Bank Rec Header
+        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
+
+        Assert.AreEqual(BankAccRecon."Shortcut Dimension 1 Code", BankAcc."Global Dimension 1 Code", '');
+        Assert.AreEqual(BankAccRecon."Shortcut Dimension 2 Code", BankAcc."Global Dimension 2 Code", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestPmtWithDim2()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        DimValue: Record "Dimension Value";
+        DimValue2: Record "Dimension Value";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // Create Bank Rec Header
+        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconLine, BankAccRecon);
+
+        LibraryDim.GetGlobalDimCodeValue(1, DimValue);
+        LibraryDim.GetGlobalDimCodeValue(2, DimValue2);
+
+        BankAccRecon.Validate("Shortcut Dimension 1 Code", DimValue.Code);
+        BankAccRecon.Validate("Shortcut Dimension 2 Code", DimValue2.Code);
+        BankAccRecon.Modify(true);
+
+        BankAccRecon.Find;
+        Assert.AreEqual(BankAccRecon."Shortcut Dimension 1 Code", DimValue.Code, '');
+        Assert.AreEqual(BankAccRecon."Shortcut Dimension 2 Code", DimValue2.Code, '');
+
+        BankAccReconLine.Find;
+        Assert.AreEqual(BankAccReconLine."Shortcut Dimension 1 Code", DimValue.Code, '');
+        Assert.AreEqual(BankAccReconLine."Shortcut Dimension 2 Code", DimValue2.Code, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPmtWithDim3()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        DimValue: Record "Dimension Value";
+        DimValue2: Record "Dimension Value";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // Create Bank Rec Header
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconLine, BankAccRecon);
+
+        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryDim.GetGlobalDimCodeValue(1, DimValue);
+        LibraryDim.GetGlobalDimCodeValue(2, DimValue2);
+
+        BankAccReconLine.Validate("Shortcut Dimension 1 Code", DimValue.Code);
+        BankAccReconLine.Validate("Shortcut Dimension 2 Code", DimValue2.Code);
+        BankAccReconLine.Modify(true);
+
+        BankAccReconLine.Find;
+        Assert.AreEqual(BankAccReconLine."Shortcut Dimension 1 Code", DimValue.Code, '');
+        Assert.AreEqual(BankAccReconLine."Shortcut Dimension 2 Code", DimValue2.Code, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPmtWithBlockedDim()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        DimValue: Record "Dimension Value";
+        DimValue2: Record "Dimension Value";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        Customer: Record Customer;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        LibraryDim.GetGlobalDimCodeValue(1, DimValue);
+        LibraryDim.GetGlobalDimCodeValue(2, DimValue2);
+        BankAcc.Validate("Global Dimension 1 Code", DimValue.Code);
+        BankAcc.Validate("Global Dimension 2 Code", DimValue2.Code);
+        BankAcc.Modify(true);
+        Customer.Get(CustLedgEntry."Customer No.");
+        Customer.Validate("Global Dimension 1 Code", DimValue.Code);
+        Customer.Validate("Global Dimension 2 Code", DimValue2.Code);
+        Customer.Modify;
+
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Block the dimension
+        BlockDimValue(DimValue);
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        UnblockDimValue(DimValue);
+
+        // Block the dimension
+        BlockDimValue(DimValue2);
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        UnblockDimValue(DimValue2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPmtWithBlockedDimComb()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        DimValue: Record "Dimension Value";
+        DimValue2: Record "Dimension Value";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        Customer: Record Customer;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        LibraryDim.GetGlobalDimCodeValue(1, DimValue);
+        LibraryDim.GetGlobalDimCodeValue(2, DimValue2);
+        BankAcc.Validate("Global Dimension 1 Code", DimValue.Code);
+        BankAcc.Validate("Global Dimension 2 Code", DimValue2.Code);
+        BankAcc.Modify(true);
+        Customer.Get(CustLedgEntry."Customer No.");
+        Customer.Validate("Global Dimension 1 Code", DimValue.Code);
+        Customer.Validate("Global Dimension 2 Code", DimValue2.Code);
+        Customer.Modify;
+
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Exercise
+        LibraryLowerPermissions.AddAccountReceivables;
+        BlockDimCombination(DimValue."Dimension Code", DimValue2."Dimension Code");
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify: posting fails due to Dim combination blocked
+
+        // Tear Down
+        UnblockDimCombination(DimValue."Dimension Code", DimValue2."Dimension Code");
+
+        // Verify: posting should succeed is Dim Comb is not blocked
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPmtApplnMultipleLines()
+    var
+        Cust: Record Customer;
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        CustLedgEntry2: Record "Cust. Ledger Entry";
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        LibrarySales.CreateCustomer(Cust);
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry2, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount" + CustLedgEntry2."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry2);
+
+        BankAccReconLine.Find;
+        Assert.AreEqual(0, BankAccReconLine.Difference, '');
+
+        // Verify: posting should succeed is Dim Comb is not blocked
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPmtApplnAmt()
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        AppliedPmtEntry: Record "Applied Payment Entry";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        AppliedPmtEntry.SetRange("Account Type", AppliedPmtEntry."Account Type"::Customer);
+        AppliedPmtEntry.SetRange("Account No.", CustLedgEntry."Customer No.");
+        AppliedPmtEntry.FindFirst;
+        Commit;
+
+        // Should be possible to reduce
+        AppliedPmtEntry.Validate("Applied Amount", AppliedPmtEntry."Applied Amount" / 2);
+
+        // Should not bt possible to zero
+        asserterror AppliedPmtEntry.Validate("Applied Amount", 0);
+
+        // Should be possible to change sign
+        asserterror AppliedPmtEntry.Validate("Applied Amount", -AppliedPmtEntry."Applied Amount");
+
+        // Tear Down
+
+        // Verify: posting should succeed
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestRemaingAmtPmtWithDiscMultipleAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        CustLedgEntry2: Record "Cust. Ledger Entry";
+        Cust: Record Customer;
+        PmtTerms: Record "Payment Terms";
+        PmtReconJnl: TestPage "Payment Reconciliation Journal";
+        StmtAmt: Decimal;
+        i: Integer;
+        RemStmtAmt: Decimal;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        LibrarySales.CreateCustomer(Cust);
+        LibraryERM.CreatePaymentTermsDiscount(PmtTerms, false);
+        Cust.Validate("Payment Terms Code", PmtTerms.Code);
+        Cust.Modify(true);
+
+        // Create Two payments
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry2, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // Create Bank Rec Line
+        StmtAmt :=
+          (CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible") +
+          (CustLedgEntry2."Remaining Amount" - CustLedgEntry2."Remaining Pmt. Disc. Possible");
+        LibraryLowerPermissions.AddAccountReceivables;
+        RemStmtAmt := StmtAmt;
+        for i := 3 downto 1 do begin
+            CreateBankPmtReconcWithLine(
+              BankAcc, BankAccRecon, BankAccReconLine, WorkDate, Round(RemStmtAmt / i));
+
+            // Create Bank Rec Line - Application
+            if i <> 1 then
+                ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+            if i <> 3 then
+                ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry2);
+
+            RemStmtAmt -= BankAccReconLine."Statement Amount";
+
+            // Verify Statement To Rem Amt Difference corresponds to Cust Ledger Remaining Amounts
+            CustLedgEntry.CalcFields("Remaining Amount");
+            CustLedgEntry2.CalcFields("Remaining Amount");
+            OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
+            PmtReconJnl.First;
+            PmtReconJnl.Difference.AssertEquals(0);
+            // Post
+            LibraryERM.PostBankAccReconciliation(BankAccRecon);
+        end;
+        // Verify
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+        VerifyBankLedgEntry(BankAcc."No.", StmtAmt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPmtApplnMultipleCust()
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        CustLedgEntry2: Record "Cust. Ledger Entry";
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+        CreateCustAndPostSalesInvoice(CustLedgEntry2, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount" + CustLedgEntry2."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Should not be possible to add the same entry twice
+        asserterror ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Should not be possible to add add from a different customer
+        asserterror ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithoutRecLine()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // Create Bank Rec Header
+        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
+
+        // Post
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccRecon);
+        // Verify
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithoutAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        LibraryLowerPermissions.AddAccountReceivables;
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+
+        // Post
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        PmtCustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        // [SCENARIO] Vendor and Bank Account Ledger Entries are created when post Bank. Account Reconciliation Line applied to Posted Sales Invoice
+
+        Initialize;
+
+        // [GIVEN] Posted Invoice with Amount = 100
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // [GIVEN] Bank Account Reconciliation Line applied to Posted Invoice
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // [WHEN] Post Bank Account Reconciliation
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] Customer Ledger Entry for Posted Invoice is Closed
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+
+        // [THEN] Bank Account Ledger Entry posted with Amount = 100
+        VerifyBankLedgEntry(BankAcc."No.", CustLedgEntry."Remaining Amount");
+
+        // [THEN] TFS ID 211371: "Applies-to ID" is blank after posting Payment through Payment Reconciliation Journal applied to Invoice
+        LibraryERM.FindCustomerLedgerEntry(PmtCustLedgEntry, PmtCustLedgEntry."Document Type"::Payment, BankAccRecon."Statement No.");
+        PmtCustLedgEntry.TestField("Applies-to ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithDiscAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Cust: Record Customer;
+        PmtTerms: Record "Payment Terms";
+        StmtAmt: Decimal;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        LibrarySales.CreateCustomer(Cust);
+        LibraryERM.CreatePaymentTermsDiscount(PmtTerms, false);
+        Cust.Validate("Payment Terms Code", PmtTerms.Code);
+        Cust.Modify(true);
+
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        StmtAmt := CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
+        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate, StmtAmt);
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+        BankAccReconLine.Find;
+        Assert.AreEqual(0, BankAccReconLine.Difference, '');
+
+        // Post
+        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+        VerifyBankLedgEntry(BankAcc."No.", StmtAmt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithDiscMultipleAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Cust: Record Customer;
+        PmtTerms: Record "Payment Terms";
+        StmtAmt: Decimal;
+        i: Integer;
+        RemStmtAmt: Decimal;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        LibrarySales.CreateCustomer(Cust);
+        LibraryERM.CreatePaymentTermsDiscount(PmtTerms, false);
+        Cust.Validate("Payment Terms Code", PmtTerms.Code);
+        Cust.Modify(true);
+
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // Create Bank Rec Header
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
+
+        // Create Bank Rec Line
+        StmtAmt := CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
+
+        RemStmtAmt := StmtAmt;
+        LibraryLowerPermissions.AddAccountReceivables;
+
+        for i := 3 downto 1 do begin
+            LibraryERM.CreateBankAccReconciliationLn(BankAccReconLine, BankAccRecon);
+            BankAccReconLine.Validate("Transaction Date", WorkDate);
+            BankAccReconLine.Validate(Description, 'Hello World');
+            BankAccReconLine.Validate("Statement Amount", Round(RemStmtAmt / i));
+            BankAccReconLine.Modify(true);
+
+            // Create Bank Rec Line - Application
+            ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+            RemStmtAmt -= BankAccReconLine."Statement Amount";
+        end;
+
+        // Post
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+        VerifyBankLedgEntry(BankAcc."No.", StmtAmt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithNoDiscAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Cust: Record Customer;
+        PmtTerms: Record "Payment Terms";
+        StmtAmt: Decimal;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        LibrarySales.CreateCustomer(Cust);
+        LibraryERM.CreatePaymentTermsDiscount(PmtTerms, false);
+        Cust.Validate("Payment Terms Code", PmtTerms.Code);
+        Cust.Modify(true);
+
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // Create Bank Rec Header
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconLine, BankAccRecon);
+
+        // Create Bank Rec Line
+        StmtAmt := CustLedgEntry."Remaining Amount";
+
+        BankAccReconLine.Validate("Transaction Date", CalcDate('<1D>', CustLedgEntry."Pmt. Discount Date"));
+        BankAccReconLine.Validate(Description, 'Hello World');
+        BankAccReconLine.Validate("Statement Amount", StmtAmt);
+        BankAccReconLine.Modify(true);
+
+        // Create Bank Rec Line - Application
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Post
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+        VerifyBankLedgEntry(BankAcc."No.", StmtAmt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithVendAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        PmtVendLedgEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO] Vendor and Bank Account Ledger Entries are created when post Bank. Account Reconciliation Line applied to Posted Purchase Invoice
+        Initialize;
+
+        // [GIVEN] Posted Invoice with Amount = 100
+        CreateVendAndPostPurchInvoice(VendLedgEntry, '');
+
+        // [GIVEN] Bank Account Reconciliation Line applied to Posted Invoice
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        VendLedgEntry.CalcFields("Remaining Amount");
+        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate, VendLedgEntry."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyVendLedgEntry(BankAccReconLine, VendLedgEntry);
+
+        // [WHEN] Post Bank Account Reconciliation
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] Customer Ledger Entry for Posted Invoice is Closed
+        VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
+
+        // [THEN] Bank Account Ledger Entry posted with Amount = 100
+        VerifyBankLedgEntry(BankAcc."No.", VendLedgEntry."Remaining Amount");
+
+        // [THEN] TFS ID 211371: "Applies-to ID" is blank after posting Payment through Payment Reconciliation Journal applied to Invoice
+        LibraryERM.FindVendorLedgerEntry(PmtVendLedgEntry, PmtVendLedgEntry."Document Type"::Payment, BankAccRecon."Statement No.");
+        PmtVendLedgEntry.TestField("Applies-to ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithFCYInvAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Curr: Record Currency;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+
+        CreateCustAndPostSalesInvoice(CustLedgEntry, Curr.Code);
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amt. (LCY)");
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Post
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+        VerifyBankLedgEntry(BankAcc."No.", CustLedgEntry."Remaining Amt. (LCY)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithFCYPayAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Curr: Record Currency;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+        BankAcc.Validate("Currency Code", Curr.Code);
+        BankAcc.Modify(true);
+
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        asserterror ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Post
+        // ASSERTERROR CODEUNIT.RUN(CODEUNIT::"Bank Acc. Reconciliation Post",BankAccRecon);
+
+        // Verify
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithFCYDiscAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Cust: Record Customer;
+        PmtTerms: Record "Payment Terms";
+        Curr: Record Currency;
+        StmtAmt: Decimal;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+
+        LibrarySales.CreateCustomer(Cust);
+        LibraryERM.CreatePaymentTermsDiscount(PmtTerms, false);
+        Cust.Validate("Payment Terms Code", PmtTerms.Code);
+        Cust.Modify(true);
+
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, Curr.Code);
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // Create Bank Rec Line
+        CustLedgEntry.CalcFields("Remaining Amt. (LCY)", "Remaining Amount");
+        StmtAmt :=
+          CustLedgEntry."Remaining Amt. (LCY)" -
+          Round(
+            CustLedgEntry."Remaining Pmt. Disc. Possible" *
+            Round(CustLedgEntry."Remaining Amt. (LCY)" / CustLedgEntry."Remaining Amount"));
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, StmtAmt);
+
+        // Create Bank Rec Line - Application
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        BankAccReconLine.Find;
+        Assert.AreEqual(0, BankAccReconLine.Difference, '');
+
+        // Post
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+        VerifyBankLedgEntry(BankAcc."No.", StmtAmt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithLCYInvAndFCYPayAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Curr: Record Currency;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+
+        LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10);
+
+        CreateCustAndPostSalesInvoice(CustLedgEntry, Curr.Code);
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+        BankAcc.Validate("Currency Code", Curr.Code);
+        BankAcc.Modify(true);
+
+        // Create Bank Rec Line
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Post
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+        VerifyBankLedgEntry(BankAcc."No.", CustLedgEntry."Remaining Amount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPmtWithDiscFCYInvAndLCYPayAppln()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Curr: Record Currency;
+        Cust: Record Customer;
+        PmtTerms: Record "Payment Terms";
+        StmtAmt: Decimal;
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        LibrarySales.CreateCustomer(Cust);
+        LibraryERM.CreatePaymentTermsDiscount(PmtTerms, false);
+        Cust.Validate("Payment Terms Code", PmtTerms.Code);
+        Cust.Modify(true);
+
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+        LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10);
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // Create Bank Rec Line
+        StmtAmt := CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
+        LibraryLowerPermissions.AddAccountReceivables;
+        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate, StmtAmt);
+
+        // Create Bank Rec Line - Application
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Post
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // Verify
+        VerifyCustLedgEntry(CustLedgEntry."Customer No.");
+        VerifyBankLedgEntry(BankAcc."No.", StmtAmt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetAmountToleranceRangeToleranceAmountType()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        ToleranceAmount: Decimal;
+        Amount: Decimal;
+        MinAmount: Decimal;
+        MaxAmount: Decimal;
+    begin
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Amount);
+        ToleranceAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        BankAccount.Validate("Match Tolerance Value", ToleranceAmount);
+        BankAccount.Modify;
+        Amount := 2 * ToleranceAmount;
+
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+
+        // Execute
+        BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
+
+        // Verify
+        Assert.AreEqual(ToleranceAmount, MinAmount, 'MinAmount was not set to a correct value');
+        Assert.AreEqual(3 * ToleranceAmount, MaxAmount, 'Max Amount was not set to a correct value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetAmountToleranceRangeToleranceAmountTypeForNegativeAmount()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        ToleranceAmount: Decimal;
+        Amount: Decimal;
+        MinAmount: Decimal;
+        MaxAmount: Decimal;
+    begin
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Amount);
+        ToleranceAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        BankAccount.Validate("Match Tolerance Value", ToleranceAmount);
+        BankAccount.Modify;
+        Amount := -2 * ToleranceAmount;
+
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+
+        // Execute
+        BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
+
+        // Verify
+        Assert.AreEqual(-ToleranceAmount, MaxAmount, 'MinAmount was not set to a correct value');
+        Assert.AreEqual(-3 * ToleranceAmount, MinAmount, 'Max Amount was not set to a correct value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetAmountToleranceRangeToleranceAmountGreaterThanTheAmount()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        ToleranceAmount: Decimal;
+        Amount: Decimal;
+        MinAmount: Decimal;
+        MaxAmount: Decimal;
+    begin
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Amount);
+        ToleranceAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        BankAccount.Validate("Match Tolerance Value", ToleranceAmount);
+        BankAccount.Modify;
+        Amount := Round(ToleranceAmount / 3, LibraryERM.GetAmountRoundingPrecision);
+
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+
+        // Execute
+        BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
+
+        // Verify
+        Assert.AreEqual(0, MinAmount, 'MinAmount was not set to a correct value');
+        Assert.AreEqual(ToleranceAmount + Amount, MaxAmount, 'Max Amount was not set to a correct value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetAmountToleranceRangeToleranceAmountGreaterThanTheNegativeAmount()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        ToleranceAmount: Decimal;
+        Amount: Decimal;
+        MinAmount: Decimal;
+        MaxAmount: Decimal;
+    begin
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Amount);
+        ToleranceAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        BankAccount.Validate("Match Tolerance Value", ToleranceAmount);
+        BankAccount.Modify;
+        Amount := -Round(ToleranceAmount / 3, LibraryERM.GetAmountRoundingPrecision);
+
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+
+        // Execute
+        BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
+
+        // Verify
+        Assert.AreEqual(0, MaxAmount, 'MinAmount was not set to a correct value');
+        Assert.AreEqual(-ToleranceAmount + Amount, MinAmount, 'Max Amount was not set to a correct value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPercentageTypeToleranceAmountFromBankAccount()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        TolerancePct: Integer;
+        Amount: Decimal;
+        MinAmount: Decimal;
+        MaxAmount: Decimal;
+    begin
+        // [FEATURE] [UT] [Payment Tolerance]
+        // [SCENARIO] Minimum and Maximum correctly calculated when "Match Tolerance Type" is Percentage, Amount is positive and "Tolerance Percent" is defined
+        // [TFS 381097] Amount Range is correctly calculated when "Match Tolerance Type" is Percentage
+
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Percentage);
+        TolerancePct := LibraryRandom.RandIntInRange(2, 80);
+        BankAccount.Validate("Match Tolerance Value", TolerancePct);
+        BankAccount.Modify;
+        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+
+        // Execute
+        BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
+
+        // Verify
+        VerifyMinMaxAmounts(Amount, TolerancePct, MinAmount, MaxAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPercentageTypeToleranceAmountFromBankAccountWithNegativeAmount()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        TolerancePct: Integer;
+        Amount: Decimal;
+        MinAmount: Decimal;
+        MaxAmount: Decimal;
+    begin
+        // [FEATURE] [UT] [Payment Tolerance]
+        // [SCENARIO] Minimum and Maximum correctly calculated when "Match Tolerance Type" is Percentage, Amount is negative and "Tolerance Percent" is defined
+
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Percentage);
+        TolerancePct := LibraryRandom.RandIntInRange(2, 80);
+        BankAccount.Validate("Match Tolerance Value", TolerancePct);
+        BankAccount.Modify;
+        Amount := -LibraryRandom.RandDecInRange(1, 1000, 2);
+
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+
+        // Execute
+        BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
+
+        // Verify
+        VerifyMinMaxAmounts(Amount, TolerancePct, MaxAmount, MinAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPercentageTypeToleranceAmountFromBankAccountZeroPercentage()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        Amount: Decimal;
+        MinAmount: Decimal;
+        MaxAmount: Decimal;
+    begin
+        // [FEATURE] [UT] [Payment Tolerance]
+        // [SCENARIO] Minimum and Maximum correctly calculated when "Match Tolerance Type" is Percentage, Amount is positive and "Tolerance Percent" is zero
+
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Percentage);
+        BankAccount.Validate("Match Tolerance Value", 0);
+        BankAccount.Modify;
+        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+
+        // Execute
+        LibraryLowerPermissions.AddAccountReceivables;
+        BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
+
+        // Verify
+        VerifyMinMaxAmounts(Amount, 0, MinAmount, MaxAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPercentageTypeToleranceAmountFromBankAccountZeroPercentageWithNegativeAmount()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        Amount: Decimal;
+        MinAmount: Decimal;
+        MaxAmount: Decimal;
+    begin
+        // [FEATURE] [UT] [Payment Tolerance]
+        // [SCENARIO] Minimum and Maximum correctly calculated when "Match Tolerance Type" is Percentage, Amount is negative and "Tolerance Percent" is zero
+
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Percentage);
+        BankAccount.Validate("Match Tolerance Value", 0);
+        BankAccount.Modify;
+        Amount := -LibraryRandom.RandDecInRange(1, 1000, 2);
+
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+
+        // Execute
+        LibraryLowerPermissions.AddAccountReceivables;
+        BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
+
+        // Verify
+        VerifyMinMaxAmounts(Amount, 0, MinAmount, MaxAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedSourceCodeAfterReconPaymentApplication()
+    var
+        Customer: Record Customer;
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        SourceCode: Record "Source Code";
+    begin
+        // [FEATURE] [Source Code]
+        // [SCENARIO 379544] Source Code Setup "Payment Reconciliation Journal" value is used as "Source Code" when post reconcicliation with "Statement Type" = "Payment Application"
+        Initialize;
+
+        // [GIVEN] SourceCodeSetup."Payment Reconciliation Journal" = "X"
+        LibraryERM.CreateSourceCode(SourceCode);
+        UpdateSourceCodeSetupForPmtReconJnl(SourceCode.Code);
+
+        // [GIVEN] Posted sales invoice
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesInvoiceAndPost(Customer, CustLedgEntry, '');
+
+        // [GIVEN] Payment Reconciliation Journal (bank "Statement Type" = "Payment Application") with applied invoice ledger entry
+        LibraryERM.CreateBankAccount(BankAccount);
+        CreateBankPmtReconcWithLine(
+          BankAccount, BankAccReconciliation, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // [WHEN] Post application
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Created GLRegister."Source Code" = GLEntry."Source Code" = "X"
+        VerifyLastGLRegisterSourceCode(SourceCode.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_RemaingAmtAfterPostingOnBankAccReconLine()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Cust: Record Customer;
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+        RemainingAmountAfterPosting: Decimal;
+        DifferenceStatementAmtToApplEntryAmount: Decimal;
+    begin
+        // [SCENARIO 380959] "Remaining Amount After Posting" calculated as "Remaining Amount" of Ledger Entry minus "Statement Amount" on Bank Account Reconciliation Line
+
+        Initialize;
+
+        // [GIVEN] Sales Invoice "X" with Amount = 100
+        LibrarySales.CreateCustomer(Cust);
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
+
+        // [GIVEN] Bank Account Reconciliation Line with "Statement Amount" = 30
+        LibraryERM.CreateBankAccount(BankAcc);
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, Round(CustLedgEntry."Remaining Amount" / LibraryRandom.RandIntInRange(3, 5)));
+
+        // [GIVEN] Apply Sales Invoice "X" to Bank Account Reconciliation Line
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // [WHEN] Calculate Applied Payment Data by function GetAppliedPmtData in Bank Account Reconciliation table
+        BankAccReconLine.GetAppliedPmtData(
+          AppliedPaymentEntry, RemainingAmountAfterPosting, DifferenceStatementAmtToApplEntryAmount, '');
+
+        // [THEN] "Remaining Amount After Posting" = 70 ("Invoice Amount" - "Remaining Amount")
+        Assert.AreEqual(CustLedgEntry."Remaining Amount" - BankAccReconLine."Statement Amount", RemainingAmountAfterPosting, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesApplyPmtInLCYToInvoiceInFCYWithDiffCurrencyExchangeRate()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Sales] [Currency]
+        // [SCENARIO 381276] Payment in local currency should be applied to Sales Invoice in foreign currency with different exchange rate
+
+        Initialize;
+
+        // [GIVEN] Currency "X" with "Posting Date" = 01.01 and "Exchange Rate" = 1/100
+        // [GIVEN] Currency "X" with "Posting Date" = 02.01 and "Exchange Rate" = 1/99
+        CurrencyCode := SetupCurrencyWithExchRates;
+
+        // [GIVEN] Sales Invoice with "Posting Date" = 01.01, "Currency Code" = "X" and Amount = 10 ("Amount (LCY)" = 1000)
+        CreateCustAndPostSalesInvoice(CustLedgEntry, CurrencyCode);
+
+        // [GIVEN] Bank Account Reconciliation in local currency, "Posting Date" = 02.01 and Amount = 1000
+        LibraryERM.CreateBankAccount(BankAcc);
+        CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
+        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate + 1, CustLedgEntry."Remaining Amt. (LCY)");
+        BankAccReconLine.Modify(true);
+
+        // [GIVEN] Sales Invoice applied to Bank Account Reconciliation
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // [WHEN] Post Bank Account Reconciliation
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] Sales Invoice fully applied to Payment
+        CustLedgEntry.Find;
+        CustLedgEntry.TestField(Open, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchApplyPmtInLCYToInvoiceInFCYWithDiffCurrencyExchangeRate()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Purchase] [Currency]
+        // [SCENARIO 381276] Payment in local currency should be applied to Purchase Invoice in foreign currency with different exchange rate
+
+        Initialize;
+
+        // [GIVEN] Currency "X" with "Posting Date" = 01.01 and "Exchange Rate" = 1/100
+        // [GIVEN] Currency "X" with "Posting Date" = 02.01 and "Exchange Rate" = 1/99
+        CurrencyCode := SetupCurrencyWithExchRates;
+
+        // [GIVEN] Purchase Invoice with "Posting Date" = 01.01, "Currency Code" = "X" and Amount = 10 ("Amount (LCY)" = 1000)
+        CreateVendAndPostPurchInvoice(VendLedgEntry, CurrencyCode);
+
+        // [GIVEN] Bank Account Reconciliation in local currency, "Posting Date" = 02.01 and Amount = 1000
+        LibraryERM.CreateBankAccount(BankAcc);
+        VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
+        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate + 1, VendLedgEntry."Remaining Amt. (LCY)");
+        BankAccReconLine.Modify(true);
+
+        // [GIVEN] Purchase Invoice applied to Bank Account Reconciliation
+        ApplyVendLedgEntry(BankAccReconLine, VendLedgEntry);
+
+        // [WHEN] Post Bank Account Reconciliation
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] Purchase Invoice fully applied to Payment
+        VendLedgEntry.Find;
+        VendLedgEntry.TestField(Open, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToIdIsBlankWhenNoEntriesAppliesDuringSalesPosting()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 211371] "Applies-to ID" is blank when no entries applied during sales posting of Bank Account Reconciliation Line
+
+        Initialize;
+
+        // [GIVEN] Bank Acc. Reconciliation Line with "Account Type" = Customer
+        LibraryERM.CreateBankAccount(BankAcc);
+        CreateBankPmtRecWithLineApplyAmount(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, LibraryRandom.RandDec(100, 2),
+          BankAccReconLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
+
+        // [WHEN] Post Bank Acc. Reconciliation Line
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] "Applies-to ID" is blank in Payment Customer Ledger Entry
+        CustLedgerEntry.SetRange("Customer No.", BankAccReconLine."Account No.");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, BankAccRecon."Statement No.");
+        CustLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToIdIsBlankWhenNoEntriesAppliesDuringPurchPosting()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 211371] "Applies-to ID" is blank when no entries applied during purchase posting of Bank Account Reconciliation Line
+
+        Initialize;
+
+        // [GIVEN] Bank Acc. Reconciliation Line with "Account Type" = Vendor
+        LibraryERM.CreateBankAccount(BankAcc);
+        CreateBankPmtRecWithLineApplyAmount(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, -LibraryRandom.RandDec(100, 2),
+          BankAccReconLine."Account Type"::Vendor, LibraryPurch.CreateVendorNo);
+
+        // [WHEN] Post Bank Acc. Reconciliation Line
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] "Applies-to ID" is blank in Payment Vendor Ledger Entry
+        VendLedgerEntry.SetRange("Vendor No.", BankAccReconLine."Account No.");
+        LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Payment, BankAccRecon."Statement No.");
+        VendLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BankPaymentApplicationBankReconciliationLCYToBankAccountLCY()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        // [FEATURE] [Bank Account] [Currency]
+        // [SCENARIO 223618] Bank Payment Application of Bank Acc.Reconciliation to Bank Account both in LCY
+        Initialize;
+
+        // [GIVEN] Bank Account Reconciliation Line with Amount = 100 no currency
+        // [GIVEN] Set Application to Bank Account "B" of no currency specified
+        LibraryERM.CreateBankAccount(BankAccount);
+        CreateBankPmtRecWithLineApplyAmount(
+          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate, LibraryRandom.RandDec(100, 2),
+          BankAccReconciliationLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo);
+
+        // [WHEN] Post Bank Payment Application
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Bank Account Ledger Entry is posted with Amount = 100 for Bank Account "B"
+        VerifyBankLedgEntry(BankAccount."No.", BankAccReconciliationLine."Statement Amount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BankPaymentApplicationBankReconciliationFCYToBankAccountFCY()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountAppln: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        // [FEATURE] [Bank Account] [Currency]
+        // [SCENARIO 223618] Bank Payment Application of Bank Acc.Reconciliation to Bank Account both in FCY
+        Initialize;
+
+        // [GIVEN] Bank Account Reconciliation Line with Amount = 100 in currency "C"
+        // [GIVEN] Set Application to Bank Account "B" in currency "C"
+        CreateBankAccountWithCurrency(BankAccount, LibraryERM.CreateCurrencyWithRandomExchRates);
+        CreateBankAccountWithCurrency(BankAccountAppln, BankAccount."Currency Code");
+        CreateBankPmtRecWithLineApplyAmount(
+          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate, LibraryRandom.RandDec(100, 2),
+          BankAccReconciliationLine."Account Type"::"Bank Account", BankAccountAppln."No.");
+
+        // [WHEN] Post Bank Payment Application
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Bank Account Ledger Entry is posted with Amount = 100 for Bank Account "B"
+        VerifyBankLedgEntry(BankAccount."No.", BankAccReconciliationLine."Statement Amount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BankPaymentApplicationBankReconciliationToBankAccountDiffCurrencies()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        // [FEATURE] [Bank Account] [Currency]
+        // [SCENARIO 223618] Bank Payment Application of Bank Acc.Reconciliation to Bank Account in different currenncies is not allowed
+        Initialize;
+
+        // [GIVEN] Bank Account Reconciliation Line with Amount = 100 in currency "C"
+        // [GIVEN] Set Application to Bank Account "B" in local currency
+        CreateBankAccountWithCurrency(BankAccount, LibraryERM.CreateCurrencyWithRandomExchRates);
+        CreateBankPmtRecWithLineApplyAmount(
+          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate, LibraryRandom.RandDec(100, 2),
+          BankAccReconciliationLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo);
+
+        // [WHEN] Post Bank Payment Application
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Error appeared 'You must apply the excessive amount of 100 "C" manually.'
+        Assert.ExpectedError(
+          StrSubstNo(ExcessiveAmtErr, BankAccReconciliationLine."Statement Amount", BankAccount."Currency Code"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPmtWithDateLessThanInvoicePostingDate()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 255420] Posting payments only for Bank Account Reconciliation Line with "Transaction Date" less than "Posting Date" of applied Sales Invoice is not allowed.
+        Initialize;
+
+        // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = 15.01
+        LibraryERM.CreateBankAccount(BankAccount);
+        CreateBankPmtReconcWithLine(
+          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate - 1, LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Posted Sales Invoice with "Posting Date" = 16.01 > "Transaction Date", which is applied to Bank Account Reconciliation Line
+        CreateCustAndPostSalesInvoice(CustLedgerEntry, '');
+        ApplyCustLedgEntry(BankAccReconciliationLine, CustLedgerEntry);
+        CustLedgerEntry."Applies-to ID" := BankAccReconciliationLine.GetAppliesToID;
+        CustLedgerEntry.Modify;
+
+        // [WHEN] Post Bank Payment Application
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Error appeared "You are not allowed to apply and post an entry to an entry with an earlier posting date."
+        Assert.ExpectedError(
+          'You are not allowed to apply and post an entry to an entry with an earlier posting date');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NegativeAmountCanBeAppliedInPmtReconJnl()
+    var
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        PmtReconJnl: TestPage "Payment Reconciliation Journal";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 284536] Payment Reconciliation line with negative amount automatically applies when validate G/L Account No.
+
+        Initialize;
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        // [GIVEN] Payment Reconciliation Line with Amount = -100
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, -LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Payment Reconciliation Journal opened and focused on line created before
+        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
+
+        // [WHEN] Validate "Account No." with new G/L Account No.
+        PmtReconJnl."Account No.".SetValue(LibraryERM.CreateGLAccountNo);
+
+        // [THEN] "Applied Amount" = -100
+        PmtReconJnl."Applied Amount".AssertEquals(BankAccReconLine."Statement Amount");
+
+        // [THEN] Difference = 0
+        PmtReconJnl.Difference.AssertEquals(0);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Bank Payment Application");
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibrarySetupStorage.Restore;
+        if Initialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Bank Payment Application");
+
+        Initialized := true;
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        UpdateCustPostingGrp;
+        LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Bank Payment Application");
+    end;
+
+    local procedure BlockDimValue(var DimValue: Record "Dimension Value")
+    begin
+        DimValue.Validate(Blocked, true);
+        DimValue.Modify(true);
+        Commit;
+    end;
+
+    local procedure UnblockDimValue(var DimValue: Record "Dimension Value")
+    begin
+        DimValue.Validate(Blocked, false);
+        DimValue.Modify(true);
+        Commit;
+    end;
+
+    local procedure BlockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
+    var
+        DimCombination: Record "Dimension Combination";
+    begin
+        with DimCombination do begin
+            Init;
+            Validate("Dimension 1 Code", DimCode1);
+            Validate("Dimension 2 Code", DimCode2);
+            Validate("Combination Restriction", "Combination Restriction"::Blocked);
+            Insert;
+        end;
+        Commit;
+    end;
+
+    local procedure UnblockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
+    var
+        DimCombination: Record "Dimension Combination";
+    begin
+        DimCombination.Get(DimCode1, DimCode2);
+        DimCombination.Delete(true);
+        Commit;
+    end;
+
+    local procedure CreateBankAccountWithCurrency(var BankAccount: Record "Bank Account"; CurrencyCode: Code[10])
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", CurrencyCode);
+        BankAccount.Modify(true);
+    end;
+
+    local procedure CreateBankPmtReconcWithLine(BankAcc: Record "Bank Account"; var BankAccRecon: Record "Bank Acc. Reconciliation"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; TransactionDate: Date; StmtLineAmt: Decimal)
+    begin
+        Clear(BankAccRecon);
+        Clear(BankAccReconLine);
+
+        // Create Bank Rec Header
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconLine, BankAccRecon);
+
+        // Create Bank Rec Line
+        BankAccReconLine.Validate("Transaction Date", TransactionDate);
+        BankAccReconLine.Validate(Description, 'Hello World');
+        BankAccReconLine.Validate("Statement Amount", StmtLineAmt);
+        BankAccReconLine.Modify(true);
+    end;
+
+    local procedure CreateBankPmtRecWithLineApplyAmount(BankAccount: Record "Bank Account"; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TransactionDate: Date; StmtLineAmt: Decimal; AccountType: Option; AccountNo: Code[20])
+    begin
+        CreateBankPmtReconcWithLine(BankAccount, BankAccReconciliation, BankAccReconciliationLine, TransactionDate, StmtLineAmt);
+        BankAccReconciliationLine.Validate("Account Type", AccountType);
+        BankAccReconciliationLine.Validate("Account No.", AccountNo);
+        BankAccReconciliationLine.Modify(true);
+        BankAccReconciliationLine.TransferRemainingAmountToAccount;
+        BankAccReconciliationLine.Find;
+    end;
+
+    local procedure CreateCustAndPostSalesInvoice(var CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10])
+    var
+        Cust: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Cust);
+        CreateSalesInvoiceAndPost(Cust, CustLedgEntry, CurrencyCode);
+    end;
+
+    local procedure CreateSalesInvoiceAndPost(var Cust: Record Customer; var CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 100);
+        SalesLine.Modify(true);
+
+        CustLedgEntry.SetRange("Customer No.", Cust."No.");
+        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+        CustLedgEntry.SetRange("Document No.", LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        CustLedgEntry.FindFirst;
+        CustLedgEntry.CalcFields("Remaining Amount");
+    end;
+
+    local procedure CreateVendAndPostPurchInvoice(var VendLedgEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10])
+    var
+        Vend: Record Vendor;
+    begin
+        LibraryPurch.CreateVendor(Vend);
+        CreatePurchInvoiceAndPost(Vend, VendLedgEntry, CurrencyCode);
+    end;
+
+    local procedure CreatePurchInvoiceAndPost(var Vend: Record Vendor; var VendLedgEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10])
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        Item: Record Item;
+    begin
+        LibraryPurch.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, Vend."No.");
+        PurchHeader.Validate("Currency Code", CurrencyCode);
+        PurchHeader.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryPurch.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", 1);
+        PurchLine.Validate("Direct Unit Cost", 100);
+        PurchLine.Modify(true);
+
+        VendLedgEntry.SetRange("Vendor No.", Vend."No.");
+        VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
+        VendLedgEntry.SetRange("Document No.", LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
+        VendLedgEntry.FindFirst;
+    end;
+
+    local procedure UpdateSourceCodeSetupForPmtReconJnl(NewSourceCode: Code[10])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        with SourceCodeSetup do begin
+            Get;
+            Validate("Payment Reconciliation Journal", NewSourceCode);
+            Modify(true);
+        end;
+    end;
+
+    local procedure SetupCurrencyWithExchRates(): Code[10]
+    var
+        Currency: Record Currency;
+        CurrExchRateAmount: Decimal;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
+        Currency.Modify(true);
+        CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate + 1, 1 / (CurrExchRateAmount - 1), 1 / (CurrExchRateAmount - 1));
+        exit(Currency.Code);
+    end;
+
+    local procedure ApplyCustLedgEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; CustLedgEntry: Record "Cust. Ledger Entry")
+    var
+        AppliedPmtEntry: Record "Applied Payment Entry";
+    begin
+        with AppliedPmtEntry do begin
+            Clear(AppliedPmtEntry);
+            TransferFromBankAccReconLine(BankAccReconLine);
+
+            Validate("Account Type", "Account Type"::Customer);
+            Validate("Account No.", CustLedgEntry."Customer No.");
+            Validate("Applies-to Entry No.", CustLedgEntry."Entry No.");
+            Insert(true);
+            Commit;
+        end;
+    end;
+
+    local procedure ApplyVendLedgEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; VendLedgEntry: Record "Vendor Ledger Entry")
+    var
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+    begin
+        with AppliedPaymentEntry do begin
+            Clear(AppliedPaymentEntry);
+            TransferFromBankAccReconLine(BankAccReconLine);
+
+            Validate("Account Type", "Account Type"::Vendor);
+            Validate("Account No.", VendLedgEntry."Vendor No.");
+            Validate("Applies-to Entry No.", VendLedgEntry."Entry No.");
+            Insert(true);
+            Commit;
+        end;
+    end;
+
+    local procedure VerifyCustLedgEntry(CustNo: Code[20])
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgEntry.SetRange("Customer No.", CustNo);
+        CustLedgEntry.FindSet;
+        repeat
+            Assert.IsTrue(not CustLedgEntry.Open, 'Entry is closed');
+        until CustLedgEntry.Next = 0;
+    end;
+
+    local procedure VerifyVendLedgEntry(VendNo: Code[20])
+    var
+        VendLedgEntry: Record "Vendor Ledger Entry";
+    begin
+        VendLedgEntry.SetRange("Vendor No.", VendNo);
+        VendLedgEntry.FindSet;
+        repeat
+            Assert.IsTrue(not VendLedgEntry.Open, 'Entry is closed');
+        until VendLedgEntry.Next = 0;
+    end;
+
+    local procedure VerifyBankLedgEntry(BankAccNo: Code[20]; ExpAmt: Decimal)
+    var
+        BankAccLedgEntry: Record "Bank Account Ledger Entry";
+    begin
+        BankAccLedgEntry.SetRange("Bank Account No.", BankAccNo);
+        BankAccLedgEntry.CalcSums(Amount);
+        BankAccLedgEntry.TestField(Amount, ExpAmt);
+    end;
+
+    local procedure VerifyLastGLRegisterSourceCode(ExpectedSourceCode: Code[10])
+    var
+        GLRegister: Record "G/L Register";
+        GLEntry: Record "G/L Entry";
+    begin
+        GLRegister.FindLast;
+        Assert.AreEqual(ExpectedSourceCode, GLRegister."Source Code", GLRegister.FieldCaption("Source Code"));
+
+        with GLEntry do begin
+            SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+            FindSet;
+            repeat
+                Assert.AreEqual(ExpectedSourceCode, "Source Code", FieldCaption("Source Code"));
+            until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyMinMaxAmounts(Amount: Decimal; TolerancePct: Decimal; MinAmount: Decimal; MaxAmount: Decimal)
+    begin
+        Assert.AreEqual(Round(Amount - Amount * TolerancePct / 100), MinAmount, 'Min Amount was not set to a correct value');
+        Assert.AreEqual(Round(Amount + Amount * TolerancePct / 100), MaxAmount, 'Max Amount was not set to a correct value');
+    end;
+
+    local procedure UpdateCustPostingGrp()
+    var
+        CustPostingGroup: Record "Customer Posting Group";
+        GLAcc: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAcc);
+        with CustPostingGroup do
+            if FindSet then
+                repeat
+                    if "Payment Disc. Debit Acc." = '' then begin
+                        Validate("Payment Disc. Debit Acc.", GLAcc."No.");
+                        Modify(true);
+                    end;
+                    if "Payment Disc. Credit Acc." = '' then begin
+                        Validate("Payment Disc. Credit Acc.", GLAcc."No.");
+                        Modify(true);
+                    end;
+                until Next = 0;
+    end;
+
+    local procedure OpenPmtReconJnl(BankAccRecon: Record "Bank Acc. Reconciliation"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")
+    var
+        PmtReconciliationJournals: TestPage "Pmt. Reconciliation Journals";
+    begin
+        PmtReconciliationJournals.OpenView;
+        PmtReconciliationJournals.GotoRecord(BankAccRecon);
+        PmtReconJnl.Trap;
+        PmtReconciliationJournals.EditJournal.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+}
+
