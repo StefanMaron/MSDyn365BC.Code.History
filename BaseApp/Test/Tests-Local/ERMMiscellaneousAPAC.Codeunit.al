@@ -395,7 +395,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure PmtReconJnlGLAccWithVATSetup()
     var
@@ -1639,6 +1639,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
         PostPmtsAndRecBankAcc.OK.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageStatementDateHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [ModalPageHandler]

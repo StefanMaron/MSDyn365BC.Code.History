@@ -75,6 +75,7 @@ report 499 "Delete Invoiced Purch. Orders"
 
                 // The purchase order can be deleted. Archive and delete the document
                 // Archive the purchase document
+                OnBeforeAutoArchivePurchDocument("Purchase Header");
                 ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
                 
                 // Delete lines and then the header
@@ -188,6 +189,11 @@ report 499 "Delete Invoiced Purch. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoArchivePurchDocument(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

@@ -57,14 +57,27 @@ codeunit 5474 "Graph Mgt - Sales Header"
     end;
 
     procedure UpdateIds()
+    begin
+        UpdateIds(false);
+    end;
+
+    procedure UpdateIds(WithCommit: Boolean)
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
-        if SalesInvoiceEntityAggregate.FindSet() then
+        if SalesInvoiceEntityAggregate.FindSet() then begin
             repeat
                 SalesInvoiceEntityAggregate.UpdateReferencedRecordIds();
                 SalesInvoiceEntityAggregate.Modify(false);
+                if WithCommit then
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until SalesInvoiceEntityAggregate.Next() = 0;
+
+            if WithCommit then
+                Commit();
+        end;
     end;
 }
 

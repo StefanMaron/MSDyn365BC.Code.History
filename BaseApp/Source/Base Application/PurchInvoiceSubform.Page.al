@@ -77,6 +77,7 @@
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookUp(Rec);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
 #if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
 #endif                        
@@ -261,6 +262,8 @@
                     trigger OnValidate()
                     begin
                         DeltaUpdateTotals();
+                        if PurchasesPayablesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
@@ -1065,7 +1068,7 @@
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
-                        ShortCutKey = 'Ctrl+Alt+I'; 
+                        ShortCutKey = 'Ctrl+Alt+I';
                         Enabled = Type = Type::Item;
                         ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 

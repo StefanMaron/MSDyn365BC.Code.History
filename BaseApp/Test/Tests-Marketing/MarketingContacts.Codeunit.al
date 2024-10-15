@@ -21,6 +21,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryNotificationMgt: codeunit "Library - Notification Mgt.";
+        LibraryJob: Codeunit "Library - Job";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
@@ -5402,6 +5403,71 @@ codeunit 136201 "Marketing Contacts"
         Vendor.Find();
         Vendor.TestField("Primary Contact No.", '');
         Vendor.TestField(Contact, '');
+    end;
+
+    [Test]
+    procedure ContactBusinessRelationAfterContactMerge()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ContactList: TestPage "Contact List";
+    begin
+        // [SCENARIO 431320] "Business Relation" on Contact List should be updated if initial value = None, but Business Relation exists
+        Initialize();
+
+        // [GIVEN] Customer with Contact "C" and contact business relation.
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ChangeBusinessRelationCodeForCustomers(BusinessRelation.Code);
+        LibrarySales.CreateCustomer(Customer);
+
+        Customer.SetRange("No.", Customer."No.");
+        RunCreateContsFromCustomersReport(Customer);
+
+        FindContactBusinessRelation(
+            ContactBusinessRelation, BusinessRelation.Code, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
+        Contact.Get(ContactBusinessRelation."Contact No.");
+
+        // [GIVEN] Contact "C" has "Contact Business Relation" = None (according to hotfix scenario this happens after contacts merge)
+        Contact."Contact Business Relation" := Contact."Contact Business Relation"::None;
+        Contact.Modify();
+        Commit();
+
+        // [WHEN] Open Contact List
+        ContactList.OpenView();
+        ContactList.Filter.SetFilter("No.", Contact."No.");
+
+        // [THEN] "Business Relation" for Contact "C" = Customer
+        ContactList."Business Relation".AssertEquals(Contact."Contact Business Relation"::Customer);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobCustomerContBusinessRelation()
+    var
+        Customer: Record Customer;
+        CompanyContact: Record Contact;
+        Job: Record Job;
+    begin
+        // [SCENARIO 433844] When Job is created for Customer with related Contact, Contact No. should be populated from this Contact
+        Initialize();
+
+        // [GIVEN] Company Contact "Cont"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Customer "C" created from "Cont" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateCustomerFromTemplate('');
+        Customer.SetRange(Name, CompanyContact.Name);
+        Customer.FindFirst();
+
+        // [WHEN] Job created for Customer "C"
+        LibraryJob.CreateJob(Job, Customer."No.");
+
+        // [THEN] Sell-to Contact No. = Bill-to Contact No. = Cont
+        Job.TestField("Sell-to Contact No.", CompanyContact."No.");
+        Job.TestField("Bill-to Contact No.", CompanyContact."No.");
     end;
 
     local procedure Initialize()

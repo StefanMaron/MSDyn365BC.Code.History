@@ -132,4 +132,8 @@ codeunit 2611 "Feature Management Facade"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    internal procedure OnAfterFeatureDisableConfirmed(FeatureKey: Record "Feature Key")
+    begin
+    end;
 }

@@ -606,6 +606,27 @@ codeunit 136500 "UT Time Sheets"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure TestManagerTimeSheetByJobChangePeriod()
+    var
+        ManagerTSbyJob: TestPage "Manager Time Sheet by Job";
+        StartingDate: Date;
+    begin
+        // [SCENARIO 434102] Next, Previous Period actions shift starting date by one week.
+        Initialize();
+        ManagerTSbyJob.OpenEdit();
+        StartingDate := ManagerTSbyJob.StartingDate.AsDate();
+
+        ManagerTSbyJob."&Previous Period".Invoke();
+        Assert.AreEqual(CalcDate('<-1W>', StartingDate), ManagerTSbyJob.StartingDate.AsDate(), 'Prev Period Starting Date');
+
+        ManagerTSbyJob."&Next Period".Invoke();
+        Assert.AreEqual(StartingDate, ManagerTSbyJob.StartingDate.AsDate(), 'Next Period Starting Date');
+
+        TearDown;
+    end;
+
+    [Test]
     [HandlerFunctions('TimeSheetLineServDetailHandler,StrMenuHandler')]
     [Scope('OnPrem')]
     procedure TestWorkTypeChargChangingForServiceOrderApprove()

@@ -26,7 +26,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     begin
         PriceAsset."Table Id" := Database::Item;
         if PriceAsset."Variant Code" = '' then begin
-            if Item.Get(PriceAsset."Asset No.") then begin
+        if Item.Get(PriceAsset."Asset No.") then begin
                 PriceAsset."Asset ID" := Item.SystemId;
                 FillAdditionalFields(PriceAsset);
             end else
@@ -37,9 +37,9 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
             then begin
                 PriceAsset."Table Id" := Database::"Item Variant";
                 PriceAsset."Asset ID" := ItemVariant.SystemId;
-                FillAdditionalFields(PriceAsset);
-            end else
-                PriceAsset.InitAsset();
+            FillAdditionalFields(PriceAsset);
+        end else
+            PriceAsset.InitAsset();
     end;
 
     procedure IsLookupOK(var PriceAsset: Record "Price Asset"): Boolean

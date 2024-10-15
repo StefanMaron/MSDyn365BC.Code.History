@@ -269,6 +269,7 @@ report 722 "Phys. Inventory List"
     procedure Initialize(ShowQtyCalculated2: Boolean)
     begin
         ShowQtyCalculated := ShowQtyCalculated2;
+        OnAfterInitialize(ShowQtyCalculated);
     end;
 
     local procedure CreateSNLotEntries(var ItemJnlLine: Record "Item Journal Line")
@@ -432,6 +433,11 @@ report 722 "Phys. Inventory List"
         until (ItemJnlLine1.Next() = 0) or NewGroup;
         ItemJnlLine1 := ItemJnlLine2;
         PickSNLotFromILEntry(ItemJnlLine1."Item No.", ItemJnlLine1."Variant Code", ItemJnlLine1."Location Code");
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitialize(var ShowQtyCalculated: Boolean)
+    begin
     end;
 }
 

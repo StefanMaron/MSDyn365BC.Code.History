@@ -21,6 +21,7 @@ codeunit 137831 "SCM - Warehouse UT"
         TransferRouteErr: Label 'You must specify a Transfer Route';
         LibraryRandom: Codeunit "Library - Random";
         CannotDeleteLocSKUExistErr: Label 'You cannot delete %1 because one or more stockkeeping units exist at this location.', Comment = '%1: Field(Code)';
+        WhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for this item.', Comment = '%1: Changed field name';
         IsInitialized: Boolean;
 
     [Test]
@@ -1502,6 +1503,28 @@ codeunit 137831 "SCM - Warehouse UT"
 
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
         Assert.ExpectedErrorCode('TestField');
+    end;
+
+    [Test]
+    procedure CannotChangeItemTypeWhenWhseEntryExistsForItem()
+    var
+        Item: Record Item;
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 427208] Cannot change item type when warehouse entries exist for the item.
+        Initialize();
+
+        MockItem(Item);
+
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, WarehouseEntry.FieldNo("Entry No."));
+        WarehouseEntry."Item No." := Item."No.";
+        WarehouseEntry.Insert();
+
+        asserterror Item.Validate(Type, Item.Type::"Non-Inventory");
+
+        Assert.ExpectedError(StrSubstNo(WhseEntriesExistErr, Item.FieldCaption(Type)));
     end;
 
     local procedure Initialize()
