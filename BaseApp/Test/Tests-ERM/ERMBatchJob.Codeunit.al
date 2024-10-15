@@ -1671,7 +1671,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The archive copy of Sales Order is created.
-        VerifyArchiveOfSalesOrder(SalesHeader, 2); // [BUG 369983]
+        VerifyArchiveOfSalesOrder(SalesHeader, 1);
     end;
 
     [Test]
@@ -3707,7 +3707,7 @@ codeunit 134900 "ERM Batch Job"
         Commit();
         PurchaseHeaderToPost.SetFilter("No.", DocNoFilter);
         BatchPostPurchaseOrders.SetTableView(PurchaseHeaderToPost);
-        BatchPostPurchaseOrders.InitializeRequest(Receive, Invoice, PostingDate, ReplacePostingDate, ReplaceDocDate, CalcInvDiscount);
+        BatchPostPurchaseOrders.InitializeRequest(Receive, Invoice, PostingDate, PostingDate, ReplacePostingDate, ReplaceDocDate, ReplacePostingDate, CalcInvDiscount);
         BatchPostPurchaseOrders.UseRequestPage(false);
         BatchPostPurchaseOrders.Run();
     end;
@@ -3809,7 +3809,7 @@ codeunit 134900 "ERM Batch Job"
         SalesHeaderToPost.SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
         BatchPostSalesOrders.SetTableView(SalesHeaderToPost);
         BatchPostSalesOrders.UseRequestPage(false);
-        BatchPostSalesOrders.InitializeRequest(Ship, Invoice, PostingDate, true, true, false);
+        BatchPostSalesOrders.InitializeRequest(Ship, Invoice, PostingDate, PostingDate, true, true, true, false);
         BatchPostSalesOrders.Run();
     end;
 
@@ -3822,7 +3822,7 @@ codeunit 134900 "ERM Batch Job"
         SalesHeaderToPost.SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
         BatchPostSalesOrders.SetTableView(SalesHeaderToPost);
         BatchPostSalesOrders.UseRequestPage(false);
-        BatchPostSalesOrders.InitializeRequest(true, true, 0D, false, false, false);
+        BatchPostSalesOrders.InitializeRequest(true, true, 0D, 0D, false, false, false, false);
         BatchPostSalesOrders.Run();
     end;
 

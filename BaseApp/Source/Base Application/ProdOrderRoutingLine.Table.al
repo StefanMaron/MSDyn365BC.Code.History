@@ -1,4 +1,4 @@
-table 5409 "Prod. Order Routing Line"
+﻿table 5409 "Prod. Order Routing Line"
 {
     Caption = 'Prod. Order Routing Line';
     DrillDownPageID = "Prod. Order Routing";
@@ -1406,6 +1406,7 @@ table 5409 "Prod. Order Routing Line"
     procedure UpdateComponentsBin(FromTrigger: Option Insert,Modify,Delete)
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         if SkipUpdateOfCompBinCodes then
             exit;
@@ -1414,7 +1415,8 @@ table 5409 "Prod. Order Routing Line"
             exit;
 
         PopulateNewRoutingLineSet(TempProdOrderRoutingLine, FromTrigger);
-        ProdOrderRouteMgt.UpdateComponentsBin(TempProdOrderRoutingLine, false);
+        if ProdOrderRoutingLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.") and ProdOrderRoutingLine.Recalculate then
+            ProdOrderRouteMgt.UpdateComponentsBin(TempProdOrderRoutingLine, false);
 
         OnAfterUpdateComponentsBin(TempProdOrderRoutingLine, FromTrigger);
     end;

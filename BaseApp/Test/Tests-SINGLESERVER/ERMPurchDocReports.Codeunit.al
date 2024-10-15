@@ -1985,6 +1985,29 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(VendorLedgerEntryInvoice."Original Amount"));
     end;
 
+    [Test]
+    [HandlerFunctions('RHVendorBalanceToDateUseExternalDocNo')]
+    procedure VerifyVendorBalanceToDateVendorLedgerEntryWithExternalDocumentNumber()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        RefVendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 448068] Vendor Balance To Date prints External Document No. for not applied entry when Use External Document No. = Yes
+        Initialize();
+
+        // [GIVEN] Create and post invoice for vendor "VEND" with "External Document No." = "EXTDOCNO"
+        CreateAndPostPurchaseInvoice(PurchInvHeader);
+
+        // [WHEN] Vendor Balance To Date report is being printed for vendor "VEND" with Use External Document No. = Yes
+        RunVendorBalanceToDateWithUseExternalDocNo(PurchInvHeader."Buy-from Vendor No.", true);
+
+        // [THEN] Vendor ledger entry printed with "External Document No." = "EXTDOCNO"
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('DocNo_VendLedgEntry3', PurchInvHeader."Vendor Invoice No.");
+        LibraryReportDataset.AssertElementWithValueExists('DocNoCaption', RefVendorLedgerEntry.FieldCaption("External Document No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

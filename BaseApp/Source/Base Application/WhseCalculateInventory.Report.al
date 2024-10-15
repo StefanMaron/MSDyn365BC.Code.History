@@ -264,7 +264,7 @@ report 7390 "Whse. Calculate Inventory"
 
             WhseEntry.SetCurrentKey(
               "Item No.", "Bin Code", "Location Code", "Variant Code",
-              "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type");
+              "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.", "Entry Type");
             WhseEntry.SetRange("Item No.", BinContent."Item No.");
             WhseEntry.SetRange("Bin Code", BinContent."Bin Code");
             WhseEntry.SetRange("Location Code", BinContent."Location Code");

@@ -1,5 +1,9 @@
+#if not CLEAN22
 codeunit 10821 "Export DEB DTI"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The new Intrastat FR extension will replace this functionality.';
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -394,4 +398,5 @@ codeunit 10821 "Export DEB DTI"
     begin
     end;
 }
+#endif
 

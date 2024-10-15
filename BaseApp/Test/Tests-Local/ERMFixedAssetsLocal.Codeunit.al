@@ -1553,9 +1553,9 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseFALedgerEntriesPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseFALedgerEntriesPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke;
     end;
 
     [ConfirmHandler]

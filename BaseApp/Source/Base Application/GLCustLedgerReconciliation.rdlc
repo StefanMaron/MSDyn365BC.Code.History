@@ -127,7 +127,7 @@
             <Height>0.0625in</Height>
             <ZIndex>3</ZIndex>
             <Visibility>
-              <Hidden>=Not(Fields!HavingNoDetail.Value)</Hidden>
+              <Hidden>=(Fields!HavingNoDetail.Value=TRUE)</Hidden>
             </Visibility>
             <DataElementOutput>NoOutput</DataElementOutput>
             <Style>

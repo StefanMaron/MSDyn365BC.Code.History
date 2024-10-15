@@ -29,6 +29,7 @@ table 91 "User Setup"
             trigger OnValidate()
             begin
                 CheckAllowedPostingDates(0);
+                GLSetup.CheckPostingDateRange("Allow Posting From", FieldCaption("Allow Posting From"));
             end;
         }
         field(3; "Allow Posting To"; Date)
@@ -38,6 +39,7 @@ table 91 "User Setup"
             trigger OnValidate()
             begin
                 CheckAllowedPostingDates(0);
+                GLSetup.CheckPostingDateRange("Allow Posting From", FieldCaption("Allow Posting To"));
             end;
         }
         field(4; "Register Time"; Boolean)
@@ -315,6 +317,7 @@ table 91 "User Setup"
     var
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
         UserSetupManagement: Codeunit "User Setup Management";
+        GLSetup: Record "General Ledger Setup";
 
         Text001: Label 'The %1 Salesperson/Purchaser code is already assigned to another User ID %2.';
         Text003: Label 'You cannot have both a %1 and %2. ';

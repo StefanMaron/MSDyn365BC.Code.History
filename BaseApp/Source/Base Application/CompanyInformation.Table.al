@@ -546,6 +546,14 @@ table 79 "Company Information"
         field(10812; "Last Intrastat Declaration ID"; Integer)
         {
             Caption = 'Last Intrastat Declaration ID';
+            ObsoleteReason = 'The new Intrastat FR extension will replace this functionality.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 
@@ -802,7 +810,6 @@ table 79 "Company Information"
         OnAfterGetSystemIndicator(Text, Style)
     end;
 
-    [Scope('OnPrem')]
     procedure GetPartyID(): Code[18]
     begin
         exit("Country/Region Code" + GetControlSum() + "Registration No.");
@@ -816,7 +823,6 @@ table 79 "Company Information"
         exit(Format(ControlSum, 0, '<Integer,2><Filler,0>'));
     end;
 
-    [Scope('OnPrem')]
     procedure GetSIREN() Result: Integer
     begin
         Evaluate(Result, CopyStr(DelChr("Registration No."), 1, 9));

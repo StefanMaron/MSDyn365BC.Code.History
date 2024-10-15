@@ -1,5 +1,10 @@
+#if not CLEAN22
 report 10821 "Export DEB DTI"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The new Intrastat FR extension will replace this functionality.';
+    ObsoleteTag = '22.0';
+
     Caption = 'Export DEB DTI';
     ProcessingOnly = true;
 
@@ -135,4 +140,5 @@ report 10821 "Export DEB DTI"
         end;
     end;
 }
+#endif
 

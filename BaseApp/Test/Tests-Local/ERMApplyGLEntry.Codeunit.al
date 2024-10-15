@@ -1143,9 +1143,9 @@ codeunit 144007 "ERM Apply GL Entry"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesModalPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke;
     end;
 }
 

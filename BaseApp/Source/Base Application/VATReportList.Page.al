@@ -50,6 +50,15 @@ page 744 "VAT Report List"
                 }
             }
         }
+        area(factboxes)
+        {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(Database::"VAT Report Header"), "No." = FIELD("No."), "VAT Report Config. Code" = FIELD("VAT Report Config. Code");
+            }
+        }
     }
 
     actions

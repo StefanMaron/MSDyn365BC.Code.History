@@ -549,6 +549,19 @@ codeunit 144045 "UT REP Payment Management"
         Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Withdraw'), '');
     end;
 
+    [Test]
+    [HandlerFunctions('GLCustLedgerRecoRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure RunReportGLCustLedgerRecoWithoutError()
+    begin
+        // [SCENARIO 455845] Run Report with no error message.
+        Initialize();
+
+        // [VERIFY] Run report and save file in pdf successfully in handler page.
+        REPORT.Run(REPORT::"GL/Cust. Ledger Reconciliation");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -657,6 +670,11 @@ codeunit 144045 "UT REP Payment Management"
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
+    end;
+
+    local procedure FomatFileName(ReportCaption: Text) ReportFileName: Text
+    begin
+        ReportFileName := DelChr(ReportCaption, '=', '/') + '.pdf'
     end;
 
     [RequestPageHandler]
@@ -815,6 +833,15 @@ codeunit 144045 "UT REP Payment Management"
     procedure RemittanceToExcelRequestPageHandler(var Remittance: TestRequestPage Remittance)
     begin
         Remittance.SaveAsExcel(LibraryReportValidation.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure GLCustLedgerRecoRequestPageHandler(var GLCustLedgerReconciliation: TestRequestPage "GL/Cust. Ledger Reconciliation")
+    begin
+        GLCustLedgerReconciliation.Customer.SetFilter("Date Filter",
+          StrSubstNo('%1..%2', CalcDate('<-1Y>', WorkDate()), CalcDate('<+1Y>', WorkDate())));
+        GLCustLedgerReconciliation.SaveAsPdf(FomatFileName(GLCustLedgerReconciliation.Caption));
     end;
 }
 

@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144000 "DEB DTI Export Tests"
 {
     // // [FEATURE] [Intrastat] [DTI]
@@ -1048,8 +1049,8 @@ codeunit 144000 "DEB DTI Export Tests"
         for ObligationLevel := 0 to 5 do
             if ObligationLevel in [1 .. 4] then
                 VerifyObligationLevelIsSetOnReqPage(ExportDEBDTI, ObligationLevel)
-            // else
-            //    asserterror VerifyObligationLevelIsSetOnReqPage(ExportDEBDTI, ObligationLevel);
+        // else
+        //    asserterror VerifyObligationLevelIsSetOnReqPage(ExportDEBDTI, ObligationLevel);
     end;
 
     [MessageHandler]
@@ -1059,4 +1060,4 @@ codeunit 144000 "DEB DTI Export Tests"
         Assert.AreEqual(Format(PostingMessage), ActualMessage, 'Unexpected success message.');
     end;
 }
-
+#endif

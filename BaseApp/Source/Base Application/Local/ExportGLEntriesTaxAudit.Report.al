@@ -4,6 +4,7 @@ report 10885 "Export G/L Entries - Tax Audit"
     Caption = 'Export G/L Entries - Tax Audit';
     ProcessingOnly = true;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {
@@ -11,14 +12,14 @@ report 10885 "Export G/L Entries - Tax Audit"
         {
             DataItemTableView = SORTING("No.") WHERE("Account Type" = CONST(Posting));
             RequestFilterFields = "No.";
+
             dataitem(Customer; Customer)
             {
                 DataItemTableView = SORTING("No.");
 
                 trigger OnAfterGetRecord()
                 begin
-                    DetailedBalance +=
-                      WriteDetailedGLAccountBySource(GLAccount."No.", GLEntry."Source Type"::Customer, "No.");
+                    DetailedBalance += WriteDetailedGLAccountBySource(GLAccount."No.", GLEntry."Source Type"::Customer, "No.", Name);
                 end;
 
                 trigger OnPreDataItem()
@@ -33,8 +34,7 @@ report 10885 "Export G/L Entries - Tax Audit"
 
                 trigger OnAfterGetRecord()
                 begin
-                    DetailedBalance +=
-                      WriteDetailedGLAccountBySource(GLAccount."No.", GLEntry."Source Type"::Vendor, "No.");
+                    DetailedBalance += WriteDetailedGLAccountBySource(GLAccount."No.", GLEntry."Source Type"::Vendor, "No.", Name);
                 end;
 
                 trigger OnPreDataItem()
@@ -49,8 +49,7 @@ report 10885 "Export G/L Entries - Tax Audit"
 
                 trigger OnAfterGetRecord()
                 begin
-                    DetailedBalance +=
-                      WriteDetailedGLAccountBySource(GLAccount."No.", GLEntry."Source Type"::"Bank Account", "No.");
+                    DetailedBalance += WriteDetailedGLAccountBySource(GLAccount."No.", GLEntry."Source Type"::"Bank Account", "No.", Name);
                 end;
 
                 trigger OnPreDataItem()
@@ -90,6 +89,7 @@ report 10885 "Export G/L Entries - Tax Audit"
             trigger OnPreDataItem()
             begin
                 SetFilter("No.", GLAccNoFilter);
+
                 if not IncludeOpeningBalances then
                     CurrReport.Break();
             end;
@@ -106,24 +106,6 @@ report 10885 "Export G/L Entries - Tax Audit"
 
             trigger OnPreDataItem()
             begin
-                GLEntry.SetLoadFields(
-                    Amount,
-                    "Bal. Account Type",
-                    "Credit Amount",
-                    "Debit Amount",
-                    Description,
-                    "Document Date",
-                    "Document No.",
-                    "Entry No.",
-                    "G/L Account Name",
-                    "G/L Account No.",
-                    "Posting Date",
-                    "Source Code",
-                    "Source No.",
-                    "Source Type",
-                    "Transaction No."
-                );
-
                 SetRange("Posting Date", StartingDate, EndingDate);
                 SetFilter("G/L Account No.", GLAccount.GetFilter("No."));
                 SetFilter(Amount, '<>%1', 0);
@@ -186,31 +168,38 @@ report 10885 "Export G/L Entries - Tax Audit"
     begin
         FeatureTelemetry.LogUptake('1000HO4', FRGeneralLedgerTok, Enum::"Feature Uptake Status"::"Used");
         ToFileName := GetFileName();
-        Writer.Close();
 
-        FileManagement.DownloadHandler(OutputFileName, '', '', '', ToFileName);
-        Clear(oStream);
-        Erase(OutputFileName);
+        TempBlob.CreateInStream(InStreamObj);
+
+        DownloadFromStream(InStreamObj, '', '', '', ToFileName);
+
         FeatureTelemetry.LogUsage('1000HO5', FRGeneralLedgerTok, 'FR General Ledger Entries for Tax Audits Exported');
     end;
 
     trigger OnPreReport()
     begin
         FeatureTelemetry.LogUptake('1000HO3', FRGeneralLedgerTok, Enum::"Feature Uptake Status"::"Set up");
+
+        SetLoadFieldsForRecords();
+
         if StartingDate = 0D then
             Error(MissingStartingDateErr);
         if EndingDate = 0D then
             Error(MissingEndingDateErr);
         if GLAccount.GetFilter("No.") <> '' then
             GLAccNoFilter := GLAccount.GetFilter("No.");
+
         GLEntry.SetRange("Posting Date", StartingDate, EndingDate);
         GLEntry.SetFilter("G/L Account No.", GLAccNoFilter);
         GLEntry.SetFilter(Amount, '<>%1', 0);
+
         if GLEntry.IsEmpty() then
             Error(NoEntriestoExportErr);
 
-        CreateServerFile();
-        WriteHeaderToFile();
+        CRLF := TypeHelper.CRLFSeparator();
+        TempBlob.CreateOutStream(OutStreamObj);
+
+        WriteHeader();
     end;
 
     trigger OnInitReport()
@@ -219,13 +208,16 @@ report 10885 "Export G/L Entries - Tax Audit"
     end;
 
     var
-        FileManagement: Codeunit "File Management";
+        GLRegister: Record "G/L Register";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        OutputFile: File;
-        oStream: OutStream;
-        Writer: DotNet StreamWriter;
-        encoding: DotNet Encoding;
-        OutputFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
+        TypeHelper: Codeunit "Type Helper";
+        InStreamObj: InStream;
+        OutStreamObj: OutStream;
+        CRLF: Text[2];
         StartingDate: Date;
         EndingDate: Date;
         GLAccNoFilter: Code[250];
@@ -235,7 +227,6 @@ report 10885 "Export G/L Entries - Tax Audit"
         MissingEndingDateErr: Label 'You must enter an Ending Date.';
         NoEntriestoExportErr: Label 'There are no entries to export within the defined filter. The file was not created.';
         InvalidWindowsChrStringTxt: Label '""#%&*:<>?\/{|}~';
-        ServerFileExtensionTxt: Label 'TXT';
         FRGeneralLedgerTok: Label 'FR Export General Ledger Entries for Tax Audits', Locked = true;
         IncludeOpeningBalances: Boolean;
         CurrentTransactionNo: Integer;
@@ -251,20 +242,6 @@ report 10885 "Export G/L Entries - Tax Audit"
         DetailedBalance: Decimal;
         DefaultSourceCode: Code[10];
 
-#if not CLEAN19
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by the Init procedure with the NewDefaultSourceCode parameter.', '19.0')]
-    procedure Init(StartingDateValue: Date; EndingDateValue: Date; IncludeOpeningBalancesValue: Boolean; AccNoFilter: Code[250]; ReportFileNameValue: Text[250])
-    begin
-        StartingDate := StartingDateValue;
-        EndingDate := EndingDateValue;
-        IncludeOpeningBalances := IncludeOpeningBalancesValue;
-        GLAccNoFilter := AccNoFilter;
-        ToFileFullName := ReportFileNameValue;
-    end;
-#endif
-
-    [Scope('OnPrem')]
     procedure Init(StartingDateValue: Date; EndingDateValue: Date; IncludeOpeningBalancesValue: Boolean; AccNoFilter: Code[250]; ReportFileNameValue: Text[250]; NewDefaultSourceCode: Code[10])
     begin
         StartingDate := StartingDateValue;
@@ -275,20 +252,38 @@ report 10885 "Export G/L Entries - Tax Audit"
         DefaultSourceCode := NewDefaultSourceCode;
     end;
 
-    local procedure CreateServerFile()
+    local procedure SetLoadFieldsForRecords()
     begin
-        OutputFileName := FileManagement.ServerTempFileName(ServerFileExtensionTxt);
-        if Exists(OutputFileName) then
-            Erase(OutputFileName);
+        GLEntry.SetLoadFields(
+            Amount,
+            "Bal. Account Type",
+            "Credit Amount",
+            "Debit Amount",
+            Description,
+            "Document Date",
+            "Document No.",
+            "Entry No.",
+            "G/L Account Name",
+            "G/L Account No.",
+            "Posting Date",
+            "Source Code",
+            "Source No.",
+            "Source Type",
+            "Transaction No."
+        );
 
-        OutputFile.TextMode(true);
-        OutputFile.WriteMode(true);
-        OutputFile.CreateOutStream(oStream);
+        GLRegister.SetLoadFields("No.", "From Entry No.", "To Entry No.", "Creation Date");
 
-        Writer := Writer.StreamWriter(OutputFileName, false, encoding.Default); // append = FALSE
+        Customer.SetLoadFields("No.", Name, "Customer Posting Group");
+        CustomerPostingGroup.SetLoadFields("Receivables Account");
+
+        Vendor.SetLoadFields("No.", Name, "Vendor Posting Group");
+        VendorPostingGroup.SetLoadFields("Payables Account");
+
+        BankAccountPostingGroup.SetLoadFields("G/L Account No.");
     end;
 
-    local procedure FindGLRegister(var GLRegister: Record "G/L Register"; EntryNo: Integer)
+    local procedure FindGLRegister(EntryNo: Integer)
     begin
         GLRegister.SetFilter("From Entry No.", '<=%1', EntryNo);
         GLRegister.SetFilter("To Entry No.", '>=%1', EntryNo);
@@ -308,7 +303,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         if CustLedgerEntry.Get(BankAccountLedgerEntry."Entry No.") then
             GetAppliedCustLedgEntry(CustLedgerEntry, DocNo, AppliedDate)
         else
-            if VendorLedgerEntry.Get(BankAccountLedgerEntry.Get()) then
+            if VendorLedgerEntry.Get(BankAccountLedgerEntry."Entry No.") then
                 GetAppliedVendorLedgEntry(VendorLedgerEntry, DocNo, AppliedDate);
     end;
 
@@ -322,28 +317,27 @@ report 10885 "Export G/L Entries - Tax Audit"
         DetailedCustLedgEntryOriginal.SetCurrentKey("Cust. Ledger Entry No.");
         DetailedCustLedgEntryOriginal.SetRange("Cust. Ledger Entry No.", CustLedgerEntryOriginal."Entry No.");
         DetailedCustLedgEntryOriginal.SetRange(Unapplied, false);
+
         if DetailedCustLedgEntryOriginal.FindSet() then
             repeat
-                if DetailedCustLedgEntryOriginal."Cust. Ledger Entry No." =
-                   DetailedCustLedgEntryOriginal."Applied Cust. Ledger Entry No."
-                then
-                    with DetailedCustLedgEntryApplied do begin
-                        Init();
-                        SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
-                        SetRange("Applied Cust. Ledger Entry No.", DetailedCustLedgEntryOriginal."Applied Cust. Ledger Entry No.");
-                        SetRange("Entry Type", "Entry Type"::Application);
-                        SetRange(Unapplied, false);
-                        if FindSet() then
-                            repeat
-                                if "Cust. Ledger Entry No." <> "Applied Cust. Ledger Entry No." then
-                                    if CustLedgEntryApplied.Get("Cust. Ledger Entry No.") and
-                                       ("Posting Date" < EndingDate)
-                                    then begin
-                                        AddAppliedDocNo(DocNo, CustLedgEntryApplied."Document No.");
-                                        GetCustAppliedDate(CustLedgEntryApplied, AppliedDate);
-                                    end;
-                            until Next() = 0;
-                    end
+                if DetailedCustLedgEntryOriginal."Cust. Ledger Entry No." = DetailedCustLedgEntryOriginal."Applied Cust. Ledger Entry No." then begin
+                    DetailedCustLedgEntryApplied.Init();
+                    DetailedCustLedgEntryApplied.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
+                    DetailedCustLedgEntryApplied.SetRange("Applied Cust. Ledger Entry No.", DetailedCustLedgEntryOriginal."Applied Cust. Ledger Entry No.");
+                    DetailedCustLedgEntryApplied.SetRange("Entry Type", DetailedCustLedgEntryApplied."Entry Type"::Application);
+                    DetailedCustLedgEntryApplied.SetRange(Unapplied, false);
+
+                    if DetailedCustLedgEntryApplied.FindSet() then
+                        repeat
+                            if DetailedCustLedgEntryApplied."Cust. Ledger Entry No." <> DetailedCustLedgEntryApplied."Applied Cust. Ledger Entry No." then
+                                if CustLedgEntryApplied.Get(DetailedCustLedgEntryApplied."Cust. Ledger Entry No.") and
+                                   (DetailedCustLedgEntryApplied."Posting Date" < EndingDate)
+                                then begin
+                                    AddAppliedDocNo(DocNo, CustLedgEntryApplied."Document No.");
+                                    GetCustAppliedDate(CustLedgEntryApplied, AppliedDate);
+                                end;
+                        until DetailedCustLedgEntryApplied.Next() = 0;
+                end
                 else
                     if CustLedgEntryApplied.Get(DetailedCustLedgEntryOriginal."Applied Cust. Ledger Entry No.") then
                         if CustLedgEntryApplied."Posting Date" < EndingDate then begin
@@ -363,29 +357,27 @@ report 10885 "Export G/L Entries - Tax Audit"
         DetailedVendorLedgEntryOriginal.SetCurrentKey("Vendor Ledger Entry No.");
         DetailedVendorLedgEntryOriginal.SetRange("Vendor Ledger Entry No.", VendorLedgerEntryOriginal."Entry No.");
         DetailedVendorLedgEntryOriginal.SetRange(Unapplied, false);
+
         if DetailedVendorLedgEntryOriginal.FindSet() then
             repeat
-                if DetailedVendorLedgEntryOriginal."Vendor Ledger Entry No." =
-                   DetailedVendorLedgEntryOriginal."Applied Vend. Ledger Entry No."
-                then
-                    with DetailedVendorLedgEntryApplied do begin
-                        Init();
-                        SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
-                        SetRange(
-                          "Applied Vend. Ledger Entry No.", DetailedVendorLedgEntryOriginal."Applied Vend. Ledger Entry No.");
-                        SetRange("Entry Type", "Entry Type"::Application);
-                        SetRange(Unapplied, false);
-                        if FindSet() then
-                            repeat
-                                if "Vendor Ledger Entry No." <> "Applied Vend. Ledger Entry No." then
-                                    if VendorLedgEntryApplied.Get("Vendor Ledger Entry No.") and
-                                       ("Posting Date" < EndingDate)
-                                    then begin
-                                        AddAppliedDocNo(DocNo, VendorLedgEntryApplied."Document No.");
-                                        GetVendorAppliedDate(VendorLedgEntryApplied, AppliedDate);
-                                    end;
-                            until Next() = 0;
-                    end
+                if DetailedVendorLedgEntryOriginal."Vendor Ledger Entry No." = DetailedVendorLedgEntryOriginal."Applied Vend. Ledger Entry No." then begin
+                    DetailedVendorLedgEntryApplied.Init();
+                    DetailedVendorLedgEntryApplied.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
+                    DetailedVendorLedgEntryApplied.SetRange("Applied Vend. Ledger Entry No.", DetailedVendorLedgEntryOriginal."Applied Vend. Ledger Entry No.");
+                    DetailedVendorLedgEntryApplied.SetRange("Entry Type", DetailedVendorLedgEntryApplied."Entry Type"::Application);
+                    DetailedVendorLedgEntryApplied.SetRange(Unapplied, false);
+
+                    if DetailedVendorLedgEntryApplied.FindSet() then
+                        repeat
+                            if DetailedVendorLedgEntryApplied."Vendor Ledger Entry No." <> DetailedVendorLedgEntryApplied."Applied Vend. Ledger Entry No." then
+                                if VendorLedgEntryApplied.Get(DetailedVendorLedgEntryApplied."Vendor Ledger Entry No.") and
+                                   (DetailedVendorLedgEntryApplied."Posting Date" < EndingDate)
+                                then begin
+                                    AddAppliedDocNo(DocNo, VendorLedgEntryApplied."Document No.");
+                                    GetVendorAppliedDate(VendorLedgEntryApplied, AppliedDate);
+                                end;
+                        until DetailedVendorLedgEntryApplied.Next() = 0;
+                end
                 else
                     if VendorLedgEntryApplied.Get(DetailedVendorLedgEntryOriginal."Applied Vend. Ledger Entry No.") then
                         if VendorLedgEntryApplied."Posting Date" < EndingDate then begin
@@ -432,16 +424,6 @@ report 10885 "Export G/L Entries - Tax Audit"
                 AppliedDate := DetailedCustLedgEntry."Posting Date";
         end else
             AppliedDate := CustLedgEntryApplied."Posting Date";
-    end;
-
-    local procedure GetCustomerData(CustomerNo: Code[20]; var PartyNo: Code[20]; var PartyName: Text[100])
-    var
-        Customer: Record Customer;
-    begin
-        if Customer.Get(CustomerNo) then begin
-            PartyNo := Customer."No.";
-            PartyName := Customer.Name;
-        end;
     end;
 
     local procedure GetDetailedCustLedgEntry(var DetailedCustLedgEntryApplied: Record "Detailed Cust. Ledg. Entry"; AppliedCustLedgerEntryNo: Integer): Boolean
@@ -499,39 +481,19 @@ report 10885 "Export G/L Entries - Tax Audit"
         exit(GLAccount."Balance at Date")
     end;
 
-    local procedure GetCustomerPostingGroup(CustomerNo: Code[20]): Code[20]
-    var
-        Customer: Record Customer;
-    begin
-        Customer.Get(CustomerNo);
-        exit(Customer."Customer Posting Group");
-    end;
-
-    local procedure GetVendorPostingGroup(VendorNo: Code[20]): Code[20]
-    begin
-        Vendor.Get(VendorNo);
-        exit(Vendor."Vendor Posting Group");
-    end;
-
     local procedure GetPayablesAccount(VendorPostingGroupCode: Code[20]): Code[20]
-    var
-        VendorPostingGroup: Record "Vendor Posting Group";
     begin
         VendorPostingGroup.Get(VendorPostingGroupCode);
         exit(VendorPostingGroup."Payables Account")
     end;
 
     local procedure GetReceivablesAccount(CustomerPostingGroupCode: Code[20]): Code[20]
-    var
-        CustomerPostingGroup: Record "Customer Posting Group";
     begin
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         exit(CustomerPostingGroup."Receivables Account")
     end;
 
     local procedure GetBankPostingGLAccount(BankAccPostingGroup: Code[20]): Code[20]
-    var
-        BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
         BankAccountPostingGroup.Get(BankAccPostingGroup);
         exit(BankAccountPostingGroup."G/L Account No.")
@@ -545,29 +507,19 @@ report 10885 "Export G/L Entries - Tax Audit"
             exit(SourceCode.Description);
     end;
 
-    local procedure GetVendorData(VendorNo: Code[20]; var PartyNo: Code[20]; var PartyName: Text[100])
-    var
-        Vendor: Record Vendor;
-    begin
-        if Vendor.Get(VendorNo) then begin
-            PartyNo := Vendor."No.";
-            PartyName := Vendor.Name;
-        end;
-    end;
-
-    [Scope('OnPrem')]
     procedure GetLedgerEntryDataForCustVend(TransactionNo: Integer; SourceType: Option; var PartyNo: Code[20]; var PartyName: Text[100]; var FCYAmount: Text[250]; var CurrencyCode: Code[10]; var DocNoSet: Text; var DateApplied: Date)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        GLEntry: Record "G/L Entry";
+        GLSourceType: Enum "Gen. Journal Source Type";
         CountOfGLEntriesInTransaction: Integer;
         LedgerAmount: Decimal;
     begin
         DocNoSet := '';
         DateApplied := 0D;
+
         case SourceType of
-            GLEntry."Source Type"::Customer.AsInteger():
+            GLSourceType::Customer.AsInteger():
                 begin
                     CustLedgerEntry.SetRange("Transaction No.", TransactionNo);
                     if CustLedgerEntry.FindFirst() then begin
@@ -580,7 +532,8 @@ report 10885 "Export G/L Entries - Tax Audit"
                         end;
 
                         CustLedgerEntry.SetRange("Customer No.");
-                        GetCustomerData(CustLedgerEntry."Customer No.", PartyNo, PartyName);
+                        PartyNo := CustLedgerEntry."Customer No.";
+                        PartyName := CustLedgerEntry."Customer Name";
                         PayRecAccount := GetReceivablesAccount(CustLedgerEntry."Customer Posting Group");
                         CountOfGLEntriesInTransaction := GetTransPayRecEntriesCount(CustLedgerEntry."Transaction No.", PayRecAccount);
                         if CustLedgerEntry.FindSet() then
@@ -596,7 +549,8 @@ report 10885 "Export G/L Entries - Tax Audit"
                         DocNoSet := DelChr(DocNoSet, '>', ';');
                     end;
                 end;
-            GLEntry."Source Type"::Vendor.AsInteger():
+
+            GLSourceType::Vendor.AsInteger():
                 begin
                     VendorLedgerEntry.SetRange("Transaction No.", TransactionNo);
                     if VendorLedgerEntry.FindFirst() then begin
@@ -609,7 +563,8 @@ report 10885 "Export G/L Entries - Tax Audit"
                         end;
 
                         VendorLedgerEntry.SetRange("Vendor No.");
-                        GetVendorData(VendorLedgerEntry."Vendor No.", PartyNo, PartyName);
+                        PartyNo := VendorLedgerEntry."Vendor No.";
+                        PartyName := VendorLedgerEntry."Vendor Name";
                         PayRecAccount := GetPayablesAccount(VendorLedgerEntry."Vendor Posting Group");
                         CountOfGLEntriesInTransaction := GetTransPayRecEntriesCount(VendorLedgerEntry."Transaction No.", PayRecAccount);
                         if VendorLedgerEntry.FindSet() then
@@ -630,15 +585,18 @@ report 10885 "Export G/L Entries - Tax Audit"
 
     local procedure GetTransPayRecEntriesCount(TransactionNo: Integer; PayRecAccount: Code[20]): Integer
     var
+        GLEntry: Record "G/L Entry";
         GLEntryCount: Integer;
-        GLAccNoFilter: Code[250];
     begin
-        GLAccNoFilter := GLEntry.GetFilter("G/L Account No.");
+        GLEntry.SetCurrentKey("Transaction No.");
+        // global filters
+        GLEntry.SetRange("Posting Date", StartingDate, EndingDate);
+        GLEntry.SetFilter(Amount, '<>%1', 0);
+
+        // local filters
         GLEntry.SetRange("G/L Account No.", PayRecAccount);
         GLEntry.SetRange("Transaction No.", TransactionNo);
         GLEntryCount := GLEntry.Count();
-        GLEntry.SetRange("Transaction No.");
-        GLEntry.SetFilter("G/L Account No.", GLAccNoFilter);
         exit(GLEntryCount)
     end;
 
@@ -646,30 +604,26 @@ report 10885 "Export G/L Entries - Tax Audit"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Unrealized Gain", "Entry Type"::"Unrealized Loss");
-            SetFilter("Posting Date", '..%1', StartingDate - 1);
-            SetRange(Unapplied, false);
-            SetRange("Curr. Adjmt. G/L Account No.", GLAccountNo);
-            CalcSums("Amount (LCY)");
-            exit("Amount (LCY)");
-        end;
+        DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
+        DetailedCustLedgEntry.SetFilter("Entry Type", '%1|%2', DetailedCustLedgEntry."Entry Type"::"Unrealized Gain", DetailedCustLedgEntry."Entry Type"::"Unrealized Loss");
+        DetailedCustLedgEntry.SetFilter("Posting Date", '..%1', StartingDate - 1);
+        DetailedCustLedgEntry.SetRange(Unapplied, false);
+        DetailedCustLedgEntry.SetRange("Curr. Adjmt. G/L Account No.", GLAccountNo);
+        DetailedCustLedgEntry.CalcSums("Amount (LCY)");
+        exit(DetailedCustLedgEntry."Amount (LCY)");
     end;
 
     local procedure GetVendorUnrealizedAmount(GLAccountNo: Code[20]; VendorNo: Code[20]): Decimal
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Unrealized Gain", "Entry Type"::"Unrealized Loss");
-            SetFilter("Posting Date", '..%1', StartingDate - 1);
-            SetRange(Unapplied, false);
-            SetRange("Curr. Adjmt. G/L Account No.", GLAccountNo);
-            CalcSums("Amount (LCY)");
-            exit("Amount (LCY)");
-        end;
+        DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
+        DetailedVendorLedgEntry.SetFilter("Entry Type", '%1|%2', DetailedVendorLedgEntry."Entry Type"::"Unrealized Gain", DetailedVendorLedgEntry."Entry Type"::"Unrealized Loss");
+        DetailedVendorLedgEntry.SetFilter("Posting Date", '..%1', StartingDate - 1);
+        DetailedVendorLedgEntry.SetRange(Unapplied, false);
+        DetailedVendorLedgEntry.SetRange("Curr. Adjmt. G/L Account No.", GLAccountNo);
+        DetailedVendorLedgEntry.CalcSums("Amount (LCY)");
+        exit(DetailedVendorLedgEntry."Amount (LCY)");
     end;
 
     local procedure GetSourceCode(): Code[10]
@@ -682,7 +636,6 @@ report 10885 "Export G/L Entries - Tax Audit"
     local procedure ProcessGLEntry()
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        GLRegister: Record "G/L Register";
         PartyNo: Code[20];
         PartyName: Text[100];
         FCYAmount: Text[250];
@@ -692,6 +645,7 @@ report 10885 "Export G/L Entries - Tax Audit"
     begin
         PartyNo := '';
         PartyName := '';
+
         if (GLEntry."Transaction No." <> CurrentTransactionNo) or (GLEntry."Source Type" <> CurrentSourceType) then begin
             ResetTransactionData();
             GetLedgerEntryDataForCustVend(
@@ -707,9 +661,10 @@ report 10885 "Export G/L Entries - Tax Audit"
             CurrentSourceType := GLEntry."Source Type";
         end;
 
+        BankAccountLedgerEntry.SetLoadFields("Bank Acc. Posting Group", "Bank Account No.", "Currency Code", Amount, "Currency Code", "Entry No.");
+
         if BankAccountLedgerEntry.Get(GLEntry."Entry No.") then
-            GetBankLedgerEntryData(
-              BankAccountLedgerEntry, GLEntry."G/L Account No.", PartyNo, PartyName, FCYAmount, CurrencyCode, DocNoApplied, DateApplied);
+            GetBankLedgerEntryData(BankAccountLedgerEntry, GLEntry."G/L Account No.", PartyNo, PartyName, FCYAmount, CurrencyCode, DocNoApplied, DateApplied);
 
         if GLEntry."G/L Account No." = PayRecAccount then begin
             PartyNo := CustVendLedgEntryPartyNo;
@@ -719,17 +674,29 @@ report 10885 "Export G/L Entries - Tax Audit"
             DocNoApplied := CustVendDocNoSet;
             DateApplied := CustVendDateApplied;
         end;
+
         if CustVendLedgEntryPartyNo = '*' then
             case GLEntry."Source Type" of
                 GLEntry."Source Type"::Customer:
-                    if GetReceivablesAccount(GetCustomerPostingGroup(GLEntry."Source No.")) = GLEntry."G/L Account No." then
-                        GetCustomerData(GLEntry."Source No.", PartyNo, PartyName);
+                    begin
+                        Customer.Get(GLEntry."Source No.");
+                        if GetReceivablesAccount(Customer."Customer Posting Group") = GLEntry."G/L Account No." then begin
+                            PartyNo := Customer."No.";
+                            PartyName := Customer.Name;
+                        end;
+                    end;
                 GLEntry."Source Type"::Vendor:
-                    if GetPayablesAccount(GetVendorPostingGroup(GLEntry."Source No.")) = GLEntry."G/L Account No." then
-                        GetVendorData(GLEntry."Source No.", PartyNo, PartyName);
+                    begin
+                        Vendor.Get(GLEntry."Source No.");
+                        if GetPayablesAccount(Vendor."Vendor Posting Group") = GLEntry."G/L Account No." then begin
+                            PartyNo := Vendor."No.";
+                            PartyName := Vendor.Name;
+                        end;
+                    end;
+
             end;
 
-        FindGLRegister(GLRegister, GLEntry."Entry No.");
+        FindGLRegister(GLEntry."Entry No.");
 
         WriteGLEntryToFile(
           GLRegister."No.",
@@ -751,10 +718,10 @@ report 10885 "Export G/L Entries - Tax Audit"
         PayRecAccount := '';
     end;
 
-    local procedure WriteHeaderToFile()
+    local procedure WriteHeader()
     begin
-        Writer.WriteLine('JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|' +
-          'PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise');
+        OutStreamObj.WriteText('JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|' +
+          'PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise' + CRLF);
     end;
 
     local procedure WriteGLAccountToFile(GLAccount: Record "G/L Account"; OpeningBalance: Decimal)
@@ -767,7 +734,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         else
             CreditAmount := Abs(OpeningBalance);
 
-        Writer.WriteLine('00000|' +
+        OutStreamObj.WriteText('00000|' +
           'BALANCE OUVERTURE|' +
           '0|' +
           GetFormattedDate(StartingDate) + '|' +
@@ -781,40 +748,38 @@ report 10885 "Export G/L Entries - Tax Audit"
           FormatAmount(CreditAmount) + '|' +
           '||' +
           GetFormattedDate(StartingDate) +
-          '||');
+          '||' + CRLF);
     end;
 
     local procedure WriteGLEntryToFile(GLRegisterNo: Integer; GLRegisterCreationDate: Date; PartyNo: Code[20]; PartyName: Text[100]; FCYAmount: Text[250]; CurrencyCode: Code[10]; DocNoSet: Text; DateApplied: Date)
     begin
-        with GLEntry do begin
-            CalcFields("G/L Account Name");
-            Writer.WriteLine(
-              GetSourceCode() + '|' +
-              GetSourceCodeDesc(GetSourceCode()) + '|' +
-              Format(GLRegisterNo) + '|' +
-              GetFormattedDate("Posting Date") + '|' +
-              "G/L Account No." + '|' +
-              "G/L Account Name" + '|' +
-              Format(PartyNo) + '|' +
-              PartyName + '|' +
-              "Document No." + '|' +
-              GetFormattedDate("Document Date") + '|' +
-              Description + '|' +
-              FormatAmount("Debit Amount") + '|' +
-              FormatAmount("Credit Amount") + '|' +
-              DocNoSet + '|' +
-              GetFormattedDate(DateApplied) + '|' +
-              GetFormattedDate(GLRegisterCreationDate) + '|' +
-              FCYAmount + '|' +
-              CurrencyCode);
-        end;
+        GLEntry.CalcFields(GLEntry."G/L Account Name");
+
+        OutStreamObj.WriteText(
+          GetSourceCode() + '|' +
+          GetSourceCodeDesc(GetSourceCode()) + '|' +
+          Format(GLRegisterNo) + '|' +
+          GetFormattedDate(GLEntry."Posting Date") + '|' +
+          GLEntry."G/L Account No." + '|' +
+          GLEntry."G/L Account Name" + '|' +
+          Format(PartyNo) + '|' +
+          PartyName + '|' +
+          GLEntry."Document No." + '|' +
+          GetFormattedDate(GLEntry."Document Date") + '|' +
+          GLEntry.Description + '|' +
+          FormatAmount(GLEntry."Debit Amount") + '|' +
+          FormatAmount(GLEntry."Credit Amount") + '|' +
+          DocNoSet + '|' +
+          GetFormattedDate(DateApplied) + '|' +
+          GetFormattedDate(GLRegisterCreationDate) + '|' +
+          FCYAmount + '|' +
+          CurrencyCode + CRLF);
     end;
 
-    local procedure WriteDetailedGLAccountBySource(GLAccountNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]) TotalAmt: Decimal
+    local procedure WriteDetailedGLAccountBySource(GLAccountNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20];
+                                                                                          PartyName: Text[100]) TotalAmt: Decimal
     var
         GLEntry: Record "G/L Entry";
-        PartyNo: Code[20];
-        PartyName: Text[100];
         DebitAmt: Decimal;
         CreditAmt: Decimal;
         UnrealizedAmt: Decimal;
@@ -841,6 +806,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Source Type", SourceType);
         GLEntry.SetRange("Source No.", SourceNo);
+
         case SourceType of
             GLEntry."Source Type"::Customer:
                 GLEntry.SetFilter("Bal. Account Type", '<>%1', GLEntry."Bal. Account Type"::Customer);
@@ -849,6 +815,7 @@ report 10885 "Export G/L Entries - Tax Audit"
             GLEntry."Source Type"::"Bank Account":
                 GLEntry.SetFilter("Bal. Account Type", '<>%1', GLEntry."Bal. Account Type"::"Bank Account");
         end;
+
         GLEntry.CalcSums(Amount);
 
         case SourceType of
@@ -867,22 +834,13 @@ report 10885 "Export G/L Entries - Tax Audit"
         else
             CreditAmt := -TotalAmt;
 
-        case SourceType of
-            GLEntry."Source Type"::Customer:
-                GetCustomerData(SourceNo, PartyNo, PartyName);
-            GLEntry."Source Type"::Vendor:
-                GetVendorData(SourceNo, PartyNo, PartyName);
-            GLEntry."Source Type"::"Bank Account":
-                GetBankAccountData(SourceNo, PartyNo, PartyName);
-        end;
-
-        Writer.WriteLine('00000|' +
+        OutStreamObj.WriteText('00000|' +
           'BALANCE OUVERTURE|' +
           '0|' +
           GetFormattedDate(StartingDate) + '|' +
           GLAccount."No." + '|' +
           GLAccount.Name + '|' +
-          PartyNo + '|' +
+          SourceNo + '|' +
           PartyName + '|' +
           '00000|' +
           GetFormattedDate(StartingDate) + '|' +
@@ -891,7 +849,6 @@ report 10885 "Export G/L Entries - Tax Audit"
           FormatAmount(CreditAmt) + '|' +
           '||' +
           GetFormattedDate(StartingDate) +
-          '||');
+          '||' + CRLF);
     end;
 }
-

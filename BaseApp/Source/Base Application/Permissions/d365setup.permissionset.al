@@ -271,6 +271,8 @@ permissionset 191 "D365 SETUP"
                   tabledata "Payment Application Proposal" = D,
                   tabledata "Payment Matching Details" = D,
                   tabledata "Payment Method" = IMD,
+                  tabledata "Payment Rec. Related Entry" = RIMD,
+                  tabledata "Pmt. Rec. Applied-to Entry" = RIMD,
                   tabledata "Payment Service Setup" = RIMD,
                   tabledata "Payment Terms" = RIMD,
                   tabledata "Phys. Inventory Ledger Entry" = Rmd,

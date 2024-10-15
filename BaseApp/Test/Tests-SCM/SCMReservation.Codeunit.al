@@ -3323,6 +3323,7 @@ codeunit 137049 "SCM Reservation"
         SalesLine.FindFirst();
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", 0);
+        SalesLine.TestField(Planned, false);
     end;
 
     local procedure VerifyQtyOnItemLedgerEntry(ItemNo: Code[20]; Quantity: Decimal)

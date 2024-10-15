@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144032 "ERM INTRASTAT"
 {
     // // [FEATURE] [Intrastat]
@@ -1563,4 +1564,4 @@ codeunit 144032 "ERM INTRASTAT"
         Assert.IsTrue(StrPos(Message, SuccessfullyExportedMsg) > 0, Message);
     end;
 }
-
+#endif

@@ -24,6 +24,7 @@ codeunit 144074 "ERM Fiscal Year France"
         LibrarySales: Codeunit "Library - Sales";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTimeSheet: Codeunit "Library - Time Sheet";
         PostingDateErr: Label 'Posting Date is not within your range of allowed posting dates in Gen. Journal Line Journal Template Name=''%1'',Journal Batch Name=''%2'',Line No.=''%3''.', Comment = '%1: Field Value;%2: Field Value2;%3: Field Value3';
         ModifyPostingRangeErr: Label 'you must first modify the fields Allow Posting From and Allow Posting To';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -199,6 +200,34 @@ codeunit 144074 "ERM Fiscal Year France"
         // [WHEN] Modify "Allow Posting From" in General Ledger Setup as 2021-01-01
         // [THEN] Expect the error from Field "Allow Posting From" in General Ledger Setup
         asserterror GLSetup.Validate("Allow Posting From", GetFirstAccountingPeriodDate(true));
+    end;
+
+    [Test]
+    procedure VerifyAllowPostingRangeinCloseFiscalYear()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        GLSetup: Record "General Ledger Setup";
+        FiscalYearFiscalClose: Codeunit "Fiscal Year-FiscalClose";
+        UserSetup: Record "User Setup";
+    begin
+        // [SCENARIO 454771] Expect the error message at Field-"Allow Posting From" and "Allow Posting To"in User Setup when Fiscally Close Year.
+        Initialize();
+
+        // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
+        CreateAccountingPeriods;
+
+        // [GIVEN] Close the fiscal year in accounting period.
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetRange(Closed, true);
+        if AccountingPeriod.FindFirst() then
+            FiscalYearFiscalClose.Run(AccountingPeriod);
+
+        // [GIVEN] Create User Setup 
+        LibraryTimeSheet.CreateUserSetup(UserSetup, false);
+
+        // [VERIFY] Validate Allow Posting From and To field giving error on Close fiscal year
+        asserterror UserSetup.Validate("Allow Posting From", GetFirstAccountingPeriodDate(true));
+        asserterror UserSetup.Validate("Allow Posting To", GetFirstAccountingPeriodDate(true));
     end;
 
     local procedure Initialize()

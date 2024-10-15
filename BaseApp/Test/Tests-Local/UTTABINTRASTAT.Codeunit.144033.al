@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144033 "UT TAB INTRASTAT"
 {
     // Test for feature - INTRASTAT.
@@ -67,4 +68,4 @@ codeunit 144033 "UT TAB INTRASTAT"
         Assert.IsTrue(StrPos(Message, ShipmentMethodMsg) > 0, Message);
     end;
 }
-
+#endif
