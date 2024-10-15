@@ -13,10 +13,12 @@
                   TableData "Service Contract Header" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-                  TableData "Sales Price Access" = rd,
-                  TableData "Sales Discount Access" = rd,
+#if not CLEAN19
                   TableData "Sales Price" = rd,
-                  TableData "Sales Line Discount" = rd;
+                  TableData "Sales Line Discount" = rd,
+#endif
+                  TableData "Sales Price Access" = rd,
+                  TableData "Sales Discount Access" = rd;
 
     fields
     {
@@ -103,7 +105,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateContact(IsHandled);
+                OnBeforeValidateContact(IsHandled, Rec);
                 if IsHandled then
                     exit;
 
@@ -297,7 +299,7 @@
                 PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
 
                 if "Country/Region Code" <> xRec."Country/Region Code" then
-                    VATRegistrationValidation;
+                    VATRegistrationValidation();
             end;
         }
         field(36; "Collection Method"; Code[20])
@@ -708,7 +710,7 @@
 
                 "VAT Registration No." := UpperCase("VAT Registration No.");
                 if "VAT Registration No." <> xRec."VAT Registration No." then
-                    VATRegistrationValidation;
+                    VATRegistrationValidation();
             end;
         }
         field(87; "Combine Shipments"; Boolean)
@@ -732,9 +734,9 @@
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '19.0';
         }
         field(90; GLN; Code[13])
         {
@@ -1173,6 +1175,11 @@
             Caption = 'Preferred Bank Account Code';
             TableRelation = "Customer Bank Account".Code WHERE("Customer No." = FIELD("No."));
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
             Caption = 'Cash Flow Payment Terms Code';
@@ -1221,22 +1228,6 @@
         field(5050; "Contact Type"; Enum "Contact Type")
         {
             Caption = 'Contact Type';
-
-            trigger OnValidate()
-            var
-                SalesHeader: Record "Sales Header";
-                EnvInfoProxy: Codeunit "Env. Info Proxy";
-            begin
-                if EnvInfoProxy.IsInvoicing then begin
-                    Validate("Prices Including VAT", "Contact Type" = "Contact Type"::Person);
-                    SalesHeader.SetRange("Sell-to Customer No.", "No.");
-                    if SalesHeader.FindSet then
-                        repeat
-                            SalesHeader.Validate("Prices Including VAT", "Prices Including VAT");
-                            SalesHeader.Modify(true);
-                        until SalesHeader.Next() = 0;
-                end;
-            end;
         }
         field(5061; "Mobile Phone No."; Text[30])
         {
@@ -1699,6 +1690,9 @@
         {
         }
         key(Key20; "Partner Type", "Country/Region Code")
+        {
+        }
+        key(Key21; "Coupled to CRM")
         {
         }
     }
@@ -2740,7 +2734,7 @@
         LookupRequested := false;
     end;
 
-    local procedure IsContactUpdateNeeded(): Boolean
+    procedure IsContactUpdateNeeded(): Boolean
     var
         CustContUpdate: Codeunit "CustCont-Update";
         UpdateNeeded: Boolean;
@@ -2901,7 +2895,7 @@
         exit(InsertFromTemplate);
     end;
 
-    local procedure SetDefaultSalesperson()
+    protected procedure SetDefaultSalesperson()
     var
         UserSetup: Record "User Setup";
         IsHandled: Boolean;
@@ -2925,7 +2919,7 @@
         OnAfterSetLastModifiedDateTime(Rec);
     end;
 
-    local procedure VATRegistrationValidation()
+    procedure VATRegistrationValidation()
     var
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
         VATRegistrationLog: Record "VAT Registration Log";
@@ -3018,14 +3012,14 @@
         if IsTemporary then
             exit;
 
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
-        UpdateCurrencyId;
-        UpdatePaymentTermsId;
-        UpdateShipmentMethodId;
-        UpdatePaymentMethodId;
-        UpdateTaxAreaId;
+        UpdateCurrencyId();
+        UpdatePaymentTermsId();
+        UpdateShipmentMethodId();
+        UpdatePaymentMethodId();
+        UpdateTaxAreaId();
     end;
 
     procedure GetReferencedIds(var TempField: Record "Field" temporary)
@@ -3216,18 +3210,7 @@
     local procedure UpdateCustomerTemplateInvoiceDiscCodes()
     var
         CustomerTempl: Record "Customer Templ.";
-#if not CLEAN18
-        CustomerTemplate: Record "Customer Template";
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-#endif
     begin
-#if not CLEAN18
-        if not CustomerTemplMgt.IsEnabled() then begin
-            CustomerTemplate.SetRange("Invoice Disc. Code", xRec."No.");
-            CustomerTemplate.ModifyAll("Invoice Disc. Code", "No.");
-            exit;
-        end;
-#endif
         CustomerTempl.SetRange("Invoice Disc. Code", xRec."No.");
         CustomerTempl.ModifyAll("Invoice Disc. Code", "No.");
     end;
@@ -3431,7 +3414,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidateContact(var IsHandled: Boolean)
+    local procedure OnBeforeValidateContact(var IsHandled: Boolean; var Customer: Record Customer)
     begin
     end;
 

@@ -27,6 +27,7 @@ codeunit 134378 "ERM Sales Order"
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         VATAmountErr: Label 'VAT Amount must be %1 in %2.', Comment = '%1 = value, %2 = field';
         FieldErr: Label 'Number of Lines for %1 and %2  must be Equal.', Comment = '%1,%2 = table name';
@@ -60,6 +61,7 @@ codeunit 134378 "ERM Sales Order"
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?';
         YouMustDeleteExistingLinesErr: Label 'You must delete the existing sales lines before you can change %1.';
         RecreateSalesLinesMsg: Label 'the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
+        RoundingTo0Err: Label 'Rounding of the field';
 
     [Test]
     [Scope('OnPrem')]
@@ -147,37 +149,6 @@ codeunit 134378 "ERM Sales Order"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SalesOrderReport()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        OrderConfirmation: Report "Order Confirmation";
-        LibraryUtility: Codeunit "Library - Utility";
-        FilePath: Text[1024];
-    begin
-        // Create new Sales Order and Verify Order Confirmation report.
-
-        // Setup.
-        Initialize;
-        CreateSalesOrder(SalesHeader, SalesLine);
-
-        // Exercise: Generate Report as external file for Sales Order.
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        Clear(OrderConfirmation);
-        OrderConfirmation.SetTableView(SalesHeader);
-        FilePath := TemporaryPath + Format(SalesHeader."Document Type") + SalesHeader."No." + '.xlsx';
-        OrderConfirmation.SaveAsExcel(FilePath);
-
-        // Verify: Verify that Saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
-
-        // Tear Down: Cleanup of Setup Done.
-        LibrarySales.SetStockoutWarning(true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SalesOrderAsShip()
     var
         SalesHeader: Record "Sales Header";
@@ -241,39 +212,6 @@ codeunit 134378 "ERM Sales Order"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PostedSalesInvoiceReport()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoice: Report "Sales - Invoice";
-        LibraryUtility: Codeunit "Library - Utility";
-        FilePath: Text[1024];
-        PostedSaleInvoiceNo: Code[20];
-    begin
-        // Test if Post a Sales Order and generate Posted Sales Invoice Report.
-
-        // Setup.
-        Initialize;
-        CreateSalesOrder(SalesHeader, SalesLine);
-        PostedSaleInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // Exercise: Generate Report as external file for Posted Sales Invoice.
-        SalesInvoiceHeader.SetRange("No.", PostedSaleInvoiceNo);
-        Clear(SalesInvoice);
-        SalesInvoice.SetTableView(SalesInvoiceHeader);
-        FilePath := TemporaryPath + Format('Sales - Invoice') + SalesInvoiceHeader."No." + '.xlsx';
-        SalesInvoice.SaveAsExcel(FilePath);
-
-        // Verify: Verify that Saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
-
-        // Tear Down: Cleanup of Setup Done.
-        LibrarySales.SetStockoutWarning(true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SalesOrderForWarehouseLocation()
     var
         SalesHeader: Record "Sales Header";
@@ -317,6 +255,7 @@ codeunit 134378 "ERM Sales Order"
         LibrarySales.SetStockoutWarning(true);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnSalesOrder()
@@ -350,6 +289,7 @@ codeunit 134378 "ERM Sales Order"
         // Tear Down: Cleanup of Setup Done.
         LibrarySales.SetStockoutWarning(true);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1297,6 +1237,7 @@ codeunit 134378 "ERM Sales Order"
         VerifyValueEntry(SalesInvoiceHeader."No.", SalesHeader.Amount);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnSalesInvoice()
@@ -1351,6 +1292,7 @@ codeunit 134378 "ERM Sales Order"
           SumLineDiscountAmount(TempSalesLine, SalesHeader."No."), TotalLineDiscountInGLEntry(TempSalesLine, SalesInvoiceHeader."No."),
           StrSubstNo(ValueErr, TempSalesLine.FieldCaption("Line Discount Amount")));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1536,6 +1478,422 @@ codeunit 134378 "ERM Sales Order"
 
         // Verify: Verify Quantity to Ship is blank on Sales Line.
         Assert.AreEqual(0, SalesLine."Qty. to Ship", 'qty. to ship should be 0');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQuantityIsRoundedTo0OnSalesOrderLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        RandomTestValue: Decimal;
+
+    begin
+        // [FEATURE] [Sales Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Sales Line where the unit of measure code is set to the nonbase unit of measure.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+
+        // [Then] Base Quantity rounds to 0 and throws error.
+        asserterror SalesLine.Validate(Quantity, 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyToAssembleToOrderRoundedTo0OnSalesOrderLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+
+    begin
+        // [FEATURE] [Sales Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Validate("Replenishment System", "Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Sales Line where the unit of measure code is set to the nonbase unit of measure.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+
+        // [Then] Base Qty. to Assemble to Order rounds to 0 and throws error.
+        asserterror SalesLine.Validate("Qty. to Assemble to Order", 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyToInvoiceRoundedTo0OnSalesOrderLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+
+    begin
+        // [FEATURE] [Sales Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Sales Line where the unit of measure code is set to the nonbase unit of measure.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+
+        // [Then] Base Qty. to Invoice rounds to 0 and throws error.
+        asserterror SalesLine.Validate("Qty. to Invoice", 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyToShipRoundedTo0OnSalesOrderLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+
+    begin
+        // [FEATURE] [Sales Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Sales Line where the unit of measure code is set to the nonbase unit of measure.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+
+        // [Then] Base Qty. to Ship rounds to 0 and throws error.
+        asserterror SalesLine.Validate("Qty. to Ship", 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseReturnQtyToReceiveRoundedTo0OnSalesOrderLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+
+    begin
+        // [FEATURE] [Sales Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+        UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Sales Line where the unit of measure code is set to the nonbase unit of measure.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+
+        // [Then] Base "Return Qty. to Receive" to Order rounds to 0 and throws error.
+        asserterror SalesLine.Validate("Return Qty. to Receive", 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseValuesAreRoundedWithRoundingPrecisionSpecifiedOnSalesOrderLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Sales Order Line - Rounding Precision]
+        // [SCENARIO] Base values are rounded with the specified rounding precision.
+        Initialize;
+        UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        QtyToSet := LibraryRandom.RandDec(10, 2);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Validate("Replenishment System", "Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Sales Line where the unit of measure code is set to the nonbase unit of measure.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity
+        SalesLine.Validate(Quantity, QtyToSet);
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), SalesLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+
+        // [THEN] Qty. to Invoice (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), SalesLine."Qty. to Invoice (Base)", 'Qty. to Invoice (Base) is not rounded correctly.');
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), SalesLine."Qty. to Ship (Base)", 'Qty. to Ship (Base) is not rounded correctly.');
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), SalesLine."Qty. to Asm. to Order (Base)", 'Qty. to Asm. to Order (Base) is not rounded correctly.');
+
+        // [WHEN] "Return Qty. to Receive" is set to a value that rounds the base quantity
+        SalesLine.Validate("Return Qty. to Receive", SalesLine.Quantity);
+        // [THEN] "Return Qty. to Receive (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), SalesLine."Return Qty. to Receive (Base)", 'Return Qty. to Receive (Base) is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseValuesAreRoundedWithRoundingPrecisionUnspecifiedOnSalesOrderLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Sales Order Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
+        Initialize;
+        UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyToSet := LibraryRandom.RandDec(10, 7);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Validate("Replenishment System", "Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Sales Line where the unit of measure code is set to the nonbase unit of measure.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity
+        SalesLine.Validate(Quantity, QtyToSet);
+
+        // [THEN] Quantity (Base) is rounded with the default rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), SalesLine."Quantity (Base)", 'Base qty. is not rounded correctly.');
+
+        // [THEN] Qty. to Invoice (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), SalesLine."Qty. to Invoice (Base)", 'Qty. to Invoice (Base) is not rounded correctly.');
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), SalesLine."Qty. to Ship (Base)", 'Qty. to Ship (Base) is not rounded correctly.');
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), SalesLine."Qty. to Asm. to Order (Base)", 'Qty. to Asm. to Order (Base) is not rounded correctly.');
+
+        // [WHEN] "Return Qty. to Receive" is set to a value that rounds the base quantity
+        SalesLine.Validate("Return Qty. to Receive", SalesLine.Quantity);
+        // [THEN] "Return Qty. to Receive (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), SalesLine."Return Qty. to Receive (Base)", 'Return Qty. to Receive (Base) is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseValuesAreRoundedWithRoundingPrecisionOnSalesOrderLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Sales Order Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
+        Initialize;
+        UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(5, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        QtyToSet := LibraryRandom.RandDec(10, 7);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Validate("Replenishment System", "Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Sales Line where the unit of measure code is set to the nonbase unit of measure.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity
+        SalesLine.Validate(Quantity, (NonBaseQtyPerUOM - 1) / NonBaseQtyPerUOM);
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, SalesLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+
+        // [THEN] Qty. to Invoice (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, SalesLine."Qty. to Invoice (Base)", 'Qty. to Invoice (Base) is not rounded correctly.');
+
+        // [THEN] Qty. to Ship (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, SalesLine."Qty. to Ship (Base)", 'Qty. to Ship (Base) is not rounded correctly.');
+
+        // [THEN] Qty. to Asm. to Order (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, SalesLine."Qty. to Asm. to Order (Base)", 'Qty. to Asm. to Order (Base) is not rounded correctly.');
+
+        // [WHEN] "Return Qty. to Receive" is set to a value that rounds the base quantity
+        SalesLine.Validate("Return Qty. to Receive", SalesLine.Quantity);
+        // [THEN] "Return Qty. to Receive (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, SalesLine."Return Qty. to Receive (Base)", 'Return Qty. to Receive (Base) is not rounded correctly.');
     end;
 
     [Test]
@@ -2273,6 +2631,7 @@ codeunit 134378 "ERM Sales Order"
         end;
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure FillSalespersonCodeFromContact()
@@ -2287,7 +2646,7 @@ codeunit 134378 "ERM Sales Order"
 
         // [GIVEN] Sales Header "SH".
         DummySalesHeader."Document Date" := WorkDate;
-        DummySalesHeader."Sell-to Customer Template Code" := CreateCustomerTemplateCode;
+        DummySalesHeader."Sell-to Customer Templ. Code" := CreateCustomerTemplateCode;
 
         // [GIVEN] Contact having Salespersone Code "SC"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -2316,7 +2675,7 @@ codeunit 134378 "ERM Sales Order"
 
         // [GIVEN] Sales Header having filled "Salesperson Code" "XX"
         DummySalesHeader."Document Date" := WorkDate;
-        DummySalesHeader."Sell-to Customer Template Code" := CreateCustomerTemplateCode;
+        DummySalesHeader."Sell-to Customer Templ. Code" := CreateCustomerTemplateCode;
         DummySalesHeader."Salesperson Code" := 'XX';
 
         // [WHEN] Setting Contact as Sell-To Contact in Sales Header
@@ -2325,6 +2684,7 @@ codeunit 134378 "ERM Sales Order"
         // [THEN] Sales Header's "Salesperson Code" equals "XX"
         DummySalesHeader.TestField("Salesperson Code", 'XX');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -4218,6 +4578,115 @@ codeunit 134378 "ERM Sales Order"
     end;
 
     [Test]
+    procedure LocationForNonInventoryItemsAllowed()
+    var
+        ServiceItem: Record Item;
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [SCENARIO] Create Sales Order with non-inventory items having a location set is allowed.
+        Initialize();
+
+        // [GIVEN] A non-inventory item and a service item.
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Created Purchase Order for the non-inventory items with locations set.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, ServiceItem."No.", 1);
+        SalesLine1.Validate("Location Code", Location.Code);
+        SalesLine1.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, NonInventoryItem."No.", 1);
+        SalesLine2.Validate("Location Code", Location.Code);
+        SalesLine2.Modify(true);
+
+        // [WHEN] Posting Purchase Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] An item ledger entry is created for non-inventory items with location set.
+        ItemLedgerEntry.SetRange("Item No.", ServiceItem."No.");
+        Assert.AreEqual(1, ItemLedgerEntry.Count, 'Expected only one ILE to be created.');
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(-1, ItemLedgerEntry.Quantity, 'Expected quantity to be -1.');
+        Assert.AreEqual(Location.Code, ItemLedgerEntry."Location Code", 'Expected location to be set.');
+
+        ItemLedgerEntry.SetRange("Item No.", NonInventoryItem."No.");
+        Assert.AreEqual(1, ItemLedgerEntry.Count, 'Expected only one ILE to be created.');
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(-1, ItemLedgerEntry.Quantity, 'Expected quantity to be -1.');
+        Assert.AreEqual(Location.Code, ItemLedgerEntry."Location Code", 'Expected location to be set.');
+    end;
+
+
+    [Test]
+    procedure BinCodeNotAllowedForNonInventoryItems()
+    var
+        Item: Record Item;
+        ServiceItem: Record Item;
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+    begin
+        // [SCENARIO] Create sales order with location for item and non-inventory items. 
+        // Bin code should only be possible to set for item.
+        Initialize();
+
+        // [GIVEN] An item, A non-inventory item and a service item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location with require bin and a default bin code.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBinContent(
+            BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure"
+        );
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+        Location.Validate("Default Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] A vendor with default location.
+        LibrarySales.CreateCustomerWithLocationCode(Customer, Location.Code);
+
+        // [GIVEN] Created Sales Order for the item and non-inventory items.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, Item."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, ServiceItem."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine3, SalesHeader, SalesLine3.Type::Item, NonInventoryItem."No.", 1);
+
+        // [THEN] Location is set for all lines and bin code is set for item.
+        Assert.AreEqual(Location.Code, SalesLine1."Location Code", 'Expected location code to be set');
+        Assert.AreEqual(Bin.Code, SalesLine1."Bin Code", 'Expected bin code to be set');
+
+        Assert.AreEqual(Location.Code, SalesLine2."Location Code", 'Expected location code to be set');
+        Assert.AreEqual('', SalesLine2."Bin Code", 'Expected no bin code set');
+
+        Assert.AreEqual(Location.Code, SalesLine3."Location Code", 'Expected location code to be set');
+        Assert.AreEqual('', SalesLine3."Bin Code", 'Expected no bin code set');
+
+        // [WHEN] Setting bin code on non-inventory items.
+        asserterror SalesLine2.Validate("Bin Code", Bin.Code);
+        asserterror SalesLine3.Validate("Bin Code", Bin.Code);
+
+        // [THEN] An error is thrown.
+    end;
+
+    [Test]
     procedure QtyToInvoiceDistributedEvenlyOnItemChargeAssignmentInPartialPosting()
     var
         SalesHeader: Record "Sales Header";
@@ -4725,6 +5194,7 @@ codeunit 134378 "ERM Sales Order"
         ReturnReceiptLine.FindFirst;
     end;
 
+#if not CLEAN19
     local procedure SalesLinesWithMinimumQuantity(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -4738,6 +5208,7 @@ codeunit 134378 "ERM Sales Order"
               SalesLineDiscount."Minimum Quantity" + LibraryRandom.RandDec(10, 2));
         end;
     end;
+#endif
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
@@ -5208,6 +5679,7 @@ codeunit 134378 "ERM Sales Order"
         CustInvoiceDisc.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure SetupLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -5232,6 +5704,7 @@ codeunit 134378 "ERM Sales Order"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         exit(LibrarySales.CreateCustomerTemplateWithBusPostingGroups(GenBusinessPostingGroup.Code, VATBusinessPostingGroup.Code));
     end;
+#endif
 
     local procedure UpdateSalesReceivableSetup()
     var

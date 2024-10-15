@@ -37,7 +37,7 @@ codeunit 144004 Domicilations
     begin
         CreateSimpleDomicilation(DomiciliationJournalLine, '');
 
-        FileName := TemporaryPath + LibraryUtility.GenerateGUID;
+        FileName := FileMgt.ServerTempFileName('');
 
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryVariableStorage.Enqueue(FileName);
@@ -47,8 +47,8 @@ codeunit 144004 Domicilations
         DomiciliationJournalLine.FindFirst;
         DomiciliationJnlManagement.CreateDomiciliations(DomiciliationJournalLine);
 
-        Assert.IsTrue(FileMgt.ClientFileExists(FileName + '.tmp'), DomFileNotExistsErr);
-        FileMgt.DeleteClientFile(FileName + '.tmp');
+        Assert.IsTrue(FileMgt.ServerFileExists(FileName + '.tmp'), DomFileNotExistsErr);
+        FileMgt.DeleteServerFile(FileName + '.tmp');
     end;
 
     [Test]
@@ -389,7 +389,7 @@ codeunit 144004 Domicilations
         DomiciliationJournalLine.FindFirst;
         DomiciliationJnlManagement.CreateDomiciliations(DomiciliationJournalLine);
 
-        FileMgt.DeleteClientFile(FileName + '.tmp');
+        FileMgt.DeleteServerFile(FileName + '.tmp');
     end;
 
     local procedure RunSuggestDomicilations(DomiciliationJournalLine: Record "Domiciliation Journal Line"; CustomerNoFilter: Text)

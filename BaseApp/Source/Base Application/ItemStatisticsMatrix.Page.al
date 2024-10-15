@@ -1,4 +1,4 @@
-﻿page 9223 "Item Statistics Matrix"
+page 9223 "Item Statistics Matrix"
 {
     Caption = 'Item Statistics Matrix';
     DataCaptionExpression = ItemName;
@@ -524,7 +524,7 @@
     trigger OnFindRecord(Which: Text): Boolean
     begin
         IntegerLineSetFilter();
-        exit(FindRec(ItemBuffer."Line Option".AsInteger(), Rec, Which));
+        exit(FindRec(ItemBuffer."Line Option", Rec, Which));
     end;
 
     trigger OnInit()
@@ -565,7 +565,7 @@
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(ItemBuffer."Line Option".AsInteger(), Rec, Steps));
+        exit(NextRec(ItemBuffer."Line Option", Rec, Steps));
     end;
 
     trigger OnOpenPage()
@@ -631,9 +631,9 @@
         MatrixMgt: Codeunit "Matrix Management";
         ColumnDimCode: Text[30];
         ItemName: Text[250];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        RoundingFactor: Option "None","1","1000","1000000";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        AmountType: Enum "Analysis Amount Type";
         DateFilter: Text;
         InternalDateFilter: Text;
         ItemFilter: Text;
@@ -729,28 +729,28 @@
         OnAfterIntegerLineSetFilter(ItemBuffer, IntegerLine);
     end;
 
-    local procedure DimCodeToOption(DimCode: Text[30]): Integer
+    local procedure DimCodeToOption(DimCode: Text[30]): Enum "Item Statistics Column Option"
     var
         Location: Record Location;
     begin
         case DimCode of
             '':
-                exit(-1);
+                exit("Item Statistics Column Option"::Undefined);
             Text002:
-                exit(4);
-            Location.TableCaption:
-                exit(5);
+                exit("Item Statistics Column Option"::Period);
+            Location.TableCaption():
+                exit("Item Statistics Column Option"::Location);
             else
-                exit(-1);
+                exit("Item Statistics Column Option"::Undefined);
         end;
     end;
 
-    local procedure FindRec(DimOption: Option "Profit Calculation","Cost Specification","Purch. Item Charge Spec.","Sales Item Charge Spec.",Period,Location; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
+    local procedure FindRec(DimOption: Enum "Item Statistics Column Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
     var
         ItemCharge: Record "Item Charge";
         Location: Record Location;
         Period: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
         case DimOption of
@@ -785,7 +785,7 @@
                         Period.FindFirst
                     else
                         Period."Period Start" := DimCodeBuf."Period Start";
-                    Found := PeriodFormMgt.FindDate(Which, Period, PeriodType);
+                    Found := PeriodPageMgt.FindDate(Which, Period, PeriodType);
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -802,12 +802,12 @@
         exit(Found);
     end;
 
-    local procedure NextRec(DimOption: Option "Profit Calculation","Cost Specification","Purch. Item Charge Spec.","Sales Item Charge Spec.",Period,Location; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer): Integer
+    local procedure NextRec(DimOption: Enum "Item Statistics Column Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer): Integer
     var
         ItemCharge: Record "Item Charge";
         Location: Record Location;
         Period: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         ResultSteps: Integer;
     begin
         case DimOption of
@@ -834,7 +834,7 @@
                     if DateFilter <> '' then
                         Period.SetFilter("Period Start", DateFilter);
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, PeriodType);
+                    ResultSteps := PeriodPageMgt.NextDate(Steps, Period, PeriodType);
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -923,7 +923,7 @@
         end;
     end;
 
-    local procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
+    protected procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
             Init;
@@ -937,15 +937,15 @@
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if DateFilter <> '' then begin
             Calendar.SetFilter("Period Start", DateFilter);
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
         with ItemBuffer do
             if AmountType = AmountType::"Net Change" then begin
                 SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
@@ -994,10 +994,10 @@
         end;
     end;
 
-    local procedure SetCommonFilters(var TheItemBuffer: Record "Item Statistics Buffer")
+    protected procedure SetCommonFilters(var TheItemBuffer: Record "Item Statistics Buffer")
     begin
         with TheItemBuffer do begin
-            Reset;
+            Reset();
             if ItemFilter <> '' then
                 SetFilter("Item Filter", ItemFilter);
             if DateFilter <> '' then
@@ -1009,14 +1009,14 @@
         end;
     end;
 
-    local procedure SetFilters(var ItemBuffer: Record "Item Statistics Buffer"; LineOrColumn: Option Line,Column)
+    protected procedure SetFilters(var ItemBuffer: Record "Item Statistics Buffer"; LineOrColumn: Option Line,Column)
     var
         DimCodeBuf: Record "Dimension Code Buffer";
-        DimOption: Option "Profit Calculation","Cost Specification","Purch. Item Charge Spec.","Sales Item Charge Spec.",Period,Location;
+        DimOption: Enum "Item Statistics Column Option";
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
-            DimOption := ItemBuffer."Line Option".AsInteger();
+            DimOption := ItemBuffer."Line Option";
         end else begin
             DimCodeBuf := MatrixRecords[MATRIX_ColumnOrdinal];
             DimOption := ItemBuffer."Column Option";
@@ -1105,7 +1105,7 @@
             case "Line Option" of
                 "Line Option"::"Profit Calculation",
               "Line Option"::"Cost Specification":
-                    case Name of
+                    case Rec.Name of
                         FieldCaption("Sales (LCY)"):
                             Amount := CalcSalesAmount(SetColumnFilter);
                         FieldCaption("COGS (LCY)"):
@@ -1139,7 +1139,7 @@
             end;
             if PerUnit then begin
                 if ("Line Option" = "Line Option"::"Profit Calculation") and
-                   (Name = FieldCaption("Profit %"))
+                   (Rec.Name = FieldCaption("Profit %"))
                 then
                     Qty := 1
                 else
@@ -1149,10 +1149,11 @@
                 else
                     Amount := 0;
             end;
-            if Name <> FieldCaption("Profit %") then
-                Amount := MatrixMgt.RoundValue(Amount, RoundingFactor);
+            if Rec.Name <> FieldCaption("Profit %") then
+                Amount := MatrixMgt.RoundAmount(Amount, RoundingFactor);
         end;
-        OnAfterCalculate(ItemBuffer, SetColumnFilter, Amount);
+
+        OnAfterCalculate(ItemBuffer, SetColumnFilter, Amount, Rec.Name, CalcSalesAmount(SetColumnFilter));
     end;
 
     local procedure CalcSalesAmount(SetColumnFilter: Boolean): Decimal
@@ -1232,24 +1233,35 @@
         Item.CopyFilters(NewItem);
     end;
 
-    procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; _RoundingFactor: Option "None","1","1000","1000000"; _PerUnit: Boolean; _IncludeExpected: Boolean; _ItemBuffer: Record "Item Statistics Buffer"; _Item: Record Item; _PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; _AmountType: Option "Net Change","Balance at Date"; _ColumnDimCode: Text[30]; _DateFilter: Text; _ItemFilter: Text; _LocationFilter: Text; _VariantFilter: Text)
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix()', '19.0')]
+    procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; _RoundingFactor: Option "None","1","1000","1000000"; _PerUnit: Boolean; _IncludeExpected: Boolean; _ItemBuffer: Record "Item Statistics Buffer"; _Item: Record Item; _PeriodType: Option; _AmountType: Option; _ColumnDimCode: Text[30]; _DateFilter: Text; _ItemFilter: Text; _LocationFilter: Text; _VariantFilter: Text)
     begin
-        CopyArray(MATRIX_CaptionSet, MatrixColumns1, 1);
-        CopyArray(MatrixRecords, MatrixRecords1, 1);
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns, "Analysis Rounding Factor".FromInteger(_RoundingFactor),
+            _PerUnit, _IncludeExpected, _ItemBuffer, _Item, "Analysis Period Type".FromInteger(_PeriodType),
+            "Analysis Amount Type".FromInteger(_AmountType), _ColumnDimCode, _DateFilter, _ItemFilter, _LocationFilter, _VariantFilter);
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewPerUnit: Boolean; NewIncludeExpected: Boolean; NewItemBuffer: Record "Item Statistics Buffer"; NewItem: Record Item; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type"; NewColumnDimCode: Text[30]; NewDateFilter: Text; NewItemFilter: Text; NewLocationFilter: Text; NewVariantFilter: Text)
+    begin
+        CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);
+        CopyArray(MatrixRecords, NewMatrixRecords, 1);
         MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        RoundingFactor := _RoundingFactor;
-        PerUnit := _PerUnit;
-        IncludeExpected := _IncludeExpected;
-        ItemBuffer := _ItemBuffer;
-        Item := _Item;
-        PeriodType := _PeriodType;
-        AmountType := _AmountType;
-        ColumnDimCode := _ColumnDimCode;
-        DateFilter := _DateFilter;
-        ItemFilter := _ItemFilter;
-        LocationFilter := _LocationFilter;
-        VariantFilter := _VariantFilter;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        RoundingFactor := NewRoundingFactor;
+        PerUnit := NewPerUnit;
+        IncludeExpected := NewIncludeExpected;
+        ItemBuffer := NewItemBuffer;
+        Item := NewItem;
+        PeriodType := NewPeriodType;
+        AmountType := NewAmountType;
+        ColumnDimCode := NewColumnDimCode;
+        DateFilter := NewDateFilter;
+        ItemFilter := NewItemFilter;
+        LocationFilter := NewLocationFilter;
+        VariantFilter := NewVariantFilter;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
     end;
 
     local procedure MATRIX_OnDrillDown(_MATRIX_ColumnOrdinal: Integer)
@@ -1338,7 +1350,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalculate(var ItemBuffer: Record "Item Statistics Buffer"; SetColumnFilter: Boolean; var Amount: Decimal);
+    local procedure OnAfterCalculate(var ItemBuffer: Record "Item Statistics Buffer"; SetColumnFilter: Boolean; var Amount: Decimal; Name: Text[100]; SalesAmount: Decimal);
     begin
     end;
 }

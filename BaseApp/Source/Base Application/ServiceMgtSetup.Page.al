@@ -135,6 +135,13 @@ page 5919 "Service Mgt. Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
                 }
+                field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of service invoices.';
+                    Visible = false;
+                }
             }
             group("Mandatory Fields")
             {

@@ -1,4 +1,4 @@
-﻿report 6032 "Post Prepaid Contract Entries"
+report 6032 "Post Prepaid Contract Entries"
 {
     ApplicationArea = Service;
     Caption = 'Post Prepaid Service Contract Entries';

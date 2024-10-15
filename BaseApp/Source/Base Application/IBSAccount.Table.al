@@ -2,8 +2,8 @@ table 2000012 "IBS Account"
 {
     Caption = 'IBS Account';
     ObsoleteReason = 'Legacy ISABEL';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {

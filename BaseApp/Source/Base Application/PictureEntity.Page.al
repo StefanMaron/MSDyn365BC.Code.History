@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5468 "Picture Entity"
 {
     Caption = 'Picture Entity';
@@ -82,4 +83,4 @@ page 5468 "Picture Entity"
     var
         DataLoaded: Boolean;
 }
-
+#endif

@@ -15,68 +15,6 @@ codeunit 144018 "Test Telebank Tables"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure TableElectronicBankingSetupUploadIntegrationModePositive()
-    var
-        ElectronicBankingSetup: Record "Electronic Banking Setup";
-    begin
-        with ElectronicBankingSetup do begin
-            // Setup
-            Init;
-            "IBS Version" := "IBS Version"::"6";
-            // Exercise + Validate
-            Validate("Upload Integration Mode", "Upload Integration Mode"::Attended);
-        end;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TableElectronicBankingSetupUploadIntegrationModeNegative()
-    var
-        ElectronicBankingSetup: Record "Electronic Banking Setup";
-    begin
-        with ElectronicBankingSetup do begin
-            // Setup
-            Init;
-            // Exercise + Validate
-            asserterror Validate("Upload Integration Mode", "Upload Integration Mode"::Attended);
-        end;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TableElectronicBankingSetupDownloadIntegrationModePositive()
-    var
-        ElectronicBankingSetup: Record "Electronic Banking Setup";
-    begin
-        with ElectronicBankingSetup do begin
-            // Setup
-            Init;
-            "IBS Version" := "IBS Version"::"6";
-            // Exercise + Validate
-            Validate("Download Integration Mode", "Download Integration Mode"::Attended);
-        end;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TableElectronicBankingSetupDownloadIntegrationModeNegative()
-    var
-        ElectronicBankingSetup: Record "Electronic Banking Setup";
-    begin
-        with ElectronicBankingSetup do begin
-            // Setup
-            Init;
-            // Exercise + Validate
-            asserterror Validate("Download Integration Mode", "Download Integration Mode"::Attended);
-        end;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure TablePaymentJournalTemplateOnInsert()
     var
         PaymentJournalTemplate: Record "Payment Journal Template";

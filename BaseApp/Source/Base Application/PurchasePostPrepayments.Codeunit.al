@@ -907,6 +907,7 @@
                 then
                     PrepmtInvLineBuf.InsertInvLineBuffer(PrepmtInvLineBuf2);
         end;
+        ErrorMessageMgt.FinishTopContext();
     end;
 
     procedure BuildInvLineBuffer(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")

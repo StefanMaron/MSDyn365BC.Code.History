@@ -636,14 +636,14 @@ codeunit 134020 "ERM Accounts"
     [Test]
     procedure GLBalanceByDimDateFilterChangesColumnSetValue()
     var
-        AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
         GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+        AnalysisPeriodType: Enum "Analysis Period Type";
         DateFilter: Text;
     begin
         // [FEATURE] [UI] [G/L Balance] [Date Filter]
         // [SCENARIO 404617] Validating of Date Filter on the G/L Balance By Dimension page changes the Column Set value
         GLBalancebyDimension.OpenEdit();
-        GLBalancebyDimension.PeriodType.SetValue(AnalysisByDimParameters."Period Type"::Month);
+        GLBalancebyDimension.PeriodType.SetValue(AnalysisPeriodType::Month);
 
         DateFilter := StrSubstNo('%1..%2', 20210101D, 20210201D);
         GLBalancebyDimension.DateFilter.SetValue(DateFilter);

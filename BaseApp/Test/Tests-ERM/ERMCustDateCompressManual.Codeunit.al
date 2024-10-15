@@ -137,7 +137,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         DateCompressCustomerLedger.SetTableView(CustLedgerEntry);
         DateCompressCustomerLedger.InitializeRequest(
-          StartingDate, CalcDate('<-1D>', GenJournalLine."Posting Date"), PeriodLength, '', false, false, false, '');
+          StartingDate, CalcDate('<-1D>', GenJournalLine."Posting Date"), PeriodLength, '', false, false, false, '', false);
         DateCompressCustomerLedger.UseRequestPage(false);
         DateCompressCustomerLedger.Run;
     end;

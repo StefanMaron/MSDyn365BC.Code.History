@@ -4,7 +4,7 @@ page 10 "Countries/Regions"
     Caption = 'Countries/Regions';
     PageType = List;
     SourceTable = "Country/Region";
-    UsageCategory = Lists;
+    UsageCategory = Administration;
 
     layout
     {

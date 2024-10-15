@@ -55,6 +55,8 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst;
         TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckAndUpdate '
+        Assert.ExpectedMessage('"Sales-Post"(CodeUnit 80).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
         // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'Posting Date',
         TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
         TempErrorMessage.TestField("Context Table Number", DATABASE::"Sales Header");
@@ -316,7 +318,8 @@ codeunit 132501 "Sales Document Posting Errors"
         repeat
             JobQueueEntry.Status := JobQueueEntry.Status::Ready;
             JobQueueEntry.Modify();
-            Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+            asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+            LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
         until JobQueueEntry.Next() = 0;
 
         // [THEN] "Error Message" table contains 3 lines:
@@ -335,6 +338,62 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
         Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage.Description);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostingWithErrorsShowJobQueueErrorsBackground()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        ErrorMessage: Record "Error Message";
+        JobQueueEntry: Record "Job Queue Entry";
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryDimension: Codeunit "Library - Dimension";
+        JobQueueEntries: TestPage "Job Queue Entries";
+        ErrorMessages: TestPage "Error Messages";
+        CustomerNo: Code[20];
+        RegisterID: Guid;
+    begin
+        // [FEATURE] [Batch Posting] [Job Queue]
+        // [SCENARIO] Batch posting of document (in background) verifies "Error Messages" page that contains two lines for Job Queue Entry
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        // [GIVEN] Invoice '1002', where "Posting Date" is 01.01.2019, and no mandatory dimension
+        CustomerNo := LibrarySales.CreateCustomerNo;
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader[1], CustomerNo);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension."Value Posting" := DefaultDimension."Value Posting"::"Code Mandatory";
+        DefaultDimension.Modify();
+
+        // [WHEN] Post both documents as a batch via Job Queue
+        JobQueueEntry.DeleteAll();
+        SalesHeader[2].SetRange("Sell-to Customer No.", CustomerNo);
+        SalesBatchPostMgt.RunWithUI(SalesHeader[2], 2, '');
+        JobQueueEntry.SetRange("Record ID to Process", SalesHeader[1].RecordId);
+        JobQueueEntry.FindFirst();
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[1].RecordId, true);
+        JobQueueEntry.FindFirst();
+
+        // [THEN] "Error Message" page contains 2 lines:
+        JobQueueEntries.OpenView();
+        JobQueueEntries.GoToRecord(JobQueueEntry);
+        ErrorMessages.Trap();
+        JobQueueEntries.ShowError.Invoke();
+        ErrorMessages.First();
+        Assert.IsSubstring(ErrorMessages.Description.Value, PostingDateNotAllowedErr);
+        ErrorMessages.Next();
+        Assert.IsSubstring(ErrorMessages.Description.Value, StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo));
+        Assert.IsFalse(ErrorMessages.Next(), 'Wrong number of error messages.');
     end;
 
     [Test]

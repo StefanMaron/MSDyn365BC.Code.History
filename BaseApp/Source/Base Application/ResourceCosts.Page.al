@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 203 "Resource Costs"
 {
     ApplicationArea = Basic, Suite;
@@ -75,4 +76,4 @@ page 203 "Resource Costs"
         FeaturePriceCalculation.FailIfFeatureEnabled();
     end;
 }
-
+#endif

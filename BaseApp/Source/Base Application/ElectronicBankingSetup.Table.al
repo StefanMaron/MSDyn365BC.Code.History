@@ -22,112 +22,96 @@ table 11306 "Electronic Banking Setup"
         {
             Caption = 'IBS Version';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = ' ,1,2,3,4,5,6';
             OptionMembers = " ","1","2","3","4","5","6";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '19.0';
         }
         field(22; "Notification E-mail address"; Text[30])
         {
             Caption = 'Notification E-mail address';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(23; Language; Option)
         {
             Caption = 'Language';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'EN,FR,NL,DE';
             OptionMembers = EN,FR,NL,DE;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '19.0';
         }
         field(24; "Upload Integration Mode"; Option)
         {
             Caption = 'Upload Integration Mode';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'Manual,Attended';
             OptionMembers = Manual,Attended;
-            ObsoleteTag = '15.0';
-
-            trigger OnValidate()
-            begin
-                if (xRec."Upload Integration Mode" <> "Upload Integration Mode") and
-                   ("Upload Integration Mode" = "Upload Integration Mode"::Attended)
-                then
-                    TestField("IBS Version", "IBS Version"::"6");
-            end;
+            ObsoleteTag = '19.0';
         }
         field(25; "Upload Path"; Text[250])
         {
             Caption = 'Upload Path';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(26; "Download Integration Mode"; Option)
         {
             Caption = 'Download Integration Mode';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'Manual,Attended';
             OptionMembers = Manual,Attended;
-            ObsoleteTag = '15.0';
-
-            trigger OnValidate()
-            begin
-                if (xRec."Download Integration Mode" <> "Download Integration Mode") and
-                   ("Download Integration Mode" = "Download Integration Mode"::Attended)
-                then
-                    TestField("IBS Version", "IBS Version"::"6");
-            end;
+            ObsoleteTag = '19.0';
         }
         field(27; "Download Path"; Text[250])
         {
             Caption = 'Download Path';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(28; "IBS Log Upload Nos."; Code[20])
         {
             Caption = 'IBS Log Upload Nos.';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "No. Series";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '19.0';
         }
         field(29; "IBS Log Download Nos."; Code[20])
         {
             Caption = 'IBS Log Download Nos.';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "No. Series";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '19.0';
         }
         field(30; "IBS Request ID"; Code[20])
         {
             Caption = 'IBS Request ID';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "No. Series";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '19.0';
         }
         field(31; "IBS Service Version"; Code[10])
         {
             Caption = 'IBS Service Version';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(40; "Test Environment"; Boolean)
         {
             Caption = 'Test Environment';
             ObsoleteReason = 'Legacy ISABEL';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
     }
 

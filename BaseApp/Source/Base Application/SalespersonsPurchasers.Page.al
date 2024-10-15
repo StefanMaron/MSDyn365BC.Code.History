@@ -44,6 +44,12 @@ page 14 "Salespersons/Purchasers"
                     ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                     Visible = false;
                 }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the salesperson/purchaser is coupled to a user in Dataverse.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                }
             }
         }
         area(factboxes)
@@ -270,6 +276,25 @@ page 14 "Salespersons/Purchasers"
                             CRMIntegrationManagement.DefineCoupling(RecordId);
                         end;
                     }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledContactPerson;
+                        ToolTip = 'Couple salespersons to users in Dataverse based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            SalespersonPurchaser: Record "Salesperson/Purchaser";
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(SalespersonPurchaser);
+                            RecRef.GetTable(SalespersonPurchaser);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
+                        end;
+                    }
                     action(DeleteCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = D;
@@ -306,6 +331,26 @@ page 14 "Salespersons/Purchasers"
                     end;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this salesperson/purchaser.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Salesperson/Purchaser", Rec.SystemId);
+                    end;
+                }
+            }
         }
         area(processing)
         {
@@ -326,15 +371,39 @@ page 14 "Salespersons/Purchasers"
                     CreateInteraction;
                 end;
             }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this person.';
+                Promoted = true;
+                PromotedCategory = Process;
+                Enabled = CanSendEmail;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Salesperson/Purchaser", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     var
+        Record: Record "Salesperson/Purchaser";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
         if CDSIntegrationEnabled or CRMIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
+
+        CurrPage.SetSelectionFilter(Record);
+        CanSendEmail := Record.Count() = 1;
     end;
 
     trigger OnInit()
@@ -347,17 +416,22 @@ page 14 "Salespersons/Purchasers"
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        EmailFeature: Codeunit "Email Feature";
     begin
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
     end;
 
     var
+        [InDataSet]
+        CanSendEmail: Boolean;
         [InDataSet]
         CreateInteractionVisible: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

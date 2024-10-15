@@ -443,7 +443,7 @@ codeunit 136201 "Marketing Contacts"
         Contact: Record Contact;
         BusinessRelation: Record "Business Relation";
         CustomerPriceGroup: Record "Customer Price Group";
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // Covers document number TC0059 - refer to TFS ID 21740.
         // [FEATURE] [Customer]
@@ -465,7 +465,7 @@ codeunit 136201 "Marketing Contacts"
         CustomerTemplate.Modify(true);
 
         // [WHEN] Create Customer from Contact (the Customer Template created earlier is being chosen through Modal Form Handler).
-        Contact.CreateCustomer(Contact.ChooseCustomerTemplate);
+        Contact.CreateCustomerFromTemplate(Contact.ChooseNewCustomerTemplate());
 
         // [THEN] Check that the values in the Customer created match the values in the Customer Template and Customer Price Group.
         // [THEN] "Invoice Disc. Code" is not blank in Customer card
@@ -481,7 +481,7 @@ codeunit 136201 "Marketing Contacts"
         Contact: Record Contact;
         MarketingSetup: Record "Marketing Setup";
         CustomerPriceGroup: Record "Customer Price Group";
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // Covers document number TC0059 - refer to TFS ID 21740.
         // Test error generated on creation of a Customer from Contact if Bus. Rel. Code for Customers field in Marketing Setup is blank.
@@ -494,7 +494,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // 2. Exercise: Try to create Customer from Contact.
-        asserterror Contact.CreateCustomer(Contact.ChooseCustomerTemplate);
+        asserterror Contact.CreateCustomerFromTemplate(Contact.ChooseNewCustomerTemplate());
 
         // 3. Verify: Check that the application generates an error on creation of a Customer from Contact if Bus. Rel. Code for Customers
         // field in Marketing Setup is blank.
@@ -507,7 +507,7 @@ codeunit 136201 "Marketing Contacts"
     procedure CreateCustFromCompanyContWithTemplateUI()
     var
         Contact: Record Contact;
-        CustomerTemplate: array[2] of Record "Customer Template";
+        CustomerTemplate: array[2] of Record "Customer Templ.";
     begin
         // [SCENARIO 211037] Customer Template List contains only "company" templates when create customer from "Company" contact
         Initialize;
@@ -516,10 +516,11 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Customer template "CT2" with "Contact Type" = "Person"
         CreateCustomerTemplates(CustomerTemplate);
         LibraryVariableStorage.Enqueue(CustomerTemplate[1].Code);
+        CreateCustomerTemplates(CustomerTemplate);
         // [GIVEN] Contact "C" of Company type
         LibraryMarketing.CreateCompanyContact(Contact);
         // [WHEN] Create customer from contact using template
-        Contact.CreateCustomer(Contact.ChooseCustomerTemplate);
+        Contact.CreateCustomerFromTemplate(Contact.ChooseNewCustomerTemplate());
         // [THEN] Customer Template List page contains only "CT1"
         // Verification in CustomerTemplateListPageHandler
         DeleteCustomerTemplates;
@@ -531,7 +532,7 @@ codeunit 136201 "Marketing Contacts"
     procedure CreateCustFromPersonContWithTemplateUI()
     var
         Contact: Record Contact;
-        CustomerTemplate: array[2] of Record "Customer Template";
+        CustomerTemplate: array[2] of Record "Customer Templ.";
     begin
         // [SCENARIO 211037] Customer Template List contains only "person" templates when create customer from "Person" contact
         Initialize;
@@ -540,10 +541,11 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Customer template "CT2" with "Contact Type" = "Person"
         CreateCustomerTemplates(CustomerTemplate);
         LibraryVariableStorage.Enqueue(CustomerTemplate[2].Code);
+        CreateCustomerTemplates(CustomerTemplate);
         // [GIVEN] Contact "C" of Person type
         LibraryMarketing.CreatePersonContact(Contact);
         // [WHEN] Create customer from contact using template
-        Contact.CreateCustomer(Contact.ChooseCustomerTemplate);
+        Contact.CreateCustomerFromTemplate(Contact.ChooseNewCustomerTemplate());
         // [THEN] Customer Template List page contains only "CT2"
         // Verification in CustomerTemplateListPageHandler
         DeleteCustomerTemplates;
@@ -565,7 +567,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // 2. Exercise: Try to create Vendor from Contact.
-        asserterror Contact.CreateVendor;
+        asserterror Contact.CreateVendorFromTemplate('');
 
         // 3. Verify: Check that the application generates an error on creation of a Vendor from Contact if Bus. Rel. Code for Vendors
         // field in Marketing Setup is blank.
@@ -2407,7 +2409,8 @@ codeunit 136201 "Marketing Contacts"
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
-        CustomerTemplateCode: Code[10];
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplateCode: Code[20];
     begin
         // [SCENARIO 180155] Create Sales Quote for Contact with Customer Template selection
         Initialize;
@@ -2418,6 +2421,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreateCompanyContact(Contact);
         LibraryVariableStorage.Enqueue(Contact."No.");
         CustomerTemplateCode := CreateCustomerTemplateForContact(VATPostingSetup."VAT Bus. Posting Group");
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
 
         // [GIVEN] New Sales Quote "SQ"
         CreateSalesQuote(SalesHeader);
@@ -2426,7 +2430,7 @@ codeunit 136201 "Marketing Contacts"
         SalesQuoteContactNoLookup(SalesHeader);
 
         // [THEN] Sales Document "SQ" has Customer Template = "CT"
-        SalesHeader.TestField("Sell-to Customer Template Code", CustomerTemplateCode);
+        SalesHeader.TestField("Sell-to Customer Templ. Code", CustomerTemplateCode);
 
         // [WHEN] Sales Line with Item added
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
@@ -2450,7 +2454,7 @@ codeunit 136201 "Marketing Contacts"
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
     begin
         // [SCENARIO 180155] Create Sales Quote for Contact which is a contact for Company Contact
         Initialize;
@@ -2476,7 +2480,7 @@ codeunit 136201 "Marketing Contacts"
         SalesQuoteContactNoLookup(SalesHeader);
 
         // [THEN] Sales Document "SQ" has Customer Template = "CT"
-        SalesHeader.TestField("Sell-to Customer Template Code", CustomerTemplateCode);
+        SalesHeader.TestField("Sell-to Customer Templ. Code", CustomerTemplateCode);
 
         // [WHEN] Sales Line with Item added
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
@@ -2496,7 +2500,7 @@ codeunit 136201 "Marketing Contacts"
     var
         ContactCompany: Record Contact;
         SalesHeader: Record "Sales Header";
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
         CustomerNo: Code[20];
     begin
         // [SCENARIO 180155] Customer Template is not asked for Contact with Contact Business Relation
@@ -2520,7 +2524,7 @@ codeunit 136201 "Marketing Contacts"
         SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesHeader."No.");
 
         // [THEN] Customer Template is not asked, Sell-to Customer No. = "CU1"
-        SalesHeader.TestField("Sell-to Customer Template Code", '');
+        SalesHeader.TestField("Sell-to Customer Templ. Code", '');
         SalesHeader.TestField("Sell-to Customer No.", CustomerNo);
     end;
 
@@ -2533,7 +2537,7 @@ codeunit 136201 "Marketing Contacts"
         SalesHeader: Record "Sales Header";
         ContactList: TestPage "Contact List";
         SalesQuote: TestPage "Sales Quote";
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
     begin
         // [SCENARIO 198367] Create Sales Quote from Contact List page for Contact with Customer Template selection
         Initialize;
@@ -2556,7 +2560,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] After user selected Customer Template "CT" - new Sales Quote with Customer opens
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.SetRange("Sell-to Contact No.", Contact."No.");
-        SalesHeader.SetRange("Sell-to Customer Template Code", CustomerTemplateCode);
+        SalesHeader.SetRange("Sell-to Customer Templ. Code", CustomerTemplateCode);
         Assert.RecordIsNotEmpty(SalesHeader);
     end;
 
@@ -2589,6 +2593,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] SalesQuote Page opens (handled in ModalPageHandler)
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -2598,7 +2603,7 @@ codeunit 136201 "Marketing Contacts"
         SalesHeader: Record "Sales Header";
         ContactList: TestPage "Contact List";
         SalesQuote: TestPage "Sales Quote";
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
         CustomerNo: Code[20];
     begin
         // [SCENARIO 198367] Create Sales Quote from Contact List page for Contact with Customer Business Relation
@@ -2629,7 +2634,7 @@ codeunit 136201 "Marketing Contacts"
         SalesHeader.SetRange("Sell-to Customer Template Code", '');
         Assert.RecordIsNotEmpty(SalesHeader);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,EmailVerifyModalPageHandler')]
     [Scope('OnPrem')]
@@ -2704,7 +2709,7 @@ codeunit 136201 "Marketing Contacts"
     var
         SalesHeader: Record "Sales Header";
         Contact: Record Contact;
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
         CustomerNo: Code[20];
     begin
         // [FEATURE] [UT]
@@ -2719,7 +2724,7 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Sales Quote "SQ" with Bill-to Contact No. = "C" and Bill-to Customer Template Code = "CT"
         CreateSalesQuote(SalesHeader);
         SalesHeader.Validate("Bill-to Contact No.", Contact."No.");
-        SalesHeader.Validate("Bill-to Customer Template Code", CustomerTemplateCode);
+        SalesHeader.Validate("Bill-to Customer Templ. Code", CustomerTemplateCode);
         SalesHeader.Modify();
 
         // [WHEN] GetBillToNo run
@@ -2728,13 +2733,13 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] Bill-to Customer Template Code = '' and GetBillToNo run
         // [THEN] Return value = ""
-        SalesHeader.Validate("Bill-to Customer Template Code", '');
+        SalesHeader.Validate("Bill-to Customer Templ. Code", '');
         SalesHeader.Modify();
         Assert.AreEqual('', SalesHeader.GetBillToNo, WrongValueErr);
 
         // [WHEN] Bill-to Customer Template Code = "CT", "Bill-to Contact No." = '' and GetBillToNo run
         // [THEN] Return value = ""
-        SalesHeader.Validate("Bill-to Customer Template Code", CustomerTemplateCode);
+        SalesHeader.Validate("Bill-to Customer Templ. Code", CustomerTemplateCode);
         SalesHeader.Validate("Bill-to Contact No.", '');
         SalesHeader.Modify();
         Assert.AreEqual('', SalesHeader.GetBillToNo, WrongValueErr);
@@ -2866,7 +2871,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [GIVEN] Customer created from "CC" Company Contact
         CompanyContact.SetHideValidationDialog(true);
-        CompanyContact.CreateCustomer('');
+        CompanyContact.CreateCustomerFromTemplate('');
         Customer.SetRange(Name, CompanyContact.Name);
         Customer.FindFirst;
 
@@ -2902,7 +2907,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [GIVEN] Vendor created from "CC" Company Contact
         CompanyContact.SetHideValidationDialog(true);
-        CompanyContact.CreateVendor;
+        CompanyContact.CreateVendorFromTemplate('');
         Vendor.SetRange(Name, CompanyContact.Name);
         Vendor.FindFirst;
 
@@ -2920,7 +2925,7 @@ codeunit 136201 "Marketing Contacts"
     procedure ContactCountryRegionToCustTemplateEmptyCountryRegion()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Customer: Record Customer;
         CountryRegion: Record "Country/Region";
     begin
@@ -2950,7 +2955,7 @@ codeunit 136201 "Marketing Contacts"
     procedure ContactEmptyCountryRegionToCustTemplateCountryRegion()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Customer: Record Customer;
         CountryRegion: Record "Country/Region";
     begin
@@ -2980,7 +2985,7 @@ codeunit 136201 "Marketing Contacts"
     procedure ContactCountryRegionToCustTemplateCountryRegion()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Customer: Record Customer;
         ContactCountryRegion: Record "Country/Region";
         TemplateCountryRegion: Record "Country/Region";
@@ -3012,7 +3017,7 @@ codeunit 136201 "Marketing Contacts"
     procedure ContactEmptyCountryRegionToCustTemplateEmptyCountryRegion()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Customer: Record Customer;
     begin
         // [SCENARIO 202044] Customer creation from Contact with empty Country/Region Code using Template with empty Country/Region Code
@@ -3040,7 +3045,7 @@ codeunit 136201 "Marketing Contacts"
     procedure ContactCityCountyToCustTemplateEmptyCountryRegion()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Customer: Record Customer;
         PostCode: Record "Post Code";
         ContactCountryRegion: Record "Country/Region";
@@ -3084,6 +3089,7 @@ codeunit 136201 "Marketing Contacts"
     procedure CreateSalesQuoteFromContactListAndCustTemplateConfirmation()
     var
         Contact: Record Contact;
+        CustomerTempl: Record "Customer Templ.";
         ContactList: TestPage "Contact List";
         SalesQuote: TestPage "Sales Quote";
     begin
@@ -3094,6 +3100,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [GIVEN] Contact
         LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
 
         // [GIVEN] "Contact list" page is opened
         ContactList.OpenView;
@@ -3108,7 +3115,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Sales Quote is populated with "Sell-To Customer Template Code" = "X"
         SalesQuote."Sell-to Address".SetValue('');
-        SalesQuote."Sell-to Customer Template Code".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesQuote."Sell-to Customer Templ. Code".AssertEquals(LibraryVariableStorage.DequeueText);
         SalesQuote.Close;
     end;
 
@@ -3144,6 +3151,7 @@ codeunit 136201 "Marketing Contacts"
         // Verification done by ConfirmHandlerFalseWithTextVerification
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure UT_NoCustTemplateConfirmationWhenContactPersonHasBusRelation()
@@ -3176,7 +3184,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] Confirmation is not thrown and "Sell-to Customer Template" is blank
         SalesHeader.TestField("Sell-to Customer Template Code", '');
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure CreateContsFromCustomersPersonContact()
@@ -3268,7 +3276,7 @@ codeunit 136201 "Marketing Contacts"
         Contact: Record Contact;
         BusinessRelation: Record "Business Relation";
         CustomerPriceGroup: Record "Customer Price Group";
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 216960] The predefined data from Contact assigns to Customer when create Customer from Contact
@@ -3281,12 +3289,18 @@ codeunit 136201 "Marketing Contacts"
 
         // [GIVEN] Customer Template with "Currency Code" = EUR, "Country/Region" = DE, "Territory" = "FOREIGN"
         CreateCustomerTemplate(CustomerTemplate, CustomerPriceGroup.Code);
+        CustomerTemplate."Contact Type" := CustomerTemplate."Contact Type"::Person;
+        CustomerTemplate.Modify(true);
+
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
+        CustomerTemplate."Contact Type" := CustomerTemplate."Contact Type"::Person;
+        CustomerTemplate.Modify(true);
 
         // [GIVEN] Contact with "Currency Code" = GBP, "Country/Region" = GB, "Territory" = "LONDON"
         CreateContactWithData(Contact);
 
         // [WHEN] Create Customer from Contact with selected Customer Template
-        Contact.CreateCustomer(Contact.ChooseCustomerTemplate);
+        Contact.CreateCustomerFromTemplate(Contact.ChooseNewCustomerTemplate());
 
         // [THEN] Contact is created with "Currency Code" = GBP, "Country/Region" = GB, "Territory" = "LONDON"
         VerifyCustomerInheritsDataFromContact(Contact);
@@ -3299,7 +3313,7 @@ codeunit 136201 "Marketing Contacts"
     var
         Contact: Record Contact;
         BusinessRelation: Record "Business Relation";
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 216960] Customer creates from Contact with no data assigned if no data specified in Contact
@@ -3311,14 +3325,20 @@ codeunit 136201 "Marketing Contacts"
         ChangeBusinessRelationCodeForCustomers(BusinessRelation.Code);
 
         // [GIVEN] Customer Template with "blank Currency Code", "Country/Region" and "Territory"
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
+        CustomerTemplate."Contact Type" := CustomerTemplate."Contact Type"::Person;
+        CustomerTemplate.Modify(true);
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code);
+
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
+        CustomerTemplate."Contact Type" := CustomerTemplate."Contact Type"::Person;
+        CustomerTemplate.Modify(true);
 
         // [GIVEN] Contact with blank "Currency Code", "Country/Region" and "Territory"
         LibraryMarketing.CreatePersonContact(Contact);
 
         // [WHEN] Create Customer from Contact with selected Customer Template
-        Contact.CreateCustomer(Contact.ChooseCustomerTemplate);
+        Contact.CreateCustomerFromTemplate(Contact.ChooseNewCustomerTemplate());
 
         // [THEN] Contact is created with blank "Currency Code", "Country/Region" and "Territory"
         VerifyCustomerInheritsDataFromContact(Contact);
@@ -4646,6 +4666,7 @@ codeunit 136201 "Marketing Contacts"
         Assert.IsTrue(ContactList."Export Contact".Enabled(), 'Expected Export Contact action to be enabled.');
         ContactList.Close();
     end;
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure CreateCustomerForPersonContactWithCompanyContactWithCustomer()
@@ -4653,7 +4674,7 @@ codeunit 136201 "Marketing Contacts"
         Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         Customer: Record Customer;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // [SCENARIO 383926] Contact function CreateCusomer throws error when trying to create Customer for Person Contact with Company having Customer.
         Initialize();
@@ -4663,7 +4684,7 @@ codeunit 136201 "Marketing Contacts"
         CreateCustomerWithContactPerson(Customer, Contact, ContBusRel);
 
         // [WHEN] CreateCustomer is called for Person Contact.
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         Contact.SetHideValidationDialog(true);
         asserterror Contact.CreateCustomer(CustomerTemplate.Code);
 
@@ -4672,7 +4693,7 @@ codeunit 136201 "Marketing Contacts"
         Assert.ExpectedError(
             StrSubstNo(RelationAlreadyExistWithCustomerErr, ContBusRel."Contact No.", ContBusRel.TableCaption, Customer."No."));
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure CreateCustomerForPersonContactWithCompanyContactWithoutCustomer()
@@ -4680,7 +4701,7 @@ codeunit 136201 "Marketing Contacts"
         Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         Customer: Record Customer;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // [SCENARIO 383926] Contact function CreateCusomer creates Customer for Person's Company Contact.
         Initialize();
@@ -4690,9 +4711,9 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
 
         // [WHEN] CreateCustomer is called for Person Contact.
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         Contact.SetHideValidationDialog(true);
-        Contact.CreateCustomer(CustomerTemplate.Code);
+        Contact.CreateCustomerFromTemplate(CustomerTemplate.Code);
 
         // [THEN] Customer is created and linked to Company Contact.
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
@@ -4718,7 +4739,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] CreateVendor is called for Person Contact.
         Contact.SetHideValidationDialog(true);
-        asserterror Contact.CreateVendor();
+        asserterror Contact.CreateVendorFromTemplate('');
 
         // [THEN] Error about relation already existing between Company Contact and Vendor.
         Assert.ExpectedErrorCode('Dialog');
@@ -4743,7 +4764,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] CreateVendor is called for Person Contact.
         Contact.SetHideValidationDialog(true);
-        Contact.CreateVendor();
+        Contact.CreateVendorFromTemplate('');
 
         // [THEN] Vendor is created and linked to Company Contact.
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
@@ -4788,7 +4809,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreateCompanyContact(ContactCompany);
         // [WHEN] Link the contact with the Vendor
         ContactCompany.SetHideValidationDialog(true);
-        ContactCompany.CreateVendor();
+        ContactCompany.CreateVendorFromTemplate('');
 
         // [WHEN] "Business Relation" is 'Vendor'
         ContactCompany.Find();
@@ -4834,7 +4855,7 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Link the contact with the customer and the vendor
         ContactCompany.SetHideValidationDialog(true);
         ContactCompany.CreateCustomer();
-        ContactCompany.CreateVendor();
+        ContactCompany.CreateVendorFromTemplate('');
 
         // [WHEN] "Business Relation" is 'Multiple'
         ContactCompany.Find();
@@ -4859,7 +4880,7 @@ codeunit 136201 "Marketing Contacts"
         ContactCompany.SetHideValidationDialog(true);
         ContactCompany.CreateCustomer();
         ReplaceBusRelationCode(ContactCompany."No.");
-        ContactCompany.CreateVendor();
+        ContactCompany.CreateVendorFromTemplate('');
 
         // [WHEN] "Business Relation" is 'Multiple'
         ContactCompany.Find();
@@ -4962,7 +4983,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreateCompanyContact(ContactCompany);
         // [GIVEN] Link the contact with the Vendor 'X'
         ContactCompany.SetHideValidationDialog(true);
-        VendorNo := ContactCompany.CreateVendor();
+        VendorNo := ContactCompany.CreateVendorFromTemplate('');
 
         // [GIVEN] Open Contact card
         ContactCard.OpenView();
@@ -5041,7 +5062,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreateCompanyContact(ContactCompany);
         // [GIVEN] Link the contact with the Vendor 'V', Bank 'B'
         ContactCompany.SetHideValidationDialog(true);
-        VendorNo := ContactCompany.CreateVendor();
+        VendorNo := ContactCompany.CreateVendorFromTemplate('');
         BankAccountNo := ContactCompany.CreateBankAccount();
 
         // [GIVEN] Open Contact card
@@ -5288,6 +5309,39 @@ codeunit 136201 "Marketing Contacts"
         Contact.CreateInteraction;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerMobilePhoneNoUpdateFromContact()
+    var
+        Customer: Record Customer;
+        CompanyContact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [Customer] [UI]
+        // [SCENARIO 402793] Customer."Mobile Phone No." field updated when "Mobile Phone No." is changed on related contact
+        Initialize();
+
+        // [GIVEN]  Company Contact "CC"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Customer "C" created from "CC" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateCustomerFromTemplate('');
+        Customer.SetRange(Name, CompanyContact.Name);
+        Customer.FindFirst();
+
+        // [WHEN] Contact "CC" mobile phone number is being changed to "111" in the contact card page
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", CompanyContact."No.");
+        ContactCard."Mobile Phone No.".SetValue(CopyStr(LibraryUtility.GenerateRandomNumericText(20), 1, MaxStrLen(CompanyContact."Mobile Phone No.")));
+        ContactCard.OK().Invoke();
+
+        // [THEN] Customer "C" has same mobile phone number "111"
+        CompanyContact.Find();
+        Customer.Find();
+        Customer.TestField("Mobile Phone No.", CompanyContact."Mobile Phone No.");
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -5302,7 +5356,7 @@ codeunit 136201 "Marketing Contacts"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Contacts");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
@@ -5416,14 +5470,14 @@ codeunit 136201 "Marketing Contacts"
         exit(Contact."No.");
     end;
 
-    local procedure CreateCustomerForContact(Contact: Record Contact; CustomerTemplateCode: Code[10]): Code[20]
+    local procedure CreateCustomerForContact(Contact: Record Contact; CustomerTemplateCode: Code[20]): Code[20]
     var
         ContBusRel: Record "Contact Business Relation";
         Customer: Record Customer;
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
         PaymentTerms: Record "Payment Terms";
     begin
-        Contact.CreateCustomer(CustomerTemplateCode);
+        Contact.CreateCustomerFromTemplate(CustomerTemplateCode);
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
         ContBusRel.SetRange("Contact No.", Contact."No.");
         ContBusRel.FindFirst;
@@ -5436,10 +5490,10 @@ codeunit 136201 "Marketing Contacts"
         exit(Customer."No.");
     end;
 
-    local procedure CreateCustomerFromContact(Contact: Record Contact; CustomerTemplateCode: Code[10]; var Customer: Record Customer)
+    local procedure CreateCustomerFromContact(Contact: Record Contact; CustomerTemplateCode: Code[20]; var Customer: Record Customer)
     begin
         Contact.SetHideValidationDialog(true);
-        Contact.CreateCustomer(CustomerTemplateCode);
+        Contact.CreateCustomerFromTemplate(CustomerTemplateCode);
         FindCustomerByCompanyName(Customer, Contact.Name);
     end;
 
@@ -5453,7 +5507,7 @@ codeunit 136201 "Marketing Contacts"
         end;
     end;
 
-    local procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Template"; CustomerPriceGroupCode: Code[10])
+    local procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Templ."; CustomerPriceGroupCode: Code[10])
     var
         Customer2: Record Customer;
         CountryRegion: Record "Country/Region";
@@ -5461,7 +5515,7 @@ codeunit 136201 "Marketing Contacts"
         Territory: Record Territory;
     begin
         LibrarySales.CreateCustomer(Customer2);
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Customer Price Group", CustomerPriceGroupCode);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", Customer2."Gen. Bus. Posting Group");
         CustomerTemplate.Validate("VAT Bus. Posting Group", Customer2."VAT Bus. Posting Group");
@@ -5480,29 +5534,27 @@ codeunit 136201 "Marketing Contacts"
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code);
     end;
 
-    local procedure CreateCustomerTemplates(var CustomerTemplate: array[2] of Record "Customer Template")
+    local procedure CreateCustomerTemplates(var CustomerTemplate: array[2] of Record "Customer Templ.")
     begin
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate[1]);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate[1]);
         CustomerTemplate[1].Validate("Contact Type", CustomerTemplate[1]."Contact Type"::Company);
         CustomerTemplate[1].Modify(true);
 
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate[2]);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate[2]);
         CustomerTemplate[2].Validate("Contact Type", CustomerTemplate[2]."Contact Type"::Person);
         CustomerTemplate[2].Modify(true);
     end;
 
-    local procedure CreateCustomerTemplateForContact(VATBusPostingGroupCode: Code[20]): Code[10]
+    local procedure CreateCustomerTemplateForContact(VATBusPostingGroupCode: Code[20]): Code[20]
     var
         CountryRegion: Record "Country/Region";
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         GenBusPostingGroup: Record "Gen. Business Posting Group";
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
-        LibraryERM.CreateCountryRegion(CountryRegion);
-        CustomerTemplate.Validate("Country/Region Code", CountryRegion.Code);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
         CustomerTemplate.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         CustomerTemplate.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
@@ -5701,7 +5753,7 @@ codeunit 136201 "Marketing Contacts"
 
     local procedure DeleteCustomerTemplates()
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         CustomerTemplate.DeleteAll();
     end;
@@ -5768,11 +5820,11 @@ codeunit 136201 "Marketing Contacts"
     [HandlerFunctions('MyNotificationsModalPageHandler')]
     local procedure OpenMyNotificationsFromSettings()
     var
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
     begin
-        MySettings.OpenEdit();
-        MySettings.MyNotificationsLbl.DrillDown();
-        MySettings.Close();
+        UserSettings.OpenEdit();
+        UserSettings.MyNotificationsLbl.DrillDown();
+        UserSettings.Close();
     end;
 
     local procedure PrintSalesQuoteReport(SalesHeader: Record "Sales Header")
@@ -5927,7 +5979,7 @@ codeunit 136201 "Marketing Contacts"
         Contact.TestField("Phone No.", ContactPhoneNo);
     end;
 
-    local procedure VerifyCustomerCreatedByContact(CustomerTemplate: Record "Customer Template"; ContactNo: Code[20]; CustomerPriceGroupCode: Code[20])
+    local procedure VerifyCustomerCreatedByContact(CustomerTemplate: Record "Customer Templ."; ContactNo: Code[20]; CustomerPriceGroupCode: Code[20])
     var
         Customer: Record Customer;
     begin
@@ -6157,9 +6209,9 @@ codeunit 136201 "Marketing Contacts"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTempModalFormHandler(var CustomerTemplateList: Page "Customer Template List"; var Reply: Action)
+    procedure CustomerTempModalFormHandler(var CustomerTemplateList: Page "Select Customer Templ. List"; var Reply: Action)
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         CustomerTemplate.Init();  // Required to initialize the variable.
         CustomerTemplate.Get(LibraryVariableStorage.DequeueText);
@@ -6274,10 +6326,10 @@ codeunit 136201 "Marketing Contacts"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTempModalPageHandlerWithEnqueue(var CustomerTemplateList: Page "Customer Template List"; var Reply: Action)
+    procedure CustomerTempModalPageHandlerWithEnqueue(var CustomerTemplateList: Page "Select Customer Templ. List"; var Reply: Action)
     var
         VATPostingSetup: Record "VAT Posting Setup";
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CustomerTemplate.Get(CreateCustomerTemplateForContact(VATPostingSetup."VAT Bus. Posting Group"));
@@ -6385,11 +6437,13 @@ codeunit 136201 "Marketing Contacts"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTemplateListPageHandler(var CustomerTemplateList: TestPage "Customer Template List")
+    procedure CustomerTemplateListPageHandler(var CustomerTemplateList: TestPage "Select Customer Templ. List")
     begin
         CustomerTemplateList.First;
         Assert.AreEqual(LibraryVariableStorage.DequeueText, CustomerTemplateList.Code.Value, CustTemplateListErr);
+        CustomerTemplateList.Next();
         Assert.IsFalse(CustomerTemplateList.Next, CustTemplateListErr);
+        CustomerTemplateList.First();
         CustomerTemplateList.OK.Invoke;
     end;
 

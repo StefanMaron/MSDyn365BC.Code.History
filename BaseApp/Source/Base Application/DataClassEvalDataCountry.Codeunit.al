@@ -28,10 +28,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IBLC/BLWI Transaction Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Protocol");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Check Error Log");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IBS Log");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IBS Contract");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IBS Account");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IBS Account Conflict");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Domiciliation Journal Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Domiciliation Journal Batch");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Domiciliation Journal Line");

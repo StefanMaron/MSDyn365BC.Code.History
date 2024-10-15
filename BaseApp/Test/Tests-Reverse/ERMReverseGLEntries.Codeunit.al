@@ -1229,7 +1229,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLEntry.SetRange("Document No.", DocumentNo);
         DateCompressGeneralLedger.SetTableView(GLEntry);
         DateCompressGeneralLedger.InitializeRequest(
-          WorkDate, WorkDate, DateComprRegister."Period Length"::Day, '', false, true, false, false, false, InsertDimSelectionBuffer);
+          WorkDate, WorkDate, DateComprRegister."Period Length"::Day, '', false, true, false, false, false, InsertDimSelectionBuffer, false);
         DateCompressGeneralLedger.UseRequestPage(false);
         DateCompressGeneralLedger.Run;
     end;

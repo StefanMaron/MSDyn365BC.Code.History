@@ -863,7 +863,7 @@ codeunit 132537 SelectionFilterManagementTest
             SelectionString, SelectionString2));
     end;
 
-    local procedure InsertSerialNoInformation(ItemNo: Code[20]; SerialNo: Code[20])
+    local procedure InsertSerialNoInformation(ItemNo: Code[20]; SerialNo: Code[50])
     var
         SerialNoInformation: Record "Serial No. Information";
     begin

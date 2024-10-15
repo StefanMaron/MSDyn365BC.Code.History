@@ -111,6 +111,8 @@ report 95 "Date Compress VAT Entries"
                             until GLEntryVATEntryLink.Next() = 0;
                         DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
                         Window.Update(8, DateComprReg."No. Records Deleted");
+                        if UseDataArchive then
+                            DataArchive.SaveRecord(VATEntry2);
                     until Next() = 0;
                     NewVATEntry.Insert();
                 end;
@@ -125,6 +127,8 @@ report 95 "Date Compress VAT Entries"
             begin
                 if DateComprReg."No. Records Deleted" > NoOfDeleted then
                     InsertRegisters(GLReg, DateComprReg);
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -160,6 +164,9 @@ report 95 "Date Compress VAT Entries"
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
                 InitRegisters;
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress VAT Entries"));
             end;
         }
     }
@@ -241,6 +248,13 @@ report 95 "Date Compress VAT Entries"
                             ToolTip = 'Specifies the name of the journal template that is used for the posting.';
                         }
                     }
+                    field(UseDataArchiveCtrl; UseDataArchive)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Archive Deleted Entries';
+                        ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                        Visible = DataArchiveProviderExists;
+                    }
                 }
             }
         }
@@ -274,6 +288,14 @@ report 95 "Date Compress VAT Entries"
                 InsertField(FieldNo("Internal Ref. No."), FieldCaption("Internal Ref. No."));
                 InsertField(FieldNo("Journal Template Name"), FieldCaption("Journal Template Name"));
             end;
+
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+            UseDataArchive := DataArchiveProviderExists;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -317,6 +339,7 @@ report 95 "Date Compress VAT Entries"
         GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
         GLEntryVATEntryLink2: Record "G/L Entry - VAT Entry Link";
         DateComprMgt: Codeunit DateComprMgt;
+        DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         VATEntryFilter: Text[250];
         NoOfFields: Integer;
@@ -328,6 +351,9 @@ report 95 "Date Compress VAT Entries"
         NextTransactionNo: Integer;
         NoOfDeleted: Integer;
         GLRegExists: Boolean;
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         i: Integer;
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
@@ -436,6 +462,11 @@ report 95 "Date Compress VAT Entries"
 
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; RetainDocumentNo: Boolean; RetainBilltoPaytoNo: Boolean; RetainEU3PartyTrade: Boolean; RetainCountryRegionCode: Boolean; RetainInternalRefNo: Boolean; RetainJnlTemplateName: Boolean)
     begin
+        InitializeRequest(StartingDate, EndingDate, PeriodLength, RetainDocumentNo, RetainBilltoPaytoNo, RetainEU3PartyTrade, RetainCountryRegionCode, RetainInternalRefNo,RetainJnlTemplateName, true);
+    end;
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; RetainDocumentNo: Boolean; RetainBilltoPaytoNo: Boolean; RetainEU3PartyTrade: Boolean; RetainCountryRegionCode: Boolean; RetainInternalRefNo: Boolean; RetainJnlTemplateName: Boolean; DoUseDataArchive: Boolean)
+    begin
         InitializeParameter;
         EntrdDateComprReg."Starting Date" := StartingDate;
         EntrdDateComprReg."Ending Date" := EndingDate;
@@ -446,13 +477,14 @@ report 95 "Date Compress VAT Entries"
         Retain[4] := RetainCountryRegionCode;
         Retain[5] := RetainInternalRefNo;
         Retain[6] := RetainJnlTemplateName;
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
 
     local procedure LogStartTelemetryMessage()
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
@@ -464,8 +496,8 @@ report 95 "Date Compress VAT Entries"
         TelemetryDimensions.Add('RetainEU3PartyTrade', Format(Retain[3], 0, 9));
         TelemetryDimensions.Add('RetainCountryRegionCode', Format(Retain[4], 0, 9));
         TelemetryDimensions.Add('RetainInternalRefNo', Format(Retain[5], 0, 9));
-        // TelemetryDimensions.Add('Filters', "VAT Entry".GetFilters());
         TelemetryDimensions.Add('RetainJnlTemplateName', Format(Retain[6], 0, 9));
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4W', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -474,7 +506,6 @@ report 95 "Date Compress VAT Entries"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

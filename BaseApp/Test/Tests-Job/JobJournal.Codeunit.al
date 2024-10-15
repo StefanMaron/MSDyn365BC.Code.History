@@ -147,6 +147,85 @@ codeunit 136305 "Job Journal"
     end;
 
     [Test]
+    [HandlerFunctions('JobJournalTemplateListPageHandler,ItemUnitsOfMeasurePageHandler')]
+    [Scope('OnPrem')]
+    procedure LookupItemUnitOfMeasureJobJournal()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        Item: Record Item;
+        UnitOfMeasureCode: Code[10];
+    begin
+        // [SCENARIO 362516] Lookup "Unit of Measure" for Item on page "Job Journal" opening and containing relevant data
+        LightInit;
+        // [GIVEN] Item - "I" with "Unit of Measure" - "UM"
+        LibraryInventory.CreateItem(Item);
+        UnitOfMeasureCode := Item."Base Unit of Measure";
+        // [GIVEN] Job Journal Line, where "Type" = "Item" with Item "I"
+        CreateJobJournalLineWithBlankUOM(JobJournalLine, Item."No.", JobJournalLine.Type::Item);
+        LibraryVariableStorage.Enqueue(JobJournalLine."Journal Template Name");
+        // [WHEN] Lookup "Unit of Measure" in Job Journal Line
+        OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
+        // [THEN] Page "Item Units of Measure" is open and contains lines related to Item "I"
+        // [THEN] "JJL"."Unit of Measure" = "UM"
+        JobJournalLine.Find;
+        Assert.AreEqual(UnitOfMeasureCode, JobJournalLine."Unit of Measure Code",
+          JobJournalLine.FieldCaption("Unit of Measure Code"));
+    end;
+
+    [Test]
+    [HandlerFunctions('JobJournalTemplateListPageHandler,ResourceUnitsOfMeasurePageHandler')]
+    [Scope('OnPrem')]
+    procedure LookupResourceUnitOfMeasureJobJournal()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        ResourceNo: Code[20];
+        UnitOfMeasureCode: Code[10];
+    begin
+        // [SCENARIO 362516] Lookup "Unit of Measure" for Resource on page "Job Journal" opening and containing relevant data
+        LightInit;
+        // [GIVEN] Resource - "R" with "Unit of Measure" - "UM"
+        ResourceNo := CreateResourceNo(UnitOfMeasureCode);
+        // [GIVEN] Job Journal Line, where "Type" = "Resource" with Resource "R"
+        CreateJobJournalLineWithBlankUOM(JobJournalLine, ResourceNo, JobJournalLine.Type::Resource);
+        LibraryVariableStorage.Enqueue(JobJournalLine."Journal Template Name");
+        // [WHEN] Lookup "Unit of Measure" in Job Journal Line
+        OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
+        // [THEN] Page "Resource Units of Measure" is open and contains lines related to Resource "R"
+        // [THEN] "JJL"."Unit of Measure" = "UM"
+        JobJournalLine.Find;
+        Assert.AreEqual(UnitOfMeasureCode, JobJournalLine."Unit of Measure Code",
+          JobJournalLine.FieldCaption("Unit of Measure Code"));
+    end;
+
+    [Test]
+    [HandlerFunctions('JobJournalTemplateListPageHandler,UnitsOfMeasurePageHandler')]
+    [Scope('OnPrem')]
+    procedure LookupUnitOfMeasureJobJournal()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        UnitOfMeasure: Record "Unit of Measure";
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 362516] Lookup "Unit of Measure" for "G/L Account" on page "Job Journal" opening and containing data
+        LightInit;
+        // [GIVEN] "G/L Account" - "GLA" and "Unit of Measure" - "UM"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        // [GIVEN] Job Journal Line "Type" = "G/L Account" with "GLA"
+        CreateJobJournalLineWithBlankUOM(JobJournalLine, GLAccountNo, JobJournalLine.Type::"G/L Account");
+        LibraryVariableStorage.Enqueue(JobJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(UnitOfMeasure.Code);
+        // [WHEN] Lookup "Unit of Measure" in Job Journal Line
+        OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
+        // [THEN] Page "Units of Measure" is open and contains lines
+        // [THEN] "JJL"."Unit of Measure" = "UM"
+        JobJournalLine.Find;
+        Assert.AreEqual(UnitOfMeasure.Code, JobJournalLine."Unit of Measure Code",
+          JobJournalLine.FieldCaption("Unit of Measure Code"));
+    end;
+
+#if not CLEAN19
+    [Test]
     [Scope('OnPrem')]
     procedure UnitCostFactorOnJobGLJournalLine()
     var
@@ -187,6 +266,7 @@ codeunit 136305 "Job Journal"
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         GenJournalBatch.Delete(true);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -223,6 +303,7 @@ codeunit 136305 "Job Journal"
         DeleteJobJournalTemplate(JobJournalLine."Journal Template Name");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure JobItemPriceCreation()
@@ -381,6 +462,7 @@ codeunit 136305 "Job Journal"
         // [THEN] Verify that the creation failed
         Assert.VerifyFailure(RecordNotFound, StrSubstNo(TestForBlankValuesPassed, JobItemPrice.TableCaption));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -436,6 +518,7 @@ codeunit 136305 "Job Journal"
         VerifyPostingGroupOnJobLedgerEntry(DocumentNo, JobTask."Job No.", JobPlanningLine."No.");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure JobResourcePricesWithTypeResource()
@@ -659,6 +742,7 @@ codeunit 136305 "Job Journal"
           JobResourcePrice."Job No.", JobResourcePrice."Job Task No.", JobResourcePrice.Type::"Group(Resource)", JobResourcePrice.Code,
           JobResourcePrice."Work Type Code", JobResourcePrice."Currency Code");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('JobJournalTemplateListPageHandler')]
@@ -700,6 +784,7 @@ codeunit 136305 "Job Journal"
         ChangeItemQuantityAndVerifyNoStockWarning(JobJournalLine);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure JobResourcePricesWithBlankTypeGroupResource()
@@ -1209,6 +1294,7 @@ codeunit 136305 "Job Journal"
           JobGLAccountPrice."Line Discount %",
           Round(-JobPlanningLine.Quantity * JobGLAccountPrice."Unit Price" * JobGLAccountPrice."Line Discount %" / 100));
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
@@ -1388,6 +1474,7 @@ codeunit 136305 "Job Journal"
         VerifyDifferentCostsInJobLedgerEntry(GenJournalLine, Amount);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('JobJournalTemplateListPageHandler,JobCalcRemainingUsageRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1473,6 +1560,7 @@ codeunit 136305 "Job Journal"
         // Tear Down: Delete the Job Journal Template created.
         DeleteJobJournalTemplate(JobJournalBatch."Journal Template Name");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1716,84 +1804,6 @@ codeunit 136305 "Job Journal"
 
         // [THEN] Verify Bank Account No. of Bank Account Ledger Entries.
         VerifyBankAccNoOnBankAccountLedgerEntries(BankAccount."No.", -GenJournalLine.Amount);
-    end;
-
-    [Test]
-    [HandlerFunctions('JobJournalTemplateListPageHandler,ItemUnitsOfMeasurePageHandler')]
-    [Scope('OnPrem')]
-    procedure LookupItemUnitOfMeasureJobJournal()
-    var
-        JobJournalLine: Record "Job Journal Line";
-        Item: Record Item;
-        UnitOfMeasureCode: Code[10];
-    begin
-        // [SCENARIO 362516] Lookup "Unit of Measure" for Item on page "Job Journal" opening and containing relevant data
-        LightInit;
-        // [GIVEN] Item - "I" with "Unit of Measure" - "UM"
-        LibraryInventory.CreateItem(Item);
-        UnitOfMeasureCode := Item."Base Unit of Measure";
-        // [GIVEN] Job Journal Line, where "Type" = "Item" with Item "I"
-        CreateJobJournalLineWithBlankUOM(JobJournalLine, Item."No.", JobJournalLine.Type::Item);
-        LibraryVariableStorage.Enqueue(JobJournalLine."Journal Template Name");
-        // [WHEN] Lookup "Unit of Measure" in Job Journal Line
-        OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
-        // [THEN] Page "Item Units of Measure" is open and contains lines related to Item "I"
-        // [THEN] "JJL"."Unit of Measure" = "UM"
-        JobJournalLine.Find;
-        Assert.AreEqual(UnitOfMeasureCode, JobJournalLine."Unit of Measure Code",
-          JobJournalLine.FieldCaption("Unit of Measure Code"));
-    end;
-
-    [Test]
-    [HandlerFunctions('JobJournalTemplateListPageHandler,ResourceUnitsOfMeasurePageHandler')]
-    [Scope('OnPrem')]
-    procedure LookupResourceUnitOfMeasureJobJournal()
-    var
-        JobJournalLine: Record "Job Journal Line";
-        ResourceNo: Code[20];
-        UnitOfMeasureCode: Code[10];
-    begin
-        // [SCENARIO 362516] Lookup "Unit of Measure" for Resource on page "Job Journal" opening and containing relevant data
-        LightInit;
-        // [GIVEN] Resource - "R" with "Unit of Measure" - "UM"
-        ResourceNo := CreateResourceNo(UnitOfMeasureCode);
-        // [GIVEN] Job Journal Line, where "Type" = "Resource" with Resource "R"
-        CreateJobJournalLineWithBlankUOM(JobJournalLine, ResourceNo, JobJournalLine.Type::Resource);
-        LibraryVariableStorage.Enqueue(JobJournalLine."Journal Template Name");
-        // [WHEN] Lookup "Unit of Measure" in Job Journal Line
-        OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
-        // [THEN] Page "Resource Units of Measure" is open and contains lines related to Resource "R"
-        // [THEN] "JJL"."Unit of Measure" = "UM"
-        JobJournalLine.Find;
-        Assert.AreEqual(UnitOfMeasureCode, JobJournalLine."Unit of Measure Code",
-          JobJournalLine.FieldCaption("Unit of Measure Code"));
-    end;
-
-    [Test]
-    [HandlerFunctions('JobJournalTemplateListPageHandler,UnitsOfMeasurePageHandler')]
-    [Scope('OnPrem')]
-    procedure LookupUnitOfMeasureJobJournal()
-    var
-        JobJournalLine: Record "Job Journal Line";
-        UnitOfMeasure: Record "Unit of Measure";
-        GLAccountNo: Code[20];
-    begin
-        // [SCENARIO 362516] Lookup "Unit of Measure" for "G/L Account" on page "Job Journal" opening and containing data
-        LightInit;
-        // [GIVEN] "G/L Account" - "GLA" and "Unit of Measure" - "UM"
-        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        // [GIVEN] Job Journal Line "Type" = "G/L Account" with "GLA"
-        CreateJobJournalLineWithBlankUOM(JobJournalLine, GLAccountNo, JobJournalLine.Type::"G/L Account");
-        LibraryVariableStorage.Enqueue(JobJournalLine."Journal Template Name");
-        LibraryVariableStorage.Enqueue(UnitOfMeasure.Code);
-        // [WHEN] Lookup "Unit of Measure" in Job Journal Line
-        OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
-        // [THEN] Page "Units of Measure" is open and contains lines
-        // [THEN] "JJL"."Unit of Measure" = "UM"
-        JobJournalLine.Find;
-        Assert.AreEqual(UnitOfMeasure.Code, JobJournalLine."Unit of Measure Code",
-          JobJournalLine.FieldCaption("Unit of Measure Code"));
     end;
 
     [Test]
@@ -2338,6 +2348,133 @@ codeunit 136305 "Job Journal"
         JobCard.ContactEmail.AssertEquals(Contact2."E-Mail");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    procedure LocationForNonInventoryItemsAllowed()
+    var
+        ServiceItem: Record Item;
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        JobJournalLine1: Record "Job Journal Line";
+        JobJournalLine2: Record "Job Journal Line";
+        JobTask: Record "Job Task";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [SCENARIO] Posting job journal lines containing non-inventory items with location set.
+        Initialize();
+
+        // [GIVEN] A non-inventory item and a service item.
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] A job with job tasks containing two job journal lines for the non-inventory items with location set.
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.CreateJobJournalLine(JobJournalLine1."Line Type"::Budget, JobTask, JobJournalLine1);
+        LibraryJob.CreateJobJournalLine(JobJournalLine2."Line Type"::Budget, JobTask, JobJournalLine2);
+
+        JobJournalLine1.Validate(Type, JobJournalLine1.Type::Item);
+        JobJournalLine1.Validate("No.", ServiceItem."No.");
+        JobJournalLine1.Validate(Quantity, 1);
+        JobJournalLine1.Validate("Location Code", Location.Code);
+        JobJournalLine1.Modify(true);
+
+        JobJournalLine2.Validate(Type, JobJournalLine1.Type::Item);
+        JobJournalLine2.Validate("No.", NonInventoryItem."No.");
+        JobJournalLine2.Validate(Quantity, 1);
+        JobJournalLine2.Validate("Location Code", Location.Code);
+        JobJournalLine2.Modify(true);
+
+        // [WHEN] Posting the job journal lines.
+        LibraryJob.PostJobJournal(JobJournalLine1);
+        LibraryJob.PostJobJournal(JobJournalLine2);
+
+        // [THEN] An item ledger entry is created for non-inventory items with location set.
+        ItemLedgerEntry.SetRange("Item No.", ServiceItem."No.");
+        Assert.AreEqual(1, ItemLedgerEntry.Count, 'Expected only one ILE to be created.');
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(-1, ItemLedgerEntry.Quantity, 'Expected quantity to be -1.');
+        Assert.AreEqual(Location.Code, ItemLedgerEntry."Location Code", 'Expected location to be set.');
+
+        ItemLedgerEntry.SetRange("Item No.", NonInventoryItem."No.");
+        Assert.AreEqual(1, ItemLedgerEntry.Count, 'Expected only one ILE to be created.');
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(-1, ItemLedgerEntry.Quantity, 'Expected quantity to be -1.');
+        Assert.AreEqual(Location.Code, ItemLedgerEntry."Location Code", 'Expected location to be set.');
+    end;
+
+    [Test]
+    procedure BinCodeNotAllowedForNonInventoryItems()
+    var
+        Item: Record Item;
+        ServiceItem: Record Item;
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        JobJournalLine1: Record "Job Journal Line";
+        JobJournalLine2: Record "Job Journal Line";
+        JobJournalLine3: Record "Job Journal Line";
+        JobTask: Record "Job Task";
+    begin
+        // [SCENARIO] Bin code is not allowed for non-inventory items in job journal line.
+        Initialize();
+
+        // [GIVEN] An item, A non-inventory item and a service item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location with require bin and a default bin code.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBinContent(
+            BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure"
+        );
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+        Location.Validate("Default Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] A job with job tasks containing 3 job journal lines for for the item and non-inventory items.
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.CreateJobJournalLine(JobJournalLine1."Line Type"::Budget, JobTask, JobJournalLine1);
+        LibraryJob.CreateJobJournalLine(JobJournalLine2."Line Type"::Budget, JobTask, JobJournalLine2);
+        LibraryJob.CreateJobJournalLine(JobJournalLine3."Line Type"::Budget, JobTask, JobJournalLine3);
+
+        // [WHEN] Setting the location code for the job journal lines.
+        JobJournalLine1.Validate(Type, JobJournalLine1.Type::Item);
+        JobJournalLine1.Validate("No.", Item."No.");
+        JobJournalLine1.Validate(Quantity, 1);
+        JobJournalLine1.Validate("Location Code", Location.Code);
+        JobJournalLine1.Modify(true);
+
+        JobJournalLine2.Validate(Type, JobJournalLine1.Type::Item);
+        JobJournalLine2.Validate("No.", NonInventoryItem."No.");
+        JobJournalLine2.Validate(Quantity, 1);
+        JobJournalLine2.Validate("Location Code", Location.Code);
+        JobJournalLine2.Modify(true);
+
+        JobJournalLine3.Validate(Type, JobJournalLine3.Type::Item);
+        JobJournalLine3.Validate("No.", ServiceItem."No.");
+        JobJournalLine3.Validate(Quantity, 1);
+        JobJournalLine3.Validate("Location Code", Location.Code);
+        JobJournalLine3.Modify(true);
+
+        // [THEN] Bin code is set for the item.
+        Assert.AreEqual(Bin.Code, JobJournalLine1."Bin Code", 'Expected bin code to be set');
+        Assert.AreEqual('', JobJournalLine2."Bin Code", 'Expected no bin code set');
+        Assert.AreEqual('', JobJournalLine3."Bin Code", 'Expected no bin code set');
+
+        // [WHEN] Setting bin code on non-inventory items.
+        asserterror JobJournalLine2.Validate("Bin Code", Bin.Code);
+        asserterror JobJournalLine3.Validate("Bin Code", Bin.Code);
+
+        // [THEN] An error is thrown.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2377,6 +2514,7 @@ codeunit 136305 "Job Journal"
         NoSeriesCode := '';
     end;
 
+#if not CLEAN19
     local procedure CreateAndUpdateJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobTask: Record "Job Task")
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -2385,6 +2523,7 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice.Validate("Line Discount %", LibraryRandom.RandDec(5, 2));
         JobGLAccountPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateAndUpdateJobJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
@@ -2520,6 +2659,7 @@ codeunit 136305 "Job Journal"
         exit(Resource."No.");
     end;
 
+#if not CLEAN19
     local procedure CreateJobItemPrice(var JobItemPrice: Record "Job Item Price")
     var
         Item: Record Item;
@@ -2539,6 +2679,7 @@ codeunit 136305 "Job Journal"
         JobItemPrice.Validate("Unit Price", UnitPrice);
         JobItemPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateJobGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; JobNo: Code[20]; JobTaskNo: Code[20]; CurrencyCode: Code[10])
     begin
@@ -2737,6 +2878,7 @@ codeunit 136305 "Job Journal"
         ResourceUnitOfMeasure.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateJobResourcePrice(var JobResourcePrice: Record "Job Resource Price"; Type: Option; No: Code[20])
     var
         JobTask: Record "Job Task";
@@ -2744,6 +2886,7 @@ codeunit 136305 "Job Journal"
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobResourcePrice(JobResourcePrice, JobTask."Job No.", JobTask."Job Task No.", Type, No, '', '');  // Blank value is for Work Type Code and Currency Code.
     end;
+#endif
 
     local procedure MockReservationEntry(JobJournalLine: Record "Job Journal Line")
     var
@@ -2838,6 +2981,7 @@ codeunit 136305 "Job Journal"
         SalesLine.FindFirst;
     end;
 
+#if not CLEAN19
     local procedure ModifyJobItemPriceForUnitPrice(var JobItemPrice: Record "Job Item Price"; UnitPrice: Decimal)
     begin
         JobItemPrice.Validate("Unit Price", UnitPrice);
@@ -2861,6 +3005,7 @@ codeunit 136305 "Job Journal"
         JobResourcePrice.Validate("Unit Cost Factor", UnitCostFactor);
         JobResourcePrice.Modify(true);
     end;
+#endif
 
     local procedure PostGeneralJournalLine(GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -2917,11 +3062,13 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure UpdateLineDiscountPctOnJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price")
     begin
         JobGLAccountPrice.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));  // Taking Random value for Line Discount Percent.
         JobGLAccountPrice.Modify(true);
     end;
+#endif
 
     local procedure UpdateQuantityAndDiscountOnPlanningLine(JobPlanningLine: Record "Job Planning Line"; LineDiscountAmount: Decimal)
     begin
@@ -2940,6 +3087,7 @@ codeunit 136305 "Job Journal"
         SourceCodeSetup.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure UpdateUnitCostFactorOnJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price")
     begin
         JobGLAccountPrice.Validate("Unit Cost Factor", LibraryRandom.RandDec(10, 2));  // Taking Random value for Unit Cost Factor.
@@ -2957,6 +3105,7 @@ codeunit 136305 "Job Journal"
         JobGLAccountPrice.Validate("Unit Price", LibraryRandom.RandDec(10, 2));  // Taking Random value for Unit Price.
         JobGLAccountPrice.Modify(true);
     end;
+#endif
 
     local procedure UpdateUnitCostOnJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; No: Code[20]; UnitCost: Decimal)
     begin

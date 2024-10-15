@@ -27,7 +27,7 @@ codeunit 46 SelectionFilterManagement
             RecRef := TempRecRef.Duplicate;
             RecRef.Reset();
         end else
-            RecRef.Open(TempRecRef.Number);
+            RecRef.Open(TempRecRef.Number, false, TempRecRef.CurrentCompany);
 
         TempRecRefCount := TempRecRef.Count();
         if TempRecRefCount > 0 then begin

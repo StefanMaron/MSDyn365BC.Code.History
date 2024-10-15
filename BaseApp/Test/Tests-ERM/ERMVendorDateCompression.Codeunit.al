@@ -187,7 +187,7 @@ codeunit 134033 "ERM Vendor Date Compression"
         // Run the Date Compress Vendor Ledger Report with a closed Accounting Period.
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         DateCompressVendorLedger.SetTableView(VendorLedgerEntry);
-        DateCompressVendorLedger.InitializeRequest(StartingDate, GenJournalLine."Posting Date", PeriodLength, '', false, false, false, '');
+        DateCompressVendorLedger.InitializeRequest(StartingDate, GenJournalLine."Posting Date", PeriodLength, '', false, false, false, '', false);
         DateCompressVendorLedger.UseRequestPage(false);
         DateCompressVendorLedger.Run;
     end;

@@ -460,7 +460,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     end;
         end;
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateXMLDocument(var EnterpriseNo: Text[30])
     begin

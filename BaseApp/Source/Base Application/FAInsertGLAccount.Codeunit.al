@@ -1,4 +1,4 @@
-﻿codeunit 5601 "FA Insert G/L Account"
+codeunit 5601 "FA Insert G/L Account"
 {
     TableNo = "FA Ledger Entry";
 

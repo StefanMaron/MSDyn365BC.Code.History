@@ -2,8 +2,8 @@ table 2000010 "IBS Log"
 {
     Caption = 'IBS Log';
     ObsoleteReason = 'Legacy ISABEL';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -117,37 +117,5 @@ table 2000010 "IBS Log"
     {
     }
 
-    trigger OnDelete()
-    var
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-        FieldRef2: FieldRef;
-    begin
-        RecRef.GetTable(Rec);
-        FieldRef := RecRef.Field(23);
-        FieldRef2 := RecRef.Field(21);
-        if not (("Integration Type" = "Integration Type"::Manual) or ("Process Status" = "Process Status"::Archived)) then
-            Error(Text000, SelectStr("Integration Type"::Manual + 1, FieldRef.OptionCaption),
-              SelectStr("Process Status"::Archived + 1, FieldRef2.OptionCaption));
-    end;
-
-    var
-        Text000: Label 'Only IBS log entries with an integration type of %1 or a process status of %2 can be deleted.';
-
-    [Scope('OnPrem')]
-    procedure ResolveConflicts()
-    var
-        IBSAccountConflict: Record "IBS Account Conflict";
-    begin
-        IBSAccountConflict.SetRange("IBS Log Entry No.", "No.");
-        if IBSAccountConflict.FindFirst then
-            if PAGE.RunModal(0, IBSAccountConflict) = ACTION::LookupOK then begin
-                "IBS User ID" := IBSAccountConflict."User ID";
-                "IBS Contract ID" := IBSAccountConflict."Contract ID";
-                "Upload Status" := "Upload Status"::"Ready for Upload";
-                Modify;
-                IBSAccountConflict.DeleteAll();
-            end;
-    end;
 }
 

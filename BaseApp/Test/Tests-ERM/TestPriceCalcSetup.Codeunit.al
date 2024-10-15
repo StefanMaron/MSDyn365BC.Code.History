@@ -36,7 +36,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, PriceCalculationSetup.Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         asserterror PriceCalculationMgt.VerifyMethodImplemented(PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Any);
         Assert.ExpectedError(StrSubstNo(NotImplementedMethodErr, PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Any));
     end;
@@ -51,7 +51,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         PriceCalculationMgt.VerifyMethodImplemented(PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Any);
     end;
 
@@ -65,7 +65,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Purchase,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         PriceCalculationMgt.VerifyMethodImplemented(PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Any);
     end;
 
@@ -79,7 +79,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Purchase,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         asserterror PriceCalculationMgt.VerifyMethodImplemented(PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Sale);
         Assert.ExpectedError(StrSubstNo(NotImplementedMethodErr, PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Sale));
     end;
@@ -94,7 +94,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         asserterror PriceCalculationMgt.VerifyMethodImplemented(PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Purchase);
         Assert.ExpectedError(StrSubstNo(NotImplementedMethodErr, PriceCalculationSetup.Method::"Test Price", PriceCalculationSetup.Type::Purchase));
     end;
@@ -106,23 +106,30 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         Guids: array[2] of Guid;
         i: Integer;
+        TestPriceCalcSetup: Codeunit "Test Price Calc. Setup";
     begin
+        // [FEATURE] [UI]
         Initialize();
+        BindSubscription(TestPriceCalcSetup); // to handle OnFindSupportedSetup
         // [GIVEN] Subscribers added 4 setup records for "Lowest Price", where 2 'V16' have "Default" 'Yes'
         PriceCalculationSetup.DeleteAll();
         PriceCalculationMgt.Run();
 
         PriceCalculationSetup.SetRange(Method, PriceCalculationSetup.Method::"Lowest Price");
+#if not CLEAN19
+        Assert.RecordCount(PriceCalculationSetup, 6);
+#else
         Assert.RecordCount(PriceCalculationSetup, 4);
+#endif
         PriceCalculationSetup.SetRange(
             Implementation, PriceCalculationSetup.Implementation::"Business Central (Version 16.0)");
         PriceCalculationSetup.SetRange(Default, true);
         Assert.RecordCount(PriceCalculationSetup, 2);
-        // [GIVEN] User sets 'V15' as defaults
+        // [GIVEN] User sets 'Test' as defaults
         PriceCalculationSetup.Reset();
         PriceCalculationSetup.SetRange(Method, PriceCalculationSetup.Method::"Lowest Price");
         PriceCalculationSetup.SetRange(
-            Implementation, PriceCalculationSetup.Implementation::"Business Central (Version 15.0)");
+            Implementation, PriceCalculationSetup.Implementation::Test);
         i := 0;
         PriceCalculationSetup.FindSet();
         repeat
@@ -140,11 +147,11 @@ codeunit 134158 "Test Price Calc. Setup"
         // [WHEN] Refresh setup
         PriceCalculationMgt.Run();
 
-        // [THEN] Two records with 'V15' are defaults
+        // [THEN] Two records with 'Test' are defaults
         PriceCalculationSetup.Reset();
         PriceCalculationSetup.SetRange(Method, PriceCalculationSetup.Method::"Lowest Price");
         PriceCalculationSetup.SetRange(
-            Implementation, PriceCalculationSetup.Implementation::"Business Central (Version 15.0)");
+            Implementation, PriceCalculationSetup.Implementation::Test);
         PriceCalculationSetup.SetRange(Default, true);
         Assert.RecordCount(PriceCalculationSetup, 2);
         // [THEN] Records have the same SystemID (were not recreated)
@@ -229,9 +236,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'D' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' 'Y' sells Items
@@ -271,9 +278,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
@@ -329,9 +336,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'D' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
@@ -385,9 +392,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
@@ -437,9 +444,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
@@ -486,9 +493,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'D' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
@@ -532,9 +539,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
@@ -575,9 +582,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
@@ -615,9 +622,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell all Items
@@ -648,7 +655,7 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Document Line, where Customer 'Y' sells Item 'X' 
@@ -1802,9 +1809,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B', where 'A' and 'B' are 'Sale' for 'All', 'A' - default; 'C' and 'D' are 'Purchase' for 'All', 'C' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Sales Line, where Item 'X' and Customer 'Y'
@@ -1832,10 +1839,10 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B', where 'A' and 'B' are 'Sale' for 'All', 'A' - default, but disabled; 'C' and 'D' are 'Purchase' for 'All', 'C' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.DisableSetup(PriceCalculationSetup[1]);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Sales Line, where Item 'X' and Customer 'Y'
@@ -1863,7 +1870,7 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B','C','D', where 'A' and 'B' are for 'All', 'A' - default; 'C' and 'D' are for 'Item', 'C' - default.
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
             ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
@@ -1896,7 +1903,7 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B','C','D', where 'A' and 'B' are for 'All', 'A' - default; 'C' and 'D' are for 'Item', 'D' - default.
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
             ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
@@ -1932,7 +1939,7 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B','C','D', where 'A' and 'B' are for 'All', 'A' - default; 'C' and 'D' are for 'Item', 'D' - default.
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
             ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
@@ -1968,7 +1975,7 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] 4 setup lines: 'A','B','C','D', where 'A' and 'B' are for 'All', 'A' - default; 'C' and 'D' are for 'Item', 'D' - default.
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
             ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
@@ -2017,7 +2024,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Test Price", PriceCalculationSetup.Type::Sale,
             PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
@@ -2044,7 +2051,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Test Price", PriceCalculationSetup.Type::Purchase,
             PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
@@ -2071,7 +2078,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
 
         // [WHEN] Set "Price Calculation Method" as 'Not Defined'
         SalesReceivablesSetup.Get();
@@ -2095,7 +2102,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
 
         // [WHEN] Set "Price Calculation Method" as 'Not Defined' in CustomerPriceGroup 'CPR'
         CustomerPriceGroup.Init();
@@ -2120,7 +2127,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
 
         // [WHEN] Set "Price Calculation Method" as 'Not Defined' in Customer 'C'
         Customer.Init();
@@ -2145,7 +2152,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
 
         // [WHEN] Set "Price Calculation Method" as 'Not Defined' in Job 'J'
         Job.Init();
@@ -2186,7 +2193,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Purchase,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Test Price", PriceCalculationSetup.Type::Purchase,
             PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
@@ -2213,7 +2220,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Purchase,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Test Price", PriceCalculationSetup.Type::Purchase,
             PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
@@ -2242,7 +2249,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Purchase,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
 
         // [WHEN] Set "Price Calculation Method" as 'Not Defined'
         PurchasesPayablesSetup.Get();
@@ -2266,7 +2273,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Purchase,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
 
         // [WHEN] Set "Price Calculation Method" as 'Not Defined' for Vendor 'V'
         Vendor.Init();
@@ -2291,7 +2298,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup.DeleteAll();
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Purchase,
-            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            PriceCalculationSetup."Asset Type"::" ", "Price Calculation Handler"::Test, true);
 
         // [WHEN] Set "Cost Calculation Method" as 'Not Defined' in Job 'J'
         Job.Init();
@@ -2300,59 +2307,6 @@ codeunit 134158 "Test Price Calc. Setup"
 
         // [THEN] Job 'J', where "Price Calculation Method" is 'Not Defined'
         Job.Testfield("Cost Calculation Method", Method::" ");
-    end;
-
-    //[Test]
-    procedure T300_ApplyPriceSalesLine()
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        PriceListLine: Record "Price List Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesPrice: Record "Sales Price";
-        SalesLinePrice: Codeunit "Sales Line - Price";
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        PriceCalculation: interface "Price Calculation";
-        PriceType: Enum "Price Type";
-        AmountType: enum "Price Amount Type";
-        ExpectedPrice: Decimal;
-    begin
-        // [FEATURE] [Sales] [Price]
-        // [SCENARIO] ApplyPrice() updates 'Unit Price' in sales line.
-        Initialize();
-        // [GIVEN] Item 'X', where "Unit Price" is 100
-        ExpectedPrice := LibraryRandom.RandDec(1000, 2);
-        LibraryInventory.CreateItem(Item);
-        Item."Unit Price" := ExpectedPrice + 0.02;
-        Item.Modify();
-        // [GIVEN] Sales prices for Item 'X': 99.99 and 99.98
-        LibrarySales.CreateCustomer(Customer);
-        SalesPrice.DeleteAll();
-        LibrarySales.CreateSalesPrice(
-            SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.",
-            WorkDate, '', '', Item."Base Unit of Measure", 0, ExpectedPrice);
-        LibrarySales.CreateSalesPrice(
-            SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '',
-            WorkDate, '', '', Item."Base Unit of Measure", 0, ExpectedPrice + 0.01);
-        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
-
-        // [GIVEN] Sales Invoice
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        // [GIVEN] with one line, where "Type" is 'Item', "No." is 'X', and "Unit Price" is 0
-        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
-        SalesLine.Type := SalesLine.Type::Item;
-        SalesLine."No." := Item."No.";
-        SalesLine.Quantity := 1;
-        SalesLine.Modify(true);
-
-        // [WHEN] ApplyPrice for the sales line
-        SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
-        PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
-        SalesLine.ApplyPrice(SalesLine.FieldNo(Quantity), PriceCalculation);
-
-        // [THEN] Line, where "Unit Price" is 99.98
-        SalesLine.TestField("Unit Price", ExpectedPrice);
     end;
 
     local procedure Initialize()
@@ -2380,9 +2334,9 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Test Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Test Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
             LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Test Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
     end;
@@ -2548,4 +2502,24 @@ codeunit 134158 "Test Price Calc. Setup"
         Vendor.Modify(true);
         exit(Vendor."No.")
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation Mgt.", 'OnFindSupportedSetup', '', false, false)]
+    local procedure OnFindImplementationHandler(var TempPriceCalculationSetup: Record "Price Calculation Setup" temporary)
+    begin
+        AddSupportedSetup(TempPriceCalculationSetup);
+    end;
+
+    local procedure AddSupportedSetup(var TempPriceCalculationSetup: Record "Price Calculation Setup" temporary)
+    begin
+        TempPriceCalculationSetup.Init();
+        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::Test);
+        TempPriceCalculationSetup.Method := TempPriceCalculationSetup.Method::"Lowest Price";
+        TempPriceCalculationSetup.Enabled := true;
+        TempPriceCalculationSetup.Default := false;
+        TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Purchase;
+        TempPriceCalculationSetup.Insert(true);
+        TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Sale;
+        TempPriceCalculationSetup.Insert(true);
+    end;
+
 }

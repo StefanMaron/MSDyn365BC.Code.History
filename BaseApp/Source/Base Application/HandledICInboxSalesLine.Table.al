@@ -4,12 +4,10 @@ table 439 "Handled IC Inbox Sales Line"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "IC Inbox Sales Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = 'Order,Invoice,Credit Memo,Return Order';
-            OptionMembers = "Order",Invoice,"Credit Memo","Return Order";
         }
         field(3; "Document No."; Code[20])
         {
@@ -114,13 +112,7 @@ table 439 "Handled IC Inbox Sales Line"
             ELSE
             IF ("IC Partner Ref. Type" = CONST(Item)) Item
             ELSE
-#if CLEAN16            
             IF ("IC Partner Ref. Type" = CONST("Charge (Item)")) "Item Charge";
-#else
-            IF ("IC Partner Ref. Type" = CONST("Charge (Item)")) "Item Charge"
-            ELSE
-            IF ("IC Partner Ref. Type" = CONST("Cross Reference")) "Item Cross Reference";
-#endif            
         }
         field(125; "IC Partner Code"; Code[20])
         {

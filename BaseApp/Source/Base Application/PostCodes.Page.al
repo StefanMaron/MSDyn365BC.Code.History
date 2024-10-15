@@ -5,7 +5,7 @@ page 367 "Post Codes"
     PageType = List;
     PopulateAllFields = true;
     SourceTable = "Post Code";
-    UsageCategory = Lists;
+    UsageCategory = Administration;
 
     layout
     {

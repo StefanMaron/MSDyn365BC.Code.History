@@ -200,16 +200,25 @@ report 2000005 "File SEPA Payments"
     }
 
     trigger OnPostReport()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileMgt: Codeunit "File Management";
+        OutStream: OutStream;
+        IsHandled: Boolean;
     begin
         FinishGroupHeader;
-        XMLDomDoc.Save(ServerFileName);
+        TempBlob.CreateOutStream(OutStream);
+        XMLDomDoc.Save(OutStream);
+        OnBeforeDownloadXmlFile(TempBlob, IsHandled);
+        if not IsHandled then begin
+            FileMgt.BLOBExportToServerFile(TempBlob, ServerFileName);
+            if not (ClientTypeManagement.GetCurrentClientType in [ClientType::Desktop, ClientType::Windows]) then
+                FullFileName := RBMgt.GetFileName(FileName)
+            else
+                FullFileName := FileName;
 
-        if not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Desktop, CLIENTTYPE::Windows]) then
-            FullFileName := RBMgt.GetFileName(FileName)
-        else
-            FullFileName := FileName;
-
-        Download(ServerFileName, '', '', AllFilesDescriptionTxt, FullFileName);
+            Download(ServerFileName, '', '', AllFilesDescriptionTxt, FullFileName);
+        end;
         Clear(XMLDomDoc);
     end;
 
@@ -871,6 +880,11 @@ report 2000005 "File SEPA Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreDataItemSeparatePmtJnlLine(var PaymentJournalLine: Record "Payment Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadXmlFile(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean);
     begin
     end;
 }

@@ -2654,6 +2654,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     end;
 
     [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoWhenCalculateSubcontractsSKUAndNoItemVendorCatalog()
     var
         Item: Record Item;
@@ -2691,6 +2692,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     end;
 
     [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoWhenCalculateSubcontractsNoItemVendorCatalogNoSKU()
     var
         Item: Record Item;

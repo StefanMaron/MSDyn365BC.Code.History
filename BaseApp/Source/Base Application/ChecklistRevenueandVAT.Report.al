@@ -999,15 +999,15 @@ report 11312 "Checklist Revenue and VAT"
 
         for i := 1 to NoOfPeriods do begin
             if i <> 1 then
-                PeriodFormManagement.NextDate(1, Calender, PeriodType)
+                PeriodPageManagement.NextDate(1, Calender, PeriodType)
             else
-                if not PeriodFormManagement.FindDate('=', Calender, PeriodType) then begin
+                if not PeriodPageManagement.FindDate('=', Calender, PeriodType) then begin
                     PeriodType := PeriodType::Month;
-                    if not PeriodFormManagement.FindDate('=', Calender, PeriodType) then
+                    if not PeriodPageManagement.FindDate('=', Calender, PeriodType) then
                         Error(Text11300);
                 end;
 
-            DateName[i] := PeriodFormManagement.CreatePeriodFormat(PeriodType, Calender."Period Start");
+            DateName[i] := PeriodPageManagement.CreatePeriodFormat(PeriodType, Calender."Period Start");
             DateFilter[i] := Format(Calender."Period Start") + '..' + Format(Calender."Period End");
 
             AccountingPeriod.Reset();
@@ -1037,7 +1037,7 @@ report 11312 "Checklist Revenue and VAT"
         VATStatName: Record "VAT Statement Name";
         VATStatLine: Record "VAT Statement Line";
         VATStatement: Report "VAT Statement";
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";

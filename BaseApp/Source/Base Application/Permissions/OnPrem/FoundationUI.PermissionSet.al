@@ -1,7 +1,7 @@
 permissionset 6946 "Foundation UI"
 {
     Access = Public;
-    Assignable = true;
+    Assignable = false;
     Caption = 'Recommended for UI Removal';
 
     IncludedPermissionSets = "BaseApp Objects - Exec",
@@ -127,7 +127,9 @@ permissionset 6946 "Foundation UI"
                   tabledata "Top Customers By Sales Buffer" = RIMD,
                   tabledata "Trailing Sales Orders Setup" = RIm,
                   tabledata "Trial Balance Setup" = Rim,
+#if not CLEAN19
                   tabledata "User Callouts" = RIMD,
+#endif
                   tabledata "User Setup" = Rim,
                   tabledata "User Time Register" = rim,
                   tabledata "Value Entry Relation" = Rimd,

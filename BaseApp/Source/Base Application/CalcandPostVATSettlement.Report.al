@@ -633,7 +633,6 @@
         AllAmountsAreInTxt: Label 'All amounts are in %1.', Comment = '%1 = Currency Code';
         Text007: Label 'Purchase VAT settlement: #1######## #2########';
         Text008: Label 'Sales VAT settlement  : #1######## #2########';
-        GLAccSettle: Record "G/L Account";
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -676,6 +675,9 @@
         SettlementCaptionLbl: Label 'Settlement';
         Text11300: Label 'Enter a Journal Template Name.';
         Text11301: Label 'Enter a Journal Batch Name.';
+
+    protected var
+        GLAccSettle: Record "G/L Account";
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin

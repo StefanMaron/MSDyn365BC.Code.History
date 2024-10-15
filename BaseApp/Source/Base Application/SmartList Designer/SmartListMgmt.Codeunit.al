@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 9888 "SmartList Mgmt"
 {
     Access = Internal;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     procedure DoesUserHaveManagementAccess(UserSID: Guid): Boolean
     var
@@ -140,3 +144,4 @@ codeunit 9888 "SmartList Mgmt"
         end;
     end;
 }
+#endif

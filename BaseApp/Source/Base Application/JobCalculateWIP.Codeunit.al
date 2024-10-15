@@ -15,6 +15,9 @@ codeunit 1000 "Job Calculate WIP"
         GLSetup: Record "General Ledger Setup";
         GenJnPostLine: Codeunit "Gen. Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
         BufferType: Enum "Job WIP Buffer Type";
         WIPPostingDate: Date;
         DocNo: Code[20];
@@ -65,6 +68,8 @@ codeunit 1000 "Job Calculate WIP"
             WIPPostingDate := WIPPostingDate2;
         DocNo := DocNo2;
 
+        ActivateErrorMessageHandling(Job);
+
         Job.TestBlocked;
         Job.TestField("WIP Method");
         Job."WIP Posting Date" := WIPPostingDate;
@@ -88,6 +93,25 @@ codeunit 1000 "Job Calculate WIP"
                 end;
             until JobTask.Next() = 0;
         CreateWIPEntries(Job."No.");
+
+        if ErrorMessageHandler.HasErrors() then
+            if ErrorMessageHandler.ShowErrors() then
+                Error('');
+    end;
+
+    local procedure ActivateErrorMessageHandling(var Job: Record Job)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeActivateErrorMessageHandling(Job, ErrorMessageMgt, ErrorMessageHandler, ErrorContextElement, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GuiAllowed then begin
+            ErrorMessageMgt.Activate(ErrorMessageHandler);
+            ErrorMessageMgt.PushContext(ErrorContextElement, Job.RecordId, 0, '');
+        end;
     end;
 
     procedure DeleteWIP(Job: Record Job)
@@ -1133,6 +1157,11 @@ codeunit 1000 "Job Calculate WIP"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcUsageTotalCostCosts(var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActivateErrorMessageHandling(var Job: Record Job; var ErrorMessageMgt: Codeunit "Error Message Management"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorContextElement: Codeunit "Error Context Element"; var IsHandled: Boolean)
     begin
     end;
 

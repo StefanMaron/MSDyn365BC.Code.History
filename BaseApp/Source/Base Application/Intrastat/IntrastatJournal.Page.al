@@ -297,7 +297,7 @@
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Suggest Lines Codeunit ID" <> 0) then begin
                         CODEUNIT.Run(VATReportsConfiguration."Suggest Lines Codeunit ID", Rec);
                         exit;
@@ -323,7 +323,7 @@
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) then begin
                         CODEUNIT.Run(VATReportsConfiguration."Validate Codeunit ID", Rec);
                         CurrPage.Update();
@@ -367,7 +367,7 @@
                     IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) and
                        (VATReportsConfiguration."Content Codeunit ID" <> 0)
                     then begin
@@ -533,7 +533,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateErrors(IsHandled);
+        OnBeforeUpdateErrors(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -543,7 +543,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeUpdateErrors(var IsHandled: boolean)
+    local procedure OnBeforeUpdateErrors(var IsHandled: boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
 }

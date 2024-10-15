@@ -1,4 +1,4 @@
-codeunit 432 Consolidate
+﻿codeunit 432 Consolidate
 {
     Permissions = TableData "G/L Entry" = rimd;
     TableNo = "Business Unit";
@@ -63,6 +63,7 @@ codeunit 432 Consolidate
         TempSubsidGLEntry.Reset();
         TempSubsidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         TempSubsidGLEntry.SetRange("Posting Date", StartingDate, EndingDate);
+        OnBeforeUpdateTempGLEntry(TempSubsidGLEntry, GenJnlLine, CurErrorIdx, ErrorText, TestMode);
         TempSubsidGLAcc.Reset();
         if TempSubsidGLAcc.FindSet then
             repeat
@@ -117,6 +118,7 @@ codeunit 432 Consolidate
                                 until TempSubsidDimBuf.Next() = 0;
                         end;
                         UpdateTempGLEntry(TempSubsidGLEntry);
+                        OnAfterUpdateTempGLEntry(BusUnit, TempSubsidGLEntry);
                     until TempSubsidGLEntry.Next() = 0;
 
                 TempDimBufOut.Reset();
@@ -133,6 +135,7 @@ codeunit 432 Consolidate
 
         // Post balancing entries and adjustments
         UpdatePhase(Text025);
+        OnBeforePostBalancingEntries(GenJnlLine);
 
         for i := 1 to NormalDate(EndingDate) - NormalDate(StartingDate) + 1 do begin
             if ExchRateAdjAmounts[i] <> 0 then begin
@@ -176,6 +179,7 @@ codeunit 432 Consolidate
                     BusUnit.TestField("Comp. Exch. Rate Losses Acc.");
                     GenJnlLine."Account No." := BusUnit."Comp. Exch. Rate Losses Acc.";
                 end;
+                OnBeforeWindowUpdate(GenJnlLine);
                 Window.Update(3, GenJnlLine."Account No.");
                 if not ConsolidatingClosingDate then
                     GenJnlLine."Posting Date" := StartingDate + i - 1
@@ -201,6 +205,7 @@ codeunit 432 Consolidate
                     BusUnit.TestField("Equity Exch. Rate Losses Acc.");
                     GenJnlLine."Account No." := BusUnit."Equity Exch. Rate Losses Acc.";
                 end;
+                OnBeforeWindowUpdate(GenJnlLine);
                 Window.Update(3, GenJnlLine."Account No.");
                 if not ConsolidatingClosingDate then
                     GenJnlLine."Posting Date" := StartingDate + i - 1
@@ -219,6 +224,7 @@ codeunit 432 Consolidate
                     BusUnit.TestField("Minority Exch. Rate Losses Acc");
                     GenJnlLine."Account No." := BusUnit."Minority Exch. Rate Losses Acc";
                 end;
+                OnBeforeWindowUpdate(GenJnlLine);
                 Window.Update(3, GenJnlLine."Account No.");
                 GenJnlLine."Posting Date" := StartingDate + i - 1;
                 GenJnlLine.Description := StrSubstNo(Text029 + Text015, WorkDate);
@@ -229,6 +235,7 @@ codeunit 432 Consolidate
                 GenJnlLine.Amount := -RoundingResiduals[i];
                 BusUnit.TestField("Residual Account");
                 GenJnlLine."Account No." := BusUnit."Residual Account";
+                OnBeforeWindowUpdate(GenJnlLine);
                 Window.Update(3, GenJnlLine."Account No.");
                 if not ConsolidatingClosingDate then
                     GenJnlLine."Posting Date" := StartingDate + i - 1
@@ -252,6 +259,7 @@ codeunit 432 Consolidate
             BusUnit."Last Balance Currency Factor" := BusUnit."Balance Currency Factor";
             BusUnit."Last Run" := WorkDate;
             BusUnit.Modify();
+            OnAfterBusUnitModify(Rec, BusUnit);
         end;
 
         if AnalysisViewEntriesDeleted then
@@ -351,7 +359,12 @@ codeunit 432 Consolidate
     end;
 
     procedure SetSelectedDim(var SelectedDim: Record "Selected Dimension")
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeSetSelectedDim(TempSelectedDim, SelectedDim, SkipAllDimensions, IsHandled);
+        if IsHandled then
+            exit;
         TempSelectedDim.Reset();
         TempSelectedDim.DeleteAll();
         SkipAllDimensions := SelectedDim.IsEmpty;
@@ -449,7 +462,7 @@ codeunit 432 Consolidate
             if FindSet(true, false) then
                 repeat
                     TempSubsidDimBuf.SetRange("Entry No.", "Entry No.");
-                    if not TempSubsidDimBuf.IsEmpty() then begin
+                    if TempSubsidDimBuf.FindFirst() then begin
                         "Dimension Set ID" := DimMgt.CreateDimSetIDFromDimBuf(TempSubsidDimBuf);
                         OnUpdateGLEntryDimSetIDOnAfterAssignDimensionSetID(TempSubsidDimBuf);
                         Modify;
@@ -502,6 +515,7 @@ codeunit 432 Consolidate
         InputFile.Close;
 
         Consolidation.GetGLAccount(TempSubsidGLAcc);
+        OnAfterGetGLAccount(TempSubsidGLAcc);
         Consolidation.GetGLEntry(TempSubsidGLEntry);
         Consolidation.GetEntryDim(TempSubsidDimBuf);
         Consolidation.GetExchRate(TempSubsidCurrExchRate);
@@ -630,7 +644,8 @@ codeunit 432 Consolidate
         AnalysisViewEntry: Record "Analysis View Entry";
         AnalysisViewFound: Boolean;
     begin
-        ClearAmountArray;
+        OnBeforeClearPreviousConsolidation(ConsolidGLEntry);
+        ClearAmountArray();
         with ConsolidGLEntry do begin
             if not
                SetCurrentKey("G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
@@ -838,6 +853,8 @@ codeunit 432 Consolidate
         AdjustmentAmount: Decimal;
     begin
         Clear(GenJnlLine);
+        OnBeforeUpdatePriorPeriodBalances(GenJnlLine);
+
         GenJnlLine."Business Unit Code" := BusUnit.Code;
         GenJnlLine."Document No." := GLDocNo;
         GenJnlLine."Journal Template Name" := JnlTemplName;
@@ -862,6 +879,7 @@ codeunit 432 Consolidate
               BusUnit."Equity Exch. Rate Gains Acc.", BusUnit."Equity Exch. Rate Losses Acc.",
               BusUnit."Minority Exch. Rate Gains Acc.", BusUnit."Minority Exch. Rate Losses Acc",
               BusUnit."Residual Account");
+            OnBeforeConsolidGlAccFindSet(ConsolidGLAcc);
             if FindSet then
                 repeat
                     Window.Update(3, "No.");
@@ -884,6 +902,7 @@ codeunit 432 Consolidate
                                 ConsolidGLEntry.SetRange("G/L Account No.", "No.");
                                 ConsolidGLEntry.SetRange("Posting Date", 0D, EndingDate);
                                 ConsolidGLEntry.SetRange("Business Unit Code", BusUnit.Code);
+                                OnBeforeConsolidGLEntryFindSet(ConsolidGLEntry);
                                 if ConsolidGLEntry.FindSet then
                                     repeat
                                         TempDimBufIn.Reset();
@@ -957,6 +976,7 @@ codeunit 432 Consolidate
                 BusUnit.TestField("Exch. Rate Losses Acc.");
                 GenJnlLine."Account No." := BusUnit."Exch. Rate Losses Acc.";
             end;
+            OnBeforeGenJnlPostLineTmp(GenJnlLine);
             Window.Update(3, GenJnlLine."Account No.");
             GenJnlLine."Posting Date" := EndingDate;
             GenJnlLine.Description := StrSubstNo(Text014, WorkDate);
@@ -1145,6 +1165,8 @@ codeunit 432 Consolidate
                   "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
 
+            OnBeforeTempDimSetEntryDelete(GenJnlLine, GLEntry);
+
             if Amount <> 0 then
                 GenJnlPostLineTmp(GenJnlLine);
             TempDimSetEntry2.Reset();
@@ -1207,6 +1229,7 @@ codeunit 432 Consolidate
         TempGenJnlLine.Amount := Round(TempGenJnlLine.Amount);
         TempGenJnlLine."Line No." := NextLineNo;
         TempGenJnlLine."System-Created Entry" := true;
+        OnBeforeTempGenJnlLineInsert(TempGenJnlLine);
         DimMgt.UpdateGlobalDimFromDimSetID(TempGenJnlLine."Dimension Set ID",
           TempGenJnlLine."Shortcut Dimension 1 Code", TempGenJnlLine."Shortcut Dimension 2 Code");
         TempGenJnlLine.Insert();
@@ -1304,6 +1327,9 @@ codeunit 432 Consolidate
     end;
 
     procedure Get1stSubsidGLEntry(var GLEntry: Record "G/L Entry"): Boolean
+    var
+        IsError: Boolean;
+        ErrorMsg: Text;
     begin
         ConsolidatingClosingDate :=
           (StartingDate = EndingDate) and
@@ -1327,6 +1353,10 @@ codeunit 432 Consolidate
                             TableCaption,
                             FieldCaption("Posting Date"),
                             "Posting Date"));
+                    IsError := false;
+                    OnAfterCheckPostingDate(TempSubsidGLEntry, IsError, ErrorMsg);
+                    if IsError then
+                        ReportError(ErrorMsg);
                 end;
                 exit(true);
             end;
@@ -1335,6 +1365,9 @@ codeunit 432 Consolidate
     end;
 
     procedure GetNxtSubsidGLEntry(var GLEntry: Record "G/L Entry"): Boolean
+    var
+        IsError: Boolean;
+        ErrorMsg: Text;
     begin
         with TempSubsidGLEntry do begin
             if Next <> 0 then begin
@@ -1348,10 +1381,14 @@ codeunit 432 Consolidate
                             TableCaption,
                             FieldCaption("Posting Date"),
                             "Posting Date"));
+                    IsError := false;
+                    OnAfterCheckPostingDate(TempSubsidGLEntry, IsError, ErrorMsg);
+                    if IsError then
+                        ReportError(ErrorMsg);
                 end;
                 exit(true);
-            end;
-            exit(false);
+            end else
+                exit(false);
         end;
     end;
 
@@ -1385,6 +1422,81 @@ codeunit 432 Consolidate
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateGLEntryDimSetIDOnAfterAssignDimensionSetID(var TempSubsidDimBuf: Record "Dimension Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTempGLEntry(var TempSubsidGLEntry: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line"; var CurErrorIdx: Integer; var ErrorText: array[500] of Text; TestMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateTempGLEntry(var BusUnit: Record "Business Unit"; var TempSubsidGLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostBalancingEntries(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWindowUpdate(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBusUnitModify(var Rec: Record "Business Unit"; var BusUnit: Record "Business Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSelectedDim(var TempSelectedDim: Record "Selected Dimension"; var SelectedDim: Record "Selected Dimension"; var SkipAllDimensions: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLAccount(var TempSubsidGLAcc: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearPreviousConsolidation(var ConsolidGLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePriorPeriodBalances(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConsolidGLEntryFindSet(var ConsolidGLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConsolidGLAccFindSet(var ConsolidGLAcc: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlPostLineTmp(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempDimSetEntryDelete(var GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempGenJnlLineInsert(var TempGenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckPostingDate(var GlEntry: Record "G/L Entry"; var IsError: Boolean; var ErrorMsg: Text)
     begin
     end;
 }

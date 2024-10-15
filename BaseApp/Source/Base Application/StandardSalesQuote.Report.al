@@ -1,4 +1,4 @@
-report 1304 "Standard Sales - Quote"
+﻿report 1304 "Standard Sales - Quote"
 {
     RDLCLayout = './StandardSalesQuote.rdlc';
     WordLayout = './StandardSalesQuote.docx';
@@ -599,7 +599,6 @@ report 1304 "Standard Sales - Quote"
                 begin
                     if WorkDescriptionInstream.EOS then
                         CurrReport.Break();
-
                     WorkDescriptionInstream.ReadText(WorkDescriptionLine);
                 end;
 
@@ -829,6 +828,9 @@ report 1304 "Standard Sales - Quote"
                 SalesPost.GetSalesLines(Header, Line, 0);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
+
+                if not IsReportInPreviewMode then
+                    CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
 
                 SetLanguage("Language Code");
 
@@ -1134,13 +1136,8 @@ report 1304 "Standard Sales - Quote"
             ReportTotalsLine.Add(VATAmountLine.VATAmountText, TotalAmountVAT, false, true, false, Header."Currency Code");
     end;
 
-    local procedure SetLanguage(var LanguageCode: Code[10])
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
+    local procedure SetLanguage(LanguageCode: Code[10])
     begin
-        if EnvInfoProxy.IsInvoicing then
-            LanguageCode := Language.GetUserLanguageCode;
-
         CurrReport.Language := Language.GetLanguageIdOrDefault(LanguageCode);
     end;
 }

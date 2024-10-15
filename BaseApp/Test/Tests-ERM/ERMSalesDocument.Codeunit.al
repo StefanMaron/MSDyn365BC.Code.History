@@ -364,6 +364,7 @@ codeunit 134385 "ERM Sales Document"
         VerifyValueEntries(SalesHeader."No.", SalesHeader.Amount);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnCreditMemo()
@@ -418,6 +419,7 @@ codeunit 134385 "ERM Sales Document"
           SumLineDiscountAmount(TempSalesLine, SalesHeader."No."), -TotalLineDiscountInGLEntry(TempSalesLine, SalesCrMemoHeader."No."),
           StrSubstNo(DiscountError, TempSalesLine.FieldCaption("Line Discount Amount")));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2242,6 +2244,7 @@ codeunit 134385 "ERM Sales Document"
         SalesHeader.TestField("Location Code", Customer."Location Code");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure TestGLSplitByAditionalGroupingIdentifer()
@@ -2258,6 +2261,7 @@ codeunit 134385 "ERM Sales Document"
 
         // Exercise
         BindSubscription(ERMSalesDocument); // set Additional Grouping Identifier
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 
         // Verify
@@ -2265,13 +2269,42 @@ codeunit 134385 "ERM Sales Document"
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
         Assert.AreEqual(5, GLEntry.Count, 'wrong number of entries');
     end;
+#endif
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGLSplitByAditionalGroupingIdentiferV19()
+    var
+        SalesHeader: Record "Sales Header";
+        GLEntry: Record "G/L Entry";
+        ERMSalesDocument: Codeunit "ERM Sales Document";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO] A subscriber can set the Additional Grouping Identifier to split G/L posting by line.
+        Initialize();
+        // Setup
+        CreateSalesInvoiceWithDuplicateLine(SalesHeader);
+
+        // Exercise
+        BindSubscription(ERMSalesDocument); // set Additional Grouping Identifier
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (v.19)");
+        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
+
+        // Verify
+        GLEntry.FindLast();
+        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+        Assert.AreEqual(5, GLEntry.Count, 'wrong number of entries');
+    end;
+
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure TestGLCombineByAditionalGroupingIdentifer()
     var
         SalesHeader: Record "Sales Header";
         GLEntry: Record "G/L Entry";
+        ERMSalesDocument: Codeunit "ERM Sales Document";
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] When the Additional Grouping Identifier is not set, lines are not split when posting to G/L.
@@ -2280,10 +2313,37 @@ codeunit 134385 "ERM Sales Document"
         CreateSalesInvoiceWithDuplicateLine(SalesHeader);
 
         // Exercise
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 
         // Verify
         GLEntry.FindLast;
+        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+        Assert.AreEqual(3, GLEntry.Count, 'wrong number of entries');
+    end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGLCombineByAditionalGroupingIdentiferV19()
+    var
+        SalesHeader: Record "Sales Header";
+        GLEntry: Record "G/L Entry";
+        ERMSalesDocument: Codeunit "ERM Sales Document";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO] When the Additional Grouping Identifier is not set, lines are not split when posting to G/L.
+        Initialize();
+        // Setup
+        CreateSalesInvoiceWithDuplicateLine(SalesHeader);
+
+        // Exercise
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (v.19)");
+        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
+
+        // Verify
+        GLEntry.FindLast();
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
         Assert.AreEqual(3, GLEntry.Count, 'wrong number of entries');
     end;
@@ -2757,6 +2817,7 @@ codeunit 134385 "ERM Sales Document"
         VerifyGLEntriesDescription(TempSalesLine, InvoiceNo);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
@@ -2780,7 +2841,40 @@ codeunit 134385 "ERM Sales Document"
         CreateSalesOrderWithUniqueDescriptionLines(SalesHeader, TempSalesLine, TempSalesLine.Type::Item);
 
         // [WHEN] Sales order is being posted
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, TRUE, TRUE);
+
+        // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
+        VerifyGLEntriesDescription(TempSalesLine, InvoiceNo);
+    end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExtendCopyDocumentLineDescriptionToGLEntryV19()
+    var
+        SalesHeader: Record "Sales Header";
+        TempSalesLine: Record "Sales Line" temporary;
+        ERMSalesDocument: Codeunit "ERM Sales Document";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [G/L Entry] [Description] [Event]
+        // [SCENARIO 300843] Event in table InvoicePostingBuffer can be used to copy document line Description to G/L entry for Item type
+        Initialize;
+
+        // [GIVEN] Subscribe on InvoicePostBuffer.OnAfterInvPostBufferPrepareSales
+        BINDSUBSCRIPTION(ERMSalesDocument);
+
+        // [GIVEN] Set SalesSetup."Copy Line Descr. to G/L Entry" = "No"
+        SetSalesSetupCopyLineDescrToGLEntry(FALSE);
+
+        // [GIVEN] Create sales order with 5 "Item" type sales lines with unique descriptions "Descr1" - "Descr5"
+        CreateSalesOrderWithUniqueDescriptionLines(SalesHeader, TempSalesLine, TempSalesLine.Type::Item);
+
+        // [WHEN] Sales order is being posted
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (v.19)");
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, TRUE, TRUE);
+        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
 
         // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
         VerifyGLEntriesDescription(TempSalesLine, InvoiceNo);
@@ -3152,6 +3246,133 @@ codeunit 134385 "ERM Sales Document"
         // [THEN] Error has been thrown: "Gen. Prod. Posting Group  is not set for the Prepayment G/L account with no. XXXXX."
         Assert.ExpectedError(
           StrSubstNo(GenProdPostingGroupErr, SalesLine.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType_Empty_UT()
+    var
+        SalesLine: Record "Sales Line";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales order line "Type" = "Document Default Line Type" from sales setup when InitType()
+        Initialize();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = " "
+        SalesLineType := SalesLineType::" ";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Init sales line type
+        SalesLine.GetDefaultLineType();
+        InitSalesLineType(SalesLine);
+
+        // [THEN] Sales order line "Type" = "Document Default Line Type"
+        VerifySalesLineType(SalesLine, SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType_ChargeItem_UT()
+    var
+        SalesLine: Record "Sales Line";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales order line "Type" = "Document Default Line Type" from sales setup when InitType()
+        Initialize();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Charge (Item)"
+        SalesLineType := SalesLineType::"Charge (Item)";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Init sales line type
+        InitSalesLineType(SalesLine);
+
+        // [THEN] Sales order line "Type" = "Document Default Line Type"
+        VerifySalesLineType(SalesLine, SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType_FixedAsset_UT()
+    var
+        SalesLine: Record "Sales Line";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales order line "Type" = "Document Default Line Type" from sales setup when InitType()
+        Initialize();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Fixed Asset"
+        SalesLineType := SalesLineType::"Fixed Asset";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Init sales line type
+        InitSalesLineType(SalesLine);
+
+        // [THEN] Sales order line "Type" = "Document Default Line Type"
+        VerifySalesLineType(SalesLine, SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType_GLAccount_UT()
+    var
+        SalesLine: Record "Sales Line";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales order line "Type" = "Document Default Line Type" from sales setup when InitType()
+        Initialize();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "G/L Account"
+        SalesLineType := SalesLineType::"G/L Account";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Init sales line type
+        InitSalesLineType(SalesLine);
+
+        // [THEN] Sales order line "Type" = "Document Default Line Type"
+        VerifySalesLineType(SalesLine, SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType_Item_UT()
+    var
+        SalesLine: Record "Sales Line";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales order line "Type" = "Document Default Line Type" from sales setup when InitType()
+        Initialize();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = Item
+        SalesLineType := SalesLineType::Item;
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Init sales line type
+        InitSalesLineType(SalesLine);
+
+        // [THEN] Sales order line "Type" = "Document Default Line Type"
+        VerifySalesLineType(SalesLine, SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType_Resource_UT()
+    var
+        SalesLine: Record "Sales Line";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales order line "Type" = "Document Default Line Type" from sales setup when InitType()
+        Initialize();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = Resource
+        SalesLineType := SalesLineType::Resource;
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Init sales line type
+        InitSalesLineType(SalesLine);
+
+        // [THEN] Sales order line "Type" = "Document Default Line Type"
+        VerifySalesLineType(SalesLine, SalesLineType);
     end;
 
     local procedure Initialize()
@@ -3773,6 +3994,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.TestField(Type, SalesLine.Type::" ");
     end;
 
+#if not CLEAN19
     local procedure SalesLinesWithLineDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         Counter: Integer;
@@ -3783,7 +4005,7 @@ codeunit 134385 "ERM Sales Document"
               SalesLine, SalesHeader, SalesLine.Type::Item, SalesLineDiscount.Code,
               SalesLineDiscount."Minimum Quantity" + LibraryRandom.RandDec(10, 2));
     end;
-
+#endif
     local procedure CreateSalesLinesFromDocument(var SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.FindSet();
@@ -3829,6 +4051,7 @@ codeunit 134385 "ERM Sales Document"
         CustInvoiceDisc.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure SetupLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -3844,7 +4067,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(99, 2));
         SalesLineDiscount.Modify(true);
     end;
-
+#endif
     local procedure TotalLineDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -4094,6 +4317,15 @@ codeunit 134385 "ERM Sales Document"
         NoSeries.Modify(true);
     end;
 
+    local procedure SetInvoicePosting(InvoicePosting: Enum "Sales Invoice Posting")
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        SalesSetup.Validate("Invoice Posting Setup", InvoicePosting);
+        SalesSetup.Modify();
+    end;
+
     local procedure UpdateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; AccountNo: Code[20])
     begin
         GeneralPostingSetup.Validate("Sales Pmt. Disc. Debit Acc.", AccountNo);
@@ -4229,6 +4461,25 @@ codeunit 134385 "ERM Sales Document"
         SalesReceivablesSetup.Modify(true);
     end;
 
+    local procedure SetDocumentDefaultLineType(SalesLineType: Enum "Sales Line Type")
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Document Default Line Type" := SalesLineType;
+        SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure InitSalesLineType(var SalesLine: Record "Sales Line")
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine.Type := SalesLine.GetDefaultLineType();
+    end;
+
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareSales', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -4236,6 +4487,17 @@ codeunit 134385 "ERM Sales Document"
         IF InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item THEN BEGIN
             InvoicePostBuffer."Fixed Asset Line No." := SalesLine."Line No.";
             InvoicePostBuffer."Entry Description" := SalesLine.Description;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::table, Database::"Invoice Posting Buffer", 'OnAfterPrepareSales', '', false, false)]
+    local procedure OnAfterPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
+        IF InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::Item THEN BEGIN
+            InvoicePostingBuffer."Fixed Asset Line No." := SalesLine."Line No.";
+            InvoicePostingBuffer."Entry Description" := SalesLine.Description;
+            InvoicePostingBuffer.BuildPrimaryKey();
         end;
     end;
 
@@ -4620,6 +4882,11 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.TestField("VAT Clause Code", VATClauseCode);
     end;
 
+    local procedure VerifySalesLineType(SalesLine: Record "Sales Line"; SalesLineType: Enum "Sales Line Type")
+    begin
+        SalesLine.TestField(Type, SalesLineType);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -4827,10 +5094,19 @@ codeunit 134385 "ERM Sales Document"
         ItemTrackingLines.OK.Invoke;
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', '', false, false)]
     local procedure AddGroupOnFillInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSuppressed: Boolean)
     begin
         InvoicePostBuffer."Additional Grouping Identifier" := Format(SalesLine."Line No.");
+    end;
+#endif
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice", 'OnPrepareLineOnAfterFillInvoicePostingBuffer', '', false, false)]
+    local procedure AddGroupOnFillInvPostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; SalesLine: Record "Sales Line")
+    begin
+        InvoicePostingBuffer."Additional Grouping Identifier" := Format(SalesLine."Line No.");
+        InvoicePostingBuffer.BuildPrimaryKey();
     end;
 
     [ModalPageHandler]

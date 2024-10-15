@@ -113,6 +113,7 @@ page 72 "Resource Groups"
             {
                 Caption = '&Prices';
                 Image = Price;
+#if not CLEAN19
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -145,6 +146,7 @@ page 72 "Resource Groups"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 action(PurchPriceLists)
                 {
                     ApplicationArea = Jobs;

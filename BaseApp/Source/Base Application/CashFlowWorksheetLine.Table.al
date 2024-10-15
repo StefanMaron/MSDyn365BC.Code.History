@@ -296,15 +296,15 @@ table 846 "Cash Flow Worksheet Line"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PaymentTerms: Record "Payment Terms";
         CashFlowForecast: Record "Cash Flow Forecast";
+        DiscountDateCalculation: DateFormula;
         PaymentTermsToApply: Code[10];
         CFDiscountDate: Date;
         CheckCrMemo: Boolean;
         ApplyCFPaymentTerm: Boolean;
-        DiscountDateCalculation: DateFormula;
         IsHandled: Boolean;
     begin
         if "Document Date" = 0D then
-            "Document Date" := WorkDate;
+            "Document Date" := WorkDate();
         if "Cash Flow Date" = 0D then
             "Cash Flow Date" := "Document Date";
         if "Amount (LCY)" = 0 then
@@ -340,14 +340,12 @@ table 846 "Cash Flow Worksheet Line"
             else
                 CFDiscountDate := "Pmt. Discount Date";
 
-            if CFDiscountDate <> 0D then begin
-                if CFDiscountDate >= WorkDate then begin
+            if CFDiscountDate <> 0D then
+                if CFDiscountDate >= WorkDate() then begin
                     "Cash Flow Date" := CFDiscountDate;
                     "Amount (LCY)" := "Amount (LCY)" - "Payment Discount";
                 end else
                     "Payment Discount" := 0;
-            end;
-
             exit;
         end;
 
@@ -370,7 +368,7 @@ table 846 "Cash Flow Worksheet Line"
             IsHandled := false;
             OnCalculateCFAmountAndCFDateOnBeforeCalcPaymentDiscount(CFDiscountDate, PaymentTerms, IsHandled);
             if not IsHandled then
-                if CFDiscountDate >= WorkDate then begin
+                if CFDiscountDate >= WorkDate() then begin
                     "Cash Flow Date" := CFDiscountDate;
 
                     "Payment Discount" := Round("VAT Base Amount" * PaymentTerms."Discount %" / 100);

@@ -1,4 +1,4 @@
-﻿codeunit 393 "Reminder-Issue"
+codeunit 393 "Reminder-Issue"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Issued Reminder Header" = rimd,

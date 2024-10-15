@@ -64,10 +64,8 @@ page 860 "CF Entries Dim. Overview"
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
-                var
-                    MATRIX_Step: Option First,Previous,Same,Next;
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -81,20 +79,16 @@ page 860 "CF Entries Dim. Overview"
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
-                var
-                    MATRIX_Step: Option First,Previous,Same,Next;
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
     }
 
     trigger OnOpenPage()
-    var
-        MATRIX_Step: Option First,Previous,Same,Next;
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -117,7 +111,7 @@ page 860 "CF Entries Dim. Overview"
             until NewCFForecastEntry.Next() = 0;
     end;
 
-    local procedure MATRIX_GenerateColumnCaptions(Step: Option First,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         RecRef: RecordRef;
@@ -125,8 +119,9 @@ page 860 "CF Entries Dim. Overview"
         RecRef.GetTable(Dimension);
         RecRef.SetTable(Dimension);
 
-        MatrixMgt.GenerateMatrixData(RecRef, Step, ArrayLen(MATRIX_CaptionSet),
-          1, MATRIX_PKFirstCaptionInCurrSet, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrSetLength);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), 1,
+            MATRIX_PKFirstCaptionInCurrSet, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrSetLength);
     end;
 }
 

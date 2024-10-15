@@ -1,4 +1,4 @@
-﻿codeunit 395 "FinChrgMemo-Issue"
+codeunit 395 "FinChrgMemo-Issue"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Reminder/Fin. Charge Entry" = rimd,

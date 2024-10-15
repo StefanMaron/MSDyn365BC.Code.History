@@ -563,7 +563,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         DateCompressVendorLedger.SetTableView(VendorLedgerEntry);
         DateCompressVendorLedger.InitializeRequest(
           LibraryFiscalYear.GetFirstPostingDate(true), LibraryFiscalYear.GetFirstPostingDate(true),
-          DateComprRegister."Period Length"::Week, '', false, false, false, '');
+          DateComprRegister."Period Length"::Week, '', false, false, false, '', false);
         DateCompressVendorLedger.UseRequestPage(false);
         DateCompressVendorLedger.Run;
     end;

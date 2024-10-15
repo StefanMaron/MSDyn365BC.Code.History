@@ -186,6 +186,20 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
+                field("Source Type"; "Source Type")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the source type that applies to the source number that is shown in the Source No. field.';
+                    Visible = false;
+                }
+                field("Source No."; "Source No.")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the source document that the entry originates from.';
+                    Visible = false;
+                }
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Suite;

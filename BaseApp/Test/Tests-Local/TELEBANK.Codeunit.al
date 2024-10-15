@@ -43,7 +43,6 @@ codeunit 144051 TELEBANK
         VendorBankAccount: Record "Vendor Bank Account";
         StringObject: DotNet String;
         FileObject: DotNet File;
-        ClientFilename: Text;
         ServerFilename: Text;
     begin
         LibraryVariableStorage.Clear;
@@ -91,10 +90,10 @@ codeunit 144051 TELEBANK
         LibraryVariableStorage.Enqueue(1);
 
         // Filename
-        ClientFilename := FileManagement.ClientTempFileName('txt');
-        FileManagement.DeleteClientFile(ClientFilename);
-        Assert.IsFalse(FileManagement.ClientFileExists(ClientFilename), 'Expected the client file to be deleted');
-        LibraryVariableStorage.Enqueue(ClientFilename);
+        ServerFilename := FileManagement.ServerTempFileName('txt');
+        FileManagement.DeleteServerFile(ServerFilename);
+        Assert.IsFalse(FileManagement.ServerFileExists(ServerFilename), 'Expected the Server file to be deleted');
+        LibraryVariableStorage.Enqueue(ServerFilename);
 
         // Update the electronic banking setup
         LibraryUtility.CreateNoSeries(UploadNoSeries, true, true, false);
@@ -112,12 +111,6 @@ codeunit 144051 TELEBANK
         with ElectronicBankingSetup do begin
             Get;
             "Summarize Gen. Jnl. Lines" := true;
-            "IBS Version" := 6;
-            "IBS Service Version" := '1';
-            "Upload Integration Mode" := "Upload Integration Mode"::Attended;
-            "Upload Path" := CopyStr(FileManagement.Magicpath, 1, MaxStrLen("Upload Path"));
-            "IBS Log Upload Nos." := UploadNoSeries.Code;
-            "IBS Request ID" := RequestNoSeries.Code;
             Modify(true);
         end;
 
@@ -166,8 +159,7 @@ codeunit 144051 TELEBANK
         REPORT.Run(REPORT::"File International Payments");
 
         // Validate
-        Assert.IsTrue(FileManagement.ClientFileExists(ClientFilename), 'Expected the report to generate a client file');
-        ServerFilename := FileManagement.UploadFileSilent(ClientFilename);
+        Assert.IsTrue(FileManagement.ServerFileExists(ServerFilename), 'Expected the report to generate a Server file');
         StringObject := FileObject.ReadAllText(ServerFilename);
         Assert.IsTrue(StringObject.Contains(Customer."No."), 'Expected exported file to contain customer no.');
         Assert.IsTrue(StringObject.Contains(Vendor."No."), 'Expected exported file to contain customer no.');

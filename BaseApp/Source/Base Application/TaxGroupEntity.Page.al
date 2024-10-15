@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5481 "Tax Group Entity"
 {
     Caption = 'taxGroups', Locked = true;
@@ -72,4 +73,4 @@ page 5481 "Tax Group Entity"
         LoadRecords;
     end;
 }
-
+#endif

@@ -27,6 +27,7 @@ codeunit 136101 "Service Orders"
         LibraryRandom: Codeunit "Library - Random";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         UnknownErr: Label 'Unknown error: %1', Comment = '%1 = error message';
         OrderTypeMandatoryTxt: Label 'You have not specified the Service Order Type for Service Header Document Type=%1, No.=%2.', Comment = '%1 = doc. type, %2 = doc. no.';
@@ -61,7 +62,11 @@ codeunit 136101 "Service Orders"
         LoanerNoIsNotEmptyErr: Label 'Loaner No. is not empty.';
         ThereIsNotEnoughSpaceToInsertErr: Label 'There is not enough space to insert %1.', Comment = '%1 = field';
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
-        ValueIsEmptyErr: Label 'Default Value must have a value in Config.';
+        EmptyGenProdPostingGroupErr: Label 'Gen. Prod. Posting Group must have a value in Item Template';
+        EmptyInventoryPostingGroupErr: Label 'Inventory Posting Group must have a value in Item Template';
+        RoundingTo0Err: Label 'Rounding of the field';
+        RoundingErr: Label 'is of lesser precision than expected';
+        RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3347,7 +3352,7 @@ codeunit 136101 "Service Orders"
     [Scope('OnPrem')]
     procedure ShowNonstockItem()
     var
-        DummyItemTemplate: Record "Item Template";
+        ItemTempl: Record "Item Templ.";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         NonstockItem: Record "Nonstock Item";
@@ -3357,8 +3362,8 @@ codeunit 136101 "Service Orders"
         Initialize;
 
         // [GIVEN] Nonstock Item "I" having Item Template with populated "Gen. Prod. Posting Group" and "Inventory Posting Group"
-        LibraryInventory.CreateItemTemplate(DummyItemTemplate);
-        LibraryInventory.CreateNonStockItem(NonstockItem);
+        LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
+        LibraryInventory.CreateNonStockItemWithItemTemplateCode(NonstockItem, ItemTempl.Code);
 
         // [GIVEN] Service Header
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -3379,7 +3384,7 @@ codeunit 136101 "Service Orders"
     [Scope('OnPrem')]
     procedure ShowNonstockItemWithNoGenProdPostingGroup()
     var
-        DummyItemTemplate: Record "Item Template";
+        ItemTempl: Record "Item Templ.";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         NonstockItem: Record "Nonstock Item";
@@ -3389,9 +3394,11 @@ codeunit 136101 "Service Orders"
         Initialize;
 
         // [GIVEN] Nonstock Item with blank "Gen. Prod. Posting Group"
-        LibraryInventory.CreateItemTemplate(DummyItemTemplate);
-        LibraryInventory.CreateNonStockItem(NonstockItem);
-        ClearConfigTemplateEntry(NonstockItem."Item Template Code", DummyItemTemplate.FieldNo("Gen. Prod. Posting Group"));
+        LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
+        LibraryInventory.CreateNonStockItemWithItemTemplateCode(NonstockItem, ItemTempl.Code);
+        ItemTempl.Get(NonstockItem."Item Templ. Code");
+        ItemTempl."Gen. Prod. Posting Group" := '';
+        ItemTempl.Modify(true);
 
         // [GIVEN] Service Header
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -3404,7 +3411,7 @@ codeunit 136101 "Service Orders"
         asserterror ServiceLine.ShowNonstock;
 
         // [THEN] "Default Value must have a value in Config." error appears
-        Assert.ExpectedError(ValueIsEmptyErr);
+        Assert.ExpectedError(EmptyGenProdPostingGroupErr);
     end;
 
     [Test]
@@ -3412,7 +3419,7 @@ codeunit 136101 "Service Orders"
     [Scope('OnPrem')]
     procedure ShowNonstockItemWithNoInventoryPostingGroup()
     var
-        DummyItemTemplate: Record "Item Template";
+        ItemTempl: Record "Item Templ.";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         NonstockItem: Record "Nonstock Item";
@@ -3422,9 +3429,11 @@ codeunit 136101 "Service Orders"
         Initialize;
 
         // [GIVEN] Nonstock Item with blank "Inventory Posting Group"
-        LibraryInventory.CreateItemTemplate(DummyItemTemplate);
-        LibraryInventory.CreateNonStockItem(NonstockItem);
-        ClearConfigTemplateEntry(NonstockItem."Item Template Code", DummyItemTemplate.FieldNo("Inventory Posting Group"));
+        LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
+        LibraryInventory.CreateNonStockItemWithItemTemplateCode(NonstockItem, ItemTempl.Code);
+        ItemTempl.Get(NonstockItem."Item Templ. Code");
+        ItemTempl."Inventory Posting Group" := '';
+        ItemTempl.Modify(true);
 
         // [GIVEN] Service Header
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -3437,7 +3446,7 @@ codeunit 136101 "Service Orders"
         asserterror ServiceLine.ShowNonstock;
 
         // [THEN] "Default Value must have a value in Config." error appears
-        Assert.ExpectedError(ValueIsEmptyErr);
+        Assert.ExpectedError(EmptyInventoryPostingGroupErr);
     end;
 
     [Test]
@@ -3772,6 +3781,7 @@ codeunit 136101 "Service Orders"
         VerifyGLEntriesDescription(TempServiceLine, ServiceHeader."Customer No.");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
@@ -3794,7 +3804,39 @@ codeunit 136101 "Service Orders"
         CreateServiceInvoiceWithUniqueDescriptionLines(ServiceHeader, TempServiceLine, TempServiceLine.Type::Item);
 
         // [WHEN] Service invoice is being posted
+        SetInvoicePosting("Service Invoice Posting"::"Invoice Posting (Default)");
         LibraryService.PostServiceOrder(ServiceHeader, TRUE, FALSE, TRUE);
+
+        // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
+        VerifyGLEntriesDescription(TempServiceLine, ServiceHeader."Customer No.");
+    end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExtendCopyDocumentLineDescriptionToGLEntryV19()
+    var
+        ServiceHeader: Record "Service Header";
+        TempServiceLine: Record "Service Line" temporary;
+        ServiceOrders: Codeunit "Service Orders";
+    begin
+        // [FEATURE] [G/L Entry] [Description]
+        // [SCENARIO 300843] Event InvoicePostBuffer.OnAfterInvPostBufferPrepareService can be used to copy document line Description for line type Item
+        Initialize;
+
+        // [GIVEN] Subscribe on InvoicePostingBuffer.OnAfterPrepareService
+        BINDSUBSCRIPTION(ServiceOrders);
+
+        // [GIVEN] Set ServiceSetup."Copy Line Descr. to G/L Entry" = "No"
+        SetServiceSetupCopyLineDescrToGLEntry(FALSE);
+
+        // [GIVEN] Create service invoice with 5 "Item" type lines with unique descriptions "Descr1" - "Descr5"
+        CreateServiceInvoiceWithUniqueDescriptionLines(ServiceHeader, TempServiceLine, TempServiceLine.Type::Item);
+
+        // [WHEN] Service invoice is being posted
+        SetInvoicePosting("Service Invoice Posting"::"Invoice Posting (v.19)");
+        LibraryService.PostServiceOrder(ServiceHeader, TRUE, FALSE, TRUE);
+        SetInvoicePosting("Service Invoice Posting"::"Invoice Posting (Default)");
 
         // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
         VerifyGLEntriesDescription(TempServiceLine, ServiceHeader."Customer No.");
@@ -4054,6 +4096,7 @@ codeunit 136101 "Service Orders"
             ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 0);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CorrectCalculationLineDiscountForServiceLineWithSalesPrice()
@@ -4105,7 +4148,7 @@ codeunit 136101 "Service Orders"
         ServiceLine.TestField("Line Discount %", 0);
         ServiceLine.TestField("Line Discount Amount", 0);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure ThereIsNoPaymentGLEntriesAfterPostingServiceOrderWithEmptyPaymentMethodCode()
@@ -4201,6 +4244,452 @@ codeunit 136101 "Service Orders"
         ServiceHeader.TestField("Bal. Account No.", '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingErrorThrownWhenInvalidQuantityEntered0OnServiceLine()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding error should be thrown if the entered base quantity does not match the rounding precision.
+
+        // [GIVEN] A service line using base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemUOM.Code);
+
+        // [WHEN] Setting the quantity to 0.33.
+        ServiceLine.Validate(Quantity, 0.33);
+
+        // [THEN] No error is thrown an base qty is 0.33.
+        Assert.AreEqual(0.33, ServiceLine."Quantity (Base)", 'Expected quantity to be 0.33');
+
+        // [WHEN] Setting the quantity to 0.333.
+        asserterror ServiceLine.Validate(Quantity, 0.333);
+
+        // [THEN] An rounding error is thrown.
+        Assert.ExpectedError(RoundingErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQuantityIsRoundedTo0OnServiceLine()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // base quantity is rounded to zero.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/3.
+        ServiceLine.Validate(Quantity, 1 / 3);
+
+        // [THEN] Base quantity is 1 and no error is thrown.
+        Assert.AreEqual(1, ServiceLine."Quantity (Base)", 'Expected quantity to be 1.');
+
+        // [WHEN] Setting the quantity to 1/611 (1/611 = 0.00164 * 3 = 0.00492, which gets rounded to 0).
+        asserterror ServiceLine.Validate(Quantity, 1 / 611);
+
+        // [THEN] A rounding to zero error is thrown.
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceLineQuantityIsRoundedWithRoundingPrecisionSpecified()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] When converting to base UoM the specified rounding precision should be used.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/30 (1/30 = 0.03333 * 3 = 0.09999, which gets rounded to 0.1).
+        ServiceLine.Validate(Quantity, 1 / 30);
+
+        // [THEN] The base quantity is rounded to 0.1.
+        Assert.AreEqual(0.1, ServiceLine."Quantity (Base)", 'Expected value to be rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingErrorThrownWhenInvalidQtyToShipEntered0OnServiceLine()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding error should be thrown if the entered base quantity does not match the rounding precision.
+
+        // [GIVEN] A service line using base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemUOM.Code);
+
+        // [WHEN] Setting the quantity to 0.33.
+        ServiceLine.Validate(Quantity, 0.33);
+        ServiceLine.Validate("Qty. to Ship", 0.33);
+
+        // [THEN] No error is thrown an base qty is 0.33.
+        Assert.AreEqual(0.33, ServiceLine."Qty. to Ship (Base)", 'Expected quantity to be 0.33');
+
+        // [WHEN] Setting the quantity to 0.331.
+        asserterror ServiceLine.Validate("Qty. to Ship", 0.331);
+
+        // [THEN] An rounding error is thrown.
+        Assert.ExpectedError(RoundingBalanceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyToShipIsRoundedTo0OnServiceLine()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // base quantity is rounded to zero.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/3.
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Validate("Qty. to Ship", 1 / 3);
+
+        // [THEN] Base quantity is 1 and no error is thrown.
+        Assert.AreEqual(1, ServiceLine."Qty. to Ship (Base)", 'Expected quantity to be 1.');
+
+        // [WHEN] Setting the quantity to 1/611 (1/611 = 0.00164 * 3 = 0.00492, which gets rounded to 0).
+        asserterror ServiceLine.Validate("Qty. to Ship", 1 / 611);
+
+        // [THEN] A rounding to zero error is thrown.
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceLineQtyToShipIsRoundedWithRoundingPrecisionSpecified()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] When converting to base UoM the specified rounding precision should be used.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/30 (1/30 = 0.03333 * 3 = 0.09999, which gets rounded to 0.1).
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Validate("Qty. to Ship", 1 / 30);
+
+        // [THEN] The base quantity is rounded to 0.1.
+        Assert.AreEqual(0.1, ServiceLine."Qty. to Ship (Base)", 'Expected value to be rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingErrorThrownWhenInvalidQtyToInvoiceEntered0OnServiceLine()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding error should be thrown if the entered base quantity does not match the rounding precision.
+
+        // [GIVEN] A service line using base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemUOM.Code);
+
+        // [WHEN] Setting the quantity to 0.33.
+        ServiceLine.Validate(Quantity, 0.33);
+        ServiceLine.Validate("Qty. to Invoice", 0.33);
+
+        // [THEN] No error is thrown an base qty is 0.33.
+        Assert.AreEqual(0.33, ServiceLine."Qty. to Invoice (Base)", 'Expected quantity to be 0.33');
+
+        // [WHEN] Setting the quantity to 0.331.
+        asserterror ServiceLine.Validate("Qty. to Invoice", 0.331);
+
+        // [THEN] An rounding error is thrown.
+        Assert.ExpectedError(RoundingBalanceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyToInvoiceIsRoundedTo0OnServiceLine()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // base quantity is rounded to zero.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/3.
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Validate("Qty. to Invoice", 1 / 3);
+
+        // [THEN] Base quantity is 1 and no error is thrown.
+        Assert.AreEqual(1, ServiceLine."Qty. to Invoice (Base)", 'Expected quantity to be 1.');
+
+        // [WHEN] Setting the quantity to 1/611 (1/611 = 0.00164 * 3 = 0.00492, which gets rounded to 0).
+        asserterror ServiceLine.Validate("Qty. to Invoice", 1 / 611);
+
+        // [THEN] A rounding to zero error is thrown.
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceLineQtyToInvoiceIsRoundedWithRoundingPrecisionSpecified()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] When converting to base UoM the specified rounding precision should be used.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/30 (1/30 = 0.03333 * 3 = 0.09999, which gets rounded to 0.1).
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Validate("Qty. to Invoice", 1 / 30);
+
+        // [THEN] The base quantity is rounded to 0.1.
+        Assert.AreEqual(0.1, ServiceLine."Qty. to Invoice (Base)", 'Expected value to be rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingErrorThrownWhenInvalidQtyToConsumeEntered0OnServiceLine()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding error should be thrown if the entered base quantity does not match the rounding precision.
+
+        // [GIVEN] A service line using base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemUOM.Code);
+
+        // [WHEN] Setting the quantity to 0.33.
+        ServiceLine.Validate(Quantity, 0.33);
+        ServiceLine.Validate("Qty. to Consume", 0.33);
+
+        // [THEN] No error is thrown an base qty is 0.33.
+        Assert.AreEqual(0.33, ServiceLine."Qty. to Consume (Base)", 'Expected quantity to be 0.33');
+
+        // [WHEN] Setting the quantity to 0.331.
+        asserterror ServiceLine.Validate("Qty. to Consume", 0.331);
+
+        // [THEN] An rounding error is thrown.
+        Assert.ExpectedError(RoundingBalanceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyToConsumeIsRoundedTo0OnServiceLine()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // base quantity is rounded to zero.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/3.
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Validate("Qty. to Consume", 1 / 3);
+
+        // [THEN] Base quantity is 1 and no error is thrown.
+        Assert.AreEqual(1, ServiceLine."Qty. to Consume (Base)", 'Expected quantity to be 1.');
+
+        // [WHEN] Setting the quantity to 1/611 (1/611 = 0.00164 * 3 = 0.00492, which gets rounded to 0).
+        asserterror ServiceLine.Validate("Qty. to Consume", 1 / 611);
+
+        // [THEN] A rounding to zero error is thrown.
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceLineQtyToConsumeIsRoundedWithRoundingPrecisionSpecified()
+    var
+        Item: Record Item;
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] When converting to base UoM the specified rounding precision should be used.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/30 (1/30 = 0.03333 * 3 = 0.09999, which gets rounded to 0.1).
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Validate("Qty. to Consume", 1 / 30);
+
+        // [THEN] The base quantity is rounded to 0.1.
+        Assert.AreEqual(0.1, ServiceLine."Qty. to Consume (Base)", 'Expected value to be rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceLineSplitQuantityBetweenShipAndConsumeNoLeftoverQuantityFromRounding()
+    var
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        TempServiceLine: Record "Service Line" temporary;
+    begin
+        // [SCENARIO] It should be possible to split up the service line quantity between invoice and consume 
+        // without any imbalance.
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 0.01);
+        ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [GIVEN] A quantity of 1.
+        ServiceLine.Validate(Quantity, 1);
+
+        // [WHEN] Setting the quantity to ship to 1/3 and post ship.
+        ServiceLine.Validate("Qty. to Ship", 1 / 3);
+        ServiceLine.Modify(true);
+        TempServiceLine := ServiceLine;
+        TempServiceLine.Insert();
+        LibraryService.PostServiceOrderWithPassedLines(ServiceHeader, TempServiceLine, true, false, false);
+
+        // [THEN] Outstanding quantity base is 2 and shipped quantity base is 1.
+        ServiceLine.Find();
+        Assert.AreEqual(2, ServiceLine."Outstanding Qty. (Base)", 'Expected value to be rounded correctly.');
+        Assert.AreEqual(1, ServiceLine."Qty. Shipped (Base)", 'Expected value to be rounded correctly.');
+
+        // [WHEN] Setting the quantity to consume to 2/3 and post ship and consume.
+        ServiceLine.Validate("Qty. to Consume", 2 / 3);
+        ServiceLine.Modify(true);
+        TempServiceLine.Delete();
+        TempServiceLine := ServiceLine;
+        TempServiceLine.Insert();
+        LibraryService.PostServiceOrderWithPassedLines(ServiceHeader, TempServiceLine, true, true, false);
+
+        // [THEN] Quantity consumed base is 2 and oustanding quantity base is 0.
+        ServiceLine.Find();
+        Assert.AreEqual(2, ServiceLine."Qty. Consumed (Base)", 'Expected value to be rounded correctly.');
+        Assert.AreEqual(0, ServiceLine."Outstanding Qty. (Base)", 'Expected value to be rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceLineErrorQtyShipImbalanceWhenUpdateQtyConsume()
+    var
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        TempServiceLine: Record "Service Line" temporary;
+    begin
+        // [SCENARIO] Quantity to ship should be validated when updating quantity to consume.
+        Initialize();
+
+        // [GIVEN] A service line using non-base UoM with rounding precision of 1.
+        SetupForUoMTest(Item, ServiceLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 3, 1);
+        ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [GIVEN] A quantity of 1.
+        ServiceLine.Validate(Quantity, 1);
+
+        // [WHEN] Setting the quantity to ship to 1/3 and post ship.
+        ServiceLine.Validate("Qty. to Ship", 1 / 3);
+        ServiceLine.Modify(true);
+        TempServiceLine := ServiceLine;
+        TempServiceLine.Insert();
+        LibraryService.PostServiceOrderWithPassedLines(ServiceHeader, TempServiceLine, true, false, false);
+
+        // [WHEN] Setting the quantity to ship to 1/3 (remaining 0.66666) and post ship again.
+        ServiceLine.Find();
+        ServiceLine.Validate("Qty. to Ship", 1 / 3);
+        ServiceLine.Modify(true);
+        TempServiceLine := ServiceLine;
+        TempServiceLine.Modify();
+        LibraryService.PostServiceOrderWithPassedLines(ServiceHeader, TempServiceLine, true, false, false);
+
+        // [WHEN] Setting the quantity to consume to 1/3 (remaining is 0.33334).
+        ServiceLine.Find();
+        asserterror ServiceLine.Validate("Qty. to Consume", 1 / 3);
+
+        // [THEN] Error thrown as quantity to ship is out of balance.
+        Assert.ExpectedError(RoundingBalanceErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4228,6 +4717,7 @@ codeunit 136101 "Service Orders"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
+        LibraryTemplates.EnableTemplatesFeature();
         BindSubscription(LibraryJobQueue);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Orders");
     end;
@@ -4530,10 +5020,10 @@ codeunit 136101 "Service Orders"
     local procedure CreateCustomerTemplate()
     var
         Customer: Record Customer;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         LibrarySales.CreateCustomer(Customer);
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", Customer."Gen. Bus. Posting Group");
         CustomerTemplate.Validate("Customer Posting Group", Customer."Customer Posting Group");
         CustomerTemplate.Modify(true);
@@ -5600,6 +6090,15 @@ codeunit 136101 "Service Orders"
         ServiceMgtSetup.Modify();
     end;
 
+    local procedure SetInvoicePosting(InvoicePosting: Enum "Service Invoice Posting")
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup.Validate("Invoice Posting Setup", InvoicePosting);
+        ServiceMgtSetup.Modify();
+    end;
+
     local procedure GetOutstandingAmountForServiceLines(ServiceHeader: Record "Service Header"): Decimal
     var
         ServiceLine: Record "Service Line";
@@ -6081,7 +6580,7 @@ codeunit 136101 "Service Orders"
         ServiceItemLog.FindFirst;
     end;
 
-    local procedure VerifyServiceLedgerEntry(No: Code[20]; DocumentNo: Code[20]; ServiceContractNo: Code[20]; EntryType: Option; Quantity: Decimal)
+    local procedure VerifyServiceLedgerEntry(No: Code[20]; DocumentNo: Code[20]; ServiceContractNo: Code[20]; EntryType: Enum "Service Ledger Entry Entry Type"; Quantity: Decimal)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin
@@ -6364,6 +6863,7 @@ codeunit 136101 "Service Orders"
         UNTIL TempServiceLine.NEXT = 0;
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareService', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -6371,6 +6871,17 @@ codeunit 136101 "Service Orders"
         IF InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item THEN BEGIN
             InvoicePostBuffer."Fixed Asset Line No." := ServiceLine."Line No.";
             InvoicePostBuffer."Entry Description" := ServiceLine.Description;
+        END;
+    end;
+#endif
+
+    [EventSubscriber(ObjectType::Table, Database::"Invoice Posting Buffer", 'OnAfterPrepareService', '', false, false)]
+    local procedure OnAfterPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
+        IF InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::Item THEN BEGIN
+            InvoicePostingBuffer."Fixed Asset Line No." := ServiceLine."Line No.";
+            InvoicePostingBuffer."Entry Description" := ServiceLine.Description;
         END;
     end;
 
@@ -6396,6 +6907,7 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
     end;
 
+#if not CLEAN19
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLineDiscount.Init;
@@ -6404,6 +6916,52 @@ codeunit 136101 "Service Orders"
         SalesLineDiscount.Validate("Sales Type", SalesLineDiscount."Sales Type"::Customer);
         SalesLineDiscount.Validate("Sales Code", CustomerNo);
         SalesLineDiscount.Insert(true);
+    end;
+#endif
+    local procedure SetupForUoMTest(
+        var Item: Record Item;
+        var ServiceLine: Record "Service Line";
+        var BaseUoM: Record "Unit of Measure";
+        var NonBaseUOM: Record "Unit of Measure";
+        var ItemUOM: Record "Item Unit of Measure";
+        var ItemNonBaseUOM: Record "Item Unit of Measure";
+        BaseQtyPerUOM: Integer;
+        NonBaseQtyPerUOM: Integer;
+        QtyRoundingPrecision: Decimal
+    )
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        LocationA: Record Location;
+        LocationB: Record Location;
+        LocationTransit: Record Location;
+    begin
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Modify(true);
+
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemNonBaseUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
     end;
 
     local procedure VerifyCountServiceCommentLine(TableName: Enum "Service Comment Table Name"; TableSubtype: Option; No: Code[20]; TableLineNo: Integer)
@@ -6443,9 +7001,10 @@ codeunit 136101 "Service Orders"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTemplateHandler(var CustomerTemplateList: Page "Customer Template List"; var Response: Action)
+    procedure CustomerTemplateHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        Response := ACTION::LookupOK;
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]

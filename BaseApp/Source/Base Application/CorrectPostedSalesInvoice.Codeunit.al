@@ -1,4 +1,4 @@
-codeunit 1303 "Correct Posted Sales Invoice"
+﻿codeunit 1303 "Correct Posted Sales Invoice"
 {
     Permissions = TableData "Sales Invoice Header" = rm,
                   TableData "Sales Cr.Memo Header" = rm;
@@ -26,8 +26,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
     var
         PostedInvoiceIsPaidCorrectErr: Label 'You cannot correct this posted sales invoice because it is fully or partially paid.\\To reverse a paid sales invoice, you must manually create a sales credit memo.';
-        PostedInvoiceIsPaidCCancelErr: Label 'You cannot cancel this posted sales invoice because it is fully or partially paid.\\To reverse a paid sales invoice, you must manually create a sales credit memo.';
-        PostedInvoiceIsPaidCancelInInvAppErr: Label 'You cannot cancel this posted sales invoice because it is fully or partially paid.\\To reverse a paid sales invoice, you must delete all existing payments and then proceed to cancellation.';
+        PostedInvoiceIsPaidCancelErr: Label 'You cannot cancel this posted sales invoice because it is fully or partially paid.\\To reverse a paid sales invoice, you must manually create a sales credit memo.';
         AlreadyCorrectedErr: Label 'You cannot correct this posted sales invoice because it has been canceled.';
         AlreadyCancelledErr: Label 'You cannot cancel this posted sales invoice because it has already been canceled.';
         CorrCorrectiveDocErr: Label 'You cannot correct this posted sales invoice because it represents a correction of a credit memo.';
@@ -514,7 +513,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         IsHandled: Boolean;
     begin
-        if SalesInvoiceLine.IsCancellationSupported then
+        if SalesInvoiceLine.IsCancellationSupported() then
             exit;
 
         if (SalesInvoiceLine."Job No." <> '') and (SalesInvoiceLine.Type = SalesInvoiceLine.Type::Resource) then
@@ -673,7 +672,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
         TempItemApplicationEntry.Reset();
         TempItemApplicationEntry.DeleteAll();
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 if ItemApplicationEntry.AppliedInbndEntryExists(ItemLedgEntry."Entry No.", true) then
                     repeat
@@ -688,16 +687,11 @@ codeunit 1303 "Correct Posted Sales Invoice"
     local procedure ErrorHelperHeader(ErrorOption: Option; SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         Customer: Record Customer;
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         if CancellingOnly then
             case ErrorOption of
                 ErrorType::IsPaid:
-                    begin
-                        if EnvInfoProxy.IsInvoicing then
-                            Error(PostedInvoiceIsPaidCancelInInvAppErr);
-                        Error(PostedInvoiceIsPaidCCancelErr);
-                    end;
+                    Error(PostedInvoiceIsPaidCancelErr);
                 ErrorType::CustomerBlocked:
                     begin
                         Customer.Get(SalesInvoiceHeader."Bill-to Customer No.");

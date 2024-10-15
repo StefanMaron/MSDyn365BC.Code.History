@@ -155,7 +155,7 @@ report 5756 "Create Warehouse Location"
 
         with ItemLedgEntry do begin
             SetCurrentKey(
-              "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
+              "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.");
 
             Location.Get(LocCode);
             Location.TestField("Adjustment Bin Code", '');

@@ -2,8 +2,8 @@ table 2000011 "IBS Contract"
 {
     Caption = 'IBS Contract';
     ObsoleteReason = 'Legacy ISABEL';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {

@@ -396,15 +396,10 @@ report 404 "Purchase - Quote"
                             else
                                 PurchLine.Next;
                             "Purchase Line" := PurchLine;
-#if not CLEAN16                            
-                            if not ItemReferenceMgt.IsEnabled() then
-                                if ("Purchase Line"."Cross-Reference No." <> '') and (not ShowInternalInfo) then
-                                    "Purchase Line"."No." := "Purchase Line"."Cross-Reference No.";
-#endif                                    
-                            if not ItemReferenceMgt.IsEnabled() then
-                                if ("Purchase Line"."Item Reference No." <> '') and (not ShowInternalInfo) then
-                                    "Purchase Line"."No." :=
-                                        CopyStr("Purchase Line"."Item Reference No.", 1, MaxStrLen("Purchase Line"."No."));
+
+                            if ("Purchase Line"."Item Reference No." <> '') and (not ShowInternalInfo) then
+                                "Purchase Line"."No." :=
+                                    CopyStr("Purchase Line"."Item Reference No.", 1, MaxStrLen("Purchase Line"."No."));
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line"."Dimension Set ID");
                         end;
@@ -659,7 +654,6 @@ report 404 "Purchase - Quote"
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         ArchiveManagement: Codeunit ArchiveManagement;
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         VendAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];

@@ -1,4 +1,4 @@
-codeunit 1001 "Job Post-Line"
+﻿codeunit 1001 "Job Post-Line"
 {
     Permissions = TableData "Job Ledger Entry" = rm,
                   TableData "Job Planning Line" = rimd;
@@ -29,12 +29,12 @@ codeunit 1001 "Job Post-Line"
 
         if JobLedgEntry."Line Type" = JobLedgEntry."Line Type"::" " then
             exit;
-        ClearAll;
+        ClearAll();
         JobPlanningLine."Job No." := JobLedgEntry."Job No.";
         JobPlanningLine."Job Task No." := JobLedgEntry."Job Task No.";
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-        if JobPlanningLine.FindLast then;
+        if JobPlanningLine.FindLast() then;
         JobPlanningLine."Line No." := JobPlanningLine."Line No." + 10000;
         JobPlanningLine.Init();
         JobPlanningLine.Reset();
@@ -99,7 +99,7 @@ codeunit 1001 "Job Post-Line"
 
         JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
         JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         Job.Get(JobPlanningLine."Job No.");
 
         CheckCurrency(Job, SalesHeader, JobPlanningLine);
@@ -159,7 +159,7 @@ codeunit 1001 "Job Post-Line"
 
         OnBeforeJobPlanningLineUpdateQtyToInvoice(SalesHeader, SalesLine, JobPlanningLine, JobPlanningLineInvoice, JobLedgEntryNo);
 
-        JobPlanningLine.UpdateQtyToInvoice;
+        JobPlanningLine.UpdateQtyToInvoice();
         JobPlanningLine.Modify();
 
         OnAfterJobPlanningLineModify(JobPlanningLine);
@@ -351,7 +351,7 @@ codeunit 1001 "Job Post-Line"
             exit;
         JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
         JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
-        if JobPlanningLine.FindFirst then begin
+        if JobPlanningLine.FindFirst() then begin
             JT.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
             Txt := Text003 + StrSubstNo(Text004,
                 JT.TableCaption, JT.FieldCaption("Job No."), JT."Job No.",
@@ -380,7 +380,7 @@ codeunit 1001 "Job Post-Line"
         if JobPostingGr."G/L Expense Acc. (Contract)" = '' then
             exit;
         GLAcc.Get(JobPostingGr."G/L Expense Acc. (Contract)");
-        GLAcc.CheckGLAcc;
+        GLAcc.CheckGLAcc();
         JobPlanningLine."No." := GLAcc."No.";
         JobPlanningLine."Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
         JobPlanningLine."Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
@@ -419,58 +419,105 @@ codeunit 1001 "Job Post-Line"
               PurchaseLine.FieldCaption("Line No."), PurchaseLine."Line No.");
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by PostJobPurchaseLines().', '19.0')]
     procedure PostPurchaseGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
     var
         IsHandled: Boolean;
     begin
-        with TempPurchaseLineJob do begin
-            Reset;
-            SetRange("Job No.", TempInvoicePostBuffer."Job No.");
-            SetRange("Line No.", TempInvoicePostBuffer."Fixed Asset Line No.");
-            SetRange("No.", TempInvoicePostBuffer."G/L Account");
-            SetRange("Gen. Bus. Posting Group", TempInvoicePostBuffer."Gen. Bus. Posting Group");
-            SetRange("Gen. Prod. Posting Group", TempInvoicePostBuffer."Gen. Prod. Posting Group");
-            SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
-            OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(TempPurchaseLineJob, TempInvoicePostBuffer);
-            if FindSet then begin
-                repeat
-                    TempJobJournalLine.Reset();
-                    TempJobJournalLine.SetRange("Line No.", "Line No.");
-                    TempJobJournalLine.FindFirst;
-                    JobJnlPostLine.SetGLEntryNo(GLEntryNo);
-                    IsHandled := false;
-                    OnPostPurchaseGLAccountsOnBeforeJobJnlPostLine(TempJobJournalLine, TempPurchaseLineJob, IsHandled);
-                    if not IsHandled then
-                        JobJnlPostLine.RunWithCheck(TempJobJournalLine);
-                until Next() = 0;
-                DeleteAll();
-            end;
+        TempPurchaseLineJob.Reset();
+        TempPurchaseLineJob.SetRange("Job No.", TempInvoicePostBuffer."Job No.");
+        TempPurchaseLineJob.SetRange("Line No.", TempInvoicePostBuffer."Fixed Asset Line No.");
+        TempPurchaseLineJob.SetRange("No.", TempInvoicePostBuffer."G/L Account");
+        TempPurchaseLineJob.SetRange("Gen. Bus. Posting Group", TempInvoicePostBuffer."Gen. Bus. Posting Group");
+        TempPurchaseLineJob.SetRange("Gen. Prod. Posting Group", TempInvoicePostBuffer."Gen. Prod. Posting Group");
+        TempPurchaseLineJob.SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
+        TempPurchaseLineJob.SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
+        OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(TempPurchaseLineJob, TempInvoicePostBuffer);
+        if TempPurchaseLineJob.FindSet() then begin
+            repeat
+                TempJobJournalLine.Reset();
+                TempJobJournalLine.SetRange("Line No.", TempPurchaseLineJob."Line No.");
+                TempJobJournalLine.FindFirst();
+                JobJnlPostLine.SetGLEntryNo(GLEntryNo);
+                IsHandled := false;
+                OnPostPurchaseGLAccountsOnBeforeJobJnlPostLine(TempJobJournalLine, TempPurchaseLineJob, IsHandled);
+                if not IsHandled then
+                    JobJnlPostLine.RunWithCheck(TempJobJournalLine);
+            until TempPurchaseLineJob.Next() = 0;
+            TempPurchaseLineJob.DeleteAll();
         end;
         OnAfterPostPurchaseGLAccounts(TempInvoicePostBuffer, JobJnlPostLine, GLEntryNo);
     end;
+#endif
 
+    procedure PostJobPurchaseLines(JobLineFilters: Text; GLEntryNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        TempPurchaseLineJob.Reset();
+        TempPurchaseLineJob.SetView(JobLineFilters);
+        if TempPurchaseLineJob.FindSet() then begin
+            repeat
+                TempJobJournalLine.Reset();
+                TempJobJournalLine.SetRange("Line No.", TempPurchaseLineJob."Line No.");
+                TempJobJournalLine.FindFirst();
+                JobJnlPostLine.SetGLEntryNo(GLEntryNo);
+                IsHandled := false;
+                OnPostJobPurchaseLinesOnBeforeJobJnlPostLine(TempJobJournalLine, TempPurchaseLineJob, IsHandled);
+                if not IsHandled then
+                    JobJnlPostLine.RunWithCheck(TempJobJournalLine);
+            until TempPurchaseLineJob.Next() = 0;
+            TempPurchaseLineJob.DeleteAll();
+        end;
+
+        OnAfterPostJobPurchaseLines(TempPurchaseLineJob, JobJnlPostLine, GLEntryNo);
+        TempPurchaseLineJob.DeleteAll();
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by PostJobSalesLines().', '19.0')]
     procedure PostSalesGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
     begin
-        with TempSalesLineJob do begin
-            Reset;
-            SetRange("Job No.", TempInvoicePostBuffer."Job No.");
-            SetRange("No.", TempInvoicePostBuffer."G/L Account");
-            SetRange("Gen. Bus. Posting Group", TempInvoicePostBuffer."Gen. Bus. Posting Group");
-            SetRange("Gen. Prod. Posting Group", TempInvoicePostBuffer."Gen. Prod. Posting Group");
-            SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
-            if FindSet then begin
-                repeat
-                    TempJobJournalLine.Reset();
-                    TempJobJournalLine.SetRange("Line No.", "Line No.");
-                    TempJobJournalLine.FindFirst;
-                    JobJnlPostLine.SetGLEntryNo(GLEntryNo);
-                    OnPostSalesGLAccountsOnBeforeJobJnlPostLine(TempJobJournalLine, TempSalesLineJob);
+        TempSalesLineJob.Reset();
+        TempSalesLineJob.SetRange("Job No.", TempInvoicePostBuffer."Job No.");
+        TempSalesLineJob.SetRange("No.", TempInvoicePostBuffer."G/L Account");
+        TempSalesLineJob.SetRange("Gen. Bus. Posting Group", TempInvoicePostBuffer."Gen. Bus. Posting Group");
+        TempSalesLineJob.SetRange("Gen. Prod. Posting Group", TempInvoicePostBuffer."Gen. Prod. Posting Group");
+        TempSalesLineJob.SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
+        TempSalesLineJob.SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
+        if TempSalesLineJob.FindSet() then begin
+            repeat
+                TempJobJournalLine.Reset();
+                TempJobJournalLine.SetRange("Line No.", TempSalesLineJob."Line No.");
+                TempJobJournalLine.FindFirst();
+                JobJnlPostLine.SetGLEntryNo(GLEntryNo);
+                OnPostSalesGLAccountsOnBeforeJobJnlPostLine(TempJobJournalLine, TempSalesLineJob);
+                JobJnlPostLine.RunWithCheck(TempJobJournalLine);
+            until TempSalesLineJob.Next() = 0;
+            TempSalesLineJob.DeleteAll();
+        end;
+    end;
+#endif
+
+    procedure PostJobSalesLines(JobLineFilters: Text; GLEntryNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        TempSalesLineJob.Reset();
+        TempSalesLineJob.SetView(JobLineFilters);
+        if TempSalesLineJob.FindSet() then begin
+            repeat
+                TempJobJournalLine.Reset();
+                TempJobJournalLine.SetRange("Line No.", TempSalesLineJob."Line No.");
+                TempJobJournalLine.FindFirst();
+                JobJnlPostLine.SetGLEntryNo(GLEntryNo);
+                IsHandled := false;
+                OnPostJobSalesLinesOnBeforeJobJnlPostLine(TempJobJournalLine, TempSalesLineJob, IsHandled);
+                if not IsHandled then
                     JobJnlPostLine.RunWithCheck(TempJobJournalLine);
-                until Next() = 0;
-                DeleteAll();
-            end;
+            until TempSalesLineJob.Next() = 0;
+            TempSalesLineJob.DeleteAll();
         end;
     end;
 
@@ -489,7 +536,7 @@ codeunit 1001 "Job Post-Line"
         RelatedJobPlanningLineInvoice.SetCurrentKey("Document Type", "Document No.", "Job Ledger Entry No.");
         RelatedJobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type");
         RelatedJobPlanningLineInvoice.SetRange("Document No.", JobPlanningLineInvoice."Document No.");
-        if RelatedJobPlanningLineInvoice.FindLast then
+        if RelatedJobPlanningLineInvoice.FindLast() then
             exit(RelatedJobPlanningLineInvoice."Job Ledger Entry No." + 1);
         exit(JobLedgEntry.GetLastEntryNo() + 1);
     end;
@@ -521,6 +568,11 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterPostPurchaseGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line"; GLEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterPostJobPurchaseLines(var TempPurchaseLineJob: Record "Purchase Line" temporary; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line"; GLEntryNo: Integer)
     begin
     end;
 
@@ -589,13 +641,29 @@ codeunit 1001 "Job Post-Line"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by OnPostJobPurchaseLinesOnBeforeJobJnlPostLine().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostPurchaseGLAccountsOnBeforeJobJnlPostLine(var JobJournalLine: Record "Job Journal Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostJobPurchaseLinesOnBeforeJobJnlPostLine(var TempJobJournalLine: Record "Job Journal Line" temporary; TempJobPurchaseLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by OnPostJobSalesLinesOnBeforeJobJnlPostLine().', '19.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnPostSalesGLAccountsOnBeforeJobJnlPostLine(var JobJournalLine: Record "Job Journal Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostJobSalesLinesOnBeforeJobJnlPostLine(var TempJobJournalLine: Record "Job Journal Line" temporary; var TempJobSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

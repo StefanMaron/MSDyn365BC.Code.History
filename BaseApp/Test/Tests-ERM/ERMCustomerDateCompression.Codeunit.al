@@ -228,7 +228,7 @@ codeunit 134032 "ERM Customer Date Compression"
         // Run the Date Compress Customer Ledger Report with a closed Accounting Period.
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         DateCompressCustomerLedger.SetTableView(CustLedgerEntry);
-        DateCompressCustomerLedger.InitializeRequest(StartingDate, GenJournalLine."Posting Date", PeriodLength, '', false, false, false, '');
+        DateCompressCustomerLedger.InitializeRequest(StartingDate, GenJournalLine."Posting Date", PeriodLength, '', false, false, false, '', false);
         DateCompressCustomerLedger.UseRequestPage(false);
         DateCompressCustomerLedger.Run;
     end;

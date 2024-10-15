@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 221 "Resource-Find Price"
 {
     TableNo = "Resource Price";
@@ -69,4 +70,4 @@ codeunit 221 "Resource-Find Price"
     begin
     end;
 }
-
+#endif

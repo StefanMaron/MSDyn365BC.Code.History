@@ -2,6 +2,14 @@ table 1552 "User Callouts"
 {
     Caption = 'User Callouts';
     DataPerCompany = false;
+#if not CLEAN19
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif
+    ObsoleteReason = 'Use "User Settings" instead.';
 
     fields
     {
@@ -25,6 +33,18 @@ table 1552 "User Callouts"
         }
     }
 
+
+#if not CLEAN19
+    trigger OnModify()
+    var
+        UserSettings: Codeunit "User Settings";
+    begin
+        if Rec.Enabled then
+            UserSettings.EnableTeachingTips(Rec."User Security ID")
+        else
+            UserSettings.DisableTeachingTips(Rec."User Security ID")
+    end;
+
     internal procedure AreCalloutsEnabled(UserSecurityID: Guid): Boolean
     begin
         InitUserIfNecessary(Rec, UserSecurityID);
@@ -35,14 +55,12 @@ table 1552 "User Callouts"
     begin
         InitUserIfNecessary(Rec, UserSecurityID);
 
-        if Rec.Enabled then
-            Rec.Enabled := false
-        else
-            Rec.Enabled := true;
+        Rec.Enabled := not Rec.Enabled;
         Rec.Modify();
 
         exit(Rec.Enabled);
     end;
+
 
     // The record for a specific user is created as soon as that User 
     // try to access to this table for the first time
@@ -60,4 +78,5 @@ table 1552 "User Callouts"
         Rec.Enabled := true; // default value
         Rec.Insert();
     end;
+#endif
 }

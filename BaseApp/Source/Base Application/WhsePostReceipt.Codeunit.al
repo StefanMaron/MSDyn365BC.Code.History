@@ -47,8 +47,6 @@ codeunit 5760 "Whse.-Post Receipt"
         Text004: Label 'is not within your range of allowed posting dates';
         SuppressCommit: Boolean;
         GenJnlTemplate: Code[10];
-
-    protected var
         HideValidationDialog: Boolean;
 
     local procedure "Code"()
@@ -963,8 +961,6 @@ codeunit 5760 "Whse.-Post Receipt"
             exit;
 
         ItemTrackingMgt.GetWhseItemTrkgSetup(PostedWhseRcptLine."Item No.", WhseItemTrackingSetup);
-        if WhseItemTrackingSetup."Serial No. Required" then
-            PostedWhseRcptLine.TestField("Qty. per Unit of Measure", 1);
     end;
 
     local procedure CheckWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
@@ -985,7 +981,6 @@ codeunit 5760 "Whse.-Post Receipt"
         PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
         TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary;
         TempPostedWhseRcptLine2: Record "Posted Whse. Receipt Line" temporary;
-        WhseWkshLine: Record "Whse. Worksheet Line";
         WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         RemQtyToHandleBase: Decimal;
@@ -1005,11 +1000,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
                 OnCreatePutAwayDocOnBeforeItemTrackingMgtGetWhseItemTrkgSetup(ItemTrackingMgt);
                 if ItemTrackingMgt.GetWhseItemTrkgSetup(PostedWhseRcptLine."Item No.") then
-                    ItemTrackingMgt.InitItemTrkgForTempWkshLine(
-                      WhseWkshLine."Whse. Document Type"::Receipt,
-                      PostedWhseRcptLine."No.", PostedWhseRcptLine."Line No.",
-                      PostedWhseRcptLine."Source Type", PostedWhseRcptLine."Source Subtype",
-                      PostedWhseRcptLine."Source No.", PostedWhseRcptLine."Source Line No.", 0);
+                    ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
+                          "Warehouse Worksheet Document Type"::Receipt,
+                          PostedWhseRcptLine."No.", PostedWhseRcptLine."Line No.",
+                          PostedWhseRcptLine."Source Type", PostedWhseRcptLine."Source Subtype",
+                          PostedWhseRcptLine."Source No.", PostedWhseRcptLine."Source Line No.", 0);
 
                 ItemTrackingMgt.SplitPostedWhseRcptLine(PostedWhseRcptLine, TempPostedWhseRcptLine);
 
@@ -1087,6 +1082,16 @@ codeunit 5760 "Whse.-Post Receipt"
                 else
                     GenJnlTemplate := '';
             end;
+    end;
+
+    procedure GetCounterSourceDocTotal(): Integer;
+    begin
+        exit(CounterSourceDocTotal);
+    end;
+
+    procedure GetCounterSourceDocOK(): Integer;
+    begin
+        exit(CounterSourceDocOK);
     end;
 
     [IntegrationEvent(false, false)]

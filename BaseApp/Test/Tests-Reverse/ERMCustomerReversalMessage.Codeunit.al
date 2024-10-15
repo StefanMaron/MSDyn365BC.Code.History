@@ -614,7 +614,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         DateCompressCustomerLedger.SetTableView(CustLedgerEntry);
         DateCompressCustomerLedger.InitializeRequest(
           LibraryFiscalYear.GetFirstPostingDate(true), LibraryFiscalYear.GetFirstPostingDate(true),
-          DateComprRegister."Period Length"::Week, '', false, false, false, '');
+          DateComprRegister."Period Length"::Week, '', false, false, false, '', false);
         DateCompressCustomerLedger.UseRequestPage(false);
         DateCompressCustomerLedger.Run;
     end;

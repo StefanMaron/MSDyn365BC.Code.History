@@ -99,7 +99,7 @@ page 9171 "Profile List"
                 Caption = 'User Personalization List';
                 Image = "List";
                 ToolTip = 'Specify the list of user personalizations for users of the system.';
-                RunObject = page "User Personalization List";
+                RunObject = page "User Settings List";
             }
             action(ManageCustomizedPages)
             {
@@ -237,7 +237,7 @@ page 9171 "Profile List"
     begin
         // Solves the case where the profile is user-created; not using a local variable allows to keep the sorting capabilities
         if "App Name" = '' then
-            "App Name" := ConfPersonalizationMgt.ResolveAppNameFromAppId("App ID");
+            "App Name" := ExtensionManagement.GetAppName("App ID");
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
@@ -252,6 +252,7 @@ page 9171 "Profile List"
 
     var
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        ExtensionManagement: Codeunit "Extension Management";
         ClientTypeManagement: Codeunit "Client Type Management";
         IsWebClient: Boolean;
 }

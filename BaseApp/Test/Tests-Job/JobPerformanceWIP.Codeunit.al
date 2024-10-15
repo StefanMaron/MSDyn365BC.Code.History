@@ -24,6 +24,8 @@ codeunit 136304 "Job Performance WIP"
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryErrorMessage: Codeunit "Library - Error Message";
         Initialized: Boolean;
         EntryNotReversedErr: Label 'Job WIP entry has not been reversed.';
         TotalAmountErr: Label 'Total Amount should be 0 for account: %1';
@@ -520,7 +522,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure ExcludeWIPCosts()
     var
@@ -577,7 +579,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure ExcludeWIPSales()
     var
@@ -633,7 +635,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure PerJLE()
     var
@@ -674,7 +676,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure PerJLEDimension()
     var
@@ -718,7 +720,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure PerJLEPostingGroup()
     var
@@ -774,7 +776,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure PerJLEType()
     var
@@ -837,7 +839,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure PerJLEAccruedApplied()
     var
@@ -1315,7 +1317,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure UT_AppliedSalesAmountInvoicedLessThanRecognizedWithPOC()
     var
@@ -1339,7 +1341,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure UT_AppliedSalesAmountInvoicedMoreThanRecognizedWithPOC()
     var
@@ -1363,7 +1365,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure UT_AppliedSalesAmountInvoicedEqualRecognizedWithPOC()
     var
@@ -1387,7 +1389,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure UT_AppliedSalesAmountZeroInvoicedWithPOC()
     var
@@ -1604,7 +1606,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure CalcWIPWhenUsageAndSalesSplitBetweenJobTasks()
     var
@@ -1680,7 +1682,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure CalcWIPWhenUsageAndSalesSplitBetweenJobTasksOnlyAppliedCosts()
     var
@@ -1730,6 +1732,46 @@ codeunit 136304 "Job Performance WIP"
 
         // [THEN] A WIP Entry with type "Applied Costs" and Amount equals "Y"
         VerifyJobWIPEntryByType(Job."No.", JobWIPEntry.Type::"Applied Costs", -JobPlanningLine."Total Cost (LCY)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateWIPWithErrorMessage()
+    var
+        Job: Record Job;
+        JobWIPMethod: Record "Job WIP Method";
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        JobPostingGroup: Record "Job Posting Group";
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 391482] Error messages page opened while calculating Job WIP if posting setup has empty accounts
+
+        // [GIVEN] Create Job WIP Method, Job, Job Task and Purchase Invoice with Job Task. Post the Purchase Invoice. 
+        Initialize();
+        CreateJobWIPMethod(
+          JobWIPMethod."Recognized Costs"::"At Completion", JobWIPMethod."Recognized Sales"::"At Completion", JobWIPMethod);
+        CreateJobWithWIPMethod(Job, JobWIPMethod.Code, Job."WIP Posting Method"::"Per Job");
+        CreateJobPostingGroupEmptyAccounts(JobPostingGroup);
+        Job.Validate("Job Posting Group", JobPostingGroup.Code);
+        Job.Modify();
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreatePurchaseInvoiceWithJobTask(PurchaseHeader, JobTask);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Run "Job Calculate WIP" batch job
+        LibraryErrorMessage.TrapErrorMessages();
+        asserterror CalculateWIP(Job);
+
+        // [THEN] Error messages page opened with error "Job Cost Applied Account is missing in Job Posting Setup." 
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        TempErrorMessage.FindFirst();
+        TempErrorMessage.TestField(
+            Description,
+            LibraryErrorMessage.GetMissingAccountErrorMessage(
+                JobPostingGroup.FieldCaption("Job Costs Applied Account"),
+                JobPostingGroup.TableCaption()));
     end;
 
     [Test]
@@ -2284,6 +2326,14 @@ codeunit 136304 "Job Performance WIP"
         JobCalculateWIP.InitializeRequest;
         JobCalculateWIP.UseRequestPage(false);
         JobCalculateWIP.RunModal
+    end;
+
+    local procedure CreateJobPostingGroupEmptyAccounts(var JobPostingGroup: Record "Job Posting Group")
+    begin
+        JobPostingGroup.Init();
+        JobPostingGroup.Validate(Code,
+          LibraryUtility.GenerateRandomCode(JobPostingGroup.FieldNo(Code), DATABASE::"Job Posting Group"));
+        JobPostingGroup.Insert(true);
     end;
 
     local procedure PostWIP2GL(Job: Record Job)

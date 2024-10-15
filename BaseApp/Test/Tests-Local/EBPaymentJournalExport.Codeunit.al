@@ -2,6 +2,7 @@ codeunit 144008 "EB - Payment Journal Export"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -82,7 +83,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -126,7 +126,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(false);
 
         // Create payments
@@ -174,7 +173,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
 
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
@@ -242,7 +240,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -278,7 +275,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
         with CountryRegion do begin
             Get('DK');
@@ -322,7 +318,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(false);
         with CountryRegion do begin
             Get('DK');
@@ -368,7 +363,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         with CountryRegion do begin
             Get('DK');
             "SEPA Allowed" := true;
@@ -413,7 +407,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -455,7 +448,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(UseEuro);
         BlankPaymentJournalBankAccount := true;
 
@@ -496,7 +488,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(UseEuro);
         BlankPaymentJournalBankAccount := true;
 
@@ -530,7 +521,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -565,7 +555,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -599,7 +588,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -642,7 +630,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(UseEuro);
 
         // Create payments
@@ -694,7 +681,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(false);
 
         // Create payments
@@ -740,7 +726,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -796,7 +781,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
         with CountryRegion do begin
             Get('DK');
@@ -836,7 +820,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
         with CountryRegion do begin
             Get('DK');
@@ -874,7 +857,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
@@ -912,7 +894,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
@@ -951,7 +932,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
@@ -990,7 +970,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
@@ -1030,7 +1009,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
@@ -1071,7 +1049,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
@@ -1112,7 +1089,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -1147,7 +1123,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -1186,7 +1161,6 @@ codeunit 144008 "EB - Payment Journal Export"
         // [GIVEN] Create setup and post Purchase Invoice for two Vendors.
         Initialize;
         CountryCode := FindCountryRegionISO(ISOCountryCode);
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
         VendorSwift := GenerateBankAccSwiftCode;
         VendorNo := CreateAndUpdateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
@@ -1225,7 +1199,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(false);
 
         // Create payments
@@ -1269,7 +1242,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(false);
 
         // Create payments
@@ -1315,7 +1287,6 @@ codeunit 144008 "EB - Payment Journal Export"
         // [GIVEN] Create setup and post Purchase Invoice for two Vendors.
         Initialize;
         CountryCode := FindCountryRegionISO(ISOCountryCode);
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(false);
         VendorSwift := GenerateBankAccSwiftCode;
         VendorNo := CreateAndUpdateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
@@ -1398,7 +1369,6 @@ codeunit 144008 "EB - Payment Journal Export"
         CreatePaymentJnlBatch(PaymJournalBatch);
 
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         VendorSwift := GenerateBankAccSwiftCode;
@@ -1454,7 +1424,6 @@ codeunit 144008 "EB - Payment Journal Export"
         CreatePaymentJnlBatch(PaymJournalBatch);
 
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         VendorSwift := GenerateBankAccSwiftCode;
@@ -1825,7 +1794,6 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize;
 
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(false);
         Swift := GenerateBankAccSwiftCode;
         VendorSwift := GenerateBankAccSwiftCode;
@@ -1859,7 +1827,6 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize;
 
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(false);
         Swift := GenerateBankAccSwiftCode;
         VendorSwift := GenerateBankAccSwiftCode;
@@ -1950,6 +1917,29 @@ codeunit 144008 "EB - Payment Journal Export"
         FileMgt.DeleteServerFile(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('FileSEPAPaymentsReportHandler')]
+    procedure FileSEPAPaymentsTempBlobExport()
+    var
+        PaymentJournalLine: Record "Payment Journal Line";
+        EBPaymentJournalExport: Codeunit "EB - Payment Journal Export";
+    begin
+        // [FEATURE] [SEPA] [File SEPA Payments]
+        // [SCENARIO 393148] BE REP 2000005 "File SEPA Payments" report provides an event with TempBlob xml result
+        Initialize();
+
+        // [GIVEN] Payment Journal Line
+        MockPaymentJnlLine(
+          PaymentJournalLine, PaymentJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), CreateSEPAExportProtocol(false));
+
+        // [WHEN] Run File SEPA Payments report
+        BindSubscription(EBPaymentJournalExport);
+        RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName);
+
+        // [THEN] Event "OnBeforeDownloadXmlFile" has been invoked including TempBlod with xml content
+        // Verify in OnBeforeDownloadXmlFile()
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"EB - Payment Journal Export");
@@ -1975,7 +1965,6 @@ codeunit 144008 "EB - Payment Journal Export"
         i: Integer;
     begin
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         VendorNo :=
@@ -1994,24 +1983,6 @@ codeunit 144008 "EB - Payment Journal Export"
             CurrencyIso := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3);
             Validate("ISO Code", CurrencyIso);
             Modify(true);
-        end;
-    end;
-
-    local procedure CreateElectronicBankingSetup()
-    var
-        ElectronicBankingSetup: Record "Electronic Banking Setup";
-    begin
-        with ElectronicBankingSetup do begin
-            Get();
-            "IBS Version" := "IBS Version"::"6";
-            "Notification E-mail address" :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Notification E-mail address"), DATABASE::"Electronic Banking Setup");
-            "Upload Integration Mode" := "Upload Integration Mode"::Attended;
-            "Upload Path" := TemporaryPath;
-            "IBS Log Upload Nos." := CreateNoSeries;
-            "IBS Request ID" := CreateNoSeries;
-            "IBS Service Version" := '1';
-            Modify();
         end;
     end;
 
@@ -2152,7 +2123,6 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorSwift: Code[20];
     begin
         CountryCode := FindCountryRegion;
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(true);
         VendorSwift := GenerateBankAccSwiftCode;
         VendorNo := CreateAndUpdateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
@@ -2411,7 +2381,6 @@ codeunit 144008 "EB - Payment Journal Export"
 
     local procedure PostPurchaseInvoice(var CountryCode: Code[10]; var ExportProtocol: Code[20]; var VendorNo: Code[20]; UseEuro: Boolean)
     begin
-        CreateElectronicBankingSetup;
         ExportProtocol := CreateSEPAExportProtocol(UseEuro);
         CountryCode := FindCountryRegion;
         VendorNo := CreateVendor(CountryCode, ExportProtocol, GenerateBankAccSwiftCode, VendorIbanTxt);
@@ -2935,6 +2904,19 @@ codeunit 144008 "EB - Payment Journal Export"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"File SEPA Payments", 'OnBeforeDownloadXmlFile', '', false, false)]
+    local procedure OnBeforeDownloadXmlFile(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean)
+    var
+        InStream: InStream;
+        Content: Text;
+    begin
+        Assert.IsTrue(TempBlob.HasValue(), 'OnBeforeDownloadXmlFile');
+        TempBlob.CreateInStream(InStream);
+        InStream.ReadText(Content);
+        Assert.ExpectedMessage('<?xml version="1.0" encoding="UTF-8"?>', Content);
+        IsHandled := true;
     end;
 }
 

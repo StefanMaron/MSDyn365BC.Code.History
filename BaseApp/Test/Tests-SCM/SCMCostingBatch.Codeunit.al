@@ -514,6 +514,7 @@ codeunit 137402 "SCM Costing Batch"
           GetNumberOfStandardCostWorksheetLines(StandardCostWorksheetName) > CountRowsBeforeRollup, StandardCostWorksheetMustExist);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SuggestItemPriceOnWorksheetWithSalesTypeCustomer()
@@ -575,6 +576,7 @@ codeunit 137402 "SCM Costing Batch"
         // Verify: Verify Sales Price Worksheet must exist.
         VerifySalesPriceWorksheet(SalesType, SalesCode, CurrencyCode, Item."No.");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('AverageCostCalcOverviewHandler')]
@@ -746,6 +748,7 @@ codeunit 137402 "SCM Costing Batch"
         VerifyCopyStandardCostWorkSheet(StandardCostWorksheetName2, StandardCostWorksheet.Type::"Machine Center", MachineCenter."No.");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeCustomer()
@@ -769,8 +772,6 @@ codeunit 137402 "SCM Costing Batch"
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeCampaign()
-    var
-        SalesPrice: Record "Sales Price";
     begin
         // Test functionality of Suggest Sales Price on Worksheet report with Sales Type as Campaign.
 
@@ -803,6 +804,7 @@ codeunit 137402 "SCM Costing Batch"
         // Verify: Verify Sales Price Worksheet must exist.
         VerifySalesPriceWorksheet(SalesType, SalesCode, '', Item."No.");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('AdjustItemCostPricesHandler')]
@@ -1213,6 +1215,7 @@ codeunit 137402 "SCM Costing Batch"
         RoutingHeader.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -1223,6 +1226,7 @@ codeunit 137402 "SCM Costing Batch"
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateStandardCostWorksheetName(): Code[10]
     var
@@ -1518,12 +1522,12 @@ codeunit 137402 "SCM Costing Batch"
         ProfitLCY: Decimal;
         ProfitPercentage: Decimal;
     begin
-        SalesLCY := MatrixMgt.RoundValue((Quantity + Quantity / 2) * SalesUnitAmount, RoundingFactor);
+        SalesLCY := MatrixMgt.RoundAmount((Quantity + Quantity / 2) * SalesUnitAmount, RoundingFactor);
         Assert.AreNearlyEqual(
           SalesLCY, SalesLCY2, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(ValidationError, ItemStatisticsBuffer.FieldCaption("Sales (LCY)"), SalesLCY));
 
-        COGSLCY := -MatrixMgt.RoundValue((Quantity * PurchaseUnitAmount) + (Quantity / 2 * PurchaseUnitAmount2), RoundingFactor);
+        COGSLCY := -MatrixMgt.RoundAmount((Quantity * PurchaseUnitAmount) + (Quantity / 2 * PurchaseUnitAmount2), RoundingFactor);
         Assert.AreNearlyEqual(
           COGSLCY, COGSLCY2, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(ValidationError, ItemStatisticsBuffer.FieldCaption("COGS (LCY)"), COGSLCY));
@@ -1578,6 +1582,7 @@ codeunit 137402 "SCM Costing Batch"
           StrSubstNo(ValidationError, Item.FieldCaption("Sales (LCY)"), SalesLCY));
     end;
 
+#if not CLEAN19
     local procedure VerifySalesPriceWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10]; ItemNo: Code[20])
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -1588,6 +1593,7 @@ codeunit 137402 "SCM Costing Batch"
         SalesPriceWorksheet.SetRange("Item No.", ItemNo);
         SalesPriceWorksheet.FindFirst;
     end;
+#endif
 
     local procedure VerifyStandardCostWorksheet(StandardCostWorksheetName: Code[10]; Type: Option; No: Code[20])
     var

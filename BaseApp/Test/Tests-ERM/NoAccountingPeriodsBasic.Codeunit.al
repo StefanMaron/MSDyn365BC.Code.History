@@ -118,7 +118,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         GLEntry."Posting Date" := WorkDate;
         GLEntry.Amount := LibraryRandom.RandDec(100, 2);
         GLEntry.Insert();
-        DateCompressGeneralLedger.InitializeRequest(WorkDate, WorkDate, 0, '', false, false, false, false, false, '');
+        DateCompressGeneralLedger.InitializeRequest(WorkDate, WorkDate, 0, '', false, false, false, false, false, '', false);
         DateCompressGeneralLedger.UseRequestPage(false);
         asserterror DateCompressGeneralLedger.Run;
 

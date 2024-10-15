@@ -231,6 +231,7 @@ page 9024 "Security Admin Role Center"
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
                 ObsoleteTag = '18.0';
@@ -252,7 +253,7 @@ page 9024 "Security Admin Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Manual Setup';
                     Promoted = true;
-                    PromotedCategory = Process;					
+                    PromotedCategory = Process;
                     RunObject = Page "Manual Setup";
                     ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
                     ObsoleteState = Pending;
@@ -265,7 +266,7 @@ page 9024 "Security Admin Role Center"
                     Caption = 'Service Connections';
                     Image = ServiceTasks;
                     Promoted = true;
-                    PromotedCategory = Process;	
+                    PromotedCategory = Process;
                     RunObject = Page "Service Connections";
                     ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
                     ObsoleteState = Pending;
@@ -278,7 +279,7 @@ page 9024 "Security Admin Role Center"
                     Caption = 'Extensions';
                     Image = NonStockItemSetup;
                     Promoted = true;
-                    PromotedCategory = Process;	
+                    PromotedCategory = Process;
                     RunObject = Page "Extension Management";
                     ToolTip = 'Install extensions for greater functionality of the system.';
                     ObsoleteState = Pending;

@@ -3443,7 +3443,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source Type", SourceType);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -3451,7 +3451,7 @@ codeunit 134900 "ERM Batch Job"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindAndUpdateWhseActivityPostingDate(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceNo: Code[20]; ActivityType: Integer; PostingDate: Date)
+    local procedure FindAndUpdateWhseActivityPostingDate(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; PostingDate: Date)
     begin
         FindWarehouseActivityLine(WarehouseActivityLine, SourceType, SourceNo, ActivityType);
         WarehouseActivityHeader.Get(ActivityType, WarehouseActivityLine."No.");

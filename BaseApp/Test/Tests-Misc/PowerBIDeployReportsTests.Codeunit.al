@@ -37,6 +37,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
     // Tests
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('SelectionPageHandler')]
     [Scope('OnPrem')]
@@ -52,7 +53,6 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
     begin
         TestDefaultSelection(true);
     end;
-
     [Test]
     [HandlerFunctions('SelectionPageHandler')]
     [Scope('OnPrem')]
@@ -177,6 +177,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         Assert.AreEqual(true, PowerBIReportUploads."Is Selection Done", 'Already selected report should still be selected.');
         PowerBIReportSpinnerPartTestPage.Close;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -854,6 +855,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         PowerBIReportFactBox.Run;
     end;
 
+#if not CLEAN19
     local procedure OpenReportSelectionPage(var PowerBIReportSelectionTestPage: TestPage "Power BI Report Selection"; Context: Text[30])
     var
         PowerBIReportSelection: Page "Power BI Report Selection";
@@ -862,6 +864,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         PowerBIReportSelection.SetContext(Context);
         PowerBIReportSelection.RunModal;
     end;
+#endif
 
     local procedure InitDefaultSelectionTests(var ReportId1: Guid; var ReportId2: Guid; var ReportId3: Guid)
     begin
@@ -878,6 +881,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         LibraryPowerBIServiceMgt.SetMockDeploymentResults(true, true, true, false, 0DT);
     end;
 
+#if not CLEAN19
     [HandlerFunctions('SelectionPageHandler')]
     local procedure TestDefaultSelection(IsFactboxTest: Boolean)
     var
@@ -1022,6 +1026,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
     begin
         PowerBIReportSelection.Run;
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

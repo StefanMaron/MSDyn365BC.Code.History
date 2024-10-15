@@ -1006,7 +1006,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         DateCompressBankAccLedger.SetTableView(BankAccountLedgerEntry);
         DateCompressBankAccLedger.InitializeRequest(
-          PostingDate, PostingDate, DateComprRegister."Period Length"::Day, DocumentNo, true, false, '');
+          PostingDate, PostingDate, DateComprRegister."Period Length"::Day, DocumentNo, true, false, '', false);
         DateCompressBankAccLedger.UseRequestPage(false);
         DateCompressBankAccLedger.Run;
     end;

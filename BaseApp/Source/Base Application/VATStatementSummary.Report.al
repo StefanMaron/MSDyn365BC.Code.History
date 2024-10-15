@@ -490,15 +490,15 @@ report 11311 "VAT Statement Summary"
 
         for i := 1 to NoOfPeriods do begin
             if i <> 1 then
-                PeriodFormManagement.NextDate(1, Calender, PeriodType)
+                PeriodPageManagement.NextDate(1, Calender, PeriodType)
             else
-                if not PeriodFormManagement.FindDate('=', Calender, PeriodType) then begin
+                if not PeriodPageManagement.FindDate('=', Calender, PeriodType) then begin
                     PeriodType := PeriodType::Month;
-                    if not PeriodFormManagement.FindDate('=', Calender, PeriodType) then
+                    if not PeriodPageManagement.FindDate('=', Calender, PeriodType) then
                         Error(Text11301);
                 end;
 
-            DateName[i] := PeriodFormManagement.CreatePeriodFormat(PeriodType, Calender."Period Start");
+            DateName[i] := PeriodPageManagement.CreatePeriodFormat(PeriodType, Calender."Period Start");
             DateFilter[i] := Format(Calender."Period Start") + '..' + Format(Calender."Period End");
 
             AccountingPeriod.Reset();
@@ -528,7 +528,7 @@ report 11311 "VAT Statement Summary"
         AccountingPeriod: Record "Accounting Period";
         Calender: Record Date;
         VATStatement: Report "VAT Statement";
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         VATLogicalControls: Codeunit VATLogicalTests;
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";

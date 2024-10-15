@@ -111,8 +111,8 @@ table 7317 "Warehouse Receipt Line"
 
             trigger OnValidate()
             begin
-                "Qty. (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+                "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
                 InitOutstandingQtys;
             end;
         }
@@ -130,8 +130,8 @@ table 7317 "Warehouse Receipt Line"
 
             trigger OnValidate()
             begin
-                "Qty. Outstanding (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Outstanding", "Qty. per Unit of Measure");
+                "Qty. Outstanding" := UOMMgt.RoundAndValidateQty("Qty. Outstanding", "Qty. Rounding Precision", FieldCaption("Qty. Outstanding"));
+                "Qty. Outstanding (Base)" := MaxQtyOutstandingBase(CalcBaseQty("Qty. Outstanding", FieldCaption("Qty. Outstanding"), FieldCaption("Qty. Outstanding (Base)")));
                 Validate("Qty. to Receive", "Qty. Outstanding");
             end;
         }
@@ -170,8 +170,10 @@ table 7317 "Warehouse Receipt Line"
 
                 "Qty. to Cross-Dock" := 0;
                 "Qty. to Cross-Dock (Base)" := 0;
-                "Qty. to Receive (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
+                "Qty. to Receive" := UOMMgt.RoundAndValidateQty("Qty. to Receive", "Qty. Rounding Precision", FieldCaption("Qty. to Receive"));
+                "Qty. to Receive (Base)" := MaxQtyToReceiveBase(CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)")));
+
+                UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Qty. Received", "Qty. Received (Base)");
 
                 Item.CheckSerialNoQty("Item No.", FieldCaption("Qty. to Receive (Base)"), "Qty. to Receive (Base)");
             end;
@@ -195,8 +197,8 @@ table 7317 "Warehouse Receipt Line"
 
             trigger OnValidate()
             begin
-                "Qty. Received (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Received", "Qty. per Unit of Measure");
+                "Qty. Received" := UOMMgt.RoundAndValidateQty("Qty. Received", "Qty. Rounding Precision", FieldCaption("Qty. Received"));
+                "Qty. Received (Base)" := CalcBaseQty("Qty. Received", FieldCaption("Qty. Received"), FieldCaption("Qty. Received (Base)"));
             end;
         }
         field(24; "Qty. Received (Base)"; Decimal)
@@ -290,8 +292,8 @@ table 7317 "Warehouse Receipt Line"
                       Text005,
                       "Qty. to Receive");
 
-                "Qty. to Cross-Dock (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Cross-Dock", "Qty. per Unit of Measure");
+                "Qty. to Cross-Dock" := UOMMgt.RoundAndValidateQty("Qty. to Cross-Dock", "Qty. Rounding Precision", FieldCaption("Qty. to Cross-Dock"));
+                "Qty. to Cross-Dock (Base)" := CalcBaseQty("Qty. to Cross-Dock", FieldCaption("Qty. to Cross-Dock"), FieldCaption("Qty. to Cross-Dock (Base)"));
             end;
         }
         field(51; "Qty. to Cross-Dock (Base)"; Decimal)
@@ -321,6 +323,24 @@ table 7317 "Warehouse Receipt Line"
                                                                                                                                                  "Zone Code" = FIELD("Cross-Dock Zone Code"),
                                                                                                                                                  "Cross-Dock Bin" = CONST(true));
         }
+        field(55; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(56; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(8509; "Over-Receipt Quantity"; Decimal)
         {
             Caption = 'Over-Receipt Quantity';
@@ -342,22 +362,16 @@ table 7317 "Warehouse Receipt Line"
                     exit;
                 end;
                 TestField("Source Document", "Source Document"::"Purchase Order");
-                if CurrFieldNo = FieldNo("Over-Receipt Quantity") then
-                    if xRec."Over-Receipt Quantity" = "Over-Receipt Quantity" then
-                        exit;
-                if CurrFieldNo <> FieldNo("Over-Receipt Code") then begin
+                if xRec."Over-Receipt Quantity" = "Over-Receipt Quantity" then
+                    exit;
+                if "Over-Receipt Quantity" <> 0 then begin
                     if "Over-Receipt Code" = '' then begin
                         PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.");
                         "Over-Receipt Code" := OverReceiptMgt.GetDefaultOverReceiptCode(PurchaseLine);
                     end;
                     TestField("Over-Receipt Code");
                 end;
-                if (CurrFieldNo <> FieldNo("Over-Receipt Quantity")) and (CurrFieldNo <> 0) and (CurrFieldNo <> FieldNo("Over-Receipt Code")) then
-                    "Over-Receipt Quantity" += xRec."Over-Receipt Quantity";
-                if (CurrFieldNo = FieldNo("Over-Receipt Quantity")) or (CurrFieldNo = 0) or (CurrFieldNo = FieldNo("Qty. to Receive")) or
-                   (CurrFieldNo = FieldNo("Over-Receipt Code"))
-                then
-                    Validate(Quantity, Quantity - xRec."Over-Receipt Quantity" + "Over-Receipt Quantity");
+                Validate(Quantity, Quantity - xRec."Over-Receipt Quantity" + "Over-Receipt Quantity");
                 Modify();
                 OverReceiptMgt.UpdatePurchaseLineOverReceiptQuantityFromWarehouseReceiptLine(Rec);
             end;
@@ -482,6 +496,13 @@ table 7317 "Warehouse Receipt Line"
         Init;
         SetIgnoreErrors;
         "Line No." := "Line No." + 10000;
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        TestField("Qty. per Unit of Measure");
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     procedure AutofillQtyToReceive(var WhseReceiptLine: Record "Warehouse Receipt Line")
@@ -662,7 +683,6 @@ table 7317 "Warehouse Receipt Line"
             exit;
 
         Validate("Qty. Outstanding", Quantity - "Qty. Received");
-        "Qty. Outstanding (Base)" := "Qty. (Base)" - "Qty. Received (Base)";
     end;
 
     procedure GetWhseRcptLine(ReceiptNo: Code[20]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer): Boolean
@@ -683,6 +703,13 @@ table 7317 "Warehouse Receipt Line"
         "Variant Code" := VariantCode;
         "Unit of Measure Code" := UoMCode;
         "Qty. per Unit of Measure" := QtyPerUoM;
+    end;
+
+    procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; ItemDescription2: Text[50]; LocationCode: Code[10]; VariantCode: Code[10]; UoMCode: Code[10]; QtyPerUoM: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
+    begin
+        SetItemData(ItemNo, ItemDescription, ItemDescription2, LocationCode, VariantCode, UoMCode, QtyPerUoM);
+        "Qty. Rounding Precision" := QtyRndPrec;
+        "Qty. Rounding Precision (Base)" := QtyRndPrecBase;
     end;
 
     procedure SetSource(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer)
@@ -713,11 +740,25 @@ table 7317 "Warehouse Receipt Line"
         if IsHandled then
             exit(Result);
 
-        if not OverReceiptMgt.IsOverReceiptAllowed() or (CurrFieldNo <> FieldNo("Qty. to Receive")) or ("Qty. to Receive" <= "Qty. Outstanding") then
+        if not OverReceiptMgt.IsOverReceiptAllowed() or ("Qty. to Receive" <= "Qty. Outstanding") then
             exit(false);
 
-        Validate("Over-Receipt Quantity", "Qty. to Receive" - Quantity + "Qty. Received");
+        Validate("Over-Receipt Quantity", "Qty. to Receive" - Quantity + "Qty. Received" + "Over-Receipt Quantity");
         exit(true);
+    end;
+
+    local procedure MaxQtyToReceiveBase(QtyToReceiveBase: Decimal): Decimal
+    begin
+        if Abs(QtyToReceiveBase) > Abs("Qty. Outstanding (Base)") then
+            exit("Qty. Outstanding (Base)");
+        exit(QtyToReceiveBase);
+    end;
+
+    local procedure MaxQtyOutstandingBase(QtyOutstandingBase: Decimal): Decimal
+    begin
+        if Abs(QtyOutstandingBase + "Qty. Received (Base)") > Abs("Qty. (Base)") then
+            exit("Qty. (Base)" - "Qty. Received (Base)");
+        exit(QtyOutstandingBase);
     end;
 
     [IntegrationEvent(false, false)]

@@ -14,6 +14,7 @@ codeunit 139157 "Invoice Premapping Tests"
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         InvalidCompanyInfoGLNTxt: Label 'The customer''s GLN %1 on the incoming document does not match the GLN in the Company Information window.', Locked = true;
         InvalidCompanyInfoVATRegNoTxt: Label 'The customer''s VAT registration number %1 on the incoming document does not match the VAT Registration No. in the Company Information window.', Locked = true;
         CurrencyCodeMissingTxt: Label 'The currency code is missing on the incoming document.', Locked = true;
@@ -21,9 +22,9 @@ codeunit 139157 "Invoice Premapping Tests"
         ItemCurrencyCodeDifferentTxt: Label 'The currency code %1 on invoice line no. %2 must not be different from the currency code %3 on the incoming document.', Locked = true;
         BuyFromVendorNotFoundTxt: Label 'Cannot find buy-from vendor ''%1'' based on the vendor''s GLN %2 or VAT registration number %3 on the incoming document. Make sure that a card for the vendor exists with the corresponding GLN or VAT Registration No.', Locked = true;
         PayToVendorNotFoundTxt: Label 'Cannot find pay-to vendor ''%1'' based on the vendor''s GLN %2 or VAT registration number %3 on the incoming document. Make sure that a card for the vendor exists with the corresponding GLN or VAT Registration No.', Locked = true;
-        ItemNotFoundTxt: Label 'Cannot find item ''%1'' based on the vendor %2 item number %3 or GTIN %4 on the incoming document. Make sure that a card for the item exists with the corresponding item cross reference or GTIN.', Locked = true;
+        ItemNotFoundTxt: Label 'Cannot find item ''%1'' based on the vendor %2 item number %3 or GTIN %4 on the incoming document. Make sure that a card for the item exists with the corresponding item reference or GTIN.', Locked = true;
         ItemNotFoundByGTINErr: Label 'Cannot find item ''%1'' based on GTIN %2 on the incoming document. Make sure that a card for the item exists with the corresponding GTIN.', Comment = '%1 Vendor item name (e.g. Bicycle - may be another language),%2 item bar code (GTIN)';
-        ItemNotFoundByVendorItemNoErr: Label 'Cannot find item ''%1'' based on the vendor %2 item number %3 on the incoming document. Make sure that a card for the item exists with the corresponding item cross reference.', Comment = '%1 Vendor item name (e.g. Bicycle - may be another language),%2 Vendor''''s number,%3 Vendor''''s item number';
+        ItemNotFoundByVendorItemNoErr: Label 'Cannot find item ''%1'' based on the vendor %2 item number %3 on the incoming document. Make sure that a card for the item exists with the corresponding item reference.', Comment = '%1 Vendor item name (e.g. Bicycle - may be another language),%2 Vendor''''s number,%3 Vendor''''s item number';
         UOMNotFoundTxt: Label 'Cannot find unit of measure %1. Make sure that the unit of measure exists.', Comment = '%1 International Standard Code or Code or Description for Unit of Measure';
         VendorNotFoundByNameAndAddressTxt: Label 'Cannot find vendor based on the vendor''s name ''%1'' and street name ''%2'' on the incoming document. Make sure that a card for the vendor exists with the corresponding name.', Locked = true;
         InvalidCompanyInfoNameTxt: Label 'The customer name ''%1'' on the incoming document does not match the name in the Company Information window.', Comment = '%1 = customer name';
@@ -128,7 +129,7 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
-        // Remove Item Bar Codes and GLN to force VAT Reg No Lookup and Cross Reference Table Lookup
+        // Remove Item Bar Codes and GLN to force VAT Reg No Lookup and Item Reference Table Lookup
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."), '');
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), InvalidGLNTxt);
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), InvalidGLNTxt);
@@ -179,7 +180,7 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
-        // Remove Item Bar Codes and GLN to force VAT Reg No Lookup and Cross Reference Table Lookup
+        // Remove Item Bar Codes and GLN to force VAT Reg No Lookup and Item Reference Table Lookup
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), InvalidGLNTxt);
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), InvalidGLNTxt);
@@ -230,7 +231,7 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
-        // Remove Item Bar Codes and GLN to force VAT Reg No Lookup and Cross Reference Table Lookup
+        // Remove Item Bar Codes and GLN to force VAT Reg No Lookup and Item Reference Table Lookup
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."), '');
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), '');
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), '');
@@ -995,11 +996,11 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
-        // modify item bar no and cross reference no value in intermediate table
+        // modify item bar no and item reference no value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
         DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."), InvalidItemTxt);
-        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."),
+        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Item Reference No."),
           InvalidItem2Txt);
 
         // Excercise
@@ -1028,11 +1029,11 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
-        // modify item bar no and cross reference no value in intermediate table
+        // modify item bar no and item reference no value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
         DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."), InvalidItemTxt);
-        DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Item Reference No."));
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
@@ -1060,11 +1061,11 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
-        // modify item bar no and cross reference no value in intermediate table
+        // modify item bar no and item reference no value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
         DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."));
-        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."),
+        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Item Reference No."),
           InvalidItem2Txt);
 
         // Excercise
@@ -1555,7 +1556,7 @@ codeunit 139157 "Invoice Premapping Tests"
     local procedure InsertItemToIntermediateTable(var DataExch: Record "Data Exch."; var Item: Record Item; DocumentCurrency: Text[250]; BuyFromVendor: Record Vendor; UnitOfMeasure: Record "Unit of Measure"; RowNo: Integer; Qty: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
-        ItemCrossReference: Record "Item Cross Reference";
+        ItemReference: Record "Item Reference";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Currency Code"),
@@ -1567,10 +1568,10 @@ codeunit 139157 "Invoice Premapping Tests"
         InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."),
           Item.GTIN, RowNo, 1);
 
-        LibraryInventory.CreateItemCrossReference(
-          ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, BuyFromVendor."No.");
-        InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."),
-          ItemCrossReference."Cross-Reference No.", RowNo, 1);
+        LibraryItemReference.CreateItemReference(
+          ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, BuyFromVendor."No.");
+        InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Item Reference No."),
+          ItemReference."Reference No.", RowNo, 1);
         InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo(Description),
           ItemNameTxt, RowNo, 1);
 

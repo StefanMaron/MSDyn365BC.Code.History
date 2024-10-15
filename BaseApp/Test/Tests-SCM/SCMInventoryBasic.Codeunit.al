@@ -29,6 +29,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         ItemCreatedMsg: Label 'Item %1 is created.';
         ItemChargeErr: Label 'You can not invoice item charge %1 because there is no item ledger entry to assign it to.';
@@ -1063,13 +1064,52 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure ChangingBaseUnitOfMeasureWithQtyRoundingPercision()
+    var
+        Item: Record Item;
+        FirstUnitOfMeasure: Record "Unit of Measure";
+        SecondUnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        QtyRoudingPercisionErr: Label 'Qty. Rounding Precision for Base Unit of Measure %1 should be %2. Current: ';
+    begin
+        //Change Base UoM should reset Qty. Rounding Percion
+        Initialize;
+
+        Item.Init();
+        Item.Insert(true);
+
+        //Create 2 UoM for an Item
+        LibraryInventory.CreateUnitOfMeasureCode(FirstUnitOfMeasure);
+        LibraryInventory.CreateUnitOfMeasureCode(SecondUnitOfMeasure);
+
+        //Assign Base UoM
+        Item.Validate("Base Unit of Measure", FirstUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        //Assign Qty. Rounding Precision to Base UoM
+        ItemUnitOfMeasure.Get(Item."No.", FirstUnitOfMeasure.Code);
+        ItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        ItemUnitOfMeasure.Modify(true);
+
+        //Change Base UoM
+        Item.Validate("Base Unit of Measure", SecondUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        //Old Base UoM should have the default Qty. Rounding Percision
+        ItemUnitOfMeasure.Get(Item."No.", FirstUnitOfMeasure.Code);
+        Assert.AreEqual(ItemUnitOfMeasure."Qty. Rounding Precision", 0, StrSubstNo(QtyRoudingPercisionErr, FirstUnitOfMeasure.Code, 0, ItemUnitOfMeasure."Qty. Rounding Precision"));
+    end;
+
+    [Test]
     [HandlerFunctions('SelectItemTemplateHandler')]
     [TransactionModel(TransactionModel::AutoCommit)]
     [Scope('OnPrem')]
     procedure CreateItemFromItemTemplate()
     var
         Item: Record Item;
-        ItemTemplate: Record "Item Template";
+        ItemTemplate: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         // Setup: create item, unit of measure, item unit of measure
         Initialize;
@@ -1081,7 +1121,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemTemplate.FindFirst;
 
         LibraryVariableStorage.Enqueue(ItemTemplate.Code);
-        ItemTemplate.UpdateItemFromTemplate(Item);
+        ItemTemplMgt.UpdateItemFromTemplate(Item);
 
         Assert.AreEqual(
           Item."VAT Prod. Posting Group",
@@ -1089,7 +1129,7 @@ codeunit 137280 "SCM Inventory Basic"
           StrSubstNo(VatProdPostingGrMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
 
         UpdateVatProdCodeInItemTemplate(ItemTemplate.Code);
-        ItemTemplate.Get(ItemTemplate.Key);
+        ItemTemplate.Get(ItemTemplate.Code);
         Item.Get(Item."No.");
 
         Assert.AreNotEqual(
@@ -1107,7 +1147,8 @@ codeunit 137280 "SCM Inventory Basic"
     procedure CreateItemsFromItemTemplate()
     var
         Item: Record Item;
-        ItemTemplate: Record "Item Template";
+        ItemTemplate: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         // Arrange: create four items.
         Initialize;
@@ -1132,7 +1173,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemTemplate.FindFirst;
 
         LibraryVariableStorage.Enqueue(ItemTemplate.Code);
-        ItemTemplate.UpdateItemsFromTemplate(Item);
+        ItemTemplMgt.UpdateItemsFromTemplate(Item);
 
         // Assess: Templates are applied only to items 1 and 3
         Item.FindSet();
@@ -1154,7 +1195,7 @@ codeunit 137280 "SCM Inventory Basic"
         until Item.Next = 0;
 
         UpdateVatProdCodeInItemTemplate(ItemTemplate.Code);
-        ItemTemplate.Get(ItemTemplate.Key);
+        ItemTemplate.Get(ItemTemplate.Code);
 
         Item.SetFilter("No.", '1|2|3|4');
         Item.FindSet();
@@ -1175,8 +1216,9 @@ codeunit 137280 "SCM Inventory Basic"
     procedure InsertItemFromItemTemplate()
     var
         Item: Record Item;
-        ItemTemplate: Record "Item Template";
+        ItemTemplate: Record "Item Templ.";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         // [FEATURE] [Item Template] [Unit of Measure]
         // [SCENARIO 203626] Item Unit of Measure should be created for the default Unit of Measure if Item Template has empty Base Unit of Measure
@@ -1184,13 +1226,13 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Item Template with empty Base Unit of Measure
         Item.Init();
-        LibraryInventory.CreateItemTemplate(ItemTemplate);
+        LibraryTemplates.CreateItemTemplateWithData(ItemTemplate);
         ItemTemplate."Base Unit of Measure" := '';
         ItemTemplate.Modify();
         LibraryVariableStorage.Enqueue(ItemTemplate.Code);
 
         // [WHEN] Create new Item using Item Template
-        ItemTemplate.NewItemFromTemplate(Item);
+        ItemTemplMgt.InsertItemFromTemplate(Item);
 
         // [THEN] Item Unit Of Measure is created for Unit of Measure of the Item
         Assert.IsTrue(ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure"), 'Item Unit of Measure should be created.');
@@ -1570,6 +1612,7 @@ codeunit 137280 "SCM Inventory Basic"
             ItemSubstitution."Substitute Type"::Item, Item."No."), 'Item Substitution not found.');
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceWorksheetControlNotVisibleOnPhone()
@@ -1601,6 +1644,7 @@ codeunit 137280 "SCM Inventory Basic"
         Assert.IsFalse(
           ItemList."Sales Price Worksheet".Visible, StrSubstNo(ControlVisibilityErr, false));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1792,34 +1836,6 @@ codeunit 137280 "SCM Inventory Basic"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SaveItemAsTemplateWithLastConfigTemplateHeaderCodeWithoutNumbers()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        Item: Record Item;
-        TempItemTemplate: Record "Item Template" temporary;
-    begin
-        // [FEATURE] [Item Template]
-        // [SCENARIO 255800] Create Item Template from existing Item when Code in last Item Config. Template Header does not contain numbers
-        Initialize;
-
-        // [GIVEN] Config. Template Header "ZZZZZ"
-        ConfigTemplateHeader.Init();
-        ConfigTemplateHeader.Validate(Code, 'ZZZZZ'); // Last record if sorting by Code
-        ConfigTemplateHeader.Validate("Table ID", 27);
-        ConfigTemplateHeader.Insert(true);
-
-        // [GIVEN] Item "10000"
-        LibraryInventory.CreateItem(Item);
-
-        // [WHEN] Save Item "10000" as Template
-        TempItemTemplate.CreateConfigTemplateFromExistingItem(Item, TempItemTemplate);
-
-        // [THEN] Created new Item Template "Item000001"
-        Assert.RecordIsNotEmpty(TempItemTemplate);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CheckVATBusPostingGrPriceAvailableOnItemCard()
     var
         Item: Record Item;
@@ -1922,7 +1938,7 @@ codeunit 137280 "SCM Inventory Basic"
     procedure CreateItemFromNonStockItemCopiesItemDiscGroupFromTemplate()
     var
         ItemDiscountGroup: Record "Item Discount Group";
-        ItemTemplate: Record "Item Template";
+        ItemTemplate: Record "Item Templ.";
         NonstockItem: Record "Nonstock Item";
         Item: Record Item;
         CatalogItemManagement: Codeunit "Catalog Item Management";
@@ -1933,7 +1949,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Item Template with Item Disc. Group "A"
         LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
-        LibraryInventory.CreateItemTemplate(ItemTemplate);
+        LibraryTemplates.CreateItemTemplateWithData(ItemTemplate);
         ItemTemplate.Validate("Item Disc. Group", ItemDiscountGroup.Code);
         ItemTemplate.Modify(true);
 
@@ -1941,7 +1957,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryInventory.CreateNonStockItem(NonstockItem);
         Item.Get(NonstockItem."Vendor Item No.");
         Item.Delete();
-        NonstockItem.Validate("Item Template Code", ItemTemplate.Code);
+        NonstockItem.Validate("Item Templ. Code", ItemTemplate.Code);
         NonstockItem.Modify(true);
 
         // [WHEN] Create Item from Nonstock Item via Catalog Item Management
@@ -2111,6 +2127,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryTemplates.EnableTemplatesFeature();
 
         isInitialized := true;
         Commit();
@@ -2264,10 +2281,10 @@ codeunit 137280 "SCM Inventory Basic"
         NonstockItem.Validate("Vendor No.", Vendor."No.");
         NonstockItem.Validate(
           "Vendor Item No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Vendor Item No."), DATABASE::"Nonstock Item"));
-        NonstockItem.Validate("Item Template Code", SelectItemTemplateCode);
+        NonstockItem.Validate("Item Templ. Code", SelectItemTemplateCode);
         NonstockItem.Validate("Unit of Measure", UnitOfMeasure.Code);
         NonstockItem.Modify(true);
-        UpdateItemTemplate(NonstockItem."Item Template Code");
+        UpdateItemTemplate(NonstockItem."Item Templ. Code");
         CatalogItemManagement.NonstockAutoItem(NonstockItem);
     end;
 
@@ -2602,14 +2619,11 @@ codeunit 137280 "SCM Inventory Basic"
         Assert.AreEqual('Day', ItemTurnover.PeriodType.Value, 'View by Day');
     end;
 
-    local procedure SelectItemTemplateCode(): Code[10]
+    local procedure SelectItemTemplateCode(): Code[20]
     var
-        ItemTemplate: Record "Item Template";
+        ItemTemplate: Record "Item Templ.";
     begin
-        ItemTemplate.SetFilter("Costing Method", '<>%1', ItemTemplate."Costing Method"::Specific);
-        if ItemTemplate.FindFirst then
-            exit(ItemTemplate.Code);
-        LibraryInventory.CreateItemTemplate(ItemTemplate);
+        LibraryTemplates.CreateItemTemplateWithData(ItemTemplate);
         exit(ItemTemplate.Code);
     end;
 
@@ -2622,9 +2636,9 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    local procedure UpdateItemTemplate(ItemTemplateCode: Code[10])
+    local procedure UpdateItemTemplate(ItemTemplateCode: Code[20])
     var
-        ItemTemplate: Record "Item Template";
+        ItemTemplate: Record "Item Templ.";
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         ItemTemplate.SetRange(Code, ItemTemplateCode);
@@ -2638,9 +2652,9 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Normal]
-    local procedure UpdateVatProdCodeInItemTemplate(ItemTemplateCode: Code[10])
+    local procedure UpdateVatProdCodeInItemTemplate(ItemTemplateCode: Code[20])
     var
-        ItemTemplate: Record "Item Template";
+        ItemTemplate: Record "Item Templ.";
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         ItemTemplate.SetRange(Code, ItemTemplateCode);
@@ -2937,10 +2951,10 @@ codeunit 137280 "SCM Inventory Basic"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SelectItemTemplateHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectItemTemplateHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
-        ConfigTemplates.GotoKey(LibraryVariableStorage.DequeueText);
-        ConfigTemplates.OK.Invoke;
+        SelectItemTemplList.GotoKey(LibraryVariableStorage.DequeueText);
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [PageHandler]

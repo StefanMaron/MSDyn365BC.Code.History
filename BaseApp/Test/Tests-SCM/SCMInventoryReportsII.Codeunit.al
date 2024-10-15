@@ -43,6 +43,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         PriceCalculationV15Err: Label 'The Business Central (Version 15.0) must be selected on the Price Calculation Setup page.';
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -192,22 +193,6 @@ codeunit 137302 "SCM Inventory Reports - II"
         CampaignPriceListReport(CurrencyCode);
     end;
 
-    /*
-    [Test]
-    [HandlerFunctions('PriceListRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PriceListReportCampaignBestPrice()
-    begin
-        // [FEATURE] [Best Price]
-        // Test Price List Report - Sales Type: Campaign.
-        Initialize;
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
-        asserterror CampaignPriceListReport('');
-        // [THEN] Error message: 'Required "Native" in setup'.
-        Assert.ExpectedError(PriceCalculationV15Err);
-    end;
-    */
-
     local procedure CampaignPriceListReport(CurrencyCode: Code[10])
     var
         Item: Record Item;
@@ -232,6 +217,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         SalesPrice.FindFirst;
         VerifyUnitPrice(Item, CurrencyCode, SalesPrice."Unit Price");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('InventoryPostingTestRequestPageHandler')]
@@ -886,6 +872,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         VerifyQtyToReceiveInPurchLine(PurchHeader[3]);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -953,6 +940,7 @@ codeunit 137302 "SCM Inventory Reports - II"
           'ItemNo_Variant_SalesLineDescs', ItemVariant2.Code, 'MinimumQty_Variant_SalesLineDescs', MinimumQty[4],
           'LineDisc_Variant_SalesLineDescs', LineDiscount[2]);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('PostProductionJournalHandler,MessageHandler,GenericConfirmHandlerYes,RequestPageHandler')]
@@ -1584,6 +1572,7 @@ codeunit 137302 "SCM Inventory Reports - II"
           'Item_Journal_Batch_Name', ExtraItemJournalBatch.Name);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1693,6 +1682,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryReportDataset.AssertElementWithValueExists('SalesPriceUnitPrice', UnitPrice[1]);
         LibraryReportDataset.AssertElementWithValueExists('SalesPriceUnitPrice', UnitPrice[2]);
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -1701,7 +1691,11 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - II");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
+#if not CLEAN19
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
+#else
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+#endif
 
         if isInitialized then
             exit;
@@ -1832,6 +1826,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMVersion.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure RunPriceListReport(NoFilter: Text; SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
     var
         Item: Record Item;
@@ -1844,6 +1839,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryVariableStorage.Enqueue(CurrencyCode);
         REPORT.Run(REPORT::"Price List", true, false, Item);
     end;
+#endif
 
     local procedure VerifyUnitPrice(Item: Record Item; CurrencyCode: Code[10]; ExpUnitPrice: Decimal)
     var
@@ -1907,6 +1903,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         end;
     end;
 
+#if not CLEAN19
     local procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; CampaignNo: Code[20])
     begin
         // Create Sales Price with random unit price.
@@ -1935,6 +1932,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         SalesLineDiscount.Validate("Line Discount %", LineDiscount);
         SalesLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure CreateItemWithProductionBOM(var Item: Record Item)
     var
@@ -2712,6 +2710,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         // Dummy message Handler.
     end;
 
+#if not CLEAN19
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListRequestPageHandler(var PriceList: TestRequestPage "Price List")
@@ -2731,6 +2730,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         PriceList."Currency.Code".SetValue(CurrencyCode);
         PriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

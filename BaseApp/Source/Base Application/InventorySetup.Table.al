@@ -23,11 +23,9 @@
             Caption = 'Item Nos.';
             TableRelation = "No. Series";
         }
-        field(30; "Automatic Cost Adjustment"; Option)
+        field(30; "Automatic Cost Adjustment"; Enum "Automatic Cost Adjustment Type")
         {
             Caption = 'Automatic Cost Adjustment';
-            OptionCaption = 'Never,Day,Week,Month,Quarter,Year,Always';
-            OptionMembers = Never,Day,Week,Month,Quarter,Year,Always;
 
             trigger OnValidate()
             begin
@@ -106,6 +104,11 @@
             Caption = 'Catalog Item Nos.';
             TableRelation = "No. Series";
         }
+        field(5725; "Use Item References"; Boolean)
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'Use Item References';
+        }
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
@@ -135,13 +138,11 @@
         {
             Caption = 'Default Costing Method';
         }
-        field(5804; "Average Cost Calc. Type"; Option)
+        field(5804; "Average Cost Calc. Type"; Enum "Average Cost Calculation Type")
         {
             Caption = 'Average Cost Calc. Type';
             InitValue = "Item & Location & Variant";
             NotBlank = true;
-            OptionCaption = ' ,Item,Item & Location & Variant';
-            OptionMembers = " ",Item,"Item & Location & Variant";
 
             trigger OnValidate()
             begin
@@ -352,6 +353,11 @@
                 exit(false);
 
         exit(true);
+    end;
+
+    procedure AutomaticCostAdjmtRequired(): Boolean
+    begin
+        exit("Automatic Cost Adjustment" <> "Automatic Cost Adjustment"::Never);
     end;
 }
 

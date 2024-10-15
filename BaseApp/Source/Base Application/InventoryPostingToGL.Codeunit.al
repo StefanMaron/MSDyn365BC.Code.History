@@ -1,4 +1,4 @@
-﻿codeunit 5802 "Inventory Posting To G/L"
+codeunit 5802 "Inventory Posting To G/L"
 {
     Permissions = TableData "G/L Account" = r,
                   TableData "Invt. Posting Buffer" = rimd,

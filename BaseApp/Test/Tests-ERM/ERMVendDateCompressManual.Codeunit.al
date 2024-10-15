@@ -137,7 +137,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         DateCompressVendorLedger.SetTableView(VendorLedgerEntry);
         DateCompressVendorLedger.InitializeRequest(
-          StartingDate, CalcDate('<-1D>', GenJournalLine."Posting Date"), PeriodLength, '', false, false, false, '');
+          StartingDate, CalcDate('<-1D>', GenJournalLine."Posting Date"), PeriodLength, '', false, false, false, '', false);
         DateCompressVendorLedger.UseRequestPage(false);
         DateCompressVendorLedger.Run;
     end;
