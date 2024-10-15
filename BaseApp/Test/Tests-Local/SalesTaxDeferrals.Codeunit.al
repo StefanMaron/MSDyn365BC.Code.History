@@ -98,8 +98,8 @@ codeunit 142001 "Sales Tax Deferrals"
         // [WHEN] Validate "Deferral Code" = "T"
         SalesLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
 
-        // [THEN] 2 Deferral lines created with balance = 103 => 100 * 3%
-        AmountWithTax := Round(SalesLine."Line Amount" * (100 + TaxRate / 3) / 100);
+        // [THEN] 2 Deferral lines created with balance = 105 => 100 * (2% + 3%)
+        AmountWithTax := Round(SalesLine."Line Amount" * (100 + TaxRate) / 100);
 
         VerifyDeferralSchedule(
           DeferralHeader."Deferral Doc. Type"::Sales,

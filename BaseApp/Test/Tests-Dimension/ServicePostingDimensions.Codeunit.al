@@ -2584,6 +2584,48 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader.TestField("Shortcut Dimension 2 Code", ServiceContractHeader."Shortcut Dimension 2 Code");
     end;
 
+    [Test]
+    procedure MissingDimInServiceItemLineDoesNotRestoreFromCustomerDefDim()
+    var
+        Dimension: array[2] of Record Dimension;
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        CustomerNo: Code[20];
+        ServiceItemNo: Code[20];
+        ExpectedDimValueCode: Code[20];
+        UnexpectedDimValueCode: Code[20];
+    begin
+        // [SCENARIO 411591] Lacking dimension in service item line is not added to service line from customer when no dimension priority is defined.
+        Initialize();
+
+        // [GIVEN] Dimensions "D1" and "D2".
+        LibraryDimension.CreateDimension(Dimension[1]);
+        LibraryDimension.CreateDimension(Dimension[2]);
+
+        // [GIVEN] Create customer "C", assign both dimensions.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        ExpectedDimValueCode := CreateDefDimWithNewDimValue(Dimension[1].Code, DATABASE::Customer, CustomerNo);
+        UnexpectedDimValueCode := CreateDefDimWithNewDimValue(Dimension[2].Code, DATABASE::Customer, CustomerNo);
+
+        // [GIVEN] Service order for customer "C".
+        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItemNo);
+
+        // [GIVEN] Delete dimension "D2" from the service item line.
+        ServiceItemLine.Validate(
+          "Dimension Set ID", LibraryDimension.DeleteDimSet(ServiceItemLine."Dimension Set ID", Dimension[2].Code));
+        ServiceItemLine.Modify(true);
+
+        // [WHEN] Create service line.
+        CreateServiceLineWithServItemLineNo(ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo(), ServiceItemLine."Line No.");
+
+        // [THEN] The service line has dimension "D1" only.
+        VerifyDimSetEntry(ServiceLine."Dimension Set ID", Dimension[1].Code, ExpectedDimValueCode);
+        asserterror VerifyDimSetEntry(ServiceLine."Dimension Set ID", Dimension[2].Code, UnexpectedDimValueCode);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

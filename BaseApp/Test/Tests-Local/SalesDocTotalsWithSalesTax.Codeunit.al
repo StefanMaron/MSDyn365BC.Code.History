@@ -40,7 +40,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         // [SCENARIO 136984] For page Mini Sales Invoice Subform (1305) Entry
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
@@ -114,7 +114,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         ItemCreated: Code[20];
     begin
         // The following verifies excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup;
@@ -177,7 +177,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         Assert: Codeunit Assert;
     begin
         // The following verifies the posting of excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup;
@@ -249,7 +249,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         // [SCENARIO 136984] For page Sales Invoice Subform (43) Posting
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
@@ -319,7 +319,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         // [SCENARIO 136984] For page Mini Sales Credit Memo Subform (1320) Entry
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
@@ -394,7 +394,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         // [SCENARIO 136984] For page Mini Sales Credit Memo Subform (1320) Posting
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
@@ -462,7 +462,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         // [SCENARIO 136984] For page Mini Sales Quote Subform (1325) Entry
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
@@ -728,22 +728,85 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    local procedure CreateCustomer(TaxAreaCode: Code[20]): Code[20]
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceSalesTaxWithExpenseTaxDetails()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        SalesInvoice: TestPage "Sales Invoice";
+        TaxPercent: Decimal;
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Invoice] [Expense/Capitalize]
+        // [SCENARIO 407399] Tax Amount must be calculated in Document Totals when "Expense/Capitalize" is true in Tax Details
+        Initialize();
+
+        LibraryLowerPermissions.SetSalesDocsCreate();
+        LibraryLowerPermissions.AddO365Setup;
+
+        // [GIVEN] Tax setup where tax detail with "Expense/Capitalize" = true and "Tax Below Maximum" = 10%
+        TaxPercent := LibraryRandom.RandIntInRange(10, 20);
+        TaxAreaCode := CreateTaxAreaLine(TaxDetail, true, TaxPercent);
+
+        CreateSalesDocumentWithCertainTax(SalesLine, SalesHeader."Document Type"::Invoice, TaxDetail, TaxAreaCode, TaxDetail."Tax Group Code");
+
+        // [WHEN] Open Sales Invoice card page
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
+
+        // [THEN] "Total Amoun Excl. Tax" = 100
+        // [THEN] "Total Tax" = (100 * 10%) = 10;
+        // [THEN] "Total Amoun Incl. Tax" = 110
+        SalesLine.TestField(Amount);
+        SalesInvoice.SalesLines."Total Amount Excl. VAT".AssertEquals(Round(SalesLine.Amount));
+        SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(Round(SalesLine.Amount * TaxPercent / 100));
+        SalesInvoice.SalesLines."Total Amount Incl. VAT".AssertEquals(Round(SalesLine.Amount * (100 + TaxPercent) / 100));
+        SalesInvoice.Close();
+    end;
+
+    [Test]
+    procedure SalesInvoiceWithExciseTaxACY()
     var
         Customer: Record Customer;
-        PostCode: Record "Post Code";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        TaxGroup: array[2] of Record "Tax Group";
+        TaxArea: Record "Tax Area";
+        TaxJurisdiction: array[3] of Record "Tax Jurisdiction";
+        GLEntry: Record "G/L Entry";
+        ExchangeRate: Decimal;
+        TaxRate: array[3] of Decimal;
     begin
-        LibraryERM.CreatePostCode(PostCode);
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("VAT Bus. Posting Group", '');
-        Customer.Validate("Tax Liable", true);
-        Customer.Validate("Tax Area Code", TaxAreaCode);
-        Customer.Validate("Tax Identification Type", Customer."Tax Identification Type"::"Legal Entity");
-        Customer.Validate("RFC No.", GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::Customer, Customer.FieldNo("RFC No.")) - 1));  // Taken Length less than RFC No. Length as Tax Identification Type is Legal Entity.
-        Customer.Validate("CURP No.", GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::Customer, Customer.FieldNo("CURP No."))));
-        Customer.Validate("Post Code", PostCode.Code);
-        Customer.Modify(true);
-        exit(Customer."No.");
+        // [FEATURE] [FCY] [ACY] [Sales Tax]
+        // [SCENARIO 409905] The ACY Amount must be calculated within other amount for Excise Tax with "Calculate Tax on Tax" option.
+
+        Initialize();
+
+        LibraryERM.CreateTaxArea(TaxArea);
+        TaxArea.Validate("Country/Region", TaxArea."Country/Region"::CA);
+        TaxArea.Modify(true);
+
+        TaxRate[1] := 6.36;
+        TaxRate[2] := 15;
+        TaxRate[3] := 0;
+        CreateTaxGroupCode3JurisdictionWithExciseTax(TaxGroup[1], TaxJurisdiction, TaxArea.Code, TaxRate);
+
+        CreateCustomerFCY(Customer, ExchangeRate, TaxArea.Code);
+
+        LibraryERM.SetAddReportingCurrency(Customer."Currency Code");
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine[1], SalesHeader, SalesLine[1].Type::Item, CreateItem(TaxGroup[1].Code), LibraryRandom.RandIntInRange(10, 20));
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        TaxJurisdiction[1].TestField("Tax Account (Sales)");
+        GLEntry.SetRange("G/L Account No.", TaxJurisdiction[1]."Tax Account (Sales)");
+        GLEntry.FindFirst;
+        GLEntry.TestField("Additional-Currency Amount");
     end;
 
     local procedure Initialize()
@@ -787,7 +850,38 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(Item."No.");
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateCustomer(TaxAreaCode: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+        PostCode: Record "Post Code";
+    begin
+        LibraryERM.CreatePostCode(PostCode);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", '');
+        Customer.Validate("Tax Liable", true);
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Validate("Tax Identification Type", Customer."Tax Identification Type"::"Legal Entity");
+        Customer.Validate("RFC No.", GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::Customer, Customer.FieldNo("RFC No.")) - 1));  // Taken Length less than RFC No. Length as Tax Identification Type is Legal Entity.
+        Customer.Validate("CURP No.", GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::Customer, Customer.FieldNo("CURP No."))));
+        Customer.Validate("Post Code", PostCode.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateCustomerFCY(var Customer: Record 18; var ExchangeRate: Decimal; TaxAreaCode: Code[20])
+    var
+        CurrencyCode: Code[10];
+    begin
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WORKDATE, ExchangeRate, ExchangeRate);
+
+        Customer.Get(CreateCustomer(TaxAreaCode));
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader."Tax Area Code" := TaxAreaCode;
@@ -800,6 +894,13 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
         LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxPercentage);
+        TaxDetail.Modify(true);
+    end;
+
+    local procedure CreateSalesTaxDetailWithTaxPercent(var TaxDetail: Record "Tax Detail"; TaxGroupCode: Code[20]; TaxJurisdictionCode: Code[10]; TaxType: Option; TaxPercentage: Decimal);
+    begin
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxType, WORKDATE);
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);
         TaxDetail.Modify(true);
     end;
@@ -819,6 +920,23 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(TaxJurisdiction.Code);
     end;
 
+    local procedure CreateSalesTaxJurisdiction_CA(var TaxJurisdiction: Record "Tax Jurisdiction"; CalculateTaxOnTax: Boolean);
+    begin
+        TaxJurisdiction.Get(CreateSalesTaxJurisdiction);
+        TaxJurisdiction.Validate("Country/Region", TaxJurisdiction."Country/Region"::CA);
+        TaxJurisdiction.Validate("Calculate Tax on Tax", CalculateTaxOnTax);
+        TaxJurisdiction.Modify(true);
+    end;
+
+    local procedure CreateSalesTaxAreaLineWithOrder(TaxAreaCode: Code[20]; TaxJurisdictionCode: Code[10]; CalculationOrder: Integer);
+    var
+        TaxAreaLine: Record 319;
+    begin
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
+        TaxAreaLine.Validate("Calculation Order", CalculationOrder);
+        TaxAreaLine.Modify(true);
+    end;
+
     local procedure CreateTaxAreaWithLine(var TaxDetail: Record "Tax Detail"; TaxPercentage: Integer): Code[20]
     var
         TaxArea: Record "Tax Area";
@@ -830,7 +948,29 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(TaxArea.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; var TaxGroupCode: Code[20]; TaxPercentage: Integer; var TaxAreaCode: Code[20]): Decimal
+    local procedure CreateTaxGroupCode3JurisdictionWithExciseTax(var TaxGroup: Record "Tax Group"; var TaxJurisdiction: array[3] of Record "Tax Jurisdiction"; TaxAreaCode: Code[20]; TaxRate: array[3] of Decimal);
+    var
+        TaxDetail: array[3] of Record "Tax Detail";
+    begin
+        LibraryERM.CreateTaxGroup(TaxGroup);
+
+        CreateSalesTaxJurisdiction_CA(TaxJurisdiction[1], true);
+        CreateSalesTaxJurisdiction_CA(TaxJurisdiction[2], false);
+        CreateSalesTaxJurisdiction_CA(TaxJurisdiction[3], false);
+
+        CreateSalesTaxDetailWithTaxPercent(
+            TaxDetail[1], TaxGroup.Code, TaxJurisdiction[1].Code, TaxDetail[1]."Tax Type"::"Excise Tax", TaxRate[1]);
+        CreateSalesTaxDetailWithTaxPercent(
+            TaxDetail[2], TaxGroup.Code, TaxJurisdiction[2].Code, TaxDetail[2]."Tax Type"::"Sales and Use Tax", TaxRate[2]);
+        CreateSalesTaxDetailWithTaxPercent(
+            TaxDetail[3], TaxGroup.Code, TaxJurisdiction[3].Code, TaxDetail[3]."Tax Type"::"Sales and Use Tax", TaxRate[3]);
+
+        CreateSalesTaxAreaLineWithOrder(TaxAreaCode, TaxDetail[1]."Tax Jurisdiction Code", 1);
+        CreateSalesTaxAreaLineWithOrder(TaxAreaCode, TaxDetail[2]."Tax Jurisdiction Code", 2);
+        CreateSalesTaxAreaLineWithOrder(TaxAreaCode, TaxDetail[3]."Tax Jurisdiction Code", 3);
+    end;
+
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; var TaxGroupCode: Code[20]; TaxPercentage: Integer; var TaxAreaCode: Code[20]): Decimal
     var
         TaxDetail: Record "Tax Detail";
     begin
@@ -839,7 +979,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(CreateSalesDocumentWithCertainTax(SalesLine, DocumentType, TaxDetail, TaxAreaCode, TaxGroupCode));
     end;
 
-    local procedure CreateSalesDocumentWithCertainTax(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]): Decimal
+    local procedure CreateSalesDocumentWithCertainTax(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]): Decimal
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -864,7 +1004,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
     local procedure GetRandomCode(FieldLength: Integer) RandomCode: Code[20]
     begin
-        RandomCode := LibraryUtility.GenerateGUID;
+        RandomCode := LibraryUtility.GenerateGUID();
         repeat
             RandomCode += Format(LibraryRandom.RandInt(9));  // Generating any Random integer value.
         until StrLen(RandomCode) = FieldLength;
@@ -872,25 +1012,25 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
     local procedure OpenSalesCrMemoPageEdit(var SalesCreditMemo: TestPage "Sales Credit Memo"; SalesHeader: Record "Sales Header")
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesInvoicePageEdit(var SalesInvoice: TestPage "Sales Invoice"; SalesHeader: Record "Sales Header")
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesQuotePageEdit(var SalesQuote: TestPage "Sales Quote"; SalesHeader: Record "Sales Header")
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesCrMemoPageView(var SalesCreditMemo: TestPage "Sales Credit Memo"; SalesHeader: Record "Sales Header")
     begin
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
     end;
 
@@ -1016,11 +1156,33 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(TaxArea.Code);
     end;
 
+    local procedure CreateTaxAreaLine(var TaxDetail: Record "Tax Detail"; ExpenseCapitalize: Boolean; TaxPercent: Decimal): Code[20]
+    var
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+    begin
+        CreateSalesTaxDetail(TaxDetail, ExpenseCapitalize, TaxPercent);
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
+        exit(TaxArea.Code);
+    end;
+
+    local procedure CreateSalesTaxDetail(var TaxDetail: Record "Tax Detail"; ExpenseCapitalize: Boolean; TaxPercent: Decimal)
+    var
+        TaxGroup: Record "Tax Group";
+    begin
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxPercent);
+        TaxDetail.Validate("Expense/Capitalize", ExpenseCapitalize);
+        TaxDetail.Modify(true);
+    end;
+
     [ModalPageHandler]
     procedure ShipToAddressListModalPageHandler(var ShipToAddressList: TestPage "Ship-to Address List");
     begin
         ShipToAddressList.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
-        ShipToAddressList.OK().Invoke();
+        ShipToAddressList.OK.Invoke();
     end;
 
     [ConfirmHandler]

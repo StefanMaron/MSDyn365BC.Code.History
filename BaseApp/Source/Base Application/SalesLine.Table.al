@@ -1582,7 +1582,7 @@
                     SalesLine2.TestField("No.", "No.");
                     SalesLine2.TestField("Bill-to Customer No.", "Bill-to Customer No.");
                     SalesLine2.TestField("Sell-to Customer No.", "Sell-to Customer No.");
-                    if "Drop Shipment" then begin
+                    if "Drop Shipment" or "Special Order" then begin
                         SalesLine2.TestField("Variant Code", "Variant Code");
                         SalesLine2.TestField("Location Code", "Location Code");
                         SalesLine2.TestField("Unit of Measure Code", "Unit of Measure Code");
@@ -3169,7 +3169,7 @@
         field(10002; "Retention VAT %"; Decimal)
         {
             Caption = 'Retention VAT %';
-            AutoFormatType = 2;	    
+            AutoFormatType = 2;
             MaxValue = 100;
             MinValue = 0;
         }
@@ -4627,6 +4627,9 @@
                                   TotalAmount + Amount, TotalQuantityBase + "Quantity (Base)",
                                   SalesHeader."Currency Factor"), Currency."Amount Rounding Precision") -
                               TotalAmountInclVAT;
+                            "Amount Including VAT" += SalesTaxCalculate.CalculateExpenseTax(
+                                "Tax Area Code", "Tax Group Code", "Tax Liable", SalesHeader."Posting Date",
+                                TotalAmount + Amount, "Quantity (Base)", SalesHeader."Currency Factor");
                             OnAfterSalesTaxCalculate(Rec, SalesHeader, Currency);
                             UpdateVATPercent("VAT Base Amount", "Amount Including VAT" - "VAT Base Amount");
                         end;
@@ -7323,7 +7326,7 @@
             TempSalesLine := Rec;
             TempSalesLine.Insert();
             CalcSalesTaxLines(SalesHeader, TempSalesLine);
-            exit(Amount + (TempSalesLine."Amount Including VAT" - "Amount Including VAT"));
+            exit(TempSalesLine."Amount Including VAT");
         end;
 
         exit(CalcLineAmount);
