@@ -818,65 +818,68 @@ page 9233 "G/L Balance by Dim. Matrix"
         Period: Record Date;
         DimVal: Record "Dimension Value";
         PeriodPageMgt: Codeunit PeriodPageManagement;
+        IsHandled: Boolean;
     begin
-        OnBeforeFindRec(DimOption, DimVal, GLAcc);
-        case DimOption of
-            DimOption::"G/L Account":
-                begin
-                    GLAcc."No." := DimCodeBuf.Code;
-                    if AnalysisByDimParameters."Account Filter" <> '' then
-                        GLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter");
-                    Found := GLAcc.Find(Which);
-                    if Found then
-                        CopyGLAccToBuf(GLAcc, DimCodeBuf);
-                end;
-            DimOption::Period:
-                begin
-                    if not PeriodInitialized then
-                        AnalysisByDimParameters."Date Filter" := '';
-                    PeriodInitialized := true;
-                    Evaluate(Period."Period Start", DimCodeBuf.Code);
-                    if AnalysisByDimParameters."Date Filter" <> '' then
-                        Period.SetFilter("Period Start", AnalysisByDimParameters."Date Filter")
-                    else
-                        if not PeriodInitialized and (InternalDateFilter <> '') then
-                            Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodPageMgt.FindDate(Which, Period, AnalysisByDimParameters."Period Type");
-                    if Found then
-                        CopyPeriodToBuf(Period, DimCodeBuf);
-                end;
-            DimOption::"Business Unit":
-                begin
-                    BusUnit.Code := DimCodeBuf.Code;
-                    if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
-                        BusUnit.SetFilter(Code, AnalysisByDimParameters."Bus. Unit Filter");
-                    Found := BusUnit.Find(Which);
-                    if Found then
-                        CopyBusUnitToBuf(BusUnit, DimCodeBuf);
-                end;
-            DimOption::"Dimension 1":
-                begin
-                    if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
-                        DimVal.SetFilter(Code, AnalysisByDimParameters."Dimension 1 Filter");
-                    DimVal."Dimension Code" := GLSetup."Global Dimension 1 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
-                    Found := DimVal.Find(Which);
-                    if Found then
-                        CopyDimValueToBuf(DimVal, DimCodeBuf);
-                end;
-            DimOption::"Dimension 2":
-                begin
-                    if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
-                        DimVal.SetFilter(Code, AnalysisByDimParameters."Dimension 2 Filter");
-                    DimVal."Dimension Code" := GLSetup."Global Dimension 2 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
-                    Found := DimVal.Find(Which);
-                    if Found then
-                        CopyDimValueToBuf(DimVal, DimCodeBuf);
-                end;
-        end;
+        IsHandled := false;
+        OnBeforeFindRec(DimOption, DimVal, GLAcc, DimCodeBuf, Which, Found, IsHandled);
+        if not IsHandled then
+            case DimOption of
+                DimOption::"G/L Account":
+                    begin
+                        GLAcc."No." := DimCodeBuf.Code;
+                        if AnalysisByDimParameters."Account Filter" <> '' then
+                            GLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter");
+                        Found := GLAcc.Find(Which);
+                        if Found then
+                            CopyGLAccToBuf(GLAcc, DimCodeBuf);
+                    end;
+                DimOption::Period:
+                    begin
+                        if not PeriodInitialized then
+                            AnalysisByDimParameters."Date Filter" := '';
+                        PeriodInitialized := true;
+                        Evaluate(Period."Period Start", DimCodeBuf.Code);
+                        if AnalysisByDimParameters."Date Filter" <> '' then
+                            Period.SetFilter("Period Start", AnalysisByDimParameters."Date Filter")
+                        else
+                            if not PeriodInitialized and (InternalDateFilter <> '') then
+                                Period.SetFilter("Period Start", InternalDateFilter);
+                        Found := PeriodPageMgt.FindDate(Which, Period, AnalysisByDimParameters."Period Type");
+                        if Found then
+                            CopyPeriodToBuf(Period, DimCodeBuf);
+                    end;
+                DimOption::"Business Unit":
+                    begin
+                        BusUnit.Code := DimCodeBuf.Code;
+                        if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+                            BusUnit.SetFilter(Code, AnalysisByDimParameters."Bus. Unit Filter");
+                        Found := BusUnit.Find(Which);
+                        if Found then
+                            CopyBusUnitToBuf(BusUnit, DimCodeBuf);
+                    end;
+                DimOption::"Dimension 1":
+                    begin
+                        if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+                            DimVal.SetFilter(Code, AnalysisByDimParameters."Dimension 1 Filter");
+                        DimVal."Dimension Code" := GLSetup."Global Dimension 1 Code";
+                        DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
+                        DimVal.Code := DimCodeBuf.Code;
+                        Found := DimVal.Find(Which);
+                        if Found then
+                            CopyDimValueToBuf(DimVal, DimCodeBuf);
+                    end;
+                DimOption::"Dimension 2":
+                    begin
+                        if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+                            DimVal.SetFilter(Code, AnalysisByDimParameters."Dimension 2 Filter");
+                        DimVal."Dimension Code" := GLSetup."Global Dimension 2 Code";
+                        DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
+                        DimVal.Code := DimCodeBuf.Code;
+                        Found := DimVal.Find(Which);
+                        if Found then
+                            CopyDimValueToBuf(DimVal, DimCodeBuf);
+                    end;
+            end;
 
         OnAfterFindRec(DimOption.AsInteger(), DimCodeBuf, Which, Found, AnalysisByDimParameters);
     end;
@@ -1549,7 +1552,7 @@ page 9233 "G/L Balance by Dim. Matrix"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeFindRec(DimOption: Enum "Analysis Dimension Option"; var DimensionValue: Record "Dimension Value"; var GLAccount: Record "G/L Account")
+    local procedure OnBeforeFindRec(DimOption: Enum "Analysis Dimension Option"; var DimensionValue: Record "Dimension Value"; var GLAccount: Record "G/L Account"; var DimensionCodeBuffer: Record "Dimension Code Buffer"; Which: Text[1024]; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 

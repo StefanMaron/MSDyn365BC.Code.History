@@ -457,7 +457,6 @@ codeunit 1501 "Workflow Management"
         IsHandled: Boolean;
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        FeatureTelemetry.LogUptake('0000GDP', 'Workflows', Enum::"Feature Uptake Status"::"Used");
         GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
 
         if GetExecutionContext() = ExecutionContext::Upgrade then begin
@@ -481,7 +480,6 @@ codeunit 1501 "Workflow Management"
             FeatureTelemetry.LogUsage('0000GDQ', 'Workflows', 'Event processed');
         end;
 
-        GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
         Session.LogMessage('0000DYV', WorkflowEventEndTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
     end;
 

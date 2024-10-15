@@ -2,11 +2,14 @@ namespace Microsoft.Finance.FinancialReports;
 
 page 488 "Column Layout Names"
 {
+    AboutTitle = 'About (Financial Report) Column Definitions';
+    AboutText = 'Use column definitions to specify the columns to include in a report. For example, you can design a report layout to compare net change and balance for the same period this year and last year.';
+    AnalysisModeEnabled = false;
     ApplicationArea = All;
-    Caption = 'Column Definitions';
+    Caption = '(Financial Report) Column Definitions';
     PageType = List;
     SourceTable = "Column Layout Name";
-    UsageCategory = Lists;
+    UsageCategory = ReportsAndAnalysis;
 
     layout
     {
@@ -18,17 +21,17 @@ page 488 "Column Layout Names"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the financial report columns definition.';
+                    ToolTip = 'Specifies the unique name (code) of the financial report column definition. You can use up to 10 characters.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the financial report columns definition.';
+                    ToolTip = 'Specifies a description of the financial report columns definition. The description is not shown on the final report but is used to provide more context when using the definition.';
                 }
                 field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the analysis view you want the column layout to be based on.';
+                    ToolTip = 'Specifies the name of the analysis view you want the column definition to use. This field is optional.';
                 }
             }
         }
@@ -111,6 +114,7 @@ page 488 "Column Layout Names"
                 end;
             }
         }
+        
         area(Promoted)
         {
             group(Category_Process)
@@ -120,15 +124,15 @@ page 488 "Column Layout Names"
                 actionref(EditColumnLayoutSetup_Promoted; EditColumnLayoutSetup)
                 {
                 }
-                actionref(CopyColumnLayout_Promoted; CopyColumnLayout)
+
+                group(CopyExportImport)
                 {
-                }
-                actionref(ImportColumnDefinition_Promoted; ImportColumnDefinition)
-                {
-                }
-                actionref(ExportColumnDefinition_Promoted; ExportColumnDefinition)
-                {
-                }
+                    Caption = 'Copy/Export/Import';
+
+                    actionref(CopyColumnLayout_Promoted; CopyColumnLayout){}
+                    actionref(ImportColumnDefinition_Promoted; ImportColumnDefinition){}
+                    actionref(ExportColumnDefinition_Promoted; ExportColumnDefinition){}
+                }                           
             }
         }
     }

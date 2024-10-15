@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+#if not CLEAN25
 namespace Microsoft.Integration.FieldService;
 
 using Microsoft.Integration.Dataverse;
@@ -9,13 +10,14 @@ using Microsoft.Projects.Resources.Resource;
 
 page 6423 "FS Bookable Resource List"
 {
-    ApplicationArea = Suite;
     Caption = 'Bookable Resources - Dynamics 365 Field Service';
     Editable = false;
     PageType = List;
     SourceTable = "FS Bookable Resource";
     SourceTableView = sorting(Name);
-    UsageCategory = Lists;
+    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     layout
     {
@@ -163,4 +165,4 @@ page 6423 "FS Bookable Resource List"
         CurrentlyCoupledFSBookableResource := FSBookableResource;
     end;
 }
-
+#endif

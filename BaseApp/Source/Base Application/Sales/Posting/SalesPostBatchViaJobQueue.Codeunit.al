@@ -180,7 +180,13 @@ codeunit 85 "Sales Post Batch via Job Queue"
         ReportSelections: Record "Report Selections";
         ErrorMessageManagement: Codeunit "Error Message Management";
         PrintingErrorExists: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintDocument(ReportUsage, RecRef, SalesHeader, JobQueueEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ReportSelections.Reset();
         ReportSelections.SetRange(Usage, ReportUsage);
         ReportSelections.FindSet();
@@ -262,6 +268,11 @@ codeunit 85 "Sales Post Batch via Job Queue"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSalesBatchOnAfterRunSalesPost(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintDocument(ReportUsage: Enum "Report Selection Usage"; RecRef: RecordRef; SalesHeader: Record "Sales Header"; JobQueueEntry: Record "Job Queue Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

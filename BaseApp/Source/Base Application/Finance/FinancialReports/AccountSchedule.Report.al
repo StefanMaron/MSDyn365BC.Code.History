@@ -19,7 +19,7 @@ report 25 "Account Schedule"
     RDLCLayout = './Finance/FinancialReports/AccountSchedule.rdlc';
     AdditionalSearchTerms = 'financial reporting,income statement,balance sheet';
     ApplicationArea = Basic, Suite;
-    Caption = 'Financial Report';
+    Caption = 'Run Financial Report';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     AllowScheduling = false;
@@ -322,6 +322,8 @@ report 25 "Account Schedule"
 
     requestpage
     {
+        AboutTitle = 'Run Financial Report';
+        AboutText = 'Specify the Financial Report you want to run (to get a pdf or to print) and the date range for the data to be included. You can also Specifies additional display options and filters for dimensions and budgets (choose "Show more" in the Options pane to see all options).';
         SaveValues = true;
 
         layout
@@ -345,7 +347,7 @@ report 25 "Account Schedule"
                             Lookup = true;
                             ShowMandatory = true;
                             TableRelation = "Financial Report";
-                            ToolTip = 'Specifies the name of the financial report.';
+                            ToolTip = 'Specifies the name (code) of the financial report.';
 
                             trigger OnLookup(var Text: Text): Boolean
                             var
@@ -381,11 +383,11 @@ report 25 "Account Schedule"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Row Definition';
                             Editable = AccSchedNameEditable;
-                            Importance = Promoted;
+                            Importance = Additional;
                             Lookup = true;
                             ShowMandatory = true;
                             TableRelation = "Acc. Schedule Name";
-                            ToolTip = 'Specifies the name of the row definition.';
+                            ToolTip = 'Specifies the name (code) of the row definition to be used (default is the one used in the report definition, but you can override this here).';
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
@@ -405,11 +407,11 @@ report 25 "Account Schedule"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Column Definition';
                             Editable = AccSchedNameEditable;
-                            Importance = Promoted;
+                            Importance = Additional;
                             Lookup = true;
                             ShowMandatory = true;
                             TableRelation = "Column Layout Name".Name;
-                            ToolTip = 'Specifies the name of the column layout that is used for the report.';
+                            ToolTip = 'Specifies the name (code) of the column definition to be used for the report (default is the one used in the report definition, but you can override this here).';
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
@@ -443,7 +445,7 @@ report 25 "Account Schedule"
                             ClosingDates = true;
                             Enabled = StartDateEnabled;
                             ShowMandatory = true;
-                            ToolTip = 'Specifies the date from which the report or batch job processes information.';
+                            ToolTip = 'Specifies the start date from which data in the report should be included.';
 
                             trigger OnValidate()
                             begin
@@ -457,7 +459,7 @@ report 25 "Account Schedule"
                             Caption = 'Ending Date';
                             ClosingDates = true;
                             ShowMandatory = true;
-                            ToolTip = 'Specifies the date to which the report or batch job processes information.';
+                            ToolTip = 'Specifies the end date for which data in the report should be included.';
 
                             trigger OnValidate()
                             begin
@@ -489,7 +491,7 @@ report 25 "Account Schedule"
                             Enabled = BudgetFilterEnable;
                             Importance = Additional;
                             TableRelation = "Cost Budget Name".Name;
-                            ToolTip = 'Specifies a code for a cost budget that the account schedule line will be filtered on.';
+                            ToolTip = 'Specifies a code for a cost budget that the report will be filtered on.';
 
                             trigger OnValidate()
                             begin
@@ -505,7 +507,7 @@ report 25 "Account Schedule"
                             Importance = Additional;
                             LookupPageID = "Business Unit List";
                             TableRelation = "Business Unit";
-                            ToolTip = 'Specifies the business unit filter for the account schedule.';
+                            ToolTip = 'Specifies a business unit filter for the report.';
                             Visible = BusinessUnitFilterVisible;
 
                             trigger OnValidate()
@@ -541,7 +543,7 @@ report 25 "Account Schedule"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Show Row No.';
                             Importance = Additional;
-                            ToolTip = 'Specifies if the report shows row numbers.';
+                            ToolTip = 'Specifies if the report should show row numbers.';
                         }
                         field(ShowAlternatingShading; ShowAlternatingShading)
                         {
@@ -562,7 +564,7 @@ report 25 "Account Schedule"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Show Currency Symbol';
                             Importance = Additional;
-                            ToolTip = 'Specifies whether the report will show currency symbols for amounts.';
+                            ToolTip = 'Specifies if the report should show currency symbols for amounts.';
                         }
                         field(ShowEmptyAmountTypeCtrl; ShowEmptyAmountType)
                         {
@@ -694,7 +696,7 @@ report 25 "Account Schedule"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Filter';
                             Importance = Additional;
-                            ToolTip = 'Specifies a cash flow filter for the schedule.';
+                            ToolTip = 'Specifies a cash flow filter for the report.';
 
                             trigger OnLookup(var Text: Text): Boolean
                             var

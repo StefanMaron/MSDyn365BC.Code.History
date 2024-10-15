@@ -134,6 +134,7 @@ codeunit 6202 "Transact. Storage Export Data"
         Part: Integer;
     begin
         foreach MasterDataTableNo in MasterData.Keys() do begin
+            Part := 0;
             RecordsHandled := 0;
             MasterDataCodes := MasterData.Get(MasterDataTableNo);
             RecRef.Open(MasterDataTableNo);
@@ -1262,6 +1263,6 @@ codeunit 6202 "Transact. Storage Export Data"
 
     local procedure GetRecordChunkSize(): Integer
     begin
-        exit(200000);
+        exit(100000);
     end;
 }
