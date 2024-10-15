@@ -24,6 +24,7 @@ codeunit 137140 "SCM Inventory Documents"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
         ItemTrackingAction: Option AssignSerialNo,SelectEntries;
         RoundingTo0Err: Label 'Rounding of the field';
@@ -1329,6 +1330,57 @@ codeunit 137140 "SCM Inventory Documents"
         PostedInvtShipmentSubform."ShortcutDimCode[3]".AssertEquals(DimValue);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure VerifyDimIsNotUpdatedOnLineAfterLocationCodeIsValidatedOnHeaderAndUserDontWantToUpdateDimOnLines()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Location: Record Location;
+        Item: Record Item;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        InvtShipment: TestPage "Invt. Shipment";
+    begin
+        // [SCENARIO 486635] Dimension is not updated on the inventory shipment line after location code is validated on the header and user don't want to update dimension on the lines
+        Initialize();
+
+        // [GIVEN] Create Dimension Value for Global Dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Default Dimension for Location
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Inventory Shipment header without Location
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := InvtDocumentHeader."Document Type"::Shipment;
+        InvtDocumentHeader.Insert(true);
+
+        // [GIVEN] Create Inventory Shipment Line for Item type
+        LibraryInventory.CreateInvtDocumentLine(
+          InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Open Inventory Shipment Page
+        InvtShipment.OpenEdit();
+        InvtShipment.Filter.SetFilter("No.", InvtDocumentHeader."No.");
+
+        // [WHEN] Set Location Code on Inventory Shipment Page
+        InvtShipment."Location Code".SetValue(Location.Code);
+
+        // [THEN] Find the first Inventory Shipment Line
+        InvtShipment.ShipmentLines.First();
+
+        // [VERIFY] Verify: The dimension on the Inventory Shipment line should be empty        
+        Assert.AreEqual('', InvtShipment.ShipmentLines."Shortcut Dimension 1 Code".Value, StrSubstNo(DimensionErr, ''));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1597,6 +1649,12 @@ codeunit 137140 "SCM Inventory Documents"
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 
