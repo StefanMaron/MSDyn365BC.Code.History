@@ -562,6 +562,7 @@ codeunit 1002 "Job Create-Invoice"
                     JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
                     Delete;
                     JobPlanningLine.UpdateQtyToTransfer;
+                    OnDeleteSalesLineOnBeforeJobPlanningLineModify(JobPlanningLine);
                     JobPlanningLine.Modify;
                 until Next = 0;
         end;
@@ -967,6 +968,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceJobTaskTestJob(var Job: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteSalesLineOnBeforeJobPlanningLineModify(var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

@@ -564,6 +564,91 @@ codeunit 134321 "General Journal Batch Approval"
 
     [Test]
     [Scope('OnPrem')]
+    procedure RestrictGenJournalBatchExportingWithApprovalRemovedWhenWorkflowInstancesRemoved()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        WorkflowStepInstance: Record "Workflow Step Instance";
+    begin
+        // [SCENARIO] Restrict exporting of a journal batch when approval is needed
+        // [GIVEN] Journal batch with one or more journal lines
+        // [GIVEN] Journal batch approval workflow is enabled
+        // [WHEN] Workflow  is disabled and Workflow Step Instances are deleted
+        // [THEN] All restrictions are removed
+
+        Initialize;
+
+        // Setup
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+        Workflow.Enabled := true;
+        Workflow.Modify();
+
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        VerifyRestrictionRecordExists(GenJournalLine.RecordId);
+
+        CreateWorkflowStepInstance(Workflow.Code, GenJournalLine.RecordId);
+
+        // Exercise
+        Workflow.Enabled := false;
+        Workflow.Modify();
+        WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
+        WorkflowStepInstance.DeleteAll(true);
+
+        // Verify
+        VerifyNoRestrictionRecordExists(GenJournalLine.RecordId);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RestrictGenJournalBatchExportingWithApprovalNotRemovedWhenWorkflowIsEnabled()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        WorkflowStepInstance: Record "Workflow Step Instance";
+    begin
+        // [SCENARIO] Restrict exporting of a journal batch when approval is needed
+        // [GIVEN] Journal batch with one or more journal lines
+        // [GIVEN] Journal batch approval workflow is enabled
+        // [GIVEN] Another work flow instance with the same record exists
+        // [WHEN] The Workflow Step Instance are deleted but the Workflow is enabled
+        // [THEN] Record restrictions are not removed
+
+        Initialize;
+
+        // Setup
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+        Workflow.Enabled := true;
+        Workflow.Modify();
+
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        VerifyRestrictionRecordExists(GenJournalLine.RecordId);
+
+        CreateWorkflowStepInstance(Workflow.Code, GenJournalLine.RecordId);
+
+        // Exercise
+        WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
+        WorkflowStepInstance.DeleteAll(true);
+
+        // Verify
+        VerifyRestrictionRecordExists(GenJournalLine.RecordId);
+    end;
+
+    local procedure CreateWorkflowStepInstance(WorkflowCode: Code[20]; Relatedrecord: RecordId)
+    var
+        WorkflowStepInstance: Record "Workflow Step Instance";
+    begin
+        WorkflowStepInstance.Id := CreateGuid();
+        WorkflowStepInstance."Record ID" := Relatedrecord;
+        WorkflowStepInstance."Workflow Code" := WorkflowCode;
+        WorkflowStepInstance.Insert();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure NoGenJournalBatchRestrictionWithApprovalEnabledWithExportDisabled()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1088,6 +1173,14 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         RestrictedRecord.SetRange("Record ID", RecID);
         Assert.RecordIsNotEmpty(RestrictedRecord);
+    end;
+
+    local procedure VerifyNoRestrictionRecordExists(RecID: RecordID)
+    var
+        RestrictedRecord: Record "Restricted Record";
+    begin
+        RestrictedRecord.SetRange("Record ID", RecID);
+        Assert.RecordIsEmpty(RestrictedRecord);
     end;
 
     local procedure VerifyOpenFirstQualifiedApprovalEntry(RecordID: RecordID; SenderID: Code[50]; ApproverID: Code[50])

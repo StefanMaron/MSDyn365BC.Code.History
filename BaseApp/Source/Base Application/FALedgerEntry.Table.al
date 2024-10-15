@@ -530,6 +530,8 @@ table 5601 "FA Ledger Entry"
                 FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Salvage Value";
             "FA Posting Type"::Derogatory:
                 FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::Derogatory;
+            else
+                OnAfterConvertPostingTypeElse(FAJnlLine, Rec);
         end;
         OnAfterConvertPostingType(Rec, FAJnlLine);
         exit(FAJnlLine."FA Posting Type");
@@ -540,8 +542,14 @@ table 5601 "FA Ledger Entry"
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
     end;
 
+    [Obsolete('Replaced by event OnAfterConvertPostingTypeElse.')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterConvertPostingType(var FALedgerEntry: Record "FA Ledger Entry"; FAJournalLine: Record "FA Journal Line")
+    local procedure OnAfterConvertPostingType(FALedgerEntry: Record "FA Ledger Entry"; var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConvertPostingTypeElse(var FAJournalLine: Record "FA Journal Line"; FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 

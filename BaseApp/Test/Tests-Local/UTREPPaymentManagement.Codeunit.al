@@ -524,6 +524,31 @@ codeunit 144045 "UT REP Payment Management"
         Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Withdraw Recapitulation'), '');
     end;
 
+    [Test]
+    [HandlerFunctions('WithdrawNoticeToExcelRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure WithdrawNoticeSaveToExcel()
+    var
+        PaymentLine: Record "Payment Line";
+    begin
+        // [SCENARIO 337173] Run report "Withdraw notice" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Payment Line.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer(), '', '');
+
+        // [WHEN] Run report "Withdraw notice", save report output to Excel file.
+        PaymentLine.SetRecFilter();
+        REPORT.Run(REPORT::"Withdraw notice", true, false, PaymentLine);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 12, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Withdraw'), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -755,6 +780,13 @@ codeunit 144045 "UT REP Payment Management"
     begin
         WithdrawNotice.NumberOfCopies.SetValue(LibraryRandom.RandIntInRange(1, 10));
         WithdrawNotice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure WithdrawNoticeToExcelRequestPageHandler(var WithdrawNotice: TestRequestPage "Withdraw notice")
+    begin
+        WithdrawNotice.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]

@@ -105,7 +105,7 @@ codeunit 7030 "Campaign Target Group Mgt"
         CampaignTargetGr.SetCurrentKey("Campaign No.");
         CampaignTargetGr.SetRange("Campaign No.", Campaign."No.");
         if not CampaignTargetGr.IsEmpty then
-          CampaignTargetGr.DeleteAll;
+            CampaignTargetGr.DeleteAll;
         if ShowMessage then
             Message(Text001, Campaign.TableCaption, Campaign."No.");
     end;
@@ -122,6 +122,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                 else
                     InsertTargetGroup(
                       CampaignTargetGr.Type::Contact, "Contact Company No.", "Campaign No.");
+                OnAfterAddSegLineToTargetGroup(CampaignTargetGr, SegLine);
             end;
     end;
 
@@ -249,6 +250,11 @@ codeunit 7030 "Campaign Target Group Mgt"
         CampaignTargetGr."No." := No;
         CampaignTargetGr."Campaign No." := CampaignNo;
         CampaignTargetGr.Insert(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSegLineToTargetGroup(var CampaignTargetGr: Record "Campaign Target Group"; var SegLine: Record "Segment Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

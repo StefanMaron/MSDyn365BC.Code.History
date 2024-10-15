@@ -103,8 +103,15 @@ codeunit 5972 "Service Info-Pane Management"
     var
         ServItem: Record "Service Item";
         TroubleshootingSetup: Record "Troubleshooting Setup";
+        ResultValue: Integer;
+        IsHandled: Boolean;
     begin
-        TroubleshootingSetup.Reset;
+        IsHandled := false;
+        OnBeforeCalcNoOfTroubleshootings(ServItemLine, ResultValue, IsHandled);
+        if IsHandled then
+            exit(ResultValue);
+
+        TroubleshootingSetup.Reset();
         TroubleshootingSetup.SetRange(Type, TroubleshootingSetup.Type::"Service Item");
         TroubleshootingSetup.SetRange("No.", ServItemLine."Service Item No.");
         if not TroubleshootingSetup.IsEmpty then
@@ -176,6 +183,11 @@ codeunit 5972 "Service Info-Pane Management"
             SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", ServItem."No.", ServItem.Description);
             SkilledResourceList.RunModal;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcNoOfTroubleshootings(ServItemLine: Record "Service Item Line"; var ResultValue: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

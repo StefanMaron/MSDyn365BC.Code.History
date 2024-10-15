@@ -166,6 +166,8 @@ codeunit 5986 "Serv-Amounts Mgt."
             InvPostingBuffer[2].Modify;
         end else
             InvPostingBuffer[1].Insert;
+
+        OnAfterUpdateInvPostBuffer(InvPostingBuffer[1]);
     end;
 
     procedure DivideAmount(QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line")
@@ -553,6 +555,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         LastLineRetrieved: Boolean;
         AdjCostLCY: Decimal;
         BiggestLineNo: Integer;
+        IsHandled: Boolean;
     begin
         TotalAdjCostLCY := 0;
         if not IsInitialized then
@@ -565,14 +568,18 @@ codeunit 5986 "Serv-Amounts Mgt."
             GetCurrency("Currency Code", Currency);
             OldServLine.SetRange("Document Type", "Document Type");
             OldServLine.SetRange("Document No.", "No.");
-            case QtyType of
-                QtyType::ServLineItems:
-                    OldServLine.SetRange(Type, OldServLine.Type::Item);
-                QtyType::ServLineResources:
-                    OldServLine.SetRange(Type, OldServLine.Type::Resource);
-                QtyType::ServLineCosts:
-                    OldServLine.SetFilter(Type, '%1|%2', OldServLine.Type::Cost, OldServLine.Type::"G/L Account");
-            end;
+
+            IsHandled := false;
+            OnSumServiceLines2OnBeforeSetTypeFilters(OldServLine, ServHeader, QtyType, IsHandled);
+            if not IsHandled then
+                case QtyType of
+                    QtyType::ServLineItems:
+                        OldServLine.SetRange(Type, OldServLine.Type::Item);
+                    QtyType::ServLineResources:
+                        OldServLine.SetRange(Type, OldServLine.Type::Resource);
+                    QtyType::ServLineCosts:
+                        OldServLine.SetFilter(Type, '%1|%2', OldServLine.Type::Cost, OldServLine.Type::"G/L Account");
+                end;
 
             RoundingLineIsInserted := false;
             if OldServLine.Find('-') then
@@ -742,6 +749,11 @@ codeunit 5986 "Serv-Amounts Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDivideAmount(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
     begin
     end;
@@ -763,6 +775,11 @@ codeunit 5986 "Serv-Amounts Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnRoundAmountOnBeforeIncrAmount(var ServiceLine: Record "Service Line"; TotalServiceLine: Record "Service Line"; TotalServiceLineLCY: Record "Service Line"; UseDate: Date; NoVAT: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumServiceLines2OnBeforeSetTypeFilters(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; QtyType: Option; var IsHandled: Boolean)
     begin
     end;
 }

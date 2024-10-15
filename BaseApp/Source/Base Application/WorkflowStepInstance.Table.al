@@ -139,6 +139,7 @@ table 1504 "Workflow Step Instance"
         if not WorkflowTableRelationValue.IsEmpty then
             WorkflowTableRelationValue.DeleteAll;
         DeleteStepInstanceRules;
+        RemoveRecordRestrictions();
     end;
 
     trigger OnInsert()
@@ -267,6 +268,29 @@ table 1504 "Workflow Step Instance"
     begin
         if FindWorkflowRules(WorkflowRule) then
             WorkflowRule.DeleteAll;
+    end;
+
+    local procedure RemoveRecordRestrictions()
+    var
+        WorkflowStepInstance: Record "Workflow Step Instance";
+        Workflow: Record "Workflow";
+        RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
+        EmptyRecordID: RecordId;
+        RecRef: RecordRef;
+    begin
+        if "Record ID" = EmptyRecordID then
+            exit;
+        if not Workflow.Get("Workflow Code") then
+            exit;
+        if Workflow.Enabled then
+            exit;
+        WorkflowStepInstance.SetRange("Record ID", "Record ID");
+        WorkflowStepInstance.SetFilter(SystemId, '<>%1', SystemId);
+        if not WorkflowStepInstance.IsEmpty() then
+            exit;
+        if not RecRef.Get("Record ID") then
+            exit;
+        RecordRestrictionMgt.AllowRecordUsage(RecRef);
     end;
 
     procedure FindWorkflowRules(var WorkflowRule: Record "Workflow Rule"): Boolean

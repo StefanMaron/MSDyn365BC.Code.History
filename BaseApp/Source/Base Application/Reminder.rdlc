@@ -9592,8 +9592,9 @@
                                   </TablixMember>
                                 </TablixMembers>
                               </TablixRowHierarchy>
-                              <Top>4.29399cm</Top>
-                              <Left>0.30776cm</Left>
+                              <KeepTogether>true</KeepTogether>
+                              <Top>4.61149cm</Top>
+                              <Left>0.01537cm</Left>
                               <Height>0.35278cm</Height>
                               <Width>17.94177cm</Width>
                               <ZIndex>3</ZIndex>
@@ -12288,8 +12289,8 @@ End Function
         <Field Name="CustNo_IssueReminderHdrCaption">
           <DataField>CustNo_IssueReminderHdrCaption</DataField>
         </Field>
-        <Field Name="CompanyVATRegistrationNo_Lbl">
-          <DataField>CompanyVATRegistrationNo_Lbl</DataField>
+        <Field Name="CompanyVATRegistrationNoCaption">
+          <DataField>CompanyVATRegistrationNoCaption</DataField>
         </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>

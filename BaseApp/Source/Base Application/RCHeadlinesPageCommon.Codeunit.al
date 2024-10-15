@@ -2,8 +2,8 @@ codeunit 1440 "RC Headlines Page Common"
 {
 
     var
-        HeadlineManagement: Codeunit Headlines;
-        HeadlineRC: Codeunit "RC Headlines Executor";
+        Headlines: Codeunit Headlines;
+        RCHeadlinesExecutor: Codeunit "RC Headlines Executor";
         DefaultFieldsVisible: Boolean;
         DocumentationTxt: Label 'Want to learn more about %1?', Comment = '%1 is the Business Central short product name.';
         GreetingText: Text[250];
@@ -12,26 +12,38 @@ codeunit 1440 "RC Headlines Page Common"
 
     procedure HeadlineOnOpenPage(RoleCenterPageID: Integer)
     var
-        RoleCenterHeadlines: Record "RC Headlines User Data";
+        RCHeadlinesUserData: Record "RC Headlines User Data";
     begin
-        if RoleCenterHeadlines.WritePermission() then begin
-            if not RoleCenterHeadlines.Get(UserSecurityId(), RoleCenterPageID) then begin
-                RoleCenterHeadlines.Init();
-                RoleCenterHeadlines."Role Center Page ID" := RoleCenterPageID;
-                RoleCenterHeadlines."User ID" := UserSecurityId();
-                RoleCenterHeadlines.Insert();
+        if RCHeadlinesUserData.WritePermission() then begin
+            if not RCHeadlinesUserData.Get(UserSecurityId(), RoleCenterPageID) then begin
+                RCHeadlinesUserData.Init();
+                RCHeadlinesUserData."Role Center Page ID" := RoleCenterPageID;
+                RCHeadlinesUserData."User ID" := UserSecurityId();
+                RCHeadlinesUserData.Insert();
             end;
-            RoleCenterHeadlines."User workdate" := WorkDate;
-            RoleCenterHeadlines.Modify();
-            HeadlineRC.ScheduleTask(RoleCenterPageID);
+            RCHeadlinesUserData."User workdate" := WorkDate;
+            if ShouldCreateAComputeJob(RCHeadlinesUserData) then begin
+                RCHeadlinesUserData."Last Computed" := CurrentDateTime();
+                RCHeadlinesUserData.Modify();
+                RCHeadlinesExecutor.ScheduleTask(RoleCenterPageID);
+            end else
+                RCHeadlinesUserData.Modify();
         end;
-
-        GreetingText := HeadlineManagement.GetUserGreetingText();
+        GreetingText := Headlines.GetUserGreetingText();
         DocumentationText := StrSubstNo(DocumentationTxt, PRODUCTNAME.Short);
-
         ComputeDefaultFieldsVisibility(RoleCenterPageID);
 
         Commit(); // not to mess up the other page parts that may do IF CODEUNIT.RUN()
+    end;
+
+    local procedure ShouldCreateAComputeJob(RCHeadlinesUserData: Record "RC Headlines User Data"): Boolean
+    var
+        OneHour: Duration;
+    begin
+        if RCHeadlinesUserData."Last Computed" = 0DT then
+            exit(true);
+        OneHour := 60 * 60 * 1000;
+        exit(CurrentDateTime() - RCHeadlinesUserData."Last Computed" > OneHour);
     end;
 
     procedure ComputeDefaultFieldsVisibility(RoleCenterPageID: Integer)
@@ -40,7 +52,7 @@ codeunit 1440 "RC Headlines Page Common"
     begin
         OnIsAnyExtensionHeadlineVisible(ExtensionHeadlinesVisible, RoleCenterPageID);
         DefaultFieldsVisible := not ExtensionHeadlinesVisible;
-        UserGreetingVisible := HeadlineManagement.ShouldUserGreetingBeVisible;
+        UserGreetingVisible := Headlines.ShouldUserGreetingBeVisible;
     end;
 
     procedure DocumentationUrlTxt(): Text

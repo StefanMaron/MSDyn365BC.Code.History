@@ -354,6 +354,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                     if "FA Error Entry No." <> 0 then
                         DerogFAJnlLine."FA Error Entry No." := FAJnlPostLine.GetNextMatchingFALedgEntry(FAJnlLine, FAJnlLine."FA Error Entry No.", DerogFAJnlLine."Depreciation Book Code");
                     FAJnlPostLine.FAJnlPostLine(DerogFAJnlLine, false);
+                    OnPostLinesOnAfterFAJnlPostLine(FAJnlLine);
                     CreateAndPostDerogatoryEntry(FAJnlLine);
                 end;
             until Next = 0;
@@ -362,6 +363,11 @@ codeunit 5633 "FA Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCommit(FARegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnAfterFAJnlPostLine(var FAJnlLine: Record "FA Journal Line")
     begin
     end;
 }

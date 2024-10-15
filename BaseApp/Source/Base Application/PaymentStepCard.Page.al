@@ -1,7 +1,6 @@
 page 10867 "Payment Step Card"
 {
     Caption = 'Payment Step Card';
-    DeleteAllowed = false;
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = "Payment Step";

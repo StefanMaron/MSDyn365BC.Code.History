@@ -46,6 +46,9 @@ table 275 "Bank Account Statement"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Bank Account No.", "Statement No.")
+        {
+        }
     }
 
     trigger OnDelete()

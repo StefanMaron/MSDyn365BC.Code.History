@@ -3159,36 +3159,38 @@ codeunit 136101 "Service Orders"
     procedure NewServiceLineNo()
     var
         ServiceHeader: Record "Service Header";
-        ServiceItemLine: array[3] of Record "Service Item Line";
+        ServiceItemLine: array[4] of Record "Service Item Line";
         ServiceLine: Record "Service Line";
         ServiceOrder: TestPage "Service Order";
         i: Integer;
     begin
         // [FEATURE] [Order] [UI]
-        // [SCENARIO 379469] Service Line get a unique "Line No." when add to Service Item Line in case of Service Order
+        // [SCENARIO 379469] Service Line get a unique "Line No." when there is no room to insert a line between two adjacent lines.
         Initialize;
 
-        // [GIVEN] Service Order with 3 Service Item Lines: "A", "B", "C".
+        // [GIVEN] Service Order with 4 Service Item Lines: "A", "B", "C", "D".
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         for i := 1 to ArrayLen(ServiceItemLine) do
             CreateServiceItemLineWithServiceItem(ServiceItemLine[i], ServiceHeader);
 
         // [GIVEN] Service Line for Service Item Line "A". Service Line "Line No." = 10000.
         // [GIVEN] Service Line for Service Item Line "B". Service Line "Line No." = 20000.
-        for i := 1 to ArrayLen(ServiceItemLine) - 1 do
-            CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine[i]."Service Item No.");
+        // [GIVEN] Service Line for Service Item Line "C". Service Line "Line No." = 10001.
+        CreateServiceLineWithLineNoSet(ServiceLine, ServiceHeader, ServiceItemLine[1], 10000);
+        CreateServiceLineWithLineNoSet(ServiceLine, ServiceHeader, ServiceItemLine[2], 20000);
+        CreateServiceLineWithLineNoSet(ServiceLine, ServiceHeader, ServiceItemLine[3], 10001);
 
-        // [WHEN] Open "Service Lines" page for Service Item Line "C" (Service Order -> Lines -> Order -> Service Lines)
+        // [WHEN] Open "Service Lines" page for Service Item Line "D" (Service Order -> Lines -> Order -> Service Lines)
         ServiceOrder.OpenEdit;
         ServiceOrder.GotoRecord(ServiceHeader);
-        ServiceOrder.ServItemLines.GotoRecord(ServiceItemLine[3]);
+        ServiceOrder.ServItemLines.GotoRecord(ServiceItemLine[4]);
         ServiceOrder.ServItemLines."Service Lines".Invoke;
 
         // [WHEN] Create a new Service Line through the page.
         // ServiceLinesNewLine_MPH
 
         // [THEN] New Service Line "Line No." = 30000
-        FindServiceLineByServiceItemLineNo(ServiceLine, ServiceHeader, ServiceItemLine[3]."Line No.");
+        FindServiceLineByServiceItemLineNo(ServiceLine, ServiceHeader, ServiceItemLine[4]."Line No.");
         Assert.AreEqual(30000, ServiceLine."Line No.", ServiceLine.FieldCaption("Line No."));
     end;
 
@@ -3204,7 +3206,7 @@ codeunit 136101 "Service Orders"
         i: Integer;
     begin
         // [FEATURE] [Quote] [UI]
-        // [SCENARIO 379469] Service Line get a unique "Line No." when add to Service Item Line in case of Service Quote
+        // [SCENARIO 379469] Service Line gets an intermediate line no. if inserted between two adjacent lines.
         Initialize;
 
         // [GIVEN] Service Quote with 3 Service Item Lines: "A", "B", "C".
@@ -3214,8 +3216,8 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Service Line for Service Item Line "A". Service Line "Line No." = 10000.
         // [GIVEN] Service Line for Service Item Line "B". Service Line "Line No." = 20000.
-        for i := 1 to ArrayLen(ServiceItemLine) - 1 do
-            CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine[i]."Service Item No.");
+        CreateServiceLineWithLineNoSet(ServiceLine, ServiceHeader, ServiceItemLine[1], 10000);
+        CreateServiceLineWithLineNoSet(ServiceLine, ServiceHeader, ServiceItemLine[2], 20000);
 
         // [WHEN] Open "Service Quote Lines" page for Service Item Line "C" (Service Quote -> Lines -> Quote -> Service Lines)
         ServiceQuote.OpenEdit;
@@ -3226,9 +3228,9 @@ codeunit 136101 "Service Orders"
         // [WHEN] Create a new Service Line through the page.
         // ServiceQuoteLinesNewLine_MPH
 
-        // [THEN] New Service Line "Line No." = 30000
+        // [THEN] New Service Line "Line No." = 15000
         FindServiceLineByServiceItemLineNo(ServiceLine, ServiceHeader, ServiceItemLine[3]."Line No.");
-        Assert.AreEqual(30000, ServiceLine."Line No.", ServiceLine.FieldCaption("Line No."));
+        Assert.AreEqual(15000, ServiceLine."Line No.", ServiceLine.FieldCaption("Line No."));
     end;
 
     [Test]
@@ -3965,6 +3967,39 @@ codeunit 136101 "Service Orders"
         Assert.AreEqual('Service Credit Memo', ServiceHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetLineNoReturnsLastServiceLineNo()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Service Line] [UT]
+        // [SCENARIO 335496] "GetLineNo" function returns next line no. after the last service line and "Line No." = 10000 if no service line exists.
+        Initialize;
+
+        ServiceHeader.Init;
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
+        ServiceHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceHeader.Insert;
+
+        with ServiceLine do begin
+            Init;
+            "Document Type" := ServiceHeader."Document Type";
+            "Document No." := ServiceHeader."No.";
+            "Line No." := GetLineNo;
+            Insert;
+            TestField("Line No.", 10000);
+
+            Init;
+            "Document Type" := ServiceHeader."Document Type";
+            "Document No." := ServiceHeader."No.";
+            "Line No." := GetLineNo;
+
+            TestField("Line No.", 20000);
+        end;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4483,6 +4518,17 @@ codeunit 136101 "Service Orders"
         ServiceLine.Validate(Quantity, Quantity);
         ServiceLine.Validate("Qty. to Consume", Quantity);
         ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateServiceLineWithLineNoSet(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemLine: Record "Service Item Line"; LineNo: Integer)
+    begin
+        Clear(ServiceLine);
+        ServiceLine.Init;
+        ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
+        ServiceLine.Validate("Document No.", ServiceHeader."No.");
+        ServiceLine.Validate("Line No.", LineNo);
+        ServiceLine.Validate("Service Item No.", ServiceItemLine."Service Item No.");
+        ServiceLine.Insert(true);
     end;
 
     local procedure CreateServiceLineDimSet(var ServiceLine: Record "Service Line")

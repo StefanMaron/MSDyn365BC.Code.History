@@ -543,7 +543,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
             CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
             CheckEverythingIsReverted(Item, Vendor, GLEntry);
             PurchaseHeaderCorrection.Validate("Vendor Invoice No.", PurchaseHeaderCorrection."Vendor Invoice No." + '-C');
-            PurchaseHeaderCorrection.Modify;
+            PurchaseHeaderCorrection.Modify();
 
             // VERIFY: That invoices created from a correction and also be posted and cancelled
             PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchaseHeaderCorrection));
@@ -579,7 +579,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CurrencyExchangeRate.FindFirst;
         PayToVendor.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
         PayToVendor.Modify(true);
-        Commit;
+        Commit();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -606,7 +606,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Vendor.Get(Vendor."No.");
         Vendor.Validate(Blocked, Vendor.Blocked::All);
         Vendor.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -646,7 +646,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PayToVendor.Get(PayToVendor."No.");
         PayToVendor.Validate(Blocked, PayToVendor.Blocked::All);
         PayToVendor.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
         // EXERCISE
@@ -679,7 +679,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Vendor.Get(Vendor."No.");
         Vendor.Validate("Privacy Blocked", true);
         Vendor.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -719,7 +719,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PayToVendor.Get(PayToVendor."No.");
         PayToVendor.Validate("Privacy Blocked", true);
         PayToVendor.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
         // EXERCISE
@@ -752,7 +752,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Item.Find;
         Item.Validate(Blocked, true);
         Item.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -1019,10 +1019,10 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."Allow Posting To" := CalcDate('<-1D>', WorkDate);
         GLSetup.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -1034,10 +1034,10 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
         CheckNothingIsCreated(Vendor."No.", GLEntry);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."Allow Posting To" := 0D;
         GLSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -1060,11 +1060,11 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         LibraryCosting.AdjustCostItemEntries('', '');
 
-        InvtPeriod.Init;
+        InvtPeriod.Init();
         InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
         InvtPeriod.Closed := true;
-        InvtPeriod.Insert;
-        Commit;
+        InvtPeriod.Insert();
+        Commit();
 
         GLEntry.FindLast;
 
@@ -1076,8 +1076,8 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
         CheckNothingIsCreated(Vend."No.", GLEntry);
 
-        InvtPeriod.Delete;
-        Commit;
+        InvtPeriod.Delete();
+        Commit();
     end;
 
     [Test]
@@ -1123,7 +1123,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         if GLEntry.FindLast then;
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
         PurchasesPayablesSetup.Modify(true);
 
@@ -1134,11 +1134,11 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, 1);
         PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchaseHeader));
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         OldPurchasesPayablesSetup := PurchasesPayablesSetup;
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", true);
         PurchasesPayablesSetup.Modify(true);
-        Commit;
+        Commit();
 
         // CHECK: IT SHOULD NOT BE POSSIBLE TO UNDO WHEN EXTERNAL DOC IS MANDATORY
         GLEntry.FindLast;
@@ -1154,10 +1154,10 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         // VERIFY
         CheckNothingIsCreated(Vendor."No.", GLEntry);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", OldPurchasesPayablesSetup."Ext. Doc. No. Mandatory");
         PurchasesPayablesSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -1382,9 +1382,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Correct Purchase Invoice");
         // Initialize setup.
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1394,22 +1394,23 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         SetNoSeries;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         if PurchasesPayablesSetup."Order Nos." = '' then
             PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
         LibraryPurchase.SetDiscountPostingSilent(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
 
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Correct Purchase Invoice");
     end;
 
@@ -1447,7 +1448,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         // Make Dimension Mandatory
         AddMandatoryDimToAcc(DATABASE::"G/L Account", GLAcc."No.", DefaultDim);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -1465,7 +1466,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         // Unblock the Dimension
         DefaultDim.Delete(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItemWithCost(var Item: Record Item; Type: Option Inventory,Service; UnitCost: Decimal)
@@ -1473,7 +1474,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         Item.Validate(Type, Type);
         Item."Last Direct Cost" := UnitCost;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure BuyItem(BuyFromVendor: Record Vendor; Item: Record Item; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
@@ -1490,7 +1491,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         FromGLAcc.FindSet;
         repeat
             ToGLAcc := FromGLAcc;
-            if ToGLAcc.Insert then;
+            if ToGLAcc.Insert() then;
         until FromGLAcc.Next = 0;
     end;
 
@@ -1499,7 +1500,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLAcc.Find;
         GLAcc.Validate(Blocked, true);
         GLAcc.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockGLAcc(var GLAcc: Record "G/L Account")
@@ -1507,7 +1508,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLAcc.Find;
         GLAcc.Validate(Blocked, false);
         GLAcc.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateBuyFromWithDifferentPayToVendor(var BuyFromVendor: Record Vendor; var PayToVendor: Record Vendor)
@@ -1606,10 +1607,10 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.Validate("Exact Cost Reversing Mandatory", false);
         PurchSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CheckSomethingIsPosted(Item: Record Item; Vendor: Record Vendor)
@@ -1710,11 +1711,11 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Cost Type":
-                CostType.DeleteAll;
+                CostType.DeleteAll();
             DATABASE::"Production BOM Line":
-                ProductionBOMLine.DeleteAll;
+                ProductionBOMLine.DeleteAll();
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;

@@ -100,6 +100,18 @@ codeunit 134611 "Test Nav App Permissions"
         LibraryPermissions.AddPermission(AppPermissionRoles[2], Permission."Object Type"::Table, PAGE::"Vendor Statistics");
     end;
 
+    local procedure CreateSuperUser(): Guid
+    var
+        LibraryPermissions: Codeunit "Library - Permissions";
+        UserPermissions: Codeunit "Users - Create Super User";
+    begin
+        LibraryPermissions.CreateUser(User, LibraryUtility.GenerateRandomAlphabeticText(10, 0), false);
+        UserPermissions.AddUserAsSuper(User);
+
+        exit(User."User Security ID");
+    end;
+
+
     [Normal]
     [Scope('OnPrem')]
     procedure CleanupData()
@@ -600,6 +612,65 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column2.Caption));
 
         PermissionSetByUser.Close;
+        CleanupData;
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestRemoveSUPERPermissionsByUserAll()
+    var
+        SuperPermissionSet: Record "Aggregate Permission Set";
+        PermissionSetByUser: TestPage "Permission Set by User";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        IsPermissionSetEnabled: Boolean;
+    begin
+        // [Scenario] User is not able to remove the SUPER permission set from all users.
+        // Init
+        InitializeData();
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+
+        // Find SUPER permission set
+        SuperPermissionSet.SetRange("Role ID", 'SUPER');
+        SuperPermissionSet.SetRange(Scope, SuperPermissionSet.Scope::System);
+        Assert.IsTrue(SuperPermissionSet.FindFirst(), 'Aggregate Permission Set must have a SUPER entry');
+
+        // Execute
+        PermissionSetByUser.OpenView;
+        PermissionSetByUser.GotoRecord(SuperPermissionSet);
+        Evaluate(IsPermissionSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
+
+        // Verify
+        Assert.IsFalse(
+          IsPermissionSetEnabled,
+          StrSubstNo(
+            'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID",
+            PermissionSetByUser.AllUsersHavePermission.Caption));
+
+        // Execute
+        PermissionSetByUser.AllUsersHavePermission.SetValue(true);
+        PermissionSetByUser.Close;
+        PermissionSetByUser.OpenView;
+        PermissionSetByUser.GotoRecord(SuperPermissionSet);
+        Evaluate(IsPermissionSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
+
+        // Verify
+        Assert.IsTrue(
+          IsPermissionSetEnabled,
+          StrSubstNo(
+            'Expected permission set %1 to be enabled for %2', PermissionSetByUser."Role ID",
+            PermissionSetByUser.AllUsersHavePermission.Caption));
+
+        // Execute
+        asserterror PermissionSetByUser.AllUsersHavePermission.SetValue(false);
+
+        // Verify
+        Assert.AreEqual(1, PermissionSetByUser.AllUsersHavePermission.ValidationErrorCount(), 'Wrong number of validation errors');
+        Assert.AreEqual('There should be at least one enabled ''SUPER'' user.', PermissionSetByUser.AllUsersHavePermission.GetValidationError(1), 'Wrong validation error message');
+
+        PermissionSetByUser.Close;
+
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         CleanupData;
     end;
 

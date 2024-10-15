@@ -104,21 +104,21 @@ codeunit 4001 "Hybrid Cloud Management"
         TableMetadata: Record "Table Metadata";
     begin
         TableMetadata.RESET();
-        TableMetadata.SETRANGE(ReplicateData, false);
+        TableMetadata.SetRange(ReplicateData, false);
         TableMetadata.SetFilter(ID, '<%1|>%2', 2000000000, 2000000300);
         TableMetadata.SetFilter(Name, '<>*Buffer');
         HybridCompany.Reset();
         HybridCompany.SetRange(Replicate, true);
         if HybridCompany.FindSet() then
             repeat
-                IF TableMetadata.CHANGECOMPANY(HybridCompany.Name) THEN // CHANGECOMPANY should transfer the range to the new company
+                if TableMetadata.ChangeCompany(HybridCompany.Name) then // CHANGECOMPANY should transfer the range to the new company
                     TotalTables := TotalTables + TableMetadata.CountApprox();
             until HybridCompany.Next() = 0;
 
         // Now add the system tables
         TableMetadata.RESET();
-        TableMetadata.SETRANGE(ReplicateData, false);
-        TableMetadata.SETRANGE(DataPerCompany, false);
+        TableMetadata.SetRange(ReplicateData, false);
+        TableMetadata.SetRange(DataPerCompany, false);
         TableMetadata.SetFilter(ID, '<%1|>%2', 2000000000, 2000000300);
         TableMetadata.SetFilter(Name, '<>*Buffer');
         if TableMetadata.FindSet() then
@@ -187,7 +187,7 @@ codeunit 4001 "Hybrid Cloud Management"
         HandledExternally: Boolean;
     begin
         OnBeforeShowIRInstructionsStep(HybridProductType, IRName, PrimaryKey, HandledExternally);
-        if HandledExternally OR (IRName <> '') then
+        if HandledExternally or (IRName <> '') then
             exit;
 
         HybridDeployment.Initialize(HybridProductType.ID);
@@ -247,7 +247,7 @@ codeunit 4001 "Hybrid Cloud Management"
         SubscriptionExists: Boolean;
     begin
         WebhookSubscription.LockTable();
-        SubscriptionExists := WebhookSubscription.GET(SubscriptionId, '');
+        SubscriptionExists := WebhookSubscription.Get(SubscriptionId, '');
         WebhookSubscription."Application ID" := CopyStr(ApplicationIdentifier(), 1, 20);
         WebhookSubscription."Client State" := ClientState;
         WebhookSubscription."Company Name" := CopyStr(CompanyName(), 1, 30);
@@ -290,6 +290,11 @@ codeunit 4001 "Hybrid Cloud Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowCompanySelectionStep(var HybridProductType: Record "Hybrid Product Type"; SqlConnectionString: Text; SqlServerType: Text; IRName: Text; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeShowProductSpecificSettingsPageStep(var HybridProductType: Record "Hybrid Product Type"; var ShowSettingsStep: Boolean)
     begin
     end;
 

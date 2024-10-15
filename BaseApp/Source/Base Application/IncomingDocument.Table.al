@@ -743,7 +743,19 @@ table 130 "Incoming Document"
         exit("Entry No.");
     end;
 
+    procedure CreateIncomingDocument(PictureInStream: InStream; Description: Text)
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+    begin
+        IncomingDocument.CopyFilters(Rec);
+        CreateIncomingDocument(Description, '');
+        AddAttachmentFromStream(IncomingDocumentAttachment, Description, '', PictureInStream);
+        CopyFilters(IncomingDocument);
+    end;
+
     [Scope('OnPrem')]
+    [Obsolete('Replaced with CreateIncomingDocument function')]
     procedure CreateIncomingDocumentFromServerFile(FileName: Text; FilePath: Text)
     var
         IncomingDocument: Record "Incoming Document";
