@@ -1,4 +1,4 @@
-codeunit 10097 "Export EFT (IAT)"
+﻿codeunit 10097 "Export EFT (IAT)"
 {
 
     trigger OnRun()
@@ -176,6 +176,7 @@ codeunit 10097 "Export EFT (IAT)"
         ACHUSHeader."Effective Date" := SettleDate;
         ACHUSHeader."Transit Routing Number" := BankAccount."Transit No.";
         ACHUSHeader."Batch Number" := EFTValues.GetBatchNo;
+        OnStartExportBatchOnBeforeACHUSHeaderModify(ACHUSHeader);
         ACHUSHeader.Modify;
 
         EFTValues.SetNoOfRec := EFTValues.GetNoOfRec + 1;
@@ -575,6 +576,11 @@ codeunit 10097 "Export EFT (IAT)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeACHUSDetailModify(var ACHUSDetail: Record "ACH US Detail"; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; BankAccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartExportBatchOnBeforeACHUSHeaderModify(var ACHUSHeader: Record "ACH US Header")
     begin
     end;
 }

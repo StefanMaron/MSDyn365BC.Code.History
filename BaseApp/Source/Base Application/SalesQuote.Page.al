@@ -1061,7 +1061,7 @@
                     ApplicationArea = Suite;
                     Caption = 'Get Recurring Sales Lines';
                     Ellipsis = true;
-                    Enabled = IsCustomerOrContactNotEmpty;
+                    Enabled = IsSellToCustomerNotEmpty;
                     Image = CustomerCode;
                     ToolTip = 'Get standard sales lines that are available to assign to customers.';
 
@@ -1619,6 +1619,7 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        IsSellToCustomerNotEmpty: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1672,6 +1673,7 @@
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
         IsCustomerOrContactNotEmpty := ("Sell-to Customer No." <> '') or ("Sell-to Contact No." <> '');
+        IsSellToCustomerNotEmpty := ("Sell-to Customer No." <> '');
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
     end;

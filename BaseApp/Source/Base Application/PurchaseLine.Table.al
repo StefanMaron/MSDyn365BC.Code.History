@@ -1,4 +1,4 @@
-table 39 "Purchase Line"
+﻿table 39 "Purchase Line"
 {
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
@@ -3969,7 +3969,10 @@ table 39 "Purchase Line"
         if PurchHeader."Language Code" <> '' then
             GetItemTranslation;
 
-        "Unit of Measure Code" := Item."Purch. Unit of Measure";
+        if Item."Purch. Unit of Measure" <> '' then
+            "Unit of Measure Code" := Item."Purch. Unit of Measure"
+        else
+            "Unit of Measure Code" := Item."Base Unit of Measure";
         InitDeferralCode;
         OnAfterAssignItemValues(Rec, Item, CurrFieldNo);
     end;
@@ -4258,6 +4261,7 @@ table 39 "Purchase Line"
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
         TotalQuantityBase: Decimal;
+        TotalExpenseTax: Decimal;
     begin
         OnBeforeUpdateVATAmounts(Rec);
 
@@ -4295,12 +4299,14 @@ table 39 "Purchase Line"
             then begin
                 PurchLine2.SetFilter("VAT %", '<>0');
                 if not PurchLine2.IsEmpty then begin
-                    PurchLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)");
+                    PurchLine2.CalcSums(
+                      "Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "Tax To Be Expensed");
                     TotalLineAmount := PurchLine2."Line Amount";
                     TotalInvDiscAmount := PurchLine2."Inv. Discount Amount";
                     TotalAmount := PurchLine2.Amount;
                     TotalAmountInclVAT := PurchLine2."Amount Including VAT";
                     TotalQuantityBase := PurchLine2."Quantity (Base)";
+                    TotalExpenseTax := PurchLine2."Tax To Be Expensed";
                     OnAfterUpdateTotalAmounts(Rec, PurchLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
                 end;
             end;
@@ -4393,7 +4399,7 @@ table 39 "Purchase Line"
                                       TotalAmount + Amount, TotalQuantityBase + "Quantity (Base)",
                                       PurchHeader."Currency Factor"),
                                     Currency."Amount Rounding Precision") -
-                                  TotalAmountInclVAT;
+                                  TotalAmountInclVAT + TotalExpenseTax;
                             "Tax To Be Expensed" := SalesTaxCalculate.CalculateExpenseTax(
                                 "Tax Area Code", "Tax Group Code", "Tax Liable", PurchHeader."Posting Date",
                                 CalcLineAmount, "Quantity (Base)", PurchHeader."Currency Factor");
@@ -5833,7 +5839,7 @@ table 39 "Purchase Line"
         if ("Qty. to Invoice" <> 0) and ("Prepmt. Amt. Inv." <> 0) then begin
             GetPurchHeader;
             if ("Prepayment %" = 100) and not IsFinalInvoice then
-                "Prepmt Amt to Deduct" := GetLineAmountToHandle("Qty. to Invoice")
+                "Prepmt Amt to Deduct" := GetLineAmountToHandle("Qty. to Invoice") - "Inv. Disc. Amount to Invoice"
             else
                 "Prepmt Amt to Deduct" :=
                   Round(
@@ -5889,10 +5895,10 @@ table 39 "Purchase Line"
         else
             DocType := DocType::Invoice;
 
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) then begin
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) then begin
             GetPurchHeader();
             if PurchasePostPrepayments.PrepmtAmount(Rec, DocType, PurchHeader."Prepmt. Include Tax") <= 0 then
-                exit("Prepmt Amt to Deduct");
+                exit("Prepmt Amt to Deduct" + "Inv. Disc. Amount to Invoice");
         end;
         exit(GetLineAmountToHandle(QtyToHandle));
     end;

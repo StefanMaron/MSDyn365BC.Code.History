@@ -33,6 +33,7 @@ codeunit 137305 "SCM Warehouse Reports"
         BULK: Label 'BULK';
         InvtPutAwayCreated: Label 'Number of Invt. Put-away activities created';
         CombineShipmentErr: Label 'Incorrect Sales Invoice Line Type';
+        RequestPageMissingErr: Label 'RequestPage %1', Comment = '%1 - Report ID';
 
     [Test]
     [HandlerFunctions('PickingListRequestPageHandler')]
@@ -1362,7 +1363,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Commit;
 
         // [WHEN] Call PrintInvtPutAwayHeader from codeunit Warehouse Document-Print
-        WarehouseDocumentPrint.PrintInvtPutAwayHeader(WarehouseActivityHeader, true);
+        WarehouseDocumentPrint.PrintInvtPutAwayHeader(WarehouseActivityHeader, false);
 
         // [THEN] Report "Put-away List" is printed
         LibraryReportDataset.LoadDataSetFile;
@@ -1561,6 +1562,206 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.IsTrue(LibraryReportSelection.GetEventHandled(), '');
 
         UnbindSubscription(LibraryReportSelection);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintPickHeader()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Pick] [UT]
+        // [SCENARIO 361099] Printing pick using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintPickHeader(WarehouseActivityHeader);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::Pick);
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintPutAwayHeader()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Put-away] [UT]
+        // [SCENARIO 361099] Printing put-away using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintPutAwayHeader(WarehouseActivityHeader);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Put-away");
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintMovementHeader()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Movement] [UT]
+        // [SCENARIO 361099] Printing movement using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintMovementHeader(WarehouseActivityHeader);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::Movement);
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtPickHeader()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Inventory Pick] [UT]
+        // [SCENARIO 361099] Printing inventory pick using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintInvtPickHeader(WarehouseActivityHeader, false);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Pick");
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtPutAwayHeader()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Inventory Put-away] [UT]
+        // [SCENARIO 361099] Printing inventory put-away using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintInvtPutAwayHeader(WarehouseActivityHeader, false);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Put-away");
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtMovementHeader()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Inventory Movement] [UT]
+        // [SCENARIO 361099] Printing inventory movement using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintInvtMovementHeader(WarehouseActivityHeader, false);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Movement");
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintRcptHeader()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Warehouse Receipt] [UT]
+        // [SCENARIO 361099] Printing warehouse receipt using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintRcptHeader(WarehouseReceiptHeader);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::Receipt);
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintPostedRcptHeader()
+    var
+        PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Warehouse Receipt] [UT]
+        // [SCENARIO 361099] Printing posted warehouse receipt using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintPostedRcptHeader(PostedWhseReceiptHeader);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Posted Receipt");
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintShptHeader()
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Warehouse Shipment] [UT]
+        // [SCENARIO 361099] Printing warehouse shipment using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintShptHeader(WarehouseShipmentHeader);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::Shipment);
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintPostedShptHeader()
+    var
+        PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        // [FEATURE] [Warehouse Shipment] [UT]
+        // [SCENARIO 361099] Printing posted warehouse shipment using "Warehouse Document-Print" codeunit shows request page of the report.
+
+        asserterror WarehouseDocumentPrint.PrintPostedShptHeader(PostedWhseShipmentHeader);
+
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Posted Shipment");
+        ReportSelectionWarehouse.FindFirst;
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
     local procedure Initialize()

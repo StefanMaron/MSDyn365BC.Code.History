@@ -3682,7 +3682,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         IsolatedCertificate: Record "Isolated Certificate";
     begin
         IsolatedCertificate.Init;
-        IsolatedCertificate.Validate(Password, LibraryRandom.RandText(5));
         IsolatedCertificate.Insert(true);
         GeneralLedgerSetup.Get;
         GeneralLedgerSetup.Validate("PAC Code", PACCode);

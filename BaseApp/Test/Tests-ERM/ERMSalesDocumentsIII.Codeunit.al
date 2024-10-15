@@ -4620,6 +4620,39 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.TestField("Allow Invoice Disc.", false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecreatingSalesLinesWithoutOrderPromisingDoesNotTouchReqLines()
+    var
+        SalesHeader: Record "Sales Header";
+        CodeCoverage: Record "Code Coverage";
+        CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
+    begin
+        // [FEATURE] [Order Promising]
+        // [SCENARIO 365071] Recreating sales lines does not try to delete requisition lines when they do not exist.
+        Initialize;
+
+        // [GIVEN] Sales order.
+        CreateSalesDocumentItem(SalesHeader, SalesHeader."Document Type"::Order, LibraryInventory.CreateItemNo);
+        SalesHeader.SetHideValidationDialog(true);
+
+        // [WHEN] Turn on code coverage and change Sell-to Customer No. in the sales order.
+        CodeCoverageMgt.StartApplicationCoverage;
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
+        CodeCoverageMgt.StopApplicationCoverage;
+
+        // [THEN] There were no attempts to delete requisition lines for order promising.
+        CodeCoverageMgt.Refresh;
+        with CodeCoverage do begin
+            SetRange("Line Type", "Line Type"::Code);
+            SetRange("Object Type", "Object Type"::Table);
+            SetRange("Object ID", DATABASE::"Sales Header");
+            SetFilter("No. of Hits", '>%1', 0);
+            SetFilter(Line, StrSubstNo('@*%1*', 'ReqLine.DELETEALL'));
+            Assert.RecordIsEmpty(CodeCoverage);
+        end;
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";

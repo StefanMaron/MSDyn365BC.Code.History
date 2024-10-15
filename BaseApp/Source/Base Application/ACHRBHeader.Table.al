@@ -54,6 +54,10 @@ table 10303 "ACH RB Header"
         {
             Caption = 'Input Qualifier';
         }
+        field(13; "Settlement Date"; Date)
+        {
+            Caption = 'Settlement Date';
+        }
     }
 
     keys

@@ -1,4 +1,4 @@
-codeunit 10094 "Export EFT (ACH)"
+﻿codeunit 10094 "Export EFT (ACH)"
 {
 
     trigger OnRun()
@@ -132,6 +132,7 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSHeader."Originator Status Code" := 1;
         ACHUSHeader."Transit Routing Number" := BankAccount."Transit No.";
         ACHUSHeader."Batch Number" := EFTValues.GetBatchNo;
+        OnStartExportBatchOnBeforeACHUSHeaderModify(ACHUSHeader);
         ACHUSHeader.Modify;
     end;
 
@@ -481,6 +482,11 @@ codeunit 10094 "Export EFT (ACH)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeACHUSDetailModify(var ACHUSDetail: Record "ACH US Detail"; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; BankAccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartExportBatchOnBeforeACHUSHeaderModify(var ACHUSHeader: Record "ACH US Header")
     begin
     end;
 }

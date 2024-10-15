@@ -689,7 +689,7 @@ codeunit 142073 "UT PAG Order Entry"
         FindGeneralPostingSetup(GeneralPostingSetup);
         InventoryPostingGroup.FindFirst;
         Item."No." := LibraryUTUtility.GetNewCode;
-        Item."Base Unit of Measure" := LibraryUTUtility.GetNewCode10;
+        Item."Base Unit of Measure" := CreateUnitOfMeasure(Item."No.");
         Item."Inventory Posting Group" := InventoryPostingGroup.Code;  // Use Hardcode Value due to Posting routine Call.
         Item."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";  // Use Hardcode Value due to Posting routine Call.
         Item.Insert;
@@ -707,12 +707,15 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option)
     var
+        Item: Record Item;
         GeneralPostingSetup: Record "General Posting Setup";
         SalesHeader: Record "Sales Header";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get;
         FindGeneralPostingSetup(GeneralPostingSetup);
+        Item.Get(CreateItem());
+
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
         SalesHeader."Sell-to Customer No." := CreateCustomer;
@@ -732,7 +735,8 @@ codeunit 142073 "UT PAG Order Entry"
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."Line No." := LibraryRandom.RandInt(100);
         SalesLine."Shipment Date" := WorkDate;
-        SalesLine."No." := CreateItem;
+        SalesLine."No." := Item."No.";
+        SalesLine."Unit of Measure Code" := Item."Base Unit of Measure";
         SalesLine.Reserve := SalesLine.Reserve::Always;
         SalesLine.Quantity := LibraryRandom.RandDec(10, 2);
         SalesLine."Unit Price" := LibraryRandom.RandDec(100, 2);

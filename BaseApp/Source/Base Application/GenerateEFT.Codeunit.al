@@ -30,6 +30,7 @@ codeunit 10098 "Generate EFT"
         Window: Dialog;
     begin
         InitialChecks(BalAccountNo);
+        GenJnlLineChecks(TempEFTExportWorkset);
 
         ACHFileCreated := false;
         IATFileCreated := false;
@@ -79,6 +80,18 @@ codeunit 10098 "Generate EFT"
             TestField("Export Format");
             TestField("Last Remittance Advice No.");
         end;
+    end;
+
+    local procedure GenJnlLineChecks(var EFTExportWorkset: Record "EFT Export Workset" temporary)
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        with EFTExportWorkset do
+            if FindSet() then
+                repeat
+                    if GenJnlLine.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
+                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Check Line", GenJnlLine);
+                until Next() = 0;
     end;
 
     local procedure CheckAndStartExport(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var EFTValues: Codeunit "EFT Values")

@@ -13,7 +13,9 @@
         TempACHRBHeader: Record "ACH RB Header" temporary;
         TempACHRBDetail: Record "ACH RB Detail" temporary;
         TempACHRBFooter: Record "ACH RB Footer" temporary;
+        TempACHUSHeader: Record "ACH US Header" temporary;
         TempACHUSDetail: Record "ACH US Detail" temporary;
+        TempACHCecobanHeader: Record "ACH Cecoban Header" temporary;
         TempACHCecobanDetail: Record "ACH Cecoban Detail" temporary;
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
@@ -30,6 +32,7 @@
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryDimension: Codeunit "Library - Dimension";
         TempSubDirectoryTxt: Label '142083_Test\';
         "Layout": Option RDLC,Word;
         AmountVerificationMsg: Label 'Amount must be equal.';
@@ -40,6 +43,8 @@
         ExportVendorBankAccountErr: Label 'The error, You must have exactly one Vendor Bank Account with Use for Electronic Payments checked for Vendor %1., occurred when running report %2 for %3.';
         VendorBankAccountErr: Label 'You must have exactly one Vendor Bank Account with Use for Electronic Payments checked for Vendor %1.';
         CustomerBankAccountErr: Label 'You must have exactly one Customer Bank Account with Use for Electronic Payments checked for Customer %1.';
+        EFTExportGenJnlLineErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+        MandatoryDimErr: Label 'Select a %1 for the %2 %3 for %4 %5.';
 
     [Test]
     [HandlerFunctions('ExportElectronicPaymentsXMLRequestPageHandler')]
@@ -1184,9 +1189,11 @@
         GenerateEFT: Codeunit "Generate EFT";
         EFTValues: Codeunit "EFT Values";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        SettleDate: Date;
     begin
         // [FEATURE] [CA]
         // [SCENARIO 303720] Export EFT CA (RB) with two headers and all business data in payment journal
+        // [SCENARIO 362896] Settlement Date is exported via data exchange ACH RB Header "Settlement Date" field
         Initialize();
         BindSubscription(ERMElectronicFundsTransfer);
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
@@ -1203,7 +1210,8 @@
         CreateAndExportVendorPaymentWithAllBusinessData(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
 
         // [WHEN] Generate EFT file
-        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+        SettleDate := LibraryRandom.RandDate(10);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", SettleDate, TempEFTExportWorkset, EFTValues);
 
         // [THEN] Bank account "Last E-Pay File Creation No." = 2
         // [THEN] Header, Detail, Footer contains "File Creation Number" value
@@ -1211,7 +1219,7 @@
         VerifyBankAccountFileCreationNumberIncrement(BankAccount);
         Assert.IsTrue(EFTValues.IsSetFileCreationNumber(), 'EFTValues.IsSetFileCreationNumber()');
         Assert.AreEqual(BankAccount."Last E-Pay File Creation No.", EFTValues.GetFileCreationNumber(), 'EFTValues.GetFileCreationNumber()');
-        VerifyEFTExportCA(ERMElectronicFundsTransfer, TempEFTExportWorkset, BankAccount."Last E-Pay File Creation No.");
+        VerifyEFTExportCA(ERMElectronicFundsTransfer, TempEFTExportWorkset, BankAccount."Last E-Pay File Creation No.", SettleDate);
     end;
 
     [Test]
@@ -1227,9 +1235,11 @@
         GenerateEFT: Codeunit "Generate EFT";
         EFTValues: Codeunit "EFT Values";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        SettleDate: Date;
     begin
         // [FEATURE] [US]
         // [SCENARIO 303720] Export EFT US (ACH) with two headers and all business data in payment journal
+        // [SCENARIO 362896] Settlement Date is exported via data exchange ACH US Header "Effective Date" field
         Initialize();
         BindSubscription(ERMElectronicFundsTransfer);
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
@@ -1245,12 +1255,13 @@
         CreateAndExportVendorPaymentWithAllBusinessData(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
 
         // [WHEN] Generate EFT file
-        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+        SettleDate := LibraryRandom.RandDate(10);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", SettleDate, TempEFTExportWorkset, EFTValues);
 
         // [THEN] Bank account "Last E-Pay File Creation No." = 2
         // [THEN] Detail contains business data from payment journal
         VerifyBankAccountFileCreationNumberIncrement(BankAccount);
-        VerifyEFTExportUS(ERMElectronicFundsTransfer, TempEFTExportWorkset);
+        VerifyEFTExportUS(ERMElectronicFundsTransfer, TempEFTExportWorkset, SettleDate);
     end;
 
     [Test]
@@ -1266,9 +1277,11 @@
         GenerateEFT: Codeunit "Generate EFT";
         EFTValues: Codeunit "EFT Values";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        SettleDate: Date;
     begin
         // [FEATURE] [MX]
         // [SCENARIO 303720] Export EFT MX (Cecoban) with two headers and all business data in payment journal
+        // [SCENARIO 362896] Settlement Date is exported via data exchange ACH US Header "Effective Date" field
         Initialize();
         BindSubscription(ERMElectronicFundsTransfer);
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
@@ -1284,12 +1297,13 @@
         CreateAndExportVendorPaymentWithAllBusinessData(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
 
         // [WHEN] Generate EFT file
-        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+        SettleDate := LibraryRandom.RandDate(10);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", SettleDate, TempEFTExportWorkset, EFTValues);
 
         // [THEN] Bank account "Last E-Pay File Creation No." = 2
         // [THEN] Detail contains business data from payment journal
         VerifyBankAccountFileCreationNumberIncrement(BankAccount);
-        VerifyEFTExportMX(ERMElectronicFundsTransfer, TempEFTExportWorkset);
+        VerifyEFTExportMX(ERMElectronicFundsTransfer, TempEFTExportWorkset, SettleDate);
     end;
 
     [Test]
@@ -1824,6 +1838,66 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsWordLayoutRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure EFTExportGenJnlLineDimensionError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DefaultDimension: Record "Default Dimension";
+        ObjectTranslation: Record "Object Translation";
+        ObjectOptions: Record "Object Options";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        PaymentJournal: TestPage "Payment Journal";
+        GenerateEFTFiles: TestPage "Generate EFT Files";
+        ErrorText: Text;
+    begin
+        // [FEATURE] [Generate EFT File]
+        // [SCENARIO 352093] Error when trying to use "Generate EFT File" for exported Gen. Journal line with wrong Dimension setup.
+        Initialize();
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.SetRange("Object ID", Report::"ExportElecPayments - Word");
+        ObjectOptions.DeleteAll();
+        ObjectOptions.SetRange("Object ID", Report::"Export Electronic Payments");
+        ObjectOptions.DeleteAll();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        // [GIVEN] Gen. Journal Line Payment exported with empty Dimension for Vendor with Default Dimension having "Value Posting"::"Code Mandatory".
+        CreateTestElectronicPaymentJournalWordLayout(GenJournalLine);
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+          DefaultDimension, DATABASE::Vendor, GenJournalLine."Account No.", DefaultDimension."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] GenerateEFTFiles page is opened from Payment Journal.
+        Commit();  // Commit required.
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.ExportPaymentsToFile.Invoke();
+        GenerateEFTFiles.Trap();
+        PaymentJournal.GenerateEFT.Invoke();
+
+        // [WHEN] "Generate EFT File" action is invoked on GenerateEFTFiles page.
+        asserterror GenerateEFTFiles.GenerateEFTFile.Invoke();
+        PaymentJournal.Close();
+
+        // [THEN] Error is thrown with Error Code "TestWrapped:Dialog" and 
+        // [THEN] text "A dimension used in Gen. Journal Line has caused an error. Select a Dimension Value Code for the Dimension Code for Vendor.".
+        Assert.ExpectedErrorCode('TestWrapped:Dialog');
+        with DefaultDimension do
+            ErrorText :=
+                StrSubstNo(
+                    MandatoryDimErr, FieldCaption("Dimension Value Code"), FieldCaption("Dimension Code"),
+                    "Dimension Code", ObjectTranslation.TranslateTable("Table ID"), "No.");
+        with GenJournalLine do
+            ErrorText :=
+                StrSubstNo(
+                    EFTExportGenJnlLineErr, TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.", ErrorText);
+        Assert.ExpectedError(ErrorText);
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -2276,6 +2350,7 @@
         ACHRBDetail: Record "ACH RB Detail";
         ACHRBFooter: Record "ACH RB Footer";
         LineDefCode: Code[20];
+        ColumnNo: Integer;
     begin
         CreateDataExchDef(DataExchDef);
 
@@ -2284,6 +2359,9 @@
             DataExchDef.Code, LineDefCode, Database::"ACH RB Header", Codeunit::"Exp. Pre-Mapping Head EFT", Codeunit::"Exp. Mapping Head EFT CA");
         AddDataExchDefColumnWithMapping(DataExchDef.Code, LineDefCode, 4, '0', Database::"ACH RB Header", ACHRBHeader.FieldNo("File Creation Number"));
         AddDataExchDefColumnWithMapping(DataExchDef.Code, LineDefCode, 6, '0', Database::"ACH RB Header", ACHRBHeader.FieldNo("File Creation Date"));
+        ColumnNo := CreateDataExchColumnDefForDate(DataExchDef.Code, LineDefCode);
+        CreateDataExchFieldMapping(
+            DataExchDef.Code, LineDefCode, ColumnNo, Database::"ACH RB Header", ACHRBHeader.FieldNo("Settlement Date"));
 
         LineDefCode := CreateDataExchLineDef(DataExchDef.Code, DataExchLineDef."Line Type"::Header);
         CreateDataExchMapping(
@@ -2314,6 +2392,7 @@
         ACHUSHeader: Record "ACH US Header";
         ACHUSDetail: Record "ACH US Detail";
         LineDefCode: Code[20];
+        ColumnNo: Integer;
     begin
         CreateDataExchDef(DataExchDef);
 
@@ -2326,6 +2405,9 @@
         CreateDataExchMapping(
             DataExchDef.Code, LineDefCode, Database::"ACH US Header", Codeunit::"Exp. Pre-Mapping Head EFT", Codeunit::"Exp. Mapping Head EFT US");
         AddDataExchDefColumnWithMapping(DataExchDef.Code, LineDefCode, 4, '0', Database::"ACH US Header", ACHUSHeader.FieldNo("File Creation Date"));
+        ColumnNo := CreateDataExchColumnDefForDate(DataExchDef.Code, LineDefCode);
+        CreateDataExchFieldMapping(
+            DataExchDef.Code, LineDefCode, ColumnNo, Database::"ACH US Header", ACHUSHeader.FieldNo("Effective Date"));
 
         LineDefCode := CreateDataExchLineDef(DataExchDef.Code, DataExchLineDef."Line Type"::Detail);
         CreateDataExchMapping(
@@ -2345,6 +2427,7 @@
         ACHCecobanHeader: Record "ACH Cecoban Header";
         ACHCecobanDetail: Record "ACH Cecoban Detail";
         LineDefCode: Code[20];
+        ColumnNo: Integer;
     begin
         CreateDataExchDef(DataExchDef);
 
@@ -2357,6 +2440,9 @@
         CreateDataExchMapping(
             DataExchDef.Code, LineDefCode, Database::"ACH Cecoban Header", Codeunit::"Exp. Pre-Mapping Head EFT", Codeunit::"Exp. Mapping Head EFT MX");
         AddDataExchDefColumnWithMapping(DataExchDef.Code, LineDefCode, 4, '0', Database::"ACH Cecoban Header", ACHCecobanHeader.FieldNo("Record Type"));
+        ColumnNo := CreateDataExchColumnDefForDate(DataExchDef.Code, LineDefCode);
+        CreateDataExchFieldMapping(
+            DataExchDef.Code, LineDefCode, ColumnNo, Database::"ACH Cecoban Header", ACHCecobanHeader.FieldNo("Settlement Date"));
 
         LineDefCode := CreateDataExchLineDef(DataExchDef.Code, DataExchLineDef."Line Type"::Detail);
         CreateDataExchMapping(
@@ -2374,7 +2460,7 @@
         DataExchColumnDef: Record "Data Exch. Column Def";
         ColumnNo: Integer;
     begin
-        ColumnNo := CreateDataExchColumnDef(DataExchDefCode, LineDefCode, Length, PadChar, DataExchColumnDef.Justification::Right);
+        ColumnNo := CreateDataExchColumnDefForText(DataExchDefCode, LineDefCode, Length, PadChar, DataExchColumnDef.Justification::Right);
         CreateDataExchFieldMapping(DataExchDefCode, LineDefCode, ColumnNo, TableID, FieldID);
     end;
 
@@ -2402,7 +2488,25 @@
         exit(DataExchLineDef.Code);
     end;
 
-    local procedure CreateDataExchColumnDef(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; Length: Integer; PadCharacter: Text[1]; Justification: Option): Integer
+    local procedure CreateDataExchColumnDefForText(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; Length: Integer; PadCharacter: Text[1]; Justification: Option): Integer
+    var
+        DummyDataExchColumnDef: Record "Data Exch. Column Def";
+    begin
+        exit(
+            CreateDataExchColumnDef(
+                DataExchDefCode, DataExchLineDefCode, DummyDataExchColumnDef."Data Type"::Text, '', '', Length, PadCharacter, Justification));
+    end;
+
+    local procedure CreateDataExchColumnDefForDate(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]): Integer
+    var
+        DummyDataExchColumnDef: Record "Data Exch. Column Def";
+    begin
+        exit(
+            CreateDataExchColumnDef(
+                DataExchDefCode, DataExchLineDefCode, DummyDataExchColumnDef."Data Type"::Date, 'en-us', '<Year,2><Month,2><Day,2>', 6, '', 0));
+    end;
+
+    local procedure CreateDataExchColumnDef(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; DataType: Option; DataFormattingCulture: Text[10]; DataFormat: Text[100]; Length: Integer; PadCharacter: Text[1]; Justification: Option): Integer
     var
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
@@ -2414,7 +2518,9 @@
         DataExchColumnDef.Validate("Data Exch. Line Def Code", DataExchLineDefCode);
         DataExchColumnDef."Column No." += 1;
         DataExchColumnDef.Name := LibraryUtility.GenerateGUID();
-        DataExchColumnDef.Validate("Data Type", DataExchColumnDef."Data Type"::Text);
+        DataExchColumnDef.Validate("Data Type", DataType);
+        DataExchColumnDef.Validate("Data Formatting Culture", DataFormattingCulture);
+        DataExchColumnDef.Validate("Data Format", DataFormat);
         DataExchColumnDef.Validate(Length, Length);
         DataExchColumnDef.Validate("Pad Character", PadCharacter);
         DataExchColumnDef.Validate(Justification, Justification);
@@ -2768,12 +2874,30 @@
     end;
 
     [Scope('OnPrem')]
+    procedure GetTempACHUSHeader(var TempACHUSHeaderResult: Record "ACH US Header" temporary)
+    begin
+        Clear(TempACHUSHeaderResult);
+        TempACHUSHeaderResult.DeleteAll();
+
+        TempACHUSHeaderResult.Copy(TempACHUSHeader, true);
+    end;
+
+    [Scope('OnPrem')]
     procedure GetTempACHUSDetail(var TempACHUSDetailResult: Record "ACH US Detail" temporary)
     begin
         Clear(TempACHUSDetailResult);
         TempACHUSDetailResult.DeleteAll;
 
         TempACHUSDetailResult.Copy(TempACHUSDetail, true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetTempACHCecobanHeader(var TempACHCecobanHeaderResult: Record "ACH Cecoban Header" temporary)
+    begin
+        Clear(TempACHCecobanHeaderResult);
+        TempACHCecobanHeaderResult.DeleteAll;
+
+        TempACHCecobanHeaderResult.Copy(TempACHCecobanHeader, true);
     end;
 
     [Scope('OnPrem')]
@@ -2995,13 +3119,14 @@
         BankAccount.TestField("Last E-Pay File Creation No.", LastFileCreationNo + 1);
     end;
 
-    local procedure VerifyEFTExportCA(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset"; FileCreationNo: Integer)
+    local procedure VerifyEFTExportCA(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset"; FileCreationNo: Integer; SettleDate: Date)
     var
         ExportEFTRB: Codeunit "Export EFT (RB)";
     begin
         ERMElectronicFundsTransfer.GetTempACHRBHeader(TempACHRBHeader);
         TempACHRBHeader.TestField("File Creation Number", FileCreationNo);
         TempACHRBHeader.TestField("File Creation Date", ExportEFTRB.JulianDate(Today()));
+        TempACHRBHeader.TestField("Settlement Date", SettleDate);
 
         ERMElectronicFundsTransfer.GetTempACHRBDetail(TempACHRBDetail);
         TempACHRBDetail.TestField("File Creation Number", FileCreationNo);
@@ -3014,8 +3139,11 @@
         TempACHRBFooter.TestField("File Creation Number", FileCreationNo);
     end;
 
-    local procedure VerifyEFTExportUS(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset")
+    local procedure VerifyEFTExportUS(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset"; SettleDate: Date)
     begin
+        ERMElectronicFundsTransfer.GetTempACHUSHeader(TempACHUSHeader);
+        TempACHUSHeader.TestField("Effective Date", SettleDate);
+
         ERMElectronicFundsTransfer.GetTempACHUSDetail(TempACHUSDetail);
         TempACHUSDetail.TestField("Document No.", EFTExportWorkset."Document No.");
         TempACHUSDetail.TestField("External Document No.", EFTExportWorkset."External Document No.");
@@ -3023,8 +3151,11 @@
         TempACHUSDetail.TestField("Payment Reference", EFTExportWorkset."Payment Reference");
     end;
 
-    local procedure VerifyEFTExportMX(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset")
+    local procedure VerifyEFTExportMX(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset"; SettleDate: Date)
     begin
+        ERMElectronicFundsTransfer.GetTempACHCecobanHeader(TempACHCecobanHeader);
+        TempACHCecobanHeader.TESTFIELD("Settlement Date", SettleDate);
+
         ERMElectronicFundsTransfer.GetTempACHCecobanDetail(TempACHCecobanDetail);
         TempACHCecobanDetail.TestField("Document No.", EFTExportWorkset."Document No.");
         TempACHCecobanDetail.TestField("External Document No.", EFTExportWorkset."External Document No.");
@@ -3081,11 +3212,25 @@
         if TempACHRBFooter.Insert() then;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Export EFT (ACH)", 'OnStartExportBatchOnBeforeACHUSHeaderModify', '', false, false)]
+    local procedure StoreTempACHUSHeaderOnBeforeACHUSHeaderModify(var ACHUSHeader: Record "ACH US Header");
+    begin
+        TempACHUSHeader := ACHUSHeader;
+        if TempACHUSHeader.Insert() then;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Export EFT (ACH)", 'OnBeforeACHUSDetailModify', '', false, false)]
     local procedure StoreTempACHUSDetailOnBeforeACHUSDetailModify(var ACHUSDetail: Record "ACH US Detail"; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; BankAccNo: Code[20])
     begin
         TempACHUSDetail := ACHUSDetail;
         if TempACHUSDetail.Insert() then;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Export EFT (Cecoban)", 'OnStartExportBatchOnBeforeACHCecobanHeaderModify', '', false, false)]
+    local procedure StoreTempACHCecobanHeaderOnBeforeACHCecobanHeaderModify(var ACHCecobanHeader: Record "ACH Cecoban Header")
+    begin
+        TempACHCecobanHeader := ACHCecobanHeader;
+        if TempACHCecobanHeader.Insert() then;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Export EFT (Cecoban)", 'OnBeforeACHCecobanDetailModify', '', false, false)]
