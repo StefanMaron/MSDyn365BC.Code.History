@@ -1410,7 +1410,7 @@
                 OldVATAmount := GenJnlLine2."VAT Amount";
                 OldVATPct := GenJnlLine2."VAT %";
                 OnUpdateAndDeleteLinesOnBeforeUpdatePostingDate(GenJnlLine2);
-                if GenJnlLine2."Posting Date" <> 0D then
+                if ShouldUpdateRecurringGenJournalLinePostingDate(GenJnlLine2) then
                     GenJnlLine2.Validate(
                       "Posting Date", CalcDate(GenJnlLine2."Recurring Frequency", GenJnlLine2."Posting Date"));
                 if not
@@ -1462,6 +1462,20 @@
                 end;
             end;
         end;
+    end;
+
+    local procedure ShouldUpdateRecurringGenJournalLinePostingDate(var GenJournalLine: Record "Gen. Journal Line"): Boolean
+    begin
+        if GenJournalLine."Posting Date" = 0D then
+            exit(false);
+
+        if not IsNotExpired(GenJournalLine) then
+            exit(false);
+
+        if not IsPostingDateAllowed(GenJournalLine) then
+            exit(false);
+
+        exit(true);
     end;
 
     [Scope('OnPrem')]

@@ -135,5 +135,24 @@ codeunit 138041 "O365 Company Information"
         CompanyInformation.BankAccountPostingGroup.AssertEquals(BankAccountPostingGroup.Code);
         CompanyInformation.Close();
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CompanyRegistrationNoIsEditable()
+    var
+        CompanyInformation: Record "Company Information";
+        CompanyInformationPage: TestPage "Company Information";
+        RegistrationNo: Text[50];
+    begin
+        // [SCENARIO 359959] Registration No. field is editable on the Company Information page
+        CompanyInformationPage.OpenEdit();
+
+        RegistrationNo := LibraryUtility.GenerateGUID();
+        CompanyInformationPage."Registration No.".SetValue(RegistrationNo);
+        CompanyInformationPage.Close();
+
+        CompanyInformation.Get();
+        CompanyInformation.TestField("Registration No.", RegistrationNo);
+    end;
 }
 

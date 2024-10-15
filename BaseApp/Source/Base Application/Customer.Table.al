@@ -221,6 +221,22 @@
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(25; "Registration Number"; Text[50])
+        {
+            Caption = 'Registration No.';
+
+            trigger OnValidate()
+            var
+                IsHandled: Boolean;
+            begin
+                IsHandled := false;
+                OnBeforeValidateRegistrationNumber(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+                if StrLen("Registration Number") > 20 then
+                    FieldError("Registration Number", FieldLengthErr);
+            end;
+        }
         field(26; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
@@ -1935,6 +1951,7 @@
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
+        FieldLengthErr: Label 'must not have the length more than 20 symbols';
         DocumentTypeFilterTxt: Label '<=%1', Locked = true, Comment = '%1 = document type';
         ForceUpdateContact: Boolean;
 
@@ -3575,6 +3592,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBalanceAsVendorOnBeforeCalcBalance(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRegistrationNumber(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -25,6 +25,7 @@ codeunit 147528 "SII Corrective Documents"
         XPathSalesBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseFactura/sii:Sujeta/sii:NoExenta/sii:DesgloseIVA/sii:DetalleIVA/';
         XPathSalesFacturaExpedidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/';
         UploadType: Option Regular,Intracommunity,RetryAccepted;
+        CorrectedInvoiceNoMustHaveValueErr: Label 'Corrected Invoice No. must have a value in Sales Header';
 
     [Test]
     [Scope('OnPrem')]
@@ -392,6 +393,50 @@ codeunit 147528 "SII Corrective Documents"
           SIIXMLCreator.FormatNumber((PurchaseLine."Amount Including VAT" - PurchaseLine.Amount)));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotPossibleToPostRemovalSalesCreditMemoWithCorrectedInvoiceNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 454286] Stan cannot post the removal sales credit memo with blank "Corrected Invoice No."
+
+        Initialize();
+        // [GIVEN] Sales credit memo with "Correction Type" = Removal and "Corrected Invoice No." = blank
+        CreateSalesDoc(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", 0, 0, SalesHeader."Correction Type"::Removal);
+        SalesHeader."Corrected Invoice No." := '';
+        SalesHeader.Modify();
+
+        // [WHEN] Post sales credit memo
+        asserterror CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+        // [THEN] A "Corrected Invoice No. must have a value in Sales Header" error message is thrown
+        Assert.ExpectedError(CorrectedInvoiceNoMustHaveValueErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotPossibleToPostReplacementSalesCreditMemoWithCorrectedInvoiceNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 454286] Stan cannot post the replacement sales credit memo with blank "Corrected Invoice No."
+
+        Initialize();
+        // [GIVEN] Sales credit memo with "Correction Type" = Removal and "Corrected Invoice No." = blank
+        CreateSalesDoc(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", 0, 0, SalesHeader."Correction Type"::Replacement);
+        SalesHeader."Corrected Invoice No." := '';
+        SalesHeader.Modify();
+
+        // [WHEN] Post sales credit memo
+        asserterror CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+        // [THEN] A "Corrected Invoice No. must have a value in Sales Header" error message is thrown
+        Assert.ExpectedError(CorrectedInvoiceNoMustHaveValueErr);
+    end;
+
     local procedure Initialize()
     begin
         Clear(SIIXMLCreator);
@@ -499,6 +544,19 @@ codeunit 147528 "SII Corrective Documents"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
           CustLedgerEntry, ServiceHeader."No.");
+    end;
+
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; FType: Enum "SII Sales Credit Memo Type"; RType: Enum "SII Purch. Invoice Type"; CorrectionType: Option)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Invoice Type", RType);
+        SalesHeader.Validate("Cr. Memo Type", FType);
+        SalesHeader.Validate("Correction Type", CorrectionType);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
     end;
 
     local procedure SetIncludeImporteTotalInSIISetup()

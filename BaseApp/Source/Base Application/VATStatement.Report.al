@@ -393,7 +393,7 @@
         VATAmount := Amount;
         if VATPostSetup."VAT+EC %" <> 0 then
             VATAmount := VATAmount / VATPostSetup."VAT+EC %" * VATPercentage;
-        TotalVATAmount := TotalVATAmount + VATAmount;
+        TotalVATAmount := TotalVATAmount + RoundVATAmount(VATAmount, UseAmtsInAddCurr);
         TotalECAmount := TotalAmount - TotalVATAmount;
     end;
 
@@ -557,6 +557,14 @@
         if PrintInIntegers and VATStmtLine2.Print then
             Base := Round(Base, 1, '<');
         TotalBase := TotalBase + Base;
+    end;
+
+    local procedure RoundVATAmount(VATAmount: Decimal; UseAddCurr: Boolean): Decimal
+    begin
+        if UseAddCurr then
+            exit(Round(VATAmount, Currency."Amount Rounding Precision"))
+        else
+            exit(Round(VATAmount, GLSetup."Amount Rounding Precision"));
     end;
 
     procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)

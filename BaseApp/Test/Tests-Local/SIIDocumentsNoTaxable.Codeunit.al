@@ -2563,6 +2563,31 @@ codeunit 147524 "SII Documents No Taxable"
         LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:NoSujeta', 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoTaxableSalesInvoiceWithSpecialSchemeCode08DoesNotHaveVATXmlNodes()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 231012] XML has node "ImporteTAIReglasLocalizacion" for non taxable amount when post Sales Invoice with "Non Taxable Type" is blank and "Special Scheme Code" = "08  IPSI / IGIC"
+
+        Initialize();
+
+        // [GIVEN] Posted sales Invoice with one line where "VAT Calculation Type" = "No Taxable VAT"
+        PostSalesInvWithNoTaxableVATAndSpecialSchemeCode(CustLedgerEntry, SalesHeader."Special Scheme Code"::"08  IPSI / IGIC");
+
+        // [WHEN] Create xml for Posted sales invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has nodes for non taxable amount: sii:DesgloseFactura -> sii:NoSujeta -> sii:ImporteTAIReglasLocalizacion
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesNoTaxLocalTok, '',
+          SIIXMLCreator.FormatNumber(LibrarySII.CalcSalesNoTaxableAmount(CustLedgerEntry)));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2839,6 +2864,26 @@ codeunit 147524 "SII Documents No Taxable"
         CustLedgerEntry.SetRange("Sell-to Customer No.", Customer."No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
+    end;
+
+    local procedure PostSalesInvWithNoTaxableVATAndSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; SpecialSchemeCode: Option)
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ItemNo: Code[20];
+    begin
+        LibrarySII.CreateCustWithVATSetup(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Special Scheme Code", SpecialSchemeCode);
+        SalesHeader.Modify(true);
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(Customer."VAT Bus. Posting Group", false, 0));
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
+
+        CustLedgerEntry.SetRange("Sell-to Customer No.", Customer."No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
     local procedure PostPurchDocWithGLAccIgnoredIn347Report(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type")

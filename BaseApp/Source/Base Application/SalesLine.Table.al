@@ -1,4 +1,4 @@
-table 37 "Sales Line"
+﻿table 37 "Sales Line"
 {
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
@@ -356,6 +356,8 @@ table 37 "Sales Line"
                     ValidateReturnReasonCode(FieldNo("Location Code"));
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+
+                DeleteWarehouseRequest(xRec);
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -3424,6 +3426,8 @@ table 37 "Sales Line"
             DeferralUtilities.DeferralCodeOnDelete(
                 "Deferral Document Type"::Sales.AsInteger(), '', '',
                 "Document Type".AsInteger(), "Document No.", "Line No.");
+
+        DeleteWarehouseRequest(Rec);
     end;
 
     trigger OnInsert()
@@ -8297,13 +8301,20 @@ table 37 "Sales Line"
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
-        CreateDim(DefaultDimSource);
+        if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
+            CreateDim(DefaultDimSource);
     end;
 
     local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case true of
             FieldNo = Rec.FieldNo("No."):
                 TableValuePair.Add(DimMgt.SalesLineTypeToTableID(Type), Rec."No.");
@@ -8314,6 +8325,7 @@ table 37 "Sales Line"
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
+        OnAfterInitTableValuePair(TableValuePair, FieldNo);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -8453,6 +8465,22 @@ table 37 "Sales Line"
                 "VAT Difference" := TempSalesLine."VAT Difference";
                 "Amount Including VAT" := TempSalesLine."Amount Including VAT";
             end;
+    end;
+
+    local procedure DeleteWarehouseRequest(SalesLine: Record "Sales Line")
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        if ((SalesLine."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or ((SalesLine."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0)) then
+            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound)
+        else
+            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetSourceFilter(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.");
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
+        WarehouseRequest.SetRange("Location Code", SalesLine."Location Code");
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.DeleteAll(true);
     end;
 
 #if not CLEAN20
@@ -9997,6 +10025,16 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateICPartner(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ShouldUpdateICPartner: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
     begin
     end;
 

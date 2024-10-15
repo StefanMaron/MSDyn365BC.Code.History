@@ -1,5 +1,9 @@
 ﻿codeunit 10750 "SII XML Creator"
 {
+    Permissions = TableData "Sales Invoice Header" = r,
+                  TableData "Sales Cr.Memo Header" = r,
+                  TableData "Purch. Inv. Header" = r,
+                  TableData "Purch. Cr. Memo Hdr." = r;
 
     trigger OnRun()
     begin
@@ -1059,7 +1063,7 @@
             HandleNonTaxableVATEntries(
               CustLedgerEntry,
               TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-              EUXMLNode, IsService, DomesticCustomer);
+              EUXMLNode, IsService, DomesticCustomer, RegimeCodes);
             Clear(DomesticXMLNode);
         end;
 
@@ -1337,7 +1341,7 @@
                 HandleNonTaxableVATEntries(
                   CustLedgerEntry,
                   TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-                  EUXMLNode, EUService, DomesticCustomer);
+                  EUXMLNode, EUService, DomesticCustomer, RegimeCodes);
                 Clear(DomesticXMLNode);
             end;
             Clear(EUXMLNode);
@@ -1725,7 +1729,7 @@
         HandleReplacementNonTaxableVATEntries(
           CustLedgerEntry, OldCustLedgerEntry,
           TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-          EUXMLNode, false, DomesticCustomer);
+          EUXMLNode, false, DomesticCustomer, RegimeCodes);
     end;
 
     local procedure CalculateTotalVatAndBaseAmounts(LedgerEntryRecRef: RecordRef; var TotalBaseAmount: Decimal; var TotalNonExemptVATBaseAmount: Decimal; var TotalVATAmount: Decimal)
@@ -2273,7 +2277,7 @@
           (not SIIInitialDocUpload.DateWithinInitialUploadPeriod(PostingDate)));
     end;
 
-    local procedure HandleNonTaxableVATEntries(CustLedgerEntry: Record "Cust. Ledger Entry"; var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; IsService: Boolean; DomesticCustomer: Boolean)
+    local procedure HandleNonTaxableVATEntries(CustLedgerEntry: Record "Cust. Ledger Entry"; var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; IsService: Boolean; DomesticCustomer: Boolean; RegimeCodes: array[3] of Code[2])
     var
         CustNo: Code[20];
         Amount: array[2] of Decimal;
@@ -2291,10 +2295,10 @@
         end;
         ExportNonTaxableVATEntries(
           TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode,
-          DesgloseTipoOperacionXMLNode, EUXMLNode, IsService, DomesticCustomer, HasEntries, Amount);
+          DesgloseTipoOperacionXMLNode, EUXMLNode, IsService, DomesticCustomer, HasEntries, RegimeCodes, Amount);
     end;
 
-    local procedure HandleReplacementNonTaxableVATEntries(CustLedgerEntry: Record "Cust. Ledger Entry"; OldCustLedgerEntry: Record "Cust. Ledger Entry"; var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; IsService: Boolean; DomesticCustomer: Boolean)
+    local procedure HandleReplacementNonTaxableVATEntries(CustLedgerEntry: Record "Cust. Ledger Entry"; OldCustLedgerEntry: Record "Cust. Ledger Entry"; var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; IsService: Boolean; DomesticCustomer: Boolean; RegimeCodes: array[3] of Code[2])
     var
         CustNo: Code[20];
         OldAmount: Decimal;
@@ -2318,18 +2322,24 @@
         end;
         ExportNonTaxableVATEntries(
           TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode, EUXMLNode, IsService, DomesticCustomer,
-          HasEntries, ReplacementAmount);
+          HasEntries, RegimeCodes, ReplacementAmount);
     end;
 
-    local procedure ExportNonTaxableVATEntries(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; IsService: Boolean; DomesticCustomer: Boolean; HasEntries: array[2] of Boolean; Amount: array[2] of Decimal)
+    local procedure ExportNonTaxableVATEntries(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; IsService: Boolean; DomesticCustomer: Boolean; HasEntries: array[2] of Boolean; RegimeCodes: array[3] of Code[2]; Amount: array[2] of Decimal)
     var
         VATXMLNode: DotNet XmlNode;
+        NoTaxableNodeName: Text;
     begin
+        if RegimeCodesContainsValue(RegimeCodes, EighthSpecialRegimeCode()) then
+            NoTaxableNodeName := 'ImporteTAIReglasLocalizacion'
+        else
+            NoTaxableNodeName := 'ImportePorArticulos7_14_Otros';
+
         if HasEntries[1] then
             InsertNoTaxableNode(
               TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
               EUXMLNode, VATXMLNode, IsService, DomesticCustomer,
-              'ImportePorArticulos7_14_Otros', Amount[1]);
+              NoTaxableNodeName, Amount[1]);
 
         if HasEntries[2] then
             InsertNoTaxableNode(

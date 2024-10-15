@@ -6519,9 +6519,12 @@
                 SalesShipmentHeader."Sell-to Country/Region Code"));
         end;
 
-        if SalesHeader.IsCreditDocType() then
-            exit(SalesHeader."Sell-to Country/Region Code")
-        else begin
+        if SalesHeader.IsCreditDocType() then begin
+            if (SalesHeader."Ship-to Country/Region Code" <> '') then
+                exit(SalesHeader."Ship-to Country/Region Code")
+            else
+                exit(SalesHeader."Sell-to Country/Region Code");
+        end else begin
             CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
 
             exit(
@@ -10214,7 +10217,7 @@
             if SalesSetup."Correct. Doc. No. Mandatory" then
                 SalesHeader.TestField("Corrected Invoice No.")
             else begin
-                if SalesHeader."Correction Type" = SalesHeader."Correction Type"::Removal then
+                if SalesHeader."Correction Type" in [SalesHeader."Correction Type"::Replacement, SalesHeader."Correction Type"::Removal] then
                     SalesHeader.TestField("Corrected Invoice No.");
                 if SalesHeader."Corrected Invoice No." = '' then
                     if not ConfirmManagement.GetResponseOrDefault(Text1100000, true) then
