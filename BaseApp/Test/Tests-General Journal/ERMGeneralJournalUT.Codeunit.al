@@ -1,4 +1,4 @@
-codeunit 134920 "ERM General Journal UT"
+﻿codeunit 134920 "ERM General Journal UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -5022,6 +5022,36 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine[2].TestField("Document No.", DocNos[1]);
         GenJournalLine[3].TestField("Document No.", DocNos[2]);
         GenJournalLine[4].TestField("Document No.", DocNos[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OpenGenJnlLinesFromBatchWithSpecialSymbols()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GeneralJournal: TestPage "General Journal";
+        GeneralJournalBatches: TestPage "General Journal Batches";
+    begin
+        // [SCENARIO 432887] Open general journal lines from batch with special symbols
+        Initialize();
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+
+        // [GIVEN] General journal batch with special symbols
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalBatch.Init();
+        GenJournalBatch.Validate("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalBatch.Validate(Name, '=|&@()<>');
+        GenJournalBatch.Validate(Description, GenJournalBatch.Name);
+        GenJournalBatch.Insert(true);
+
+        // [WHEN] General Journal page opened from General Journal Batches
+        PrepareGeneralJournalBatchesPage(GeneralJournalBatches, GenJournalBatch);
+        RunEditJournalActionOnGeneralJournalPage(GeneralJournal, GeneralJournalBatches);
+
+        // [THEN] General journal page opened
+        Assert.AreEqual(GenJournalBatch.Name, GeneralJournal.CurrentJnlBatchName.Value, 'Current journal batch name not equal to batch that was opened.');
     end;
 
     local procedure Initialize()

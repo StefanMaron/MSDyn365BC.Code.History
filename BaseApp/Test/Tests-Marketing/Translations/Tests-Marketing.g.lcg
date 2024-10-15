@@ -1067,6 +1067,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Task Management - NamedType InviationSentNotSetErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2322295678 - NamedType 4015273505" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create a task of type Meeting because you're not using an on-premises deployment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Task Management - NamedType MeetingSaaSNotSupportedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2322295678 - NamedType 614621728" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must specify the Task organizer.]]></Val>
