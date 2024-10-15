@@ -436,7 +436,7 @@ report 130 "EC Sales List"
         XMLCurrNode.AppendChild(NewChildNode);
 
         NewChildNode := XMLOut.CreateElement('ContactName');
-        NewChildNode.InnerText(CompanyInfo."Contact Name");
+        NewChildNode.InnerText(CompanyInfo."Contact Person");
         XMLCurrNode.AppendChild(NewChildNode);
 
         NewChildNode := XMLOut.CreateElement('Online');

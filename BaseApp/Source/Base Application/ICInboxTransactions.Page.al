@@ -5,7 +5,7 @@ page 615 "IC Inbox Transactions"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Functions,Outbox Transaction';
+    PromotedActionCategories = 'New,Process,Report,Functions,Inbox Transaction';
     SourceTable = "IC Inbox Transaction";
     UsageCategory = Tasks;
 
@@ -203,7 +203,7 @@ page 615 "IC Inbox Transactions"
                         Promoted = true;
                         PromotedCategory = Category4;
                         PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to No Action, to indicate that the transaction will remain in the outbox.';
+                        ToolTip = 'Set the Line Action field on the selected line to No Action, to indicate that the transaction will remain in the inbox.';
 
                         trigger OnAction()
                         begin
@@ -275,7 +275,7 @@ page 615 "IC Inbox Transactions"
                         Promoted = true;
                         PromotedCategory = Category4;
                         PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to Cancel, to indicate that the transaction will deleted from the outbox.';
+                        ToolTip = 'Set the Line Action field on the selected line to Cancel, to indicate that the transaction will deleted from the inbox.';
 
                         trigger OnAction()
                         var
