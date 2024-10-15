@@ -32,13 +32,7 @@ table 298 "Issued Reminder Line"
 
             trigger OnLookup()
             begin
-                if Type <> Type::"Customer Ledger Entry" then
-                    exit;
-                IssuedReminderHeader.Get("Reminder No.");
-                CustLedgEntry.SetCurrentKey("Customer No.");
-                CustLedgEntry.SetRange("Customer No.", IssuedReminderHeader."Customer No.");
-                if CustLedgEntry.Get("Entry No.") then;
-                PAGE.RunModal(0, CustLedgEntry);
+                LookupCustomerLedgerEntry(FieldNo("Entry No."));
             end;
         }
         field(6; "No. of Reminders"; Integer)
@@ -243,17 +237,34 @@ table 298 "Issued Reminder Line"
         if IsHandled then
             exit;
 
+        LookupCustomerLedgerEntry(FieldNo("Document No."));
+    end;
+
+    local procedure LookupCustomerLedgerEntry(CalledByFieldNo: Integer)
+    begin
         if Type <> Type::"Customer Ledger Entry" then
             exit;
         IssuedReminderHeader.Get("Reminder No.");
-        CustLedgEntry.SetCurrentKey("Customer No.");
-        CustLedgEntry.SetRange("Customer No.", IssuedReminderHeader."Customer No.");
+        SetCustLedgEntryFilter(CustLedgEntry, IssuedReminderHeader, CalledByFieldNo);
         if CustLedgEntry.Get("Entry No.") then;
         PAGE.RunModal(0, CustLedgEntry);
     end;
 
+    local procedure SetCustLedgEntryFilter(var CustLedgEntry: Record "Cust. Ledger Entry"; IssuedReminderHeader: Record "Issued Reminder Header"; CalledByFieldNo: Integer)
+    begin
+        CustLedgEntry.SetCurrentKey("Customer No.");
+        CustLedgEntry.SetRange("Customer No.", IssuedReminderHeader."Customer No.");
+
+        OnAfterSetCustLedgEntryFilter(CustLedgEntry, Rec, CalledByFieldNo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupDocNo(var IssuedReminderLine: Record "Issued Reminder Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCustLedgEntryFilter(var CustLedgEntry: Record "Cust. Ledger Entry"; var IssuedReminderLine: Record "Issued Reminder Line"; CalledByFieldNo: Integer)
     begin
     end;
 }

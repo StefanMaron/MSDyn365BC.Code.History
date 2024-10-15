@@ -209,6 +209,7 @@ page 729 "Copy Item"
         SourceItem: Record Item;
         TempItem: Record Item temporary;
         InventorySetup: Record "Inventory Setup";
+        CopyItemParameters: Record "Copy Item Parameters";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         SpecifyTargetItemNoErr: Label 'You must specify the target item number.';
         TargetItemDoesNotExistErr: Label 'Target item number %1 already exists.', Comment = '%1 - item number.';
@@ -222,12 +223,16 @@ page 729 "Copy Item"
 
     local procedure InitCopyItemBuffer()
     begin
-        Init;
-        "Number of Copies" := 1;
-        "Source Item No." := TempItem."No.";
-        InventorySetup.Get();
-        "Target No. Series" := InventorySetup."Item Nos.";
-        Insert;
+        Init();
+        if CopyItemParameters.Get(UserId()) then
+            TransferFields(CopyItemParameters)
+        else begin
+            "Number of Copies" := 1;
+            "Source Item No." := TempItem."No.";
+            InventorySetup.Get();
+            "Target No. Series" := InventorySetup."Item Nos.";
+        end;
+        Insert();
 
         OnAfterInitCopyItemBuffer(Rec);
     end;
@@ -235,11 +240,23 @@ page 729 "Copy Item"
     local procedure ValidateUserInput()
     var
         Item: Record Item;
+        CurrUserId: Code[50];
     begin
         CheckTargetItemNo;
 
         if ("Target Item No." = '') and ("Target No. Series" = '') then
             Error(SpecifyTargetItemNoErr);
+
+        CurrUserId := CopyStr(UserId(), 1, MaxStrLen(CopyItemParameters."User ID"));
+        if CopyItemParameters.Get(CurrUserId) then begin
+            CopyItemParameters.TransferFields(Rec);
+            CopyItemParameters.Modify();
+        end else begin
+            CopyItemParameters.Init();
+            CopyItemParameters.TransferFields(Rec);
+            CopyItemParameters."User ID" := CurrUserId;
+            CopyItemParameters.Insert();
+        end;
 
         OnAfterValidateUserInput(Rec);
     end;

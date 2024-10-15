@@ -1082,10 +1082,10 @@ table 5902 "Service Line"
                 end;
                 GetServHeader;
                 if ServHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
-                    "Unit Price" :=
+                    Validate("Unit Price",
                       Round(
                         "Unit Price" * (100 + "VAT %") / (100 + xRec."VAT %"),
-                        Currency."Unit-Amount Rounding Precision");
+                        Currency."Unit-Amount Rounding Precision"));
                 UpdateAmounts;
             end;
         }
@@ -3184,18 +3184,18 @@ table 5902 "Service Line"
         OnAfterAssignHeaderValues(Rec, ServHeader);
     end;
 
-    local procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
+    procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
     begin
         exit(FieldCausedPriceCalculation = CurrPriceFieldNo);
     end;
 
-    local procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
+    procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
     begin
         if FieldCausedPriceCalculation = 0 then
             FieldCausedPriceCalculation := CurrPriceFieldNo;
     end;
 
-    local procedure ClearFieldCausedPriceCalculation()
+    procedure ClearFieldCausedPriceCalculation()
     begin
         FieldCausedPriceCalculation := 0;
     end;
@@ -3481,7 +3481,10 @@ table 5902 "Service Line"
         "Item Category Code" := Item."Item Category Code";
         "Variant Code" := '';
         Nonstock := Item."Created From Nonstock Item";
-        "Unit of Measure Code" := Item."Sales Unit of Measure";
+        if Item."Sales Unit of Measure" <> '' then
+            "Unit of Measure Code" := Item."Sales Unit of Measure"
+        else
+            "Unit of Measure Code" := Item."Base Unit of Measure";
 
         if ServHeader."Language Code" <> '' then
             GetItemTranslation;
