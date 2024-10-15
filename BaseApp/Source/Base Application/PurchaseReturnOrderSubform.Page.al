@@ -54,7 +54,7 @@ page 6641 "Purchase Return Order Subform"
                 field("No."; "No.")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies the number of a general ledger account, item, additional cost, or fixed asset, depending on what you selected in the Type field.';
 
                     trigger OnValidate()
@@ -203,7 +203,7 @@ page 6641 "Purchase Return Order Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the number of units of the item specified on the line.';
 
                     trigger OnValidate()
@@ -253,7 +253,7 @@ page 6641 "Purchase Return Order Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
 
                     trigger OnValidate()

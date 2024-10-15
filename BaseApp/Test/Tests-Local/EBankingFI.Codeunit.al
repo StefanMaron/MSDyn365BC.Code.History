@@ -45,8 +45,8 @@ codeunit 144007 "E-Banking FI"
         // Verify
         RefPaymentExported.SetRange("Vendor No.", Vendor."No.");
         RefPaymentExported.FindFirst;
-        TruncatedVendorName := CopyStr(Vendor.Name, 1, MaxStrLen(RefPaymentExported.Description));
-        Assert.AreEqual(TruncatedVendorName, RefPaymentExported.Description, 'Vendor Name not properly truncated')
+        TruncatedVendorName := CopyStr(Vendor.Name, 1, MaxStrLen(RefPaymentExported."Description 2"));
+        Assert.AreEqual(TruncatedVendorName, RefPaymentExported."Description 2", 'Vendor Name not properly truncated')
     end;
 
     [Test]

@@ -25,7 +25,10 @@ table 32000002 "Ref. Payment - Exported"
                             Error('');
 
                     Vend.Get("Vendor No.");
+#if not CLEAN20
                     Description := CopyStr(Vend.Name, 1, MaxStrLen(Description));
+#endif
+                    "Description 2" := CopyStr(Vend.Name, 1, MaxStrLen("Description 2"));
                     "Vendor Account" := Vend."Preferred Bank Account Code";
                     Validate("Vendor Account");
                     Vend.CheckBlockedVendOnJnls(Vend, "Gen. Journal Document Type"::Payment, false);
@@ -35,6 +38,13 @@ table 32000002 "Ref. Payment - Exported"
         field(3; Description; Text[30])
         {
             Caption = 'Description';
+#if CLEAN20
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Use "Description 2" field instead.';
+            ObsoleteTag = '20.0';
         }
         field(4; "Payment Account"; Code[20])
         {
@@ -366,6 +376,10 @@ table 32000002 "Ref. Payment - Exported"
             OptionCaption = 'Structured,Unstructured';
             OptionMembers = Structured,Unstructured;
         }
+        field(38; "Description 2"; Text[250])
+        {
+            Caption = 'Description';
+        }
     }
 
     keys
@@ -589,5 +603,16 @@ table 32000002 "Ref. Payment - Exported"
         GenJnlLine.SetRange("Journal Batch Name", '');
         CODEUNIT.Run(BankAccount.GetPaymentExportCodeunitID, GenJnlLine);
     end;
+
+#if not CLEAN20
+    [Obsolete('Use "Description 2" field directly', '20.0')]
+    procedure GetDescription(): Text
+    begin
+        if "Description 2" <> '' then
+            exit("Description 2");
+
+        exit(Description);
+    end;
+#endif
 }
 

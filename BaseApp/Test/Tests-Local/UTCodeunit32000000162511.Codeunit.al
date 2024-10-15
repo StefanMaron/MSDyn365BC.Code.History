@@ -16,6 +16,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         LibraryRandom: Codeunit "Library - Random";
         RefPmtMgt: Codeunit "Ref. Payment Management";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySales: Codeunit "Library - Sales";
         IsInitialized: Boolean;
         PaymentType: Option Domestic,Foreign,SEPA;
         PaymentMethodeCode: Code[1];
@@ -269,18 +270,47 @@ codeunit 144008 "UT Codeunit32000000 162511"
         Assert.AreEqual(3, RefPmtExported.Count, 'Wrong number of Line Affiliations to "8"');
     end;
 
-    local procedure CreateBankAccountReferenceFileSetup(BankAccountNo: Code[20]; Allow: Boolean)
+    [Test]
+    procedure ApplyPartialPaymentsRefPaymentImportedToOneDocument()
     var
-        ReferenceFileSetup: Record "Reference File Setup";
+        RefPaymentImported: Record "Ref. Payment - Imported";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        RefPaymentManagement: Codeunit "Ref. Payment Management";
+        CustomerNo: Code[20];
+        ReferenceNo: Code[20];
     begin
-        with ReferenceFileSetup do begin
-            Init;
-            Validate("No.", BankAccountNo);
-            Validate("Allow Comb. SEPA Pmts.", Allow);
-            Validate("Allow Comb. Domestic Pmts.", Allow);
-            Validate("Allow Comb. Foreign Pmts.", Allow);
-            Insert;
-        end;
+        // [FEATURE] [UT]
+        // [SCENARIO 412841] Apply partial payments using the same reference number to one document
+        Initialize();
+
+        // [GIVEN] Cust. Ledger Entry
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateCustLedgerEntry(GenJournalBatch, CustomerNo, 1000);
+
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+
+        // [GIVEN] Two partial payment with the same Reference No.
+        ReferenceNo :=
+            LibraryUtility.GenerateRandomCode20(RefPaymentImported.FieldNo("Reference No."), Database::"Ref. Payment - Imported");
+        CreateRefPaymentImportedLine(
+            RefPaymentImported, CustLedgerEntry, 500, ReferenceNo);
+        CreateRefPaymentImportedLine(
+            RefPaymentImported, CustLedgerEntry, 500, ReferenceNo);
+
+        // [WHEN] Invoke "Ref. Payment Management".SetLines(...)
+        RefPaymentManagement.GetRefPmtImportTemp(RefPaymentImported);
+        RefPaymentManagement.SetLines(
+            RefPaymentImported, GenJournalBatch.Name, GenJournalBatch."Journal Template Name");
+
+        // [THEN] 2 Payments are applied to one document
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Applies-to Doc. No.", CustLedgerEntry."Document No.");
+        Assert.RecordCount(GenJournalLine, 2);
     end;
 
     local procedure Initialize()
@@ -309,6 +339,20 @@ codeunit 144008 "UT Codeunit32000000 162511"
         ForeignPaymentTypes.Validate("Code Type", ForeignPaymentTypes."Code Type"::"Service Fee");
         ForeignPaymentTypes.Insert(true);
         ServiceFeeCode := ForeignPaymentTypes.Code;
+    end;
+
+    local procedure CreateBankAccountReferenceFileSetup(BankAccountNo: Code[20]; Allow: Boolean)
+    var
+        ReferenceFileSetup: Record "Reference File Setup";
+    begin
+        with ReferenceFileSetup do begin
+            Init;
+            Validate("No.", BankAccountNo);
+            Validate("Allow Comb. SEPA Pmts.", Allow);
+            Validate("Allow Comb. Domestic Pmts.", Allow);
+            Validate("Allow Comb. Foreign Pmts.", Allow);
+            Insert;
+        end;
     end;
 
     local procedure CreateVendorBankAccount(VendorNo: Code[20]): Code[10]
@@ -380,6 +424,48 @@ codeunit 144008 "UT Codeunit32000000 162511"
           PaymentType, PaymentAccount, VendorNo, PostingDate, CurrencyCode, PaymentAmount, Vendor."Preferred Bank Account Code");
     end;
 
+    local procedure CreateRefPaymentImportedLine(var RefPaymentImported: Record "Ref. Payment - Imported"; CustLedgerEntry: Record "Cust. Ledger Entry"; Amount: Decimal; ReferenceNo: Code[20])
+    begin
+        RefPaymentImported.Init();
+        RefPaymentImported."No." :=
+            LibraryUtility.GetNewRecNo(RefPaymentImported, RefPaymentImported.FieldNo("No."));
+        RefPaymentImported."Entry No." := CustLedgerEntry."Entry No.";
+        RefPaymentImported."Account No." := CustLedgerEntry."Bal. Account No.";
+        RefPaymentImported."Document No." := CustLedgerEntry."Document No.";
+        RefPaymentImported."Filing Code" := LibraryUtility.GenerateGUID();
+        RefPaymentImported."Banks Posting Date" := WorkDate();
+        RefPaymentImported."Reference No." := ReferenceNo;
+        RefPaymentImported.Amount := Amount;
+        RefPaymentImported."Posted to G/L" := false;
+        RefPaymentImported.Matched := true;
+        RefPaymentImported.Insert();
+    end;
+
+    local procedure CreateCustLedgerEntry(GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, AccountNo, Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure GenerateInvoiceDocumentNo(): Code[10]
+    begin
+        exit(CopyStr(LibraryUtility.GenerateGUID(), 3, 10));
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJnlBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJournalTemplate.Name);
+        GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
+        GenJnlBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
+        GenJnlBatch.Modify();
+    end;
+
     local procedure VerifyCombinedLine(BankAccountNo: Code[20]; VendorNo: Code[20]; PaymentDate: Date; CurrencyCode: Code[20]; DocumentASSERTERROR: Boolean)
     var
         RefPmtExportedLine0: Record "Ref. Payment - Exported";
@@ -421,7 +507,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
             Assert.AreEqual('', "Foreign Payment Method", 'Wrong Foreign Payment Method');
             Assert.AreEqual('', "Foreign Banks Service Fee", 'Wrong Foreign Banks Service Fee');
             // BUG: Holds Vendor No
-            asserterror Assert.AreEqual('', Description, 'Wrong Description');
+            asserterror Assert.AreEqual('', "Description 2", 'Wrong Description');
         end;
     end;
 }

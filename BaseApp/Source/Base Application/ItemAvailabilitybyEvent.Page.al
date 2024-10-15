@@ -486,7 +486,7 @@ page 5530 "Item Availability by Event"
         LocationFilter: Text;
         VariantFilter: Text;
 
-    local procedure InitAndCalculatePeriodEntries()
+    protected procedure InitAndCalculatePeriodEntries()
     begin
         Initialize();
         CalculatePeriodEntries();

@@ -28,7 +28,18 @@ page 32000004 "Ref. Payment - Export"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a vendor number for the reference payment.';
                 }
+#if not CLEAN20
                 field(Description; Description)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies a description for the reference payment.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use "Description 2" instead';
+                    ObsoleteTag = '20.0';
+                }
+#endif
+                field(Description2; Rec."Description 2")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the reference payment.';

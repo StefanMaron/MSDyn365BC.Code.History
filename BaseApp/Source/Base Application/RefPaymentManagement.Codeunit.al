@@ -58,11 +58,11 @@ codeunit 32000000 "Ref. Payment Management"
                 GenJnlLine.SetRange("Journal Template Name", JnlTemplateName);
                 GenJnlLine.SetRange("Journal Batch Name", JnlBatchName);
                 GenJnlLine.SetRange("Applies-to Doc. No.", RefPaymentImported."Document No.");
-                GenJnlLine.SetRange("Applies-to Doc. No.", RefPaymentImported."Document No.");
                 GenJnlLine.SetRange("Reference No.", RefPaymentImported."Reference No.");
+                GenJnlLine.SetRange(Comment, RefPaymentImported."Filing Code");
                 RefPmtImportTemp.SetRange("Account No.", RefPaymentImported."Account No.");
                 RefPmtImportTemp.SetRange("Filing Code", RefPaymentImported."Filing Code");
-                if (CustLedgEntry.FindFirst or (not RefPmtImportTemp.FindFirst)) and (not GenJnlLine.FindFirst) then begin
+                if (CustLedgEntry.FindFirst() or (not RefPmtImportTemp.FindFirst())) and (not GenJnlLine.FindFirst()) then begin
                     GenJnlLine.Init();
                     GenJnlLine."Journal Template Name" := JnlTemplateName;
                     GenJnlLine.Validate("Journal Batch Name", JnlBatchName);
@@ -79,6 +79,7 @@ codeunit 32000000 "Ref. Payment Management"
                     GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
                     GenJnlLine.Validate("Currency Code", CustLedgEntry."Currency Code");
                     GenJnlLine.Validate(Amount, RefPaymentImported.Amount * -1);
+                    GenJnlLine.Comment := RefPaymentImported."Filing Code";
                     if AccCode <> '' then
                         GenJnlLine.Validate("Bal. Account No.", AccCode)
                     else
@@ -194,7 +195,10 @@ codeunit 32000000 "Ref. Payment Management"
                     RefPmtExported."Document No." := RefPmtExport1."Document No.";
                 RefPmtExported."No." := LastLineNo;
                 Vendor.Get(RefPmtExported."Vendor No.");
+#if not CLEAN20
                 RefPmtExported.Description := CopyStr(Vendor.Name, 1, MaxStrLen(RefPmtExported.Description));
+#endif
+                RefPmtExported."Description 2" := CopyStr(Vendor.Name, 1, MaxStrLen(RefPmtExported."Description 2"));
                 RefPmtExported."Document Type" := RefPmtExported."Document Type"::Invoice;
                 RefPmtExported.Validate("Message Type");
                 RefPmtExported.Insert();
