@@ -200,7 +200,7 @@ page 402 "Sales Order Statistics"
                     Importance = Additional;
                     ToolTip = 'Specifies the difference between the original cost and the total adjusted cost of the items in the sales document.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(0);
                     end;
@@ -400,7 +400,7 @@ page 402 "Sales Order Statistics"
                     Importance = Additional;
                     ToolTip = 'Specifies the difference between the original cost and the total adjusted cost of the items in the sales document.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;

@@ -17,6 +17,7 @@ using Microsoft.Service.Ledger;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
+using System.Reflection;
 using System.Security.User;
 using System.Utilities;
 
@@ -1220,6 +1221,7 @@ codeunit 5940 ServContractManagement
         WDate: Date;
         OldWDate: Date;
         IsHandled: Boolean;
+        DateExpression: Text[10];
     begin
         IsHandled := false;
         OnBeforeNoOfMonthsAndMPartsInPeriod(Day1, Day2, CheckMParts, MonthsAndMParts, IsHandled);
@@ -1234,14 +1236,15 @@ codeunit 5940 ServContractManagement
 
         WDate := CalcDate('<-CM>', Day1);
         repeat
-            OldWDate := CalcDate('<CM>', WDate);
+            DateExpression := GetDateExpression(Day1);
+            OldWDate := CalcDate(DateExpression, WDate);
             if WDate < Day1 then
                 WDate := Day1;
             if OldWDate > Day2 then
                 OldWDate := Day2;
             if (WDate <> CalcDate('<-CM>', WDate)) or (OldWDate <> CalcDate('<CM>', OldWDate)) then
                 MonthsAndMParts := MonthsAndMParts +
-                  (OldWDate - WDate + 1) / (CalcDate('<CM>', OldWDate) - CalcDate('<-CM>', WDate) + 1)
+                  (OldWDate - WDate + 1) / (CalcDate(DateExpression, OldWDate) - CalcDate('<-CM>', WDate) + 1)
             else
                 MonthsAndMParts := MonthsAndMParts + 1;
             WDate := CalcDate('<CM>', OldWDate) + 1;
@@ -2391,8 +2394,7 @@ codeunit 5940 ServContractManagement
         if DueDate <> CalcDate('<CM>', DueDate) then begin
             DueDate := CalcDate('<-CM-1D>', DueDate);
             ServContractHeader.Get(ServContractLine."Contract Type", ServContractLine."Contract No.");
-            if ServContractHeader."Contract Lines on Invoice" then
-                CheckMParts := true;
+            CheckMParts := true;
         end;
         NonDistrAmount[AmountType::Amount] :=
           -CalcContractLineAmount(ServContractLine."Line Amount", InvFrom, DueDate);
@@ -2498,6 +2500,16 @@ codeunit 5940 ServContractManagement
         end;
     end;
 
+    local procedure GetDateExpression(Day1: Date): Text[10]
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        if TypeHelper.IsLeapYear(Day1) then
+            exit('<CM-1D>');
+
+        exit('<CM>');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcContractLineAmount(AnnualAmount: Decimal; PeriodStarts: Date; PeriodEnds: Date; var AmountCalculated: Decimal)
     begin
@@ -2549,7 +2561,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateServiceLine(ServiceHeader: Record "Service Header"; ContractType: Enum "Service Contract Type"; ContractNo: Code[20]; InvFromDate: Date; InvToDate: Date; ServiceApplyEntry: Integer; SigningContract: Boolean; var IsHandled: Boolean)
+   local procedure OnBeforeCreateServiceLine(ServiceHeader: Record "Service Header"; ContractType: Enum "Service Contract Type"; ContractNo: Code[20]; InvFromDate: Date; InvToDate: Date; ServiceApplyEntry: Integer; SigningContract: Boolean; var IsHandled: Boolean)
     begin
     end;
 

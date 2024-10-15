@@ -18,6 +18,20 @@ codeunit 480 "Get Shortcut Dimension Values"
         WhenGotGLSetup: DateTime;
         GLSetupShortcutDimCode: array[8] of Code[20];
 
+    procedure GetGlobalDimensions(DimSetID: Integer; var ShortcutDimCode: array[8] of Code[20])
+    var
+        i: Integer;
+    begin
+        Clear(ShortcutDimCode);
+        if DimSetID = 0 then
+            exit;
+        GetGLSetup();
+        for i := 1 to 2 do
+            if GLSetupShortcutDimCode[i] <> '' then
+                if DimensionSetEntry.Get(DimSetID, GLSetupShortcutDimCode[i]) then
+                    ShortcutDimCode[i] := DimensionSetEntry."Dimension Value Code";
+    end;
+
     procedure GetShortcutDimensions(DimSetID: Integer; var ShortcutDimCode: array[8] of Code[20])
     var
         i: Integer;
@@ -32,17 +46,9 @@ codeunit 480 "Get Shortcut Dimension Values"
     end;
 
     local procedure GetDimSetEntry(DimSetID: Integer; DimCode: Code[20]): Code[20]
-    var
-        DimensionValue: Record "Dimension Value";
     begin
-        if TempDimSetEntry.Get(DimSetID, DimCode) then begin
-            DimensionValue.SetRange("Dimension Code", TempDimSetEntry."Dimension Code");
-            DimensionValue.SetRange("Dimension Value ID", TempDimSetEntry."Dimension Value ID");
-            if DimensionValue.FindFirst() then
-                if DimensionValue.Code <> TempDimSetEntry."Dimension Value Code" then
-                    exit(DimensionValue.Code);
+        if TempDimSetEntry.Get(DimSetID, DimCode) then
             exit(TempDimSetEntry."Dimension Value Code");
-        end;
 
         TempDimSetEntry.Init();
         if DimensionSetEntry.Get(DimSetID, DimCode) then
@@ -80,6 +86,14 @@ codeunit 480 "Get Shortcut Dimension Values"
     local procedure OnGLSetupModify(var Rec: Record "General Ledger Setup"; var xRec: Record "General Ledger Setup"; RunTrigger: Boolean)
     begin
         HasGotGLSetup := false;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Dimension Value", 'OnAfterRenameEvent', '', false, false)]
+    local procedure OnDimValueRename(var Rec: Record "Dimension Value"; var xRec: Record "Dimension Value"; RunTrigger: Boolean)
+    begin
+        TempDimSetEntry.SetRange("Dimension Code", Rec."Dimension Code");
+        TempDimSetEntry.DeleteAll();
+        TempDimSetEntry.SetRange("Dimension Code");
     end;
 }
 

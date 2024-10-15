@@ -26,6 +26,7 @@ page 242 "Consolidate Wizard"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Starting Date';
+                    ClosingDates = true;
                     ToolTip = 'Specifies the starting date for the consolidation period';
                     ShowMandatory = true;
 
@@ -40,6 +41,7 @@ page 242 "Consolidate Wizard"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ending Date';
+                    ClosingDates = true;
                     ToolTip = 'Specifies the ending date for the consolidation period';
                     ShowMandatory = true;
 

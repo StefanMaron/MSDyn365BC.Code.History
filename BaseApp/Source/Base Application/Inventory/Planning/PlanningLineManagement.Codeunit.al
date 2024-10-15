@@ -251,8 +251,10 @@ codeunit 99000809 "Planning Line Management"
                                     OnTransferBOMOnBeforeTransferProductionBOM(ReqQty, ProdBOMLine[Level], LineQtyPerUOM, ItemQtyPerUOM, ReqLine);
                                     TransferBOM(ProdBOMLine[Level]."No.", Level + 1, ReqQty, 1);
                                     ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
-                                    ProdBOMLine[Level].SetRange(
-                                      "Version Code", VersionMgt.GetBOMVersion(ProdBOMNo, ReqLine."Starting Date", true));
+                                    if Level > 1 then
+                                        ProdBOMLine[Level].SetRange("Version Code", VersionMgt.GetBOMVersion(ProdBOMNo, ReqLine."Starting Date", true))
+                                    else
+                                        ProdBOMLine[Level].SetRange("Version Code", ProdBOMLine[Level]."Version Code");
                                     ProdBOMLine[Level].SetFilter("Starting Date", '%1|..%2', 0D, ReqLine."Starting Date");
                                     ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, ReqLine."Starting Date");
                                 end;
@@ -619,8 +621,6 @@ codeunit 99000809 "Planning Line Management"
             Validate("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");
             "Quantity per" := ProdBOMLine."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM;
             Validate("Routing Link Code", ProdBOMLine."Routing Link Code");
-            OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine, ReqLine, SKU);
-            GetDefaultBin();
             Length := ProdBOMLine.Length;
             Width := ProdBOMLine.Width;
             Weight := ProdBOMLine.Weight;
@@ -638,6 +638,9 @@ codeunit 99000809 "Planning Line Management"
                 Critical := Item2.Critical;
 
             "Flushing Method" := CompSKU."Flushing Method";
+            OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine, ReqLine, SKU);
+            GetDefaultBin();
+
             if SetPlanningLevelCode(PlanningComponent, ProdBOMLine, SKU, CompSKU) then
                 "Planning Level Code" := ReqLine."Planning Level" + 1;
 

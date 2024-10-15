@@ -6216,6 +6216,28 @@ table 38 "Purchase Header"
         Commit();
     end;
 
+    procedure BatchConfirmUpdatePostingDate(ReplacePostingDate: Boolean; PostingDateReq: Date; ReplaceDocDate: Boolean)
+    begin
+        if not ReplacePostingDate then
+            exit;
+        if (PostingDateReq = "Posting Date") then
+            exit;
+        if DeferralHeadersExist() then
+            exit;
+
+        if ReplacePostingDate then begin
+            "Posting Date" := PostingDateReq;
+            Validate("Currency Code");
+        end;
+
+        if ReplacePostingDate and ReplaceDocDate and ("Document Date" <> PostingDateReq) then begin
+            SetReplaceDocumentDate();
+            Validate("Document Date", PostingDateReq);
+        end;
+
+        Commit();
+    end;
+
     procedure SetAllowSelectNoSeries()
     begin
         SelectNoSeriesAllowed := true;
