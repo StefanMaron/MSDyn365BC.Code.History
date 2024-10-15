@@ -196,6 +196,18 @@ page 7011 "Purchase Price List Lines"
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
+                field(PriceIncludesVAT; Rec."Price Includes VAT")
+                {
+                    ApplicationArea = All;
+                    Visible = AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the if prices include VAT.';
+                }
+                field(VATBusPostingGrPrice; Rec."VAT Bus. Posting Gr. (Price)")
+                {
+                    ApplicationArea = All;
+                    Visible = AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the default VAT business posting group code.';
+                }
             }
         }
     }

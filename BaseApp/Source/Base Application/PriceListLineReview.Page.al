@@ -175,7 +175,7 @@ page 7005 "Price List Line Review"
                     Visible = PriceVisible and IsSalesPrice;
                     Style = Attention;
                     StyleExpr = not PriceMandatory;
-                    ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                     trigger OnValidate()
                     begin
                         CurrPage.Update(true);

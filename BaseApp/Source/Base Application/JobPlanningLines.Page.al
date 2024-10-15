@@ -845,8 +845,9 @@ page 1007 "Job Planning Lines"
         Job: Record Job;
     begin
         FilterGroup := 2;
-        if Job.Get(GetFilter("Job No.")) then
-            CurrPage.Editable(not (Job.Blocked = Job.Blocked::All));
+        if Rec.GetFilter("Job No.") <> '' then
+            if Job.Get(Rec.GetRangeMin("Job No.")) then
+                CurrPage.Editable(not (Job.Blocked = Job.Blocked::All));
         FilterGroup := 0;
     end;
 

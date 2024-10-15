@@ -15,6 +15,7 @@ codeunit 1385 "Vendor Templ. Mgt."
 
         IsHandled := true;
 
+        OnCreateVendorFromTemplateOnBeforeSelectVendorTemplate(Vendor, VendorTempl);
         if not SelectVendorTemplate(VendorTempl) then
             exit(false);
 
@@ -78,12 +79,17 @@ codeunit 1385 "Vendor Templ. Mgt."
         Vendor."Validate EU Vat Reg. No." := VendorTempl."Validate EU Vat Reg. No.";
         Vendor.Blocked := VendorTempl.Blocked;
         Vendor."Document Sending Profile" := VendorTempl."Document Sending Profile";
+        Vendor."Partner Type" := VendorTempl."Partner Type";
+        Vendor."Location Code" := VendorTempl."Location Code";
+        Vendor."Shipment Method Code" := VendorTempl."Shipment Method Code";
         OnApplyTemplateOnBeforeVendorModify(Vendor, VendorTempl);
         Vendor.Modify(true);
     end;
 
     procedure SelectVendorTemplateFromContact(var VendorTempl: Record "Vendor Templ."; Contact: Record Contact): Boolean
     begin
+        OnBeforeSelectVendorTemplateFromContact(VendorTempl, Contact);
+
         VendorTempl.SetRange("Contact Type", Contact.Type);
         exit(SelectVendorTemplate(VendorTempl));
     end;
@@ -261,6 +267,10 @@ codeunit 1385 "Vendor Templ. Mgt."
         VendorTempl."Validate EU Vat Reg. No." := Vendor."Validate EU Vat Reg. No.";
         VendorTempl.Blocked := Vendor.Blocked;
         VendorTempl."Document Sending Profile" := Vendor."Document Sending Profile";
+        VendorTempl."Partner Type" := Vendor."Partner Type";
+        VendorTempl."Location Code" := Vendor."Location Code";
+        VendorTempl."Shipment Method Code" := Vendor."Shipment Method Code";
+        OnInsertTemplateFromVendorOnBeforeVendorTemplInsert(VendorTempl, Vendor);
         VendorTempl.Insert();
     end;
 
@@ -331,7 +341,22 @@ codeunit 1385 "Vendor Templ. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectVendorTemplateFromContact(var VendorTempl: Record "Vendor Templ."; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorFromTemplateOnBeforeSelectVendorTemplate(Vendor: Record Vendor; var VendorTempl: Record "Vendor Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertVendorFromTemplate(var Vendor: Record Vendor; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTemplateFromVendorOnBeforeVendorTemplInsert(var VendorTempl: Record "Vendor Templ."; Vendor: Record Vendor)
     begin
     end;
 

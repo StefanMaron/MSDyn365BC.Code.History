@@ -1405,6 +1405,45 @@ codeunit 134464 "ERM Item Reference Purchase"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectCreatingItemReferenceFromItemVendorCatalog()
+    var
+        ItemReference: Record "Item Reference";
+        ItemVariant: Record "Item Variant";
+        ItemVendorCatalog: TestPage "Item Vendor Catalog";
+        ItemNo: Code[20];
+        VendorNo: Code[20];
+        ItemVendorNo: Code[10];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 402797] Only one "Item Reference" must be created by "Item Vendor Catalog" when user set "Variant Code" after "Item Vendor"
+        Initialize();
+
+        // [GIVEN] Item, Vendor, "Item Variant"
+        ItemNo := LibraryInventory.CreateItemNo();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create new "Item Vendor" by "Item Vendor Catalog"
+        ItemVendorCatalog.OpenNew();
+        ItemVendorCatalog.Filter.SetFilter("Item No.", ItemNo);
+        ItemVendorCatalog."Vendor No.".SetValue(VendorNo);
+        ItemVendorNo := LibraryUtility.GenerateGUID();
+        ItemVendorCatalog."Vendor Item No.".SetValue(ItemVendorNo);
+
+        // [WHEN] Set "Variant Code" after "Vendor Item No."
+        ItemVendorCatalog."Variant Code".SetValue(LibraryInventory.CreateItemVariant(ItemVariant, ItemNo));
+        ItemVendorCatalog.Next();
+
+        // [THEN] "Item Reference" for Item and Vendor is only one
+        ItemReference.SetRange("Item No.", ItemNo);
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type No.", VendorNo);
+        ItemReference.FindFirst();
+        ItemReference.TestField("Reference No.", ItemVendorNo);
+        Assert.RecordCount(ItemReference, 1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Reference Purchase");

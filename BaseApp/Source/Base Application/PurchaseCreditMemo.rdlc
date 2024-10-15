@@ -5393,9 +5393,9 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.54012in</Top>
-              <Left>5.02196in</Left>
+              <Left>4.52196in</Left>
               <Height>11pt</Height>
-              <Width>0.96219in</Width>
+              <Width>1.46219in</Width>
               <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5419,9 +5419,9 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.37624in</Top>
-              <Left>5.02196in</Left>
+              <Left>4.52196in</Left>
               <Height>11pt</Height>
-              <Width>0.96219in</Width>
+              <Width>1.46219in</Width>
               <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5445,9 +5445,9 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.21235in</Top>
-              <Left>5.02196in</Left>
+              <Left>4.52196in</Left>
               <Height>11pt</Height>
-              <Width>0.96219in</Width>
+              <Width>1.46219in</Width>
               <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5471,9 +5471,9 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.05124in</Top>
-              <Left>5.02196in</Left>
+              <Left>4.52196in</Left>
               <Height>11pt</Height>
-              <Width>0.96219in</Width>
+              <Width>1.46219in</Width>
               <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5497,9 +5497,9 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>1.73596in</Top>
-              <Left>5.02196in</Left>
+              <Left>4.52196in</Left>
               <Height>11pt</Height>
-              <Width>0.96219in</Width>
+              <Width>1.46219in</Width>
               <ZIndex>8</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5523,9 +5523,9 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>1.57207in</Top>
-              <Left>5.02196in</Left>
+              <Left>4.52196in</Left>
               <Height>11pt</Height>
-              <Width>0.96219in</Width>
+              <Width>1.46219in</Width>
               <ZIndex>9</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5578,7 +5578,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>2.54012in</Top>
               <Left>1.26252in</Left>
               <Height>11pt</Height>
-              <Width>3.73166in</Width>
+              <Width>3.23166in</Width>
               <ZIndex>11</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5635,7 +5635,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>2.70401in</Top>
               <Left>1.26252in</Left>
               <Height>11pt</Height>
-              <Width>3.73166in</Width>
+              <Width>3.23166in</Width>
               <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5767,7 +5767,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>2.21235in</Top>
               <Left>1.26252in</Left>
               <Height>11pt</Height>
-              <Width>3.73166in</Width>
+              <Width>3.23166in</Width>
               <ZIndex>18</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5873,9 +5873,9 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.70401in</Top>
-              <Left>5.02196in</Left>
+              <Left>4.52196in</Left>
               <Height>11pt</Height>
-              <Width>0.96219in</Width>
+              <Width>1.46219in</Width>
               <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5903,7 +5903,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>2.37624in</Top>
               <Left>1.26252in</Left>
               <Height>11pt</Height>
-              <Width>3.73166in</Width>
+              <Width>3.23166in</Width>
               <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5931,7 +5931,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>1.73596in</Top>
               <Left>1.26252in</Left>
               <Height>11pt</Height>
-              <Width>3.73166in</Width>
+              <Width>3.23166in</Width>
               <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -6444,7 +6444,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>2.05124in</Top>
               <Left>1.26252in</Left>
               <Height>11pt</Height>
-              <Width>3.73166in</Width>
+              <Width>3.23166in</Width>
               <ZIndex>43</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -6521,10 +6521,10 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>1.88735in</Top>
-              <Left>5.02196in</Left>
+              <Left>4.52196in</Left>
               <Height>11pt</Height>
-              <Width>0.96219in</Width>
-              <ZIndex>47</ZIndex>
+              <Width>1.46219in</Width>
+              <ZIndex>46</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6552,7 +6552,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Left>5.98415in</Left>
               <Height>11pt</Height>
               <Width>1.19924in</Width>
-              <ZIndex>48</ZIndex>
+              <ZIndex>47</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6580,7 +6580,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>3.02206in</Top>
               <Height>11pt</Height>
               <Width>1.26252in</Width>
-              <ZIndex>49</ZIndex>
+              <ZIndex>48</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6607,7 +6607,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>1.88735in</Top>
               <Height>0.15278in</Height>
               <Width>1.25207in</Width>
-              <ZIndex>50</ZIndex>
+              <ZIndex>49</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
                 <PaddingRight>5pt</PaddingRight>
@@ -6634,8 +6634,8 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
               <Top>1.88735in</Top>
               <Left>1.25211in</Left>
               <Height>11pt</Height>
-              <Width>3.74207in</Width>
-              <ZIndex>51</ZIndex>
+              <Width>3.24207in</Width>
+              <ZIndex>50</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
                 <PaddingRight>5pt</PaddingRight>

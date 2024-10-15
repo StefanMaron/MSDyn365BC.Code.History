@@ -953,7 +953,13 @@ page 490 "Acc. Schedule Overview"
     var
         ColumnNo: Integer;
         i: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateColumnCaptions(ColumnCaptions, ColumnOffset, TempColumnLayout, NoOfColumns, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(ColumnCaptions);
         if TempColumnLayout.FindSet then
             repeat
@@ -1146,6 +1152,11 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCurrentColumnNameOnAfterValidate(var CurrentColumnName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateColumnCaptions(var ColumnCaptions: array[12] of Text[80]; ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; NoOfColumns: Integer; var IsHandled: Boolean)
     begin
     end;
 

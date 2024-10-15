@@ -95,10 +95,9 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the table is covered by the license of the person creating the configuration package.';
                 }
-                field(NoOfRecords; GetNoOfRecords)
+                field(NoOfRecords; GetNoOfRecordsText())
                 {
                     ApplicationArea = Basic, Suite;
-                    BlankZero = true;
                     Caption = 'No. of Records';
                     ToolTip = 'Specifies how many records are created in connection with migration.';
                 }

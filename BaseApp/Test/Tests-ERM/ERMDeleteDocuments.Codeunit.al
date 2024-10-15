@@ -1611,6 +1611,60 @@ codeunit 134417 "ERM Delete Documents"
         ItemChargePurchaseLine.TestField("Qty. to Assign", 0.5);
     end;
 
+    [Test]
+    procedure DeletingSalesOrderWithErroneouslyPostedItemChargeForZeroAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Delete Documents] [Item Charge]
+        // [SCENARIO 404143] Delete sales order with erroneously posted item charge for zero amount.
+        Initialize();
+
+        // [GIVEN] Mock sales order with posted item charge for zero amount.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        SalesLine."Quantity Shipped" := SalesLine.Quantity;
+        SalesLine."Quantity Invoiced" := SalesLine.Quantity;
+        SalesLine."Outstanding Quantity" := 0;
+        SalesLine."Qty. Shipped Not Invoiced" := 0;
+        SalesLine.Modify();
+
+        // [WHEN] Run "Delete Invoiced Sales Orders".
+        DeleteInvoiceSalesOrder(SalesHeader);
+
+        // [THEN] The sales order is deleted.
+        Assert.IsFalse(SalesHeader.Find(), 'Sales order is not deleted');
+    end;
+
+    [Test]
+    procedure DeletingPurchOrderWithErroneouslyPostedItemChargeForZeroAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Delete Documents] [Item Charge]
+        // [SCENARIO 404143] Delete purchase order with erroneously posted item charge for zero amount.
+        Initialize();
+
+        // [GIVEN] Mock purchase order with posted item charge for zero amount.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        PurchaseLine."Quantity Received" := PurchaseLine.Quantity;
+        PurchaseLine."Quantity Invoiced" := PurchaseLine.Quantity;
+        PurchaseLine."Outstanding Quantity" := 0;
+        PurchaseLine."Qty. Rcd. Not Invoiced" := 0;
+        PurchaseLine.Modify();
+
+        // [WHEN] Run "Delete Invoiced Purchase Orders".
+        DeleteInvoicePurchOrder(PurchaseHeader);
+
+        // [THEN] The purchase order is deleted.
+        Assert.IsFalse(PurchaseHeader.Find(), 'Purchase order is not deleted');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

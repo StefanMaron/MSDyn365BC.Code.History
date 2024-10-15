@@ -1,4 +1,4 @@
-page 9320 "Service Credit Memos"
+﻿page 9320 "Service Credit Memos"
 {
     ApplicationArea = Service;
     Caption = 'Service Credit Memos';
@@ -154,13 +154,8 @@ page 9320 "Service Credit Memos"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Service Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Service Stats.", Rec)
+                        OpenStatistics();
                     end;
                 }
                 action("Co&mments")

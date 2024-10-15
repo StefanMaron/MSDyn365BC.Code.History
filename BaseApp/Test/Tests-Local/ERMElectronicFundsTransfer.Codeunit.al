@@ -46,6 +46,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         EFTExportGenJnlLineErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         MandatoryDimErr: Label 'Select a %1 for the %2 %3 for %4 %5.';
         RemitAdvFileNotFoundTxt: Label 'Remittance Advice file has not been found';
+        ForceDocBalanceFalseQst: Label 'Warning:  Transactions cannot be financially voided when Force Doc. Balance is set to No';
 
     [Test]
     [HandlerFunctions('ExportElectronicPaymentsXMLRequestPageHandler')]
@@ -1931,6 +1932,83 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         ACHRBHeader.TestField("Settlement Julian Date", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ExportElecPaymentsWord_SaveAsXmlRPH')]
+    procedure RunExportElecPaymentsWordWithRequestPageOnMarkedGenJnlLines()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 400511] Run report "ExportElecPayments - Word" with request page on marked Payment Journal lines.
+        Initialize();
+
+        // [GIVEN] Two Payment Journal lines for one Vendor. Both lines are marked.
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(CreateDataExchDefForUS()), '', '');
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+        CreateVendorPaymentLine(GenJournalLine, GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        GenJournalLine.Mark(true);
+        CreateVendorPaymentLine(GenJournalLine, GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        GenJournalLine.Mark(true);
+
+        // [WHEN] Run report "ExportElecPayments - Word" with request page on marked General Journal Lines from Payment Journal.
+        // [WHEN] On the request page set Bank Account No.; filters for Gen. Journal Batch/Template are empty.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue('');
+        GenJournalLine.MarkedOnly(true);
+        RunReportExportElecPaymentsWord(GenJournalLine, true);
+
+        // [THEN] Report was printed.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(MyBalCaptionTxt, GenJournalLine."Bal. Account No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElecPaymentsWord_SaveAsXmlRPH,ConfirmHandlerEnqueueQuestion')]
+    procedure RunExportElecPaymentsWordWithRequestPageOnMarkedGenJnlLinesWhenForceDocBalanceFalse()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 400511] Run report "ExportElecPayments - Word" with request page on marked Payment Journal lines when Force Doc. Balance = false.
+        Initialize();
+
+        // [GIVEN] General Journal Template with "Forced Doc. Balance" = false.
+        // [GIVEN] Two Payment Journal lines for one Vendor. Both lines are marked.
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(CreateDataExchDefForUS()), '', '');
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+        UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", false);
+        CreateVendorPaymentLine(GenJournalLine, GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        GenJournalLine.Mark(true);
+        CreateVendorPaymentLine(GenJournalLine, GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        GenJournalLine.Mark(true);
+
+        // [WHEN] Run report "ExportElecPayments - Word" with request page on marked General Journal Lines from Payment Journal.
+        // [WHEN] On the request page set Bank Account No.; filters for Gen. Journal Batch/Template are empty.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue('');
+        GenJournalLine.MarkedOnly(true);
+        RunReportExportElecPaymentsWord(GenJournalLine, true);
+
+        // [THEN] A confirm dialog "Transactions cannot be financially voided" is shown. Report was printed after user proceeded with confirm.
+        Assert.ExpectedConfirm(ForceDocBalanceFalseQst, LibraryVariableStorage.DequeueText());
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(MyBalCaptionTxt, GenJournalLine."Bal. Account No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -2747,6 +2825,16 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         ExportElecPaymentsWord.RunModal();
     end;
 
+    local procedure RunReportExportElecPaymentsWord(var GenJournalLine: Record "Gen. Journal Line"; UseRequestPage: Boolean)
+    var
+        ExportElecPaymentsWord: Report "ExportElecPayments - Word";
+    begin
+        ExportElecPaymentsWord.SetTableView(GenJournalLine);
+        ExportElecPaymentsWord.UseRequestPage(UseRequestPage);
+        Commit();
+        ExportElecPaymentsWord.RunModal();
+    end;
+
     local procedure ProcessAndGenerateEFTFile(EFTExport: Record "EFT Export"; BankAccountNo: Code[20])
     var
         TempEFTExportWorkset: Record "EFT Export Workset" temporary;
@@ -2987,6 +3075,15 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CompanyInformation.Get();
         CompanyInformation.Validate("Federal ID No.", FederalIDNo);
         CompanyInformation.Modify(true);
+    end;
+
+    local procedure UpdateForceDocBalanceOnGenJnlTemplate(GenJournalTemplateName: Code[10]; ForceDocBalance: Boolean)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.Get(GenJournalTemplateName);
+        GenJournalTemplate.Validate("Force Doc. Balance", ForceDocBalance);
+        GenJournalTemplate.Modify(true);
     end;
 
     local procedure VoidCheckCheckLedgerEntries(BankAccountNo: Code[20])
@@ -3249,6 +3346,13 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerEnqueueQuestion(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
         Reply := true;
     end;
 

@@ -71,6 +71,14 @@ codeunit 27022 "DIOT Subscribers"
         Rec.Modify(true);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType', '', false, false)]
+    local procedure AssignDIOTTypeOnValidatePurchaseHeaderPayToVendorNo(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
+    begin
+        if PurchaseHeader."Pay-to Vendor No." = '' then
+            exit;
+        PurchaseHeader."DIOT Type of Operation" := Vendor."DIOT Type of Operation";
+    end;
+
     local procedure CheckCountryCodeDIOTOperationType(Vendor: Record Vendor)
     begin
         if (not DIOTDataMgmt.IsCountryCodeMXorBlank(Vendor."Country/Region Code")) and (Vendor."DIOT Type of Operation" = Vendor."DIOT Type of Operation"::"Lease and Rent") then

@@ -1,4 +1,4 @@
-page 5900 "Service Order"
+﻿page 5900 "Service Order"
 {
     Caption = 'Service Order';
     PageType = Document;
@@ -905,27 +905,9 @@ page 5900 "Service Order"
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                     trigger OnAction()
-                    var
-                        SalesSetup: Record "Sales & Receivables Setup";
-                        ServLine: Record "Service Line";
-                        ServLines: Page "Service Lines";
                     begin
-                        SalesSetup.Get();
-                        if SalesSetup."Calc. Inv. Discount" then begin
-                            ServLine.Reset();
-                            ServLine.SetRange("Document Type", "Document Type");
-                            ServLine.SetRange("Document No.", "No.");
-                            if ServLine.FindFirst then begin
-                                ServLines.SetTableView(ServLine);
-                                ServLines.CalcInvDisc(ServLine);
-                                Commit
-                            end;
-                        end;
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Service Order Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Service Order Stats.", Rec)
+                        OpenOrderStatistics();
                     end;
                 }
             }

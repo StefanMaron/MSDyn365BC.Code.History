@@ -75,6 +75,7 @@ table 1224 "Data Exch. Mapping"
     begin
         DataExchFieldMapping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Table ID", "Table ID");
+        DataExchFieldMapping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
         DataExchFieldMapping.DeleteAll();
     end;
 
