@@ -1965,6 +1965,7 @@ table 246 "Requisition Line"
     var
         ReqLine2: Record "Requisition Line";
     begin
+        OnBeforeDeleteMultiLevel(Rec);
         ReqLine2.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
         ReqLine2.SetRange("Ref. Order Type", "Ref. Order Type");
         ReqLine2.SetRange("Ref. Order Status", "Ref. Order Status");
@@ -1981,6 +1982,7 @@ table 246 "Requisition Line"
                 ReqLine2.DeleteRelations;
                 ReqLine2.Delete();
             until ReqLine2.Next = 0;
+        OnAfterDeleteMultiLevel(Rec);
     end;
 
     procedure SetUpNewLine(LastReqLine: Record "Requisition Line")
@@ -3300,6 +3302,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteMultiLevel(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteRelations(var RequisitionLine: Record "Requisition Line")
     begin
     end;
@@ -3388,7 +3395,10 @@ table 246 "Requisition Line"
     local procedure OnBeforeCheckEndingDate(var RequisitionLine: Record "Requisition Line"; var ShowWarning: Boolean; var IsHandled: Boolean);
     begin
     end;
-
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteMultiLevel(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultBin(var RequisitionLine: Record "Requisition Line"; var ShouldGetDefaultBin: Boolean)
     begin

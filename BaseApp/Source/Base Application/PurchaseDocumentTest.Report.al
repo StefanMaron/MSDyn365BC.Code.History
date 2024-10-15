@@ -1560,6 +1560,8 @@ report 402 "Purchase Document - Test"
                     AddError(DimMgt.GetDimValuePostingErr);
 
                 PricesInclVATtxt := Format("Prices Including VAT");
+
+                OnAfterCheckPurchaseDoc("Purchase Header", ErrorText, ErrorCounter);
             end;
 
             trigger OnPreDataItem()
@@ -2286,6 +2288,11 @@ report 402 "Purchase Document - Test"
                               StrSubstNo(Text010, Format("Posting Date")))
                     end;
                 end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckPurchaseDoc(PurchaseHeader: Record "Purchase Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

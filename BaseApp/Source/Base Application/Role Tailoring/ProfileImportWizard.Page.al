@@ -191,17 +191,18 @@ page 9199 "Profile Import Wizard"
 
     trigger OnAfterGetRecord()
     begin
+        if Exists then begin
+            Action := Action::Replace;
+            ActionStyleExpr := 'Attention';
+        end else begin
+            Action := Action::Add;
+            ActionStyleExpr := '';
+        end;
+
         if IsNullGuid("App ID") and (Action = Action::Add) then
             Clear(ApplicationName)
         else
             ApplicationName := ConfPersonalizationMgt.ResolveAppNameFromAppId("App ID");
-        if Exists then begin
-            Action := "Creation Type"::Replace;
-            ActionStyleExpr := 'Attention';
-        end else begin
-            Action := "Creation Type"::Add;
-            ActionStyleExpr := '';
-        end;
     end;
 
     local procedure CreatePackageUploadDiagnosticsMessage(var DesignerDiagnostic: Record "Designer Diagnostic"): Text
@@ -308,7 +309,7 @@ page 9199 "Profile Import Wizard"
             DiagnosticsNotification.Id := DiagnosticsNotificationIDTxt;
             DiagnosticsNotification.Message := CreatePackageUploadDiagnosticsMessage(DesignerDiagnostic);
             DiagnosticsNotification.SetData('ImportID', ImportID);
-            DiagnosticsNotification.AddAction('Show diagnostics', Codeunit::"Profile Helper", 'ShowProfileDiagnostics');
+            DiagnosticsNotification.AddAction(ShowDiagnosticsTxt, Codeunit::"Profile Helper", 'ShowProfileDiagnostics');
             NotificationLifecycleMgt.SendNotification(DiagnosticsNotification, TempProfileImport.RecordId());
         end;
 
@@ -323,7 +324,7 @@ page 9199 "Profile Import Wizard"
         if Step = Step::SelectProfilesToImport then
             exit; // On any page != import profiles page, recall profile diagnostics notification
 
-        NotificationLifecycleMgt.RecallNotificationsForRecord(TempProfileImport.RecordId(), true);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure ShowStep1();
@@ -379,6 +380,7 @@ page 9199 "Profile Import Wizard"
         ProfilesZipFileNameTxt: Label 'Profiles.zip';
         PackageDoesNotContainAnyProfilesMsg: Label 'The profile package does not contain any profiles.';
         SelectProfileToImportErr: Label 'You must select at least one profile to import.';
+        ShowDiagnosticsTxt: Label 'Show diagnostics';
         Step: Option Start,SelectProfilesToImport,Finish;
         BackActionEnabled: Boolean;
         DoneActionEnabled: Boolean;

@@ -271,7 +271,7 @@ table 846 "Cash Flow Worksheet Line"
     var
         TableID2: array[10] of Integer;
         No2: array[10] of Code[20];
-        Dimension: Code[10];
+        Dimension: Code[20];
     begin
         TableID2[1] := TableID;
         No2[1] := No;

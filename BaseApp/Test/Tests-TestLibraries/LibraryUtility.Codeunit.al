@@ -21,7 +21,7 @@ codeunit 131000 "Library - Utility"
     procedure CreateNoSeries(var NoSeries: Record "No. Series"; Default: Boolean; Manual: Boolean; DateOrder: Boolean)
     begin
         NoSeries.Init();
-        NoSeries.Validate(Code, GenerateRandomCode(NoSeries.FieldNo(Code), DATABASE::"No. Series"));
+        NoSeries.Validate(Code, NoSeries.Code + GenerateRandomCode(NoSeries.FieldNo(Code), DATABASE::"No. Series"));
         NoSeries.Validate("Default Nos.", Default);
         NoSeries.Validate("Manual Nos.", Manual);
         NoSeries.Validate("Date Order", DateOrder);

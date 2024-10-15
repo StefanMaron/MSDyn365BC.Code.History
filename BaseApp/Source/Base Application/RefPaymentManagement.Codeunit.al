@@ -1,4 +1,4 @@
-codeunit 32000000 "Ref. Payment Management"
+﻿codeunit 32000000 "Ref. Payment Management"
 {
     Permissions = TableData "Gen. Journal Line" = rimd;
 
@@ -83,6 +83,7 @@ codeunit 32000000 "Ref. Payment Management"
                         GenJnlLine.Validate("Bal. Account No.", AccCode)
                     else
                         GenJnlLine.Validate("Bal. Account No.", CustLedgEntry."Bal. Account No.");
+                    OnSetLinesOnBeforeGenJnlLineInsert(CustLedgEntry, GenJnlLine);
                     GenJnlLine.Insert(true);
                     LineNro := LineNro + 10000;
                     LastDocNro := IncStr(LastDocNro);
@@ -113,6 +114,7 @@ codeunit 32000000 "Ref. Payment Management"
                 CustLedgEntry.SetFilter("Reference No.", RefPmtImport."Reference No.");
                 CustLedgEntry.SetFilter("Document Type", '%1', 2);
                 CustLedgEntry.SetRange(Open, true);
+                OnMatchLinesOnAfterCustLedgEntrySetFilters(RefPmtImport, CustLedgEntry);
                 if CustLedgEntry.FindFirst then begin
                     RefPmtImport."Entry No." := CustLedgEntry."Entry No.";
                     RefPmtImport.Validate("Customer No.", CustLedgEntry."Customer No.");
@@ -153,6 +155,7 @@ codeunit 32000000 "Ref. Payment Management"
             PaymentType::SEPA:
                 RefPmtExported.SetRange("SEPA Payment", true);
         end;
+        OnCombineVendPmtOnBeforeFindRefPaymentExported(RefPmtExported);
         if RefPmtExported.FindSet then
             repeat
                 RefPmtExported.TestField("Vendor No.");
@@ -392,6 +395,21 @@ codeunit 32000000 "Ref. Payment Management"
                 PaymentType::SEPA:
                     RefFileSetup.TestField("Allow Comb. SEPA Pmts.");
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCombineVendPmtOnBeforeFindRefPaymentExported(var RefPmtExported: Record "Ref. Payment - Exported")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatchLinesOnAfterCustLedgEntrySetFilters(RefPmtImport: Record "Ref. Payment - Imported"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetLinesOnBeforeGenJnlLineInsert(CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
     end;
 }
 

@@ -767,6 +767,31 @@ codeunit 134153 "Test Intrastat"
         VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatMakeDiskTaxAuthCheckControlRequestPageHandler')]
+    procedure IntrastatMakeDiskTaxAuthIntrastatJournalLineTypeControlVisibility()
+    var
+        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 353162] Visibility of "Intrastat Journal Line Type" control on "Intrastat - Make Disk Tax Auth" request page.
+        Initialize();
+
+        // [GIVEN] Enabled Application Area Basic and Suite.
+        LibraryApplicationArea.EnableFoundationSetup();
+        Commit();
+
+        // [WHEN] Run request page of "Intrastat - Make Disk Tax Auth" report.
+        IntrastatMakeDiskTaxAuth.UseRequestPage(true);
+        IntrastatMakeDiskTaxAuth.Run();
+
+        // [THEN] Control "Intrastat Journal Line Type" is visible on the request page.
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Control "Intrastat Journal Line Type" must be visible.');
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -1242,6 +1267,12 @@ codeunit 134153 "Test Intrastat"
     procedure IntrastatJnlCheckListReqPageHandler(var IntrastatChecklistReqPage: TestRequestPage "Intrastat - Checklist")
     begin
         IntrastatChecklistReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    procedure IntrastatMakeDiskTaxAuthCheckControlRequestPageHandler(var IntrastatMakeDiskTaxAuth: TestRequestPage "Intrastat - Make Disk Tax Auth")
+    begin
+        LibraryVariableStorage.Enqueue(IntrastatMakeDiskTaxAuth.IntrastatJnlLineType.Visible());
     end;
 }
 

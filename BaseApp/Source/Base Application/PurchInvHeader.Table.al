@@ -571,6 +571,10 @@ table 122 "Purch. Inv. Header"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';

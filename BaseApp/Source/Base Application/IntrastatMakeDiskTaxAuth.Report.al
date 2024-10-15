@@ -205,6 +205,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     Caption = 'Options';
                     field(IntrastatJnlLineType; IntraJnlLineType)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Intrastat Journal Line Type';
                         OptionCaption = 'Receipt,Shipment';
                     }

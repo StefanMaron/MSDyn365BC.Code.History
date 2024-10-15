@@ -162,8 +162,15 @@ codeunit 7171 "Sales Info-Pane Management"
         AvailableToPromise.ResetItemNo;
     end;
 
-    local procedure GetItem(var SalesLine: Record "Sales Line"): Boolean
+    local procedure GetItem(var SalesLine: Record "Sales Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItem(SalesLine, Item, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         with Item do begin
             if (SalesLine.Type <> SalesLine.Type::Item) or (SalesLine."No." = '') then
                 exit(false);
@@ -201,6 +208,11 @@ codeunit 7171 "Sales Info-Pane Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAvailabilityDate(var SalesLine: Record "Sales Line"; var AvailabilityDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItem(SalesLine: Record "Sales Line"; var Item: Record Item; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
