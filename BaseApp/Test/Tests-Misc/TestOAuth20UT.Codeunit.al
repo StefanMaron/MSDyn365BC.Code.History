@@ -492,6 +492,46 @@ codeunit 134780 "Test OAuth 2.0 UT"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetAuthorizationURLWithCodeChallenge()
+    var
+        OAuth20Setup: Record "OAuth 2.0 Setup";
+        OAuth20Mgt: Codeunit "OAuth 2.0 Mgt.";
+        ActualURL: Text;
+    begin
+        // [FEATURE] [Authorization]
+        // [SCENARIO 498271] Authorization URL contains a code challenge
+        Initialize();
+        CreateOAuthSetup(OAuth20Setup);
+        OAuth20Setup.Validate("Code Challenge Method", OAuth20Setup."Code Challenge Method"::S256);
+        OAuth20Setup.Modify(true);
+
+        ActualURL := OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, OAuth20Setup.GetToken(OAuth20Setup."Client ID"));
+        Assert.IsTrue(StrPos(ActualURL, 'code_challenge_method=S256') > 0, 'Url does not contain a code challenge');
+        OAuth20Setup.Find();
+        Assert.IsTrue(OAuth20Setup.GetToken(OAuth20Setup."Code Verifier") <> '', 'Code verifier is empty');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetAuthorizationURLWithNonce()
+    var
+        OAuth20Setup: Record "OAuth 2.0 Setup";
+        OAuth20Mgt: Codeunit "OAuth 2.0 Mgt.";
+        ActualURL: Text;
+    begin
+        // [FEATURE] [Authorization]
+        // [SCENARIO 498271] Authorization URL contains a nonce
+        Initialize();
+        CreateOAuthSetup(OAuth20Setup);
+        OAuth20Setup.Validate("Use Nonce", true);
+        OAuth20Setup.Modify(true);
+
+        ActualURL := OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, OAuth20Setup.GetToken(OAuth20Setup."Client ID"));
+        Assert.IsTrue(StrPos(ActualURL, 'nonce=') > 0, 'Url does not contain a nonce');
+    end;
+
     local procedure Initialize()
     begin
         EnableSaaS(false);
