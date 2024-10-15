@@ -15,10 +15,73 @@ page 7001 "Price List Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
+                field(SourceType; CustomerSourceType)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Applies-to Type';
+                    Visible = IsCustomerGroup and AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the customer or customer price group.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateSourceType(CustomerSourceType.AsInteger());
+                    end;
+                }
+                field(JobSourceType; JobSourceType)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Applies-to Type';
+                    Visible = IsJobGroup and AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the job or job task.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateSourceType(JobSourceType.AsInteger());
+                    end;
+                }
+                field(ParentSourceNo; Rec."Parent Source No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Applies-to Job No.';
+                    Importance = Promoted;
+                    Editable = IsJobTask;
+                    Visible = AllowUpdatingDefaults and IsJobGroup;
+                    ToolTip = 'Specifies the job that is the source of the price on the price list line.';
+                }
+                field(SourceNo; Rec."Source No.")
+                {
+                    ApplicationArea = All;
+                    Importance = Promoted;
+                    Enabled = SourceNoEnabled;
+                    Visible = AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                }
+                field(CurrencyCode; Rec."Currency Code")
+                {
+                    ApplicationArea = All;
+                    Visible = AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the currency that is used for the prices on the price list. The currency can be the same for all prices on the price list, or you can specify a currency for individual lines.';
+                }
+                field(StartingDate; Rec."Starting Date")
+                {
+                    ApplicationArea = All;
+                    Visible = AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the date from which the price is valid.';
+                }
+                field(EndingDate; Rec."Ending Date")
+                {
+                    ApplicationArea = All;
+                    Visible = AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the last date that the price is valid.';
+                }
                 field("Asset Type"; Rec."Asset Type")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the type of the prodcut.';
+                    ToolTip = 'Specifies the type of the product.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Asset No."; Rec."Asset No.")
                 {
@@ -27,7 +90,7 @@ page 7001 "Price List Lines"
                     ToolTip = 'Specifies the number of the product.';
                     trigger OnValidate()
                     begin
-                        SetEditable();
+                        CurrPage.Update(true);
                     end;
                 }
                 field(Description; Description)
@@ -67,7 +130,7 @@ page 7001 "Price List Lines"
                     Importance = Standard;
                     Visible = AmountTypeIsVisible;
                     Editable = AmountTypeIsEditable;
-                    ToolTip = 'Specifies the data that is defined in the price list line. It can be either price or discount, or both';
+                    ToolTip = 'Specifies whether the price list line defines prices, discounts, or both.';
                     trigger OnValidate()
                     begin
                         SetMandatoryAmount();
@@ -148,18 +211,28 @@ page 7001 "Price List Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetEditable();
-        SetMandatoryAmount();
+        UpdateSourceType();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
+        UpdateSourceType();
         SetEditable();
         SetMandatoryAmount();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
+        if PriceListHeader."Allow Updating Defaults" then begin
+            Rec.CopySourceFrom(PriceListHeader);
+            if Rec."Starting Date" = 0D then
+                Rec."Starting Date" := PriceListHeader."Starting Date";
+            if Rec."Ending Date" = 0D then
+                Rec."Ending Date" := PriceListHeader."Ending Date";
+            if Rec."Currency Code" = '' then
+                Rec."Currency Code" := PriceListHeader."Currency Code";
+        end;
+        UpdateSourceType();
         Rec."Amount Type" := ViewAmountType;
     end;
 
@@ -174,8 +247,16 @@ page 7001 "Price List Lines"
         PriceVisible: Boolean;
         AmountTypeIsVisible: Boolean;
         AmountTypeIsEditable: Boolean;
+        JobSourceType: Enum "Job Price Source Type";
+        CustomerSourceType: Enum "Sales Price Source Type";
+        IsCustomerGroup: Boolean;
+        IsJobGroup: Boolean;
+        IsJobTask: Boolean;
+        SourceNoEnabled: Boolean;
+        AllowUpdatingDefaults: Boolean;
 
     protected var
+        PriceListHeader: Record "Price List Header";
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
 
@@ -196,14 +277,23 @@ page 7001 "Price List Lines"
 
     local procedure UpdateColumnVisibility()
     begin
+        AllowUpdatingDefaults := PriceListHeader."Allow Updating Defaults";
         AmountTypeIsVisible := ViewAmountType = ViewAmountType::Any;
         DiscountVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Discount];
         PriceVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Price];
     end;
 
+    procedure SetHeader(Header: Record "Price List Header")
+    begin
+        PriceListHeader := Header;
+
+        SetSubFormLinkFilter(PriceListHeader."Amount Type");
+    end;
+
     procedure SetPriceType(NewPriceType: Enum "Price Type")
     begin
         PriceType := NewPriceType;
+        PriceListHeader."Price Type" := NewPriceType;
     end;
 
     procedure SetSubFormLinkFilter(NewViewAmountType: Enum "Price Amount Type")
@@ -222,6 +312,35 @@ page 7001 "Price List Lines"
         OnAfterSetSubFormLinkFilter(SkipActivate);
         if not SkipActivate then
             CurrPage.Activate(true);
+    end;
+
+    local procedure UpdateSourceType()
+    begin
+        case PriceListHeader."Source Group" of
+            "Price Source Group"::Customer:
+                begin
+                    IsCustomerGroup := true;
+                    CustomerSourceType := "Sales Price Source Type".FromInteger(Rec."Source Type".AsInteger());
+                end;
+            "Price Source Group"::Job:
+                begin
+                    IsJobGroup := true;
+                    JobSourceType := "Job Price Source Type".FromInteger(Rec."Source Type".AsInteger());
+                    IsJobTask := JobSourceType = JobSourceType::"Job Task";
+                end;
+        end;
+    end;
+
+    local procedure SetSourceNoEnabled()
+    begin
+        SourceNoEnabled := Rec.IsSourceNoAllowed();
+    end;
+
+    local procedure ValidateSourceType(SourceType: Integer)
+    begin
+        Rec.Validate("Source Type", SourceType);
+        SetSourceNoEnabled();
+        CurrPage.Update(true);
     end;
 
     [IntegrationEvent(true, false)]

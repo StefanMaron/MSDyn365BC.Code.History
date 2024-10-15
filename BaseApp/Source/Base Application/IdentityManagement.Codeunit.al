@@ -166,6 +166,11 @@ codeunit 9801 "Identity Management"
             Error(GetLastErrorText);
     end;
 
+    procedure IsUserDelegatedAdmin(): Boolean
+    begin
+        exit(UserAccountHelper.IsUserDelegatedAdmin());
+    end;
+
     procedure GetAuthenticationStatus(UserSecurityId: Guid) O365AuthStatus: Integer
     begin
         O365AuthStatus := UserAccountHelper.GetAuthenticationStatus(UserSecurityId);

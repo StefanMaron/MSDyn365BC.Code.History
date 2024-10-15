@@ -2,7 +2,7 @@ page 9860 "AAD Application List"
 {
     ApplicationArea = Basic, Suite;
     UsageCategory = Administration;
-    Caption = 'AAD Applications', Comment = 'AAD Application should not be translated';
+    Caption = 'Azure Active Directory Applications', Comment = 'Azure Active Directory Application should not be translated';
     CardPageId = "AAD Application Card";
     PageType = List;
     PopulateAllFields = true;
@@ -19,22 +19,21 @@ page 9860 "AAD Application List"
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     Caption = 'Client ID';
-                    ToolTip = 'Specifies a client ID.';
+                    ToolTip = 'Specifies the client ID of the app that the entry is for.';
                 }
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     Caption = 'Description';
-                    ToolTip = 'Specifies description.';
+                    ToolTip = 'Specifies a description of the app that the entry is for.';
                 }
                 field(State; State)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'State';
-                    ToolTip = 'Specifies an application ID.';
+                    ToolTip = 'Specifies if the app is enabled or disabled.';
                 }
-
             }
         }
     }

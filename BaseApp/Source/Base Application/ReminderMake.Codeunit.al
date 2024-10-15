@@ -95,6 +95,7 @@ codeunit 392 "Reminder-Make"
         OverdueEntriesOnly := OverdueEntriesOnly2;
         IncludeEntriesOnHold := IncludeEntriesOnHold2;
         CustLedgEntryLineFeeFilters.CopyFilters(CustLedgEntryLinefeeOn);
+        OnAfterSuggestLines(ReminderHeader, CustLedgEntry2, OverdueEntriesOnly2, IncludeEntriesOnHold2, CustLedgEntryLinefeeOn);
     end;
 
     local procedure MakeReminder(CurrencyCode: Code[10]) RetVal: Boolean
@@ -551,6 +552,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSet(var Cust: Record Customer; var CustLedgEntry: Record "Cust. Ledger Entry"; var ReminderHeaderReq: Record "Reminder Header"; var OverdueEntriesOnly: Boolean; var IncludeEntriesOnHold: Boolean; var CustLedgEntryLinefeeOn: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuggestLines(ReminderHeader: Record "Reminder Header"; var CustLedgEntry2: Record "Cust. Ledger Entry"; OverdueEntriesOnly2: Boolean; IncludeEntriesOnHold2: Boolean; var CustLedgEntryLinefeeOn: Record "Cust. Ledger Entry")
     begin
     end;
 
