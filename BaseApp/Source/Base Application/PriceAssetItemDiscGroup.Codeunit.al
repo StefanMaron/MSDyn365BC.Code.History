@@ -12,6 +12,7 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
             FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
+        PriceAsset."Amount Type" := PriceAsset."Amount Type"::Discount;
     end;
 
     procedure GetId(var PriceAsset: Record "Price Asset")
@@ -22,6 +23,7 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
             FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
+        PriceAsset."Amount Type" := PriceAsset."Amount Type"::Discount;
     end;
 
     procedure IsLookupOK(var PriceAsset: Record "Price Asset"): Boolean
