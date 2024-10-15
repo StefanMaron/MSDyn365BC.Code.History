@@ -50,6 +50,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Preview RC Notifications - NamedType UnexpectedNotificationMsgTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4192393590 - NamedType 454175168" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot post without a valid CVR number filled in. Open the Company Information page and enter a CVR number in the Registration No. field.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Posting Restrictions Tests - NamedType CannotPostWithoutCVRNumberErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3382378424 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>

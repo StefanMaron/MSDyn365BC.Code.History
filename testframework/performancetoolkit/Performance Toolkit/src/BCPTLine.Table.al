@@ -12,6 +12,7 @@ table 149001 "BCPT Line"
     DataClassification = SystemMetadata;
     Extensible = false;
     Access = Internal;
+    ReplicateData = false;
 
     fields
     {
@@ -259,6 +260,9 @@ table 149001 "BCPT Line"
         {
             SumIndexFields = "No. of Sessions";
         }
+
+        key(Key3; "BCPT Code", "Codeunit ID", Parameters)
+        { }
     }
 
     var

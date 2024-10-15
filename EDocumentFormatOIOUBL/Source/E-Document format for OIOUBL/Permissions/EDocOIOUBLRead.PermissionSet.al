@@ -4,10 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.EServices.EDocument;
 
-enumextension 13910 OIOUBLFormat extends "E-Document Format"
+permissionset 13911 "EDocOIOUBL - Read"
 {
-    value(13910; "OIOUBL")
-    {
-        Implementation = "E-Document" = "OIOUBL Format";
-    }
+    Access = Public;
+    Assignable = true;
+    IncludedPermissionSets = "EDoc. OIOUBL Format";
 }

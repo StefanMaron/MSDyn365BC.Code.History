@@ -48,7 +48,13 @@ table 352 "Default Dimension"
             trigger OnValidate()
             var
                 TempAllObjWithCaption: Record AllObjWithCaption temporary;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateTableID(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CalcFields("Table Caption");
                 DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
                 TempAllObjWithCaption."Object Type" := TempAllObjWithCaption."Object Type"::Table;
@@ -341,13 +347,14 @@ table 352 "Default Dimension"
         InvalidAllowedValuesFilterErr: Label 'There are no dimension values for allowed values filter %1.', Comment = '%1 - allowed values filter';
         DefaultDimValueErr: Label 'You cannot block dimension value %1 because it is a default value for %2, %3.', Comment = '%1 = dimension value code and %2- table name, %3 - account number';
 
-    procedure GetCaption(): Text[250]
+    procedure GetCaption() Result: Text[250]
     var
         ObjectTranslation: Record "Object Translation";
         CurrTableID: Integer;
         NewTableID: Integer;
         NewNo: Code[20];
         SourceTableName: Text[250];
+        IsHandled: Boolean;
     begin
         if not Evaluate(NewTableID, GetFilter("Table ID")) then
             exit('');
@@ -368,6 +375,11 @@ table 352 "Default Dimension"
                 NewNo := GetRangeMin("No.")
             else
                 NewNo := '';
+
+        IsHandled := false;
+        OnGetCaptionOnAfterAssignNewNo(NewTableID, SourceTableName, NewNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if NewTableID <> 0 then
             exit(StrSubstNo('%1 %2', SourceTableName, NewNo));
@@ -907,11 +919,15 @@ table 352 "Default Dimension"
     var
         FieldRef: FieldRef;
         KeyRef: KeyRef;
+        IsHandled: Boolean;
     begin
-        KeyRef := RecRef.KeyIndex(1);
-        FieldRef := KeyRef.FieldIndex(KeyRef.FieldCount);
-        FieldRef.SetRange(Value);
-
+        IsHandled := false;
+        OnBeforeSetRangeToLastFieldInPrimaryKey(RecRef, Value, IsHandled);
+        if not IsHandled then begin
+            KeyRef := RecRef.KeyIndex(1);
+            FieldRef := KeyRef.FieldIndex(KeyRef.FieldCount);
+            FieldRef.SetRange(Value);
+        end;
         OnAfterSetRangeToLastFieldInPrimaryKey(RecRef, Value, FieldRef);
     end;
 
@@ -1417,6 +1433,21 @@ table 352 "Default Dimension"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateWorkCenterGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; WorkCenterNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetRangeToLastFieldInPrimaryKey(RecRef: RecordRef; Value: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCaptionOnAfterAssignNewNo(NewTableID: Integer; SourceTableName: Text[250]; NewNo: Code[20]; var Result: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTableID(var RecDefaultDimension: Record "Default Dimension"; xRecDefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
     begin
     end;
 }

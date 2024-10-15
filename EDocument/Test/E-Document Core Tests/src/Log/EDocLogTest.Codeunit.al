@@ -634,6 +634,7 @@ codeunit 139616 "E-Doc Log Test"
 
         HttpRequest.Content.WriteFrom('Test request');
         HttpResponse.Content.WriteFrom('Test response');
+        HttpResponse.Headers.Add('Accept', '*');
 
         EDocument.Insert();
         EDocumentService.Code := 'Test Service 1';

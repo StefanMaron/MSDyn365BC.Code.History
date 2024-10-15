@@ -1176,6 +1176,42 @@ codeunit 136306 "Job Invoicing"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPartialInvoiceOrderWithJob()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PostedRcptNo: Code[20];
+        UndoReceiptErr: Label 'This receipt has already been invoiced. Undo Receipt can be applied only to posted, but not invoiced receipts.';
+    begin
+        // [Bug] [Undo Receipt]
+        // [SCENARIO 488264] Undo receipt for partially invoiced order with jobs should not be allowed
+        Initialize();
+
+        // [GIVEN] Create Purchase Order with Job
+        CreatePurchaseOrderWithJob(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Post Purchase Order (Receive)
+        PostedRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Update Qty. to Invoice to half of Qty. Received
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity / 2);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Order (Invoice)
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [Then] Try to Undo Receipt for partially invoiced order
+        FindPurchaseReceiptLine(PurchRcptLine, PostedRcptNo);
+        asserterror LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+
+        Assert.ExpectedError(UndoReceiptErr);
+    end;
+
+    [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesPageHandler')]
     [Scope('OnPrem')]
     procedure CostAmountWhenPostCrMemoLinesToReverseFromInvWithJob()
@@ -3521,6 +3557,42 @@ codeunit 136306 "Job Invoicing"
         JobPostWIPToGL.Run();
     end;
 
+    [Test]
+    [HandlerFunctions('JobJournalTemplateListPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDimensionsFilledCorrectlyAsSoonAsJobTaskNoEnteredOnJobJournal()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        JobTask: Record "Job Task";
+        JobJournalPage: TestPage "Job Journal";
+        DimensionValueCode: array[3] of Code[20];
+    begin
+        // [SCENARIO 492284] Shortcut Dimension does not get filled in job journal from the beginning.
+        Initialize();
+
+        // [GIVEN] Setup: Create and Update Shourtcut Dimension 3 and 4 on General Ledger Setup
+        GeneralLedgerSetup.Get();
+        CreateDimensionWithDimensionValues(GeneralLedgerSetup."Shortcut Dimension 3 Code", DimensionValueCode[2]);
+        CreateDimensionWithDimensionValues(GeneralLedgerSetup."Shortcut Dimension 4 Code", DimensionValueCode[3]);
+        GeneralLedgerSetup.Modify();
+
+        // [THEN] Create Job Task with Dimensions
+        CreateJobTaskWithDimension(
+            JobTask,
+            GeneralLedgerSetup."Shortcut Dimension 3 Code",
+            GeneralLedgerSetup."Shortcut Dimension 4 Code",
+            DimensionValueCode);
+
+        // [WHEN] Create new Job Journal Line on Job Journal Page
+        CreateJobJournalLine(JobJournalPage, JobTask);
+
+        // [VERIFY] Verify: Dimensions on Job Journal Line Page
+        JobJournalPage."Shortcut Dimension 1 Code".AssertEquals(DimensionValueCode[1]);
+        JobJournalPage.ShortcutDimCode3.AssertEquals(DimensionValueCode[2]);
+        JobJournalPage.ShortcutDimCode4.AssertEquals(DimensionValueCode[3]);
+        JobJournalPage.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4979,6 +5051,62 @@ codeunit 136306 "Job Invoicing"
             PurchaseLineArchive.TestField("Job Unit Price", "Job Unit Price");
             PurchaseLineArchive.TestField("Job Unit Price (LCY)", "Job Unit Price (LCY)");
         end;
+    end;
+
+    local procedure CreateDimensionWithDimensionValues(var DimensionCode: Code[20]; var DimensionValueCode: Code[20])
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        DimensionCode := DimensionValue."Dimension Code";
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+        DimensionValueCode := DimensionValue.Code;
+    end;
+
+    local procedure CreateJobTaskWithDimension(
+        var JobTask: Record "Job Task";
+        ShortcudDim3: Code[20];
+        ShortcudDim4: Code[20];
+        var DimensionValueCode: array[3] of Code[20])
+    var
+        Job: Record Job;
+        DimensionCode: Code[20];
+    begin
+        DimensionCode := CreateJobWithDimension(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        DimensionValueCode[1] := UpdateDimensionOnJobTask(JobTask, DimensionCode);
+        CreateJobTaskDimension(Job."No.", JobTask."Job Task No.", ShortcudDim3, DimensionValueCode[2]);
+        CreateJobTaskDimension(Job."No.", JobTask."Job Task No.", ShortcudDim4, DimensionValueCode[3]);
+    end;
+
+    local procedure CreateJobTaskDimension(JobNo: Code[20]; JobTaskNo: Code[20]; DimensionCode: Code[20]; DimensionValueCode: Code[20])
+    var
+        JobTaskDimension: Record "Job Task Dimension";
+    begin
+        JobTaskDimension.Init();
+        JobTaskDimension.Validate("Job No.", JobNo);
+        JobTaskDimension.Validate("Job Task No.", JobTaskNo);
+        JobTaskDimension.Validate("Dimension Code", DimensionCode);
+        JobTaskDimension.Validate("Dimension Value Code", DimensionValueCode);
+        JobTaskDimension.Insert(true);
+    end;
+
+    local procedure CreateJobJournalLine(
+        var JobJournalPage: TestPage "Job Journal";
+        JobTask: Record "Job Task")
+    begin
+        JobJournalPage.OpenEdit();
+        JobJournalPage.New();
+        JobJournalPage."Job No.".SetValue(JobTask."Job No.");
+        JobJournalPage."Job Task No.".SetValue(JobTask."Job Task No.");
+        JobJournalPage."Line Type".SetValue("Job Line Type"::Budget);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure JobJournalTemplateListPageHandler(var JobJournalTemplateListPage: TestPage "Job Journal Template List")
+    begin
+        JobJournalTemplateListPage.OK().Invoke();
     end;
 
     [ConfirmHandler]

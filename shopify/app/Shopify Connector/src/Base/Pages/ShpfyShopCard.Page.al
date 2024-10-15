@@ -120,12 +120,20 @@ page 30101 "Shpfy Shop Card"
                     Caption = 'Allow Data Sync to Shopify';
                     ToolTip = 'Specifices whether syncing data to Shopify is enabled.';
                 }
+                field("Shopify Admin API Version"; ApiVersion)
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    Caption = 'Shopify Admin API Version';
+                    ToolTip = 'Specifies the version of Shopify Admin API used by current version of the Shopify connector.';
+                    Editable = false;
+                }
                 field("API Version Expiry Date"; ApiVersionExpiryDate)
                 {
                     ApplicationArea = All;
                     Importance = Additional;
-                    Caption = 'End of Support';
-                    ToolTip = 'Specifies end of support date for the current version. After this date Shopify connector will stop working.';
+                    Caption = 'Update API Version Before';
+                    ToolTip = 'Specifies the date on which Business Central will no longer support Shopify Admin API version. To continue to use your integration, upgrade to the latest version of Business Central before this date.';
                     Editable = false;
                 }
             }
@@ -968,6 +976,7 @@ page 30101 "Shpfy Shop Card"
 #endif
         EntityTextEnabled: Boolean;
         IsReturnRefundsVisible: Boolean;
+        ApiVersion: Text;
         ApiVersionExpiryDate: Date;
         ExpirationNotificationTxt: Label 'Shopify API version 30 days before expiry notification sent.', Locked = true;
         BlockedNotificationTxt: Label 'Shopify API version expired notification sent.', Locked = true;
@@ -990,6 +999,7 @@ page 30101 "Shpfy Shop Card"
 #endif
         EntityTextEnabled := EntityText.IsEnabled();
         if Rec.Enabled then begin
+            ApiVersion := CommunicationMgt.GetApiVersion();
             ApiVersionExpiryDateTime := CommunicationMgt.GetApiVersionExpiryDate();
             ApiVersionExpiryDate := DT2Date(ApiVersionExpiryDateTime);
             if CurrentDateTime() > ApiVersionExpiryDateTime then begin

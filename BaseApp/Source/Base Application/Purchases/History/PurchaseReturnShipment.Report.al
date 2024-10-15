@@ -17,7 +17,7 @@ using System.Utilities;
 report 6636 "Purchase - Return Shipment"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/Document/ReturnShipment.rdlc';
+    RDLCLayout = './Purchases/History/PurchaseReturnShipment.rdlc';
     Caption = 'Purchase - Return Shipment';
     PreviewMode = PrintLayout;
     WordMergeDataItem = "Return Shipment Header";

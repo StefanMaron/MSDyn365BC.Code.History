@@ -498,6 +498,11 @@ table 303 "Finance Charge Memo Line"
 
         CalcFinanceChargeInterestRate(FinanceChargeInterestRate, UseDueDate, UseInterestRate, UseCalcDate);
 
+        IsHandled := false;
+        OnCalcFinChargeOnAfterCalcFinanceChargeInterestRate(Rec, FinChrgMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         case FinChrgTerms."Interest Calculation Method" of
             FinChrgTerms."Interest Calculation Method"::"Average Daily Balance":
                 begin
@@ -1020,6 +1025,11 @@ table 303 "Finance Charge Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessFinChrgMemoHeaderOnAfterFinChrgTermsGet(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeTerms: Record "Finance Charge Terms")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChargeOnAfterCalcFinanceChargeInterestRate(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)
     begin
     end;
 }

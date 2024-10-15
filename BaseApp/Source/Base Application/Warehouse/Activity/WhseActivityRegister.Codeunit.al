@@ -1033,6 +1033,8 @@ codeunit 7307 "Whse.-Activity-Register"
                     Error(ItemAlreadyConsumedErr, RemainingQtyBase, RemainingQtyUoM, GroupedWhseActivLine.FieldCaption("Line No."), GroupedWhseActivLine."Line No.", GroupedWhseActivLine.FieldCaption("Item No."), GroupedWhseActivLine."Item No.", GroupedWhseActivLine."Source Document", GroupedWhseActivLine."Source No.", GroupedWhseActivLine.FieldCaption("Source Line No."), GroupedWhseActivLine."Source Line No.");
             until GroupedWhseActivLine.Next() = 0;
         GroupedWhseActivLine.SetRange("Breakbulk No.");
+
+        OnAfterCheckSourceDocumentForAvailableQty(GroupedWhseActivLine);
     end;
 
     procedure CheckWhseItemTrkgLine(var WhseActivLine: Record "Warehouse Activity Line")
@@ -2745,6 +2747,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeModifyGlobalWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSourceDocumentForAvailableQty(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

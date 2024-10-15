@@ -94,11 +94,24 @@ codeunit 13638 "OIOUBL-Exp. Issued Fin. Chrg"
 
     trigger OnRun();
     var
+
+        TempBlob: Codeunit "Temp Blob";
+        OIOUBLManagement: Codeunit "OIOUBL-Management";
+    begin
+        GenerateTempBlob(Rec, TempBlob);
+
+        OIOUBLManagement.ExportXMLFile("No.", TempBlob, SalesSetup."OIOUBL-Fin. Chrg. Memo Path", '');
+
+        IssuedFinChargeMemo.GET("No.");
+        IssuedFinChargeMemo."OIOUBL-Elec. Fin. Charge Memo Created" := TRUE;
+        IssuedFinChargeMemo.MODIFY();
+    end;
+
+    procedure GenerateTempBlob(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var TempBlob: Codeunit "Temp Blob");
+    var
         IssuedFinChargeMemoLine2: Record "Issued Fin. Charge Memo Line";
         PartyContact: Record Contact;
         PostalAddress: Record "Standard Address";
-        TempBlob: Codeunit "Temp Blob";
-        OIOUBLManagement: Codeunit "OIOUBL-Management";
         XMLdocOut: XmlDocument;
         XMLCurrNode: XmlElement;
         CurrencyCode: Code[10];
@@ -108,16 +121,16 @@ codeunit 13638 "OIOUBL-Exp. Issued Fin. Chrg"
         TotalAmount: Decimal;
         FileOutstream: Outstream;
     begin
-        CODEUNIT.RUN(CODEUNIT::"OIOUBL-Check Issued Fin. Chrg", Rec);
+        CODEUNIT.RUN(CODEUNIT::"OIOUBL-Check Issued Fin. Chrg", IssuedFinChargeMemoHeader);
         GLSetup.GET();
         CompanyInfo.GET();
 
-        if "Currency Code" = '' then
+        if IssuedFinChargeMemoHeader."Currency Code" = '' then
             CurrencyCode := GLSetup."LCY Code"
         else
-            CurrencyCode := "Currency Code";
+            CurrencyCode := IssuedFinChargeMemoHeader."Currency Code";
 
-        if NOT ContainsValidLine(IssuedFinChargeMemoLine, "No.") then
+        if NOT ContainsValidLine(IssuedFinChargeMemoLine, IssuedFinChargeMemoHeader."No.") then
             EXIT;
 
         // FinCharge
@@ -135,11 +148,11 @@ codeunit 13638 "OIOUBL-Exp. Issued Fin. Chrg"
             XmlAttribute.Create('schemeAgencyID', '320'),
             'Procurement-BilSim-1.0'));
 
-        XMLCurrNode.Add(XmlElement.Create('ID', DocNameSpace, "No."));
+        XMLCurrNode.Add(XmlElement.Create('ID', DocNameSpace, IssuedFinChargeMemoHeader."No."));
         XMLCurrNode.Add(XmlElement.Create('CopyIndicator', DocNameSpace,
-          OIOUBLDocumentEncode.BooleanToText("OIOUBL-Elec. Fin. Charge Memo Created")));
+          OIOUBLDocumentEncode.BooleanToText(IssuedFinChargeMemoHeader."OIOUBL-Elec. Fin. Charge Memo Created")));
         XMLCurrNode.Add(XmlElement.Create('IssueDate', DocNameSpace,
-          OIOUBLDocumentEncode.DateToText("Posting Date")));
+          OIOUBLDocumentEncode.DateToText(IssuedFinChargeMemoHeader."Posting Date")));
 
         XMLCurrNode.Add(
           XmlElement.Create('ReminderTypeCode', DocNameSpace,
@@ -149,30 +162,30 @@ codeunit 13638 "OIOUBL-Exp. Issued Fin. Chrg"
 
         XMLCurrNode.Add(XmlElement.Create('ReminderSequenceNumeric', DocNameSpace, '1'));
         XMLCurrNode.Add(XmlElement.Create('DocumentCurrencyCode', DocNameSpace, CurrencyCode));
-        XMLCurrNode.Add(XmlElement.Create('AccountingCostCode', DocNameSpace, "OIOUBL-Account Code"));
+        XMLCurrNode.Add(XmlElement.Create('AccountingCostCode', DocNameSpace, IssuedFinChargeMemoHeader."OIOUBL-Account Code"));
 
         // FinCharge->AccountingSupplierParty
         OIOUBLXMLGenerator.InsertAccountingSupplierParty(XMLCurrNode, '');
 
         // FinCharge->AccountingCustomerParty
-        PostalAddress.Address := Address;
-        PostalAddress."Address 2" := "Address 2";
-        PostalAddress.City := City;
-        PostalAddress."Post Code" := "Post Code";
-        PostalAddress."Country/Region Code" := "Country/Region Code";
-        PartyContact.Name := Contact;
-        PartyContact."Phone No." := "OIOUBL-Contact Phone No.";
-        PartyContact."Fax No." := "OIOUBL-Contact Fax No.";
-        PartyContact."E-Mail" := "OIOUBL-Contact E-Mail";
+        PostalAddress.Address := IssuedFinChargeMemoHeader.Address;
+        PostalAddress."Address 2" := IssuedFinChargeMemoHeader."Address 2";
+        PostalAddress.City := IssuedFinChargeMemoHeader.City;
+        PostalAddress."Post Code" := IssuedFinChargeMemoHeader."Post Code";
+        PostalAddress."Country/Region Code" := IssuedFinChargeMemoHeader."Country/Region Code";
+        PartyContact.Name := IssuedFinChargeMemoHeader.Contact;
+        PartyContact."Phone No." := IssuedFinChargeMemoHeader."OIOUBL-Contact Phone No.";
+        PartyContact."Fax No." := IssuedFinChargeMemoHeader."OIOUBL-Contact Fax No.";
+        PartyContact."E-Mail" := IssuedFinChargeMemoHeader."OIOUBL-Contact E-Mail";
         OIOUBLXMLGenerator.InsertAccountingCustomerParty(XMLCurrNode,
-          "OIOUBL-GLN",
-          "VAT Registration No.",
-          Name,
+          IssuedFinChargeMemoHeader."OIOUBL-GLN",
+          IssuedFinChargeMemoHeader."VAT Registration No.",
+          IssuedFinChargeMemoHeader.Name,
           PostalAddress,
           PartyContact);
 
         // FinCharge->PaymentMeans
-        OIOUBLXMLGenerator.InsertPaymentMeans(XMLCurrNode, "Due Date");
+        OIOUBLXMLGenerator.InsertPaymentMeans(XMLCurrNode, IssuedFinChargeMemoHeader."Due Date");
 
         // FinCharge->PaymentTerms
         TotalAmount := 0;
@@ -183,7 +196,7 @@ codeunit 13638 "OIOUBL-Exp. Issued Fin. Chrg"
                 TotalAmount := TotalAmount + IssuedFinChargeMemoLine2.Amount + IssuedFinChargeMemoLine2."VAT Amount";
             until IssuedFinChargeMemoLine2.NEXT() = 0;
         OIOUBLXMLGenerator.InsertPaymentTerms(
-          XMLCurrNode, '', 0, CurrencyCode, CalcDate('<0D>'), "Due Date", TotalAmount);
+          XMLCurrNode, '', 0, CurrencyCode, CalcDate('<0D>'), IssuedFinChargeMemoHeader."Due Date", TotalAmount);
 
         // FinCharge->TaxTotal (for ("Normal VAT" AND "VAT %" <> 0) OR "Full VAT")
         IssuedFinChargeMemoLine2.RESET();
@@ -231,14 +244,8 @@ codeunit 13638 "OIOUBL-Exp. Issued Fin. Chrg"
         SalesSetup.GET();
 
         TempBlob.CreateOutStream(FileOutstream);
-        OnRunOnBeforeXmlDocumentWriteToFileStream(XMLdocOut, Rec, DocNameSpace, DocNameSpace2);
+        OnRunOnBeforeXmlDocumentWriteToFileStream(XMLdocOut, IssuedFinChargeMemoHeader, DocNameSpace, DocNameSpace2);
         XMLdocOut.WriteTo(FileOutstream);
-
-        OIOUBLManagement.ExportXMLFile("No.", TempBlob, SalesSetup."OIOUBL-Fin. Chrg. Memo Path", '');
-
-        IssuedFinChargeMemo.GET("No.");
-        IssuedFinChargeMemo."OIOUBL-Elec. Fin. Charge Memo Created" := TRUE;
-        IssuedFinChargeMemo.MODIFY();
     end;
 
     procedure UpdateTaxAmtAndTaxableAmt(Amount: Decimal; VATAmount: Decimal; var TaxableAmountParam: Decimal; var TaxAmountParam: Decimal);

@@ -19,7 +19,7 @@ page 2510 "Marketplace Extn Deployment"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             group(General)
             {
