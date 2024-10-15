@@ -90,6 +90,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeDocumentDefaultLineType();
         UpgradeOnlineMap();
         UpgradeDataExchFieldMapping();
+        UpdatePurchaserOnRequisitionLines();
     end;
 
     local procedure ClearTemporaryTables()
@@ -1852,7 +1853,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure ChangeEncodingToUTF8(TableNo: Integer; FieldNo: Integer; FromEncoding: TextEncoding)
     var
-        InTempBlob, OutTempBlob: Codeunit "Temp Blob";
+        InTempBlob, OutTempBlob : Codeunit "Temp Blob";
         RecordRef: RecordRef;
         InStr: InStream;
         OutStr: OutStream;
@@ -2599,6 +2600,44 @@ codeunit 104000 "Upgrade - BaseApp"
             end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag());
+    end;
+
+    local procedure UpdatePurchaserOnRequisitionLines()
+    var
+        RequisitionLine: Record "Requisition Line";
+        Vendor: Record Vendor;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PurchaserCodeToAssign: Code[20];
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaserOnRequisitionLineUpdateTag()) then
+            exit;
+
+        RequisitionLine.SetFilter("Vendor No.", '<>%1', '');
+        if RequisitionLine.FindSet(true) then
+            repeat
+                if Vendor.Get(RequisitionLine."Vendor No.") and (Vendor."Purchaser Code" <> '') then
+                    if ReturnPurchaserCode(Vendor."Purchaser Code", PurchaserCodeToAssign) then begin
+                        RequisitionLine.Validate("Purchaser Code", PurchaserCodeToAssign);
+                        RequisitionLine.Modify();
+                    end;
+            until RequisitionLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaserOnRequisitionLineUpdateTag());
+    end;
+
+    local procedure ReturnPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]): Boolean
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
+        end else
+            PurchaserCodeToAssign := '';
+        exit(PurchaserCodeToAssign <> '');
     end;
 }
 
