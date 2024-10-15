@@ -195,7 +195,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
-        Assert.IsTrue(CRMIntegrationRecord.IsIntegrationIdCoupled(Contact.SystemId), '');
+        Assert.IsTrue(CRMIntegrationRecord.IsIntegrationIdCoupled(Contact.SystemId, Database::Contact), '');
 
         // [WHEN] Synchronize the Contact
         ResetDefaultCRMSetupConfiguration;

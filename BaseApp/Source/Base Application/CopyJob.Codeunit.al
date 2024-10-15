@@ -99,7 +99,10 @@ codeunit 1006 "Copy Job"
                 TargetJobTask.Validate("Recognized Costs Amount", 0);
                 TargetJobTask.Validate("Recognized Sales G/L Amount", 0);
                 TargetJobTask.Validate("Recognized Costs G/L Amount", 0);
-                TargetJobTask.Insert(true);
+                IsHandled := false;
+                OnCopyJobTasksOnBeforeTargetJobTaskInsert(TargetJobTask, SourceJobTask, IsHandled);
+                if not IsHandled then
+                    TargetJobTask.Insert(true);
                 case true of
                     JobPlanningLineSource = JobPlanningLineSource::"Job Planning Lines":
                         CopyJobPlanningLines(SourceJobTask, TargetJobTask);
@@ -433,6 +436,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInsert(var TargetJobPlanningLine: Record "Job Planning Line"; SourceJobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJobTasksOnBeforeTargetJobTaskInsert(var TargetJobTask: Record "Job Task"; SourceJobTask: Record "Job Task"; var IsHandled: Boolean)
     begin
     end;
 

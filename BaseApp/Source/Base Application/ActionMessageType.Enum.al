@@ -1,6 +1,7 @@
 enum 99000849 "Action Message Type"
 {
     AssignmentCompatibility = true;
+    Extensible = true;
 
     value(0; " ") { Caption = ' '; }
     value(1; "New") { Caption = 'New'; }

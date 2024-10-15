@@ -103,7 +103,13 @@
     procedure EnterPurchaseItemReference(var PurchLine2: Record "Purchase Line")
     var
         ShouldAssignDescription: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEnterPurchaseItemReference(PurchLine2, ItemReference, Found, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine2 do
             if Type = Type::Item then begin
                 ItemReference.Reset();
@@ -702,6 +708,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFillItemReferenceFromItemVendor(var ItemReference: Record "Item Reference"; ItemVend: Record "Item Vendor"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnterPurchaseItemReference(var PurchaseLine2: Record "Purchase Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 

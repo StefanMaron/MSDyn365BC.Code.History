@@ -3702,6 +3702,71 @@ codeunit 137077 "SCM Supply Planning -IV"
         asserterror SelectRequisitionLine(RequisitionLine, Item."No.");
     end;
 
+    [Test]
+    procedure DoubledDemandPlanningToSupplyWithTransfer()
+    var
+        Item: Record Item;
+        SKU: Record "Stockkeeping Unit";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        RequisitionLine: Record "Requisition Line";
+        i: Integer;
+    begin
+        //avd
+        // [FEATURE] [Stockkeeping Unit] [Transfer]
+        // [SCENARIO 455484] Planning doubled component demand on location "A" to be supplied with a series of transfers from locations "B" and "C".
+        Initialize();
+
+        // [GIVEN] Transfer routes "SILVER" -> "RED" and "RED" -> "BLUE".
+        SelectTransferRoute(LocationSilver.Code, LocationRed.Code);
+        SelectTransferRoute(LocationRed.Code, LocationBlue.Code);
+
+        // [GIVEN] Item "I" with stockkeeping units on locations "SILVER", "RED", and "BLUE".
+        // [GIVEN] SKU for "BLUE" is replenished by transfer from "RED".
+        // [GIVEN] SKU for "RED" is replenished by transfer from "SILVER".
+        LibraryInventory.CreateItem(Item);
+        CreateStockkeepingUnit(
+          SKU, Item."No.", LocationBlue.Code, SKU."Replenishment System"::Transfer, SKU."Reordering Policy"::Order, LocationRed.Code);
+        CreateStockkeepingUnit(
+          SKU, Item."No.", LocationRed.Code, SKU."Replenishment System"::Transfer, SKU."Reordering Policy"::"Lot-for-Lot", LocationSilver.Code);
+        CreateStockkeepingUnit(
+          SKU, Item."No.", LocationSilver.Code, SKU."Replenishment System"::Purchase, SKU."Reordering Policy"::"Lot-for-Lot", '');
+
+        // [GIVEN] Released production order, refresh.
+        // [GIVEN] Add two component lines with item "I" on location "BLUE".
+        CreateAndRefreshReleasedProductionOrderWithLocationAndBin(
+          ProductionOrder, LibraryInventory.CreateItemNo(), LocationBlue.Code, '');
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        for i := 1 to 2 do begin
+            LibraryManufacturing.CreateProductionOrderComponent(
+              ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+            ProdOrderComponent.Validate("Item No.", Item."No.");
+            ProdOrderComponent.Validate("Location Code", LocationBlue.Code);
+            ProdOrderComponent.Validate("Quantity per", LibraryRandom.RandInt(10));
+            ProdOrderComponent.Modify(true);
+        end;
+
+        // [GIVEN] Total quantity on component lines = "X".
+        Item.CalcFields("Qty. on Component Lines");
+
+        // [WHEN] Calculate regenerative plan for item "I".
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+
+        // [THEN] Quantity to be purchased on "SILVER" = "X".
+        RequisitionLine.SetRange("Location Code", LocationSilver.Code);
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.TestField(Quantity, Item."Qty. on Component Lines");
+
+        // [THEN] Quantity to be transferred to "RED" = "X".
+        RequisitionLine.SetRange("Location Code", LocationRed.Code);
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.TestField(Quantity, Item."Qty. on Component Lines");
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";

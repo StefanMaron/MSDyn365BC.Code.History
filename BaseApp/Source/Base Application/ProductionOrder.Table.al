@@ -1242,6 +1242,7 @@ table 5405 "Production Order"
                     Direction::Backward:
                         "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
                 end;
+                OnUpdateStartingEndingTimeOnBeforeProdOrderLineModify(ProdOrderLine, Rec);
                 ProdOrderLine.Modify(true);
                 ProdOrderLine.CheckEndingDate(CurrFieldNo <> 0);
             until ProdOrderLine.Next() = 0
@@ -1289,6 +1290,7 @@ table 5405 "Production Order"
                 CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
                 "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
                 "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
+                OnUpdateEndingDateOnBeforeProdOrderLineModify(ProdOrderLine, Rec);
                 ProdOrderLine.Modify(true);
                 ProdOrderLine.CheckEndingDate(CurrFieldNo <> 0);
             until ProdOrderLine.Next() = 0
@@ -1556,6 +1558,16 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateEndingDateOnBeforeCalcProdOrderRecalculate(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateStartingEndingTimeOnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEndingDateOnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; var ProductionOrder: Record "Production Order")
     begin
     end;
 

@@ -1298,9 +1298,18 @@ table 274 "Bank Acc. Reconciliation Line"
             BankAccReconciliationLine.SetRange("Statement Type", "Statement Type");
             BankAccReconciliationLine.SetRange("Bank Account No.", "Bank Account No.");
             BankAccReconciliationLine.SetRange("Transaction ID", "Transaction ID");
-            exit(BankAccReconciliationLine.FindFirst());
+            exit(not BankAccReconciliationLine.IsEmpty());
         end;
         exit(false);
+    end;
+
+    local procedure AllowImportDuplicatedTransactions(): Boolean
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+    begin
+        BankAccReconciliation.SetLoadFields("Allow Duplicated Transactions");
+        BankAccReconciliation.Get("Statement Type", "Bank Account No.", "Statement No.");
+        exit(BankAccReconciliation."Allow Duplicated Transactions");
     end;
 
     local procedure AllowImportOfPostedNotReconciledTransactions(): Boolean
@@ -1321,8 +1330,12 @@ table 274 "Bank Acc. Reconciliation Line"
 
     procedure CanImport(): Boolean
     begin
-        if IsTransactionPostedAndReconciled() or IsTransactionAlreadyImported() then
+        if IsTransactionPostedAndReconciled() then
             exit(false);
+
+        if IsTransactionAlreadyImported() then
+            if not AllowImportDuplicatedTransactions() then
+                exit(false);
 
         if IsTransactionPostedAndNotReconciled() then
             exit(AllowImportOfPostedNotReconciledTransactions());
