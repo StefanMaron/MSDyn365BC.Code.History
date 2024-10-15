@@ -114,7 +114,7 @@ page 17454 "Sick Leave Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

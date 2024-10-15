@@ -71,7 +71,7 @@ table 14902 "Customer Agreement"
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = CONST(Agreement),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST(Agreement),
                                                             "No." = FIELD("No.")));
             Caption = 'Comment';
             FieldClass = FlowField;
@@ -188,11 +188,9 @@ table 14902 "Customer Agreement"
         {
             Caption = 'Prices Including VAT';
         }
-        field(39; Blocked; Option)
+        field(39; Blocked; Enum "Customer Blocked")
         {
             Caption = 'Blocked';
-            OptionCaption = ' ,Ship,Invoice,All';
-            OptionMembers = " ",Ship,Invoice,All;
         }
         field(47; "Payment Method Code"; Code[10])
         {
@@ -221,7 +219,7 @@ table 14902 "Customer Agreement"
         field(58; Balance; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer No."),
                                                                          "Agreement No." = FIELD("No.")));
             Caption = 'Balance';
             Editable = false;
@@ -230,7 +228,7 @@ table 14902 "Customer Agreement"
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
                                                                                  "Agreement No." = FIELD("No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
@@ -240,7 +238,7 @@ table 14902 "Customer Agreement"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer No."),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                          "Posting Date" = FIELD("Date Filter"),
@@ -252,7 +250,7 @@ table 14902 "Customer Agreement"
         field(61; "Net Change (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                                  "Posting Date" = FIELD("Date Filter"),
@@ -283,7 +281,7 @@ table 14902 "Customer Agreement"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Debit Amount" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Debit Amount" WHERE("Customer No." = FIELD("Customer No."),
                                                                                  "Entry Type" = FILTER(<> Application),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -298,7 +296,7 @@ table 14902 "Customer Agreement"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Credit Amount" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Credit Amount" WHERE("Customer No." = FIELD("Customer No."),
                                                                                   "Entry Type" = FILTER(<> Application),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -312,7 +310,7 @@ table 14902 "Customer Agreement"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
                                                                                        "Entry Type" = FILTER(<> Application),
                                                                                        "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -326,7 +324,7 @@ table 14902 "Customer Agreement"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
                                                                                         "Entry Type" = FILTER(<> Application),
                                                                                         "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                         "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -355,11 +353,9 @@ table 14902 "Customer Agreement"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5750; "Shipping Advice"; Option)
+        field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(5790; "Shipping Time"; DateFormula)
         {
@@ -400,7 +396,7 @@ table 14902 "Customer Agreement"
         field(12424; "G/L Starting Balance"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
                                                         "Source No." = FIELD("Customer No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -414,7 +410,7 @@ table 14902 "Customer Agreement"
         field(12425; "G/L Net Change"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
                                                         "Source No." = FIELD("Customer No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -428,7 +424,7 @@ table 14902 "Customer Agreement"
         field(12426; "G/L Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST(Customer),
+            CalcFormula = Sum("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST(Customer),
                                                                 "Source No." = FIELD("Customer No."),
                                                                 "G/L Account No." = FIELD("G/L Account Filter"),
                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -442,7 +438,7 @@ table 14902 "Customer Agreement"
         field(12427; "G/L Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST(Customer),
+            CalcFormula = Sum("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST(Customer),
                                                                  "Source No." = FIELD("Customer No."),
                                                                  "G/L Account No." = FIELD("G/L Account Filter"),
                                                                  "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -456,7 +452,7 @@ table 14902 "Customer Agreement"
         field(12428; "G/L Balance to Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
                                                         "Source No." = FIELD("Customer No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -547,7 +543,7 @@ table 14902 "Customer Agreement"
         SalesSetup.Get();
         if DimValue.Get(SalesSetup."Customer Agreement Dim. Code", "No.") then begin
             DimValue.Name := CopyStr("No.", 1, MaxStrLen(DimValue.Name));
-            if Blocked > 0 then
+            if Blocked <> Blocked::" " then
                 DimValue.Blocked := true
             else
                 DimValue.Blocked := false;

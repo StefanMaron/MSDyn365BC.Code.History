@@ -388,7 +388,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GLAccount: Record "G/L Account";
     begin
@@ -403,7 +403,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateJournalLineWithDimension(var GenJournalLine: Record "Gen. Journal Line"; DimensionValue: Record "Dimension Value"; AccountNo: Code[20]; AccountType: Option)
+    local procedure CreateJournalLineWithDimension(var GenJournalLine: Record "Gen. Journal Line"; DimensionValue: Record "Dimension Value"; AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -415,7 +415,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostJournalLineWithDimension(DimensionValue: Record "Dimension Value"; AccountNo: Code[20]; AccountType: Option): Decimal
+    local procedure CreateAndPostJournalLineWithDimension(DimensionValue: Record "Dimension Value"; AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

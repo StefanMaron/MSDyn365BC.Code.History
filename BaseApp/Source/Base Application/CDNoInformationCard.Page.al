@@ -186,7 +186,7 @@ page 12469 "CD No. Information Card"
             }
             action(Navigate)
             {
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

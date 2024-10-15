@@ -370,7 +370,7 @@ codeunit 144006 "ERM Item Storno"
         VerifyGLEntries('', GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * Round(UnitAmt * Quantity), Sorting);
     end;
 
-    local procedure CorrectionForItemJournal(EntryType: Option; CorrEntryType: Option; RedStorno: Boolean)
+    local procedure CorrectionForItemJournal(EntryType: Enum "Item Ledger Entry Type"; CorrEntryType: Enum "Item Ledger Entry Type"; RedStorno: Boolean)
     var
         ItemNo: Code[20];
         Quantity: Decimal;
@@ -384,7 +384,7 @@ codeunit 144006 "ERM Item Storno"
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
 
         CreateAndPostItemJournalLine(
-          EntryType, 0, ItemNo, WorkDate, Quantity, CostAmt, 0, false);
+          EntryType, "Item Ledger Entry Type"::" ", ItemNo, WorkDate, Quantity, CostAmt, 0, false);
 
         CalcSign(CorrSign, ExpectedSign, EntryType, RedStorno);
 
@@ -393,7 +393,7 @@ codeunit 144006 "ERM Item Storno"
           FindLastItemLedgerEntryNo(ItemNo, WorkDate), RedStorno);
 
         VerifyValueEntries(ItemNo, WorkDate, ExpectedSign * CostAmt, RedStorno);
-        VerifyItemLedgerEntries(ItemNo, WorkDate, CorrEntryType, ExpectedSign * Quantity);
+        VerifyItemLedgerEntries(ItemNo, WorkDate, CorrEntryType.AsInteger(), ExpectedSign * Quantity);
 
         Sorting := (ExpectedSign = -1) xor RedStorno;
         VerifyGLEntries('', GetLastCostDocumentNo, CorrSign * CostAmt, Sorting);
@@ -455,7 +455,7 @@ codeunit 144006 "ERM Item Storno"
         RevalAmt := CostAmt + IncreaseIndex * LibraryRandom.RandDec(100, 2);
 
         CreateAndPostItemJournalLine(
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", 0, Item."No.", WorkDate,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", Item."No.", WorkDate,
           LibraryRandom.RandDec(10, 2), CostAmt, 0, false);
 
         CreateAndPostRevaluationItemJnlLine(Item."No.", WorkDate, RevalAmt, RedStorno);
@@ -477,12 +477,12 @@ codeunit 144006 "ERM Item Storno"
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
 
         CreateAndPostItemJournalLine(
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", 0, ItemNo, WorkDate, Quantity, CostAmt, 0, false);
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", ItemNo, WorkDate, Quantity, CostAmt, 0, false);
 
         CreateAndPostReclassItemJnlLine(ItemNo, WorkDate, Quantity, FindLastItemLedgerEntryNo(ItemNo, WorkDate), RedStorno);
 
         VerifyValueEntries(ItemNo, WorkDate, CostAmt, RedStorno);
-        VerifyItemLedgerEntries(ItemNo, WorkDate, ItemLedgerEntry."Entry Type"::Transfer, Quantity);
+        VerifyItemLedgerEntries(ItemNo, WorkDate, ItemLedgerEntry."Entry Type"::Transfer.AsInteger(), Quantity);
 
         VerifyGLEntries(GetInventoryAdjAccountNo(ItemNo), GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * CostAmt, not RedStorno);
         VerifyGLEntries(GetInventoryAccountNoFilter(ItemNo), GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * CostAmt, RedStorno);
@@ -530,7 +530,7 @@ codeunit 144006 "ERM Item Storno"
         CreateInvPostingSetup(Item."Inventory Posting Group");
 
         CreateAndPostItemJournalLine(
-          ItemJnlLine."Entry Type"::"Positive Adjmt.", 0, Item."No.", CalcDate('<-1D>', WorkDate),
+          ItemJnlLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", Item."No.", CalcDate('<-1D>', WorkDate),
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2), 0, false);
 
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -539,7 +539,7 @@ codeunit 144006 "ERM Item Storno"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndPostItemJournalLine(EntryType: Option; CorrectedEntryType: Option; ItemNo: Code[20]; PostingDate: Date; Quantity: Decimal; CostAmt: Decimal; ApplyEntryNo: Integer; RedStorno: Boolean)
+    local procedure CreateAndPostItemJournalLine(EntryType: Enum "Item Ledger Entry Type"; CorrectedEntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; PostingDate: Date; Quantity: Decimal; CostAmt: Decimal; ApplyEntryNo: Integer; RedStorno: Boolean)
     var
         ItemJnlLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -575,7 +575,7 @@ codeunit 144006 "ERM Item Storno"
         CODEUNIT.Run(CODEUNIT::"Item Doc.-Post (Yes/No)", ItemDocumentHeader);
     end;
 
-    local procedure CreateAndPostSalesDocument(DocumentType: Option; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal): Code[20]
+    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
         Customer: Record Customer;
@@ -588,7 +588,7 @@ codeunit 144006 "ERM Item Storno"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateAndPostPurchDocument(DocumentType: Option; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal): Code[20]
+    local procedure CreateAndPostPurchDocument(DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
@@ -629,7 +629,7 @@ codeunit 144006 "ERM Item Storno"
         ItemJnlLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
     begin
-        InitItemJournalLine(ItemJnlLine, ItemJournalTemplate.Type::Transfer);
+        InitItemJournalLine(ItemJnlLine, "Item Journal Template Type"::Transfer);
         LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name",
           ItemJnlLine."Entry Type"::Transfer, ItemNo, 0);
@@ -646,7 +646,7 @@ codeunit 144006 "ERM Item Storno"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
 
-    local procedure InitItemJournalLine(var ItemJnlLine: Record "Item Journal Line"; Type: Option)
+    local procedure InitItemJournalLine(var ItemJnlLine: Record "Item Journal Line"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -716,7 +716,7 @@ codeunit 144006 "ERM Item Storno"
         DecreaseQuantityInSalesLine(SalesHeader);
     end;
 
-    local procedure CreateRevSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; CorrectedDocType: Option; CorrectedDocNo: Code[20])
+    local procedure CreateRevSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CorrectedDocType: Option; CorrectedDocNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         with SalesHeader do begin
@@ -730,7 +730,7 @@ codeunit 144006 "ERM Item Storno"
         end;
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date; NewCorrection: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PostingDate: Date; NewCorrection: Boolean)
     begin
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
@@ -749,7 +749,7 @@ codeunit 144006 "ERM Item Storno"
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesInvoiceHeader."Sell-to Customer No.", PostingDate, Correction);
 
-        LibrarySales.CopySalesDocument(SalesHeader, DocTypeRef::"Posted Invoice", InvoiceNo, false, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", InvoiceNo, false, false);
         UpdateApplyEntryNoForSalesLine(SalesHeader, ApplyEntryNo);
 
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -764,7 +764,7 @@ codeunit 144006 "ERM Item Storno"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; PostingDate: Date; VendorNo: Code[20]; NewCorrection: Boolean)
+    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date; VendorNo: Code[20]; NewCorrection: Boolean)
     begin
         with PurchaseHeader do begin
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
@@ -793,13 +793,13 @@ codeunit 144006 "ERM Item Storno"
         CreatePurchDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PostingDate, PurchInvHeader."Buy-from Vendor No.", Correction);
 
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocTypeRef::"Posted Invoice", InvoiceNo, false, false);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", InvoiceNo, false, false);
         UpdateApplyEntryNoForPurchLine(PurchaseHeader."Document Type", PurchaseHeader."No.", ApplyEntryNo);
 
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure UpdateApplyEntryNoForPurchLine(DocumentType: Option; DocumentNo: Code[20]; ApplyEntryNo: Integer)
+    local procedure UpdateApplyEntryNoForPurchLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; ApplyEntryNo: Integer)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1005,7 +1005,7 @@ codeunit 144006 "ERM Item Storno"
         CorrectionType: Option "Original Item","Item Charge";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceNo);
-        CorrectiveDocumentMgt.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+        CorrectiveDocumentMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         CorrectiveDocumentMgt.SetCorrectionType(CorrectionType::"Original Item");
         CorrectiveDocumentMgt.CreateSalesLinesFromPstdInv(SalesInvoiceLine);
     end;
@@ -1025,7 +1025,7 @@ codeunit 144006 "ERM Item Storno"
         end;
     end;
 
-    local procedure VerifyValueEntryRedStorno(ItemNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; RedStorno: Boolean)
+    local procedure VerifyValueEntryRedStorno(ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; RedStorno: Boolean)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -1079,7 +1079,7 @@ codeunit 144006 "ERM Item Storno"
         end;
     end;
 
-    local procedure CalcSign(var CorrSign: Integer; var ExpectedSign: Integer; EntryType: Option; RedStorno: Boolean)
+    local procedure CalcSign(var CorrSign: Integer; var ExpectedSign: Integer; EntryType: Enum "Item Ledger Entry Type"; RedStorno: Boolean)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1116,11 +1116,11 @@ codeunit 144006 "ERM Item Storno"
         end;
         case CorrDocType of
             ItemDocHeader."Document Type"::Receipt:
-                CorrEntryType := ItemJournalLine."Entry Type"::"Positive Adjmt.";
+                CorrEntryType := ItemJournalLine."Entry Type"::"Positive Adjmt.".AsInteger();
             ItemDocHeader."Document Type"::Shipment:
-                CorrEntryType := ItemJournalLine."Entry Type"::"Negative Adjmt.";
+                CorrEntryType := ItemJournalLine."Entry Type"::"Negative Adjmt.".AsInteger();
         end;
-        Sorting := CorrEntryType = ItemJournalLine."Entry Type"::"Negative Adjmt.";
+        Sorting := CorrEntryType = ItemJournalLine."Entry Type"::"Negative Adjmt.".AsInteger();
     end;
 
     [ConfirmHandler]

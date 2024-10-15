@@ -93,7 +93,7 @@ page 12475 "FA Release Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)

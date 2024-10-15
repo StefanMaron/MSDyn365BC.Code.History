@@ -39,7 +39,7 @@ page 8903 "Manufacturing Manager RC"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Calculate Low-Level Code';
-                    RunObject = codeunit "Calc. Low-level code";
+                    RunObject = report "Calculate Low Level Code";
                 }
                 group("Group1")
                 {

@@ -303,7 +303,7 @@ page 12409 "Posted Gen. Journals"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }
@@ -314,7 +314,7 @@ page 12409 "Posted Gen. Journals"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

@@ -419,7 +419,7 @@ codeunit 134063 "ERM Intrastat Reports"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Intrastat Reports");
     end;
 
-    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Option; TransactionType: Code[10]; TransportMethod: Code[10]; CountryRegionCode: Code[10])
+    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; TransactionType: Code[10]; TransportMethod: Code[10]; CountryRegionCode: Code[10])
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -434,7 +434,7 @@ codeunit 134063 "ERM Intrastat Reports"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20]; TransactionType: Code[10]; TransportMethod: Code[10])
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; TransactionType: Code[10]; TransportMethod: Code[10])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -454,7 +454,7 @@ codeunit 134063 "ERM Intrastat Reports"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; TransactionType: Code[10]; TransportMethod: Code[10])
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; TransactionType: Code[10]; TransportMethod: Code[10])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -466,7 +466,7 @@ codeunit 134063 "ERM Intrastat Reports"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-    local procedure CreateAndPostSalesDocumentWithUnitPrice(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; TransactionType: Code[10]; TransportMethod: Code[10]; UnitPrice: Decimal)
+    local procedure CreateAndPostSalesDocumentWithUnitPrice(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; TransactionType: Code[10]; TransportMethod: Code[10]; UnitPrice: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -478,7 +478,7 @@ codeunit 134063 "ERM Intrastat Reports"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; TransactionType: Code[10]; TransportMethod: Code[10])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; TransactionType: Code[10]; TransportMethod: Code[10])
     begin
         // Create Sales Document with Random Quantity and Unit Price.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
@@ -600,14 +600,14 @@ codeunit 134063 "ERM Intrastat Reports"
         exit(Item."Tariff No.");
     end;
 
-    local procedure PostTwoSalesDocuments(var SalesLine: Record "Sales Line"; DocumentType: Option; var Quantity: Decimal)
+    local procedure PostTwoSalesDocuments(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; var Quantity: Decimal)
     begin
         CreateAndPostSalesDocument(SalesLine, DocumentType, CreateItem, GetTransactionType, GetTransportMethod);
         Quantity := SalesLine.Quantity;
         CreateAndPostSalesDocument(SalesLine, DocumentType, SalesLine."No.", '', '');
     end;
 
-    local procedure PostTwoPurchaseDocuments(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; var Quantity: Decimal)
+    local procedure PostTwoPurchaseDocuments(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; var Quantity: Decimal)
     begin
         CreateAndPostPurchaseDocument(PurchaseLine, DocumentType, CreateItem, GetTransactionType, GetTransportMethod);
         Quantity := PurchaseLine.Quantity;

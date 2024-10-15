@@ -1456,7 +1456,7 @@ codeunit 144001 "ERM RU - Base"
         GenJournalLine.Modify();
     end;
 
-    local procedure InitVATLedgerLine(var VATLedgerLine: Record "VAT Ledger Line"; CVType: Option; IsPrepayment: Boolean; DocumentType: Option)
+    local procedure InitVATLedgerLine(var VATLedgerLine: Record "VAT Ledger Line"; CVType: Option; IsPrepayment: Boolean; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with VATLedgerLine do begin
             Init;
@@ -1501,7 +1501,7 @@ codeunit 144001 "ERM RU - Base"
         end;
     end;
 
-    local procedure CreateSalesDocWithDiffSellToShipToBillTo(var SalesHeader: Record "Sales Header"; var SellToCustomerNo: Code[20]; var ShipToCustomerNo: Code[20]; var BillToCustomerNo: Code[20]; DocumentType: Option)
+    local procedure CreateSalesDocWithDiffSellToShipToBillTo(var SalesHeader: Record "Sales Header"; var SellToCustomerNo: Code[20]; var ShipToCustomerNo: Code[20]; var BillToCustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         ShipToCustomer: Record Customer;
@@ -1523,7 +1523,7 @@ codeunit 144001 "ERM RU - Base"
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
     end;
 
-    local procedure CreatePostSalesDocWithDiffSellToShipToBillTo(var SellToCustomerNo: Code[20]; var ShipToCustomerNo: Code[20]; var BillToCustomerNo: Code[20]; DocumentType: Option): Code[20]
+    local procedure CreatePostSalesDocWithDiffSellToShipToBillTo(var SellToCustomerNo: Code[20]; var ShipToCustomerNo: Code[20]; var BillToCustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1679,22 +1679,22 @@ codeunit 144001 "ERM RU - Base"
         Assert.AreEqual(
           IsEAEUItem1,
           LocalReportMgt.IsEAEUItem_ValueEntry(
-            DummyValueEntry."Document Type", SalesInvoiceLine[1]."Document No.", SalesInvoiceLine[1]."Line No."),
+            DummyValueEntry."Document Type".AsInteger(), SalesInvoiceLine[1]."Document No.", SalesInvoiceLine[1]."Line No."),
           '');
         Assert.AreEqual(
           IsEAEUItem2,
           LocalReportMgt.IsEAEUItem_ValueEntry(
-            DummyValueEntry."Document Type", SalesInvoiceLine[2]."Document No.", SalesInvoiceLine[2]."Line No."),
+            DummyValueEntry."Document Type".AsInteger(), SalesInvoiceLine[2]."Document No.", SalesInvoiceLine[2]."Line No."),
           '');
         Assert.AreEqual(
           IsEAEUItem3,
           LocalReportMgt.IsEAEUItem_ValueEntry(
-            DummyValueEntry."Document Type", SalesInvoiceLine[3]."Document No.", SalesInvoiceLine[3]."Line No."),
+            DummyValueEntry."Document Type".AsInteger(), SalesInvoiceLine[3]."Document No.", SalesInvoiceLine[3]."Line No."),
           '');
         Assert.AreEqual(
           IsEAEUItem4,
           LocalReportMgt.IsEAEUItem_ValueEntry(
-            DummyValueEntry."Document Type", SalesInvoiceLine[4]."Document No.", SalesInvoiceLine[4]."Line No."),
+            DummyValueEntry."Document Type".AsInteger(), SalesInvoiceLine[4]."Document No.", SalesInvoiceLine[4]."Line No."),
           '');
     end;
 
@@ -1707,22 +1707,22 @@ codeunit 144001 "ERM RU - Base"
         Assert.AreEqual(
           IsEAEUItem1,
           LocalReportMgt.IsEAEUItem_ValueEntry(
-            DummyValueEntry."Document Type", SalesCrMemoLine[1]."Document No.", SalesCrMemoLine[1]."Line No."),
+            DummyValueEntry."Document Type".AsInteger(), SalesCrMemoLine[1]."Document No.", SalesCrMemoLine[1]."Line No."),
           '');
         Assert.AreEqual(
           IsEAEUItem2,
           LocalReportMgt.IsEAEUItem_ValueEntry(
-            DummyValueEntry."Document Type", SalesCrMemoLine[2]."Document No.", SalesCrMemoLine[2]."Line No."),
+            DummyValueEntry."Document Type".AsInteger(), SalesCrMemoLine[2]."Document No.", SalesCrMemoLine[2]."Line No."),
           '');
         Assert.AreEqual(
           IsEAEUItem3,
           LocalReportMgt.IsEAEUItem_ValueEntry(
-            DummyValueEntry."Document Type", SalesCrMemoLine[3]."Document No.", SalesCrMemoLine[3]."Line No."),
+            DummyValueEntry."Document Type".AsInteger(), SalesCrMemoLine[3]."Document No.", SalesCrMemoLine[3]."Line No."),
           '');
         Assert.AreEqual(
           IsEAEUItem4,
           LocalReportMgt.IsEAEUItem_ValueEntry(
-            DummyValueEntry."Document Type", SalesCrMemoLine[4]."Document No.", SalesCrMemoLine[4]."Line No."),
+            DummyValueEntry."Document Type".AsInteger(), SalesCrMemoLine[4]."Document No.", SalesCrMemoLine[4]."Line No."),
           '');
     end;
 

@@ -81,7 +81,7 @@ page 17460 "Other Absence Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

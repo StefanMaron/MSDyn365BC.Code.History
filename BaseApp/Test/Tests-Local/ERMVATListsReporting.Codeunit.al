@@ -566,7 +566,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
 
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         CustomerPostingGroup.Validate(
-          "Prepayment Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2));
+          "Prepayment Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale));
         CustomerPostingGroup.Modify(true);
 
         exit(Customer."No.");
@@ -629,7 +629,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
           CustLedgEntry."Document Type"::Invoice, InvoiceDocNo);
     end;
 
-    local procedure ValidateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; VendVATInvDate: Date; VendVATInvRcvdDate: Date)
+    local procedure ValidateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; VendVATInvDate: Date; VendVATInvRcvdDate: Date)
     begin
         Assert.IsTrue(
           VendorLedgerEntry.FindFirst,

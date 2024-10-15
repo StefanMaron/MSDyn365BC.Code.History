@@ -934,7 +934,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreatePurchLine(PurchHeader, GLAccountNo, DirectUnitCost);
     end;
 
-    local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Option; PostingDate: Date; VendorNo: Code[20])
+    local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; PostingDate: Date; VendorNo: Code[20])
     begin
         with PurchHeader do begin
             LibraryPurch.CreatePurchHeader(PurchHeader, DocType, VendorNo);
@@ -1067,7 +1067,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
           CorrNo, CorrDate, RevNo, RevDate, RevOfCorrNo, RevOfCorrDate);
     end;
 
-    local procedure VerifyDocVATLedgerLine(IsAddSheet: Boolean; VATLEdgerType: Option; VATLedgerCode: Code[20]; CVNo: Code[20]; DocType: Option; DocNo: Code[20]; DocDate: Date; CorrNo: Code[20]; CorrDate: Date; RevNo: Code[20]; RevDate: Date; RevOfCorrNo: Code[20]; RevOfCorrDate: Date)
+    local procedure VerifyDocVATLedgerLine(IsAddSheet: Boolean; VATLEdgerType: Option; VATLedgerCode: Code[20]; CVNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; DocDate: Date; CorrNo: Code[20]; CorrDate: Date; RevNo: Code[20]; RevDate: Date; RevOfCorrNo: Code[20]; RevOfCorrDate: Date)
     var
         VATLedgerLine: Record "VAT Ledger Line";
     begin

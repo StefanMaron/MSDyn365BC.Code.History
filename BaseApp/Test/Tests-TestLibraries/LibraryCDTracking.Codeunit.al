@@ -75,7 +75,7 @@ codeunit 143010 "Library - CD Tracking"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateJnlLine(JnlTemplateName: Code[30]; JnlBatchName: Code[30]; JnlBatchSeries: Code[30]; var ItemJnlLine: Record "Item Journal Line"; EntryType: Option; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
+    procedure CreateJnlLine(JnlTemplateName: Code[30]; JnlBatchName: Code[30]; JnlBatchSeries: Code[30]; var ItemJnlLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
     var
         LineNo: Integer;
     begin
@@ -101,20 +101,19 @@ codeunit 143010 "Library - CD Tracking"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Option; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
+    procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
     var
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlBatch: Record "Item Journal Batch";
-        ItemJournalTemplateType: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod.Order";
     begin
-        FindItemJnlTemplate(ItemJnlTemplate, ItemJournalTemplateType::Item);
-        FindItemJnlBatch(ItemJnlBatch, ItemJournalTemplateType, ItemJnlTemplate.Name);
+        FindItemJnlTemplate(ItemJnlTemplate, "Item Journal Template Type"::Item);
+        FindItemJnlBatch(ItemJnlBatch, "Item Journal Template Type"::Item.AsInteger(), ItemJnlTemplate.Name);
         CreateJnlLine(ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJnlBatch."No. Series",
           ItemJnlLine, EntryType, PostingDate, ItemNo, Qty, LocationCode);
     end;
 
     [Scope('OnPrem')]
-    procedure CreateItemRecLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Option; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
+    procedure CreateItemRecLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
     var
         ItemJnlBatch: Record "Item Journal Batch";
         WhseJnlTemplate: Record "Warehouse Journal Template";
@@ -136,7 +135,7 @@ codeunit 143010 "Library - CD Tracking"
     end;
 
     [Scope('OnPrem')]
-    procedure FindItemJnlTemplate(var ItemJournalTemplate: Record "Item Journal Template"; ItemJournalTemplateType: Option)
+    procedure FindItemJnlTemplate(var ItemJournalTemplate: Record "Item Journal Template"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     begin
         // Find Item Journal Template for the given Template Type.
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplateType);
@@ -515,7 +514,7 @@ codeunit 143010 "Library - CD Tracking"
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.CopyDocTrkgFromReservation(DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.", HideDialog);
+        ItemTrackingDocMgt.CopyDocTrkgFromReservation(DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", HideDialog);
     end;
 
     [Scope('OnPrem')]
@@ -541,7 +540,7 @@ codeunit 143010 "Library - CD Tracking"
     end;
 
     [Scope('OnPrem')]
-    procedure CheckReservationEntry(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; ItemNo: Code[20]; LocationCode: Code[10]; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal; ResStatus: Option Reservation,Tracking,Surplus,Prospect): Boolean
+    procedure CheckReservationEntry(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; ItemNo: Code[20]; LocationCode: Code[10]; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal; ResStatus: Enum "Reservation Status"): Boolean
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -573,7 +572,7 @@ codeunit 143010 "Library - CD Tracking"
     end;
 
     [Scope('OnPrem')]
-    procedure CheckSalesReservationEntry(SalesLine: Record "Sales Line"; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal; ResStatus: Option Reservation,Tracking,Surplus,Prospect): Boolean
+    procedure CheckSalesReservationEntry(SalesLine: Record "Sales Line"; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal; ResStatus: Enum "Reservation Status"): Boolean
     begin
         // look for the reservation entry for sales line
         // within filters by
@@ -583,7 +582,7 @@ codeunit 143010 "Library - CD Tracking"
         // and check quantity
         CheckReservationEntry(
           DATABASE::"Sales Line",
-          SalesLine."Document Type",
+          SalesLine."Document Type".AsInteger(),
           SalesLine."Document No.",
           SalesLine."Line No.",
           SalesLine."No.",
@@ -596,7 +595,7 @@ codeunit 143010 "Library - CD Tracking"
     end;
 
     [Scope('OnPrem')]
-    procedure CheckPurchReservationEntry(PurchaseLine: Record "Purchase Line"; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal; ResStatus: Option Reservation,Tracking,Surplus,Prospect): Boolean
+    procedure CheckPurchReservationEntry(PurchaseLine: Record "Purchase Line"; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal; ResStatus: Enum "Reservation Status"): Boolean
     begin
         // look for the reservation entry for purchase line
         // within filters by
@@ -606,7 +605,7 @@ codeunit 143010 "Library - CD Tracking"
         // and check quantity
         CheckReservationEntry(
           DATABASE::"Purchase Line",
-          PurchaseLine."Document Type",
+          PurchaseLine."Document Type".AsInteger(),
           PurchaseLine."Document No.",
           PurchaseLine."Line No.",
           PurchaseLine."No.",
@@ -619,7 +618,7 @@ codeunit 143010 "Library - CD Tracking"
     end;
 
     [Scope('OnPrem')]
-    procedure CheckItemDocReservationEntry(ItemDocumentLine: Record "Item Document Line"; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal; ResStatus: Option Reservation,Tracking,Surplus,Prospect): Boolean
+    procedure CheckItemDocReservationEntry(ItemDocumentLine: Record "Item Document Line"; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal; ResStatus: Enum "Reservation Status"): Boolean
     begin
         // look for the reservation entry for item document line
         // within filters by
@@ -643,11 +642,9 @@ codeunit 143010 "Library - CD Tracking"
 
     local procedure UpdateCDReservation(var ReservationEntry: Record "Reservation Entry"; CDNo: Code[30])
     begin
-        with ReservationEntry do begin
-            "CD No." := CDNo;
-            "Item Tracking" := ItemTrackingMgt.ItemTrackingOption("Lot No.", "Serial No.", "CD No.");
-            Modify;
-        end;
+        ReservationEntry."CD No." := CDNo;
+        ReservationEntry."Item Tracking" := ReservationEntry.GetItemTrackingEntryType();
+        ReservationEntry.Modify();
     end;
 
     [Scope('OnPrem')]

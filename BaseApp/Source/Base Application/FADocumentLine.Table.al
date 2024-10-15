@@ -220,7 +220,7 @@ table 12477 "FA Document Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

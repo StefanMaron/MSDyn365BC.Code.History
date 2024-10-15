@@ -128,7 +128,7 @@ page 12480 "Posted FA Movement Act"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -150,7 +150,7 @@ page 12480 "Posted FA Movement Act"
             action("&Navigate")
             {
                 ApplicationArea = FixedAssets;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

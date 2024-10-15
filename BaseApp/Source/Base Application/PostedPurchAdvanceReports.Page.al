@@ -250,7 +250,7 @@ page 35611 "Posted Purch. Advance Reports"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -276,7 +276,7 @@ page 35611 "Posted Purch. Advance Reports"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

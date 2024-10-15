@@ -325,7 +325,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         PostedCrMFacturaInvoice.Run;
     end;
 
-    local procedure CreatePostSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option): Code[20]
+    local procedure CreatePostSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocType, 0);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -346,7 +346,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         exit(SalesCrMemoHeader."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Option; PrepmtPct: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PrepmtPct: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin

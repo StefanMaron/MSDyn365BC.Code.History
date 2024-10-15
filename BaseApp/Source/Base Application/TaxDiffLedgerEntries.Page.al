@@ -184,7 +184,7 @@ page 17307 "Tax Diff. Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -194,7 +194,7 @@ page 17307 "Tax Diff. Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

@@ -428,7 +428,7 @@ codeunit 134010 "ERM Application Customer"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
-    local procedure CustomerRealizedAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
+    local procedure CustomerRealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
     var
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -471,7 +471,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCustomerWatch.AssertCustomer;
     end;
 
-    local procedure CustomerUnrealizedAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
+    local procedure CustomerUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
     var
         Currency: Record Currency;
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -506,7 +506,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCustomerWatch.AssertCustomer;
     end;
 
-    local procedure CustomerInvPmt(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure CustomerInvPmt(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -520,8 +520,8 @@ codeunit 134010 "ERM Application Customer"
 
         // Setup basic application watches
         LibraryERMCustomerWatch.Init();
-        LibraryERMCustomerWatch.EntriesEqual(Customer."No.", InvType, -Amount);
-        LibraryERMCustomerWatch.EntriesEqual(Customer."No.", PmtType, Amount);
+        LibraryERMCustomerWatch.EntriesEqual(Customer."No.", InvType.AsInteger(), -Amount);
+        LibraryERMCustomerWatch.EntriesEqual(Customer."No.", PmtType.AsInteger(), Amount);
         LibraryERMCustomerWatch.DtldEntriesEqual(Customer."No.", DtldCustLedgEntry."Entry Type"::"Initial Entry", 0);
         LibraryERMCustomerWatch.DtldEntriesGreaterThan(Customer."No.", DtldCustLedgEntry."Entry Type"::Application, 0);
 
@@ -532,7 +532,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCustomerWatch.AssertCustomer;
     end;
 
-    local procedure CustomerInvPmtDisc(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure CustomerInvPmtDisc(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -557,7 +557,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCustomerWatch.AssertCustomer;
     end;
 
-    local procedure CustomerInvPmtVAT(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure CustomerInvPmtVAT(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -580,8 +580,8 @@ codeunit 134010 "ERM Application Customer"
 
         // Try out Customer watch
         LibraryERMCustomerWatch.Init();
-        LibraryERMCustomerWatch.EntriesEqual(Customer."No.", InvType, -Amount);
-        LibraryERMCustomerWatch.EntriesEqual(Customer."No.", PmtType, Amount);
+        LibraryERMCustomerWatch.EntriesEqual(Customer."No.", InvType.AsInteger(), -Amount);
+        LibraryERMCustomerWatch.EntriesEqual(Customer."No.", PmtType.AsInteger(), Amount);
         LibraryERMCustomerWatch.DtldEntriesEqual(Customer."No.", DtldCustLedgEntry."Entry Type"::"Initial Entry", 0);
         LibraryERMCustomerWatch.DtldEntriesGreaterThan(Customer."No.", DtldCustLedgEntry."Entry Type"::Application, 0);
 
@@ -592,7 +592,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCustomerWatch.AssertCustomer;
     end;
 
-    local procedure CustomerInvPmtCorrection(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure CustomerInvPmtCorrection(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -653,7 +653,7 @@ codeunit 134010 "ERM Application Customer"
         VerifyCustomerEntriesClosed(CustLedgerEntry);
     end;
 
-    local procedure GenerateDocument(GenJournalBatch: Record "Gen. Journal Batch"; Customer: Record Customer; PmtType: Option; InvType: Option; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; PmtCurrencyCode: Code[10]; InvCurrencyCode: Code[10]): Text[30]
+    local procedure GenerateDocument(GenJournalBatch: Record "Gen. Journal Batch"; Customer: Record Customer; PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; PmtCurrencyCode: Code[10]; InvCurrencyCode: Code[10]): Text[30]
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
@@ -689,7 +689,7 @@ codeunit 134010 "ERM Application Customer"
         Customer.Modify(true);
     end;
 
-    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; PmtOffset: Text[30]; CurrencyCode: Code[10]; DocNo: Code[20]; Description: Text[30]): Code[20]
+    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; PmtOffset: Text[30]; CurrencyCode: Code[10]; DocNo: Code[20]; Description: Text[30]): Code[20]
     var
         DateOffset: DateFormula;
     begin
@@ -923,7 +923,7 @@ codeunit 134010 "ERM Application Customer"
         exit(PaymentTerms.Code);
     end;
 
-    local procedure GetGLBalancedBatch(var GenJnlTemplate: Record "Gen. Journal Template"; var GenJnlBatch: Record "Gen. Journal Batch"; TemplateType: Option)
+    local procedure GetGLBalancedBatch(var GenJnlTemplate: Record "Gen. Journal Template"; var GenJnlBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
     begin
         // Find template type.
         GenJnlTemplate.SetFilter(Type, Format(TemplateType));

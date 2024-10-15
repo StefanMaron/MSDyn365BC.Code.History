@@ -292,7 +292,7 @@ table 14925 "VAT Allocation Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

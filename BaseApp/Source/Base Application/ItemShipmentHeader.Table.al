@@ -101,7 +101,7 @@ table 12454 "Item Shipment Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

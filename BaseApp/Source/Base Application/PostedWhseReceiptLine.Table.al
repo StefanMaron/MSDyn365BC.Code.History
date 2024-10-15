@@ -37,12 +37,10 @@ table 7319 "Posted Whse. Receipt Line"
             Caption = 'Source Line No.';
             Editable = false;
         }
-        field(9; "Source Document"; Option)
+        field(9; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             Caption = 'Source Document';
             Editable = false;
-            OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer';
-            OptionMembers = ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer";
         }
         field(10; "Location Code"; Code[10])
         {
@@ -99,7 +97,7 @@ table 7319 "Posted Whse. Receipt Line"
         }
         field(27; "Put-away Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = CONST("Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = CONST("Put-away"),
                                                                                   "Whse. Document Type" = CONST(Receipt),
                                                                                   "Whse. Document No." = FIELD("No."),
                                                                                   "Whse. Document Line No." = FIELD("Line No."),
@@ -113,7 +111,7 @@ table 7319 "Posted Whse. Receipt Line"
         }
         field(28; "Put-away Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = CONST("Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = CONST("Put-away"),
                                                                                          "Whse. Document Type" = CONST(Receipt),
                                                                                          "Whse. Document No." = FIELD("No."),
                                                                                          "Whse. Document Line No." = FIELD("Line No."),
@@ -182,11 +180,9 @@ table 7319 "Posted Whse. Receipt Line"
             Caption = 'Cross-Dock Bin Code';
             TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
         }
-        field(60; "Posted Source Document"; Option)
+        field(60; "Posted Source Document"; Enum "Warehouse Shipment Posted Source Document")
         {
             Caption = 'Posted Source Document';
-            OptionCaption = ' ,Posted Receipt,,Posted Return Receipt,,Posted Shipment,,Posted Return Shipment,,Posted Transfer Receipt';
-            OptionMembers = " ","Posted Receipt",,"Posted Return Receipt",,"Posted Shipment",,"Posted Return Shipment",,"Posted Transfer Receipt";
         }
         field(61; "Posted Source No."; Code[20])
         {
@@ -284,8 +280,10 @@ table 7319 "Posted Whse. Receipt Line"
 
     var
         Location: Record Location;
-        HideValidationDialog: Boolean;
         Text000: Label 'Nothing to handle.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
@@ -344,7 +342,6 @@ table 7319 "Posted Whse. Receipt Line"
     begin
         "Serial No." := WhseItemEntryRelation."Serial No.";
         "Lot No." := WhseItemEntryRelation."Lot No.";
-        "CD No." := WhseItemEntryRelation."CD No.";
 
         OnAfterCopyTrackingFromWhseItemEntryRelation(rec, WhseItemEntryRelation);
     end;
@@ -353,7 +350,6 @@ table 7319 "Posted Whse. Receipt Line"
     begin
         "Serial No." := WhseItemTrackingLine."Serial No.";
         "Lot No." := WhseItemTrackingLine."Lot No.";
-        "CD No." := WhseItemTrackingLine."CD No.";
 
         OnAfterCopyTrackingFromWhseItemTrackingLine(rec, WhseItemTrackingLine);
     end;
@@ -366,6 +362,7 @@ table 7319 "Posted Whse. Receipt Line"
         WhseManagement.SetSourceFilterForPostedWhseRcptLine(Rec, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 
+    [Obsolete('Replaced by CopyTrackingFrom procedures.', '17.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; WarrantyDate: Date; ExpirationDate: Date)
     begin
         "Serial No." := SerialNo;
@@ -379,7 +376,6 @@ table 7319 "Posted Whse. Receipt Line"
     begin
         SetRange("Serial No.", ItemLedgEntry."Serial No.");
         SetRange("Lot No.", ItemLedgEntry."Lot No.");
-        SetRange("CD No.", ItemLedgEntry."CD No.");
 
         OnAfterSetTrackingFilterFromItemLedgEntry(rec, ItemLedgEntry);
     end;
@@ -388,7 +384,6 @@ table 7319 "Posted Whse. Receipt Line"
     begin
         SetRange("Serial No.", WhseItemEntryRelation."Serial No.");
         SetRange("Lot No.", WhseItemEntryRelation."Lot No.");
-        SetRange("CD No.", WhseItemEntryRelation."CD No.");
 
         OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
     end;

@@ -247,7 +247,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         CreateVendorJournalLines.UseRequestPage(false);
         Vendor.SetRange("No.", Vendor."No.");
         CreateVendorJournalLines.SetTableView(Vendor);
-        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice, WorkDate, WorkDate);
+        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, WorkDate);
         CreateVendorJournalLines.InitializeRequestTemplate(
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, StandardGeneralJournal.Code);
         CreateVendorJournalLines.Run;
@@ -328,7 +328,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryJournals.CreateGenJournalLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account",
-          CreateGLAccountNoPurchase, 0, '', LibraryRandom.RandDec(100, 2));
+          CreateGLAccountNoPurchase, "Gen. Journal document Type"::" ", '', LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bill-to/Pay-to No.", '');
         GenJournalLine.Modify();
         DocumentNo := GenJournalLine."Document No.";
@@ -337,7 +337,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryJournals.CreateGenJournalLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, 0, '', -GenJournalLine.Amount);
+          LibrarySales.CreateCustomerNo, "Gen. Journal document Type"::" ", '', -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Modify();
 
@@ -365,7 +365,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryJournals.CreateGenJournalLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account",
-          CreateGLAccountNoSales, 0, '', -LibraryRandom.RandDec(100, 2));
+          CreateGLAccountNoSales, "Gen. Journal document Type"::" ", '', -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bill-to/Pay-to No.", '');
         GenJournalLine.Modify();
         DocumentNo := GenJournalLine."Document No.";
@@ -374,7 +374,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryJournals.CreateGenJournalLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, 0, '', -GenJournalLine.Amount);
+          LibraryPurchase.CreateVendorNo, "Gen. Journal document Type"::" ", '', -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Modify();
 
@@ -389,8 +389,8 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     [Scope('OnPrem')]
     procedure LinearComplexityCOD13_CheckAndCopyBalancingData()
     var
-        NoOfLines: array [3] of Integer;
-        NoOfHits: array [3] of Integer;
+        NoOfLines: array[3] of Integer;
+        NoOfHits: array[3] of Integer;
     begin
         // [FEATURE] [Performance]
         // [SCENARIO 277260] CheckAndCopyBalancingData function iterates Gen. Journal Lines with linear complexity
@@ -413,7 +413,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     [Scope('OnPrem')]
     procedure CheckMultipleLineGenPostingTypeFirst()
     var
-        GLAccount: array [2] of Record "G/L Account";
+        GLAccount: array[2] of Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -455,7 +455,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     [Scope('OnPrem')]
     procedure CheckMultipleLineGenPostingTypeLast()
     var
-        GLAccount: array [2] of Record "G/L Account";
+        GLAccount: array[2] of Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -497,7 +497,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     [Scope('OnPrem')]
     procedure CheckMultipleLineGenPostingTypeSwap()
     var
-        GLAccount: array [2] of Record "G/L Account";
+        GLAccount: array[2] of Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -551,7 +551,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         Commit();
     end;
 
-    local procedure CreateAndCheckEqualAmount(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure CreateAndCheckEqualAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
@@ -566,7 +566,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine.Delete(true);
     end;
 
-    local procedure CreateAndCheckLessAmount(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure CreateAndCheckLessAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -587,7 +587,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine.Delete(true);
     end;
 
-    local procedure CreatePostAndApplyGeneralLine(var GenJournalLine2: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; Amount: Decimal): Code[20]
+    local procedure CreatePostAndApplyGeneralLine(var GenJournalLine2: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -605,7 +605,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateGenAndFindVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure CreateGenAndFindVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
@@ -627,7 +627,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateAndSetAppliesToIDOnGen(DocumentType: Option; Amount: Decimal)
+    local procedure CreateAndSetAppliesToIDOnGen(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -644,7 +644,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         VerifyAmountToApplyVendorEntry(GenJournalLine."Document No.", GenJournalLine.Amount, DocumentType);
     end;
 
-    local procedure CreateAndPostGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; Amount: Decimal)
+    local procedure CreateAndPostGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         Vendor: Record Vendor;
     begin
@@ -658,7 +658,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal);
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal);
     begin
         LibraryERM.CreateGeneralJnlLine(
             GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -683,7 +683,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJnlLineWithBalAcc(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreateGeneralJnlLineWithBalAcc(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -719,7 +719,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         end;
     end;
 
-    local procedure CreateAndUpdateGLAccountWithVATPostingSetup(var GLAccount: Record "G/L Account"; GenPostingType: Option)
+    local procedure CreateAndUpdateGLAccountWithVATPostingSetup(var GLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -753,7 +753,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
               GenJournalLine."Document Type"::" ",
               GenJournalLine."Account Type"::Customer, CustomerNo,
-              0, '',
+              "Gen. Journal account Type"::"G/L Account", '',
               LibraryRandom.RandDec(100, 2));
 
             GenJournalLine."Document No." := DocumentNo;
@@ -763,8 +763,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
               GenJournalLine."Document Type"::" ",
               GenJournalLine."Account Type"::"G/L Account", GLAccountNo,
-              0, '',
-              -GenJournalLine.Amount);
+              "Gen. Journal document Type"::" ", '', -GenJournalLine.Amount);
 
             GenJournalLine."Document No." := DocumentNo;
             GenJournalLine.Modify(true);
@@ -789,7 +788,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.UseRequestPage(false);
-        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice, WorkDate, WorkDate);
+        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, WorkDate);
         CreateVendorJournalLines.InitializeRequestTemplate(JournalTemplate, BatchName, TemplateCode);
         CreateVendorJournalLines.Run;
     end;
@@ -823,7 +822,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
             VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."), StrSubstNo(GetLastErrorText), ValidationError);
     end;
 
-    local procedure VerifyAmountToApplyVendorEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Option)
+    local procedure VerifyAmountToApplyVendorEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -870,4 +869,3 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     begin
     end;
 }
-

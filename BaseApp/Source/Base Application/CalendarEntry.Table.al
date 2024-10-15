@@ -271,7 +271,7 @@ table 99000757 "Calendar Entry"
                       "Ending Time",
                       CalendarEntry."Starting Time",
                       CalendarEntry."Ending Time");
-            until CalendarEntry.Next = 0;
+            until CalendarEntry.Next() = 0;
     end;
 
     local procedure CalculateCapacity()
@@ -328,9 +328,18 @@ table 99000757 "Calendar Entry"
         CurrDate := DT2Date("Ending Date-Time");
     end;
 
+    [Obsolete('Replaced CapType from Option to Enum.','17.0')]
     procedure SetCapacityFilters(CapType: Option; CapNo: Code[20])
     begin
-        Reset;
+        Reset();
+        SetCurrentKey("Capacity Type", "No.", "Starting Date-Time", "Ending Date-Time");
+        SetRange("Capacity Type", CapType);
+        SetRange("No.", CapNo);
+    end;
+
+    procedure SetCapacityFilters(CapType: Enum "Capacity Type"; CapNo: Code[20])
+    begin
+        Reset();
         SetCurrentKey("Capacity Type", "No.", "Starting Date-Time", "Ending Date-Time");
         SetRange("Capacity Type", CapType);
         SetRange("No.", CapNo);

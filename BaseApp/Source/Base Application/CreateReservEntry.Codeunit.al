@@ -36,7 +36,7 @@
 
         // Status Surplus gets special treatment.
 
-        if Status < Status::Surplus then
+        if (Status = Status::Reservation) or (Status = Status::Tracking) then
             if InsertReservEntry."Quantity (Base)" = 0 then
                 exit;
 
@@ -66,7 +66,7 @@
 
         OnCreateEntryOnBeforeSurplusCondition(ReservEntry);
 
-        if Status < Status::Surplus then begin
+        if (Status = Status::Reservation) or (Status = Status::Tracking) then begin
             InsertReservEntry2.TestField("Source Type");
 
             ReservEntry2 := ReservEntry;
@@ -128,7 +128,7 @@
             OnBeforeReservEntryInsert(ReservEntry);
             ReservEntry.Insert();
             OnAfterReservEntryInsert(ReservEntry);
-            if Status < Status::Surplus then begin
+            if (Status = Status::Reservation) or (Status = Status::Tracking) then begin
                 ReservEntry2."Entry No." := ReservEntry."Entry No.";
                 OnBeforeReservEntryUpdateItemTracking(ReservEntry, ReservEntry2);
                 ReservEntry2.UpdateItemTracking();
@@ -148,13 +148,17 @@
     end;
 
     procedure CreateReservEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Description: Text[100]; ExpectedReceiptDate: Date; ShipmentDate: Date)
+    var
+        ReservationStatus: Enum "Reservation Status";
     begin
-        CreateEntry(ItemNo, VariantCode, LocationCode, Description, ExpectedReceiptDate, ShipmentDate, 0, 0);
+        CreateEntry(ItemNo, VariantCode, LocationCode, Description, ExpectedReceiptDate, ShipmentDate, 0, ReservationStatus::Reservation);
     end;
 
     procedure CreateReservEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Description: Text[100]; ExpectedReceiptDate: Date; ShipmentDate: Date; TransferedFromEntryNo: Integer)
+    var
+        ReservationStatus: Enum "Reservation Status";
     begin
-        CreateEntry(ItemNo, VariantCode, LocationCode, Description, ExpectedReceiptDate, ShipmentDate, TransferedFromEntryNo, 0);
+        CreateEntry(ItemNo, VariantCode, LocationCode, Description, ExpectedReceiptDate, ShipmentDate, TransferedFromEntryNo, ReservationStatus::Reservation);
     end;
 
     procedure CreateReservEntryFor(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForQtyPerUOM: Decimal; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
@@ -171,7 +175,7 @@
         InsertReservEntry.TestField("Qty. per Unit of Measure");
     end;
 
-    [Obsolete('Replaced by CreateReservEntryFor(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForQtyPerUOM, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservEntryFor(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForQtyPerUOM, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservEntryFor(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForQtyPerUOM: Decimal; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -198,7 +202,7 @@
         InsertReservEntry2.TestField("Qty. per Unit of Measure");
     end;
 
-    [Obsolete('Replaced by CreateReservEntryFrom(FromTrackingSpecification: Record "Tracking Specification")','16.0')]
+    [Obsolete('Replaced by CreateReservEntryFrom(FromTrackingSpecification: Record "Tracking Specification")', '16.0')]
     procedure CreateReservEntryFrom(FromType: Option; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromQtyPerUOM: Decimal; FromSerialNo: Code[50]; FromLotNo: Code[50]; FromCDNo: Code[30])
     begin
         InsertReservEntry2.Init();
@@ -216,13 +220,13 @@
         OnCreateReservEntryExtraFields(InsertReservEntry, OldTrackingSpecification, NewTrackingSpecification);
     end;
 
-    procedure SetBinding(Binding: Option " ","Order-to-Order")
+    procedure SetBinding(Binding: Enum "Reservation Binding")
     begin
         InsertReservEntry.Binding := Binding;
         InsertReservEntry2.Binding := Binding;
     end;
 
-    procedure SetPlanningFlexibility(Flexibility: Option Unlimited,"None")
+    procedure SetPlanningFlexibility(Flexibility: Enum "Reservation Planning Flexibility")
     begin
         InsertReservEntry."Planning Flexibility" := Flexibility;
         InsertReservEntry2."Planning Flexibility" := Flexibility;
@@ -241,6 +245,7 @@
         QtyToHandleAndInvoiceIsSet := true;
     end;
 
+    [Obsolete('Replaced by SetNewTrackingFrom() procedures.', '17.0')]
     procedure SetNewSerialLotNo(NewSerialNo: Code[50]; NewLotNo: Code[50]; NewCDNo: Code[30])
     begin
         InsertReservEntry."New Serial No." := NewSerialNo;
@@ -253,7 +258,17 @@
         InsertReservEntry."New Serial No." := ItemJnlLine."Serial No.";
         InsertReservEntry."New Lot No." := ItemJnlLine."Lot No.";
         InsertReservEntry."New CD No." := ItemJnlLine."CD No.";
+
         OnAfterSetNewTrackingFromItemJnlLine(InsertReservEntry, ItemJnlLine);
+    end;
+
+    procedure SetNewTrackingFromNewTrackingSpecification(TrackingSpecification: Record "Tracking Specification")
+    begin
+        InsertReservEntry."New Serial No." := TrackingSpecification."New Serial No.";
+        InsertReservEntry."New Lot No." := TrackingSpecification."New Lot No.";
+        InsertReservEntry."New CD No." := TrackingSpecification."New CD No.";
+
+        OnAfterSetNewTrackingFromNewTrackingSpecification(InsertReservEntry, TrackingSpecification);
     end;
 
     procedure SetNewTrackingFromNewWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -261,6 +276,7 @@
         InsertReservEntry."New Serial No." := WhseItemTrackingLine."New Serial No.";
         InsertReservEntry."New Lot No." := WhseItemTrackingLine."New Lot No.";
         InsertReservEntry."New CD No." := WhseItemTrackingLine."New CD No.";
+
         OnAfterSetNewTrackingFromNewWhseItemTrackingLine(InsertReservEntry, WhseItemTrackingLine);
     end;
 
@@ -289,7 +305,9 @@
         InsertReservEntry."Expiration Date" := OldReservEntry."Expiration Date";
         OnBeforeCreateRemainingReservEntry(InsertReservEntry, OldReservEntry);
 
-        if OldReservEntry."Reservation Status" < OldReservEntry."Reservation Status"::Surplus then
+        if (OldReservEntry."Reservation Status" = OldReservEntry."Reservation Status"::Reservation) or
+            (OldReservEntry."Reservation Status" = OldReservEntry."Reservation Status"::Tracking)
+        then
             if OldReservEntry2.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) then begin // Get the related entry
                 FromTracingSpecification.SetSourceFromReservEntry((OldReservEntry2));
                 FromTracingSpecification."Qty. per Unit of Measure" := OldReservEntry2."Qty. per Unit of Measure";
@@ -623,7 +641,7 @@
         if NonReleasedQty <> 0 then
             InsertTempTrackingSpecification(TempTrkgSpec1, ReservEntry, NonReleasedQty);
 
-        if not (ReservEntry."Reservation Status" < ReservEntry."Reservation Status"::Surplus) then
+        if not ReservEntry.IsReservationOrTracking() then
             exit;
 
         NonReleasedQty := ReservEntry2."Quantity (Base)";
@@ -809,7 +827,9 @@
             ReservEntry.Quantity := OldReservEntryQty;
         TempTrkgSpec1.Delete();
 
-        if ReservEntry."Reservation Status" < ReservEntry."Reservation Status"::Surplus then begin
+        if (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Reservation) or
+            (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Tracking)
+        then begin
             TempTrkgSpec2.Get(TempTrkgSpec1."Entry No.");
             OnBeforeSplitNonSurplusReservEntry(TempTrkgSpec2, ReservEntry);
 
@@ -976,6 +996,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetNewTrackingFromItemJnlLine(var InsertReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNewTrackingFromNewTrackingSpecification(var InsertReservEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

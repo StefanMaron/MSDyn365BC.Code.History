@@ -49,7 +49,7 @@ report 14934 "Write-off for Tax Ledger"
                             Validate(Amount, BookValue);
                             "Location Code" := FixedAsset."FA Location Code";
                             "Employee No." := FixedAsset."Responsible Employee";
-                            CreateDim("FA Posting Type", "FA No.");
+                            CreateDim("FA Posting Type".AsInteger(), "FA No.");
                             if Post then
                                 FAJnlPostLine.FAJnlPostLine(FAJnlLine, true)
                             else
@@ -76,7 +76,7 @@ report 14934 "Write-off for Tax Ledger"
                             Validate(Amount, BookValue);
                             "Employee No." := FixedAsset."Responsible Employee";
                             "FA Location Code" := FixedAsset."FA Location Code";
-                            CreateDim("Account Type", "Account No.", 0, '', 0, '', 0, '', 0, '');
+                            CreateDim("Account Type".AsInteger(), "Account No.", 0, '', 0, '', 0, '', 0, '');
                             if Post then
                                 GenJnlPostLine.RunWithCheck(GenJnlLine)
                             else

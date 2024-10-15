@@ -166,7 +166,7 @@ codeunit 14951 "FA-14 Helper"
     begin
         DocSignMgt.GetDocSign(
           DocSign, DATABASE::"Purchase Header",
-          PurchaseHeader."Document Type", PurchaseHeader."No.", EmpType, true);
+          PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", EmpType, true);
         Members[MemberNo, 1] := DocSign."Employee Job Title";
         Members[MemberNo, 2] := DocSign."Employee Name";
     end;

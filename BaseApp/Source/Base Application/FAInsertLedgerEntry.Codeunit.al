@@ -28,7 +28,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         TmpMaintenanceLedgEntry: Record "Maintenance Ledger Entry" temporary;
         FAReg: Record "FA Register";
         FAJnlLine: Record "FA Journal Line";
-        TempFALedgerEntryReverse: Record "FA Ledger Entry" temporary;	
+        TempFALedgerEntryReverse: Record "FA Ledger Entry" temporary;
         FALedgEntryDeprTransfer: Record "FA Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
@@ -212,7 +212,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
 
         if FALedgEntry3."FA Posting Category" = FALedgEntry3."FA Posting Category"::" " then
-            if FALedgEntry3."FA Posting Type" <= FALedgEntry3."FA Posting Type"::"Salvage Value" then
+            if FALedgEntry3."FA Posting Type".AsInteger() <= FALedgEntry3."FA Posting Type"::"Salvage Value".AsInteger() then
                 CODEUNIT.Run(CODEUNIT::"FA Check Consistency", FALedgEntry);
 
         OnBeforeInsertRegister(FALedgEntry, FALedgEntry2);
@@ -634,6 +634,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
     end;
 
+    [Scope('OnPrem')]
     procedure FinalizeInsertFA()
     var
         FALedgerEntry: Record "FA Ledger Entry";
@@ -799,8 +800,9 @@ codeunit 5600 "FA Insert Ledger Entry"
             if not TaxRegisterSetup."Create Reclass. FA Tax Ledger" and FALedgEntry."Reclassification Entry" then
                 exit;
 
-            IsDisposal := (FALedgEntry."FA Posting Category" <> FALedgEntry."FA Posting Category"::" ") or
-                             (FALedgEntry."FA Posting Type" >= FALedgEntry."FA Posting Type"::"Proceeds on Disposal");
+            IsDisposal :=
+                (FALedgEntry."FA Posting Category" <> FALedgEntry."FA Posting Category"::" ") or
+                (FALedgEntry."FA Posting Type".AsInteger() >= FALedgEntry."FA Posting Type"::"Proceeds on Disposal".AsInteger());
 
             // PS26856.begin
             if (IsDisposal and not TaxRegisterSetup."Create Disposal FA Tax Ledger") or

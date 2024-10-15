@@ -15,6 +15,7 @@ codeunit 136312 "Job Reservation"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
@@ -30,8 +31,10 @@ codeunit 136312 "Job Reservation"
         RequisitionLineError: Label 'You cannot reserve this entry because it is not a true demand or supply.';
         OriginalQuantity: Decimal;
         DescriptionEmptyErr: Label 'Description 2 should be empty.';
-        DescriptionItemRefErr: Label 'Description in Requisition Line should be same as in Item Cross Reference';
-        DescriptionErr: Label 'Description should be %1 which from Item Cross Reference card.';
+        ReqLineCrossRefDescriptionErr: Label 'Description in Requisition Line should be same as in Item Cross Reference';
+        ReqLineItemRefDescriptionErr: Label 'Description in Requisition Line should be same as in Item Reference';
+        CrossRefDescriptionErr: Label 'Description should be %1 which from Item Cross Reference card.';
+        ItemRefDescriptionErr: Label 'Description should be %1 which from Item Reference card.';
         LocationCodeErr: Label 'Location Code should be %1 which from Vendor card.';
         NotResetErr: Label 'The field should be reset when Vendor No. is cleared.';
         VendorNoIsNotMatchErr: Label 'Vendor No. is not match.';
@@ -48,7 +51,7 @@ codeunit 136312 "Job Reservation"
         // Verify Location Name assigning from Location.Name
 
         // Setup.
-        Initialize;
+        Initialize(false);
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate(Name, PadStr(Location.Name, MaxStrLen(Location.Name), '.'));
         Location.Modify(true);
@@ -76,10 +79,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Item on Purchase Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
         LibraryInventory.CreateItem(Item);
 
         // Exercise.
@@ -101,10 +104,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Vairant Code on Purchase Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Exercise.
         asserterror PurchaseLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, PurchaseLine."No."));
@@ -125,10 +128,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Location Code on Purchase Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Exercise.
         asserterror PurchaseLine.Validate("Location Code", LibraryWarehouse.CreateLocation(Location));
@@ -148,10 +151,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Expected Receipt Date on Purchase Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Exercise.
         asserterror OpenPurchaseOrderToChangeExpectedReceiptDate(
@@ -173,10 +176,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Item on Job Planning Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
         LibraryInventory.CreateItem(Item);
 
         // Exercise.
@@ -198,10 +201,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Variant Code on Job Planning Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Exercise.
         asserterror JobPlanningLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, PurchaseLine."No."));
@@ -222,10 +225,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Location Code on Job Planning Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Exercise.
         asserterror JobPlanningLine.Validate("Location Code", LibraryWarehouse.CreateLocation(Location));
@@ -245,10 +248,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Planning Date on Job Planning Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Exercise.
         asserterror JobPlanningLine.Validate(
@@ -269,10 +272,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Usage Link on Job Planning Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Exercise.
         asserterror JobPlanningLine.Validate("Usage Link", false);
@@ -292,10 +295,10 @@ codeunit 136312 "Job Reservation"
         // Verify after Reserve Purchase Order, not possible to modify Reserve on Job Planning Line.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
         JobPlanningLine.CalcFields("Reserved Qty. (Base)");
 
         // Exercise.
@@ -321,11 +324,11 @@ codeunit 136312 "Job Reservation"
         // Verify Reserved Quantity on Purchase Line and Job Planning Line after modifying the various field on Purchase and Job Planning Line after Reservation.
 
         // Setup: Create and modify Purchase Order, create Job Planning Line, again modify Purchase Line after Reservation.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         ModifyPurchaseLineReceiptDate(PurchaseLine, LibraryRandom.RandDate(5));  // Using Random for calculating Expected Receipt Date.
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
         PurchaseLine.Validate(Quantity, PurchaseLine.Quantity - LibraryUtility.GenerateRandomFraction);  // Using Random to modify Quantity.
         ModifyPurchaseLineReceiptDate(PurchaseLine, JobPlanningLine."Planning Date");
 
@@ -351,10 +354,10 @@ codeunit 136312 "Job Reservation"
         // Verify Reserved Quantity on Job Planning Line after modifying the various field on Job Planning Line after Reservation.
 
         // Setup: Create and receive Purchase Order and create Job Planning Lines. Reserve Job Planning Line against Item Ledger Entry.
-        Initialize;
+        Initialize(false);
         CreateAndReceivePurchaseOrder(PurchaseLine, '');  // Pass blank Location Code.
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
 
         // Exercise: Modify various feilds on Demand.
         UpdateJobPlanningLine(
@@ -376,12 +379,12 @@ codeunit 136312 "Job Reservation"
         // Verify that Reservation from Requisition Line to Job Order is not allowed.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreateRequisitionLine(RequisitionLine);
         CreateJobAndPlanningLine(JobPlanningLine, RequisitionLine."No.");
 
         // Exercise.
-        asserterror RequisitionLine.ShowReservation;
+        asserterror RequisitionLine.ShowReservation();
 
         // Verify.
         Assert.ExpectedError(RequisitionLineError);
@@ -400,7 +403,7 @@ codeunit 136312 "Job Reservation"
         // Verify Reserved Quantity on Job Planning Line after modifying the various field on Transfer Order and Job Planning Line after Reservation.
 
         // Setup: Create Purchase Order and receive it, Create Transfer Order and Job Planning Line.
-        Initialize;
+        Initialize(false);
         CreateAndReceivePurchaseOrder(PurchaseLine, LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location));
         CreateTransferOrder(TransferLine, PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
@@ -409,7 +412,7 @@ codeunit 136312 "Job Reservation"
           JobPlanningLine.Reserve, TransferLine."Transfer-to Code");  // Using Random to modify Quantity.
 
         // Reserve Transfer Order against Job Planning Line and modify Transfer Line with Random value.
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
         TransferLine.Validate(Quantity, NewValue(JobPlanningLine.Quantity, TransferLine.Quantity));
         TransferLine.Validate("Receipt Date", JobPlanningLine."Planning Date");
         TransferLine.Modify(true);
@@ -435,12 +438,12 @@ codeunit 136312 "Job Reservation"
         // Verify Reservation entry created by a Purchase Order and Job Planning Line while Reserve type is Optional.
 
         // Setup.
-        Initialize;
+        Initialize(false);
         CreatePurchaseDocument(PurchaseLine);
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
 
         // Exercise.
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Verify.
         VerifyReservationEntry(JobPlanningLine, PurchaseLine.Quantity);
@@ -459,7 +462,7 @@ codeunit 136312 "Job Reservation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CreateRequisitionWorksheetlineAndUpdateVendorNo()
+    procedure CreateRequisitionWorksheetlineAndUpdateVendorNoCrossRef()
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -478,6 +481,7 @@ codeunit 136312 "Job Reservation"
         // Fill the Item No. and Variant Code and Vendor No. in Requisition Line - Description updated according to "Item Cross Reference" card;
 
         // [GIVEN] Create a vendor with Location, create a item with Item Variant and Item Cross Reference.
+        Initialize(false);
         CreateVendorWithLocation(Vendor);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
@@ -494,7 +498,7 @@ codeunit 136312 "Job Reservation"
         ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
         // [THEN] Description and Location Code are updated.
         Assert.AreEqual(
-          ItemCrossReference.Description, ReqWorksheet.Description.Value, StrSubstNo(DescriptionErr, ItemCrossReference.Description));
+          ItemCrossReference.Description, ReqWorksheet.Description.Value, StrSubstNo(CrossRefDescriptionErr, ItemCrossReference.Description));
         Assert.AreEqual(
           Vendor."Location Code", ReqWorksheet."Location Code".Value, StrSubstNo(LocationCodeErr, Vendor."Location Code"));
 
@@ -515,7 +519,65 @@ codeunit 136312 "Job Reservation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CreateRequisitionWorksheetlineAndValidateVendorNo()
+    procedure CreateRequisitionWorksheetlineAndUpdateVendorNoItemRef()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemReference: Record "Item Reference";
+        RequisitionLine: Record "Requisition Line";
+        ReqWorksheet: TestPage "Req. Worksheet";
+        OriginalDescription: Text[100];
+        OriginalLocationCode: Code[20];
+    begin
+        // [FEATURE] [Requisition Worksheet]
+        // [SCENARIO] Description and Location Code are updated when updating "Vendor No." in Requisition Worksheet line.
+
+        // Fill the Item No. in Requisition Line - Description updated according to "Item" card;
+        // Fill the Item No. and Variant Code in Requisition Line - Description updated according to "Item Variants" card;
+        // Fill the Item No. and Variant Code and Vendor No. in Requisition Line - Description updated according to "Item Reference" card;
+
+        // [GIVEN] Create a vendor with Location, create a item with Item Variant and Item Reference.
+        Initialize(true);
+
+        CreateVendorWithLocation(Vendor);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        CreateItemReference(
+          ItemReference, Item."No.", ItemVariant.Code, "Item Reference Type"::Vendor, Vendor."No.");
+
+        // [GIVEN] Create a line in Requisition Worksheet
+        CreateRequisitionWorksheetline(RequisitionLine, Item."No.", ItemVariant.Code);
+        OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionLine."Journal Batch Name");
+        OriginalDescription := ReqWorksheet.Description.Value;
+        OriginalLocationCode := ReqWorksheet."Location Code".Value;
+
+        // [WHEN] Change Vendor No..
+        ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
+        // [THEN] Description and Location Code are updated.
+        Assert.AreEqual(
+          ItemReference.Description, ReqWorksheet.Description.Value, StrSubstNo(ItemRefDescriptionErr, ItemReference.Description));
+        Assert.AreEqual(
+          Vendor."Location Code", ReqWorksheet."Location Code".Value, StrSubstNo(LocationCodeErr, Vendor."Location Code"));
+
+        // [WHEN] Clear "Vendor No.".
+        ReqWorksheet."Vendor No.".SetValue('');
+        // [THEN] Description and Location Code are reset.
+        Assert.AreEqual(OriginalDescription, ReqWorksheet.Description.Value, NotResetErr);
+        Assert.AreEqual(OriginalLocationCode, ReqWorksheet."Location Code".Value, NotResetErr);
+
+        // [WHEN] Reset Vendor No., remove the Location Code.
+        ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
+        ReqWorksheet."Location Code".SetValue('');
+
+        // [THEN] Vendor No. is not changed. Description is copied from the item cross reference.
+        Assert.AreEqual(Vendor."No.", ReqWorksheet."Vendor No.".Value, VendorNoIsNotMatchErr);
+        Assert.AreEqual(ItemReference.Description, ReqWorksheet.Description.Value, NotResetErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateRequisitionWorksheetLineAndValidateVendorNoCrossRef()
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -527,6 +589,8 @@ codeunit 136312 "Job Reservation"
         // [SCENARIO 378246] "Description 2" in Requisition Line should be empty when vendor with Item Cross Reference is selected in "Vendor No."
 
         // [GIVEN] Create Item with filled "Description 2" field
+        Initialize(false);
+
         LibraryInventory.CreateItem(Item);
         Item.Validate("Description 2", LibraryUtility.GenerateGUID);
         Item.Modify(true);
@@ -554,7 +618,56 @@ codeunit 136312 "Job Reservation"
         RequisitionLine.Find;
 
         // [THEN] "Description" in Requisition Line should be same as in ItemCrossReference
-        Assert.AreEqual(ItemCrossReference.Description, RequisitionLine.Description, DescriptionItemRefErr);
+        Assert.AreEqual(ItemCrossReference.Description, RequisitionLine.Description, ReqLineCrossRefDescriptionErr);
+
+        // [THEN] "Description 2" in Requisition Line should be empty
+        Assert.AreEqual('', RequisitionLine."Description 2", DescriptionEmptyErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateRequisitionWorksheetLineAndValidateVendorNoItemRef()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        RequisitionLine: Record "Requisition Line";
+        ReqWorksheet: TestPage "Req. Worksheet";
+    begin
+        // [FEATURE] [Requisition Worksheet] [Item Cross Reference]
+        // [SCENARIO 378246] "Description 2" in Requisition Line should be empty when vendor with Item Cross Reference is selected in "Vendor No."
+
+        // [GIVEN] Create Item with filled "Description 2" field
+        Initialize(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Description 2", LibraryUtility.GenerateGUID);
+        Item.Modify(true);
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Requisition Line with filled "Description 2" field
+        CreateRequisitionWorksheetline(RequisitionLine, Item."No.", '');
+        RequisitionLine.Validate("Description 2", LibraryUtility.GenerateGUID);
+        RequisitionLine.Modify(true);
+
+        // [GIVEN] Generate Item Cross Reference with Description = "X"
+        LibraryItemReference.CreateItemReference(
+          ItemReference, Item."No.", "Item Reference Type"::Vendor, Vendor."No.");
+        ItemReference.Validate(Description, LibraryUtility.GenerateGUID);
+        ItemReference.Modify(true);
+
+        // [GIVEN] Open Requisition Worksheet Page with Requisition Line inside
+        OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionLine."Journal Batch Name");
+
+        // [WHEN] Set "Vendor No." in Requisition Line
+        ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
+
+        RequisitionLine.Find;
+
+        // [THEN] "Description" in Requisition Line should be same as in ItemCrossReference
+        Assert.AreEqual(ItemReference.Description, RequisitionLine.Description, ReqLineItemRefDescriptionErr);
 
         // [THEN] "Description 2" in Requisition Line should be empty
         Assert.AreEqual('', RequisitionLine."Description 2", DescriptionEmptyErr);
@@ -722,7 +835,7 @@ codeunit 136312 "Job Reservation"
         // Verify no Surplus Reservation Entry is created after validating the same Item No. on reserved Purchase Line.
 
         // Setup: Create Purchase Order and Sales Order. Auto Reserve the Purchase Line to Sales Line.
-        Initialize;
+        Initialize(false);
         AutoReservePurchaseLineToSalesLine(PurchaseLine);
 
         // Exercise: Validated the No. field on Purchase Line with the same Item No..
@@ -744,14 +857,14 @@ codeunit 136312 "Job Reservation"
         // [FEATURE] [Date conflict]
         // [SCENARIO 381252] The date conflict is raised when "Planned Delivery Date" in Job Planning Line reserved from Purchase Order is changed
 
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Order with "Expected Receipt Date" = 10.01
         CreatePurchaseDocument(PurchaseLine);
 
         // [GIVEN] Job Planning Line with "Planning Date" and "Planned Delivery Date" equal 10.01 and reserved from Purchase Order
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [WHEN] Change "Planned Delivery Date" of Job Planning Line to 01.01
         asserterror
@@ -771,7 +884,7 @@ codeunit 136312 "Job Reservation"
     begin
         // [SCENARIO 381257] The value of field "Planned" in Job Planning Line is TRUE when Job Planning Line auto-reserved from Purchase Order
 
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Order with Item "X" and Quantity = 10
         CreatePurchaseDocument(PurchaseLine);
@@ -782,7 +895,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine.Modify(true);
 
         // [THEN] Auto-reserve Job Planning Line from Purchase Line
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
 
         // [THEN] Planned is TRUE in Job Planning Line
         JobPlanningLine.Find;
@@ -799,7 +912,7 @@ codeunit 136312 "Job Reservation"
     begin
         // [SCENARIO 381257] The value of field "Planned" in Job Planning Line is TRUE when Job Planning Line reserved from current Purchase Line
 
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Order with Item "X" and Quantity = 10
         CreatePurchaseDocument(PurchaseLine);
@@ -810,7 +923,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine.Modify(true);
 
         // [THEN] Reserve Job Planning Line from current Purchase Line
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
 
         // [THEN] Planned is TRUE in Job Planning Line
         JobPlanningLine.Find;
@@ -827,7 +940,7 @@ codeunit 136312 "Job Reservation"
     begin
         // [SCENARIO 381257] The value of field "Planned" in Job Planning Line is FALSE when reservation of Job Planning Line is canceled
 
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Order with Item "X" and Quantity = 10
         CreatePurchaseDocument(PurchaseLine);
@@ -837,30 +950,31 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine.Validate(Quantity, PurchaseLine.Quantity);
         JobPlanningLine.Modify(true);
         LibraryVariableStorage.Enqueue(true); // Set TRUE to reserve entry in ReserveOrCancelReservationPageHandler
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
 
         LibraryVariableStorage.Enqueue(false); // Set FALSE to cancel reservation in ReserveOrCancelReservationPageHandler
 
         // [WHEN] Cancel Reservation from current Purchase Line
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
 
         // [THEN] Planned is FALSE in Job Planning Line
         JobPlanningLine.Find;
         JobPlanningLine.TestField(Planned, false);
     end;
 
-    local procedure Initialize()
+    local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Reservation");
         OriginalQuantity := 0;
-        LibraryVariableStorage.Clear;
+        LibraryItemReference.EnableFeature(Enable);
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Reservation");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
@@ -900,7 +1014,7 @@ codeunit 136312 "Job Reservation"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; VendorNo: Code[20]; ReorderingPolicy: Option)
+    local procedure CreateItem(var Item: Record Item; VendorNo: Code[20]; ReorderingPolicy: Enum "Reordering Policy")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Vendor No.", VendorNo);
@@ -924,6 +1038,22 @@ codeunit 136312 "Job Reservation"
         end;
     end;
 
+    local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ItemVariantNo: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30])
+    begin
+        with ItemReference do begin
+            Init();
+            Validate("Item No.", ItemNo);
+            Validate("Variant Code", ItemVariantNo);
+            Validate("Reference Type", ReferenceType);
+            Validate("Reference Type No.", ReferenceTypeNo);
+            Validate(
+              "Reference No.",
+              LibraryUtility.GenerateRandomCode(FieldNo("Reference No."), DATABASE::"Item Reference"));
+            Validate(Description, ReferenceTypeNo);
+            Insert(true);
+        end;
+    end;
+
     local procedure CreateItemWithVariantAndCrossReference(var Vendor: Record Vendor; var Item: Record Item; var ItemVariant: Record "Item Variant"; var ItemCrossReference1: Record "Item Cross Reference"; var ItemCrossReference2: Record "Item Cross Reference")
     begin
         CreateVendorWithLocation(Vendor);
@@ -935,6 +1065,19 @@ codeunit 136312 "Job Reservation"
           ItemCrossReference1, Item."No.", '', ItemCrossReference1."Cross-Reference Type"::Vendor, Vendor."No.");
         CreateItemCrossReference(
           ItemCrossReference2, Item."No.", ItemVariant.Code, ItemCrossReference2."Cross-Reference Type"::Vendor, Vendor."No.");
+    end;
+
+    local procedure CreateItemWithVariantAndItemReference(var Vendor: Record Vendor; var Item: Record Item; var ItemVariant: Record "Item Variant"; var ItemReference1: Record "Item Reference"; var ItemReference2: Record "Item Reference")
+    begin
+        CreateVendorWithLocation(Vendor);
+        CreateItem(Item, Vendor."No.", Item."Reordering Policy"::"Lot-for-Lot");
+
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        CreateItemReference(
+          ItemReference1, Item."No.", '', ItemReference1."Reference Type"::Vendor, Vendor."No.");
+        CreateItemReference(
+          ItemReference2, Item."No.", ItemVariant.Code, ItemReference2."Reference Type"::Vendor, Vendor."No.");
     end;
 
     local procedure CreateRequisitionWorksheetline(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; ItemVariantCode: Code[10])
@@ -1095,7 +1238,7 @@ codeunit 136312 "Job Reservation"
         ReqWkshTemplate.FindFirst;
     end;
 
-    local procedure UpdateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; Quantity: Decimal; PlanningDate: Date; Reserve: Option; LocationCode: Code[10])
+    local procedure UpdateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; Quantity: Decimal; PlanningDate: Date; Reserve: Enum "Reserve Method"; LocationCode: Code[10])
     begin
         JobPlanningLine.Validate(Quantity, Quantity);
         JobPlanningLine.Validate("Planning Date", PlanningDate);
@@ -1113,7 +1256,7 @@ codeunit 136312 "Job Reservation"
         CreateSalesOrder(
           SalesHeader, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', PurchaseLine."Expected Receipt Date"),
           '', PurchaseLine."No.", PurchaseLine.Quantity);
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
     end;
 
     local procedure VerifyPurchaseLineError(PurchaseLine: Record "Purchase Line"; ColumnCaption: Text[30])

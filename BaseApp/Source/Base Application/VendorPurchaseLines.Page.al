@@ -1,4 +1,4 @@
-﻿page 352 "Vendor Purchase Lines"
+page 352 "Vendor Purchase Lines"
 {
     Caption = 'Lines';
     Editable = false;

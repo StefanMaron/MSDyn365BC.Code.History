@@ -536,7 +536,7 @@ table 25 "Vendor Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(12401; "Prepmt. Diff. Appln. Entry No."; Integer)

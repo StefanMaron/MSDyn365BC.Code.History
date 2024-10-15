@@ -1545,6 +1545,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry: array[2] of Record "Change Global Dim. Log Entry";
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
         IntegrationManagement: Codeunit "Integration Management";
+        APIMockEvents: Codeunit "API Mock Events";
         ActiveManualInstances: Integer;
         Flag: Boolean;
     begin
@@ -1557,6 +1558,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] LogEntry "37" for dependent table 37 is scheduled
         MockScheduledLogEntry(ChangeGlobalDimLogEntry[2], DATABASE::"Sales Line", 0, 1);
         // [GIVEN] Integration is enabled
+        APIMockEvents.SetIsIntegrationManagementEnabled(true);
+        BindSubscription(APIMockEvents);
         IntegrationManagement.SetConnectorIsEnabledForSession(true);
         ActiveManualInstances := GetActiveManualInstances;
 

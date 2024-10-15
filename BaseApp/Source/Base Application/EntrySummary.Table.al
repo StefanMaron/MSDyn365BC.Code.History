@@ -186,19 +186,23 @@ table 338 "Entry Summary"
 
     procedure HasSameTracking(EntrySummary: Record "Entry Summary") SameTracking: Boolean
     begin
-        SameTracking :=
-          ("Serial No." = EntrySummary."Serial No.") and
-          ("Lot No." = EntrySummary."Lot No.") and
-          ("CD No." = EntrySummary."CD No.");
+        SameTracking := ("Serial No." = EntrySummary."Serial No.") and ("Lot No." = EntrySummary."Lot No.");
 
         OnAfterHasSameTracking(Rec, EntrySummary, SameTracking);
+    end;
+
+    procedure CopyTrackingFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        "Serial No." := ItemTrackingSetup."Serial No.";
+        "Lot No." := ItemTrackingSetup."Lot No.";
+
+        OnAfterCopyTrackingFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
 
     procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
     begin
         "Serial No." := ReservEntry."Serial No.";
         "Lot No." := ReservEntry."Lot No.";
-        "CD No." := ReservEntry."CD No.";
 
         OnAfterCopyTrackingFromReservEntry(Rec, ReservEntry);
     end;
@@ -207,7 +211,6 @@ table 338 "Entry Summary"
     begin
         "Serial No." := TrackingSpecification."Serial No.";
         "Lot No." := TrackingSpecification."Lot No.";
-        "CD No." := TrackingSpecification."CD No.";
 
         OnAfterCopyTrackingFromSpec(Rec, TrackingSpecification);
     end;
@@ -220,6 +223,7 @@ table 338 "Entry Summary"
         exit(AvailQty);
     end;
 
+    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
     begin
         SetRange("Serial No.", SerialNo);
@@ -231,16 +235,22 @@ table 338 "Entry Summary"
     begin
         SetRange("Serial No.", EntrySummary."Serial No.");
         SetRange("Lot No.", EntrySummary."Lot No.");
-        SetRange("CD No.", EntrySummary."CD No.");
 
         OnAfterSetTrackingFilterFromEntrySummary(Rec, EntrySummary);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromReservEntry(ReservationEntry: Record "Reservation Entry")
     begin
         SetRange("Serial No.", ReservationEntry."Serial No.");
         SetRange("Lot No.", ReservationEntry."Lot No.");
-        SetRange("CD No.", ReservationEntry."CD No.");
 
         OnAfterSetTrackingFilterFromReservEntry(Rec, ReservationEntry);
     end;
@@ -249,7 +259,6 @@ table 338 "Entry Summary"
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
         SetRange("Lot No.", TrackingSpecification."Lot No.");
-        SetRange("CD No.", TrackingSpecification."CD No.");
 
         OnAfterSetTrackingFilterFromSpec(Rec, TrackingSpecification);
     end;
@@ -270,7 +279,17 @@ table 338 "Entry Summary"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingSetup(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromEntrySummary(var ToEntrySummary: Record "Entry Summary"; FromEntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

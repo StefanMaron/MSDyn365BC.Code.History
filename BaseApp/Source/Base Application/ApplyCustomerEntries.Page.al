@@ -447,7 +447,7 @@ page 232 "Apply Customer Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -466,11 +466,12 @@ page 232 "Apply Customer Entries"
                 action("&Navigate")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = '&Navigate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                     trigger OnAction()
                     begin
@@ -839,7 +840,7 @@ page 232 "Apply Customer Entries"
                     if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then
                         ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::"Credit Memo"
                     else
-                        ApplyingCustLedgEntry."Document Type" := SalesHeader."Document Type".AsInteger();
+                        ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::Invoice;
                     ApplyingCustLedgEntry."Document No." := SalesHeader."No.";
                     ApplyingCustLedgEntry."Customer No." := SalesHeader."Bill-to Customer No.";
                     ApplyingCustLedgEntry.Description := SalesHeader."Posting Description";
@@ -857,7 +858,10 @@ page 232 "Apply Customer Entries"
                 begin
                     ApplyingCustLedgEntry."Entry No." := 1;
                     ApplyingCustLedgEntry."Posting Date" := ServHeader."Posting Date";
-                    ApplyingCustLedgEntry."Document Type" := ServHeader."Document Type".AsInteger();
+                    if ServHeader."Document Type" = ServHeader."Document Type"::"Credit Memo" then
+                        ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::"Credit Memo"
+                    else
+                        ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::Invoice;
                     ApplyingCustLedgEntry."Document No." := ServHeader."No.";
                     ApplyingCustLedgEntry."Customer No." := ServHeader."Bill-to Customer No.";
                     ApplyingCustLedgEntry.Description := ServHeader."Posting Description";

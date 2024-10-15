@@ -112,7 +112,7 @@ page 14926 "VAT Allocation"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }

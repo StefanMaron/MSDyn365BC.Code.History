@@ -134,7 +134,7 @@ table 337 "Reservation Entry"
         }
         field(31; "Action Message Adjustment"; Decimal)
         {
-            CalcFormula = Sum ("Action Message Entry".Quantity WHERE("Reservation Entry" = FIELD("Entry No."),
+            CalcFormula = Sum("Action Message Entry".Quantity WHERE("Reservation Entry" = FIELD("Entry No."),
                                                                      Calculation = CONST(Sum)));
             Caption = 'Action Message Adjustment';
             DecimalPlaces = 0 : 5;
@@ -279,7 +279,14 @@ table 337 "Reservation Entry"
         {
             Enabled = false;
         }
-        key(Key9; "CD No.")
+        key(Key9; "Source Type", "Source Subtype", "Source ID", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.")
+        {
+        }
+        key(Key10; "Reservation Status", "Item No.", "Variant Code", "Location Code", "Expected Receipt Date")
+        {
+            SumIndexFields = "Quantity (Base)";
+        }
+        key(Key11; "CD No.")
         {
             Enabled = false;
         }
@@ -404,28 +411,25 @@ table 337 "Reservation Entry"
           ("Source Ref. No." = TrackingSpecification."Source Ref. No."));
     end;
 
-    procedure HasSameTracking(ReservEntry: Record "Reservation Entry"): Boolean
+    procedure HasSameTracking(ReservEntry: Record "Reservation Entry") IsSameTracking: Boolean
     begin
-        exit(
-          ("Serial No." = ReservEntry."Serial No.") and
-          ("Lot No." = ReservEntry."Lot No.") and
-          ("CD No." = ReservEntry."CD No."));
+        IsSameTracking := ("Serial No." = ReservEntry."Serial No.") and ("Lot No." = ReservEntry."Lot No.");
+
+        OnAfterHasSameTracking(Rec, ReservEntry, IsSameTracking);
     end;
 
-    procedure HasSameTrackingWithSpec(TrackingSpecification: Record "Tracking Specification"): Boolean
+    procedure HasSameTrackingWithSpec(TrackingSpecification: Record "Tracking Specification") IsSameTracking: Boolean
     begin
-        exit(
-          ("Serial No." = TrackingSpecification."Serial No.") and
-          ("Lot No." = TrackingSpecification."Lot No.") and
-          ("CD No." = TrackingSpecification."CD No."));
+        IsSameTracking := ("Serial No." = TrackingSpecification."Serial No.") and ("Lot No." = TrackingSpecification."Lot No.");
+
+        OnAfterHasSameTrackingWithSpec(Rec, TrackingSpecification, IsSameTracking);
     end;
 
-    procedure HasSameNewTracking(ReservEntry: Record "Reservation Entry"): Boolean
+    procedure HasSameNewTracking(ReservEntry: Record "Reservation Entry") IsSameTracking: Boolean
     begin
-        exit(
-          ("New Serial No." = ReservEntry."New Serial No.") and
-          ("New Lot No." = ReservEntry."New Lot No.") and
-          ("New CD No." = ReservEntry."New CD No."));
+        IsSameTracking := ("New Serial No." = ReservEntry."New Serial No.") and ("New Lot No." = ReservEntry."New Lot No.");
+
+        OnAfterHasSameNewTracking(Rec, ReservEntry, IsSameTracking);
     end;
 
     procedure SetPointer(RowID: Text[250])
@@ -520,7 +524,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := '';
         "Lot No." := '';
-        "CD No." := '';
         "Warranty Date" := 0D;
         "Expiration Date" := 0D;
 
@@ -531,7 +534,6 @@ table 337 "Reservation Entry"
     begin
         "New Serial No." := '';
         "New Lot No." := '';
-        "New CD No." := '';
 
         OnAfterClearNewTracking(Rec);
     end;
@@ -540,7 +542,6 @@ table 337 "Reservation Entry"
     begin
         SetRange("Serial No.");
         SetRange("Lot No.");
-        SetRange("CD No.");
 
         OnAfterClearTrackingFilter(Rec);
     end;
@@ -549,7 +550,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := ItemLedgerEntry."Serial No.";
         "Lot No." := ItemLedgerEntry."Lot No.";
-        "CD No." := ItemLedgerEntry."CD No.";
 
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgerEntry);
     end;
@@ -558,7 +558,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := ItemTrackingSetup."Serial No.";
         "Lot No." := ItemTrackingSetup."Lot No.";
-        "CD No." := ItemTrackingSetup."CD No.";
 
         OnAfterCopyTrackingFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
@@ -567,7 +566,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := InvtProfile."Serial No.";
         "Lot No." := InvtProfile."Lot No.";
-        "CD No." := InvtProfile."CD No.";
 
         OnAfterCopyTrackingFromInvtProfile(Rec, InvtProfile);
     end;
@@ -576,7 +574,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := ReservationEntry."Serial No.";
         "Lot No." := ReservationEntry."Lot No.";
-        "CD No." := ReservationEntry."CD No.";
 
         OnAfterCopyTrackingFromReservEntry(Rec, ReservationEntry);
     end;
@@ -585,7 +582,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := ReservationEntry."New Serial No.";
         "Lot No." := ReservationEntry."New Lot No.";
-        "CD No." := ReservationEntry."New CD No.";
 
         OnAfterCopyTrackingFromReservEntryNewTracking(Rec, ReservationEntry);
     end;
@@ -594,7 +590,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := TrackingSpecification."Serial No.";
         "Lot No." := TrackingSpecification."Lot No.";
-        "CD No." := TrackingSpecification."CD No.";
         "Warranty Date" := TrackingSpecification."Warranty Date";
         "Expiration Date" := TrackingSpecification."Expiration Date";
 
@@ -605,7 +600,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := WarehouseActivityLine."Serial No.";
         "Lot No." := WarehouseActivityLine."Lot No.";
-        "CD No." := WarehouseActivityLine."CD No.";
         "Expiration Date" := WarehouseActivityLine."Expiration Date";
 
         OnAfterCopyTrackingFromWhseActivLine(Rec, WarehouseActivityLine);
@@ -615,7 +609,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := WhseEntry."Serial No.";
         "Lot No." := WhseEntry."Lot No.";
-        "CD No." := WhseEntry."CD No.";
 
         OnAfterCopyTrackingFromWhseEntry(Rec, WhseEntry);
     end;
@@ -624,7 +617,6 @@ table 337 "Reservation Entry"
     begin
         "Serial No." := WhseItemTrackingLine."Serial No.";
         "Lot No." := WhseItemTrackingLine."Lot No.";
-        "CD No." := WhseItemTrackingLine."CD No.";
 
         OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
@@ -633,7 +625,6 @@ table 337 "Reservation Entry"
     begin
         "New Serial No." := ItemJnlLine."New Serial No.";
         "New Lot No." := ItemJnlLine."New Lot No.";
-        "New CD No." := ItemJnlLine."New CD No.";
 
         OnAfterSetNewTrackingFromItemJnlLine(Rec, ItemJnlLine);
     end;
@@ -642,7 +633,6 @@ table 337 "Reservation Entry"
     begin
         "New Serial No." := TrackingSpeficification."New Serial No.";
         "New Lot No." := TrackingSpeficification."New Lot No.";
-        "New CD No." := TrackingSpeficification."New CD No.";
 
         OnAfterSetNewTrackingFromTrackingSpecification(Rec, TrackingSpeficification);
     end;
@@ -651,11 +641,32 @@ table 337 "Reservation Entry"
     begin
         "New Serial No." := WhseItemTrackingLine."New Serial No.";
         "New Lot No." := WhseItemTrackingLine."New Lot No.";
-        "New CD No." := WhseItemTrackingLine."New CD No.";
 
-        OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+        OnAfterCopyNewTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
 
+    procedure CopyTrackingFiltersToReservEntry(var FilterReservEntry: Record "Reservation Entry")
+    begin
+        CopyFilter("Serial No.", FilterReservEntry."Serial No.");
+        CopyFilter("Lot No.", FilterReservEntry."Lot No.");
+
+        OnAfterCopyTrackingFiltersToReservEntry(Rec, FilterReservEntry);
+        OnAfterCopyTrackingFiltersToResernEntry(Rec, FilterReservEntry); // Obsoleted
+    end;
+
+    procedure FilterLinesForTracking(CalcReservEntry: Record "Reservation Entry"; Positive: Boolean)
+    var
+        FieldFilter: Text;
+    begin
+        if CalcReservEntry.FieldFilterNeeded(FieldFilter, Positive, "Item Tracking Type"::"Lot No.") then
+            SetFilter("Lot No.", FieldFilter);
+        if CalcReservEntry.FieldFilterNeeded(FieldFilter, Positive, "Item Tracking Type"::"Serial No.") then
+            SetFilter("Serial No.", FieldFilter);
+
+        OnAfterFilterLinesForTracking(Rec, CalcReservEntry, Positive);
+    end;
+
+    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
     begin
         SetRange("Serial No.", SerialNo);
@@ -667,7 +678,6 @@ table 337 "Reservation Entry"
     begin
         SetRange("Serial No.", '');
         SetRange("Lot No.", '');
-        SetRange("CD No.", '');
 
         OnAfterSetTrackingFilterBlank(Rec);
     end;
@@ -676,7 +686,6 @@ table 337 "Reservation Entry"
     begin
         SetRange("Serial No.", ItemJournalLine."Serial No.");
         SetRange("Lot No.", ItemJournalLine."Lot No.");
-        SetRange("CD No.", ItemJournalLine."CD No.");
 
         OnAfterSetTrackingFilterFromItemJnlLine(Rec, ItemJournalLine);
     end;
@@ -685,7 +694,6 @@ table 337 "Reservation Entry"
     begin
         SetRange("Serial No.", ItemLedgEntry."Serial No.");
         SetRange("Lot No.", ItemLedgEntry."Lot No.");
-        SetRange("CD No.", ItemLedgEntry."CD No.");
 
         OnAfterSetTrackingFilterFromItemLedgEntry(Rec, ItemLedgEntry);
     end;
@@ -694,16 +702,24 @@ table 337 "Reservation Entry"
     begin
         SetRange("Serial No.", ItemTrackingSetup."Serial No.");
         SetRange("Lot No.", ItemTrackingSetup."Lot No.");
-        SetRange("CD No.", ItemTrackingSetup."CD No.");
 
         OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No." <> '' then
+            SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        if ItemTrackingSetup."Lot No." <> '' then
+            SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, ItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromReservEntry(ReservEntry: Record "Reservation Entry")
     begin
         SetRange("Serial No.", ReservEntry."Serial No.");
         SetRange("Lot No.", ReservEntry."Lot No.");
-        SetRange("CD No.", ReservEntry."CD No.");
 
         OnAfterSetTrackingFilterFromReservEntry(Rec, ReservEntry);
     end;
@@ -712,7 +728,6 @@ table 337 "Reservation Entry"
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
         SetRange("Lot No.", TrackingSpecification."Lot No.");
-        SetRange("CD No.", TrackingSpecification."CD No.");
 
         OnAfterSetTrackingFilterFromTrackingSpec(Rec, TrackingSpecification);
     end;
@@ -723,15 +738,14 @@ table 337 "Reservation Entry"
             SetRange("Serial No.", TrackingSpecification."Serial No.");
         if TrackingSpecification."Lot No." <> '' then
             SetRange("Lot No.", TrackingSpecification."Lot No.");
-        if TrackingSpecification."CD No." <> '' then
-            SetRange("CD No.", TrackingSpecification."CD No.");
+
+        OnAfterSetTrackingFilterFromSpecIfNotBlank(Rec, TrackingSpecification);
     end;
 
     procedure SetTrackingFilterFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
     begin
         SetRange("Serial No.", WhseActivityLine."Serial No.");
         SetRange("Lot No.", WhseActivityLine."Lot No.");
-        SetRange("CD No.", WhseActivityLine."CD No.");
 
         OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivityLine);
     end;
@@ -740,7 +754,6 @@ table 337 "Reservation Entry"
     begin
         SetRange("Serial No.", WhseJournalLine."Serial No.");
         SetRange("Lot No.", WhseJournalLine."Lot No.");
-        SetRange("CD No.", WhseJournalLine."CD No.");
 
         OnAfterSetTrackingFilterFromWhseJnlLine(Rec, WhseJournalLine);
     end;
@@ -749,7 +762,6 @@ table 337 "Reservation Entry"
     begin
         SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
         SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
-        SetRange("CD No.", WhseItemTrackingLine."CD No.");
 
         OnAfterSetTrackingFilterFromWhseSpec(Rec, WhseItemTrackingLine);
     end;
@@ -766,10 +778,17 @@ table 337 "Reservation Entry"
         else
             SetFilter("Lot No.", '%1|%2', WhseActivityLine."Lot No.", '');
 
-        if WhseItemTrackingSetup."CD No. Required" then
-            SetRange("CD No.", WhseActivityLine."CD No.")
-        else
-            SetFilter("CD No.", '%1|%2', WhseActivityLine."CD No.", '');
+        OnAfterSetTrackingFilterFromWhseActivityLineIfRequired(Rec, WhseActivityLine, WhseItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromWhseItemTrackingSetupNotBlankIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            SetFilter("Serial No.", '<>%1', '');
+        if WhseItemTrackingSetup."Lot No. Required" then
+            SetFilter("Lot No.", '<>%1', '');
+
+        OnAfterSetTrackingFilterFromWhseItemTrackingSetupNotBlankIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromWhseItemTrackingSetupIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -784,11 +803,8 @@ table 337 "Reservation Entry"
                 SetRange("Lot No.", WhseItemTrackingSetup."Lot No.")
             else
                 SetFilter("Lot No.", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
-        if WhseItemTrackingSetup."CD No." <> '' then
-            if WhseItemTrackingSetup."CD No. Required" then
-                SetRange("CD No.", WhseItemTrackingSetup."CD No.")
-            else
-                SetFilter("CD No.", '%1|%2', WhseItemTrackingSetup."CD No.", '');
+
+        OnAfterSetTrackingFilterFromWhseItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterToItemIfRequired(var Item: Record Item)
@@ -797,32 +813,22 @@ table 337 "Reservation Entry"
             Item.SetRange("Lot No. Filter", "Lot No.");
         if "Serial No." <> '' then
             Item.SetRange("Serial No. Filter", "Serial No.");
-        if "CD No." <> '' then
-            Item.SetRange("CD No. Filter", "CD No.");
+
+        OnAfterSetTrackingFilterToItemIfRequired(Rec, Item);
     end;
 
     procedure GetItemTrackingEntryType() TrackingEntryType: Enum "Item Tracking Entry Type"
     begin
         if "Lot No." <> '' then
-            TrackingEntryType := TrackingEntryType::"Lot No.";
+            TrackingEntryType := "Item Tracking Entry Type"::"Lot No.";
 
         if "Serial No." <> '' then
             if "Lot No." <> '' then
-                TrackingEntryType := TrackingEntryType::"Lot and Serial No."
+                TrackingEntryType := "Item Tracking Entry Type"::"Lot and Serial No."
             else
-                TrackingEntryType := TrackingEntryType::"Serial No.";
+                TrackingEntryType := "Item Tracking Entry Type"::"Serial No.";
 
-        if "CD No." <> '' then
-            case true of
-                ("Lot No." = '') and ("Serial No." = ''):
-                    TrackingEntryType := TrackingEntryType::"CD No.";
-                ("Lot No." <> '') and ("Serial No." = ''):
-                    TrackingEntryType := TrackingEntryType::"Lot and CD No.";
-                ("Lot No." = '') and ("Serial No." <> ''):
-                    TrackingEntryType := TrackingEntryType::"Serial and CD No.";
-                ("Lot No." <> '') and ("Serial No." <> ''):
-                    TrackingEntryType := TrackingEntryType::"Lot and Serial and CD No.";
-            end;
+        OnAfterGetItemTrackingEntryType(Rec, TrackingEntryType);
     end;
 
     procedure UpdateItemTracking()
@@ -860,10 +866,8 @@ table 337 "Reservation Entry"
     begin
         OnBeforeClearItemTrackingFields(Rec);
 
-        "Lot No." := '';
-        "Serial No." := '';
-        "CD No." := '';
-        UpdateItemTracking;
+        ClearTracking();
+        UpdateItemTracking();
 
         OnAfterClearItemTrackingFields(Rec);
     end;
@@ -915,19 +919,25 @@ table 337 "Reservation Entry"
         end;
     end;
 
-    procedure TrackingExists(): Boolean
+    procedure TrackingExists() IsTrackingExists: Boolean
     begin
-        exit(("Serial No." <> '') or ("Lot No." <> '') or ("CD No." <> ''));
+        IsTrackingExists := ("Serial No." <> '') or ("Lot No." <> '');
+
+        OnAfterTrackingExists(Rec, IsTrackingExists);
     end;
 
-    procedure GetTrackingText(): Text;
+    procedure GetTrackingText() TrackingText: Text;
     begin
-        exit(StrSubstNo('%1 %2 %3', "Serial No.", "Lot No.", "CD No."));
+        TrackingText := StrSubstNo('%1 %2', "Serial No.", "Lot No.");
+
+        OnAfterGetTrackingText(Rec, TrackingText);
     end;
 
-    procedure NewTrackingExists(): Boolean
+    procedure NewTrackingExists() IsTrackingExists: Boolean
     begin
-        exit(("New Serial No." <> '') or ("New Lot No." <> '') or ("New CD No." <> ''));
+        IsTrackingExists := ("New Serial No." <> '') or ("New Lot No." <> '');
+
+        OnAfterNewTrackingExists(Rec, IsTrackingExists);
     end;
 
     procedure TransferReservations(var OldReservEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; TransferAll: Boolean; TransferQty: Decimal; QtyPerUOM: Decimal; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer)
@@ -1039,6 +1049,23 @@ table 337 "Reservation Entry"
         exit(ReservEntry.GetFilter("Expected Receipt Date"));
     end;
 
+    procedure IsReservationOrTracking(): Boolean
+    begin
+        exit(
+            ("Reservation Status" = "Reservation Status"::Reservation) or
+            ("Reservation Status" = "Reservation Status"::Tracking));
+    end;
+
+    procedure GetTransferDirection() TransferDirection: Enum "Transfer Direction"
+    begin
+        case "Source Subtype" of
+            0:
+                exit(TransferDirection::Outbound);
+            1:
+                exit(TransferDirection::Inbound);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemLedgEntry(var ReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
@@ -1085,6 +1112,11 @@ table 337 "Reservation Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyNewTrackingFromWhseItemTrackingLine(var ReservationEntry: Record "Reservation Entry"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterClearItemTrackingFields(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
@@ -1101,6 +1133,22 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearTrackingFilter(var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [Obsolete('Replaced by OnAfterCopyTrackingFiltersToReservEntry().', '17.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFiltersToResernEntry(var ReservEntry: Record "Reservation Entry"; var FilterReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFiltersToReservEntry(var ReservEntry: Record "Reservation Entry"; var FilterReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForTracking(var ReservEntry: Record "Reservation Entry"; CalcReservEntry: Record "Reservation Entry"; Positive: Boolean)
     begin
     end;
 
@@ -1135,7 +1183,17 @@ table 337 "Reservation Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var ReservationEntry: Record "Reservation Entry"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromSpecIfNotBlank(var ReservationEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -1160,12 +1218,67 @@ table 337 "Reservation Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseActivityLineIfRequired(var ReservationEntry: Record "Reservation Entry"; WhseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseItemTrackingSetupNotBlankIfRequired(var ReservationEntry: Record "Reservation Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseItemTrackingSetupIfRequired(var ReservationEntry: Record "Reservation Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterToItemIfRequired(ReservationEntry: Record "Reservation Entry"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItemTrackingEntryType(ReservationEntry: Record "Reservation Entry"; var TrackingEntryType: Enum "Item Tracking Entry Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTextCaption(SourceType: Integer; var NewTextCaption: Text[255])
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTrackingText(ReservationEntry: Record "Reservation Entry"; var TrackingText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeClearItemTrackingFields(ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameTracking(ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry"; var IsSameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameNewTracking(ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry"; var IsSameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameTrackingWithSpec(ReservationEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification"; var IsSameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingExists(ReservationEntry: Record "Reservation Entry"; var IsTrackingExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNewTrackingExists(ReservationEntry: Record "Reservation Entry"; var IsTrackingExists: Boolean)
     begin
     end;
 

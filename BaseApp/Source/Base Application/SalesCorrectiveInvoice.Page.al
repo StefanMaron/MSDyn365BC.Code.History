@@ -546,7 +546,7 @@ page 14971 "Sales Corrective Invoice"
                     var
                         ApprovalEntries: Page "Approval Entries";
                     begin
-                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type", "No.");
+                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                         ApprovalEntries.Run;
                     end;
                 }
@@ -686,7 +686,7 @@ page 14971 "Sales Corrective Invoice"
                     var
                         CorrDocMgt: Codeunit "Corrective Document Mgt.";
                     begin
-                        CorrDocMgt.SetSalesHeader("Document Type", "No.");
+                        CorrDocMgt.SetSalesHeader("Document Type".AsInteger(), "No.");
                         CorrDocMgt.SelectPstdSalesDocLines;
                     end;
                 }

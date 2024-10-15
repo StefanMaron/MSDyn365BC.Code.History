@@ -31,7 +31,6 @@ codeunit 144009 "ERM VAT Agent"
         PmtAmtNotEqualInvAmtErr: Label 'Payment amount is not equal invoice amount.';
         VATEntryNoCompletelyRealizedErr: Label 'VAT entry is not completely realized.';
         RowDoesNotExistErr: Label 'The row does not exist on the TestPage';
-        RefDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         RefGenPostingType: Option " ",Purchase,Sale;
         IncorrectAmountSignErr: Label 'Amount must be greater than zero.';
 
@@ -440,7 +439,7 @@ codeunit 144009 "ERM VAT Agent"
 
         // [GIVEN] Apply invoice to payment
         LibraryERM.ApplyVendorLedgerEntries(
-          RefDocType::Invoice, RefDocType::Payment, InvoiceNo, PaymentNo);
+          "Gen. Journal Document Type"::Invoice, "Gen. Journal Document Type"::Payment, InvoiceNo, PaymentNo);
 
         // [WHEN] VAT Purchase Ledger is being created
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate, WorkDate, '', true, false);
@@ -560,7 +559,7 @@ codeunit 144009 "ERM VAT Agent"
 
         // [GIVEN] Apply invoice to payment
         LibraryERM.ApplyVendorLedgerEntries(
-          RefDocType::Invoice, RefDocType::Payment, InvoiceNo, PaymentNo);
+          "Gen. Journal Document Type"::Invoice, "Gen. Journal Document Type"::Payment, InvoiceNo, PaymentNo);
 
         // [WHEN] VAT Sales Ledger is being created
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate, WorkDate, '');
@@ -775,8 +774,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostVATAgentInvoiceAndPayment(Vendor, PaymentAmount, InvoiceNo, PaymentNo, PaymentExternalDocNo);
 
         LibraryERM.ApplyVendorLedgerEntries(
-          RefDocType::Payment, RefDocType::Invoice,
-          PaymentNo, InvoiceNo);
+          "Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice, PaymentNo, InvoiceNo);
     end;
 
     local procedure CreatePostApplyVATAgentInvoiceToPayment(var Vendor: Record Vendor; var PaymentAmount: Decimal; var PaymentExternalDocNo: Code[20])
@@ -787,8 +785,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostVATAgentInvoiceAndPayment(Vendor, PaymentAmount, InvoiceNo, PaymentNo, PaymentExternalDocNo);
 
         LibraryERM.ApplyVendorLedgerEntries(
-          RefDocType::Invoice, RefDocType::Payment,
-          InvoiceNo, PaymentNo);
+          "Gen. Journal Document Type"::Invoice, "Gen. Journal Document Type"::Payment, InvoiceNo, PaymentNo);
     end;
 
     local procedure CreatePostVATAgentInvoiceAndPayment(var Vendor: Record Vendor; var PaymentAmount: Decimal; var InvoiceNo: Code[20]; var PaymentNo: Code[20]; var PaymentExternalDocNo: Code[20])
@@ -801,7 +798,7 @@ codeunit 144009 "ERM VAT Agent"
         CreateVATAgentVendorWithPostingSetup(Vendor, VATPostingSetupNoVAT, 18);
 
         // Create and post invoice
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetupNoVAT, RefGenPostingType::" ");
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetupNoVAT, "General Posting Type"::" ");
         InvoiceAmount := LibraryRandom.RandDecInRange(500, 1000, 2);
         InvoiceNo := CreatePostPurchInvoice(Vendor."No.", WorkDate, GLAccountNo, InvoiceAmount);
 
@@ -822,7 +819,7 @@ codeunit 144009 "ERM VAT Agent"
         CreateVATAgentVendorWithPostingSetup(Vendor, VATPostingSetupNoVAT, UnrealizedVATPercent);
 
         // Create and release invoice
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetupNoVAT, RefGenPostingType::" ");
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetupNoVAT, "General Posting Type"::" ");
         InvoiceAmount := LibraryRandom.RandDecInRange(500, 1000, 2);
         InvoiceNo := CreatePurchInvoice(Vendor."No.", WorkDate, GLAccountNo, InvoiceAmount, AmountIncludingVAT);
         ReleasePurchInvoice(InvoiceNo);
@@ -899,7 +896,7 @@ codeunit 144009 "ERM VAT Agent"
           VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Document Type"::Invoice, AmountToApply);
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocNoFrom: Code[20]; DocNoTo: Code[20]; DocTypeFrom: Option; DocTypeTo: Option; AmountToApply: Decimal)
+    local procedure ApplyAndPostVendorEntry(DocNoFrom: Code[20]; DocNoTo: Code[20]; DocTypeFrom: Enum "Gen. Journal Document Type"; DocTypeTo: Enum "Gen. Journal Document Type"; AmountToApply: Decimal)
     var
         VendorLedgerEntryFrom: Record "Vendor Ledger Entry";
         VendorLedgerEntryTo: Record "Vendor Ledger Entry";
@@ -1051,7 +1048,7 @@ codeunit 144009 "ERM VAT Agent"
         LibraryERM.CreateUnrealizedVATPostingSetup(VATPostingSetup);
         VATPostingSetup.Validate("VAT %", 18);
         VATPostingSetup.Modify(true);
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
         VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
 
         GLAccount.Get(GLAccountNo);
@@ -1091,8 +1088,7 @@ codeunit 144009 "ERM VAT Agent"
 
         // [GIVEN] Apply invoice to payment
         LibraryERM.ApplyVendorLedgerEntries(
-          RefDocType::Invoice, RefDocType::Payment,
-          InvoiceNo, PaymentNo);
+          "Gen. Journal Document Type"::Invoice, "Gen. Journal Document Type"::Payment, InvoiceNo, PaymentNo);
     end;
 
     local procedure RunPstdPurchFacturaInvoiceReport(var PurchInvLine: Record "Purch. Inv. Line"; VendorNo: Code[20])

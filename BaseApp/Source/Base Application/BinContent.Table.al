@@ -1240,7 +1240,6 @@
     begin
         SetRange("Serial No. Filter");
         SetRange("Lot No. Filter");
-        SetRange("CD No. Filter");
 
         OnAfterClearTrackingFilters(Rec);
     end;
@@ -1249,7 +1248,6 @@
     begin
         SetRange("Serial No. Filter", TrackingSpecification."Serial No.");
         SetRange("Lot No. Filter", TrackingSpecification."Lot No.");
-        SetRange("CD No. Filter", TrackingSpecification."CD No.");
 
         OnAfterSetTrackingFilterFromTrackingSpecification(Rec, TrackingSpecification);
     end;
@@ -1260,8 +1258,6 @@
             SetRange("Serial No. Filter", WhseEntry."Serial No.");
         if WhseEntry."Lot No." <> '' then
             SetRange("Lot No. Filter", WhseEntry."Lot No.");
-        if WhseEntry."CD No." <> '' then
-            SetRange("CD No. Filter", WhseEntry."CD No.");
 
         OnAfterSetTrackingFilterFromWhsEntryIfNotBlank(Rec, WhseEntry);
     end;
@@ -1272,8 +1268,6 @@
             SetRange("Serial No. Filter", WhseActivityLine."Serial No.");
         if WhseActivityLine."Lot No." <> '' then
             SetRange("Lot No. Filter", WhseActivityLine."Lot No.");
-        if WhseActivityLine."CD No." <> '' then
-            SetRange("CD No. Filter", WhseActivityLine."CD No.");
 
         OnAfterSetTrackingFilterFromWhseActivityLineIfNotBlank(Rec, WhseActivityLine);
     end;
@@ -1282,9 +1276,16 @@
     begin
         SetRange("Serial No. Filter", WhseItemTrackingLine."Serial No.");
         SetRange("Lot No. Filter", WhseItemTrackingLine."Lot No.");
-        SetRange("CD No. Filter", WhseItemTrackingLine."CD No.");
 
         OnAfterSetTrackingFilterFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+    end;
+
+    procedure SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No. Filter", WhseItemTrackingSetup."Serial No.");
+        SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromWhseItemTrackingSetup(Rec, WhseItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -1293,10 +1294,20 @@
             SetRange("Serial No. Filter", WhseItemTrackingSetup."Serial No.");
         if WhseItemTrackingSetup."Lot No. Required" then
             SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
-        if WhseItemTrackingSetup."CD No. Required" then
-            SetRange("CD No. Filter", WhseItemTrackingSetup."CD No.");
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No." <> '' then
+            if WhseItemTrackingSetup."Serial No. Required" then
+                SetRange("Serial No. Filter", WhseItemTrackingSetup."Serial No.");
+        if WhseItemTrackingSetup."Lot No." <> '' then
+            if WhseItemTrackingSetup."Lot No. Required" then
+                SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -1309,10 +1320,6 @@
             SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.")
         else
             SetFilter("Lot No. Filter", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
-        if WhseItemTrackingSetup."CD No. Required" then
-            SetRange("CD No. Filter", WhseItemTrackingSetup."CD No.")
-        else
-            SetFilter("CD No. Filter", '%1|%2', WhseItemTrackingSetup."CD No.", '');
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(Rec, WhseItemTrackingSetup);
     end;
@@ -1323,20 +1330,14 @@
             SetRange("Serial No. Filter", BinContentBuffer."Serial No.");
         if WhseItemTrackingSetup."Lot No. Required" then
             SetRange("Lot No. Filter", BinContentBuffer."Lot No.");
-        if WhseItemTrackingSetup."CD No. Required" then
-            SetRange("CD No. Filter", BinContentBuffer."CD No.");
 
         OnAfterSetTrackingFilterFromBinContentBufferIfRequired(Rec, WhseItemTrackingSetup, BinContentBuffer);
     end;
 
-    procedure TrackingFiltersExist(): Boolean
-    var
-        IsTrackingFiltersExist: Boolean;
+    procedure TrackingFiltersExist() IsTrackingFiltersExist: Boolean
     begin
         IsTrackingFiltersExist := (GetFilter("Lot No. Filter") <> '') or (GetFilter("Serial No. Filter") <> '');
-        IsTrackingFiltersExist := IsTrackingFiltersExist or (GetFilter("CD No. Filter") <> '');
         OnAfterTrackingFiltersExist(Rec, IsTrackingFiltersExist);
-        exit(IsTrackingFiltersExist);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1365,7 +1366,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseItemTrackingSetup(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

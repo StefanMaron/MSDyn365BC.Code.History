@@ -140,7 +140,7 @@ page 17221 "Tax Register (1.3) Item"
             action(Navigate)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

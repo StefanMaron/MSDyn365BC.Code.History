@@ -70,7 +70,7 @@ codeunit 12452 "Item Doc. Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('This method has been replaced with another overload.','16.0')]
+    [Obsolete('This method is replaced with another overload.', '16.0')]
     procedure CreateReservation(var ItemDocLine: Record "Item Document Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -271,7 +271,7 @@ codeunit 12452 "Item Doc. Line-Reserve"
                 ReceiptQty :=
                   CreateReservEntry.TransferReservEntry(
                     DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+                    ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                     ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                     ItemJnlLine."Qty. per Unit of Measure", OldReservEntry,
                     ReceiptQty * ItemJnlLine."Qty. per Unit of Measure"); // qty base
@@ -481,7 +481,7 @@ codeunit 12452 "Item Doc. Line-Reserve"
         AvailableItemLedgEntries: page "Available - Item Ledg. Entries";
     begin
         if MatchThisTable(ReservEntry."Source Type") then begin
-            AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, "Transfer Direction".FromInteger(ReservEntry."Source Subtype"));
             if Location."Bin Mandatory" or Location."Require Pick" then
                 AvailableItemLedgEntries.SetTotalAvailQty(
                     EntrySummary."Total Available Quantity" +

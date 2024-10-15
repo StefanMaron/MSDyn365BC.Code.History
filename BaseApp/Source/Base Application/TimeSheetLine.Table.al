@@ -161,7 +161,7 @@ table 951 "Time Sheet Line"
         }
         field(15; "Total Quantity"; Decimal)
         {
-            CalcFormula = Sum ("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("Time Sheet No."),
+            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("Time Sheet No."),
                                                                   "Time Sheet Line No." = FIELD("Line No.")));
             Caption = 'Total Quantity';
             Editable = false;
@@ -207,7 +207,7 @@ table 951 "Time Sheet Line"
         }
         field(26; Comment; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Comment Line" WHERE("No." = FIELD("Time Sheet No."),
+            CalcFormula = Exist("Time Sheet Comment Line" WHERE("No." = FIELD("Time Sheet No."),
                                                                  "Time Sheet Line No." = FIELD("Line No.")));
             Caption = 'Comment';
             Editable = false;
@@ -223,7 +223,7 @@ table 951 "Time Sheet Line"
         {
             Caption = 'Job Id';
             DataClassification = SystemMetadata;
-            TableRelation = Job.Id;
+            TableRelation = Job.SystemId;
         }
     }
 
@@ -471,7 +471,7 @@ table 951 "Time Sheet Line"
         if not Job.Get("Job No.") then
             exit;
 
-        "Job Id" := Job.Id;
+        "Job Id" := Job.SystemId;
     end;
 
     [IntegrationEvent(true, false)]

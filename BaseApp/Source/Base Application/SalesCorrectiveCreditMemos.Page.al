@@ -266,7 +266,7 @@ page 36848 "Sales Corrective Credit Memos"
                     var
                         ApprovalEntries: Page "Approval Entries";
                     begin
-                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type", "No.");
+                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                         ApprovalEntries.Run;
                     end;
                 }

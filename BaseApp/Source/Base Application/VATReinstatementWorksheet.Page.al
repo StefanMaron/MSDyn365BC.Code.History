@@ -222,7 +222,7 @@ page 14947 "VAT Reinstatement Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -303,7 +303,7 @@ page 14947 "VAT Reinstatement Worksheet"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

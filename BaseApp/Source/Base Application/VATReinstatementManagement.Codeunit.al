@@ -248,7 +248,7 @@ codeunit 12418 "VAT Reinstatement Management"
             GenJournalLine."Line No."));
     end;
 
-    local procedure IsAllowedVATCalcTypeForReinstatement(VATBase: Decimal; VATCalculationType: Option): Boolean
+    local procedure IsAllowedVATCalcTypeForReinstatement(VATBase: Decimal; VATCalculationType: Enum "Tax Calculation Type"): Boolean
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin

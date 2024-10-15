@@ -13,7 +13,6 @@ codeunit 144510 "ERM FA Charges Allocation"
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         Assert: Codeunit Assert;
         FAStatus: Option Inventory,Montage,Operation,Maintenance,Repair,Disposed,WrittenOff;
-        PostedPurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         WrongLineCountErr: Label 'FA Ledger Entry line count with FA Charge is incorrect';
         IncorrectAmountErr: Label 'FA Ledger Entry line Amount value is incorrect';
         DimValueMismatchErr: Label 'Dimension value mismatch';
@@ -76,7 +75,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         CreateCreditMemoFromPostedDoc(
           PurchaseHeader, PurchaseHeader."Buy-from Vendor No.",
           CalcDate('<CM+2M>', WorkDate),
-          PostedPurchDocType::"Posted Invoice", DocumentNo);
+          "Purchase Document Type From"::"Posted Invoice", DocumentNo);
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -263,7 +262,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         with FACharge do begin
             Init;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Charge");
-            "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+            "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
             GLAccount.Get("G/L Acc. for Released FA");
             "Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := GLAccount."VAT Prod. Posting Group";
@@ -273,7 +272,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         exit(FACharge."No.");
     end;
 
-    local procedure AddPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20])
+    local procedure AddPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, Type,
@@ -359,7 +358,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         LibraryFixedAsset.PostFADocument(FADocumentHeader);
     end;
 
-    local procedure CreateCreditMemoFromPostedDoc(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; PostingDate: Date; PostedDocType: Option; PostedDocNo: Code[20])
+    local procedure CreateCreditMemoFromPostedDoc(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; PostingDate: Date; PostedDocType: Enum "Purchase Document Type From"; PostedDocNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);

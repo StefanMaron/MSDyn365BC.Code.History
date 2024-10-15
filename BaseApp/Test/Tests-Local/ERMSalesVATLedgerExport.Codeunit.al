@@ -708,7 +708,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         exit(LocalReportMgt.FormatReportValue(Value, 2));
     end;
 
-    local procedure CreatePrepaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; PrepDocNo: Code[20]; LineAmount: Decimal)
+    local procedure CreatePrepaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PrepDocNo: Code[20]; LineAmount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LineAmount);
@@ -717,7 +717,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; InitDocNo: Code[20]; LineAmount: Decimal)
+    local procedure CreatePaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; InitDocNo: Code[20]; LineAmount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LineAmount);

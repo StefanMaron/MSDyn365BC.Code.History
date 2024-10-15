@@ -199,7 +199,7 @@ report 12411 "Order Factura-Invoice (A)"
                 CurrencyWrittenAmount := FacturaInvoiceHelper.GetCurrencyAmtCode("Currency Code", AmountInvoiceCurrent);
                 FacturaInvoiceHelper.GetCurrencyInfo(CurrencyWrittenAmount, CurrencyDigitalCode, CurrencyDescription);
 
-                if PrintShortAddr("Document Type", "No.") then
+                if PrintShortAddr("Document Type".AsInteger(), "No.") then
                     FacturaInvoiceHelper.InitAddressInfo(ConsignorName, ConsignorAddress, Receiver)
                 else begin
                     Receiver[1] := StdRepMgt.GetCustInfo(Header, 0, 1);
@@ -213,7 +213,7 @@ report 12411 "Order Factura-Invoice (A)"
                     KPPCode := Customer."KPP Code";
 
                 ItemTrackingDocMgt.RetrieveDocumentItemTracking(
-                  TrackingSpecBuffer, "No.", DATABASE::"Sales Header", "Document Type");
+                  TrackingSpecBuffer, "No.", DATABASE::"Sales Header", "Document Type".AsInteger());
 
                 if not Preview then begin
                     // IF ArchiveDocument THEN
@@ -616,8 +616,8 @@ report 12411 "Order Factura-Invoice (A)"
 
     local procedure FillRespPerson(var ResponsiblePerson: array[2] of Text)
     begin
-        ResponsiblePerson[1] := StdRepMgt.GetDirectorName(false, 36, Header."Document Type", Header."No.");
-        ResponsiblePerson[2] := StdRepMgt.GetAccountantName(false, 36, Header."Document Type", Header."No.");
+        ResponsiblePerson[1] := StdRepMgt.GetDirectorName(false, 36, Header."Document Type".AsInteger(), Header."No.");
+        ResponsiblePerson[2] := StdRepMgt.GetAccountantName(false, 36, Header."Document Type".AsInteger(), Header."No.");
     end;
 
     local procedure GetTemplateCode(IsProforma: Boolean): Code[10]

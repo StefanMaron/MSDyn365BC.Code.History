@@ -35,15 +35,42 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     [Test]
     [HandlerFunctions('EmailDialogModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
+    procedure PostingInstructionNotShownAfterPostingAndSendingSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        ReportSelections: Record "Report Selections";
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        PostingInstructionNotShownAfterPostingAndSendingInternal();
+        // Cleanup, as the next test will create the same entries
+        // Cannot use the TransactionModel::Autorollback as there is a commit inside the test
+        ReportSelections.DeleteAll();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
     procedure PostingInstructionNotShownAfterPostingAndSending()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        PostingInstructionNotShownAfterPostingAndSendingInternal();
+    end;
+
+    procedure PostingInstructionNotShownAfterPostingAndSendingInternal()
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesLine: Record "Sales Line";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
         SalesInvoice: TestPage "Sales Invoice";
         DocumentNo: Code[20];
     begin
         Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
 
         // Setup
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '', '', 1, '', 0D);
@@ -106,6 +133,13 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     begin
         EmailDialog.OutlookEdit.SetValue(false);
         EmailDialog.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+        EmailEditor.Send.Invoke();
     end;
 
     [ConfirmHandler]

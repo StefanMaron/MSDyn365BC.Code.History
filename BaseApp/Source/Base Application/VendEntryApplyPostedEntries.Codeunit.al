@@ -469,7 +469,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         DtldCVLedgEntryBuf."Gen. Posting Type" := DtldCVLedgEntryBuf."Gen. Posting Type"::Purchase;
 
         AmtDiffManagement.InsertPrepmtDiffBufEntry(
-          DtldCVLedgEntryBuf, DtldCVLedgEntryBuf."Gen. Posting Type"::Purchase, 0);
+          DtldCVLedgEntryBuf, DtldCVLedgEntryBuf."Gen. Posting Type"::Purchase.AsInteger(), 0);
     end;
 
     procedure PreviewApply(VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)

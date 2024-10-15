@@ -1,4 +1,4 @@
-page 303 "Vendor Entry Statistics"
+﻿page 303 "Vendor Entry Statistics"
 {
     Caption = 'Vendor Entry Statistics';
     Editable = false;
@@ -581,7 +581,7 @@ page 303 "Vendor Entry Statistics"
 
         if VendLedgEntry2.Find('+') then
             repeat
-                j := VendLedgEntry2."Document Type";
+                j := VendLedgEntry2."Document Type".AsInteger();
                 if VendLedgEntry2.Prepayment then
                     j := 7;
                 if j > 0 then begin
@@ -601,7 +601,7 @@ page 303 "Vendor Entry Statistics"
             VendLedgEntry2.SetFilter("Posting Date", VendDateFilter[i]);
             if VendLedgEntry2.Find('+') then
                 repeat
-                    j := VendLedgEntry2."Document Type";
+                    j := VendLedgEntry2."Document Type".AsInteger();
                     if VendLedgEntry2.Prepayment then
                         j := 7;
                     if j > 0 then

@@ -82,39 +82,40 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempItemLedgEntry.Reset();
     end;
 
-    local procedure FillTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; VariantCode: Code[10]; LN: Code[50]; SN: Code[50]; CD: Code[30]; Qty: Decimal; Correction: Boolean)
+    local procedure FillTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; VariantCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"; Qty: Decimal; Correction: Boolean)
     var
         LastEntryNo: Integer;
     begin
-        // creates or sums up a record in TempTrackingSpecBuffer
-
         TempTrackingSpecBuffer.Reset();
         LastEntryNo := TempTrackingSpecBuffer.GetLastEntryNo();
 
-        if ItemTrackingExistsInBuffer(TempTrackingSpecBuffer, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo, LN, SN, CD) then begin
-            TempTrackingSpecBuffer."Quantity (Base)" += Abs(Qty);                      // Sum up Qty
+        if ItemTrackingExistsInBuffer(TempTrackingSpecBuffer, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo, ItemTrackingSetup) then begin
+            TempTrackingSpecBuffer."Quantity (Base)" += Abs(Qty);
             TempTrackingSpecBuffer.Modify();
         end else begin
             LastEntryNo += 1;
-            InitTrackingSpecBuffer(TempTrackingSpecBuffer, LastEntryNo, Type, Subtype, ID, BatchName,
-              ProdOrderLine, RefNo, Description, ItemNo, VariantCode, LN, SN, Correction, CD);
+            InitTrackingSpecBuffer(
+                TempTrackingSpecBuffer, LastEntryNo, Type, Subtype, ID, BatchName,
+                ProdOrderLine, RefNo, Description, ItemNo, VariantCode, ItemTrackingSetup, Correction);
             TempTrackingSpecBuffer."Quantity (Base)" := Abs(Qty);
             TempTrackingSpecBuffer.Insert();
         end;
     end;
 
     procedure FillTrackingSpecBufferFromILE(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100])
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         // creates a new record in TempTrackingSpecBuffer (used for Posted Shipments/Receipts/Invoices)
 
-        if TempItemLedgEntry.FindSet then
+        if TempItemLedgEntry.FindSet() then
             repeat
                 if TempItemLedgEntry.TrackingExists then begin
+                    ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(TempItemLedgEntry);
                     FillTrackingSpecBuffer(
-                        TempTrackingSpecBuffer, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo, Description,
-                        TempItemLedgEntry."Item No.", TempItemLedgEntry."Variant Code",
-                        TempItemLedgEntry."Lot No.", TempItemLedgEntry."Serial No.", TempItemLedgEntry."CD No.",
-                        TempItemLedgEntry.Quantity, TempItemLedgEntry.Correction);
+                        TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
+                        ProdOrderLine, RefNo, Description, TempItemLedgEntry."Item No.", TempItemLedgEntry."Variant Code",
+                        ItemTrackingSetup, TempItemLedgEntry.Quantity, TempItemLedgEntry.Correction);
                     OnAfterFillTrackingSpecBufferFromItemLedgEntry(TempTrackingSpecBuffer, TempItemLedgEntry);
                 end;
             until TempItemLedgEntry.Next = 0;
@@ -123,6 +124,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     procedure FindReservEntries(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100])
     var
         ReservEntry: Record "Reservation Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         // finds Item Tracking for Quote, Order, Invoice, Credit Memo, Return Order
 
@@ -131,10 +133,11 @@ codeunit 6503 "Item Tracking Doc. Management"
         if ReservEntry.FindSet then
             repeat
                 if ReservEntry.TrackingExists then begin
-                    FillTrackingSpecBuffer(TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
-                      ProdOrderLine, RefNo, Description, ReservEntry."Item No.",
-                      ReservEntry."Variant Code", ReservEntry."Lot No.", ReservEntry."Serial No.",
-                      ReservEntry."CD No.", ReservEntry."Quantity (Base)", ReservEntry.Correction);
+                    ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
+                    FillTrackingSpecBuffer(
+                        TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
+                        ProdOrderLine, RefNo, Description, ReservEntry."Item No.", ReservEntry."Variant Code",
+                        ItemTrackingSetup, ReservEntry."Quantity (Base)", ReservEntry.Correction);
                     OnAfterFillTrackingSpecBufferFromReservEntry(TempTrackingSpecBuffer, ReservEntry);
                 end;
             until ReservEntry.Next = 0;
@@ -143,6 +146,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     local procedure FindTrackingEntries(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100])
     var
         TrackingSpec: Record "Tracking Specification";
+        ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         // finds Item Tracking for Quote, Order, Invoice, Credit Memo, Return Order when shipped/received
 
@@ -151,10 +155,11 @@ codeunit 6503 "Item Tracking Doc. Management"
         if TrackingSpec.FindSet then
             repeat
                 if TrackingSpec.TrackingExists then begin
-                    FillTrackingSpecBuffer(TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
-                      ProdOrderLine, RefNo, Description, TrackingSpec."Item No.",
-                      TrackingSpec."Variant Code", TrackingSpec."Lot No.", TrackingSpec."Serial No.",
-                      TrackingSpec."CD No.", TrackingSpec."Quantity (Base)", TrackingSpec.Correction);
+                    ItemTrackingSetup.CopyTrackingFromTrackingSpec(TrackingSpec);
+                    FillTrackingSpecBuffer(
+                        TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
+                        ProdOrderLine, RefNo, Description, TrackingSpec."Item No.", TrackingSpec."Variant Code",
+                        ItemTrackingSetup, TrackingSpec."Quantity (Base)", TrackingSpec.Correction);
                     OnAfterFillTrackingSpecBufferFromTrackingEntries(TempTrackingSpecBuffer, TrackingSpec);
                 end;
             until TrackingSpec.Next = 0;
@@ -186,7 +191,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempTrackingSpecBuffer.Reset();
     end;
 
-    local procedure InitTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; EntryNo: Integer; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; VariantCode: Code[10]; LN: Code[50]; SN: Code[50]; Correction: Boolean; CD: Code[30])
+    local procedure InitTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; EntryNo: Integer; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; VariantCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"; Correction: Boolean)
     begin
         // initializes a new record for TempTrackingSpecBuffer
 
@@ -201,18 +206,16 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempTrackingSpecBuffer."Source Batch Name" := BatchName;
         TempTrackingSpecBuffer."Source Prod. Order Line" := ProdOrderLine;
         TempTrackingSpecBuffer."Source Ref. No." := RefNo;
-        TempTrackingSpecBuffer."Lot No." := LN;
-        TempTrackingSpecBuffer."Serial No." := SN;
+        TempTrackingSpecBuffer.CopyTrackingFromItemTrackingSetup(ItemTrackingSetup);
         TempTrackingSpecBuffer.Correction := Correction;
-        TempTrackingSpecBuffer."CD No." := CD;
     end;
 
-    local procedure ItemTrackingExistsInBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; LotNo: Code[50]; SerialNo: Code[50]; CDNo: Code[30]): Boolean
+    local procedure ItemTrackingExistsInBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     begin
         // searches after existing record in TempTrackingSpecBuffer
         TempTrackingSpecBuffer.SetSourceFilter(Type, Subtype, ID, RefNo, true);
         TempTrackingSpecBuffer.SetSourceFilter(BatchName, ProdOrderLine);
-        TempTrackingSpecBuffer.SetTrackingFilter(SerialNo, LotNo, CDNo);
+        TempTrackingSpecBuffer.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
         if not TempTrackingSpecBuffer.IsEmpty then begin
             TempTrackingSpecBuffer.FindFirst;
             exit(true);
@@ -336,10 +339,12 @@ codeunit 6503 "Item Tracking Doc. Management"
                 then begin
                     if Item.Get(PurchaseLine."No.") then
                         Descr := Item.Description;
-                    FindReservEntries(TempTrackingSpecBuffer, DATABASE::"Purchase Line", PurchaseLine."Document Type",
-                      PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.", Descr);
-                    FindTrackingEntries(TempTrackingSpecBuffer, DATABASE::"Purchase Line", PurchaseLine."Document Type",
-                      PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.", Descr);
+                    FindReservEntries(
+                        TempTrackingSpecBuffer, DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(),
+                        PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.", Descr);
+                    FindTrackingEntries(
+                        TempTrackingSpecBuffer, DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(),
+                        PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.", Descr);
                 end;
             until PurchaseLine.Next = 0;
         end;
@@ -385,10 +390,12 @@ codeunit 6503 "Item Tracking Doc. Management"
                 then begin
                     if Item.Get(SalesLine."No.") then
                         Descr := Item.Description;
-                    FindReservEntries(TempTrackingSpecBuffer, DATABASE::"Sales Line", SalesLine."Document Type",
-                      SalesLine."Document No.", '', 0, SalesLine."Line No.", Descr);
-                    FindTrackingEntries(TempTrackingSpecBuffer, DATABASE::"Sales Line", SalesLine."Document Type",
-                      SalesLine."Document No.", '', 0, SalesLine."Line No.", Descr);
+                    FindReservEntries(
+                        TempTrackingSpecBuffer, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(),
+                        SalesLine."Document No.", '', 0, SalesLine."Line No.", Descr);
+                    FindTrackingEntries(
+                        TempTrackingSpecBuffer, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(),
+                        SalesLine."Document No.", '', 0, SalesLine."Line No.", Descr);
                 end;
             until SalesLine.Next = 0;
         end;
@@ -411,10 +418,12 @@ codeunit 6503 "Item Tracking Doc. Management"
                 then begin
                     if Item.Get(ServLine."No.") then
                         Descr := Item.Description;
-                    FindReservEntries(TempTrackingSpecBuffer, DATABASE::"Service Line", ServLine."Document Type",
-                      ServLine."Document No.", '', 0, ServLine."Line No.", Descr);
-                    FindTrackingEntries(TempTrackingSpecBuffer, DATABASE::"Service Line", ServLine."Document Type",
-                      ServLine."Document No.", '', 0, ServLine."Line No.", Descr);
+                    FindReservEntries(
+                        TempTrackingSpecBuffer, DATABASE::"Service Line", ServLine."Document Type".AsInteger(),
+                        ServLine."Document No.", '', 0, ServLine."Line No.", Descr);
+                    FindTrackingEntries(
+                        TempTrackingSpecBuffer, DATABASE::"Service Line", ServLine."Document Type".AsInteger(),
+                        ServLine."Document No.", '', 0, ServLine."Line No.", Descr);
                 end;
             until ServLine.Next = 0;
         end;
@@ -610,7 +619,18 @@ codeunit 6503 "Item Tracking Doc. Management"
         exit(false);
     end;
 
+    [Obsolete('Replaced by ShowItemTrackingForEntity().', '17.0')]
     procedure ShowItemTrackingForMasterData(SourceType: Option " ",Customer,Vendor,Item; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; LocationCode: Code[10])
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        ItemTrackingSetup."Serial No." := SerialNo;
+        ItemTrackingSetup."Lot No." := LotNo;
+        ItemTrackingSetup."CD No." := CDNo;
+        ShowItemTrackingForEntity(SourceType, SourceNo, ItemNo, VariantCode, LocationCode, ItemTrackingSetup);
+    end;
+
+    procedure ShowItemTrackingForEntity(SourceType: Integer; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[20]; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup")
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
@@ -635,24 +655,28 @@ codeunit 6503 "Item Tracking Doc. Management"
             Item.TestField("Item Tracking Code");
             ItemLedgEntry.SetRange("Item No.", ItemNo);
         end;
+
         if SourceType = 0 then
             ItemLedgEntry.SetRange("Variant Code", VariantCode);
-        if SerialNo <> '' then
-            ItemLedgEntry.SetRange("Serial No.", SerialNo);
-        if LotNo <> '' then
-            ItemLedgEntry.SetRange("Lot No.", LotNo);
-        if CDNo <> '' then
-            ItemLedgEntry.SetRange("CD No.", CDNo);
 
-        if ItemLedgEntry.FindSet then
+        ItemLedgEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
+        if ItemLedgEntry.FindSet() then
             repeat
                 if ItemLedgEntry.TrackingExists then begin
                     TempItemLedgEntry := ItemLedgEntry;
                     TempItemLedgEntry.Insert();
                 end
-            until ItemLedgEntry.Next = 0;
-        Window.Close;
+            until ItemLedgEntry.Next() = 0;
+
+        Window.Close();
         PAGE.RunModal(PAGE::"Item Tracking Entries", TempItemLedgEntry);
+    end;
+
+    procedure ShowItemTrackingForEntity(SourceType: Integer; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[20]; LocationCode: Code[10])
+    var
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        ShowItemTrackingForEntity(SourceType, SourceNo, ItemNo, VariantCode, LocationCode, DummyItemTrackingSetup);
     end;
 
     procedure ShowItemTrackingForProdOrderComp(Type: Integer; ID: Code[20]; ProdOrderLine: Integer; RefNo: Integer): Boolean

@@ -163,7 +163,7 @@ table 12452 "Item Receipt Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5402; "Variant Code"; Code[10])
@@ -208,8 +208,9 @@ table 12452 "Item Receipt Line"
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
+            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5807; "Applies-from Entry"; Integer)
         {

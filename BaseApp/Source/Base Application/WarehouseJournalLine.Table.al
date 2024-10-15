@@ -549,7 +549,7 @@ table 7311 "Warehouse Journal Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
 
             trigger OnValidate()
@@ -567,7 +567,7 @@ table 7311 "Warehouse Journal Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
 
             trigger OnValidate()
@@ -621,7 +621,7 @@ table 7311 "Warehouse Journal Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 2, "CD No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"CD No.", "CD No.");
             end;
 
             trigger OnValidate()
@@ -695,18 +695,16 @@ table 7311 "Warehouse Journal Line"
 
     var
         Location: Record Location;
-        Item: Record Item;
         Bin: Record Bin;
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlBatch: Record "Warehouse Journal Batch";
-        WhseJnlLine: Record "Warehouse Journal Line";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         WMSMgt: Codeunit "WMS Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         UOMMgt: Codeunit "Unit of Measure Management";
+        ItemTrackingType: Enum "Item Tracking Type";
         OldItemNo: Code[20];
-        PhysInvtEntered: Boolean;
         Text000: Label 'must not be negative';
         Text001: Label '%1 Journal';
         Text002: Label 'DEFAULT';
@@ -715,6 +713,11 @@ table 7311 "Warehouse Journal Line"
         Text006: Label '%1 must be 0 or 1 for an Item tracked by Serial Number.';
         OpenFromBatch: Boolean;
         StockProposal: Boolean;
+
+    protected var
+        Item: Record Item;
+        WhseJnlLine: Record "Warehouse Journal Line";
+        PhysInvtEntered: Boolean;
 
     procedure GetItem(ItemNo: Code[20]; var ItemDescription: Text[100])
     begin
@@ -1119,17 +1122,12 @@ table 7311 "Warehouse Journal Line"
 
     local procedure LookupFromBinCode()
     var
-        LotNo: Code[50];
-        SerialNo: Code[50];
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         BinCode: Code[20];
-        CDNo: Code[30];
     begin
         if ("Line No." <> 0) and IsReclass("Journal Template Name") then begin
-            LotNo := '';
-            SerialNo := '';
-            CDNo := '';
-            RetrieveItemTracking(LotNo, SerialNo, CDNo);
-            BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", LotNo, SerialNo, CDNo, "Bin Code");
+            LookupItemTracking(WhseItemTrackingSetup);
+            BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", WhseItemTrackingSetup, "Bin Code");
         end else
             BinCode := WMSMgt.BinLookUp("Location Code", "Item No.", "Variant Code", "Zone Code");
         if BinCode <> '' then
@@ -1138,24 +1136,30 @@ table 7311 "Warehouse Journal Line"
 
     local procedure LookupBinCode()
     var
-        LotNo: Code[50];
-        SerialNo: Code[50];
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         BinCode: Code[20];
-        CDNo: Code[30];
     begin
         if ("Line No." <> 0) and (Quantity < 0) then begin
-            LotNo := '';
-            SerialNo := '';
-            CDNo := '';
-            RetrieveItemTracking(LotNo, SerialNo, CDNo);
-            BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", LotNo, SerialNo, CDNo, "Bin Code");
+            LookupItemTracking(WhseItemTrackingSetup);
+            BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", WhseItemTrackingSetup, "Bin Code");
         end else
             BinCode := WMSMgt.BinLookUp("Location Code", "Item No.", "Variant Code", "Zone Code");
         if BinCode <> '' then
             Validate("Bin Code", BinCode);
     end;
 
+    [Obsolete('Replaced by LookupItemTracking()', '17.0')]
     procedure RetrieveItemTracking(var LotNo: Code[50]; var SerialNo: Code[50]; var CDNo: Code[30])
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        LookupItemTracking(WhseItemTrackingSetup);
+        SerialNo := WhseItemTrackingSetup."Serial No.";
+        LotNo := WhseItemTrackingSetup."Lot No.";
+        CDNo := WhseItemTrackingSetup."CD No.";
+    end;
+
+    procedure LookupItemTracking(var WhseItemTrackingSetup: Record "Item Tracking Setup")
     var
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
     begin
@@ -1164,12 +1168,9 @@ table 7311 "Warehouse Journal Line"
         then
             // Don't step in if more than one Tracking Definition exists
             if WhseItemTrkgLine.Count = 1 then begin
-                WhseItemTrkgLine.FindFirst;
-                if WhseItemTrkgLine."Quantity (Base)" = "Qty. (Absolute, Base)" then begin
-                    LotNo := WhseItemTrkgLine."Lot No.";
-                    SerialNo := WhseItemTrkgLine."Serial No.";
-                    CDNo := WhseItemTrkgLine."CD No.";
-                end;
+                WhseItemTrkgLine.FindFirst();
+                if WhseItemTrkgLine."Quantity (Base)" = "Qty. (Absolute, Base)" then
+                    WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(WhseItemTrkgLine);
             end;
     end;
 
@@ -1260,8 +1261,6 @@ table 7311 "Warehouse Journal Line"
             TestField("Serial No.");
         if WhseItemTrackingSetup."Lot No. Required" then
             TestField("Lot No.");
-        if WhseItemTrackingSetup."CD No. Required" then
-            TestField("CD No.");
 
         OnAfterCheckTrackingIfRequired(Rec, WhseItemTrackingSetup);
     end;
@@ -1270,16 +1269,26 @@ table 7311 "Warehouse Journal Line"
     begin
         "Serial No." := ItemLedgEntry."Serial No.";
         "Lot No." := ItemLedgEntry."Lot No.";
-        "CD No." := ItemLedgEntry."CD No.";
 
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
+    procedure CopyTrackingFromItemTrackingSetupIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            "Serial No." := WhseItemTrackingSetup."Serial No.";
+        if WhseItemTrackingSetup."Lot No. Required" then
+            "Lot No." := WhseItemTrackingSetup."Lot No.";
+        if WhseItemTrackingSetup."CD No. Required" then
+            "CD No." := WhseItemTrackingSetup."CD No.";
+
+        OnAfterCopyTrackingFromItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
     procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
     begin
         "Serial No." := WhseActivityLine."Serial No.";
         "Lot No." := WhseActivityLine."Lot No.";
-        "CD No." := WhseActivityLine."CD No.";
 
         OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
     end;
@@ -1288,7 +1297,6 @@ table 7311 "Warehouse Journal Line"
     begin
         "Serial No." := WhseEntry."Serial No.";
         "Lot No." := WhseEntry."Lot No.";
-        "CD No." := WhseEntry."CD No.";
 
         OnAfterCopyTrackingFromWhseEntry(Rec, WhseEntry);
     end;
@@ -1304,6 +1312,7 @@ table 7311 "Warehouse Journal Line"
             "Source Subline No." := SourceSublineNo;
     end;
 
+    [Obsolete('Replaced by CopyTrackingFrom procedures.', '17.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; WarrantyDate: Date; ExpirationDate: Date)
     begin
         "Serial No." := SerialNo;
@@ -1317,7 +1326,6 @@ table 7311 "Warehouse Journal Line"
     begin
         SetFilter("Serial No.", BinContent.GetFilter("Serial No. Filter"));
         SetFilter("Lot No.", BinContent.GetFilter("Lot No. Filter"));
-        SetFilter("CD No.", BinContent.GetFilter("CD No. Filter"));
 
         OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
     end;
@@ -1336,6 +1344,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemLedgEntry(var WhseJnlLine: Record "Warehouse Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingSetupIfRequired(var WhseJnlLine: Record "Warehouse Journal Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

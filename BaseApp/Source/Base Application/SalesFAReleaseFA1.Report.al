@@ -139,13 +139,13 @@ report 14982 "Sales FA Release FA-1"
                 FASetup.Get();
 
                 FA1Helper.CheckSignature(
-                  ReleasedBy, DATABASE::"Sales Header", "Document Type", "No.", ReleasedBy."Employee Type"::ReleasedBy);
+                  ReleasedBy, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.", ReleasedBy."Employee Type"::ReleasedBy);
                 FA1Helper.CheckSignature(
-                  Chairman, DATABASE::"Sales Header", "Document Type", "No.", Chairman."Employee Type"::Chairman);
+                  Chairman, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.", Chairman."Employee Type"::Chairman);
                 FA1Helper.CheckSignature(
-                  Member1, DATABASE::"Sales Header", "Document Type", "No.", Member1."Employee Type"::Member1);
+                  Member1, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.", Member1."Employee Type"::Member1);
                 FA1Helper.CheckSignature(
-                  Member2, DATABASE::"Sales Header", "Document Type", "No.", Member2."Employee Type"::Member2);
+                  Member2, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.", Member2."Employee Type"::Member2);
 
                 if not CurrReport.Preview then begin
                     if ArchiveDocument then
@@ -324,7 +324,7 @@ report 14982 "Sales FA Release FA-1"
     begin
         DocSignMgt.GetDocSign(
           DocSign, DATABASE::"Sales Header",
-          "Sales Header"."Document Type", "Sales Header"."No.", EmpType, true);
+          "Sales Header"."Document Type".AsInteger(), "Sales Header"."No.", EmpType, true);
     end;
 
     [Scope('OnPrem')]

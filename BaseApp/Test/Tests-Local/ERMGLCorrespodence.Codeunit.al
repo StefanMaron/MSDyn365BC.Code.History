@@ -211,7 +211,7 @@ codeunit 144016 "ERM G/L Correspodence"
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
         PurchaseLine.Modify(true);
         AmountArray[1] := PurchaseLine."Line Amount";
@@ -239,7 +239,7 @@ codeunit 144016 "ERM G/L Correspodence"
           LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
         SalesLine.Modify(true);
         AmountArray[1] := SalesLine."Line Amount";
@@ -278,7 +278,8 @@ codeunit 144016 "ERM G/L Correspodence"
     begin
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountNo, 0, '', LineAmount);
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountNo,
+          "Gen. Journal Account Type"::"G/L Account", '', LineAmount);
     end;
 
     local procedure FindPmtVendLedgEntry(DocNo: Code[20]): Integer
@@ -340,7 +341,7 @@ codeunit 144016 "ERM G/L Correspodence"
           GLAccountArray, PurchaseInvoiceHeaderNo, AmountArray, TransVATType);
     end;
 
-    local procedure PostPrepaymentGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]): Code[20]
+    local procedure PostPrepaymentGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Code[20]
     begin
         with GenJnlLine do begin
             LibraryJournals.CreateGenJournalLineWithBatch(

@@ -20,11 +20,9 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(4; "Entry Type"; Option)
+        field(4; "Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
         }
         field(5; "Source No."; Code[20])
         {
@@ -194,7 +192,7 @@ table 32 "Item Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(904; "Assemble to Order"; Boolean)
@@ -238,6 +236,9 @@ table 32 "Item Ledger Entry"
         field(5700; "Cross-Reference No."; Code[20])
         {
             Caption = 'Cross-Reference No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5701; "Originally Ordered No."; Code[20])
         {
@@ -275,6 +276,10 @@ table 32 "Item Ledger Entry"
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
+        }
+        field(5725; "Item Reference No."; Code[50])
+        {
+            Caption = 'Item Reference No.';
         }
         field(5800; "Completely Invoiced"; Boolean)
         {
@@ -314,7 +319,7 @@ table 32 "Item Ledger Entry"
         }
         field(5806; "Cost Amount (Expected) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = Sum("Value Entry"."Cost Amount (Expected) (ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Expected) (ACY)';
@@ -323,7 +328,7 @@ table 32 "Item Ledger Entry"
         }
         field(5807; "Cost Amount (Actual) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = Sum("Value Entry"."Cost Amount (Actual) (ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Actual) (ACY)';
@@ -332,7 +337,7 @@ table 32 "Item Ledger Entry"
         }
         field(5808; "Cost Amount (Non-Invtbl.)(ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = Sum("Value Entry"."Cost Amount (Non-Invtbl.)(ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Non-Invtbl.)(ACY)';
@@ -392,7 +397,7 @@ table 32 "Item Ledger Entry"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(6501; "Lot No."; Code[50])
@@ -401,7 +406,7 @@ table 32 "Item Ledger Entry"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -428,7 +433,7 @@ table 32 "Item Ledger Entry"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 2, "CD No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"CD No.", "CD No.");
             end;
         }
         field(12450; "FA No."; Code[20])
@@ -549,6 +554,7 @@ table 32 "Item Ledger Entry"
     var
         GLSetup: Record "General Ledger Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingType: Enum "Item Tracking Type";
         GLSetupRead: Boolean;
         IsNotOnInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.';
 
@@ -721,6 +727,18 @@ table 32 "Item Ledger Entry"
         SetRange("Drop Shipment", false);
     end;
 
+    procedure FilterLinesForTracking(CalcReservEntry: Record "Reservation Entry"; Positive: Boolean)
+    var
+        FieldFilter: Text;
+    begin
+        if CalcReservEntry.FieldFilterNeeded(FieldFilter, Positive, "Item Tracking Type"::"Lot No.") then
+            SetFilter("Lot No.", FieldFilter);
+        if CalcReservEntry.FieldFilterNeeded(FieldFilter, Positive, "Item Tracking Type"::"Serial No.") then
+            SetFilter("Serial No.", FieldFilter);
+
+        OnAfterFilterLinesForTracking(Rec, CalcReservEntry, Positive);
+    end;
+
     procedure IsOutbndSale(): Boolean
     begin
         exit(("Entry Type" = "Entry Type"::Sale) and not Positive);
@@ -805,9 +823,11 @@ table 32 "Item Ledger Entry"
         exit(AdjustedCost);
     end;
 
-    procedure TrackingExists(): Boolean
+    procedure TrackingExists() IsTrackingExist: Boolean
     begin
-        exit(("Serial No." <> '') or ("Lot No." <> '') or ("CD No." <> ''));
+        IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '');
+
+        OnAfterTrackingExists(Rec, IsTrackingExist);
     end;
 
     procedure IsRedStorno() RedStorno: Boolean
@@ -826,7 +846,6 @@ table 32 "Item Ledger Entry"
     begin
         "Serial No." := ItemJnlLine."Serial No.";
         "Lot No." := ItemJnlLine."Lot No.";
-        "CD No." := ItemJnlLine."CD No.";
 
         OnAfterCopyTrackingFromItemJnlLine(Rec, ItemJnlLine);
     end;
@@ -835,7 +854,6 @@ table 32 "Item Ledger Entry"
     begin
         "Serial No." := ItemJnlLine."New Serial No.";
         "Lot No." := ItemJnlLine."New Lot No.";
-        "CD No." := ItemJnlLine."New CD No.";
 
         OnAfterCopyTrackingFromNewItemJnlLine(Rec, ItemJnlLine);
     end;
@@ -879,6 +897,7 @@ table 32 "Item Ledger Entry"
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
+    [Obsolete('Replaced by SetTrackingFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
     begin
         SetRange("Serial No.", SerialNo);
@@ -890,7 +909,6 @@ table 32 "Item Ledger Entry"
     begin
         SetRange("Serial No.", ItemLedgEntry."Serial No.");
         SetRange("Lot No.", ItemLedgEntry."Lot No.");
-        SetRange("CD No.", ItemLedgEntry."CD No.");
 
         OnAfterSetTrackingFilterFromItemLedgEntry(Rec, ItemLedgEntry);
     end;
@@ -899,16 +917,32 @@ table 32 "Item Ledger Entry"
     begin
         SetRange("Serial No.", ItemJournalLine."Serial No.");
         SetRange("Lot No.", ItemJournalLine."Lot No.");
-        SetRange("CD No.", ItemJournalLine."CD No.");
 
         OnAfterSetTrackingFilterFromItemJournalLine(Rec, ItemJournalLine);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No." <> '' then
+            SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        if ItemTrackingSetup."Lot No." <> '' then
+            SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, ItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
         SetRange("Lot No.", TrackingSpecification."Lot No.");
-        SetRange("CD No.", TrackingSpecification."CD No.");
 
         OnAfterSetTrackingFilterFromSpec(Rec, TrackingSpecification);
     end;
@@ -917,14 +951,21 @@ table 32 "Item Ledger Entry"
     begin
         SetRange("Serial No.");
         SetRange("Lot No.");
-        SetRange("CD No.");
+
+        OnAfterClearTrackingFilter(Rec);
     end;
 
     procedure TestTrackingEqualToTrackingSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         TestField("Serial No.", TrackingSpecification."Serial No.");
         TestField("Lot No.", TrackingSpecification."Lot No.");
-        TestField("CD No.", TrackingSpecification."CD No.");
+
+        OnAfterTestTrackingEqualToTrackingSpec(Rec, TrackingSpecification);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearTrackingFilter(var ItemLedgerEntry: Record "Item Ledger Entry");
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -939,6 +980,11 @@ table 32 "Item Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var ItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForTracking(var ItemLedgerEntry: Record "Item Ledger Entry"; CalcReservEntry: Record "Reservation Entry"; Positive: Boolean)
     begin
     end;
 
@@ -958,7 +1004,27 @@ table 32 "Item Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromSpec(var ItemLedgerEntry: Record "Item Ledger Entry"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingExists(ItemLedgerEntry: Record "Item Ledger Entry"; var IsTrackingExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestTrackingEqualToTrackingSpec(var ItemLedgerEntry: Record "Item Ledger Entry"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

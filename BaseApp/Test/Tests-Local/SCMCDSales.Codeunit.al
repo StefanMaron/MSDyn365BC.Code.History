@@ -149,7 +149,7 @@ codeunit 147101 "SCM CD Sales"
         LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
         LibraryVariableStorage.Enqueue(SalesLine."Qty. to Ship (Base)");
         LibraryVariableStorage.Enqueue(SalesLine."Qty. to Invoice (Base)");
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         CheckILEs(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, Item."No.", Location.Code, '', CDNo[1], Qty[EntryType::Purchase]);
@@ -310,7 +310,7 @@ codeunit 147101 "SCM CD Sales"
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
         CreateSalesLineTracking(CDType::"1 CD", SalesLine, ReservationEntry, true, Qty[EntryType::Sales], SerialNo, LotNo, CDNo);
 
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
 
         for i := 1 to Qty[EntryType::Sales] do
             LibraryCDTracking.CheckPurchReservationEntry(PurchaseLine, SerialNo[i], LotNo, CDNo[1], 1,
@@ -373,7 +373,7 @@ codeunit 147101 "SCM CD Sales"
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
         CreateSalesLineTracking(CDType::"1 CD", SalesLine, ReservationEntry, true, Qty[EntryType::Sales], SerialNo, LotNo, CDNo);
 
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
 
         for i := 1 to Qty[EntryType::Purchase] do
             LibraryCDTracking.CheckPurchReservationEntry(
@@ -439,7 +439,7 @@ codeunit 147101 "SCM CD Sales"
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
         CreateSalesLineTracking(CDType::"2 CDs", SalesLine, ReservationEntry, false, Qty[EntryType::Sales], SerialNo, '', CDNo);
 
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
         for i := 1 to ArrayLen(Qty) do
             LibraryCDTracking.CheckPurchReservationEntry(
               PurchaseLine, '', '', CDNo[i], Qty[i] / 2, ReservationEntry."Reservation Status"::Reservation);
@@ -504,7 +504,7 @@ codeunit 147101 "SCM CD Sales"
             LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, '', '', CDNo[i], Qty[EntryType::Receipt] / 2);
 
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
         LibraryCDTracking.CreateSalesTrkgFromRes(SalesHeader, false);
 
         for i := 1 to 2 do begin
@@ -556,7 +556,7 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreatePurchLineTracking(ReservationEntry, PurchaseLine, '', LotNo, '', Qty[EntryType::Purchase]);
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine, '', LotNo, '', Qty[EntryType::Sales]);
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
 
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         Assert.ExpectedError(CDNumberNotDefinedErr);
@@ -629,8 +629,8 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], '', '', CDNo[1], 2);
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], '', '', CDNo[3], 1);
 
-        SalesLine[1].AutoReserve;
-        SalesLine[2].AutoReserve;
+        SalesLine[1].AutoReserve();
+        SalesLine[2].AutoReserve();
 
         LibraryCDTracking.CheckPurchReservationEntry(PurchaseLine[1], '', '', CDNo[1], 2,
           ReservationEntry."Reservation Status"::Reservation);
@@ -718,8 +718,8 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], '', LotNo, CDNo[1], 2);
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], '', LotNo, CDNo[3], 1);
 
-        SalesLine[1].AutoReserve;
-        SalesLine[2].AutoReserve;
+        SalesLine[1].AutoReserve();
+        SalesLine[2].AutoReserve();
 
         LibraryCDTracking.CheckPurchReservationEntry(PurchaseLine[1], '', LotNo, CDNo[1], 2,
           ReservationEntry."Reservation Status"::Reservation);
@@ -831,8 +831,8 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], SerialNo[7],
           LotNo, CDNo[3], 1);
 
-        SalesLine[1].AutoReserve;
-        SalesLine[2].AutoReserve;
+        SalesLine[1].AutoReserve();
+        SalesLine[2].AutoReserve();
 
         for j := 1 to 2 do
             LibraryCDTracking.CheckPurchReservationEntry(PurchaseLine[1], SerialNo[j], LotNo, CDNo[1], 1,
@@ -940,8 +940,8 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], '', '', CDNo[1], 2);
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], '', '', CDNo[3], 1);
 
-        SalesLine[1].AutoReserve;
-        SalesLine[2].AutoReserve;
+        SalesLine[1].AutoReserve();
+        SalesLine[2].AutoReserve();
 
         LibraryCDTracking.CheckPurchReservationEntry(PurchaseLine[1], '', '', CDNo[1], 2,
           ReservationEntry."Reservation Status"::Reservation);
@@ -1042,8 +1042,8 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], '', LotNo, CDNo[1], 2);
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], '', LotNo, CDNo[3], 1);
 
-        SalesLine[1].AutoReserve;
-        SalesLine[2].AutoReserve;
+        SalesLine[1].AutoReserve();
+        SalesLine[2].AutoReserve();
 
         LibraryCDTracking.CheckPurchReservationEntry(PurchaseLine[1], '', LotNo, CDNo[1], 2,
           ReservationEntry."Reservation Status"::Reservation);
@@ -1170,8 +1170,8 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine[2], SerialNo[7],
           LotNo, CDNo[3], 1);
 
-        SalesLine[1].AutoReserve;
-        SalesLine[2].AutoReserve;
+        SalesLine[1].AutoReserve();
+        SalesLine[2].AutoReserve();
 
         for j := 1 to 2 do begin
             LibraryCDTracking.CheckPurchReservationEntry(PurchaseLine[1], SerialNo[j], LotNo, CDNo[1], 1,
@@ -1663,7 +1663,7 @@ codeunit 147101 "SCM CD Sales"
         SalesLine.Validate("Planned Delivery Date", PostingDate);
         SalesLine.Validate("Qty. to Ship", 7);
         SalesLine.Modify();
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
 
         LibraryCDTracking.CreateSalesTrkgFromRes(SalesHeader, false);
 
@@ -1672,7 +1672,7 @@ codeunit 147101 "SCM CD Sales"
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(0);
         SalesLine.Find;
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         LibraryCDTracking.CheckPurchReservationEntry(PurchaseLine[1], '', '', CDNo[1], 3,
           ReservationEntry."Reservation Status"::Reservation);
@@ -2863,22 +2863,22 @@ codeunit 147101 "SCM CD Sales"
             Type::"Empty CD":
                 begin
                     LibraryReservation.CreateReservEntryFrom(37, 1, SalesHeader."No.", '', 0, 10000, 1, '', LotNo, CDNo[1]);
-                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
                     LibraryReservation.CreateReservEntryFor(39, 1, PurchaseHeader."No.", '', 0, 10000, 1, QtyRPO, QtyRPO, '', LotNo, CDNo[1]);
-                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
                 end;
             Type::"2 CDs":
                 begin
                     LibraryReservation.CreateReservEntryFrom(37, 1, SalesHeader."No.", '', 0, 10000, 1, '', LotNo, CDNo[1]);
-                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
                     LibraryReservation.CreateReservEntryFor(
                       39, 1, PurchaseHeader."No.", '', 0, 10000, 1, Round(QtyRPO / 2, 1), Round(QtyRPO / 2, 1), '', LotNo, CDNo[1]);
-                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
                     LibraryReservation.CreateReservEntryFrom(37, 1, SalesHeader."No.", '', 0, 10000, 1, '', LotNo, CDNo[1]);
-                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
                     LibraryReservation.CreateReservEntryFor(39, 1, PurchaseHeader."No.", '', 0, 10000, 1, QtyRPO - Round(QtyRPO / 2, 1),
                       QtyRPO - Round(QtyRPO / 2, 1), '', LotNo, CDNo[2]);
-                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+                    LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
                 end;
         end;
     end;
@@ -2886,19 +2886,19 @@ codeunit 147101 "SCM CD Sales"
     local procedure CreateIRSOReservation(SalesHeader: Record "Sales Header"; ItemDocumentHeader: Record "Item Document Header"; LocationCode: Code[10]; ItemNo: Code[20]; QtyRIR: Integer; LotNo: Code[20]; CDNo: array[3] of Code[30])
     begin
         LibraryReservation.CreateReservEntryFrom(37, 1, SalesHeader."No.", '', 0, 10000, 1, '', LotNo, CDNo[1]);
-        LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+        LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
         LibraryReservation.CreateReservEntryFor(12453, 0, ItemDocumentHeader."No.", '', 0, 10000,
           1, QtyRIR, QtyRIR, '', LotNo, CDNo[1]);
-        LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+        LibraryReservation.CreateEntry(ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
     end;
 
-    local procedure CheckILEs(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output; ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal)
+    local procedure CheckILEs(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal)
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         LibraryCDTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, ItemNo, LocationCode, '', LotNo, CDNo, Qty);
     end;
 
-    local procedure CheckILEsWithSerial(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output; ItemNo: Code[20]; LocationCode: Code[10]; SerialNo: array[10] of Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal)
+    local procedure CheckILEsWithSerial(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; SerialNo: array[10] of Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Decimal)
     var
         j: Integer;
         sign: Integer;

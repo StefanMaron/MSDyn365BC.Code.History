@@ -138,7 +138,7 @@ report 14917 "Act Items Receipt M-7"
             begin
                 FillHeaderBuffer(
                   DATABASE::"Purchase Header",
-                  "Document Type",
+                  "Document Type".AsInteger(),
                   "No.",
                   "Document Date",
                   "Posting Date",
@@ -479,7 +479,7 @@ report 14917 "Act Items Receipt M-7"
                 HeaderBuffer."Pmt. Discount Date" := VendAgrmt."Agreement Date";
             end;
         end else begin
-            HeaderBuffer."Document Type" := DocumentType;
+            HeaderBuffer."Document Type" := "Purchase Document Type".FromInteger(DocumentType);
             HeaderBuffer."No." := DocumentNo;
             HeaderBuffer."Buy-from Vendor No." := BuyFromVendorNo;
             HeaderBuffer."Pay-to Vendor No." := PayToVendorNo;
@@ -747,7 +747,7 @@ report 14917 "Act Items Receipt M-7"
             ExcelReportBuilderMgr.AddDataToSection('ActMonth', Format(LocMgt.Month2Text("Document Date")));
             ExcelReportBuilderMgr.AddDataToSection('ActYear', Format("Document Date", 0, '<Year>'));
 
-            if GetDocSignParameters("No. of Documents", "Document Type", "No.",
+            if GetDocSignParameters("No. of Documents", "Document Type".AsInteger(), "No.",
                  DocumentSignature."Employee Type"::Member1, EmployeePosition, EmployeeName, EmployeeDocument)
             then begin
                 ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Title', EmployeePosition);
@@ -755,7 +755,7 @@ report 14917 "Act Items Receipt M-7"
                 ExcelReportBuilderMgr.AddDataToSection('CommissionDocument1', EmployeeDocument);
             end;
 
-            if GetDocSignParameters("No. of Documents", "Document Type", "No.",
+            if GetDocSignParameters("No. of Documents", "Document Type".AsInteger(), "No.",
                  DocumentSignature."Employee Type"::Member2, EmployeePosition, EmployeeName, EmployeeDocument)
             then begin
                 ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Title', EmployeePosition);
@@ -763,7 +763,7 @@ report 14917 "Act Items Receipt M-7"
                 ExcelReportBuilderMgr.AddDataToSection('CommissionDocument2', EmployeeDocument);
             end;
 
-            if GetDocSignParameters("No. of Documents", "Document Type", "No.",
+            if GetDocSignParameters("No. of Documents", "Document Type".AsInteger(), "No.",
                  DocumentSignature."Employee Type"::Member3, EmployeePosition, EmployeeName, EmployeeDocument)
             then begin
                 ExcelReportBuilderMgr.AddDataToSection('CommissionMember3Title', EmployeePosition);
@@ -771,7 +771,7 @@ report 14917 "Act Items Receipt M-7"
                 ExcelReportBuilderMgr.AddDataToSection('CommissionDocument3', EmployeeDocument);
             end;
 
-            if GetDocSignParameters("No. of Documents", "Document Type", "No.",
+            if GetDocSignParameters("No. of Documents", "Document Type".AsInteger(), "No.",
                  DocumentSignature."Employee Type"::StoredBy, EmployeePosition, EmployeeName, EmployeeDocument)
             then
                 ExcelReportBuilderMgr.AddDataToSection('Stockkeeper', EmployeeName)

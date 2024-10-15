@@ -1232,7 +1232,7 @@ codeunit 12401 "Local Report Management"
     end;
 
     [Scope('OnPrem')]
-    procedure IsEAEUItem_ValueEntry(ValueEntryDocumentType: Option; DocumentNo: Code[20]; DocumentLineNo: Integer): Boolean
+    procedure IsEAEUItem_ValueEntry(ValueEntryDocumentType: Enum "Cost Entry Type"; DocumentNo: Code[20]; DocumentLineNo: Integer): Boolean
     var
         DummyValueEntry: Record "Value Entry";
         SalesInvoiceLine: Record "Sales Invoice Line";

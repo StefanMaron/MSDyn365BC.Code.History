@@ -764,13 +764,13 @@ codeunit 144013 "ERM Print Corr. Documents"
         Commit();
     end;
 
-    local procedure CreatePostSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option): Code[20]
+    local procedure CreatePostSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocType);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Cust: Record Customer;

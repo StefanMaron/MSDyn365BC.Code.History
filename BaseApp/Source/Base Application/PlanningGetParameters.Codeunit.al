@@ -162,7 +162,7 @@ codeunit 99000855 "Planning-Get Parameters"
         DampenerQuantityEnabled: Boolean;
         OverflowLevelEnabled: Boolean;
     begin
-        SetUpPlanningControls(SKU."Reordering Policy", SKU."Include Inventory",
+        SetUpPlanningControls(SKU."Reordering Policy".AsInteger(), SKU."Include Inventory",
           TimebucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
           ReorderPointEnabled, ReorderQuantityEnabled, MaximumInventoryEnabled,
           MinimumOrderQtyEnabled, MaximumOrderQtyEnabled, OrderMultipleEnabled, IncludeInventoryEnabled,

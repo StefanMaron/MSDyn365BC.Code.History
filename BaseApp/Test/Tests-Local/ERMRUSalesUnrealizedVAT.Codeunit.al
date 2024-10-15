@@ -340,7 +340,7 @@ codeunit 144012 "ERM RU Sales Unrealized VAT"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntryFrom);
     end;
 
-    local procedure UnapplyLedgerEntries(DocType: Option; DocNo: Code[20])
+    local procedure UnapplyLedgerEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";

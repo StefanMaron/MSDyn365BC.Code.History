@@ -193,7 +193,7 @@ page 12434 "Posted Adv. Statement Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Entries")

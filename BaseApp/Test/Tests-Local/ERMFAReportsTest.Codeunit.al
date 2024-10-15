@@ -310,7 +310,7 @@ codeunit 144714 "ERM FA Reports Test"
         FixedAssetJournal.OpenEdit;
 
         // [WHEN] Push "Print" on the page ribbon.
-        EnqueueReportsNos(ReportSelections.Usage::FAJ);
+        EnqueueReportsNos(ReportSelections.Usage::FAJ.AsInteger());
         FixedAssetJournal.Print.Invoke;
 
         // [THEN] List of reports set for FA Journal is shown.

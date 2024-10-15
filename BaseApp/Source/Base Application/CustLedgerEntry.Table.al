@@ -545,7 +545,7 @@ table 21 "Cust. Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])

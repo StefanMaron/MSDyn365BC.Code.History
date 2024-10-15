@@ -166,7 +166,7 @@ page 12467 "Item Document Lines"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -178,7 +178,7 @@ page 12467 "Item Document Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

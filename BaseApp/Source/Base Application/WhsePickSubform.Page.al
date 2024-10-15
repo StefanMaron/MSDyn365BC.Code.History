@@ -59,7 +59,7 @@ page 5780 "Whse. Pick Subform"
 
                     trigger OnValidate()
                     begin
-                        SerialNoOnAfterValidate;
+                        SerialNoOnAfterValidate();
                     end;
                 }
                 field("Serial No. Blocked"; "Serial No. Blocked")
@@ -76,7 +76,7 @@ page 5780 "Whse. Pick Subform"
 
                     trigger OnValidate()
                     begin
-                        LotNoOnAfterValidate;
+                        LotNoOnAfterValidate();
                     end;
                 }
                 field("Lot No. Blocked"; "Lot No. Blocked")
@@ -546,12 +546,12 @@ page 5780 "Whse. Pick Subform"
             "Expiration Date" := ExpDate;
     end;
 
-    local procedure BinCodeOnAfterValidate()
+    protected procedure BinCodeOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QtytoHandleOnAfterValidate()
+    protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.SaveRecord;
     end;

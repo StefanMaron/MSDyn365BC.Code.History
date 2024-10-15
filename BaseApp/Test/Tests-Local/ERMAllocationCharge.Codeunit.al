@@ -172,7 +172,7 @@ codeunit 144511 "ERM Allocation Charge"
         exit(Item."No.");
     end;
 
-    local procedure CreatePostPurchDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Option; ItemNo: Code[20]; Quantity: Decimal; Post: Boolean) DocumentNo: Code[20]
+    local procedure CreatePostPurchDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; ItemNo: Code[20]; Quantity: Decimal; Post: Boolean) DocumentNo: Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         Location: Record Location;
@@ -188,7 +188,7 @@ codeunit 144511 "ERM Allocation Charge"
             DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreatePostSalesDoc(DocType: Option; ItemNo: Code[20]; Quantity: Decimal; Post: Boolean) DocumentNo: Code[20]
+    local procedure CreatePostSalesDoc(DocType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal; Post: Boolean) DocumentNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -318,7 +318,7 @@ codeunit 144511 "ERM Allocation Charge"
         exit(PurchLine."Line No.");
     end;
 
-    local procedure CreatePurchDocLine(PurchHeader: Record "Purchase Header"; ItemType: Option; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
+    local procedure CreatePurchDocLine(PurchHeader: Record "Purchase Header"; ItemType: Enum "Purchase Line Type"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
         PurchLine: Record "Purchase Line";
     begin
@@ -587,7 +587,7 @@ codeunit 144511 "ERM Allocation Charge"
         AppliesToDocType[id] := DocType;
     end;
 
-    local procedure VerifyItemChargeAssgntPurchValues(DocType: Option; DocNo: Code[20]; ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; QtyToAssign: array[5] of Decimal; AmtToAssign: array[5] of Decimal; AppliesToDocType: array[6] of Option)
+    local procedure VerifyItemChargeAssgntPurchValues(DocType: Enum "Purchase Document Type"; DocNo: Code[20]; ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; QtyToAssign: array[5] of Decimal; AmtToAssign: array[5] of Decimal; AppliesToDocType: array[6] of Option)
     var
         Counter: Integer;
     begin

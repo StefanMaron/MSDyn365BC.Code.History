@@ -185,7 +185,7 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST(Receipt),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST(Receipt),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -446,7 +446,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Campaign No."; Code[20])
@@ -554,7 +554,7 @@
     begin
         with PurchRcptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNoVendor(
+            ReportSelection.PrintWithDialogForVend(
               ReportSelection.Usage::"P.Receipt", PurchRcptHeader, ShowRequestForm, FieldNo("Buy-from Vendor No."));
         end;
     end;

@@ -94,7 +94,7 @@ page 14976 "Sales Cr. Memo Lines"
             exit;
 
         CurrPage.SetSelectionFilter(Rec);
-        CorrDocMgt.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+        CorrDocMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         CorrDocMgt.SetCorrectionType(Selection - 1);
         CorrDocMgt.CreateSalesLinesFromPstdCrMemo(Rec);
     end;

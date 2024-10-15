@@ -388,7 +388,7 @@ table 17417 "Posted Payroll Document Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(17400; "Payroll Ledger Entry No."; Integer)

@@ -180,7 +180,7 @@
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(6501; "Lot No."; Code[50])
@@ -189,7 +189,7 @@
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -224,7 +224,7 @@
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 2, "CD No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"CD No.", "CD No.");
             end;
         }
     }
@@ -248,7 +248,6 @@
         }
         key(Key5; "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "CD No.", "Entry Type", Dedicated)
         {
-            MaintainSIFTIndex = false;
             SumIndexFields = "Qty. (Base)", Cubage, Weight, Quantity;
         }
         key(Key6; "Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code", "Lot No.", "Serial No.", "CD No.", Dedicated)
@@ -292,12 +291,12 @@
 
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingType: Enum "Item Tracking Type";
 
     procedure ClearTrackingFilter()
     begin
         SetRange("Serial No.");
         SetRange("Lot No.");
-        SetRange("CD No.");
 
         OnAfterClearTrackingFilter(Rec);
     end;
@@ -306,7 +305,6 @@
     begin
         "Serial No." := WhseEntry."Serial No.";
         "Lot No." := WhseEntry."Lot No.";
-        "CD No." := WhseEntry."CD No.";
 
         OnAfterCopyTrackingFromWhseEntry(Rec, WhseEntry);
     end;
@@ -315,9 +313,18 @@
     begin
         "Serial No." := WhseJnlLine."Serial No.";
         "Lot No." := WhseJnlLine."Lot No.";
-        "CD No." := WhseJnlLine."CD No.";
 
         OnAfterCopyTrackingFromWhseJnlLine(Rec, WhseJnlLine);
+    end;
+
+    procedure CopyTrackingFromNewWhseJnlLine(WhseJnlLine: Record "Warehouse Journal Line")
+    begin
+        if WhseJnlLine."New Serial No." <> '' then
+            "Serial No." := WhseJnlLine."New Serial No.";
+        if WhseJnlLine."New Lot No." <> '' then
+            "Lot No." := WhseJnlLine."New Lot No.";
+
+        OnAfterCopyTrackingFromNewWhseJnlLine(Rec, WhseJnlLine);
     end;
 
     procedure SetCalculationFilters(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; ExcludeDedicatedBinContent: Boolean)
@@ -355,8 +362,6 @@
             SetRange("Lot No.", "Lot No.");
         if "Serial No." <> '' then
             SetRange("Serial No.", "Serial No.");
-        if "CD No." <> '' then
-            SetRange("CD No.", "CD No.");
 
         OnAfterSetTrackingFilterIfNotBlank(Rec);
     end;
@@ -365,7 +370,6 @@
     begin
         SetFilter("Serial No.", BinContent.GetFilter("Serial No. Filter"));
         SetFilter("Lot No.", BinContent.GetFilter("Lot No. Filter"));
-        SetFilter("CD No.", BinContent.GetFilter("CD No. Filter"));
 
         OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
     end;
@@ -374,10 +378,20 @@
     begin
         SetRange("Serial No.", BinContentBuffer."Serial No.");
         SetRange("Lot No.", BinContentBuffer."Lot No.");
-        SetRange("CD No.", BinContentBuffer."CD No.");
 
         OnAfterSetTrackingFilterFromBinContentBuffer(Rec, BinContentBuffer);
     end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
+        if WhseItemTrackingSetup."Lot No. Required" then
+            SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
 
     procedure SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
@@ -391,11 +405,6 @@
                 SetRange("Lot No.", WhseItemTrackingSetup."Lot No.")
             else
                 SetFilter("Lot No.", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
-        if WhseItemTrackingSetup."CD No." <> '' then
-            if WhseItemTrackingSetup."CD No. Required" then
-                SetRange("CD No.", WhseItemTrackingSetup."CD No.")
-            else
-                SetFilter("CD No.", '%1|%2', WhseItemTrackingSetup."CD No.", '');
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(Rec, WhseItemTrackingSetup);
     end;
@@ -404,7 +413,6 @@
     begin
         SetRange("Serial No.", FromWhseEntry."Serial No.");
         SetRange("Lot No.", FromWhseEntry."Lot No.");
-        SetRange("CD No.", FromWhseEntry."CD No.");
 
         OnAfterSetTrackingFilterFromWhseEntry(Rec, FromWhseEntry);
     end;
@@ -415,8 +423,6 @@
             SetRange("Serial No.", ReservEntry."Serial No.");
         if ReservEntry."Lot No." <> '' then
             SetRange("Lot No.", ReservEntry."Lot No.");
-        if ReservEntry."CD No." <> '' then
-            SetRange("CD No.", ReservEntry."CD No.");
 
         OnAfterSetTrackingFilterFromReservEntryIfNotBlank(Rec, ReservEntry);
     end;
@@ -427,20 +433,14 @@
             SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
         if WhseItemTrackingSetup."Lot No." <> '' then
             SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
-        if WhseItemTrackingSetup."CD No." <> '' then
-            SetRange("CD No.", WhseItemTrackingSetup."CD No.");
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, WhseItemTrackingSetup);
     end;
 
-    procedure TrackingExists(): Boolean
-    var
-        IsTrackingExists: Boolean;
+    procedure TrackingExists() IsTrackingExists: Boolean
     begin
         IsTrackingExists := ("Lot No." <> '') or ("Serial No." <> '');
-        IsTrackingExists := IsTrackingExists or ("CD No." <> '');
         OnAfterTrackingExists(Rec, IsTrackingExists);
-        exit(IsTrackingExists);
     end;
 
     [IntegrationEvent(false, false)]
@@ -455,6 +455,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromNewWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 
@@ -475,6 +480,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

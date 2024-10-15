@@ -176,7 +176,7 @@ table 12458 "Direct Transfer Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

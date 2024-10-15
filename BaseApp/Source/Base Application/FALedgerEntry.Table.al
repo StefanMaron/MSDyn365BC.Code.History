@@ -229,11 +229,9 @@ table 5601 "FA Ledger Entry"
             AutoFormatType = 1;
             Caption = 'VAT Amount';
         }
-        field(47; "Gen. Posting Type"; Option)
+        field(47; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(48; "Gen. Bus. Posting Group"; Code[20])
         {
@@ -372,7 +370,7 @@ table 5601 "FA Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(12405; "Employee No."; Code[20])
@@ -572,7 +570,7 @@ table 5601 "FA Ledger Entry"
         GenJnlLine."Line No." := 0;
         GenJnlLine.Init();
         FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-        GenJnlLine."FA Posting Type" := ConvertPostingType + 1;
+        GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type".FromInteger(ConvertPostingType() + 1);
         GenJnlLine."Posting Date" := "Posting Date";
         GenJnlLine."FA Posting Date" := "FA Posting Date";
         if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
@@ -606,7 +604,7 @@ table 5601 "FA Ledger Entry"
         FAJnlLine."Line No." := 0;
         FAJnlLine.Init();
         FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-        FAJnlLine."FA Posting Type" := ConvertPostingType;
+        FAJnlLine."FA Posting Type" := "FA Journal Line FA Posting Type".FromInteger(ConvertPostingType());
         FAJnlLine."Posting Date" := "Posting Date";
         FAJnlLine."FA Posting Date" := "FA Posting Date";
         if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
@@ -658,7 +656,7 @@ table 5601 "FA Ledger Entry"
                 OnAfterConvertPostingTypeElse(FAJnlLine, Rec);
         end;
         OnAfterConvertPostingType(Rec, FAJnlLine);
-        exit(FAJnlLine."FA Posting Type");
+        exit(FAJnlLine."FA Posting Type".AsInteger());
     end;
 
     procedure ShowDimensions()
@@ -790,7 +788,7 @@ table 5601 "FA Ledger Entry"
         exit(VATEntry.Base);
     end;
 
-    [Obsolete('Replaced by event OnAfterConvertPostingTypeElse.','15.3')]
+    [Obsolete('Replaced by event OnAfterConvertPostingTypeElse.', '15.3')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterConvertPostingType(FALedgerEntry: Record "FA Ledger Entry"; var FAJournalLine: Record "FA Journal Line")
     begin

@@ -311,7 +311,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         UpdateInvFactQuantity(ItemJnlLine, Sign);
     end;
 
-    local procedure InitItemJournalLine(var ItemJnlLine: Record "Item Journal Line"; Type: Option)
+    local procedure InitItemJournalLine(var ItemJnlLine: Record "Item Journal Line"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -328,7 +328,9 @@ codeunit 144709 "ERM Item And Phys. Inventory"
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name",
-          GetRandomType(ItemJnlLine."Entry Type"::"Positive Adjmt.", ItemJnlLine."Entry Type"::"Negative Adjmt."),
+          "Item Ledger Entry Type".FromInteger(
+            GetRandomType(
+                ItemJnlLine."Entry Type"::"Positive Adjmt.".AsInteger(), ItemJnlLine."Entry Type"::"Negative Adjmt.".AsInteger())),
           ItemNo, LibraryRandom.RandDecInRange(5, 10, 2));
     end;
 

@@ -548,7 +548,7 @@ page 7002 "Sales Prices"
         end;
     end;
 
-    local procedure SetSalesCodeEditable(SalesType: Option): Boolean
+    local procedure SetSalesCodeEditable(SalesType: Enum "Sales Price Type"): Boolean
     begin
         exit(SalesType <> "Sales Type"::"All Customers");
     end;

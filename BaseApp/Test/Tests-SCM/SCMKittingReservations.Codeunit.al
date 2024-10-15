@@ -120,7 +120,7 @@ codeunit 137095 "SCM Kitting - Reservations"
 
         // Try to open the Reservation and the Reservation Entries page.
         // Validate: Pages are raised according to the test function handler.
-        AssemblyLine.ShowReservation;
+        AssemblyLine.ShowReservation();
         AssemblyLine.ShowReservationEntries(true);
     end;
 
@@ -138,7 +138,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, DueDate, Item."No.", '', LibraryRandom.RandDec(10, 2), '');
     end;
 
-    local procedure TestAutoReserve(Reserve: Option; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer): Code[20]
+    local procedure TestAutoReserve(Reserve: Enum "Reserve Method"; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer): Code[20]
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
@@ -554,7 +554,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     end;
 
     [Normal]
-    local procedure TestUIAutoReserve(Reserve: Option; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer)
+    local procedure TestUIAutoReserve(Reserve: Enum "Reserve Method"; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer)
     var
         AssemblyLine: Record "Assembly Line";
         TempReservationEntry: Record "Reservation Entry" temporary;
@@ -688,7 +688,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     end;
 
     [Normal]
-    local procedure TestUIAvailToReserve(Reserve: Option; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer; ReserveTwice: Boolean)
+    local procedure TestUIAvailToReserve(Reserve: Enum "Reserve Method"; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer; ReserveTwice: Boolean)
     var
         AssemblyLine: Record "Assembly Line";
         TempReservationEntry: Record "Reservation Entry" temporary;
@@ -708,7 +708,7 @@ codeunit 137095 "SCM Kitting - Reservations"
             TempReservationEntry, Qty, AssemblyLine."Location Code", AssemblyLine."Variant Code", AssemblyLine."Due Date", 900);
         GlobalReserveTwice := ReserveTwice;
 
-        AssemblyLine.ShowReservation;
+        AssemblyLine.ShowReservation();
         // Reservation page handler is triggered.
 
         // Validate: Reservation entries and Reserved Qty on Assembly Line.
@@ -851,7 +851,7 @@ codeunit 137095 "SCM Kitting - Reservations"
             AssemblyLine."Variant Code", AssemblyLine."Due Date", SourceType);
         GlobalReserveTwice := ReserveTwice;
 
-        AssemblyLine.ShowReservation;
+        AssemblyLine.ShowReservation();
         // Reservation page handler is triggered.
     end;
 
@@ -1154,7 +1154,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     end;
 
     [Normal]
-    local procedure TestChangeLineQty(Reserve: Option; ExcessSupply: Decimal; NewQtyDelta: Decimal)
+    local procedure TestChangeLineQty(Reserve: Enum "Reserve Method"; ExcessSupply: Decimal; NewQtyDelta: Decimal)
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
@@ -1229,7 +1229,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     end;
 
     [Normal]
-    local procedure TestDeleteLine(Reserve: Option)
+    local procedure TestDeleteLine(Reserve: Enum "Reserve Method")
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
@@ -1383,7 +1383,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     end;
 
     [Normal]
-    local procedure TestSalesLineReserve(Reserve: Option; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer; ReserveSalesLineFirst: Boolean): Code[20]
+    local procedure TestSalesLineReserve(Reserve: Enum "Reserve Method"; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer; ReserveSalesLineFirst: Boolean): Code[20]
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
@@ -1675,7 +1675,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     end;
 
     [Normal]
-    local procedure TestChangeSalesLine(Reserve: Option; SalesLineFieldNo: Integer; PositiveTest: Boolean; ExcessSupply: Decimal; SupplyDelayFactor: Integer; Multiplicity: Integer)
+    local procedure TestChangeSalesLine(Reserve: Enum "Reserve Method"; SalesLineFieldNo: Integer; PositiveTest: Boolean; ExcessSupply: Decimal; SupplyDelayFactor: Integer; Multiplicity: Integer)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1804,7 +1804,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", GlobalAOSupply);
 
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
     end;
 
     [Test]
@@ -1826,7 +1826,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.");
 
         LibraryVariableStorage.Enqueue(GlobalAOSupply);
-        ProdOrderLine.ShowReservation;
+        ProdOrderLine.ShowReservation();
     end;
 
     [Test]
@@ -1846,7 +1846,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalAOSupply, WorkDate - 1);
 
         LibraryVariableStorage.Enqueue(GlobalAOSupply);
-        AssemblyLine.ShowReservation;
+        AssemblyLine.ShowReservation();
     end;
 
     [Test]
@@ -1869,7 +1869,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         CreateAndRefreshProductionOrderWithComponent(ProdOrderComponent, Item."No.", GlobalAOSupply, WorkDate2, '');
 
         LibraryVariableStorage.Enqueue(GlobalAOSupply);
-        AssemblyHeader.ShowReservation;
+        AssemblyHeader.ShowReservation();
     end;
 
     [Test]
@@ -1892,7 +1892,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         CreateAndRefreshProductionOrderWithComponent(ProdOrderComponent, Item."No.", GlobalAOSupply, WorkDate2, '');
 
         LibraryVariableStorage.Enqueue(GlobalAOSupply);
-        ProdOrderComponent.ShowReservation;
+        ProdOrderComponent.ShowReservation();
     end;
 
     [Test]
@@ -1918,7 +1918,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.");
 
         LibraryVariableStorage.Enqueue(GlobalPOSupply);
-        ProdOrderLine.ShowReservation;
+        ProdOrderLine.ShowReservation();
     end;
 
     [Test]
@@ -1946,7 +1946,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", GlobalSupply);
 
         LibraryVariableStorage.Enqueue(GlobalSupply);
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
     end;
 
     [Test]
@@ -1974,7 +1974,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", GlobalSupply);
 
         LibraryVariableStorage.Enqueue(GlobalSupply);
-        ProdOrderComponent.ShowReservation;
+        ProdOrderComponent.ShowReservation();
     end;
 
     [Test]
@@ -1990,7 +1990,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         Initialize;
         SetupProductionDemandWithProductionSupply(ProdOrderLine);
         LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
-        ProdOrderLine.ShowReservation;
+        ProdOrderLine.ShowReservation();
     end;
 
     [Test]
@@ -2006,10 +2006,10 @@ codeunit 137095 "SCM Kitting - Reservations"
         Initialize;
         SetupProductionDemandWithProductionSupply(ProdOrderLine);
         LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
-        ProdOrderLine.ShowReservation;
+        ProdOrderLine.ShowReservation();
     end;
 
-    local procedure SetupReservations(var TempReservationEntry: Record "Reservation Entry" temporary; var AssemblyLine: Record "Assembly Line"; var AvailToReserve: Decimal; Reserve: Option; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer; Multiplicity: Integer)
+    local procedure SetupReservations(var TempReservationEntry: Record "Reservation Entry" temporary; var AssemblyLine: Record "Assembly Line"; var AvailToReserve: Decimal; Reserve: Enum "Reserve Method"; ExcessSupply: Decimal; FilterOnVariant: Boolean; FilterOnLocation: Boolean; DueDateDelay: Integer; Multiplicity: Integer)
     var
         Item: Record Item;
         Location: Record Location;
@@ -2052,7 +2052,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     end;
 
     [Normal]
-    local procedure UpdateBOMReservationPolicy(ParentItemNo: Code[20]; Reserve: Option)
+    local procedure UpdateBOMReservationPolicy(ParentItemNo: Code[20]; Reserve: Enum "Reserve Method")
     var
         Item: Record Item;
         BOMComponent: Record "BOM Component";
@@ -2360,7 +2360,7 @@ codeunit 137095 "SCM Kitting - Reservations"
 
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalPOSupply, WorkDate);
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.");
-        ProdOrderComponent.AutoReserve;
+        ProdOrderComponent.AutoReserve();
     end;
 
     [Normal]

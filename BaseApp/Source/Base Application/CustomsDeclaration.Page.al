@@ -83,7 +83,7 @@ page 12416 "Customs Declaration"
             action("N&avigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'N&avigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

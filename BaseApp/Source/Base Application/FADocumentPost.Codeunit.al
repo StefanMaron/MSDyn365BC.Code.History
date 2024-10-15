@@ -322,7 +322,8 @@ codeunit 12471 "FA Document-Post"
         GLIntegration: Boolean;
     begin
         FAGetJnl.JnlName(
-          GenJnlLine2."Depreciation Book Code", BudgetedAsset, GenJnlLine2."FA Posting Type" - 1,
+          GenJnlLine2."Depreciation Book Code", BudgetedAsset,
+          "FA Journal Line FA Posting Type".FromInteger(GenJnlLine2."FA Posting Type".AsInteger() - 1),
           GLIntegration, TemplateName, BatchName);
 
         GenJnlLine2."Journal Template Name" := TemplateName;

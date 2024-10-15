@@ -349,7 +349,7 @@ page 17306 "Tax Difference Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }

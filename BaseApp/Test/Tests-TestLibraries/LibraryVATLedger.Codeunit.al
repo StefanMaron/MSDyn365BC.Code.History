@@ -382,7 +382,7 @@ codeunit 143018 "Library - VAT Ledger"
         MockVATEntryAddSheet(VATEntry.Type::Sale, DocumentNo, CustomerNo);
     end;
 
-    local procedure MockVATEntry(TypeValue: Option; DocumentNo: Code[20]; CVNo: Code[20]): Integer
+    local procedure MockVATEntry(TypeValue: Enum "General Posting Type"; DocumentNo: Code[20]; CVNo: Code[20]): Integer
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATEntry: Record "VAT Entry";
@@ -406,7 +406,7 @@ codeunit 143018 "Library - VAT Ledger"
         end;
     end;
 
-    local procedure MockVATEntryAddSheet(TypeValue: Option; DocumentNo: Code[20]; CVNo: Code[20])
+    local procedure MockVATEntryAddSheet(TypeValue: Enum "General Posting Type"; DocumentNo: Code[20]; CVNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin

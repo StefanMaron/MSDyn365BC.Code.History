@@ -680,7 +680,7 @@ codeunit 12417 "VAT Allocation-Post"
         end;
     end;
 
-    local procedure PrepareGenJnlLinePurch(var ItemJnlLine: Record "Item Journal Line"; GenJnlLine: Record "Gen. Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; AmountToAssign: Decimal; ItemEntryNo: Integer; IndirectCostPct: Decimal; DocumentType: Option)
+    local procedure PrepareGenJnlLinePurch(var ItemJnlLine: Record "Item Journal Line"; GenJnlLine: Record "Gen. Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; AmountToAssign: Decimal; ItemEntryNo: Integer; IndirectCostPct: Decimal; DocumentType: Enum "Item Ledger Document Type")
     begin
         with ItemJnlLine do begin
             Init;
@@ -710,7 +710,7 @@ codeunit 12417 "VAT Allocation-Post"
     end;
 
     [Scope('OnPrem')]
-    procedure PrepareGenJnlLineSales(var ItemJnlLine: Record "Item Journal Line"; GenJnlLine: Record "Gen. Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; AmountToAssign: Decimal; ItemEntryNo: Integer; DocumentType: Option)
+    procedure PrepareGenJnlLineSales(var ItemJnlLine: Record "Item Journal Line"; GenJnlLine: Record "Gen. Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; AmountToAssign: Decimal; ItemEntryNo: Integer; DocumentType: Enum "Item Ledger Document Type")
     begin
         with ItemJnlLine do begin
             Init;

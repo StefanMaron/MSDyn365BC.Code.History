@@ -80,7 +80,7 @@ page 14981 "Posted Direct Transfer Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

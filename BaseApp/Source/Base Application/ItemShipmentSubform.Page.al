@@ -200,7 +200,7 @@ page 12453 "Item Shipment Subform"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Reserve from &Inventory")
@@ -291,7 +291,7 @@ page 12453 "Item Shipment Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -304,7 +304,7 @@ page 12453 "Item Shipment Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

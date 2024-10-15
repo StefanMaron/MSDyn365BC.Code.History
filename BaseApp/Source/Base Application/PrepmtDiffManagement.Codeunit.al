@@ -97,7 +97,7 @@ codeunit 12412 PrepmtDiffManagement
     begin
         AdvAdjmtEntryBuff.Init();
         AdvAdjmtEntryBuff := DtldCVLedgEntryBuf;
-        AdvAdjmtEntryBuff."Gen. Posting Type" := PostingType;
+        AdvAdjmtEntryBuff."Gen. Posting Type" := "General Posting Type".FromInteger(PostingType);
         AdvAdjmtEntryBuff."Transaction No." := InitialVATTransactionNo;
         AdvAdjmtEntryBuff.Insert();
         AdvAdjmtEntryBuff.Reset();

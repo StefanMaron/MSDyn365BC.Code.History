@@ -405,7 +405,7 @@ table 17305 "Tax Diff. Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

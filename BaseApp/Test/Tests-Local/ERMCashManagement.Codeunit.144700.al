@@ -302,7 +302,7 @@ codeunit 144700 "ERM Cash Management"
         VerifyCashAccCard(AccNo, BankAccPostGr, CurrencyCode);
     end;
 
-    local procedure CreatePostCashOrder(AccountType: Option; AccountNo: Code[20]; AmountSign: Integer): Decimal
+    local procedure CreatePostCashOrder(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AmountSign: Integer): Decimal
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -352,12 +352,12 @@ codeunit 144700 "ERM Cash Management"
           GenJnlLine."Bank Payment Type"::"Manual Check");
     end;
 
-    local procedure CreateCashOrder(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; AmountSign: Integer; BankPaymType: Option)
+    local procedure CreateCashOrder(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; AmountSign: Integer; BankPaymType: Enum "Bank Payment Type")
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         BankAccount: Record "Bank Account";
     begin
-        FindGenJournalB(GenJnlBatch, GenJnlBatch."Bal. Account Type"::"Bank Account");
+        FindGenJournalBatch(GenJnlBatch, GenJnlBatch."Bal. Account Type"::"Bank Account");
         BankAccount.Get(CreateCashAccount(CurrencyCode));
 
         CreateGenJnlLine(
@@ -366,12 +366,12 @@ codeunit 144700 "ERM Cash Management"
           BankAccount."Debit Cash Order No. Series", AmountSign, BankPaymType);
     end;
 
-    local procedure CreateCashOrderRev(var GenJnlLine: Record "Gen. Journal Line"; BalAccType: Option; BalAccNo: Code[20]; CurrencyCode: Code[10]; AmountSign: Integer; BankPaymType: Option)
+    local procedure CreateCashOrderRev(var GenJnlLine: Record "Gen. Journal Line"; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; CurrencyCode: Code[10]; AmountSign: Integer; BankPaymType: Enum "Bank Payment Type")
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         BankAccount: Record "Bank Account";
     begin
-        FindGenJournalB(GenJnlBatch, BalAccType);
+        FindGenJournalBatch(GenJnlBatch, BalAccType);
         BankAccount.Get(CreateCashAccount(CurrencyCode));
 
         CreateGenJnlLine(
@@ -380,7 +380,7 @@ codeunit 144700 "ERM Cash Management"
           AmountSign, BankPaymType);
     end;
 
-    local procedure CreateBankOrder(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateBankOrder(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         BankAccount: Record "Bank Account";
@@ -396,7 +396,7 @@ codeunit 144700 "ERM Cash Management"
           BankAccount."Bank Payment Order No. Series", 1, GenJnlLine."Bank Payment Type"::"Computer Check");
     end;
 
-    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; TemplateName: Code[10]; BatchName: Code[10]; AccountType: Option; AccountNo: Code[20]; BalAccType: Option; BalAccNo: Code[20]; SeriesNo: Code[20]; AmountSign: Integer; BankPaymType: Option)
+    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; TemplateName: Code[10]; BatchName: Code[10]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; SeriesNo: Code[20]; AmountSign: Integer; BankPaymType: Enum "Bank Payment Type")
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
@@ -427,7 +427,7 @@ codeunit 144700 "ERM Cash Management"
         exit(Currency.Code);
     end;
 
-    local procedure FindGenJournalB(var GenJnlBatch: Record "Gen. Journal Batch"; BalAccType: Option)
+    local procedure FindGenJournalBatch(var GenJnlBatch: Record "Gen. Journal Batch"; BalAccType: Enum "Gen. Journal Account Type")
     var
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
@@ -446,7 +446,7 @@ codeunit 144700 "ERM Cash Management"
         CreateGenJnlBatch(GenJnlBatch, GenJnlTemplate.Name, GenJnlBatch."Bal. Account Type"::"Bank Account");
     end;
 
-    local procedure CreateGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch"; TemplateName: Code[10]; BalAccType: Option)
+    local procedure CreateGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch"; TemplateName: Code[10]; BalAccType: Enum "Gen. Journal Account Type")
     begin
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, TemplateName);
         GenJnlBatch."Bal. Account Type" := BalAccType;

@@ -146,7 +146,7 @@ page 17326 "Tax Calc. Item Entries"
             action(Navigate)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

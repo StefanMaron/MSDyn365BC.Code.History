@@ -81,7 +81,6 @@ table 6509 "Whse. Item Entry Relation"
         "Item Entry No." := TrackingSpecification."Entry No.";
         "Serial No." := TrackingSpecification."Serial No.";
         "Lot No." := TrackingSpecification."Lot No.";
-        "CD No." := TrackingSpecification."CD No.";
 
         OnAfterInitFromTrackingSpec(Rec, TrackingSpecification);
     end;

@@ -253,7 +253,7 @@ report 12472 "Sales Shipment M-15"
     begin
         DocSignMgt.GetDocSign(
           DocSign, DATABASE::"Sales Header",
-          Header."Document Type", Header."No.", EmpType, true);
+          Header."Document Type".AsInteger(), Header."No.", EmpType, true);
     end;
 
     [Scope('OnPrem')]
@@ -345,7 +345,7 @@ report 12472 "Sales Shipment M-15"
 
         ReportFooterArr[6] := ApprovedBy."Employee Job Title";
         ReportFooterArr[7] := ApprovedBy."Employee Name";
-        ReportFooterArr[8] := StdRepMgt.GetAccountantName(false, 36, Header."Document Type", Header."No.");
+        ReportFooterArr[8] := StdRepMgt.GetAccountantName(false, 36, Header."Document Type".AsInteger(), Header."No.");
         ReportFooterArr[9] := ReleasedBy."Employee Job Title";
         ReportFooterArr[10] := ReleasedBy."Employee Name";
         ReportFooterArr[11] := ReceivedBy."Employee Job Title";

@@ -39,14 +39,14 @@ codeunit 130509 "Library - Sales"
         exit(SalesOrderHeader."No.");
     end;
 
-    procedure CopySalesDocument(SalesHeader: Record "Sales Header"; DocType: Option; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
+    procedure CopySalesDocument(SalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocType, DocNo, IncludeHeader, RecalcLines);
+        CopySalesDocument.SetParameters(FromDocType, FromDocNo, IncludeHeader, RecalcLines);
         CopySalesDocument.UseRequestPage(false);
-        CopySalesDocument.Run;
+        CopySalesDocument.Run();
     end;
 
     procedure CopySalesHeaderShipToAddressFromCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
@@ -234,7 +234,7 @@ codeunit 130509 "Library - Sales"
         exit(Customer."No.");
     end;
 
-    procedure FilterSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurence: Integer; Version: Integer)
+    procedure FilterSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocNoOccurence: Integer; Version: Integer)
     begin
         SalesHeaderArchive.SetRange("Document Type", DocumentType);
         SalesHeaderArchive.SetRange("No.", DocumentNo);
@@ -242,7 +242,7 @@ codeunit 130509 "Library - Sales"
         SalesHeaderArchive.SetRange("Version No.", Version);
     end;
 
-    procedure FilterSalesLineArchive(var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurence: Integer; Version: Integer)
+    procedure FilterSalesLineArchive(var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocNoOccurence: Integer; Version: Integer)
     begin
         SalesLineArchive.SetRange("Document Type", DocumentType);
         SalesLineArchive.SetRange("Document No.", DocumentNo);
@@ -260,7 +260,7 @@ codeunit 130509 "Library - Sales"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    procedure CreateItemChargeAssignment(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line"; ItemCharge: Record "Item Charge"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
+    procedure CreateItemChargeAssignment(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line"; ItemCharge: Record "Item Charge"; DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
         RecRef: RecordRef;
     begin
@@ -304,7 +304,7 @@ codeunit 130509 "Library - Sales"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"; VATCalculationType: Option): Code[20]
+    procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"; VATCalculationType: Enum "Tax Calculation Type"): Code[20]
     var
         PrepmtGLAccount: Record "G/L Account";
     begin
@@ -313,12 +313,12 @@ codeunit 130509 "Library - Sales"
         exit(PrepmtGLAccount."No.");
     end;
 
-    procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ShipmentDate: Date)
+    procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ShipmentDate: Date)
     begin
         CreateFCYSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType, CustomerNo, ItemNo, Quantity, LocationCode, ShipmentDate, '');
     end;
 
-    procedure CreateFCYSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ShipmentDate: Date; CurrencyCode: Code[10])
+    procedure CreateFCYSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ShipmentDate: Date; CurrencyCode: Code[10])
     begin
         CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         if LocationCode <> '' then
@@ -363,7 +363,7 @@ codeunit 130509 "Library - Sales"
         SalesLine.Modify(true);
     end;
 
-    procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; SellToCustomerNo: Code[20])
+    procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20])
     begin
         DisableWarningOnCloseUnreleasedDoc;
         DisableWarningOnCloseUnpostedDoc;
@@ -380,15 +380,15 @@ codeunit 130509 "Library - Sales"
         SetCorrDocNoSales(SalesHeader);
         SalesHeader.Modify(true);
 
-        OnAfterCreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
+        OnAfterCreateSalesHeader(SalesHeader, DocumentType.AsInteger(), SellToCustomerNo);
     end;
 
-    procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, Type, No, SalesHeader."Shipment Date", Quantity);
     end;
 
-    procedure CreateSalesLineWithShipmentDate(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; ShipmentDate: Date; Quantity: Decimal)
+    procedure CreateSalesLineWithShipmentDate(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; ShipmentDate: Date; Quantity: Decimal)
     begin
         CreateSalesLineSimple(SalesLine, SalesHeader);
 
@@ -413,7 +413,7 @@ codeunit 130509 "Library - Sales"
             SalesLine.Validate(Quantity, Quantity);
         SalesLine.Modify(true);
 
-        OnAfterCreateSalesLineWithShipmentDate(SalesLine, SalesHeader, Type, No, ShipmentDate, Quantity);
+        OnAfterCreateSalesLineWithShipmentDate(SalesLine, SalesHeader, Type.AsInteger(), No, ShipmentDate, Quantity);
     end;
 
     procedure CreateSalesLineSimple(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -428,7 +428,7 @@ codeunit 130509 "Library - Sales"
         SalesLine.Insert(true);
     end;
 
-    procedure CreateSimpleItemSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option)
+    procedure CreateSimpleItemSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type")
     begin
         CreateSalesLineSimple(SalesLine, SalesHeader);
         SalesLine.Validate(Type, Type);
@@ -503,7 +503,7 @@ codeunit 130509 "Library - Sales"
         SalesPrepaymentPct.Insert(true);
     end;
 
-    procedure CreateSalesCommentLine(var SalesCommentLine: Record "Sales Comment Line"; DocumentType: Option; No: Code[20]; DocumentLineNo: Integer)
+    procedure CreateSalesCommentLine(var SalesCommentLine: Record "Sales Comment Line"; DocumentType: Enum "Sales Document Type"; No: Code[20]; DocumentLineNo: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -521,7 +521,7 @@ codeunit 130509 "Library - Sales"
         SalesCommentLine.Modify(true);
     end;
 
-    procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UOMCode: Code[10]; MinQty: Decimal; UnitPrice: Decimal)
+    procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UOMCode: Code[10]; MinQty: Decimal; UnitPrice: Decimal)
     begin
         Clear(SalesPrice);
         SalesPrice.Validate("Item No.", ItemNo);
@@ -536,7 +536,7 @@ codeunit 130509 "Library - Sales"
         SalesPrice.Validate("Unit Price", UnitPrice);
         SalesPrice.Modify(true);
 
-        OnAfterCreateSalesPrice(SalesPrice, ItemNo, SalesType, SalesCode, StartingDate, CurrencyCode, VariantCode, UOMCode, MinQty, UnitPrice);
+        OnAfterCreateSalesPrice(SalesPrice, ItemNo, SalesType.AsInteger(), SalesCode, StartingDate, CurrencyCode, VariantCode, UOMCode, MinQty, UnitPrice);
     end;
 
     procedure CreateShipToAddress(var ShipToAddress: Record "Ship-to Address"; CustomerNo: Code[20])
@@ -1143,7 +1143,7 @@ codeunit 130509 "Library - Sales"
 
     procedure AutoReserveSalesLine(SalesLine: Record "Sales Line")
     begin
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
     end;
 
     procedure SelectCashReceiptJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1223,12 +1223,12 @@ codeunit 130509 "Library - Sales"
           CorrDocType, CorrSalesHeader."Corrected Doc. Type"::"Credit Memo", PostingDate);
     end;
 
-    local procedure CreateCorrectiveSalesDocument(var CorrSalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CorrDocNo: Code[20]; DocType: Option; CorrectiveDocType: Option; CorrectedDocType: Option; PostingDate: Date)
+    local procedure CreateCorrectiveSalesDocument(var CorrSalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CorrDocNo: Code[20]; DocType: Enum "Sales Document Type"; CorrectiveDocType: Option; CorrectedDocType: Option; PostingDate: Date)
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         CorrectiveDocumentMgt: Codeunit "Corrective Document Mgt.";
-        FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
+        FromDocType: Enum "Sales Document Type From";
         CorrectionType: Option Quantity,"Unit Price";
     begin
         CreateSalesHeader(CorrSalesHeader, DocType, CustomerNo);
@@ -1245,7 +1245,7 @@ codeunit 130509 "Library - Sales"
         else
             FromDocType := FromDocType::"Posted Credit Memo";
         if CorrSalesHeader."Corrective Doc. Type" = CorrSalesHeader."Corrective Doc. Type"::Correction then begin
-            CorrectiveDocumentMgt.SetSalesHeader(CorrSalesHeader."Document Type", CorrSalesHeader."No.");
+            CorrectiveDocumentMgt.SetSalesHeader(CorrSalesHeader."Document Type".AsInteger(), CorrSalesHeader."No.");
             CorrectiveDocumentMgt.SetCorrectionType(CorrectionType::Quantity);
             if FromDocType = FromDocType::"Posted Invoice" then begin
                 SalesInvoiceLine.SetRange("Document No.", CorrDocNo);

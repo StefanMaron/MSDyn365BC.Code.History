@@ -11,6 +11,7 @@ codeunit 136403 "Resource Journal"
 
     var
         TempDocumentEntry: Record "Document Entry" temporary;
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
@@ -189,12 +190,12 @@ codeunit 136403 "Resource Journal"
     end;
 
     [Test]
-    [HandlerFunctions('ResJournalTemplateListHandler')]
     [Scope('OnPrem')]
     procedure CheckResourceJournalLineValues()
     var
         Resource: Record Resource;
         ResJournalBatch: Record "Res. Journal Batch";
+        ResJournalTemplate: Record "Res. Journal Template";
         ResourceJournal: TestPage "Resource Journal";
     begin
         // Check Resource Journal Line values by Page.
@@ -204,6 +205,8 @@ codeunit 136403 "Resource Journal"
         Resource.Get(CreateResource);
         FindResourceJournalBatch(ResJournalBatch);
         TemplateName := ResJournalBatch."Journal Template Name";  // Assign global variable.
+        ResJournalTemplate.SetFilter(Name, '<>%1', ResJournalBatch."Journal Template Name");
+        ResJournalTemplate.DeleteAll(); // keep just one template to avoid selection modal page
 
         // 2. Exercise: Create Resource Journal Line by page.
         ResourceJournal.OpenEdit;
@@ -215,11 +218,12 @@ codeunit 136403 "Resource Journal"
     end;
 
     [Test]
-    [HandlerFunctions('ResJournalTemplateListHandler')]
     [Scope('OnPrem')]
     procedure CheckResourcePriceWithAndWithoutWorkType()
     var
+        PriceListLine: Record "Price List Line";
         Resource: Record Resource;
+        ResJournalTemplate: Record "Res. Journal Template";
         ResourcePrice: Record "Resource Price";
         ResourcePrice2: Record "Resource Price";
         ResJournalBatch: Record "Res. Journal Batch";
@@ -230,12 +234,16 @@ codeunit 136403 "Resource Journal"
 
         // 1. Setup: Create Resource and Resource Price.
         Initialize;
+        FindResourceJournalBatch(ResJournalBatch);
+        TemplateName := ResJournalBatch."Journal Template Name";  // Assign global variable.
+        ResJournalTemplate.SetFilter(Name, '<>%1', ResJournalBatch."Journal Template Name");
+        ResJournalTemplate.DeleteAll(); // keep just one template to avoid selection modal page
+
         Resource.Get(CreateResource);
         LibraryResource.CreateWorkType(WorkType);
         CreateResourcePrice(ResourcePrice, ResourcePrice.Type::Resource, Resource."No.", '', '');
         CreateResourcePrice(ResourcePrice2, ResourcePrice.Type::Resource, Resource."No.", WorkType.Code, '');
-        FindResourceJournalBatch(ResJournalBatch);
-        TemplateName := ResJournalBatch."Journal Template Name";  // Assign global variable.
+        CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
 
         // 2. Exercise: Create Resource Journal Lines without and with Work Type with same Document No.
         ResourceJournal.OpenEdit;
@@ -250,14 +258,16 @@ codeunit 136403 "Resource Journal"
     end;
 
     [Test]
-    [HandlerFunctions('ResJournalTemplateListHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure CheckResourcePriceAfterUseBatchJob()
     var
+        PriceListLine: Record "Price List Line";
         Resource: Record Resource;
         ResourcePrice: Record "Resource Price";
         ResourcePrice2: Record "Resource Price";
         ResJournalBatch: Record "Res. Journal Batch";
+        ResJournalTemplate: Record "Res. Journal Template";
         WorkType: Record "Work Type";
         ResourceJournal: TestPage "Resource Journal";
         UnitPrice: Decimal;
@@ -267,12 +277,16 @@ codeunit 136403 "Resource Journal"
 
         // 1. Setup: Create Resource and Resource Price.
         Initialize;
+        FindResourceJournalBatch(ResJournalBatch);
+        TemplateName := ResJournalBatch."Journal Template Name";  // Assign global variable.
+        ResJournalTemplate.SetFilter(Name, '<>%1', ResJournalBatch."Journal Template Name");
+        ResJournalTemplate.DeleteAll(); // keep just one template to avoid selection modal page
+
         Resource.Get(CreateResource);
         LibraryResource.CreateWorkType(WorkType);
         CreateResourcePrice(ResourcePrice, ResourcePrice.Type::Resource, Resource."No.", '', '');
         CreateResourcePrice(ResourcePrice2, ResourcePrice.Type::Resource, Resource."No.", WorkType.Code, '');
-        FindResourceJournalBatch(ResJournalBatch);
-        TemplateName := ResJournalBatch."Journal Template Name";  // Assign global variable.
+        CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
 
         // Create Resource Journal Lines without and with Work Type with same Document No.
         ResourceJournal.OpenEdit;
@@ -710,14 +724,6 @@ codeunit 136403 "Resource Journal"
         Navigate.UpdateNavigateForm(false);
         Navigate.FindRecordsOnOpen;
         Navigate.ReturnDocumentEntry(TempDocumentEntry);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ResJournalTemplateListHandler(var ResJournalTemplateList: TestPage "Res. Journal Template List")
-    begin
-        ResJournalTemplateList.FILTER.SetFilter(Name, TemplateName);
-        ResJournalTemplateList.OK.Invoke;
     end;
 }
 

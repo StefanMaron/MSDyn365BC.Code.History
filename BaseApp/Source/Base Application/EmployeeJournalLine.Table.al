@@ -414,7 +414,7 @@ table 17382 "Employee Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

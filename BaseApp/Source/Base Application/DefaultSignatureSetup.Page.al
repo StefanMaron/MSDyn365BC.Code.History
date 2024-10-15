@@ -172,15 +172,9 @@ page 12465 "Default Signature Setup"
     begin
         case TableID of
             DATABASE::"Sales Header":
-                begin
-                    SalesHeader."Document Type" := DocumentType;
-                    exit(Format(SalesHeader."Document Type"));
-                end;
+                exit(Format("Sales Document Type".FromInteger(DocumentType)));
             DATABASE::"Purchase Header":
-                begin
-                    PurchaseHeader."Document Type" := DocumentType;
-                    exit(Format(PurchaseHeader."Document Type"));
-                end;
+                exit(Format("Purchase Document Type".FromInteger(DocumentType)));
             DATABASE::"Item Document Header":
                 begin
                     ItemDocumentHeader."Document Type" := DocumentType;

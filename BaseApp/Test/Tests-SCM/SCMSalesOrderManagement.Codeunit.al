@@ -280,7 +280,7 @@ codeunit 137050 "SCM Sales Order Management"
         SalesLine.Modify(true);
 
         // [WHEN] Start item assignment page and invoke Get Shipment Lines action
-        asserterror SalesLine.ShowItemChargeAssgnt;
+        asserterror SalesLine.ShowItemChargeAssgnt();
 
         // [THEN] Expected error: "Qty. to Invoice must have a value."
         Assert.ExpectedError(SuggestAssignmentErr);
@@ -631,7 +631,7 @@ codeunit 137050 "SCM Sales Order Management"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; AssignType: Option; AssignNo: Code[20]; AssignQuantity: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; AssignType: Enum "Sales Line Type"; AssignNo: Code[20]; AssignQuantity: Decimal)
     var
         RecRef: RecordRef;
     begin
@@ -706,7 +706,7 @@ codeunit 137050 "SCM Sales Order Management"
             for WeekDay := Day::Monday to Day::Sunday do
                 if WeekDay <> SetWorkingDay then
                     LibraryService.CreateCustomizedCalendarChange(
-                      BaseCalendarCode, CustomizedCalendarChange, "Source Type"::"Shipping Agent",
+                      BaseCalendarCode, CustomizedCalendarChange, "Source Type"::"Shipping Agent".AsInteger(),
                       ShippingAgentServices."Shipping Agent Code", ShippingAgentServices.Code,
                       "Recurring System"::"Weekly Recurring", WeekDay, true);
     end;

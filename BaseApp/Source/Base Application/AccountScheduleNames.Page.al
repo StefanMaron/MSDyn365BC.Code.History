@@ -5,7 +5,7 @@ page 103 "Account Schedule Names"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Print/Send';
     SourceTable = "Acc. Schedule Name";
-    UsageCategory = ReportsAndAnalysis;
+    UsageCategory = Lists;
 
     layout
     {

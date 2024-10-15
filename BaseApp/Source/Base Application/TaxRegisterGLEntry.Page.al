@@ -185,7 +185,7 @@ page 17220 "Tax Register G/L Entry"
             action(Navigate)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

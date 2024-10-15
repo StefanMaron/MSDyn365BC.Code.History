@@ -36,7 +36,6 @@ codeunit 147107 "SCM CD Red Storno"
         ReservationEntry: Record "Reservation Entry";
         ItemJnlLine: Record "Item Journal Line";
         Location: Record Location;
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: Code[30];
         Qty: Integer;
     begin
@@ -60,7 +59,7 @@ codeunit 147107 "SCM CD Red Storno"
 
         LibraryCDTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, '', '', CDNo, Qty);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::Purchase, WorkDate, Item."No.", -Qty, Location.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Purchase, WorkDate, Item."No.", -Qty, Location.Code);
         ItemJnlLine."Red Storno" := true;
         ItemJnlLine.Modify();
 
@@ -161,7 +160,7 @@ codeunit 147107 "SCM CD Red Storno"
 
         // [WHEN] Invoke function "Get Corr. Lines" against Corrective Sales Credit Memo and select line from Posted Sales Invoice
         // Selection handled by SalesInvoiceLinesModalPageHandler
-        CorrectiveDocumentMgt.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+        CorrectiveDocumentMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         CorrectiveDocumentMgt.SelectPstdSalesDocLines;
 
         // [THEN] Sales Line is copied from Posted Sales Invoice to Corrective Sales Credit Memo and "Applies-From Item Entry No. is blank
@@ -233,7 +232,7 @@ codeunit 147107 "SCM CD Red Storno"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
 
-    local procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; EntryType: Option; Qty: Decimal; UnitAmt: Decimal)
+    local procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; EntryType: Enum "Item Ledger Entry Type"; Qty: Decimal; UnitAmt: Decimal)
     var
         ItemJnlBatch: Record "Item Journal Batch";
         TemplateName: Code[10];
@@ -271,7 +270,7 @@ codeunit 147107 "SCM CD Red Storno"
         end;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; DocNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);

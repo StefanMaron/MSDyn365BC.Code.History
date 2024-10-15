@@ -542,7 +542,7 @@ page 8902 "Human Resources Manager RC"
                     action("Navigate")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Navigate';
+                        Caption = 'Find entries...';
                         RunObject = page "Navigate";
                         Tooltip = 'Open the Navigate page.';
                     }

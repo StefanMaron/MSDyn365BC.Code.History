@@ -125,7 +125,7 @@ table 12472 "Posted FA Doc. Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

@@ -263,15 +263,12 @@ page 160 "Sales Statistics"
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 30000.';
-        TotalSalesLine: Record "Sales Line";
-        TotalSalesLineLCY: Record "Sales Line";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         SalesSetup: Record "Sales & Receivables Setup";
         SalesPost: Codeunit "Sales-Post";
         TotalAmount1: Decimal;
         TotalAmount2: Decimal;
-        VATAmount: Decimal;
         VATAmountText: Text[30];
         ProfitLCY: Decimal;
         ProfitPct: Decimal;
@@ -282,6 +279,11 @@ page 160 "Sales Statistics"
         PrevNo: Code[20];
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
+
+    protected var
+        TotalSalesLine: Record "Sales Line";
+        TotalSalesLineLCY: Record "Sales Line";
+        VATAmount: Decimal;
 
     local procedure UpdateHeaderInfo()
     var

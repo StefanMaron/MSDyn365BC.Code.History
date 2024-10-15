@@ -502,7 +502,7 @@ report 418 "Arch. Sales Return Order"
                                 "Sales Line Archive"."No." := '';
                             end;
 
-                            TypeInt := "Sales Line Archive".Type;
+                            TypeInt := "Sales Line Archive".Type.AsInteger();
                             SalesLineArchLineNo := "Sales Line Archive"."Line No.";
 
                             TotalSubTotal += "Sales Line Archive"."Line Amount";

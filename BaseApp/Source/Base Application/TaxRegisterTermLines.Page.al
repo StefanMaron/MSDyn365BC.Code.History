@@ -88,7 +88,7 @@ page 17208 "Tax Register Term Lines"
 
                     trigger OnValidate()
                     begin
-                        AccountNoOnAfterValidate;
+                        AccountNoOnAfterValidate();
                     end;
                 }
                 field("Bal. Account No."; "Bal. Account No.")

@@ -175,7 +175,7 @@ page 12460 "Posted Item Shipment"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }
@@ -215,7 +215,7 @@ page 12460 "Posted Item Shipment"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

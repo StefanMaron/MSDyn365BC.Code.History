@@ -78,7 +78,7 @@ page 14927 "Default VAT Allocation"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }

@@ -385,7 +385,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Reverse For Cust/Vendor");
     end;
 
-    local procedure PostGeneralLineAndReverse(var GLRegisterNo: Integer; AccountType: Option; AccountNo: Code[20]) DocumentNo: Code[20]
+    local procedure PostGeneralLineAndReverse(var GLRegisterNo: Integer; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]) DocumentNo: Code[20]
     begin
         // Setup: Create General Journal Line and Post it.
         DocumentNo := CreatePostGeneralJournalLine(AccountType, AccountNo);
@@ -394,7 +394,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GLRegisterNo := ReverseEntry;
     end;
 
-    local procedure CreatePostGeneralJournalLine(AccountType: Option; AccountNo: Code[20]): Code[20]
+    local procedure CreatePostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         BankAccount: Record "Bank Account";
@@ -409,7 +409,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -628,7 +628,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         Assert.ExpectedError(StrSubstNo(CustUnapplyErr, CustLedgerEntry."Entry No."));
     end;
 
-    local procedure VerifyReversedCustLedgEntry(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyReversedCustLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Assert: Codeunit Assert;
@@ -651,7 +651,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         Assert.ExpectedError(StrSubstNo(VendUnapplyErr, VendorLedgerEntry."Entry No."));
     end;
 
-    local procedure VerifyReversedVendLedgEntry(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyReversedVendLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         Assert: Codeunit Assert;
@@ -682,7 +682,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         Assert.RecordIsEmpty(GLEntry);
     end;
 
-    local procedure VerifyReversedVATEntryZeroBalanceCount(DocumentNo: Code[20]; DocumentType: Option; AccountNo: Code[20]; ExpectedCount: Integer)
+    local procedure VerifyReversedVATEntryZeroBalanceCount(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; ExpectedCount: Integer)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -696,7 +696,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VATEntry.TestField(Amount, 0);
     end;
 
-    local procedure VerifyReversedGLEntryZeroBalanceCount(DocumentNo: Code[20]; DocumentType: Option; ExpectedCount: Integer)
+    local procedure VerifyReversedGLEntryZeroBalanceCount(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedCount: Integer)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -900,7 +900,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePostGenJnlLinesWithApplyToOldest(AccountType: Option; AccountNo: Code[20]; Sign: Integer; var PaymentNo: Code[20]; var InvoiceNo: Code[20])
+    local procedure CreatePostGenJnlLinesWithApplyToOldest(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Sign: Integer; var PaymentNo: Code[20]; var InvoiceNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

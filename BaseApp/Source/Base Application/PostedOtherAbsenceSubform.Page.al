@@ -75,7 +75,7 @@ page 17472 "Posted Other Absence Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

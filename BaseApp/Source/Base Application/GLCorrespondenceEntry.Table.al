@@ -33,7 +33,7 @@ table 12401 "G/L Correspondence Entry"
             ELSE
             IF ("Debit Source Type" = CONST("Bank Account")) "Bank Account"
             ELSE
-            IF ("Debit Source Type" = CONST(FA)) "Fixed Asset";
+            IF ("Debit Source Type" = CONST("Fixed Asset")) "Fixed Asset";
         }
         field(6; "Credit Account No."; Code[20])
         {
@@ -49,7 +49,7 @@ table 12401 "G/L Correspondence Entry"
             ELSE
             IF ("Credit Source Type" = CONST("Bank Account")) "Bank Account"
             ELSE
-            IF ("Credit Source Type" = CONST(FA)) "Fixed Asset";
+            IF ("Credit Source Type" = CONST("Fixed Asset")) "Fixed Asset";
         }
         field(8; Amount; Decimal)
         {
@@ -94,27 +94,21 @@ table 12401 "G/L Correspondence Entry"
         {
             Caption = 'Creation Date';
         }
-        field(16; "Debit Source Type"; Option)
+        field(16; "Debit Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Debit Source Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,FA';
-            OptionMembers = " ",Customer,Vendor,"Bank Account",FA;
         }
-        field(17; "Credit Source Type"; Option)
+        field(17; "Credit Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Credit Source Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,FA';
-            OptionMembers = " ",Customer,Vendor,"Bank Account",FA;
         }
-        field(18; "Document Type"; Option)
+        field(18; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Advance';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Advance;
         }
         field(20; "Amount (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
         }

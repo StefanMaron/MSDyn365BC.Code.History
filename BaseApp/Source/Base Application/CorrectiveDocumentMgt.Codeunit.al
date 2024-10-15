@@ -314,7 +314,7 @@ codeunit 12422 "Corrective Document Mgt."
             until SalesCrMemoLine.Next = 0;
     end;
 
-    local procedure GetSalesLineNo(DocType: Option; DocNo: Code[20]): Integer
+    local procedure GetSalesLineNo(DocType: Enum "Sales Document Type"; DocNo: Code[20]): Integer
     var
         SalesLine: Record "Sales Line";
     begin
@@ -325,7 +325,7 @@ codeunit 12422 "Corrective Document Mgt."
         exit(SalesLine."Line No." + 10000);
     end;
 
-    local procedure InsertSalesLine(var SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20]; LineNo: Integer)
+    local procedure InsertSalesLine(var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; DocNo: Code[20]; LineNo: Integer)
     begin
         SalesLine.Init();
         SalesLine."Document Type" := DocType;
@@ -346,7 +346,7 @@ codeunit 12422 "Corrective Document Mgt."
             SalesHeader."Corrected Doc. Type"::Invoice:
                 begin
                     SalesInvLine.SetRange("Document No.", SalesHeader."Corrected Doc. No.");
-                    SalesInvoiceLines.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+                    SalesInvoiceLines.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
                     SalesInvoiceLines.SetTableView(SalesInvLine);
                     SalesInvoiceLines.LookupMode := true;
                     if SalesInvoiceLines.RunModal <> ACTION::Cancel then;
@@ -354,7 +354,7 @@ codeunit 12422 "Corrective Document Mgt."
             SalesHeader."Corrected Doc. Type"::"Credit Memo":
                 begin
                     SalesCrMemoLine.SetRange("Document No.", SalesHeader."Corrected Doc. No.");
-                    SalesCreditMemoLines.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+                    SalesCreditMemoLines.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
                     SalesCreditMemoLines.SetTableView(SalesCrMemoLine);
                     SalesCreditMemoLines.LookupMode := true;
                     if SalesCreditMemoLines.RunModal <> ACTION::Cancel then;
@@ -424,7 +424,7 @@ codeunit 12422 "Corrective Document Mgt."
                 "Original Doc. Type" := SalesHeader."Corrected Doc. Type";
                 "Original Doc. No." := SalesHeader."Corrected Doc. No.";
                 "Original Doc. Line No." := TempSalesLine."Line No.";
-                "Original Type" := TempSalesLine.Type;
+                "Original Type" := TempSalesLine.Type.AsInteger();
                 "Original No." := TempSalesLine."No.";
                 "Quantity (Before)" := TempSalesLine.Quantity;
                 "Quantity (After)" := TempSalesLine.Quantity;

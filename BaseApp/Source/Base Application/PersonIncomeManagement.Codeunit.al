@@ -312,7 +312,7 @@ codeunit 17409 "Person Income Management"
         PersonIncomeEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
         if VendLedgEntryNo <> 0 then begin
             VendLedgEntry.Get(VendLedgEntryNo);
-            PersonIncomeEntry."Document Type" := VendLedgEntry."Document Type";
+            PersonIncomeEntry."Document Type" := VendLedgEntry."Document Type".AsInteger();
             if EntryType = PersonIncomeEntry."Entry Type"::"Paid Taxable Income" then begin
                 if VendLedgEntry."Document Type" <> VendLedgEntry."Document Type"::Payment then
                     exit;

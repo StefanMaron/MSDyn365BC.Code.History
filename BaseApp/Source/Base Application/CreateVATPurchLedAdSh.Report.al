@@ -977,7 +977,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                     LedgerBuffer."Transaction/Entry No." := 0;
                     LedgerBuffer."VAT Product Posting Group" := '';
                     LedgerBuffer."VAT Business Posting Group" := '';
-                    LedgerBuffer."Document Type" := 0;
+                    LedgerBuffer."Document Type" := "Gen. Journal Document Type"::" ";
                 end else begin
                     LedgerBuffer."Document Type" := "Document Type";
                     LedgerBuffer."Document Date" := DocumentDate;

@@ -96,7 +96,7 @@ table 17212 "Tax Register Item Entry"
         field(26; "Outstand. Quantity"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Item Application Entry".Quantity WHERE("Batch Item Ledger Entry No." = FIELD("Appl. Entry No."),
+            CalcFormula = Sum("Item Application Entry".Quantity WHERE("Batch Item Ledger Entry No." = FIELD("Appl. Entry No."),
                                                                        "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
             Caption = 'Outstand. Quantity';
             Editable = false;
@@ -145,7 +145,7 @@ table 17212 "Tax Register Item Entry"
         field(100; "Cost Amount (Actual)"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Ledger Entry No.")));
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Ledger Entry No.")));
             Caption = 'Cost Amount (Actual)';
             Editable = false;
             FieldClass = FlowField;
@@ -166,14 +166,12 @@ table 17212 "Tax Register Item Entry"
         {
             Caption = 'Document No.';
         }
-        field(105; "Ledger Entry Type"; Option)
+        field(105; "Ledger Entry Type"; Enum "Item Ledger Entry Type")
         {
-            CalcFormula = Lookup ("Item Ledger Entry"."Entry Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
+            CalcFormula = Lookup("Item Ledger Entry"."Entry Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
             Caption = 'Ledger Entry Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         }
         field(106; Description; Text[70])
         {
@@ -205,7 +203,7 @@ table 17212 "Tax Register Item Entry"
         }
         field(131; "Item Ledger Source Type"; Option)
         {
-            CalcFormula = Lookup ("Item Ledger Entry"."Source Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
+            CalcFormula = Lookup("Item Ledger Entry"."Source Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
             Caption = 'Item Ledger Source Type';
             Editable = false;
             FieldClass = FlowField;

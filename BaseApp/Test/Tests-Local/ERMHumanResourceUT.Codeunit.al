@@ -33,7 +33,7 @@ codeunit 147202 "ERM Human Resource UT"
 
         ResponsibleEmployees.OpenView;
         ResponsibleEmployees.GotoRecord(Vendor);
-        ResponsibleEmployees.Control1903435607."No. of Pstd. Invoices".DrillDown;
+        ResponsibleEmployees.Control1903435607.CuePostedInvoices.DrillDown;
 
         VerifyVendorNoAndDocumentNo(Vendor."No.", PurchInvHeader."No.");
         LibraryVariableStorage.AssertEmpty;
@@ -57,7 +57,7 @@ codeunit 147202 "ERM Human Resource UT"
         Vendor.SetRecFilter;
         Vendors.OpenView;
         Vendors.GotoRecord(Vendor);
-        Vendors.Control1903435607."No. of Pstd. Invoices".DrillDown;
+        Vendors.Control1903435607.CuePostedInvoices.DrillDown;
 
         VerifyVendorNoAndDocumentNo(Vendor."No.", PurchInvHeader."No.");
         LibraryVariableStorage.AssertEmpty;

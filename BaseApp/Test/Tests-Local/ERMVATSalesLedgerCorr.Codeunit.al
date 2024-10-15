@@ -674,7 +674,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
           PostingDate, CustNo);
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; PostingDate: Date; CustNo: Code[20])
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PostingDate: Date; CustNo: Code[20])
     begin
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
@@ -709,7 +709,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
                     SalesInvLine.Reset();
                     SalesInvLine.SetRange("Document No.", SalesHeader."Corrected Doc. No.");
                     SalesInvLine.FindFirst;
-                    CorrDocMgt.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+                    CorrDocMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
                     CorrDocMgt.SetCorrectionType(0);
                     CorrDocMgt.CreateSalesLinesFromPstdInv(SalesInvLine);
                 end;
@@ -718,7 +718,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
                     SalesCrMemoLine.Reset();
                     SalesCrMemoLine.SetRange("Document No.", SalesHeader."Corrected Doc. No.");
                     SalesCrMemoLine.FindFirst;
-                    CorrDocMgt.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+                    CorrDocMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
                     CorrDocMgt.SetCorrectionType(0);
                     CorrDocMgt.CreateSalesLinesFromPstdCrMemo(SalesCrMemoLine);
                 end;
@@ -817,7 +817,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
           CorrNo, CorrDate, RevNo, RevDate, RevOfCorrNo, RevOfCorrDate);
     end;
 
-    local procedure VerifyDocVATLedgerLine(IsAddSheet: Boolean; VATLEdgerType: Option; VATLedgerCode: Code[20]; CVNo: Code[20]; DocType: Option; DocNo: Code[20]; DocDate: Date; IsPrepmt: Boolean; CorrNo: Code[20]; CorrDate: Date; RevNo: Code[20]; RevDate: Date; RevOfCorrNo: Code[20]; RevOfCorrDate: Date)
+    local procedure VerifyDocVATLedgerLine(IsAddSheet: Boolean; VATLEdgerType: Option; VATLedgerCode: Code[20]; CVNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; DocDate: Date; IsPrepmt: Boolean; CorrNo: Code[20]; CorrDate: Date; RevNo: Code[20]; RevDate: Date; RevOfCorrNo: Code[20]; RevOfCorrDate: Date)
     var
         VATLedgerLine: Record "VAT Ledger Line";
     begin

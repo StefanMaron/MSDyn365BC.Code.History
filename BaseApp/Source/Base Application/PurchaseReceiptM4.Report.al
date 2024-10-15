@@ -173,7 +173,7 @@ report 12475 "Purchase Receipt M-4"
     begin
         DocSignMgt.GetDocSign(
           DocSign, DATABASE::"Purchase Header",
-          "Purchase Header"."Document Type", "Purchase Header"."No.", EmpType, true);
+          "Purchase Header"."Document Type".AsInteger(), "Purchase Header"."No.", EmpType, true);
     end;
 
     [Scope('OnPrem')]

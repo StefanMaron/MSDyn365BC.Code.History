@@ -447,11 +447,11 @@ report 12407 "Order Item Shipment TORG-12"
         FooterDetails[2] := ReportCurrCode;
 
         FooterDetails[3] :=
-          StdRepMgt.GetReleasedByName(false, DATABASE::"Sales Header", Header."Document Type", Header."No.");
+          StdRepMgt.GetReleasedByName(false, DATABASE::"Sales Header", Header."Document Type".AsInteger(), Header."No.");
         FooterDetails[4] :=
-          StdRepMgt.GetAccountantName(false, DATABASE::"Sales Header", Header."Document Type", Header."No.");
+          StdRepMgt.GetAccountantName(false, DATABASE::"Sales Header", Header."Document Type".AsInteger(), Header."No.");
         FooterDetails[5] :=
-          StdRepMgt.GetPassedByName(false, DATABASE::"Sales Header", Header."Document Type", Header."No.");
+          StdRepMgt.GetPassedByName(false, DATABASE::"Sales Header", Header."Document Type".AsInteger(), Header."No.");
         FooterDetails[6] := LocMgt.Date2Text(DocumentDate);
 
         TORG12Helper.FinishDocument(FooterDetails, VATExemptTotal, PrintWeightInfo);

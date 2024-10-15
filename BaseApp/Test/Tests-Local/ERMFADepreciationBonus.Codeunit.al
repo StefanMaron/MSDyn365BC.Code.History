@@ -293,12 +293,9 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         exit(FADeprBook."Depr. Bonus %");
     end;
 
-    local procedure AddPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20])
+    local procedure AddPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, Type,
-          No,
-          1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(50));
         PurchaseLine.Modify(true);
     end;
@@ -346,7 +343,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
           'Totals_2_Index___Book_Value__', FAPurchAmount1 + FAPurchAmount2 + DeprAmount1 + DeprAmount2);
     end;
 
-    local procedure FindFADeprLedgerEntry(FixedAssetNo: Code[20]; var FALedgerEntry: Record "FA Ledger Entry"; FAPostingType: Option)
+    local procedure FindFADeprLedgerEntry(FixedAssetNo: Code[20]; var FALedgerEntry: Record "FA Ledger Entry"; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
         with FALedgerEntry do begin
             SetRange("FA No.", FixedAssetNo);
@@ -409,7 +406,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         exit(FixedAssetNo);
     end;
 
-    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; AmountValue: Decimal; DepreciationBookCode: Code[10]; DocumentType: Option; FAPostingType: Option)
+    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; AmountValue: Decimal; DepreciationBookCode: Code[10]; DocumentType: Enum "FA Journal Line Document Type"; FAPostingType: Enum "FA Journal Line FA Posting Type")
     var
         FAJournalBatch: Record "FA Journal Batch";
     begin

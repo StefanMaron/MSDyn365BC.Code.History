@@ -410,8 +410,8 @@ codeunit 144101 "ERM G/L Reports"
         LibraryInventory.CreateItem(Item);
 
         // TFS ID: 310217 (String Length error)
-        Item.Validate(Description,CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Item.Description)),1));
-        Item.Validate("Description 2",CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Item."Description 2")),1));
+        Item.Validate(Description, CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Item.Description)), 1));
+        Item.Validate("Description 2", CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Item."Description 2")), 1));
         Item.Modify(true);
 
         Qty := LibraryRandom.RandDecInRange(10, 20, 2);
@@ -848,14 +848,14 @@ codeunit 144101 "ERM G/L Reports"
         // [GIVEN] G/L Entry with Debit Amount "X" and Source No "A"
         DebitAmount := LibraryRandom.RandDec(100, 2);
         CustomerNo := LibraryUtility.GenerateGUID;
-        CreateGLEntryWithSourceTypeAndSourceNo(GLEntry, GLAccNo, DebitAmount, 0, CustomerNo);
+        CreateGLEntryWithSourceTypeAndSourceNo(GLEntry, GLAccNo, DebitAmount, "Gen. Journal Source Type"::" ", CustomerNo);
         // [GIVEN] G/L Entry2 with Debit Amount "Y" and Source No "B"
         DebitAmount2 := DebitAmount + LibraryRandom.RandDec(100, 2);
         CustomerNo2 := LibraryUtility.GenerateGUID;
-        CreateGLEntryWithSourceTypeAndSourceNo(GLEntry2, GLAccNo, DebitAmount2, 0, CustomerNo2);
+        CreateGLEntryWithSourceTypeAndSourceNo(GLEntry2, GLAccNo, DebitAmount2, "Gen. Journal Source Type"::" ", CustomerNo2);
 
         // [WHEN] G/L Account Card report is run with Source No Filter is set to "A"
-        SetGLAccountSourceTypeAndSourceNoFilters(GLAccount, GLAccNo, 0, CustomerNo);
+        SetGLAccountSourceTypeAndSourceNoFilters(GLAccount, GLAccNo, "Gen. Journal Source Type"::" ", CustomerNo);
         RunGLAccountCardReport(GLAccount);
 
         // [THEN] In the report G/L Account No equals to "Z" and Balance Ending equals Debit Amount "X"
@@ -935,7 +935,7 @@ codeunit 144101 "ERM G/L Reports"
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"G/L Account", GLAccountNo, 1);
     end;
 
-    local procedure PrepareGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20]; Sign: Integer)
+    local procedure PrepareGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Sign: Integer)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -948,12 +948,13 @@ codeunit 144101 "ERM G/L Reports"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0, AccType, AccNo,
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          "Gen. Journal Document Type"::" ", AccType, AccNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount * Sign);
         UpdateFAPostingType(GenJournalLine);
     end;
 
-    local procedure CreatePostGenJnlLine(AccType: Option; AccNo: Code[20]; Sign: Integer): Decimal
+    local procedure CreatePostGenJnlLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Sign: Integer): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -962,7 +963,7 @@ codeunit 144101 "ERM G/L Reports"
         exit(GenJournalLine.Amount * Sign);
     end;
 
-    local procedure CreatePostGenJnlLineWithAgreement(AccType: Option; AccNo: Code[20]; Sign: Integer; AgreementCode: Code[20]): Decimal
+    local procedure CreatePostGenJnlLineWithAgreement(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Sign: Integer; AgreementCode: Code[20]): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1148,7 +1149,7 @@ codeunit 144101 "ERM G/L Reports"
         end;
     end;
 
-    local procedure CreateGLEntryWithSourceTypeAndSourceNo(var GLEntry: Record "G/L Entry"; GLAccNo: Code[20]; DebitAmount: Decimal; SourceType: Option; SourceNo: Code[20])
+    local procedure CreateGLEntryWithSourceTypeAndSourceNo(var GLEntry: Record "G/L Entry"; GLAccNo: Code[20]; DebitAmount: Decimal; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20])
     begin
         GLEntry.Init();
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
@@ -1198,7 +1199,7 @@ codeunit 144101 "ERM G/L Reports"
         GLAccount.SetRecFilter;
     end;
 
-    local procedure SetGLAccountSourceTypeAndSourceNoFilters(var GLAccount: Record "G/L Account"; GLAccNo: Code[20]; SourceType: Option; CustomerNo: Code[20])
+    local procedure SetGLAccountSourceTypeAndSourceNoFilters(var GLAccount: Record "G/L Account"; GLAccNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; CustomerNo: Code[20])
     begin
         GLAccount.Get(GLAccNo);
         GLAccount.SetFilter("Date Filter", Format(WorkDate));
@@ -1229,7 +1230,7 @@ codeunit 144101 "ERM G/L Reports"
         exit(Format(Amount, 0, '<Sign><Integer Thousand><Decimals,' + Format(Decimals) + '>'));
     end;
 
-    local procedure CreateStartingBalance(AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Decimal
+    local procedure CreateStartingBalance(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Decimal
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin

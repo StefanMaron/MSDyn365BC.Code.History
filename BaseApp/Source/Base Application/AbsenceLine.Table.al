@@ -453,7 +453,7 @@ table 17386 "Absence Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

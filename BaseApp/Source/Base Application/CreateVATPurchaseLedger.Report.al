@@ -1005,7 +1005,7 @@ report 12455 "Create VAT Purchase Ledger"
                     TempVATLedgerLineBuffer."Transaction/Entry No." := 0;
                     TempVATLedgerLineBuffer."VAT Product Posting Group" := '';
                     TempVATLedgerLineBuffer."VAT Business Posting Group" := '';
-                    TempVATLedgerLineBuffer."Document Type" := 0;
+                    TempVATLedgerLineBuffer."Document Type" := "Gen. Journal Document Type"::" ";
                 end else begin
                     TempVATLedgerLineBuffer."Document Type" := "Document Type";
                     TempVATLedgerLineBuffer."Document Date" := DocumentDate;

@@ -137,7 +137,7 @@ table 12459 "Direct Transfer Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -153,8 +153,9 @@ table 12459 "Direct Transfer Line"
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
+            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(7300; "Transfer-from Bin Code"; Code[20])
         {

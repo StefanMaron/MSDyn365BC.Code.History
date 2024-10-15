@@ -1,4 +1,4 @@
-﻿codeunit 99000832 "Sales Line-Reserve"
+codeunit 99000832 "Sales Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Planning Assignment" = rimd;
@@ -62,7 +62,7 @@
         end;
 
         CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Sales Line", SalesLine."Document Type",
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(),
           SalesLine."Document No.", '', 0, SalesLine."Line No.", SalesLine."Qty. per Unit of Measure",
           Quantity, QuantityBase, ForReservEntry);
         CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
@@ -73,7 +73,7 @@
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(SalesLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(SalesLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(SalesLine: Record "Sales Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -96,7 +96,7 @@
         FromTrackingSpecification := TrackingSpecification;
     end;
 
-    procedure SetBinding(Binding: Option " ","Order-to-Order")
+    procedure SetBinding(Binding: Enum "Reservation Binding")
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
@@ -106,7 +106,7 @@
         CreateReservEntry.SetDisallowCancellation(DisallowCancellation);
     end;
 
-    [Obsolete('Replaced by SalesLine.SetReservationFilters(FilterReservEntry)','16.0')]
+    [Obsolete('Replaced by SalesLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
     begin
         SalesLine.SetReservationFilters(FilterReservEntry);
@@ -227,6 +227,7 @@
     var
         OldReservEntry: Record "Reservation Entry";
         OppositeReservEntry: Record "Reservation Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         NotFullyReserved: Boolean;
         IsHandled: Boolean;
     begin
@@ -270,9 +271,10 @@
                     CheckApplFromItemEntry := false;
                 end;
 
-                if ItemJnlLine."Assemble to Order" then
-                    OldReservEntry."Appl.-to Item Entry" :=
-                      SalesLine.FindOpenATOEntry(OldReservEntry."Lot No.", OldReservEntry."Serial No.");
+                if ItemJnlLine."Assemble to Order" then begin
+                    ItemTrackingSetup.CopyTrackingFromReservEntry(OldReservEntry);
+                    OldReservEntry."Appl.-to Item Entry" := SalesLine.FindOpenATOEntry(ItemTrackingSetup);
+                end;
 
                 if CheckApplFromItemEntry then begin
                     if OldReservEntry."Reservation Status" = OldReservEntry."Reservation Status"::Reservation then begin
@@ -294,12 +296,12 @@
                         if OnlyILEReservations and OppositeReservEntry.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) then begin
                             if OppositeReservEntry."Source Type" = DATABASE::"Item Ledger Entry" then
                                 TransferQty := CreateReservEntry.TransferReservEntry(
-                                    DATABASE::"Item Journal Line", ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+                                    DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                                     ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                                     ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
                         end else
                             TransferQty := CreateReservEntry.TransferReservEntry(
-                                DATABASE::"Item Journal Line", ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+                                DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                                 ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                                 ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
             until (ReservEngineMgt.NEXTRecord(OldReservEntry) = 0) or (TransferQty = 0);
@@ -340,9 +342,10 @@
                     then
                         OldReservEntry."Reservation Status" := OldReservEntry."Reservation Status"::Surplus;
 
-                    TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Sales Line",
-                        NewSalesLine."Document Type", NewSalesLine."Document No.", '', 0,
-                        NewSalesLine."Line No.", NewSalesLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                    TransferQty :=
+                        CreateReservEntry.TransferReservEntry(DATABASE::"Sales Line",
+                            NewSalesLine."Document Type".AsInteger(), NewSalesLine."Document No.", '', 0,
+                            NewSalesLine."Line No.", NewSalesLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                 until (OldReservEntry.Next = 0) or (TransferQty = 0);
         end;
@@ -481,13 +484,13 @@
     procedure DeleteInvoiceSpecFromHeader(var SalesHeader: Record "Sales Header")
     begin
         ItemTrackingMgt.DeleteInvoiceSpecFromHeader(
-          DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.");
+          DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
     local procedure DeleteInvoiceSpecFromLine(SalesLine: Record "Sales Line")
     begin
         ItemTrackingMgt.DeleteInvoiceSpecFromLine(
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
     end;
 
     procedure UpdateItemTrackingAfterPosting(SalesHeader: Record "Sales Header")
@@ -497,7 +500,7 @@
     begin
         // Used for updating Quantity to Handle and Quantity to Invoice after posting
         ReservEntry.Reset();
-        ReservEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", -1, true);
+        ReservEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", -1, true);
         ReservEntry.SetSourceFilter('', 0);
         CreateReservEntry.UpdateItemTrackingAfterPosting(ReservEntry);
     end;
@@ -531,7 +534,7 @@
             if not ReadPermission then
                 exit(false);
 
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", false);
+            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
             SetRange(Status, Status::"Partially Picked");
             exit(FindFirst and NewReservEntry.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) and
               (OldReservEntry."Reservation Status" = OldReservEntry."Reservation Status"::Reservation) and
@@ -546,7 +549,7 @@
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", '', 0, PurchLine."Line No.",
+          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
           PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(SalesLine, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
@@ -565,7 +568,7 @@
 
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
           ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(SalesLine, ProdOrderLine.Description, ProdOrderLine."Ending Date", ReservQty, ReservQtyBase);
@@ -594,7 +597,7 @@
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", '', 0, 0,
+          DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
           AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(SalesLine, AsmHeader.Description, AsmHeader."Due Date", ReservQty, ReservQtyBase);
@@ -713,7 +716,7 @@
                 (not ReservMgt.CalcIsAvailTrackedQtyInBin(
                     NewSalesLine."No.", NewSalesLine."Bin Code",
                     NewSalesLine."Location Code", NewSalesLine."Variant Code",
-                    DATABASE::"Sales Line", NewSalesLine."Document Type",
+                    DATABASE::"Sales Line", NewSalesLine."Document Type".AsInteger(),
                     NewSalesLine."Document No.", '', 0, NewSalesLine."Line No."))
                 then begin
                     if ThrowError then
@@ -747,7 +750,7 @@
     begin
         ReservationEntry.Reset();
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Sales Line", OldSalesLine."Document Type", OldSalesLine."Document No.", OldSalesLine."Line No.", true);
+          DATABASE::"Sales Line", OldSalesLine."Document Type".AsInteger(), OldSalesLine."Document No.", OldSalesLine."Line No.", true);
         if ReservationEntry.FindSet then
             repeat
                 TempReservationEntry := ReservationEntry;
@@ -763,7 +766,7 @@
     begin
         TempReservationEntry.Reset();
         TempReservationEntry.SetSourceFilter(
-          DATABASE::"Sales Line", OldSalesLine."Document Type", OldSalesLine."Document No.", OldSalesLine."Line No.", true);
+          DATABASE::"Sales Line", OldSalesLine."Document Type".AsInteger(), OldSalesLine."Document No.", OldSalesLine."Line No.", true);
         if TempReservationEntry.FindSet then
             repeat
                 ReservationEntry := TempReservationEntry;
@@ -840,7 +843,7 @@
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailableSalesLines);
             AvailableSalesLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
-            AvailableSalesLines.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableSalesLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailableSalesLines.RunModal;
         end;
     end;
@@ -957,7 +960,7 @@
             ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
     end;
 
-    local procedure UpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; DocumentType: Option; Positive: Boolean; var TotalQuantity: Decimal)
+    local procedure UpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; DocumentType: Enum "Sales Document Type"; Positive: Boolean; var TotalQuantity: Decimal)
     var
         SalesLine: Record "Sales Line";
         AvailabilityFilter: Text;
@@ -1001,7 +1004,7 @@
     begin
         if ReservSummEntry."Entry No." in [32, 36] then
             UpdateStatistics(
-                CalcReservEntry, ReservSummEntry, AvailabilityDate, ReservSummEntry."Entry No." - 31, Positive, TotalQuantity);
+                CalcReservEntry, ReservSummEntry, AvailabilityDate, "Sales Document Type".FromInteger(ReservSummEntry."Entry No." - 31), Positive, TotalQuantity);
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,4 +1,4 @@
-﻿page 306 "Report Selection - Sales"
+page 306 "Report Selection - Sales"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Report Selection - Sales';

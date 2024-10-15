@@ -266,7 +266,7 @@ page 12437 "VAT Settlement Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }
@@ -345,7 +345,7 @@ page 12437 "VAT Settlement Journal"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -400,7 +400,7 @@ page 12437 "VAT Settlement Journal"
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"VAT Settlement Journal", 8, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"VAT Settlement Journal", "Gen. Journal Template Type"::"VAT Settlement", false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);

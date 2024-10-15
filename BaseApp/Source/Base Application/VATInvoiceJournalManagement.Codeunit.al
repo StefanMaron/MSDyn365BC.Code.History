@@ -437,7 +437,7 @@ codeunit 12424 "VAT Invoice Journal Management"
             TempVendorLedgerEntry.Insert();
     end;
 
-    local procedure IsCorrectiveDocument(var CorrVATEntry: Record "VAT Entry"; CVNo: Code[20]; DocType: Option; DocNo: Code[20]; EntryType: Option Purchase,Sale): Boolean
+    local procedure IsCorrectiveDocument(var CorrVATEntry: Record "VAT Entry"; CVNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Option Purchase,Sale): Boolean
     begin
         if EntryType = EntryType::Sale then
             CorrVATEntry.SetRange(Type, CorrVATEntry.Type::Sale)
@@ -491,7 +491,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         end;
     end;
 
-    local procedure GetDocAmounts(var AmtInclVATText: Text[30]; var VATAmtText: Text[30]; var Column: Option " ",Decrease,Increase; DocType: Option; DocNo: Code[20]; EntryType: Option Purchase,Sale; VATExempt: Boolean)
+    local procedure GetDocAmounts(var AmtInclVATText: Text[30]; var VATAmtText: Text[30]; var Column: Option " ",Decrease,Increase; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Option Purchase,Sale; VATExempt: Boolean)
     var
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";

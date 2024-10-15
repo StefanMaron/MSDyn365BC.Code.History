@@ -153,7 +153,7 @@ page 17420 "Payroll Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 separator(Action1210008)
@@ -182,7 +182,7 @@ page 17420 "Payroll Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

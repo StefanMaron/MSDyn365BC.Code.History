@@ -83,7 +83,7 @@ report 14912 "Allocate FA Charges"
 
                         trigger OnValidate()
                         begin
-                            SourceDocType := GetSourceType;
+                            SourceDocType := GetSourceType();
                         end;
                     }
                     field(SourceDocNo; SourceDocNo)
@@ -155,7 +155,7 @@ report 14912 "Allocate FA Charges"
         GLSetup: Record "General Ledger Setup";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         DocType: Option Invoice,"Order","Posted Invoice";
-        SourceDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
+        SourceDocType: Enum "Purchase Document Type From";
         SourceDocNo: Code[20];
         SourceDocAmount: Decimal;
         AmountToAllocate: Decimal;
@@ -178,7 +178,7 @@ report 14912 "Allocate FA Charges"
                 begin
                     FromPurchHeader.FilterGroup := 0;
                     FromPurchHeader.SetRange("Document Type", SourceDocType);
-                    if PurchHeader."Document Type" = CopyDocMgt.PurchHeaderDocType(SourceDocType) then
+                    if PurchHeader."Document Type" = CopyDocMgt.GetPurchaseDocumentType(SourceDocType) then
                         FromPurchHeader.SetFilter("No.", '<>%1', PurchHeader."No.");
                     FromPurchHeader.FilterGroup := 2;
                     FromPurchHeader."Document Type" := SourceDocType;
@@ -316,7 +316,7 @@ report 14912 "Allocate FA Charges"
     end;
 
     [Scope('OnPrem')]
-    procedure GetSourceType(): Integer
+    procedure GetSourceType(): Enum "Purchase Document Type From"
     begin
         case DocType of
             DocType::Invoice:

@@ -346,9 +346,9 @@ report 12412 "Order Item Waybill 1-T"
         FooterValue[7] := LocMgt.Amount2Text('', TotalAmount);
         FooterValue[8] := '';
         FooterValue[9] := LocMgt.Date2Text(Header."Posting Date");
-        FooterValue[10] := StdRepMgt.GetResponsibleName(false, DATABASE::"Sales Header", Header."Document Type", Header."No.");
-        FooterValue[11] := StdRepMgt.GetAccountantName(false, DATABASE::"Sales Header", Header."Document Type", Header."No.");
-        FooterValue[12] := StdRepMgt.GetReleasedByName(false, DATABASE::"Sales Header", Header."Document Type", Header."No.");
+        FooterValue[10] := StdRepMgt.GetResponsibleName(false, DATABASE::"Sales Header", Header."Document Type".AsInteger(), Header."No.");
+        FooterValue[11] := StdRepMgt.GetAccountantName(false, DATABASE::"Sales Header", Header."Document Type".AsInteger(), Header."No.");
+        FooterValue[12] := StdRepMgt.GetReleasedByName(false, DATABASE::"Sales Header", Header."Document Type".AsInteger(), Header."No.");
     end;
 
     local procedure FillProlog()

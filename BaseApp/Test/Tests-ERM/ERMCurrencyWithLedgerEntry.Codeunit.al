@@ -101,7 +101,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
 
         if PurchaseDocument then begin
             // Setup: Create Currency and Purchase Document as per the option selected after release.
-            CreatePurchaseDocument(PurchaseHeader, CreateCurrencyAndExchangeRate, DocType);
+            CreatePurchaseDocument(PurchaseHeader, CreateCurrencyAndExchangeRate, "Purchase Document Type".FromInteger(DocType));
             LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
             PurchaseHeader.CalcFields("Amount Including VAT");
             TotalAmount := PurchaseHeader."Amount Including VAT";
@@ -116,7 +116,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
                 VerifyVendorLedgerEntry(PostedInvoiceNo, PurchaseHeader."Currency Code", -TotalAmount);
         end else begin
             // Setup: Create Currency and Sales Document as per the option selected after release.
-            CreateSalesDocument(SalesHeader, CreateCurrencyAndExchangeRate, DocType);
+            CreateSalesDocument(SalesHeader, CreateCurrencyAndExchangeRate, "Purchase Document Type".FromInteger(DocType));
             LibrarySales.ReleaseSalesDocument(SalesHeader);
             SalesHeader.CalcFields("Amount Including VAT");
             TotalAmount := SalesHeader."Amount Including VAT";
@@ -151,7 +151,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
     end;
 
     [Normal]
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10]; DocumentType: Option): Code[20]
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
@@ -177,7 +177,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
     end;
 
     [Normal]
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Counter: Integer;

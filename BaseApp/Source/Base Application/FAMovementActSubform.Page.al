@@ -115,7 +115,7 @@ page 12479 "FA Movement Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)

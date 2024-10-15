@@ -499,7 +499,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Issued Reminder Addnl Fee");
     end;
 
-    local procedure AddReminderLine(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; ReminderType: Option; ReminderLineType: Option)
+    local procedure AddReminderLine(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; ReminderType: Enum "Reminder Source Type"; ReminderLineType: Enum "Reminder Line Type")
     begin
         ReminderLine.Init();
         ReminderLine."Reminder No." := ReminderHeaderNo;
@@ -712,7 +712,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderHeader.Insert();
     end;
 
-    local procedure InsertReminderWithTwoLines(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; ReminderType: Option; ReminderLineType: Option)
+    local procedure InsertReminderWithTwoLines(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; ReminderType: Enum "Reminder Source Type"; ReminderLineType: Enum "Reminder Line Type")
     begin
         InsertReminderHeader(ReminderHeader);
         AddReminderLine(ReminderLine, ReminderHeader."No.", ReminderLine.Type::"Customer Ledger Entry",
@@ -792,7 +792,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         end;
     end;
 
-    local procedure ReminderHeaderWithRemainingAmount(ReminderLineType: Option)
+    local procedure ReminderHeaderWithRemainingAmount(ReminderLineType: Enum "Reminder Line Type")
     var
         ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";
@@ -808,7 +808,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderHeader.TestField("Remaining Amount", SumRemainigLineAmounts(ReminderLine, ReminderLine.FieldNo("Remaining Amount")));
     end;
 
-    local procedure ReminderHeaderWithIntrestAmount(ReminderLineType: Option)
+    local procedure ReminderHeaderWithIntrestAmount(ReminderLineType: Enum "Reminder Line Type")
     var
         ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";

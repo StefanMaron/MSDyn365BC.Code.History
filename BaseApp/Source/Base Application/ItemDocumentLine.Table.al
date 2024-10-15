@@ -369,7 +369,7 @@ table 12453 "Item Document Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

@@ -167,7 +167,7 @@ page 9658 "Vendor Report Selections"
                 var
                     ContBusRel: Record "Contact Business Relation";
                 begin
-                    GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Vendor, GetFilter("Source No."));
+                    GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Vendor.AsInteger(), GetFilter("Source No."));
                 end;
             }
         }
@@ -182,7 +182,7 @@ page 9658 "Vendor Report Selections"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         // Set the default usage to the same as the page default.
-        if Usage = 0 then
+        if Usage = Usage::"S.Quote" then
             Usage := Usage::"P.Order";
 
         MapTableUsageValueToPageValue;

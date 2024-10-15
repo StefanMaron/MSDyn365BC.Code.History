@@ -966,7 +966,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         LibraryRUReports.CreateVATSettlementTemplateAndBatch(GenJnlBatch);
-        LibraryERM.CreateGeneralJnlLine(GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, 0, 0, '', 0);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Gen. Journal document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", '', 0);
         GenJnlLine.Validate("Unrealized VAT Entry No.", VATEntry."Entry No.");
         GenJnlLine.Validate("Posting Date", VATEntry."Posting Date");
         GenJnlLine.Validate(Amount, -VATEntry."Remaining Unrealized Amount");
@@ -986,7 +988,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         exit(Currency.Code);
     end;
 
-    local procedure CreatePrepaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; PrepDocNo: Code[20]; PrepaymentAmount: Decimal)
+    local procedure CreatePrepaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PrepDocNo: Code[20]; PrepaymentAmount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, PrepaymentAmount);
@@ -1013,7 +1015,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         PostAndApplyPurchasePrepayment(PurchaseHeader, PrepaymentDate, AppliedAmount);
     end;
 
-    local procedure PostPrepayment(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; InvoiceNo: Code[20]; PrepaymentAmount: Decimal)
+    local procedure PostPrepayment(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; InvoiceNo: Code[20]; PrepaymentAmount: Decimal)
     begin
         CreatePrepaymentJournalLine(GenJournalLine, AccountType, AccountNo, InvoiceNo, PrepaymentAmount);
         GenJournalLine.Validate("Posting Date", LibraryRandom.RandDate(-5));

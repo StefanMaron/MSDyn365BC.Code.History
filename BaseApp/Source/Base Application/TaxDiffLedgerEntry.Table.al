@@ -221,7 +221,7 @@ table 17306 "Tax Diff. Ledger Entry"
 
             trigger OnValidate()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

@@ -59,7 +59,7 @@ codeunit 99000834 "Purch. Line-Reserve"
             CreateReservEntry.SetPlanningFlexibility(PurchLine."Planning Flexibility");
 
         CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Purchase Line", PurchLine."Document Type",
+          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(),
           PurchLine."Document No.", '', 0, PurchLine."Line No.", PurchLine."Qty. per Unit of Measure",
           Quantity, QuantityBase, ForReservEntry);
         CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
@@ -70,7 +70,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(PurchaseLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(PurchaseLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var PurchLine: Record "Purchase Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -86,7 +86,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         FromTrackingSpecification := TrackingSpecification;
     end;
 
-    [Obsolete('Replaced by PurchLine.SetReservationFilters(FilterReservEntry)','16.0')]
+    [Obsolete('Replaced by PurchLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line")
     begin
         PurchLine.SetReservationFilters(FilterReservEntry);
@@ -309,7 +309,7 @@ codeunit 99000834 "Purch. Line-Reserve"
                 end;
 
                 TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+                    ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                     ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                     ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
@@ -340,9 +340,10 @@ codeunit 99000834 "Purch. Line-Reserve"
                 repeat
                     OldReservEntry.TestItemFields(OldPurchLine."No.", OldPurchLine."Variant Code", OldPurchLine."Location Code");
 
-                    TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Purchase Line",
-                        NewPurchLine."Document Type", NewPurchLine."Document No.", '', 0, NewPurchLine."Line No.",
-                        NewPurchLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                    TransferQty :=
+                        CreateReservEntry.TransferReservEntry(DATABASE::"Purchase Line",
+                            NewPurchLine."Document Type".AsInteger(), NewPurchLine."Document No.", '', 0, NewPurchLine."Line No.",
+                            NewPurchLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                 until (OldReservEntry.Next = 0) or (TransferQty = 0);
         end; // DO
@@ -481,13 +482,13 @@ codeunit 99000834 "Purch. Line-Reserve"
     procedure DeleteInvoiceSpecFromHeader(PurchHeader: Record "Purchase Header")
     begin
         ItemTrackingMgt.DeleteInvoiceSpecFromHeader(
-          DATABASE::"Purchase Line", PurchHeader."Document Type", PurchHeader."No.");
+          DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
     end;
 
     procedure DeleteInvoiceSpecFromLine(PurchLine: Record "Purchase Line")
     begin
         ItemTrackingMgt.DeleteInvoiceSpecFromLine(
-          DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
     end;
 
     procedure UpdateItemTrackingAfterPosting(PurchHeader: Record "Purchase Header")
@@ -496,7 +497,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
         // Used for updating Quantity to Handle and Quantity to Invoice after posting
-        ReservEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchHeader."Document Type", PurchHeader."No.", -1, true);
+        ReservEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.", -1, true);
         ReservEntry.SetSourceFilter('', 0);
         CreateReservEntry.UpdateItemTrackingAfterPosting(ReservEntry);
     end;
@@ -518,7 +519,7 @@ codeunit 99000834 "Purch. Line-Reserve"
                (not ReservMgt.CalcIsAvailTrackedQtyInBin(
                   NewPurchLine."No.", NewPurchLine."Bin Code",
                   NewPurchLine."Location Code", NewPurchLine."Variant Code",
-                  DATABASE::"Purchase Line", NewPurchLine."Document Type",
+                  DATABASE::"Purchase Line", NewPurchLine."Document Type".AsInteger(),
                   NewPurchLine."Document No.", '', 0, NewPurchLine."Line No."))
             then
                 HasError := true;
@@ -586,7 +587,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailablePurchaseLines);
             AvailablePurchaseLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo);
-            AvailablePurchaseLines.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailablePurchaseLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailablePurchaseLines.RunModal;
         end;
     end;
@@ -708,7 +709,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     begin
     end;
 
-    local procedure UpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; DocumentType: Option; Positive: Boolean; var TotalQuantity: Decimal)
+    local procedure UpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; DocumentType: Enum "Purchase Document Type"; Positive: Boolean; var TotalQuantity: Decimal)
     var
         PurchLine: Record "Purchase Line";
         AvailabilityFilter: Text;
@@ -754,7 +755,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     begin
         if ReservSummEntry."Entry No." in [12, 16] then
             UpdateStatistics(
-                CalcReservEntry, ReservSummEntry, AvailabilityDate, ReservSummEntry."Entry No." - 11, Positive, TotalQuantity);
+                CalcReservEntry, ReservSummEntry, AvailabilityDate, "Purchase Document Type".FromInteger(ReservSummEntry."Entry No." - 11), Positive, TotalQuantity);
     end;
 
     [IntegrationEvent(false, false)]

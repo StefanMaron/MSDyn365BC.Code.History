@@ -580,7 +580,7 @@ page 302 "Customer Entry Statistics"
         CustLedgEntry2.SetFilter("Agreement No.", GetFilter("Agreement Filter"));
         if CustLedgEntry2.Find('+') then
             repeat
-                j := CustLedgEntry2."Document Type";
+                j := CustLedgEntry2."Document Type".AsInteger();
                 if CustLedgEntry2.Prepayment then
                     j := 7;
                 if j > 0 then begin
@@ -614,7 +614,7 @@ page 302 "Customer Entry Statistics"
             CustLedgEntry2.SetFilter("Posting Date", CustDateFilter[i]);
             if CustLedgEntry2.Find('+') then
                 repeat
-                    j := CustLedgEntry2."Document Type";
+                    j := CustLedgEntry2."Document Type".AsInteger();
                     if CustLedgEntry2.Prepayment then
                         j := 7;
                     if j > 0 then

@@ -672,7 +672,7 @@ codeunit 134381 "ERM Dimension Priority"
         LibraryJob.CreateJobTask(Job, JobTask);
         if FillJobTaskNo then
             UpdateJobTaskDimension(JobTask, DimensionCode, DimValueArray[2]);
-        ResourceNo := LibraryJob.CreateConsumable(0); // Use 0 for Resource
+        ResourceNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Resource);
         LibraryDimension.CreateDefaultDimension(
           DefaultDimension, DATABASE::Resource, ResourceNo, DimensionCode, DimValueArray[3]);
 

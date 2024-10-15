@@ -609,7 +609,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Initialize;
 
         // [WHEN] CreateItemIfNeeded is called
-        ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', 'Description', 'Description2', Item.Type::Inventory);
+        ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', 'Description', 'Description2', Item.Type::Inventory.AsInteger());
 
         // [THEN] Vendor is created
         Assert.IsTrue(ItemDataMigrationFacade.DoesItemExist('ITEM1'), 'Item was expected to have been created');
@@ -620,7 +620,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [WHEN] The Vendor exists
         // [THEN] It is not created
-        Assert.IsFalse(ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', 'Description', 'Description2', Item.Type::Inventory),
+        Assert.IsFalse(ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', 'Description', 'Description2', Item.Type::Inventory.AsInteger()),
           'Item should have not been created');
 
         // [THEN] Vendor dependencies can be created
@@ -700,11 +700,11 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.IsFalse(ItemDataMigrationFacade.CreateTariffNumberIfNeeded('TN', 'Tariff Number', true),
           'Tariff Number was not expected to have been created');
 
-        ItemDataMigrationFacade.CreateItemIfNeeded('ITEM2', 'Description', 'Description2', Item.Type::Inventory);
+        ItemDataMigrationFacade.CreateItemIfNeeded('ITEM2', 'Description', 'Description2', Item.Type::Inventory.AsInteger());
         VendorDataMigrationFacade.CreateVendorIfNeeded('VEND1', '');
 
         // [GIVEN] The Bom Components exist
-        ItemDataMigrationFacade.CreateItemIfNeeded('BOM1', 'BOM1 Description', 'Description2', Item.Type::Inventory);
+        ItemDataMigrationFacade.CreateItemIfNeeded('BOM1', 'BOM1 Description', 'Description2', Item.Type::Inventory.AsInteger());
         Resource.Init();
         Resource."No." := 'BOM2';
         Resource.Name := 'BOM2 Description';
@@ -734,7 +734,7 @@ codeunit 135022 "Data Migration Facade Tests"
         ItemDataMigrationFacade.SetAlternativeItemNo('ITEM2');
         ItemDataMigrationFacade.SetBaseUnitOfMeasure('UOM');
         ItemDataMigrationFacade.SetBlocked(true);
-        ItemDataMigrationFacade.SetCostingMethod(Item."Costing Method"::Average);
+        ItemDataMigrationFacade.SetCostingMethod(Item."Costing Method"::Average.AsInteger());
         ItemDataMigrationFacade.SetItemDiscGroup('IDG');
         ItemDataMigrationFacade.SetItemTrackingCode('ITC');
         ItemDataMigrationFacade.SetNetWeight(1);
@@ -1407,7 +1407,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.ExpectedError(InternalItemNotSetErr);
         asserterror ItemDataMigrationFacade.SetBlocked(true);
         Assert.ExpectedError(InternalItemNotSetErr);
-        asserterror ItemDataMigrationFacade.SetCostingMethod(Item."Costing Method"::Average);
+        asserterror ItemDataMigrationFacade.SetCostingMethod(Item."Costing Method"::Average.AsInteger());
         Assert.ExpectedError(InternalItemNotSetErr);
         asserterror ItemDataMigrationFacade.SetItemDiscGroup('IDG');
         Assert.ExpectedError(InternalItemNotSetErr);
@@ -1621,7 +1621,7 @@ codeunit 135022 "Data Migration Facade Tests"
         ItemDataMigrationFacade: Codeunit "Item Data Migration Facade";
     begin
         LibraryVariableStorage.Enqueue('Migrate Item');
-        ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', '', '', Item.Type::Inventory);
+        ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', '', '', Item.Type::Inventory.AsInteger());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemTrackingCode', '', false, false)]

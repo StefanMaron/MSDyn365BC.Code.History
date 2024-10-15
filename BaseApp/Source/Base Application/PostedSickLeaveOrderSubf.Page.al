@@ -108,7 +108,7 @@ page 17466 "Posted Sick Leave Order Subf"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

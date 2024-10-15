@@ -173,7 +173,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2));
 
         with LetterOfAttorneyHeader do begin
-            Validate("Source Document Type", PurchaseHeader."Document Type" + 1);
+            Validate("Source Document Type", PurchaseHeader."Document Type".AsInteger() + 1);
             Validate("Source Document No.", PurchaseHeader."No.");
             Modify(true);
 

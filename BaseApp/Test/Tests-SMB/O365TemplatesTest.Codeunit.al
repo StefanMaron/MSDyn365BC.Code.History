@@ -28,6 +28,7 @@ codeunit 138012 "O365 Templates Test"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryRapidStart: Codeunit "Library - Rapid Start";
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         NewActionTok: Label 'New';
         CancelActionTok: Label 'Cancel';
@@ -3320,18 +3321,18 @@ codeunit 138012 "O365 Templates Test"
 
         // [GIVEN] Customer Template C001
         CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer,ConfigTemplHeaderCodeCustomer);
+        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCodeCustomer);
         // [GIVEN] Vendor Template V001
         CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor,ConfigTemplHeaderCodeVendor);
+        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCodeVendor);
 
         // [WHEN] Validate "Template Code" to V001
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine,ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type,ConfigTemplateLine.Type::"Related Template");
-        ConfigTemplateLine.Validate("Template Code",ConfigTemplHeaderCodeVendor);
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
+        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
+        ConfigTemplateLine.Validate("Template Code", ConfigTemplHeaderCodeVendor);
 
         // [THEN] "Template Code" = V001
-        ConfigTemplateLine.TestField("Template Code",ConfigTemplHeaderCodeVendor);
+        ConfigTemplateLine.TestField("Template Code", ConfigTemplHeaderCodeVendor);
     end;
 
     [Test]
@@ -3351,22 +3352,22 @@ codeunit 138012 "O365 Templates Test"
 
         // [GIVEN] Customer Template C001
         CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer,ConfigTemplHeaderCodeCustomer);
+        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCodeCustomer);
         // [GIVEN] Vendor Template V001
         CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor,ConfigTemplHeaderCodeVendor);
+        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCodeVendor);
 
         // [GIVEN] ConfigTemplateLine CTL1 with "Template Code" = V001
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine,ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type,ConfigTemplateLine.Type::"Related Template");
-        ConfigTemplateLine.Validate("Template Code",ConfigTemplHeaderCodeVendor);
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
+        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
+        ConfigTemplateLine.Validate("Template Code", ConfigTemplHeaderCodeVendor);
         ConfigTemplateLine.Modify(true);
 
         // [WHEN]  Validate "Template Code" to V001 the second time
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine,ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type,ConfigTemplateLine.Type::"Related Template");
-        asserterror ConfigTemplateLine.Validate("Template Code",ConfigTemplHeaderCodeVendor);
-        Assert.ExpectedError(StrSubstNo(DuplicateRelationErr,ConfigTemplHeaderCodeVendor));
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
+        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
+        asserterror ConfigTemplateLine.Validate("Template Code", ConfigTemplHeaderCodeVendor);
+        Assert.ExpectedError(StrSubstNo(DuplicateRelationErr, ConfigTemplHeaderCodeVendor));
     end;
 
     [Test]
@@ -3387,14 +3388,14 @@ codeunit 138012 "O365 Templates Test"
 
         // [GIVEN] Customer Template C001
         CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer,ConfigTemplHeaderCodeCustomer);
+        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCodeCustomer);
         // [GIVEN] Vendor Template V001
         CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor,ConfigTemplHeaderCodeVendor);
+        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCodeVendor);
 
         // [WHEN] Validate "Template Code" to V001
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine,ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type,ConfigTemplateLine.Type::"Related Template");
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
+        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
         ConfigTemplateLine.Modify(true);
         ConfigTemplateSubform.OpenEdit;
         ConfigTemplateSubform.GotoRecord(ConfigTemplateLine);
@@ -3403,10 +3404,10 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplateSubform.Close;
 
         // [THEN] "Template Code" = V001
-        ConfigTemplateLine.SetRange("Data Template Code",ConfigTemplateLine."Data Template Code");
-        ConfigTemplateLine.SetRange("Line No.",ConfigTemplateLine."Line No.");
+        ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateLine."Data Template Code");
+        ConfigTemplateLine.SetRange("Line No.", ConfigTemplateLine."Line No.");
         ConfigTemplateLine.FindFirst;
-        ConfigTemplateLine.TestField("Template Code",ConfigTemplHeaderCodeVendor);
+        ConfigTemplateLine.TestField("Template Code", ConfigTemplHeaderCodeVendor);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -3426,11 +3427,11 @@ codeunit 138012 "O365 Templates Test"
 
         // [GIVEN] Customer Template C001
         CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer,ConfigTemplHeaderCodeCustomer);
+        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCodeCustomer);
 
         // [WHEN] Validate "Template Code" to C001
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine,ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type,ConfigTemplateLine.Type::"Related Template");
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
+        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
         ConfigTemplateLine.Modify(true);
         ConfigTemplateSubform.OpenEdit;
         ConfigTemplateSubform.GotoRecord(ConfigTemplateLine);
@@ -3556,7 +3557,7 @@ codeunit 138012 "O365 Templates Test"
         // [GIVEN] Customer Template with default dimensions.
         CustomerTemplateCode := CreateCustTemplateWithDimFromCustomer();
         LibraryVariableStorage.Enqueue(CustomerTemplateCode);
-        
+
         // [GIVEN] Customer with different values for default dimensions of template.
         Customer.GET(GlobalTemplateName);
         ChangeDefaultDimensionsValues(DATABASE::Customer, Customer."No.");
@@ -3638,6 +3639,7 @@ codeunit 138012 "O365 Templates Test"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Templates Test");
 
+        LibraryTemplates.DisableTemplatesFeature();
         ClearTable(DATABASE::"Item Identifier");
         ClearTable(DATABASE::Job);
         ClearTable(DATABASE::"Job Planning Line");
@@ -3665,14 +3667,14 @@ codeunit 138012 "O365 Templates Test"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Templates Test");
     end;
 
-    local procedure ChangeDefaultDimensionsValues(TableID : Integer; No : Code[20])
+    local procedure ChangeDefaultDimensionsValues(TableID: Integer; No: Code[20])
     var
         DefaultDimension: Record "Default Dimension";
         NewDimValCode: Code[20];
     begin
         with DefaultDimension do begin
-            SetRange("Table ID",TableID);
-            SetRange("No.",No);
+            SetRange("Table ID", TableID);
+            SetRange("No.", No);
             if FindSet() then
                 repeat
                     NewDimValCode := LibraryDimension.FindDifferentDimensionValue("Dimension Code", "Dimension Value Code");
@@ -5077,7 +5079,7 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure ConfigTemplateListModalPageHandler(var ConfigTemplateList: TestPage "Config. Template List")
     begin
-        ConfigTemplateList.FILTER.SetFilter(Code,LibraryVariableStorage.DequeueText);
+        ConfigTemplateList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         ConfigTemplateList.OK.Invoke;
     end;
 

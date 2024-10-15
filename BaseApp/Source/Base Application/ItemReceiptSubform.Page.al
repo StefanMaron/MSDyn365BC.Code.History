@@ -189,7 +189,7 @@ page 12451 "Item Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
             }
@@ -268,7 +268,7 @@ page 12451 "Item Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -281,7 +281,7 @@ page 12451 "Item Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

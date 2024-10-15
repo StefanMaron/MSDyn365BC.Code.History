@@ -154,7 +154,7 @@ table 14926 "Default VAT Allocation Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

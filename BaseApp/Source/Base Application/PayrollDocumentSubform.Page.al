@@ -217,7 +217,7 @@ page 17415 "Payroll Document Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

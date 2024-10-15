@@ -694,7 +694,7 @@ codeunit 147111 "SCM Item Documents"
         ItemDocumentLine.Validate("Bin Code", BinCode);
         ItemDocumentLine.Modify(true);
         LibraryVariableStorage.Enqueue(ItemTrkgAction);
-        ItemDocumentLine.OpenItemTrackingLines;
+        ItemDocumentLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateItemWithDimension(var Item: Record Item; var DimensionValue: Record "Dimension Value")
@@ -710,7 +710,7 @@ codeunit 147111 "SCM Item Documents"
           DefaultDimension, DATABASE::Item, Item."No.", Dimension.Code, DimensionValue.Code);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -781,7 +781,7 @@ codeunit 147111 "SCM Item Documents"
         InventorySetup.Modify(true);
     end;
 
-    local procedure PostItemJournalLine(EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
+    local procedure PostItemJournalLine(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -789,7 +789,7 @@ codeunit 147111 "SCM Item Documents"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure PostItemJournalLineRedStorno(EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
+    local procedure PostItemJournalLineRedStorno(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin

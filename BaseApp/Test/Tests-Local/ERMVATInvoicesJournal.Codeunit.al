@@ -104,7 +104,7 @@ codeunit 147125 "ERM VAT Invoices Journal"
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         VerifyVendVATListEntries(
-          VendorNo, ReportType::Issued, InvDate, false, 0, 0, '');
+          VendorNo, ReportType::Issued, InvDate, false, 0, "Gen. Journal document Type"::" ", '');
         VerifyVendVATListEntries(
           VendorNo, ReportType::Received, InvDate, false, 2, VendLedgEntry."Document Type"::Invoice, PostedDocNo);
     end;
@@ -130,7 +130,7 @@ codeunit 147125 "ERM VAT Invoices Journal"
         CreatePurchLine(PurchHeader, GLAccountNo, DirectUnitCost);
     end;
 
-    local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Option; PostingDate: Date; VendorNo: Code[20])
+    local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; PostingDate: Date; VendorNo: Code[20])
     begin
         with PurchHeader do begin
             LibraryPurch.CreatePurchHeader(PurchHeader, DocType, VendorNo);
@@ -202,7 +202,7 @@ codeunit 147125 "ERM VAT Invoices Journal"
         end;
     end;
 
-    local procedure VerifyVendVATListEntries(VendNo: Code[20]; ReportType: Option Received,Issued; EndDate: Date; ShowCorrection: Boolean; EntriesCount: Integer; DocType: Option; DocNo: Code[20])
+    local procedure VerifyVendVATListEntries(VendNo: Code[20]; ReportType: Option Received,Issued; EndDate: Date; ShowCorrection: Boolean; EntriesCount: Integer; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         Vendor: Record Vendor;
         Period: Record Date;

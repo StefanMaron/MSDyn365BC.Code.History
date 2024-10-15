@@ -18,7 +18,7 @@ codeunit 143016 "Library RU Reports"
         Assert: Codeunit Assert;
 
     [Scope('OnPrem')]
-    procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10])
+    procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Currency Code", CurrencyCode);
@@ -30,14 +30,14 @@ codeunit 143016 "Library RU Reports"
     begin
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0),
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "),
           LibraryRandom.RandDecInRange(10, 20, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Option; SalesLineQty: Integer)
+    procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SalesLineQty: Integer)
     var
         SalesLine: Record "Sales Line";
         Customer: Record Customer;
@@ -76,7 +76,7 @@ codeunit 143016 "Library RU Reports"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; CurrencyCode: Code[10])
+    procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; CurrencyCode: Code[10])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
@@ -88,14 +88,14 @@ codeunit 143016 "Library RU Reports"
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0),
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "),
           LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; LineQty: Integer)
+    procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; LineQty: Integer)
     var
         Vendor: Record Vendor;
         PurchaseLine: Record "Purchase Line";
@@ -125,7 +125,7 @@ codeunit 143016 "Library RU Reports"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePostPurchDocument(DocumentType: Option; LineQty: Integer): Code[20]
+    procedure CreatePostPurchDocument(DocumentType: Enum "Purchase Document Type"; LineQty: Integer): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -528,7 +528,7 @@ codeunit 143016 "Library RU Reports"
     end;
 
     [Scope('OnPrem')]
-    procedure GetPurchaseTotalAmount(DocumentType: Option; OrderNo: Code[20]): Text
+    procedure GetPurchaseTotalAmount(DocumentType: Enum "Purchase Document Type"; OrderNo: Code[20]): Text
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -540,7 +540,7 @@ codeunit 143016 "Library RU Reports"
     end;
 
     [Scope('OnPrem')]
-    procedure GetPurchaseTotalAmountIncVAT(DocumentType: Option; OrderNo: Code[20]): Text
+    procedure GetPurchaseTotalAmountIncVAT(DocumentType: Enum "Purchase Document Type"; OrderNo: Code[20]): Text
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -687,7 +687,7 @@ codeunit 143016 "Library RU Reports"
     end;
 
     [Scope('OnPrem')]
-    procedure InitItemJournalLine(var ItemJnlLine: Record "Item Journal Line"; Type: Option; ClearJnl: Boolean)
+    procedure InitItemJournalLine(var ItemJnlLine: Record "Item Journal Line"; Type: Enum "Item Journal Template Type"; ClearJnl: Boolean)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";

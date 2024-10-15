@@ -110,7 +110,7 @@ codeunit 8618 "Config. Excel Exchange"
         DataTableCounter: Integer;
     begin
         StartTime := CurrentDateTime();
-        SendTraceTag('00009QA', RapidStartTxt, Verbosity::Normal, ExcelExportStartMsg, DataClassification::SystemMetadata);
+        Session.LogMessage('00009QA', ExcelExportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         OnBeforeExportExcel(ConfigPackageTable);
 
@@ -196,7 +196,7 @@ codeunit 8618 "Config. Excel Exchange"
 
         DurationAsInt := CurrentDateTime() - StartTime;
         // Tag used for analytics - DO NOT MODIFY
-        SendTraceTag('00009QB', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExcelExportFinishMsg, DurationAsInt), DataClassification::SystemMetadata);
+        Session.LogMessage('00009QB', StrSubstNo(ExcelExportFinishMsg, DurationAsInt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         OnBeforeBLOBExport(TempBlob);
         if not FileOnServer then
@@ -356,7 +356,7 @@ codeunit 8618 "Config. Excel Exchange"
         end;
 
         StartTime := CurrentDateTime();
-        SendTraceTag('00009QC', RapidStartTxt, Verbosity::Normal, ExcelImportStartMsg, DataClassification::SystemMetadata);
+        Session.LogMessage('00009QC', ExcelImportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
         WorkBookPart := WrkbkReader.Workbook.WorkbookPart;
         XMLSchemaDataFile := OpenXMLManagement.ExtractXMLSchema(WorkBookPart);
 
@@ -381,7 +381,7 @@ codeunit 8618 "Config. Excel Exchange"
 
         DurationAsInt := CurrentDateTime() - StartTime;
         // Tag used for analytics - DO NOT MODIFY
-        SendTraceTag('00009QD', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExcelImportFinishMsg, DurationAsInt, FileSize), DataClassification::SystemMetadata);
+        Session.LogMessage('00009QD', StrSubstNo(ExcelImportFinishMsg, DurationAsInt, FileSize), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
         if ConfigXMLExchange.ImportPackageXMLFromStream(InStream) then
             Imported := true;
 

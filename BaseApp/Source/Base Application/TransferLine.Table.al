@@ -43,7 +43,7 @@
 
                 OnValidateItemNoOnAfterInitLine(Rec, TempTransferLine);
 
-                GetTransHeader;
+                GetTransHeaderExternal();
                 GetItem;
                 GetDefaultBin("Transfer-from Code", "Transfer-to Code");
 
@@ -648,7 +648,7 @@
         }
         field(50; "Reserved Quantity Inbnd."; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
                                                                   "Source Ref. No." = FIELD("Line No."),
                                                                   "Source Type" = CONST(5741),
                                                                   "Source Subtype" = CONST("1"),
@@ -661,7 +661,7 @@
         }
         field(51; "Reserved Quantity Outbnd."; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
                                                                    "Source Ref. No." = FIELD("Line No."),
                                                                    "Source Type" = CONST(5741),
                                                                    "Source Subtype" = CONST("0"),
@@ -674,7 +674,7 @@
         }
         field(52; "Reserved Qty. Inbnd. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
                                                                            "Source Ref. No." = FIELD("Line No."),
                                                                            "Source Type" = CONST(5741),
                                                                            "Source Subtype" = CONST("1"),
@@ -687,7 +687,7 @@
         }
         field(53; "Reserved Qty. Outbnd. (Base)"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
                                                                             "Source Ref. No." = FIELD("Line No."),
                                                                             "Source Type" = CONST(5741),
                                                                             "Source Subtype" = CONST("0"),
@@ -713,7 +713,7 @@
         }
         field(55; "Reserved Quantity Shipped"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
                                                                   "Source Ref. No." = FILTER(<> 0),
                                                                   "Source Type" = CONST(5741),
                                                                   "Source Subtype" = CONST("1"),
@@ -726,7 +726,7 @@
         }
         field(56; "Reserved Qty. Shipped (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
                                                                            "Source Ref. No." = FILTER(<> 0),
                                                                            "Source Type" = CONST(5741),
                                                                            "Source Subtype" = CONST("1"),
@@ -749,7 +749,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -772,7 +772,7 @@
         field(5750; "Whse. Inbnd. Otsdg. Qty (Base)"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Warehouse Receipt Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(5741),
+            CalcFormula = Sum("Warehouse Receipt Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(5741),
                                                                                         "Source Subtype" = CONST("1"),
                                                                                         "Source No." = FIELD("Document No."),
                                                                                         "Source Line No." = FIELD("Line No.")));
@@ -784,7 +784,7 @@
         field(5751; "Whse Outbnd. Otsdg. Qty (Base)"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Warehouse Shipment Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(5741),
+            CalcFormula = Sum("Warehouse Shipment Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(5741),
                                                                                          "Source Subtype" = CONST("0"),
                                                                                          "Source No." = FIELD("Document No."),
                                                                                          "Source Line No." = FIELD("Line No.")));
@@ -942,12 +942,16 @@
     trigger OnInsert()
     var
         TransLine2: Record "Transfer Line";
+        IsHandled: Boolean;
     begin
-        TestStatusOpen;
-        TransLine2.Reset();
-        TransLine2.SetFilter("Document No.", TransHeader."No.");
-        if TransLine2.FindLast then
-            "Line No." := TransLine2."Line No." + 10000;
+        TestStatusOpen();
+        OnInsertOnBeforeAssignLineNo(Rec, IsHandled);
+        if not IsHandled then begin
+            TransLine2.Reset();
+            TransLine2.SetFilter("Document No.", TransHeader."No.");
+            if TransLine2.FindLast then
+                "Line No." := TransLine2."Line No." + 10000;
+        end;
         ReserveTransferLine.VerifyQuantity(Rec, xRec);
     end;
 
@@ -1064,6 +1068,11 @@
         "Qty. in Transit (Base)" := 0;
 
         OnAfterResetPostedQty(Rec);
+    end;
+
+    procedure GetTransHeaderExternal()
+    begin
+        GetTransHeader();
     end;
 
     local procedure GetTransHeader()
@@ -1217,7 +1226,7 @@
     end;
 
     [Scope('OnPrem')]
-    procedure OpenItemTrackingLinesWithReclass(Direction: Option Outbound,Inbound)
+    procedure OpenItemTrackingLinesWithReclass(Direction: Enum "Transfer Direction")
     begin
         TestField("Item No.");
         TestField("Quantity (Base)");
@@ -1254,7 +1263,7 @@
         Clear(Reservation);
         OptionNumber := StrMenu(Text011);
         if OptionNumber > 0 then begin
-            Reservation.SetReservSource(Rec, OptionNumber - 1);
+            Reservation.SetReservSource(Rec, "Transfer Direction".FromInteger(OptionNumber - 1));
             Reservation.RunModal();
         end;
     end;
@@ -1423,16 +1432,16 @@
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
         ReservEntry.SetSource(
-            DATABASE::"Transfer Line", Direction, "Document No.", "Line No.", '', "Derived From Line No.");
+            DATABASE::"Transfer Line", Direction.AsInteger(), "Document No.", "Line No.", '', "Derived From Line No.");
         case Direction of
-            0: // Outbound
+            Direction::Outbound:
                 begin
                     ReservEntry.SetItemData(
                         "Item No.", Description, "Transfer-from Code", "Variant Code", "Qty. per Unit of Measure");
                     ReservEntry."Shipment Date" := "Shipment Date";
                     ReservEntry."Expected Receipt Date" := "Shipment Date";
                 end;
-            1: // Inbound:
+            Direction::Inbound:
                 begin
                     ReservEntry.SetItemData(
                         "Item No.", Description, "Transfer-to Code", "Variant Code", "Qty. per Unit of Measure");
@@ -1444,7 +1453,7 @@
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Transfer Line", Direction, "Document No.", "Line No.", false);
+        ReservEntry.SetSourceFilter(DATABASE::"Transfer Line", Direction.AsInteger(), "Document No.", "Line No.", false);
         ReservEntry.SetSourceFilter('', "Derived From Line No.");
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
@@ -1455,7 +1464,7 @@
         ReservEntry: Record "Reservation Entry";
     begin
         ReservEntry.InitSortingAndFilters(false);
-        SetReservationFilters(ReservEntry, 0);
+        SetReservationFilters(ReservEntry, "Transfer Direction"::Outbound);
         ReservEntry.SetRange("Source Subtype"); // Ignore direction
         exit(not ReservEntry.IsEmpty);
     end;
@@ -1549,7 +1558,7 @@
     begin
         if TransLine.FindSet then
             repeat
-                ReservMgt.SetTransferLine(TransLine, 0);
+                ReservMgt.SetTransferLine(TransLine, "Transfer Direction"::Outbound);
                 TransLine.TestField("Shipment Date");
                 TransLine.CalcFields("Reserved Qty. Outbnd. (Base)");
                 ReservMgt.AutoReserveToShip(
@@ -1626,7 +1635,7 @@
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Transfer Line", Direction, "Document No.", '', "Derived From Line No.", "Line No."));
+        exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Transfer Line", Direction.AsInteger(), "Document No.", '', "Derived From Line No.", "Line No."));
     end;
 
     local procedure SetItemLedgerEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry")
@@ -1783,6 +1792,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultBin(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeAssignLineNo(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 }

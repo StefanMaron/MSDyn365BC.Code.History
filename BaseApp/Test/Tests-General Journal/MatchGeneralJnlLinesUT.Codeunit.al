@@ -68,7 +68,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -124,7 +124,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -209,7 +209,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -238,7 +238,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Vendor, VendorLedgerEntry."Vendor No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -350,7 +350,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Vendor, VendorLedgerEntry."Vendor No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Vendor, VendorLedgerEntry."Vendor No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -436,7 +436,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document No.", GenJnlLine."Account Type"::Vendor, VendorLedgerEntry."Vendor No.", true);
-        VerifyGenJnlLine(GenJnlLine2, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine2, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -464,7 +464,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
 
         // Verify
-        VerifyGenJnlLine(GenJnlLine, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -492,7 +492,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
 
         // Verify
-        VerifyGenJnlLine(GenJnlLine, '', 0, '', false);
+        VerifyGenJnlLine(GenJnlLine, '', "Gen. Journal Account Type"::"G/L Account", '', false);
     end;
 
     [Test]
@@ -1206,7 +1206,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         InsertGenJnlLine(GenJnlLine, GenJnlBatch, LibraryRandom.RandDec(100, 2), TextToAccMapping."Mapping Text", '');
     end;
 
-    local procedure FindInvoiceLineFromPayment(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option)
+    local procedure FindInvoiceLineFromPayment(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type")
     begin
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
@@ -1214,7 +1214,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine.FindFirst;
     end;
 
-    local procedure VerifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocNo: Code[50]; AccountType: Option; AccountNo: Code[20]; Applied: Boolean)
+    local procedure VerifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocNo: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Applied: Boolean)
     begin
         GenJnlLine.Find;
         GenJnlLine.TestField("Applies-to ID", DocNo);
@@ -1223,7 +1223,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine.TestField("Applied Automatically", Applied);
     end;
 
-    local procedure VerifyAppliedInvGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AppliesToDocType: Option; AppliesToDocNo: Code[50]; AccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20])
+    local procedure VerifyAppliedInvGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AppliesToDocType: Enum "Gen. Journal Account Type"; AppliesToDocNo: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20])
     begin
         GenJnlLine.Find;
         GenJnlLine.TestField("Account Type", AccountType);

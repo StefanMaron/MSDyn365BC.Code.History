@@ -126,7 +126,7 @@ table 12471 "Posted FA Doc. Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

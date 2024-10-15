@@ -276,7 +276,7 @@ codeunit 147105 "SCM CD SE Fixes"
         ItemJournalLine.OpenItemTrackingLines(true);
     end;
 
-    local procedure PostItemJnlLineWithUndefinedCDNo(EntryType: Option)
+    local procedure PostItemJnlLineWithUndefinedCDNo(EntryType: Enum "Item Ledger Entry Type")
     var
         Location: Record Location;
         Item: Record Item;

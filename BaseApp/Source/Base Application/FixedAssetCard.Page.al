@@ -183,12 +183,12 @@ page 5600 "Fixed Asset Card"
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the vendor number for the vendor you use for repairs and maintenance of the fixed asset.';
+                    ToolTip = 'Specifies the number of the vendor who performs repairs and maintenance on the fixed asset.';
                 }
                 field("Under Maintenance"; "Under Maintenance")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies whether the fixed asset is currently being repaired.';
+                    ToolTip = 'Specifies if the fixed asset is currently being repaired.';
                 }
                 field("Next Service Date"; "Next Service Date")
                 {
@@ -496,7 +496,7 @@ page 5600 "Fixed Asset Card"
                     Image = Components;
                     RunObject = Page "Main Asset Components";
                     RunPageLink = "Main Asset No." = FIELD("No.");
-                    ToolTip = 'View or edit lines, each representing one component of the main asset. The window shows only the components of the main asset that is related to the fixed asset card.';
+                    ToolTip = 'View or edit fixed asset components of the main fixed asset that is represented by the fixed asset card.';
                 }
                 action("Ma&in Asset Statistics")
                 {
@@ -523,7 +523,7 @@ page 5600 "Fixed Asset Card"
                     Image = TotalValueInsured;
                     RunObject = Page "Total Value Insured";
                     RunPageLink = "No." = FIELD("No.");
-                    ToolTip = 'View the amounts that you posted to each insurance policy for the fixed asset. The entries in this window correspond to all of the entries in the Coverage Ledger Entry table for the fixed asset. The amounts shown can be more or less than the actual insurance policy coverage. The amounts shown can differ from the actual book value of the asset.';
+                    ToolTip = 'View the amounts that you posted to each insurance policy for the fixed asset. The amounts shown can be more or less than the actual insurance policy coverage. The amounts shown can differ from the actual book value of the asset.';
                 }
             }
             group(History)
@@ -551,7 +551,7 @@ page 5600 "Fixed Asset Card"
                     RunPageLink = "Canceled from FA No." = FIELD("No.");
                     RunPageView = SORTING("Canceled from FA No.")
                                   ORDER(Descending);
-                    ToolTip = 'View the entries that have been posted as a result of you using the cancel function to cancel an entry.';
+                    ToolTip = 'View the entries that have been posted as a result of you using the Cancel function to cancel an entry.';
                 }
                 action("Main&tenance Ledger Entries")
                 {
@@ -561,7 +561,7 @@ page 5600 "Fixed Asset Card"
                     RunObject = Page "Maintenance Ledger Entries";
                     RunPageLink = "FA No." = FIELD("No.");
                     RunPageView = SORTING("FA No.");
-                    ToolTip = 'View all the maintenance ledger entries for a fixed asset. The entries result from posting transactions in a purchase order, invoice, credit memo, or journal line.';
+                    ToolTip = 'View all the maintenance ledger entries for a fixed asset.';
                 }
                 separator(Action1210012)
                 {

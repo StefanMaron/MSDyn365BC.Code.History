@@ -276,14 +276,14 @@ codeunit 12458 "Copy Item Document Mgt."
                   "Applies-to Entry",
                   GetItemDocLedgerEntryNo(
                     FromItemDocLine."Document No.",
-                    ItemLedgerEntry."Document Type"::"Item Receipt",
+                    ItemLedgerEntry."Document Type"::"Item Receipt".AsInteger(),
                     FromItemDocLine."Line No."))
             else
                 ToItemDocLine.Validate(
                   "Applies-from Entry",
                   GetItemDocLedgerEntryNo(
                     FromItemDocLine."Document No.",
-                    ItemLedgerEntry."Document Type"::"Item Shipment",
+                    ItemLedgerEntry."Document Type"::"Item Shipment".AsInteger(),
                     FromItemDocLine."Line No."));
         if CopyThisLine then
             ToItemDocLine.Insert

@@ -99,7 +99,7 @@ table 952 "Time Sheet Detail"
         {
             Caption = 'Job Id';
             DataClassification = SystemMetadata;
-            TableRelation = Job.Id;
+            TableRelation = Job.SystemId;
         }
     }
 

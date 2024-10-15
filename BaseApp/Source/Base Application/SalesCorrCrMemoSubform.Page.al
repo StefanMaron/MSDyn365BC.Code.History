@@ -38,7 +38,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field(Description; Description)
@@ -206,7 +206,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -217,7 +217,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -228,7 +228,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                     trigger OnAction()
                     begin
-                        ItemChargeAssgnt;
+                        ItemChargeAssgnt();
                     end;
                 }
                 action(ItemTrackingLines)
@@ -241,7 +241,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -308,7 +308,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
     [Scope('OnPrem')]
     procedure ItemChargeAssgnt()
     begin
-        ShowItemChargeAssgnt;
+        ShowItemChargeAssgnt();
     end;
 
     [Scope('OnPrem')]

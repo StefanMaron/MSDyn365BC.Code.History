@@ -221,7 +221,7 @@ table 271 "Bank Account Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(12400; "Company Name"; Text[100])

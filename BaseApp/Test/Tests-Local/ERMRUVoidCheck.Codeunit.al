@@ -25,7 +25,6 @@ codeunit 144015 "ERM RU Void Check"
         ExpectedCorrectionEntriesErr: Label 'Correction G/L Entries are expected (Debit, Credit Amount <= 0)';
         ExpectedNotCorrectionEntriesErr: Label 'Not correction G/L Entries are expected (Debit, Credit Amount >= 0)';
         VoidType: Option "Unapply and void check","Void check only";
-        BankPaymentType: Option " ","Computer Check","Manual Check";
         FieldIsNotEditableErr: Label 'Field %1 is no editable';
 
     [Test]
@@ -39,7 +38,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Manual Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Unapply And Void Check for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Manual Check", VoidType::"Unapply and void check", false);
+        PurchaseMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Manual Check", VoidType::"Unapply and void check", false);
 
         // [THEN] Vendor invoice ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -58,7 +57,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Manual Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Unapply And Void Check for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Manual Check", VoidType::"Unapply and void check", true);
+        PurchaseMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Manual Check", VoidType::"Unapply and void check", true);
 
         // [THEN] Vendor invoice ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -77,7 +76,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Manual Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Void Check Only for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Manual Check", VoidType::"Void check only", false);
+        PurchaseMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Manual Check", VoidType::"Void check only", false);
 
         // [THEN] Vendor invoice ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -96,7 +95,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Manual Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Void Check Only for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Manual Check", VoidType::"Void check only", true);
+        PurchaseMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Manual Check", VoidType::"Void check only", true);
 
         // [THEN] Vendor invoice ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -115,7 +114,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Computer Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Unapply And Void Check for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Unapply and void check", false);
+        PurchaseMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Unapply and void check", false);
 
         // [THEN] Vendor invoice ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -134,7 +133,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Computer Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Unapply And Void Check for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Unapply and void check", true);
+        PurchaseMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Unapply and void check", true);
 
         // [THEN] Vendor invoice ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -153,7 +152,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Computer Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Void Check Only for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Void check only", false);
+        PurchaseMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Void check only", false);
 
         // [THEN] Vendor invoice ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -172,7 +171,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Computer Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Void Check Only for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Void check only", true);
+        PurchaseMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Void check only", true);
 
         // [THEN] Vendor invoice ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -191,7 +190,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor payments "P1", "P2", "P3"
         // [GIVEN] Vendor refund "R" with "Computer Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Unapply And Void Check for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        PurchaseMultipleApplication_CashIngoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Unapply and void check", false);
+        PurchaseMultipleApplication_CashIngoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Unapply and void check", false);
 
         // [THEN] Vendor payment ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -210,7 +209,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor payments "P1", "P2", "P3"
         // [GIVEN] Vendor refund "R" with "Computer Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Unapply And Void Check for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        PurchaseMultipleApplication_CashIngoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Unapply and void check", true);
+        PurchaseMultipleApplication_CashIngoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Unapply and void check", true);
 
         // [THEN] Vendor payment ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -229,7 +228,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor payments "P1", "P2", "P3"
         // [GIVEN] Vendor refund "R" with "Computer Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Void Check Only for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        PurchaseMultipleApplication_CashIngoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Void check only", false);
+        PurchaseMultipleApplication_CashIngoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Void check only", false);
 
         // [THEN] Vendor payment ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -248,7 +247,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three vendor payments "P1", "P2", "P3"
         // [GIVEN] Vendor refund "R" with "Computer Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Void Check Only for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        PurchaseMultipleApplication_CashIngoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Void check only", true);
+        PurchaseMultipleApplication_CashIngoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Void check only", true);
 
         // [THEN] Vendor payment ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -267,7 +266,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer payments "P1", "P2", "P3"
         // [GIVEN] Customer refund "R" with "Manual Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Unapply And Void Check for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Manual Check", VoidType::"Unapply and void check", false);
+        SalesMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Manual Check", VoidType::"Unapply and void check", false);
 
         // [THEN] Customer payment ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -286,7 +285,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer payments "P1", "P2", "P3"
         // [GIVEN] Customer refund "R" with "Manual Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Unapply And Void Check for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Manual Check", VoidType::"Unapply and void check", true);
+        SalesMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Manual Check", VoidType::"Unapply and void check", true);
 
         // [THEN] Customer payment ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -305,7 +304,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer payments "P1", "P2", "P3"
         // [GIVEN] Customer refund "R" with "Manual Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Void Check Only for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Manual Check", VoidType::"Void check only", false);
+        SalesMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Manual Check", VoidType::"Void check only", false);
 
         // [THEN] Customer payment ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -324,7 +323,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer payments "P1", "P2", "P3"
         // [GIVEN] Customer refund "R" with "Manual Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Void Check Only for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Manual Check", VoidType::"Void check only", true);
+        SalesMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Manual Check", VoidType::"Void check only", true);
 
         // [THEN] Customer payment ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -343,7 +342,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer payments "P1", "P2", "P3"
         // [GIVEN] Customer refund "R" with "Computer Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Unapply And Void Check for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Unapply and void check", false);
+        SalesMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Unapply and void check", false);
 
         // [THEN] Customer payment ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -362,7 +361,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer payments "P1", "P2", "P3"
         // [GIVEN] Customer refund "R" with "Computer Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Unapply And Void Check for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Unapply and void check", true);
+        SalesMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Unapply and void check", true);
 
         // [THEN] Customer payment ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -381,7 +380,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer payments "P1", "P2", "P3"
         // [GIVEN] Customer refund "R" with "Computer Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Void Check Only for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Void check only", false);
+        SalesMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Void check only", false);
 
         // [THEN] Customer payment ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -400,7 +399,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer payments "P1", "P2", "P3"
         // [GIVEN] Customer refund "R" with "Computer Check", applied to payments "P1", "P2", "P3"
         // [WHEN] Void Check Only for refund "R" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Void check only", true);
+        SalesMultipleApplication_CashOutgoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Void check only", true);
 
         // [THEN] Customer payment ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -419,7 +418,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Computer Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Unapply And Void Check for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        SalesMultipleApplication_CashIngoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Unapply and void check", false);
+        SalesMultipleApplication_CashIngoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Unapply and void check", false);
 
         // [THEN] Customer invoice ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -438,7 +437,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Computer Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Unapply And Void Check for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        SalesMultipleApplication_CashIngoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Unapply and void check", true);
+        SalesMultipleApplication_CashIngoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Unapply and void check", true);
 
         // [THEN] Customer invoice ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -457,7 +456,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Computer Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Void Check Only for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = FALSE
-        SalesMultipleApplication_CashIngoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Void check only", false);
+        SalesMultipleApplication_CashIngoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Void check only", false);
 
         // [THEN] Customer invoice ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
@@ -476,7 +475,7 @@ codeunit 144015 "ERM RU Void Check"
         // [GIVEN] Three customer invoices "I1", "I2", "I3"
         // [GIVEN] Payment "P" with "Computer Check", applied to invoices "I1", "I2", "I3"
         // [WHEN] Void Check Only for payment "P" using GeneralLedgerSetup."Void Payment as Correction" = TRUE
-        SalesMultipleApplication_CashIngoing_Scenario(BankPaymentType::"Computer Check", VoidType::"Void check only", true);
+        SalesMultipleApplication_CashIngoing_Scenario("Bank Payment Type"::"Computer Check", VoidType::"Void check only", true);
 
         // [THEN] Customer invoice ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
@@ -519,7 +518,7 @@ codeunit 144015 "ERM RU Void Check"
         Commit();
     end;
 
-    local procedure PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentTypeLoc: Option; VoidTypeLoc: Option; VoidPaymentAsCorrection: Boolean)
+    local procedure PurchaseMultipleApplication_CashOutgoing_Scenario(BankPaymentTypeLoc: Enum "Bank Payment Type"; VoidTypeLoc: Option; VoidPaymentAsCorrection: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -557,7 +556,7 @@ codeunit 144015 "ERM RU Void Check"
           CheckLedgerEntry."Statement Status"::Closed);
     end;
 
-    local procedure PurchaseMultipleApplication_CashIngoing_Scenario(BankPaymentTypeLoc: Option; VoidTypeLoc: Option; VoidPaymentAsCorrection: Boolean)
+    local procedure PurchaseMultipleApplication_CashIngoing_Scenario(BankPaymentTypeLoc: Enum "Bank Payment Type"; VoidTypeLoc: Option; VoidPaymentAsCorrection: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -594,7 +593,7 @@ codeunit 144015 "ERM RU Void Check"
           CheckLedgerEntry."Statement Status"::Closed);
     end;
 
-    local procedure SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentTypeLoc: Option; VoidTypeLoc: Option; VoidPaymentAsCorrection: Boolean)
+    local procedure SalesMultipleApplication_CashOutgoing_Scenario(BankPaymentTypeLoc: Enum "Bank Payment Type"; VoidTypeLoc: Option; VoidPaymentAsCorrection: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -631,7 +630,7 @@ codeunit 144015 "ERM RU Void Check"
           CheckLedgerEntry."Statement Status"::Closed);
     end;
 
-    local procedure SalesMultipleApplication_CashIngoing_Scenario(BankPaymentTypeLoc: Option; VoidTypeLoc: Option; VoidPaymentAsCorrection: Boolean)
+    local procedure SalesMultipleApplication_CashIngoing_Scenario(BankPaymentTypeLoc: Enum "Bank Payment Type"; VoidTypeLoc: Option; VoidPaymentAsCorrection: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -678,28 +677,28 @@ codeunit 144015 "ERM RU Void Check"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure CreatePostInvoice(var TotalInvAmount: Decimal; AccountType: Option; AccountNo: Code[20]; AmountSign: Integer): Code[20]
+    local procedure CreatePostInvoice(var TotalInvAmount: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AmountSign: Integer): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do begin
             CreateGenJournalLine(
               GenJournalLine, "Document Type"::Invoice, AccountType, AccountNo, "Bal. Account Type"::"Bank Account",
-              LibraryERM.CreateBankAccountNo, 0, '', "Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
+              LibraryERM.CreateBankAccountNo, "Gen. Journal Document Type"::" ", '', "Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
             TotalInvAmount += Abs(Amount);
             exit("Document No.");
         end;
     end;
 
-    local procedure CreatePostPayment(var DocumentNo: Code[20]; AccountType: Option; AccountNo: Code[20]; AmountSign: Integer): Decimal
+    local procedure CreatePostPayment(var DocumentNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AmountSign: Integer): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do begin
             CreateGenJournalLine(
               GenJournalLine, "Document Type"::Payment, AccountType, AccountNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0, '',
+              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, "Gen. Journal Account Type"::"G/L Account", '',
               "Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
             DocumentNo := "Document No.";
@@ -707,7 +706,7 @@ codeunit 144015 "ERM RU Void Check"
         end;
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20]; BankPaymentType: Option; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -721,7 +720,7 @@ codeunit 144015 "ERM RU Void Check"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePostPaymentAppliedToInvoice(AccountType: Option; AccountNo: Code[20]; BankAccountNo: Code[20]; BankPaymentTypeLoc: Option; InvNo: Code[20]; AmountToApply: Decimal): Code[20]
+    local procedure CreatePostPaymentAppliedToInvoice(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountNo: Code[20]; BankPaymentTypeLoc: Enum "Bank Payment Type"; InvNo: Code[20]; AmountToApply: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -729,14 +728,14 @@ codeunit 144015 "ERM RU Void Check"
             CreateGenJournalLine(
               GenJournalLine, "Document Type"::Payment, AccountType, AccountNo, "Bal. Account Type"::"Bank Account",
               BankAccountNo, "Applies-to Doc. Type"::Invoice, InvNo, BankPaymentTypeLoc, AmountToApply);
-            if BankPaymentTypeLoc = BankPaymentType::"Computer Check" then
+            if BankPaymentTypeLoc = "Bank Payment Type"::"Computer Check" then
                 PrintCashOrder(GenJournalLine);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
             exit("Document No.");
         end;
     end;
 
-    local procedure CreatePostRefundAppliedToPayment(AccountType: Option; AccountNo: Code[20]; BankAccountNo: Code[20]; BankPaymentTypeLoc: Option; InvNo: Code[20]; AmountToApply: Decimal): Code[20]
+    local procedure CreatePostRefundAppliedToPayment(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountNo: Code[20]; BankPaymentTypeLoc: Enum "Bank Payment Type"; InvNo: Code[20]; AmountToApply: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -744,7 +743,7 @@ codeunit 144015 "ERM RU Void Check"
             CreateGenJournalLine(
               GenJournalLine, "Document Type"::Refund, AccountType, AccountNo, "Bal. Account Type"::"Bank Account",
               BankAccountNo, "Applies-to Doc. Type"::Payment, InvNo, BankPaymentTypeLoc, AmountToApply);
-            if BankPaymentTypeLoc = BankPaymentType::"Computer Check" then
+            if BankPaymentTypeLoc = "Bank Payment Type"::"Computer Check" then
                 PrintCashOrder(GenJournalLine);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
             exit("Document No.");
@@ -805,7 +804,7 @@ codeunit 144015 "ERM RU Void Check"
           CustLedgEntry."Document Type"::Payment, PmtNo);
     end;
 
-    local procedure ApplyVendorLedgerEntry(VendorNo: Code[20]; ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure ApplyVendorLedgerEntry(VendorNo: Code[20]; ApplyingDocType: Enum "Gen. Journal Document Type"; ApplyingDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         ApplyingVendLedgEntry: Record "Vendor Ledger Entry";
         AppliesToVendLedgEntry: Record "Vendor Ledger Entry";
@@ -821,7 +820,7 @@ codeunit 144015 "ERM RU Void Check"
         LibraryERM.PostVendLedgerApplication(ApplyingVendLedgEntry);
     end;
 
-    local procedure ApplyCustomerLedgerEntry(CustomerNo: Code[20]; ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure ApplyCustomerLedgerEntry(CustomerNo: Code[20]; ApplyingDocType: Enum "Gen. Journal Document Type"; ApplyingDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         ApplyingCustLedgEntry: Record "Cust. Ledger Entry";
         AppliesToCustLedgEntry: Record "Cust. Ledger Entry";
@@ -836,7 +835,7 @@ codeunit 144015 "ERM RU Void Check"
         LibraryERM.PostCustLedgerApplication(ApplyingCustLedgEntry);
     end;
 
-    local procedure FindCheckLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; DocType: Option; DocNo: Code[20])
+    local procedure FindCheckLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         with CheckLedgerEntry do begin
             SetRange("Bank Account No.", BankAccountNo);
@@ -896,7 +895,7 @@ codeunit 144015 "ERM RU Void Check"
         CashIngoingOrder.Run;
     end;
 
-    local procedure VerifyVendorLedgerEntries(VendorNo: Code[20]; DocumentType: Option; ExpectedCount: Integer; IsOpen: Boolean)
+    local procedure VerifyVendorLedgerEntries(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedCount: Integer; IsOpen: Boolean)
     var
         DummyVendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -908,7 +907,7 @@ codeunit 144015 "ERM RU Void Check"
         end;
     end;
 
-    local procedure VerifyCustomerLedgerEntries(CustomerNo: Code[20]; DocumentType: Option; ExpectedCount: Integer; IsOpen: Boolean)
+    local procedure VerifyCustomerLedgerEntries(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedCount: Integer; IsOpen: Boolean)
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
     begin

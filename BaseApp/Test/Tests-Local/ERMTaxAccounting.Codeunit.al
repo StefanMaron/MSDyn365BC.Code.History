@@ -271,7 +271,7 @@ codeunit 144515 "ERM Tax Accounting"
         exit(0);
     end;
 
-    local procedure InsertFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DeprBookCode: Code[10]; FAPostingDate: Date; PostingDate: Date; FAPostingType: Option)
+    local procedure InsertFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DeprBookCode: Code[10]; FAPostingDate: Date; PostingDate: Date; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
         with FALedgerEntry do begin
             Init;

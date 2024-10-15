@@ -260,7 +260,7 @@ codeunit 5752 "Get Source Doc. Outbound"
 
                         if CheckAvailability(
                              CurrItemVariant, QtyOutstandingBase, SalesLine."Location Code",
-                             SalesOrder.Caption, DATABASE::"Sales Line", "Document Type", "No.", ShowError)
+                             SalesOrder.Caption, DATABASE::"Sales Line", "Document Type".AsInteger(), "No.", ShowError)
                         then
                             exit(true);
                         SetItemVariant(CurrItemVariant, SalesLine."No.", SalesLine."Variant Code");
@@ -274,7 +274,7 @@ codeunit 5752 "Get Source Doc. Outbound"
 
                         if CheckAvailability(
                              CurrItemVariant, QtyOutstandingBase, SalesLine."Location Code",
-                             SalesOrder.Caption, DATABASE::"Sales Line", "Document Type", "No.", ShowError)
+                             SalesOrder.Caption, DATABASE::"Sales Line", "Document Type".AsInteger(), "No.", ShowError)
                         then
                             exit(true);
                     end;
@@ -436,11 +436,11 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
         with SalesHeader do begin
             TestField(Status, Status::Released);
-            if WhseShpmntConflict("Document Type", "No.", "Shipping Advice") then
+            if WhseShipmentConflict("Document Type", "No.", "Shipping Advice") then
                 Error(Text003, Format("Shipping Advice"));
             CheckSalesHeader(SalesHeader, true);
             WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
-            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
+            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
             GetRequireShipRqst(WhseRqst);
         end;
@@ -453,7 +453,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         with PurchHeader do begin
             TestField(Status, Status::Released);
             WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
-            WhseRqst.SetSourceFilter(DATABASE::"Purchase Line", "Document Type", "No.");
+            WhseRqst.SetSourceFilter(DATABASE::"Purchase Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
             GetRequireShipRqst(WhseRqst);
         end;
@@ -480,7 +480,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         with ServiceHeader do begin
             TestField("Release Status", "Release Status"::"Released to Ship");
             WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
-            WhseRqst.SetSourceFilter(DATABASE::"Service Line", "Document Type", "No.");
+            WhseRqst.SetSourceFilter(DATABASE::"Service Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
             GetRequireShipRqst(WhseRqst);
         end;

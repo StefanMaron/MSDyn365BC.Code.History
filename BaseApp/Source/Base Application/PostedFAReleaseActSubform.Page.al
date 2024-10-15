@@ -74,7 +74,7 @@ page 12477 "Posted FA Release Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)

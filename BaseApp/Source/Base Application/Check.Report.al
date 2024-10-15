@@ -1,4 +1,4 @@
-report 1401 Check
+﻿report 1401 Check
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Check.rdlc';
@@ -585,7 +585,8 @@ report 1401 Check
                             GenJnlLine3."Account Type" := GenJnlLine3."Account Type"::"Bank Account";
                             GenJnlLine3.Validate("Account No.", BankAcc2."No.");
                             if BalancingType <> BalancingType::"G/L Account" then
-                                GenJnlLine3.Description := StrSubstNo(Text014, SelectStr(BalancingType + 1, Text062), BalancingNo);
+                                GenJnlLine3.Description :=
+                                    StrSubstNo(Text014, SelectStr(BalancingType.AsInteger() + 1, Text062), BalancingNo);
                             GenJnlLine3.Validate(Amount, -TotalLineAmount);
                             GenJnlLine3."Bank Payment Type" := GenJnlLine3."Bank Payment Type"::"Computer Check";
                             GenJnlLine3."Check Printed" := true;
@@ -922,7 +923,7 @@ report 1401 Check
         OnesText: array[20] of Text[30];
         TensText: array[10] of Text[30];
         ExponentText: array[5] of Text[30];
-        BalancingType: Option "G/L Account",Customer,Vendor,"Bank Account";
+        BalancingType: Enum "Gen. Journal Account Type";
         BalancingNo: Code[20];
         CheckNoText: Text[30];
         CheckDateText: Text[30];

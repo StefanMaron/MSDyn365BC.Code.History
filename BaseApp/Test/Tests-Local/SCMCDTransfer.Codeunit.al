@@ -109,7 +109,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: array[2] of Code[30];
         i: Integer;
     begin
@@ -128,7 +127,7 @@ codeunit 147103 "SCM CD Transfer"
             LibraryCDTracking.CreateItemCDInfo(CDHeader, CDLine, Item."No.", CDNo[i]);
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 6);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[2], 4);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -164,7 +163,6 @@ codeunit 147103 "SCM CD Transfer"
         CDNo: Code[30];
         NewCDNo: array[2] of Code[30];
         Serial: Code[20];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -177,7 +175,7 @@ codeunit 147103 "SCM CD Transfer"
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
         CDNo := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
         for i := 1 to 5 do begin
             Serial := 'SN0' + Format(i);
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, Serial, '', CDNo, 1);
@@ -228,7 +226,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: array[2] of Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: Code[30];
         NewCDNo: array[2] of Code[10];
         BinCode: array[2] of Code[20];
@@ -251,7 +248,7 @@ codeunit 147103 "SCM CD Transfer"
         CreateCDTrackingWithAllowTempNo(ItemTrackingCode.Code, LocationFrom.Code, true);
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 10);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -300,7 +297,6 @@ codeunit 147103 "SCM CD Transfer"
         CDLine: array[2] of Record "CD No. Information";
         CDNo: Code[30];
         NewCDNo: array[2] of Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -313,7 +309,7 @@ codeunit 147103 "SCM CD Transfer"
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
         CDNo := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 10);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -358,7 +354,6 @@ codeunit 147103 "SCM CD Transfer"
         CDNo: Code[30];
         LotNo: array[2] of Code[20];
         NewCDNo: array[2] of Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -377,7 +372,7 @@ codeunit 147103 "SCM CD Transfer"
             CDLine[i].Modify();
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         for i := 1 to ArrayLen(LotNo) do
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', LotNo[i], CDNo, 5);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -421,7 +416,6 @@ codeunit 147103 "SCM CD Transfer"
         CDLine: Record "CD No. Information";
         CDNo: Code[30];
         NewCDNo: Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
     begin
         Initialize;
         CreateDTLocations(LocationFrom, LocationTo);
@@ -433,7 +427,7 @@ codeunit 147103 "SCM CD Transfer"
         CDNo := LibraryUtility.GenerateGUID;
         NewCDNo := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 10);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -525,7 +519,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: array[2] of Code[30];
         SerialNo: array[2] of Code[20];
         i: Integer;
@@ -547,7 +540,7 @@ codeunit 147103 "SCM CD Transfer"
             CDLine.Modify();
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
         for i := 1 to ArrayLen(SerialNo) do
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, SerialNo[i], '', CDNo[i], 1);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -588,7 +581,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: array[2] of Code[30];
         LotNo: array[3] of Code[20];
         SerialNo: array[2] of Code[20];
@@ -613,7 +605,7 @@ codeunit 147103 "SCM CD Transfer"
         for i := 1 to ArrayLen(LotNo) do
             LotNo[i] := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', LotNo[1], CDNo[1], 5);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', LotNo[2], CDNo[2], 3);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', LotNo[3], CDNo[2], 2);
@@ -663,7 +655,6 @@ codeunit 147103 "SCM CD Transfer"
         CDLine: array[2] of Record "CD No. Information";
         CDNo: array[2] of Code[30];
         BinCode: array[2] of Code[20];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         Qty: Integer;
         i: Integer;
     begin
@@ -691,7 +682,7 @@ codeunit 147103 "SCM CD Transfer"
             CDLine[i].Modify();
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 3);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[2], 7);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -796,7 +787,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: Code[30];
         LotNo: array[3] of Code[20];
         i: Integer;
@@ -817,7 +807,7 @@ codeunit 147103 "SCM CD Transfer"
         for i := 1 to ArrayLen(LotNo) do
             LotNo[i] := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', LotNo[1], CDNo, 4);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', LotNo[2], CDNo, 3);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', LotNo[3], CDNo, 3);
@@ -931,7 +921,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: Code[30];
         SerialNo: array[7] of Code[20];
         i: Integer;
@@ -952,7 +941,7 @@ codeunit 147103 "SCM CD Transfer"
         CDLine.Validate("Country/Region Code", CDHeader."Country/Region of Origin Code");
         CDLine.Modify();
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 7, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 7, LocationFrom.Code);
         for i := 1 to ArrayLen(SerialNo) do begin
             SerialNo[i] := LibraryUtility.GenerateGUID;
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, SerialNo[i], '', CDNo, 1);
@@ -996,7 +985,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: Code[30];
         i: Integer;
     begin
@@ -1017,11 +1005,11 @@ codeunit 147103 "SCM CD Transfer"
         LibraryCDTracking.CreateItemTrackingCode(ItemTrackingCode[2], false, false, false);
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item[2], ItemTrackingCode[2].Code);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item[1]."No.", 60, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[1]."No.", 60, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 60);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item[2]."No.", 60, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[2]."No.", 60, LocationFrom.Code);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationTransit.Code);
@@ -1061,7 +1049,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: Code[30];
         SerialNo: array[2] of Code[20];
         i: Integer;
@@ -1082,7 +1069,7 @@ codeunit 147103 "SCM CD Transfer"
         for i := 1 to ArrayLen(SerialNo) do
             SerialNo[i] := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 1, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 1, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, SerialNo[1], '', CDNo, 1);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -1111,7 +1098,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: array[2] of Code[30];
         SerialNo: array[4] of Code[20];
         i: Integer;
@@ -1132,7 +1118,7 @@ codeunit 147103 "SCM CD Transfer"
             CDLine.Modify();
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 4, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 4, LocationFrom.Code);
         for i := 1 to ArrayLen(SerialNo) do begin
             SerialNo[i] := LibraryUtility.GenerateGUID;
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, SerialNo[i], '', CDNo[1], 1);
@@ -1167,7 +1153,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: array[2] of Code[30];
         i: Integer;
     begin
@@ -1185,7 +1170,7 @@ codeunit 147103 "SCM CD Transfer"
             LibraryCDTracking.CreateItemCDInfo(CDHeader, CDLine, Item."No.", CDNo[i]);
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 4, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 4, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 4);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -1212,7 +1197,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: array[2] of Code[30];
         i: Integer;
     begin
@@ -1222,7 +1206,7 @@ codeunit 147103 "SCM CD Transfer"
         LibraryCDTracking.CreateCDTracking(CDTrackingSetup, ItemTrackingCode.Code, LocationTo.Code);
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 20, LocationTo.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 20, LocationTo.Code);
         LibraryCDTracking.CreateCDHeaderWithCountryRegion(CDHeader);
         for i := 1 to ArrayLen(CDNo) do begin
             CDNo[i] := LibraryUtility.GenerateGUID;
@@ -1234,7 +1218,7 @@ codeunit 147103 "SCM CD Transfer"
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 20);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
-        CreateItemReclassJnlLine(ItemJnlLine, EntryType::Transfer, WorkDate, Item."No.", 15, LocationTo.Code, LocationTo.Code);
+        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate, Item."No.", 15, LocationTo.Code, LocationTo.Code);
         LibraryCDTracking.CreateReclassJnLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 15);
         ReservationEntry.Validate("New CD No.", CDNo[2]);
         ReservationEntry.Modify();
@@ -1263,7 +1247,6 @@ codeunit 147103 "SCM CD Transfer"
         Vendor: Record Vendor;
         PurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: array[3] of Code[30];
         SerialNo: array[4] of Code[20];
         NewSerialNo: array[4] of Code[20];
@@ -1302,7 +1285,7 @@ codeunit 147103 "SCM CD Transfer"
         CDLine.Validate("Country/Region Code", CDHeader."Country/Region of Origin Code");
         CDLine.Modify();
 
-        CreateItemReclassJnlLine(ItemJnlLine, EntryType::Transfer, WorkDate, Item."No.", 4, LocationFrom.Code, LocationTo.Code);
+        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate, Item."No.", 4, LocationFrom.Code, LocationTo.Code);
 
         LibraryCDTracking.CreateReclassJnLineTracking(ReservationEntry, ItemJnlLine, SerialNo[1], '', CDNo[1], 1);
         ReservationEntry.Validate("New CD No.", CDNo[1]);
@@ -1356,7 +1339,6 @@ codeunit 147103 "SCM CD Transfer"
         CDLine: Record "CD No. Information";
         InvSetup: Record "Inventory Setup";
         CDNo: array[2] of Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -1372,7 +1354,7 @@ codeunit 147103 "SCM CD Transfer"
         for i := 1 to ArrayLen(CDNo) do
             CDNo[i] := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 2);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[2], 3);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -1417,7 +1399,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         InvSetup: Record "Inventory Setup";
         CDNo: Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
     begin
         Initialize;
         InvSetup.Get();
@@ -1432,7 +1413,7 @@ codeunit 147103 "SCM CD Transfer"
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
         CDNo := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 5);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -1458,7 +1439,6 @@ codeunit 147103 "SCM CD Transfer"
         CDTrackingSetup: Record "CD Tracking Setup";
         ReservationEntry: Record "Reservation Entry";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: array[3] of Code[30];
         i: Integer;
     begin
@@ -1475,12 +1455,12 @@ codeunit 147103 "SCM CD Transfer"
         for i := 1 to ArrayLen(CDNo) do
             CDNo[i] := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
         for i := 1 to 5 do
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, 'S' + Format(i), '', CDNo[1], 1);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
-        CreateItemReclassJnlLine(ItemJnlLine, EntryType::Transfer, WorkDate, Item."No.", 5, LocationFrom.Code, LocationTo.Code);
+        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate, Item."No.", 5, LocationFrom.Code, LocationTo.Code);
         for i := 1 to 4 do begin
             LibraryCDTracking.CreateReclassJnLineTracking(ReservationEntry, ItemJnlLine, 'S' + Format(i), '', CDNo[1], 1);
             ReservationEntry.Validate("New Serial No.", 'S00' + Format(i));
@@ -1529,7 +1509,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CDNo: Code[30];
         NewCDNo: Code[30];
     begin
@@ -1548,11 +1527,11 @@ codeunit 147103 "SCM CD Transfer"
         CDNo := LibraryUtility.GenerateGUID;
         NewCDNo := LibraryUtility.GenerateGUID;
         LibraryCDTracking.CreateItemCDInfo(CDHeader, CDLine, Item."No.", CDNo);
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 5);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
-        CreateItemReclassJnlLine(ItemJnlLine, EntryType::Transfer, WorkDate, Item."No.", 5, LocationFrom.Code, LocationTo.Code);
+        CreateItemReclassJnlLine(ItemJnlLine, "Item Ledger Entry Type"::Transfer, WorkDate, Item."No.", 5, LocationFrom.Code, LocationTo.Code);
         LibraryCDTracking.CreateReclassJnLineTracking(ReservationEntry, ItemJnlLine, '', '', NewCDNo, 5);
 
         ReservationEntry.Validate("New CD No.", NewCDNo);
@@ -1579,7 +1558,6 @@ codeunit 147103 "SCM CD Transfer"
         ItemTrackingCode: Record "Item Tracking Code";
         CDTrackingSetup: Record "CD Tracking Setup";
         ReservationEntry: Record "Reservation Entry";
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -1593,7 +1571,7 @@ codeunit 147103 "SCM CD Transfer"
         CreateEmptyCDTracking(CDTrackingSetup, ItemTrackingCode.Code, LocationTransit.Code);
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 9, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 9, LocationFrom.Code);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, SerTxt, '', 9);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -1628,7 +1606,6 @@ codeunit 147103 "SCM CD Transfer"
         CDTrackingSetup: Record "CD Tracking Setup";
         ReservationEntry: Record "Reservation Entry";
         LotNo: array[2] of Code[20];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -1644,7 +1621,7 @@ codeunit 147103 "SCM CD Transfer"
 
         for i := 1 to ArrayLen(LotNo) do
             LotNo[i] := LibraryUtility.GenerateGUID;
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, 'S0', LotNo[1], 5);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, 'S1', LotNo[2], 5);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -1682,7 +1659,6 @@ codeunit 147103 "SCM CD Transfer"
         CDTrackingSetup: Record "CD Tracking Setup";
         ReservationEntry: Record "Reservation Entry";
         LotNo: array[2] of Code[20];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -1695,7 +1671,7 @@ codeunit 147103 "SCM CD Transfer"
 
         for i := 1 to ArrayLen(LotNo) do
             LotNo[i] := LibraryUtility.GenerateGUID;
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, 'S0', LotNo[1], 5);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, 'S1', LotNo[2], 5);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -1726,7 +1702,6 @@ codeunit 147103 "SCM CD Transfer"
         CDTrackingSetup: Record "CD Tracking Setup";
         ReservationEntry: Record "Reservation Entry";
         CDNo: Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -1741,11 +1716,11 @@ codeunit 147103 "SCM CD Transfer"
             LibraryCDTracking.CreateItemWithItemTrackingCode(Item[i], ItemTrackingCode[i].Code);
         CDNo := LibraryUtility.GenerateGUID;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item[1]."No.", 5, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[1]."No.", 5, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 5);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item[2]."No.", 5, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[2]."No.", 5, LocationFrom.Code);
         CreateJnlLineSNTracking(ReservationEntry, ItemJnlLine, SerTxt, '', 5);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -1781,7 +1756,6 @@ codeunit 147103 "SCM CD Transfer"
         CDNo: Code[30];
         NewCDNo: array[2] of Code[30];
         SerialNo: array[20] of Code[20];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -1794,7 +1768,7 @@ codeunit 147103 "SCM CD Transfer"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryCDTracking.CreateItemUnitOfMeasure(Item."No.", UnitOfMeasure.Code, 9);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 20, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 20, LocationFrom.Code);
         CDNo := LibraryUtility.GenerateGUID;
         for i := 1 to 20 do begin
             SerialNo[i] := LibraryUtility.GenerateGUID;
@@ -1851,7 +1825,6 @@ codeunit 147103 "SCM CD Transfer"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         CDNo: array[3] of Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard;
         i: Integer;
     begin
@@ -1872,11 +1845,11 @@ codeunit 147103 "SCM CD Transfer"
             CDLine[i].Modify();
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 3, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 3, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 3);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 4, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 4, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[3], 4);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -1930,7 +1903,6 @@ codeunit 147103 "SCM CD Transfer"
         NewCDNo: Code[30];
         Serial: Code[20];
         Qty: Integer;
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -1946,7 +1918,7 @@ codeunit 147103 "SCM CD Transfer"
         CDTrackingSetup.Modify();
 
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 5, LocationFrom.Code);
         CDNo := LibraryUtility.GenerateGUID;
         for i := 1 to 5 do begin
             Serial := 'SER0' + Format(i);
@@ -1989,7 +1961,6 @@ codeunit 147103 "SCM CD Transfer"
         ReservationEntry: Record "Reservation Entry";
         CDNo: Code[30];
         NewCDNo: Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
     begin
         Initialize;
         InvSetup.Get();
@@ -2003,7 +1974,7 @@ codeunit 147103 "SCM CD Transfer"
         LibraryCDTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code);
         CDNo := LibraryUtility.GenerateGUID;
         NewCDNo := LibraryUtility.GenerateGUID;
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 2);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -2034,7 +2005,6 @@ codeunit 147103 "SCM CD Transfer"
         CDHeader: Record "CD No. Header";
         CDLine: Record "CD No. Information";
         CDNo: Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         Qty: Integer;
     begin
         Initialize;
@@ -2055,7 +2025,7 @@ codeunit 147103 "SCM CD Transfer"
         CDLine.Validate("Temporary CD No.", true);
         CDLine.Modify();
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 2);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -2088,7 +2058,6 @@ codeunit 147103 "SCM CD Transfer"
         CDNoFormat: Record "CD No. Format";
         CDNo: Code[30];
         NewCDNo: Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
     begin
         Initialize;
         UpdateCDNoFormat;
@@ -2106,7 +2075,7 @@ codeunit 147103 "SCM CD Transfer"
         CDLine.Validate("Temporary CD No.", false);
         CDLine.Modify();
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 2);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -2135,7 +2104,6 @@ codeunit 147103 "SCM CD Transfer"
         CDHeader: Record "CD No. Header";
         CDLine: array[2] of Record "CD No. Information";
         CDNo: array[2] of Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -2153,11 +2121,11 @@ codeunit 147103 "SCM CD Transfer"
             CDLine[i].Modify();
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 10);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 2, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[2], 2);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
 
@@ -2191,7 +2159,6 @@ codeunit 147103 "SCM CD Transfer"
         CDLine: array[2] of Record "CD No. Information";
         CDNo: Code[30];
         NewCDNo: array[2] of Code[30];
-        EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         i: Integer;
     begin
         Initialize;
@@ -2210,7 +2177,7 @@ codeunit 147103 "SCM CD Transfer"
         for i := 1 to ArrayLen(Item) do
             LibraryCDTracking.CreateItemWithItemTrackingCode(Item[i], ItemTrackingCode.Code);
         CDNo := LibraryUtility.GenerateGUID;
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item[1]."No.", 51, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[1]."No.", 51, LocationFrom.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo, 51);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
         LibraryCDTracking.CreateCDHeaderWithCountryRegion(CDHeader);
@@ -2221,7 +2188,7 @@ codeunit 147103 "SCM CD Transfer"
             CDLine[i].Modify();
         end;
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item[2]."No.", 51, LocationFrom.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item[2]."No.", 51, LocationFrom.Code);
         i := 1;
         while i < 52 do begin
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, 'SN' + Format(i), '', NewCDNo[2], 1);
@@ -2349,9 +2316,9 @@ codeunit 147103 "SCM CD Transfer"
     procedure ReserveDTFromPO(var TransferHeader: Record "Transfer Header"; var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Location: Record Location; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Code[30]; Qty: Integer)
     begin
         LibraryReservation.CreateReservEntryFrom(5741, 0, TransferHeader."No.", '', 0, 10000, 1, SerialNo, LotNo, CDNo);
-        LibraryReservation.CreateEntry(Item."No.", '', Location.Code, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+        LibraryReservation.CreateEntry(Item."No.", '', Location.Code, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
         LibraryReservation.CreateReservEntryFor(39, 1, PurchaseHeader."No.", '', 0, 10000, 1, Qty, Qty, SerialNo, LotNo, CDNo);
-        LibraryReservation.CreateEntry(Item."No.", '', Location.Code, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 0);
+        LibraryReservation.CreateEntry(Item."No.", '', Location.Code, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
     end;
 
     [Normal]
@@ -2360,7 +2327,7 @@ codeunit 147103 "SCM CD Transfer"
     var
         AutoReserve: Boolean;
     begin
-        ReservMgt.SetTransferLine(TransferLine, 0);
+        ReservMgt.SetTransferLine(TransferLine, "Transfer Direction"::Outbound);
         TransferLine.TestField("Shipment Date");
         ReservMgt.AutoReserveToShip(AutoReserve, '', TransferLine."Shipment Date", Quantity, Quantity);
     end;
@@ -2379,15 +2346,14 @@ codeunit 147103 "SCM CD Transfer"
 
     [Normal]
     [Scope('OnPrem')]
-    procedure CreateItemReclassJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Option; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; NewLocationCode: Code[10])
+    procedure CreateItemReclassJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; NewLocationCode: Code[10])
     var
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlBatch: Record "Item Journal Batch";
-        ItemJournalTemplateType: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod.Order";
         LineNo: Integer;
     begin
-        FindItemJnlTemplate(ItemJnlTemplate, ItemJournalTemplateType::Transfer);
-        FindItemJnlBatch(ItemJnlBatch, ItemJournalTemplateType::Transfer, ItemJnlTemplate.Name);
+        FindItemJnlTemplate(ItemJnlTemplate, "Item Journal Template Type"::Transfer);
+        FindItemJnlBatch(ItemJnlBatch, "Item Journal Template Type"::Transfer, ItemJnlTemplate.Name);
         with ItemJnlLine do begin
             SetRange("Journal Template Name", ItemJnlTemplate.Name);
             SetRange("Journal Batch Name", ItemJnlBatch.Name);
@@ -2412,7 +2378,7 @@ codeunit 147103 "SCM CD Transfer"
 
     [Normal]
     [Scope('OnPrem')]
-    procedure FindItemJnlTemplate(var ItemJournalTemplate: Record "Item Journal Template"; ItemJournalTemplateType: Option)
+    procedure FindItemJnlTemplate(var ItemJournalTemplate: Record "Item Journal Template"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplateType);
         ItemJournalTemplate.FindFirst;
@@ -2420,7 +2386,7 @@ codeunit 147103 "SCM CD Transfer"
 
     [Normal]
     [Scope('OnPrem')]
-    procedure FindItemJnlBatch(var ItemJnlBatch: Record "Item Journal Batch"; ItemJnlBatchTemplateType: Option; ItemJnlTemplateName: Code[10])
+    procedure FindItemJnlBatch(var ItemJnlBatch: Record "Item Journal Batch"; ItemJnlBatchTemplateType: Enum "Item Journal Template Type"; ItemJnlTemplateName: Code[10])
     begin
         ItemJnlBatch.SetRange("Template Type", ItemJnlBatchTemplateType);
         ItemJnlBatch.SetRange("Journal Template Name", ItemJnlTemplateName);

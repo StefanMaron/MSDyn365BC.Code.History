@@ -243,7 +243,7 @@
 
         if PurchLineToCheck.FindSet then begin
             ReservationEntry."Source Type" := DATABASE::"Purchase Line";
-            ReservationEntry."Source Subtype" := PurchHeader."Document Type";
+            ReservationEntry."Source Subtype" := PurchHeader."Document Type".AsInteger();
             SignFactor := CreateReservEntry.SignFactor(ReservationEntry);
             repeat
                 // Only Item where no SerialNo or LotNo is required

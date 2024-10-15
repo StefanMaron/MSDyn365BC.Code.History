@@ -27,8 +27,7 @@ page 5513 "Time Registration Entity"
                             exit;
                         end;
 
-                        Employee.SetRange(Id, "Employee Id");
-                        if not Employee.FindFirst then
+                        if not Employee.GetBySystemId("Employee Id") then
                             Error(EmployeeIdDoesNotMatchAnEmployeeErr);
 
                         "Employee No" := Employee."No.";
@@ -55,7 +54,7 @@ page 5513 "Time Registration Entity"
                         if not Employee.Get("Employee No") then
                             Error(EmployeeNumberDoesNotMatchAnEmployeeErr);
 
-                        Validate("Employee Id", Employee.Id);
+                        Validate("Employee Id", Employee.SystemId);
                     end;
                 }
                 field(date; Date)

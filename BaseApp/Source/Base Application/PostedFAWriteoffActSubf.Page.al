@@ -84,7 +84,7 @@ page 12473 "Posted FA Writeoff Act Subf"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)

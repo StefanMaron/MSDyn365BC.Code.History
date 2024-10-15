@@ -176,7 +176,7 @@ page 17243 "Tax Customer Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -221,7 +221,7 @@ page 17243 "Tax Customer Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

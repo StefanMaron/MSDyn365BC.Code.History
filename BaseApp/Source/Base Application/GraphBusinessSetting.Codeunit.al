@@ -17,9 +17,7 @@ codeunit 5444 "Graph Business Setting"
         GraphSubscriptionManagement: Codeunit "Graph Subscription Management";
         ConnectionId: Text;
     begin
-        SendTraceTag(
-          '00001WD', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-          RegisterConnectionsTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001WD', RegisterConnectionsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
 
         ConnectionId := Format(CreateGuid);
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
@@ -29,9 +27,7 @@ codeunit 5444 "Graph Business Setting"
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
         if GraphBusinessSetting.IsEmpty then
-            SendTraceTag(
-              '00001WE', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Error,
-              StrSubstNo(NoGraphAccessTxt, GetLastErrorText), DATACLASSIFICATION::CustomerContent);
+            Session.LogMessage('00001WE', StrSubstNo(NoGraphAccessTxt, GetLastErrorText), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
 
         MSPayData := GetMSPayData(GraphBusinessSetting);
         UnregisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId);

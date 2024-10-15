@@ -352,9 +352,10 @@ page 8901 "Finance Manager Role Center"
                     action("Navigate")
                     {
                         ApplicationArea = Basic, Suite, FixedAssets, CostAccounting;
-                        Caption = 'Navigate';
+                        Caption = 'Find entries...';
+                        ShortCutKey = 'Shift+Ctrl+I';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                         RunObject = page "Navigate";
-                        Tooltip = 'Open the Navigate page.';
                     }
                     action("General Ledger Entries")
                     {
@@ -3020,7 +3021,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Organizational Units';
                         RunObject = page "Organizational Units";
-                        Tooltip = 'Open the Organizational Units page.';
+                        Tooltip = 'Open the Departments page.';
                     }
                     action("Positions")
                     {

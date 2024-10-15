@@ -360,12 +360,12 @@ page 99000902 "Item Availability Line List"
                 end;
             DATABASE::"Assembly Header":
                 begin
-                    AssemblyHeader.FindLinesWithItemToPlan(Item, AssemblyHeader."Document Type"::Order);
+                    AssemblyHeader.FindItemToPlanLines(Item, AssemblyHeader."Document Type"::Order);
                     PAGE.RunModal(0, AssemblyHeader);
                 end;
             DATABASE::"Assembly Line":
                 begin
-                    AssemblyLine.FindLinesWithItemToPlan(Item, AssemblyHeader."Document Type"::Order);
+                    AssemblyLine.FindItemToPlanLines(Item, AssemblyHeader."Document Type"::Order);
                     PAGE.RunModal(0, AssemblyLine);
                 end;
             else

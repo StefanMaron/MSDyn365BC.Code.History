@@ -65,7 +65,7 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveSalesDocument(SalesLine."Document Type"::"Return Order");
     end;
 
-    local procedure ArchiveSalesDocument(DocumentType: Option)
+    local procedure ArchiveSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -120,7 +120,7 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveSalesDocumentTwice(SalesLine."Document Type"::"Return Order");
     end;
 
-    local procedure ArchiveSalesDocumentTwice(DocumentType: Option)
+    local procedure ArchiveSalesDocumentTwice(DocumentType: Enum "Sales Document Type")
     var
         Resource: Record Resource;
         SalesHeader: Record "Sales Header";
@@ -247,7 +247,7 @@ codeunit 136202 "Marketing Document Logging"
         RestoreSalesDocument(SalesHeader."Document Type"::"Return Order");
     end;
 
-    local procedure RestoreSalesDocument(DocumentType: Option)
+    local procedure RestoreSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         Resource: Record Resource;
         SalesHeader: Record "Sales Header";
@@ -315,7 +315,7 @@ codeunit 136202 "Marketing Document Logging"
         CheckCommentsSalesDocument(SalesHeader."Document Type"::"Return Order");
     end;
 
-    local procedure CheckCommentsSalesDocument(DocumentType: Option)
+    local procedure CheckCommentsSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -388,7 +388,7 @@ codeunit 136202 "Marketing Document Logging"
         CheckCommentsPurchaseDocument(PurchaseHeader."Document Type"::"Return Order");
     end;
 
-    local procedure CheckCommentsPurchaseDocument(DocumentType: Option)
+    local procedure CheckCommentsPurchaseDocument(DocumentType: Enum "Purchase Document Type")
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -881,7 +881,7 @@ codeunit 136202 "Marketing Document Logging"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Document Logging");
     end;
 
-    local procedure ArchivedSalesReportWithVAT(DocumentType: Option)
+    local procedure ArchivedSalesReportWithVAT(DocumentType: Enum "Sales Document Type")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesHeader: Record "Sales Header";
@@ -970,7 +970,7 @@ codeunit 136202 "Marketing Document Logging"
     end;
 
     [Normal]
-    local procedure CreateReportSelection(Usage: Integer; Sequence: Code[10]; ReportID: Integer)
+    local procedure CreateReportSelection(Usage: Enum "Report Selection Usage"; Sequence: Code[10]; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -981,7 +981,7 @@ codeunit 136202 "Marketing Document Logging"
         ReportSelections.Insert();
     end;
 
-    local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         Initialize;
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
@@ -1018,7 +1018,7 @@ codeunit 136202 "Marketing Document Logging"
           LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroup));
     end;
 
-    local procedure CreateSalesDocumentWithUnitPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreateSalesDocumentWithUnitPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
@@ -1026,7 +1026,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option): Code[10]
+    local procedure CreateSalesDocumentWithVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"): Code[10]
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Item: Record Item;

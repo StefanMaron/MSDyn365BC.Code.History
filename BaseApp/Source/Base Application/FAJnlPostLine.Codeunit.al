@@ -126,7 +126,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             FANo := "Account No.";
             BudgetNo := "Budgeted FA No.";
             DeprBookCode := "Depreciation Book Code";
-            FAPostingType := "FA Posting Type" - 1;
+            FAPostingType := "FA Journal Line FA Posting Type".FromInteger("FA Posting Type".AsInteger() - 1);
             FAPostingDate := "FA Posting Date";
             Amount2 := FAAmount;
             SalvageValue := GetLCYSalvageValue("Salvage Value", "Posting Date", "Source Currency Code");
@@ -286,7 +286,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 for i := 1 to 14 do
                     if EntryAmounts[i] <> 0 then begin
                         "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                        "FA Posting Type" := CalculateDisposal.SetFAPostingType(i);
+                        "FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
                         Amount := EntryAmounts[i];
                         if i = 1 then
                             "Result on Disposal" := "Result on Disposal"::Gain;
@@ -306,7 +306,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 for i := 1 to 2 do
                     if EntryAmounts[i] <> 0 then begin
                         "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                        "FA Posting Type" := CalculateDisposal.SetFAPostingType(i);
+                        "FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
                         Amount := EntryAmounts[i];
                         if i = 1 then
                             "Result on Disposal" := "Result on Disposal"::Gain;
@@ -334,7 +334,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                         Amount := EntryAmounts[i];
                         "Entry No." := EntryNumbers[i];
                         "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                        "FA Posting Type" := CalculateDisposal.SetFAPostingType(i);
+                        "FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
                         if i = 1 then
                             "Result on Disposal" := "Result on Disposal"::Gain;
                         if i = 2 then
@@ -430,7 +430,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     local procedure PostBudgetAsset()
     var
         FA2: Record "Fixed Asset";
-        FAPostingType2: Integer;
+        FAPostingType2: Enum "FA Ledger Entry FA Posting Type";
     begin
         FA2.Get(BudgetNo);
         FA2.TestField(Blocked, false);
@@ -473,7 +473,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         for i := 1 to 4 do
             if EntryAmounts[i] <> 0 then begin
                 FALedgEntry.Amount := EntryAmounts[i];
-                FALedgEntry."FA Posting Type" := CalculateDisposal.SetReverseType(i);
+                FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetReverseType(i));
                 FAInsertLedgEntry.InsertFA(FALedgEntry);
                 if FALedgEntry."G/L Entry No." > 0 then
                     FAInsertLedgEntry.InsertBalAcc(FALedgEntry);
@@ -505,7 +505,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             case "FA Posting Type" of
                 "FA Posting Type"::"Gain/Loss":
                     if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Net then begin
-                        FAPostingGr.Get("FA Posting Group");
+                        FAPostingGr.GetPostingGroup("FA Posting Group", DeprBook.Code);
                         FAPostingGr.CalcFields("Allocated Gain %", "Allocated Loss %");
                         if "Result on Disposal" = "Result on Disposal"::Gain then
                             PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Gain %")
@@ -673,7 +673,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 for i := 1 to 3 do begin
                     if EntryAmounts[i] <> 0 then begin
                         "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                        "FA Posting Type" := CalculateDisposal.SetFAPostingType(i);
+                        "FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
                         Amount := EntryAmounts[i];
                         if i = 1 then
                             "Result on Disposal" := "Result on Disposal"::Gain;
@@ -693,7 +693,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                         Amount := EntryAmounts[i];
                         "Entry No." := EntryNumbers[i];
                         "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                        "FA Posting Type" := CalculateDisposal.SetFAPostingType(i);
+                        "FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
                         if i = 2 then
                             "Result on Disposal" := "Result on Disposal"::Loss;
                         if i > 2 then

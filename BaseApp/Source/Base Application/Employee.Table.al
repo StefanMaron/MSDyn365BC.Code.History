@@ -351,11 +351,9 @@ table 5200 Employee
                 end;
             end;
         }
-        field(31; Status; Option)
+        field(31; Status; Enum "Employee Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Active,Inactive,Terminated';
-            OptionMembers = Active,Inactive,Terminated;
 
             trigger OnValidate()
             begin
@@ -431,7 +429,7 @@ table 5200 Employee
         }
         field(39; Comment; Boolean)
         {
-            CalcFormula = Exist ("Human Resource Comment Line" WHERE("Table Name" = CONST(Employee),
+            CalcFormula = Exist("Human Resource Comment Line" WHERE("Table Name" = CONST(Employee),
                                                                      "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -1164,7 +1162,7 @@ table 5200 Employee
             DimMgt.SaveDefaultDim(DATABASE::Employee, "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

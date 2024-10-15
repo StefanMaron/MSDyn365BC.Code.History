@@ -22,7 +22,7 @@ page 9095 "Vendor Hist. Buy-from FactBox"
             group(Control23)
             {
                 ShowCaption = false;
-                Visible = RegularFastTabVisible;
+                Visible = false;
                 field("No. of Quotes"; "No. of Quotes")
                 {
                     ApplicationArea = Suite;
@@ -110,7 +110,6 @@ page 9095 "Vendor Hist. Buy-from FactBox"
             cuegroup(Control1)
             {
                 ShowCaption = false;
-                Visible = CuesVisible;
                 field(CueQuotes; "No. of Quotes")
                 {
                     ApplicationArea = Suite;
@@ -202,18 +201,7 @@ page 9095 "Vendor Hist. Buy-from FactBox"
     {
     }
 
-    trigger OnOpenPage()
     var
-        OfficeManagement: Codeunit "Office Management";
-    begin
-        RegularFastTabVisible := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;
-        CuesVisible := (not RegularFastTabVisible) or OfficeManagement.IsAvailable;
-    end;
-
-    var
-        ClientTypeManagement: Codeunit "Client Type Management";
-        RegularFastTabVisible: Boolean;
-        CuesVisible: Boolean;
         ShowVendorNo: Boolean;
 
     local procedure ShowDetails()
@@ -221,7 +209,7 @@ page 9095 "Vendor Hist. Buy-from FactBox"
         PAGE.Run(PAGE::"Vendor Card", Rec);
     end;
 
-    [Obsolete('Visibility of the Vendor No. can be controlled through personalizaition or PTE', '16.0')]
+    [Obsolete('Visibility of the Vendor No. can be controlled through personalizaition or PTE', '17.0')]
     procedure SetVendorNoVisibility(Visible: Boolean)
     begin
         ShowVendorNo := Visible;

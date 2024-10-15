@@ -2288,9 +2288,9 @@ codeunit 136900 "Service Reports"
             Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), Option::Capitalized), 1, MaxStrLen(Name));
             "Name 2" :=
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), Option::Capitalized), 1, MaxStrLen("Name 2"));
-            "Contact No." :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Contact No."), Option::Capitalized),
-                1, MaxStrLen("Contact No."));
+            "Contact Name" :=
+              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Contact Name"), Option::Capitalized),
+                1, MaxStrLen("Contact Name"));
             Address := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Address), Option::Capitalized), 1, MaxStrLen(Address));
             "Address 2" :=
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Address 2"), Option::Capitalized), 1, MaxStrLen("Address 2"));
@@ -2313,7 +2313,7 @@ codeunit 136900 "Service Reports"
         with ServiceHeader do begin
             "Ship-to Name" := CopyStr(Name, 2);
             "Ship-to Name 2" := CopyStr("Name 2", 2);
-            "Ship-to Contact" := CopyStr("Contact No.", 2);
+            "Ship-to Contact" := CopyStr("Contact Name", 2);
             "Ship-to Address" := CopyStr(Address, 2);
             "Ship-to Address 2" := CopyStr("Address 2", 2);
             "Ship-to City" := CopyStr(City, 2);
@@ -2347,7 +2347,7 @@ codeunit 136900 "Service Reports"
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
     end;
 
-    local procedure CreateServiceHeaderWithItemLine(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; var ServiceItem: Record "Service Item"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure CreateServiceHeaderWithItemLine(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; var ServiceItem: Record "Service Item"; CustomerNo: Code[20]; DocumentType: Enum "Service Document Type")
     begin
         LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
@@ -2445,7 +2445,7 @@ codeunit 136900 "Service Reports"
         ServiceItem.Modify(true);
     end;
 
-    local procedure CreateAndUpdateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; Quantity: Decimal; ServiceItemLineNo: Integer)
+    local procedure CreateAndUpdateServiceLine(ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; Quantity: Decimal; ServiceItemLineNo: Integer)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -2524,7 +2524,7 @@ codeunit 136900 "Service Reports"
         ServiceInvoiceHeader.FindFirst();
     end;
 
-    local procedure GetServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; No: Code[20])
+    local procedure GetServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; No: Code[20])
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", No);
@@ -2919,9 +2919,8 @@ codeunit 136900 "Service Reports"
     local procedure VerifyServiceLineOnReport(DocumentNo: Code[20])
     var
         ServiceLine: Record "Service Line";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo";
     begin
-        GetServiceLine(ServiceLine, DocumentType::Quote, DocumentNo);
+        GetServiceLine(ServiceLine, "Service Document Type"::Quote, DocumentNo);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Type_ServLine', Format(ServiceLine.Type));
@@ -2958,7 +2957,7 @@ codeunit 136900 "Service Reports"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('SellToAddr_1_', ServiceHeader.Name);
         LibraryReportDataset.AssertCurrentRowValueEquals('SellToAddr_2_', ServiceHeader."Name 2");
-        LibraryReportDataset.AssertCurrentRowValueEquals('SellToAddr_3_', ServiceHeader."Contact No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('SellToAddr_3_', ServiceHeader."Contact Name");
         LibraryReportDataset.AssertCurrentRowValueEquals('SellToAddr_4_', ServiceHeader.Address);
         LibraryReportDataset.AssertCurrentRowValueEquals('SellToAddr_5_', ServiceHeader."Address 2");
         // Skip 'SellToAddr_6_' check as not important

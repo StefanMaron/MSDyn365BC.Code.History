@@ -97,7 +97,7 @@ page 12461 "Posted Item Shipment Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

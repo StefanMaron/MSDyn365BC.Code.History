@@ -73,7 +73,7 @@ codeunit 12411 "VAT Settlement Management"
     end;
 
     [Scope('OnPrem')]
-    procedure InsertLine(var GenJnlLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; CVLedgEntry: Record "CV Ledger Entry Buffer"; CVType: Option; VATSettlementPart: Option; PostingDate: Date; VATAmount: Decimal; BaseAmount: Decimal; NextTransactionNo: Integer)
+    procedure InsertLine(var GenJnlLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; CVLedgEntry: Record "CV Ledger Entry Buffer"; CVType: Enum "Gen. Journal Account Type"; VATSettlementPart: Option; PostingDate: Date; VATAmount: Decimal; BaseAmount: Decimal; NextTransactionNo: Integer)
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine1: Record "Gen. Journal Line";
@@ -99,7 +99,7 @@ codeunit 12411 "VAT Settlement Management"
         GenJnlLine1."Document Date" := CVLedgEntry."Posting Date";
         GenJnlLine1."Unrealized VAT Entry No." := VATEntry."Entry No.";
         GenJnlLine1."External Document No." := VATEntry."External Document No.";
-        GenJnlLine1."Object Type" := VATEntry."Object Type";
+        GenJnlLine1."Object Type" := VATEntry."Object Type".AsInteger();
         GenJnlLine1."Object No." := VATEntry."Object No.";
         GenJnlLine1.Correction := GenJnlLine.Correction;
         GenJnlLine1."Posting Date" := PostingDate;
@@ -133,7 +133,7 @@ codeunit 12411 "VAT Settlement Management"
             GenJnlLine1.Validate("VAT Amount", VATAmount);
         GenJnlLine1."Payment Date" := GenJnlLine."Posting Date";
         GenJnlLine1.UpdateLineBalance;
-        CopyDimensions(GenJnlLine1, CVType, NextTransactionNo);
+        CopyDimensions(GenJnlLine1, CVType.AsInteger(), NextTransactionNo);
         GenJnlLine1.Insert();
 
         GenJnlLine := GenJnlLine1;
@@ -213,7 +213,7 @@ codeunit 12411 "VAT Settlement Management"
                         VATEntry.SetRange("Transaction No.", DtldVendLedgEntry."Transaction No.");
                         if VATEntry.FindSet then
                             repeat
-                                FoundRealVAT := FoundRealVAT or ((VATEntry."Object Type" = GenJnlLine."Object Type") and
+                                FoundRealVAT := FoundRealVAT or ((VATEntry."Object Type".AsInteger() = GenJnlLine."Object Type") and
                                                                  (VATEntry."Object No." = GenJnlLine."Object No.") and
                                                                  (not VATEntry.Reversed) and
                                                                  (VATEntry."Unrealized VAT Entry No." <> 0));

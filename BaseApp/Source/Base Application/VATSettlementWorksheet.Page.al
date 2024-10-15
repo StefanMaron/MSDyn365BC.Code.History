@@ -221,7 +221,7 @@ page 14925 "VAT Settlement Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Ledger Entry")
@@ -355,7 +355,7 @@ page 14925 "VAT Settlement Worksheet"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

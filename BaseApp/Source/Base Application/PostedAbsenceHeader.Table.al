@@ -183,7 +183,7 @@ table 17387 "Posted Absence Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

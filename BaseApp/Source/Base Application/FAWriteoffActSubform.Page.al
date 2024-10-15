@@ -159,7 +159,7 @@ page 12471 "FA Writeoff Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)

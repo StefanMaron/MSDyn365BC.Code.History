@@ -134,7 +134,7 @@ page 12418 "CD No. Information List"
             action(Navigate)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

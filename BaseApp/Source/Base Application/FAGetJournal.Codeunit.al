@@ -134,7 +134,7 @@ codeunit 5639 "FA Get Journal"
     end;
 
     [Scope('OnPrem')]
-    procedure JnlReclName(DeprBookCode: Code[10]; BudgetFA: Boolean; FAPostType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value",Transfer; var GenIntegrate: Boolean; var TemplateName: Code[10]; var BatchName: Code[10]; ReclWithoutGenJnl: Boolean)
+    procedure JnlReclName(DeprBookCode: Code[10]; BudgetFA: Boolean; FAPostType: Enum "FA Journal Line FA Posting Type"; var GenIntegrate: Boolean; var TemplateName: Code[10]; var BatchName: Code[10]; ReclWithoutGenJnl: Boolean)
     var
         GenIntegrate2: Boolean;
     begin

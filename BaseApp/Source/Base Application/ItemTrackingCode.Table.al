@@ -415,7 +415,7 @@ table 6502 "Item Tracking Code"
         }
         field(14900; "CD Tracking Exists"; Boolean)
         {
-            CalcFormula = Exist ("CD Tracking Setup" WHERE("Item Tracking Code" = FIELD(Code)));
+            CalcFormula = Exist("CD Tracking Setup" WHERE("Item Tracking Code" = FIELD(Code)));
             Caption = 'CD Tracking Exists';
             Editable = false;
             FieldClass = FlowField;
@@ -573,6 +573,16 @@ table 6502 "Item Tracking Code"
         // c. Strict expiration posting, which implies expiration dates matter
         if "Strict Expiration Posting" then
             Error(IgnoreButStrictExpirationPostingErr);
+    end;
+
+    procedure IsSpecific(): Boolean
+    begin
+        exit("SN Specific Tracking" or "Lot Specific Tracking" or "CD Specific Tracking");
+    end;
+
+    procedure IsWarehouseTracking(): Boolean
+    begin
+        exit("SN Warehouse Tracking" or "Lot Warehouse Tracking" or "CD Warehouse Tracking");
     end;
 }
 

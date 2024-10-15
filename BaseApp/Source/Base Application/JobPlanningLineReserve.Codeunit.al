@@ -56,7 +56,7 @@ codeunit 1032 "Job Planning Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(JobPlanningLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(JobPlanningLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -94,12 +94,12 @@ codeunit 1032 "Job Planning Line-Reserve"
               Abs(JobPlanningLine."Remaining Qty. (Base)") - Abs(JobPlanningLine."Reserved Qty. (Base)"));
     end;
 
-    procedure SetBinding(Binding: Option " ","Order-to-Order")
+    procedure SetBinding(Binding: Enum "Reservation Binding")
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
 
-    [Obsolete('Replaced by JobPlanningLine.SetReservationFilters(FilterReservEntry)','16.0')]
+    [Obsolete('Replaced by JobPlanningLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; JobPlanningLine: Record "Job Planning Line")
     begin
         JobPlanningLine.SetReservationFilters(FilterReservEntry);
@@ -254,6 +254,7 @@ codeunit 1032 "Job Planning Line-Reserve"
     procedure TransferJobLineToItemJnlLine(var JobPlanningLine: Record "Job Planning Line"; var NewItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal): Decimal
     var
         OldReservEntry: Record "Reservation Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingFilterIsSet: Boolean;
         EndLoop: Boolean;
         TrackedQty: Decimal;
@@ -288,13 +289,14 @@ codeunit 1032 "Job Planning Line-Reserve"
         if TransferQty = 0 then
             exit;
 
-        if ReservEngineMgt.InitRecordSet(OldReservEntry, NewItemJnlLine."Serial No.", NewItemJnlLine."Lot No.", NewItemJnlLine."CD No.") then
+        ItemTrackingSetup.CopyTrackingFromItemJnlLine(NewItemJnlLine);
+        if ReservEngineMgt.InitRecordSet(OldReservEntry, ItemTrackingSetup) then
             repeat
                 OldReservEntry.TestItemFields(JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Location Code");
 
                 TransferQty :=
                   CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    NewItemJnlLine."Entry Type", NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name", 0,
+                    NewItemJnlLine."Entry Type".AsInteger(), NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name", 0,
                     NewItemJnlLine."Line No.", NewItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                 if ReservEngineMgt.NEXTRecord(OldReservEntry) = 0 then
@@ -349,7 +351,7 @@ codeunit 1032 "Job Planning Line-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", '', 0, PurchLine."Line No.",
+          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
           PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(JobPlanningLine, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
@@ -428,7 +430,7 @@ codeunit 1032 "Job Planning Line-Reserve"
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailableJobPlanningLines);
             AvailableJobPlanningLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
-            AvailableJobPlanningLines.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableJobPlanningLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailableJobPlanningLines.RunModal;
         end;
     end;

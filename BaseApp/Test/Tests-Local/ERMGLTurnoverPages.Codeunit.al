@@ -582,12 +582,12 @@ codeunit 144104 "ERM G/L Turnover Pages"
         VendorAgreement.Insert(true);
     end;
 
-    local procedure CreatePostGenJnlLine(AccType: Option; AccNo: Code[20]; AgrNo: Code[20]; Sign: Integer): Decimal
+    local procedure CreatePostGenJnlLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AgrNo: Code[20]; Sign: Integer): Decimal
     begin
         exit(CreatePostGenJnlLineWithGivenBalanceGLAccount(AccType, AccNo, AgrNo, Sign, LibraryERM.CreateGLAccountNo));
     end;
 
-    local procedure CreatePostGenJnlLineWithGivenBalanceGLAccount(AccType: Option; AccNo: Code[20]; AgrNo: Code[20]; Sign: Integer; BalanceGLAccNo: Code[20]): Decimal
+    local procedure CreatePostGenJnlLineWithGivenBalanceGLAccount(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AgrNo: Code[20]; Sign: Integer; BalanceGLAccNo: Code[20]): Decimal
     var
         GenJnlLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -597,7 +597,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJnlLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          0, AccType, AccNo,
+          "Gen. Journal Account Type"::"G/L Account", AccType, AccNo,
           GenJnlLine."Bal. Account Type"::"G/L Account", BalanceGLAccNo, Amount * Sign);
         UpdateFAPostingType(GenJnlLine);
         if AgrNo <> '' then begin

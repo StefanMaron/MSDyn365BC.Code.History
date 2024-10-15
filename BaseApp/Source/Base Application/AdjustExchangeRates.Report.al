@@ -1015,7 +1015,7 @@ report 595 "Adjust Exchange Rates"
                     "Document No." := PostingDocNo;
                 "Account Type" := "Account Type"::"G/L Account";
                 Validate("Account No.", GLAccNo);
-                "Gen. Posting Type" := 0;
+                "Gen. Posting Type" := "Gen. Posting Type"::" ";
                 "Gen. Bus. Posting Group" := '';
                 "Gen. Prod. Posting Group" := '';
                 "VAT Bus. Posting Group" := '';
@@ -1028,7 +1028,7 @@ report 595 "Adjust Exchange Rates"
                     "Source Currency Amount" := 0;
                 "Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
                 "System-Created Entry" := true;
-                "Source Type" := CVLedgEntryBuf."Bal. Account Type".AsInteger();
+                "Source Type" := CVLedgEntryBuf."Bal. Account Type";
                 "Source No." := CVLedgEntryBuf."Bal. Account No.";
                 case "Source Type" of
                     "Source Type"::Customer:
@@ -1261,7 +1261,7 @@ report 595 "Adjust Exchange Rates"
         end;
     end;
 
-    local procedure AdjustVATEntries(VATType: Integer; UseTax: Boolean)
+    local procedure AdjustVATEntries(VATType: Enum "General Posting Type"; UseTax: Boolean)
     begin
         Clear(VATEntry2);
         with VATEntry do begin
@@ -2415,7 +2415,7 @@ report 595 "Adjust Exchange Rates"
             Get(EntryNo);
             CVLedgEntryBuf."Document No." := "Document No.";
             CVLedgEntryBuf."Document Type" := "Document Type";
-            CVLedgEntryBuf."Bal. Account Type" := 1;
+            CVLedgEntryBuf."Bal. Account Type" := CVLedgEntryBuf."Bal. Account Type"::Customer;
             CVLedgEntryBuf."Bal. Account No." := "Customer No.";
             CVLedgEntryBuf.Prepayment := Prepayment;
             CVLedgEntryBuf."Agreement No." := "Agreement No.";
@@ -2431,7 +2431,7 @@ report 595 "Adjust Exchange Rates"
             Get(EntryNo);
             CVLedgEntryBuf."Document No." := "Document No.";
             CVLedgEntryBuf."Document Type" := "Document Type";
-            CVLedgEntryBuf."Bal. Account Type" := 2;
+            CVLedgEntryBuf."Bal. Account Type" := CVLedgEntryBuf."Bal. Account Type"::Vendor;
             CVLedgEntryBuf."Bal. Account No." := "Vendor No.";
             CVLedgEntryBuf.Prepayment := Prepayment;
             CVLedgEntryBuf."Agreement No." := "Agreement No.";

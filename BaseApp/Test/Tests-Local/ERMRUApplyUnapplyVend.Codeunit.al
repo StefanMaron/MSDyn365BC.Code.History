@@ -81,7 +81,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
           VendLedgEntry."Document Type"::Payment, PaymentDocNo);
     end;
 
-    local procedure PostApplyVendLedgerEntries(var PaymentNo: Code[20]; var Amount: Decimal; VendorNo: Code[20]; DocumentType: Option; Prepayment: Boolean)
+    local procedure PostApplyVendLedgerEntries(var PaymentNo: Code[20]; var Amount: Decimal; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Prepayment: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         InvoiceNo: Code[20];
@@ -98,7 +98,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         PaymentNo := GenJournalLine."Document No.";
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Option; DocumentType2: Option; Amount: Decimal; Prepayment: Boolean) InvoiceNo: Code[20]
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Prepayment: Boolean) InvoiceNo: Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -112,7 +112,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure UnapplyVendLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; PostingDateFrom: Date): Decimal
+    local procedure UnapplyVendLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDateFrom: Date): Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -137,7 +137,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; DocumentType: Option; Amount: Decimal; Prepayment: Boolean)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; Prepayment: Boolean)
     begin
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -160,7 +160,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         end
     end;
 
-    local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Option; EntryType: Option)
+    local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option)
     begin
         with DetailedVendLedgEntry do begin
             SetRange("Entry Type", EntryType);
@@ -180,7 +180,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         exit(VendorPostingGroup."Prepayment Account");
     end;
 
-    local procedure VerifyUnappliedDtldLedgEntry(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyUnappliedDtldLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

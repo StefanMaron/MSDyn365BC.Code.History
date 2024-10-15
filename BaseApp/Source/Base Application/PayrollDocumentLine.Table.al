@@ -484,7 +484,7 @@ table 17415 "Payroll Document Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

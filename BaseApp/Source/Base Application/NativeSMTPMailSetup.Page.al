@@ -5,6 +5,9 @@ page 2841 "Native - SMTP Mail Setup"
     PageType = List;
     SaveValues = true;
     SourceTable = "SMTP Mail Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Use "Email - SMTP" app to create SMTP accounts. Accounts can be managed from "Email Accounts" page from "System Application".';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -66,4 +69,3 @@ page 2841 "Native - SMTP Mail Setup"
     var
         Password: Text[250];
 }
-

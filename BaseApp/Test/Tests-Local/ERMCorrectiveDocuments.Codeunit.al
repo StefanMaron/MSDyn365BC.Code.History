@@ -569,7 +569,7 @@ codeunit 144017 "ERM Corrective Documents"
         SalesLine.FindSet;
     end;
 
-    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[20]
+    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -579,7 +579,7 @@ codeunit 144017 "ERM Corrective Documents"
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostSalesDocumentWithItemCharge(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[20]
+    local procedure PostSalesDocumentWithItemCharge(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -607,7 +607,7 @@ codeunit 144017 "ERM Corrective Documents"
         SalesInvoiceLine: Record "Sales Invoice Line";
         CorrectiveDocumentMgt: Codeunit "Corrective Document Mgt.";
     begin
-        CorrectiveDocumentMgt.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+        CorrectiveDocumentMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         CorrectiveDocumentMgt.SetCorrectionType(CorrectionType);
         SalesInvoiceLine.SetRange("Document No.", CorrectedDocNo);
         SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
@@ -619,14 +619,14 @@ codeunit 144017 "ERM Corrective Documents"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         CorrectiveDocumentMgt: Codeunit "Corrective Document Mgt.";
     begin
-        CorrectiveDocumentMgt.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+        CorrectiveDocumentMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         CorrectiveDocumentMgt.SetCorrectionType(CorrectionType);
         SalesCrMemoLine.SetRange("Document No.", CorrectedDocNo);
         SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
         CorrectiveDocumentMgt.CreateSalesLinesFromPstdCrMemo(SalesCrMemoLine);
     end;
 
-    local procedure VerifySalesLineQtyAndUoM(DocType: Integer; DocNo: Code[20]; UoMCode: Code[10]; QtyPerUoM: Decimal; QtyBase: Decimal; QtyBefore: Decimal; QtyAfter: Decimal)
+    local procedure VerifySalesLineQtyAndUoM(DocType: Enum "Sales Document Type"; DocNo: Code[20]; UoMCode: Code[10]; QtyPerUoM: Decimal; QtyBase: Decimal; QtyBefore: Decimal; QtyAfter: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin

@@ -604,8 +604,8 @@ codeunit 144004 "ERM RU SE Fixes"
         NumOfOptions := StrLen(DelChr(Field.OptionString, '=', DelChr(Field.OptionString, '=', ','))) + 1;
 
         for i := 1 to NumOfOptions do begin
-            AccScheduleLine."Totaling Type" := i;
-            AccSchedExpressionBuffer."Totaling Type" := i;
+            AccScheduleLine."Totaling Type" := "Acc. Schedule Line Totaling Type".FromInteger(i);
+            AccSchedExpressionBuffer."Totaling Type" := AccScheduleLine."Totaling Type";
             Assert.AreEqual(Format(AccScheduleLine."Totaling Type"), Format(AccSchedExpressionBuffer."Totaling Type"), TotalingTypeErr);
         end;
     end;
@@ -790,7 +790,7 @@ codeunit 144004 "ERM RU SE Fixes"
     var
         DimensionValue: Record "Dimension Value";
         ColumnLayout: Record "Column Layout";
-        GLCorrespondenceEntry: array [2] of Record "G/L Correspondence Entry";
+        GLCorrespondenceEntry: array[2] of Record "G/L Correspondence Entry";
         AccScheduleLine: Record "Acc. Schedule Line";
         AccSchedManagement: Codeunit AccSchedManagement;
         GLAccountNo: Code[20];
@@ -839,7 +839,7 @@ codeunit 144004 "ERM RU SE Fixes"
     var
         DimensionValue: Record "Dimension Value";
         ColumnLayout: Record "Column Layout";
-        GLCorrespondenceEntry: array [2] of Record "G/L Correspondence Entry";
+        GLCorrespondenceEntry: array[2] of Record "G/L Correspondence Entry";
         AccScheduleLine: Record "Acc. Schedule Line";
         AccSchedManagement: Codeunit AccSchedManagement;
         GLCorrespondenceEntries: TestPage "G/L Correspondence Entries";
@@ -892,7 +892,7 @@ codeunit 144004 "ERM RU SE Fixes"
         DimensionValue: Record "Dimension Value";
         TotalingDimensionValue: Record "Dimension Value";
         ColumnLayout: Record "Column Layout";
-        GLCorrespondenceEntry: array [2] of Record "G/L Correspondence Entry";
+        GLCorrespondenceEntry: array[2] of Record "G/L Correspondence Entry";
         AccScheduleLine: Record "Acc. Schedule Line";
         AccSchedManagement: Codeunit AccSchedManagement;
         GLAccountNo: Code[20];
@@ -1094,7 +1094,7 @@ codeunit 144004 "ERM RU SE Fixes"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndApplyPaymentToInvoice(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AppliestoDocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndApplyPaymentToInvoice(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliestoDocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1116,7 +1116,7 @@ codeunit 144004 "ERM RU SE Fixes"
     begin
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0,
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
           GenJournalLine."Account Type"::"Fixed Asset", FANo, -LibraryRandom.RandDec(1000, 2));
         GenJournalLine.Validate("FA Reclassification Entry", true);
         GenJournalLine.Validate("FA Posting Type", GenJournalLine."FA Posting Type"::"Acquisition Cost");
@@ -1167,7 +1167,7 @@ codeunit 144004 "ERM RU SE Fixes"
         exit(AccScheduleName.Name);
     end;
 
-    local procedure CreateAccScheduleWithTotalingTypeForDrillDown(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; TotalingType: Option; PassedTotaling: Text[250])
+    local procedure CreateAccScheduleWithTotalingTypeForDrillDown(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; PassedTotaling: Text[250])
     begin
         with AccScheduleLine do begin
             LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName);
@@ -1358,7 +1358,7 @@ codeunit 144004 "ERM RU SE Fixes"
         end;
     end;
 
-    local procedure MockFALedgerEntry(FANo: Code[20]; DeprBookCode: Code[10]; FAPostingDate: Date; FAPostingType: Option; ReclassificationEntry: Boolean)
+    local procedure MockFALedgerEntry(FANo: Code[20]; DeprBookCode: Code[10]; FAPostingDate: Date; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; ReclassificationEntry: Boolean)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
@@ -1390,7 +1390,7 @@ codeunit 144004 "ERM RU SE Fixes"
         exit(GLAccount."No.");
     end;
 
-    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FAPostingDate: Date; FANo: Code[20]; FAPostingType: Option; DeprBookCode: Code[10])
+    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FAPostingDate: Date; FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; DeprBookCode: Code[10])
     begin
         with FALedgerEntry do begin
             SetRange("FA Posting Date", FAPostingDate);
@@ -1508,7 +1508,7 @@ codeunit 144004 "ERM RU SE Fixes"
         end;
     end;
 
-    local procedure VerifyClosedCustLedgEntry(CustNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal)
+    local procedure VerifyClosedCustLedgEntry(CustNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
@@ -1524,7 +1524,7 @@ codeunit 144004 "ERM RU SE Fixes"
         end;
     end;
 
-    local procedure VerifyClosedVendLedgEntry(VendNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal)
+    local procedure VerifyClosedVendLedgEntry(VendNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin

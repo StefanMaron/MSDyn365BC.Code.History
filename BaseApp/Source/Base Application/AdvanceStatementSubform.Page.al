@@ -29,7 +29,7 @@ page 12432 "Advance Statement Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -209,7 +209,7 @@ page 12432 "Advance Statement Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -221,7 +221,7 @@ page 12432 "Advance Statement Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -494,7 +494,7 @@ page 12432 "Advance Statement Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -506,7 +506,7 @@ page 12432 "Advance Statement Subform"
 
                     trigger OnAction()
                     begin
-                        ItemChargeAssgnt;
+                        ItemChargeAssgnt();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -518,7 +518,7 @@ page 12432 "Advance Statement Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -575,7 +575,7 @@ page 12432 "Advance Statement Subform"
     [Scope('OnPrem')]
     procedure ItemChargeAssgnt()
     begin
-        ShowItemChargeAssgnt;
+        ShowItemChargeAssgnt();
     end;
 
     [Scope('OnPrem')]

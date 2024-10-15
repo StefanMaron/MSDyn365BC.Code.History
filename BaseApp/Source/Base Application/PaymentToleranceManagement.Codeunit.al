@@ -1,4 +1,4 @@
-﻿codeunit 426 "Payment Tolerance Management"
+codeunit 426 "Payment Tolerance Management"
 {
     Permissions = TableData Currency = r,
                   TableData "Cust. Ledger Entry" = rim,
@@ -776,7 +776,7 @@
             end;
     end;
 
-    local procedure CheckPmtDiscTolCust(NewPostingdate: Date; NewDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; NewAmount: Decimal; OldCustLedgEntry: Record "Cust. Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal) Result: Boolean
+    local procedure CheckPmtDiscTolCust(NewPostingdate: Date; NewDocType: Enum "Gen. Journal Document Type"; NewAmount: Decimal; OldCustLedgEntry: Record "Cust. Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal) Result: Boolean
     var
         ToleranceAmount: Decimal;
         IsHandled: Boolean;
@@ -805,7 +805,7 @@
         exit(false);
     end;
 
-    local procedure CheckPmtTolCust(NewDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; OldCustLedgEntry: Record "Cust. Ledger Entry"): Boolean
+    local procedure CheckPmtTolCust(NewDocType: Enum "Gen. Journal Document Type"; OldCustLedgEntry: Record "Cust. Ledger Entry"): Boolean
     begin
         if ((NewDocType = NewDocType::Payment) and
             (OldCustLedgEntry."Document Type" = OldCustLedgEntry."Document Type"::Invoice)) or
@@ -817,7 +817,7 @@
         exit(false);
     end;
 
-    local procedure CheckPmtDiscTolVend(NewPostingdate: Date; NewDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; NewAmount: Decimal; OldVendLedgEntry: Record "Vendor Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal): Boolean
+    local procedure CheckPmtDiscTolVend(NewPostingdate: Date; NewDocType: Enum "Gen. Journal Document Type"; NewAmount: Decimal; OldVendLedgEntry: Record "Vendor Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal): Boolean
     var
         ToleranceAmount: Decimal;
     begin
@@ -840,7 +840,7 @@
         exit(false);
     end;
 
-    local procedure CheckPmtTolVend(NewDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; OldVendLedgEntry: Record "Vendor Ledger Entry"): Boolean
+    local procedure CheckPmtTolVend(NewDocType: Enum "Gen. Journal Document Type"; OldVendLedgEntry: Record "Vendor Ledger Entry"): Boolean
     begin
         if ((NewDocType = NewDocType::Payment) and
             (OldVendLedgEntry."Document Type" = OldVendLedgEntry."Document Type"::Invoice)) or
@@ -1572,7 +1572,7 @@
         end;
     end;
 
-    local procedure GetCustPositiveFilter(DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; TempAmount: Decimal) PositiveFilter: Boolean
+    local procedure GetCustPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal) PositiveFilter: Boolean
     begin
         PositiveFilter := TempAmount <= 0;
         if ((TempAmount > 0) and (DocumentType = DocumentType::Refund) or (DocumentType = DocumentType::Invoice) or
@@ -1582,7 +1582,7 @@
         exit(PositiveFilter);
     end;
 
-    local procedure GetVendPositiveFilter(DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; TempAmount: Decimal) PositiveFilter: Boolean
+    local procedure GetVendPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal) PositiveFilter: Boolean
     begin
         PositiveFilter := TempAmount >= 0;
         if ((TempAmount < 0) and (DocumentType = DocumentType::Refund) or (DocumentType = DocumentType::Invoice) or
@@ -1823,7 +1823,7 @@
         end;
     end;
 
-    procedure CalcMaxPmtTolerance(DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; CurrencyCode: Code[10]; Amount: Decimal; AmountLCY: Decimal; Sign: Decimal; var MaxPaymentTolerance: Decimal)
+    procedure CalcMaxPmtTolerance(DocumentType: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10]; Amount: Decimal; AmountLCY: Decimal; Sign: Decimal; var MaxPaymentTolerance: Decimal)
     var
         Currency: Record Currency;
         GLSetup: Record "General Ledger Setup";
@@ -1834,7 +1834,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcMaxPmtTolerance(DocumentType, CurrencyCode, Amount, AmountLCY, Sign, MaxPaymentTolerance, IsHandled);
+        OnBeforeCalcMaxPmtTolerance(DocumentType.AsInteger(), CurrencyCode, Amount, AmountLCY, Sign, MaxPaymentTolerance, IsHandled);
         if IsHandled then
             exit;
 
@@ -1870,7 +1870,7 @@
         if Abs(MaxPaymentTolerance) > Abs(Amount) then
             MaxPaymentTolerance := Amount;
 
-        OnAfterCalcMaxPmtTolerance(DocumentType, CurrencyCode, Amount, AmountLCY, Sign, MaxPaymentTolerance);
+        OnAfterCalcMaxPmtTolerance(DocumentType.AsInteger(), CurrencyCode, Amount, AmountLCY, Sign, MaxPaymentTolerance);
     end;
 
     procedure CheckCalcPmtDisc(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; ApplnRoundingPrecision: Decimal; CheckFilter: Boolean; CheckAmount: Boolean): Boolean
@@ -2129,7 +2129,7 @@
             exit(false);
     end;
 
-    local procedure CheckAccountType(GenJnlLine: Record "Gen. Journal Line"; AccountType: Option)
+    local procedure CheckAccountType(GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type")
     var
         DummyGenJnlLine: Record "Gen. Journal Line";
     begin

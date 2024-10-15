@@ -470,8 +470,8 @@ report 14966 "Sales Corr. Factura-Invoice"
 
     local procedure FillRespPerson(var ResponsiblePerson: array[2] of Text)
     begin
-        ResponsiblePerson[1] := StdRepMgt.GetDirectorName(false, 36, Header."Document Type", Header."No.");
-        ResponsiblePerson[2] := StdRepMgt.GetAccountantName(false, 36, Header."Document Type", Header."No.");
+        ResponsiblePerson[1] := StdRepMgt.GetDirectorName(false, 36, Header."Document Type".AsInteger(), Header."No.");
+        ResponsiblePerson[2] := StdRepMgt.GetAccountantName(false, 36, Header."Document Type".AsInteger(), Header."No.");
     end;
 
     local procedure TransferHeaderValues(var HeaderValue: array[8] of Text; var SalesHeader: Record "Sales Header")

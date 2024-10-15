@@ -406,7 +406,7 @@ codeunit 1720 "Deferral Utilities"
     begin
         if not DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
             // Need to create the header record.
-            DeferralHeader."Deferral Doc. Type" := DeferralDocType;
+            DeferralHeader."Deferral Doc. Type" := "Deferral Document Type".FromInteger(DeferralDocType);
             DeferralHeader."Gen. Jnl. Template Name" := GenJnlTemplateName;
             DeferralHeader."Gen. Jnl. Batch Name" := GenJnlBatchName;
             DeferralHeader."Document Type" := DocumentType;
@@ -467,7 +467,7 @@ codeunit 1720 "Deferral Utilities"
         DeferralAccount: Code[20];
         Account: Code[20];
         GLAccount: Code[20];
-        GLAccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
+        GLAccountType: Enum "Gen. Journal Account Type";
     begin
         if DeferralHeader.Get(DeferralHeader."Deferral Doc. Type"::"G/L",
              GenJournalLine."Journal Template Name",
@@ -524,7 +524,7 @@ codeunit 1720 "Deferral Utilities"
             OnBeforePostedDeferralHeaderInsert(PostedDeferralHeader, GenJournalLine);
             PostedDeferralHeader.Insert(true);
             FilterDeferralLines(
-              DeferralLine, DeferralHeader."Deferral Doc. Type"::"G/L",
+              DeferralLine, DeferralHeader."Deferral Doc. Type"::"G/L".AsInteger(),
               GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
               0, '', GenJournalLine."Line No.");
             if DeferralLine.FindSet then begin
@@ -678,7 +678,7 @@ codeunit 1720 "Deferral Utilities"
         AmtToDefer := DeferralHeader."Amount to Defer";
         AmtToDeferLCY := DeferralHeader."Amount to Defer (LCY)";
         FilterDeferralLines(
-          DeferralLine, DeferralHeader."Deferral Doc. Type",
+          DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
           DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
           DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.");
         if DeferralLine.FindSet then begin
@@ -711,9 +711,10 @@ codeunit 1720 "Deferral Utilities"
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;
 
+    [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
     procedure GetSalesDeferralDocType(): Integer
     begin
-        exit(DeferralHeader."Deferral Doc. Type"::Sales)
+        exit(DeferralHeader."Deferral Doc. Type"::Sales.AsInteger())
     end;
 
     local procedure InitializeDeferralHeaderAndSetPostDate(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; PeriodicCount: Integer; var PostDate: Date)
@@ -758,14 +759,16 @@ codeunit 1720 "Deferral Utilities"
         exit(false);
     end;
 
+    [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
     procedure GetPurchDeferralDocType(): Integer
     begin
-        exit(DeferralHeader."Deferral Doc. Type"::Purchase)
+        exit(DeferralHeader."Deferral Doc. Type"::Purchase.AsInteger())
     end;
 
+    [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
     procedure GetGLDeferralDocType(): Integer
     begin
-        exit(DeferralHeader."Deferral Doc. Type"::"G/L")
+        exit(DeferralHeader."Deferral Doc. Type"::"G/L".AsInteger())
     end;
 
     procedure GetDeferralStartDate(DeferralDocType: Integer; RecordDocumentType: Integer; RecordDocumentNo: Code[20]; RecordLineNo: Integer; DeferralCode: Code[10]; PostingDate: Date): Date

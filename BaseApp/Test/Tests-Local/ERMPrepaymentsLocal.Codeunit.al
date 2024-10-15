@@ -393,14 +393,14 @@ codeunit 144014 "ERM Prepayments Local"
         GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
     end;
 
-    local procedure CreatePostPrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
+    local procedure CreatePostPrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
     begin
         CreatePrepmtGenJnlLine(GenJnlLine, DocType, PostingDate, AccountType, AccountNo, EntryAmount, PrepmtDocNo);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         exit(GenJnlLine."Document No.");
     end;
 
-    local procedure CreatePrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
+    local procedure CreatePrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
     begin
         with GenJnlLine do begin
             InitGenJnlLine(GenJnlLine);
@@ -426,7 +426,7 @@ codeunit 144014 "ERM Prepayments Local"
         exit(LibraryDimension.CreateDimSet(DimSetID, Dimension.Code, DimensionValue.Code));
     end;
 
-    local procedure ApplyCustEntries(DocumentTypeApplyWhat: Option; DocumentNoApplyWhat: Code[20]; DocTypeApplyTo: Option; DocNoApplyTo: Code[20]; AmountToApply: Decimal)
+    local procedure ApplyCustEntries(DocumentTypeApplyWhat: Enum "Gen. Journal Document Type"; DocumentNoApplyWhat: Code[20]; DocTypeApplyTo: Enum "Gen. Journal Document Type"; DocNoApplyTo: Code[20]; AmountToApply: Decimal)
     var
         ApplCustLedgEntry: Record "Cust. Ledger Entry";
         ApplToCustLedgEntry: Record "Cust. Ledger Entry";
@@ -438,7 +438,7 @@ codeunit 144014 "ERM Prepayments Local"
         LibraryERM.PostCustLedgerApplication(ApplCustLedgEntry);
     end;
 
-    local procedure ApplyVendEntries(DocumentTypeApplyWhat: Option; DocumentNoApplyWhat: Code[20]; DocTypeApplyTo: Option; DocNoApplyTo: Code[20]; AmountToApply: Decimal)
+    local procedure ApplyVendEntries(DocumentTypeApplyWhat: Enum "Gen. Journal Document Type"; DocumentNoApplyWhat: Code[20]; DocTypeApplyTo: Enum "Gen. Journal Document Type"; DocNoApplyTo: Code[20]; AmountToApply: Decimal)
     var
         ApplVendLedgEntry: Record "Vendor Ledger Entry";
         ApplToVendLedgEntry: Record "Vendor Ledger Entry";
@@ -458,7 +458,7 @@ codeunit 144014 "ERM Prepayments Local"
         VerifyZeroRemainingAmountInVendLedgEntry(VendLedgEntry."Document Type"::Refund, RefundDocNo);
     end;
 
-    local procedure VerifyZeroRemainingAmountInVendLedgEntry(DocType: Option; DocNo: Code[20])
+    local procedure VerifyZeroRemainingAmountInVendLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -478,7 +478,7 @@ codeunit 144014 "ERM Prepayments Local"
         VerifyZeroRemainingAmountInCustLedgEntry(CustLedgEntry."Document Type"::Refund, RefundDocNo);
     end;
 
-    local procedure VerifyZeroRemainingAmountInCustLedgEntry(DocType: Option; DocNo: Code[20])
+    local procedure VerifyZeroRemainingAmountInCustLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
@@ -499,7 +499,7 @@ codeunit 144014 "ERM Prepayments Local"
         ReturnPrepayment.Run;
     end;
 
-    local procedure VerifyCustLedgEntry(DocumentNo: Code[20]; DocumentType: Option; IsPrepayment: Boolean; VerifyAmount: Decimal)
+    local procedure VerifyCustLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; IsPrepayment: Boolean; VerifyAmount: Decimal)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
@@ -513,7 +513,7 @@ codeunit 144014 "ERM Prepayments Local"
         end;
     end;
 
-    local procedure VerifyVendLedgEntry(DocumentNo: Code[20]; DocumentType: Option; IsPrepayment: Boolean; VerifyAmount: Decimal)
+    local procedure VerifyVendLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; IsPrepayment: Boolean; VerifyAmount: Decimal)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -527,7 +527,7 @@ codeunit 144014 "ERM Prepayments Local"
         end;
     end;
 
-    local procedure VerifyCustLedgEntryDimSetID(DocumentNo: Code[20]; DocumentType: Option; IsPrepayment: Boolean; VerifyDimSetID: Integer)
+    local procedure VerifyCustLedgEntryDimSetID(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; IsPrepayment: Boolean; VerifyDimSetID: Integer)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
@@ -541,7 +541,7 @@ codeunit 144014 "ERM Prepayments Local"
         end;
     end;
 
-    local procedure VerifyVendLedgEntryDimSetID(DocumentNo: Code[20]; DocumentType: Option; IsPrepayment: Boolean; VerifyDimSetID: Integer)
+    local procedure VerifyVendLedgEntryDimSetID(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; IsPrepayment: Boolean; VerifyDimSetID: Integer)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin

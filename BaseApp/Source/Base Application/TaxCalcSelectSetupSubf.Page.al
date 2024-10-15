@@ -45,7 +45,7 @@ page 17312 "Tax Calc. Select Setup Subf"
 
                     trigger OnValidate()
                     begin
-                        AccountNoOnAfterValidate;
+                        AccountNoOnAfterValidate();
                     end;
                 }
                 field("Bal. Account No."; "Bal. Account No.")
@@ -70,7 +70,7 @@ page 17312 "Tax Calc. Select Setup Subf"
 
                     trigger OnValidate()
                     begin
-                        BalAccountNoOnAfterValidate;
+                        BalAccountNoOnAfterValidate();
                     end;
                 }
                 field(DimFilters; DimFilters)

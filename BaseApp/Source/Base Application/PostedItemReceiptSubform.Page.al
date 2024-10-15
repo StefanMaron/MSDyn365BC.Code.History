@@ -92,7 +92,7 @@ page 12458 "Posted Item Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

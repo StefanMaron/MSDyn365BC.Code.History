@@ -243,7 +243,7 @@ codeunit 144103 "ERM Currency Adjustment"
         exit(Currency.Code);
     end;
 
-    local procedure CreatePostGenJournalLine(DocType: Option; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date)
+    local procedure CreatePostGenJournalLine(DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";

@@ -468,7 +468,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
             VATEntry.Type::Sale, BaseAmount, VATAmount));
     end;
 
-    local procedure InsertVATEntryWithVATAmount(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; CVNo: Code[20]; PostingDate: Date; DocumentDate: Date; VATType: Option; BaseAmount: Decimal; VATAmount: Decimal): Integer
+    local procedure InsertVATEntryWithVATAmount(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; CVNo: Code[20]; PostingDate: Date; DocumentDate: Date; VATType: Enum "General Posting Type"; BaseAmount: Decimal; VATAmount: Decimal): Integer
     begin
         with VATEntry do begin
             Init;

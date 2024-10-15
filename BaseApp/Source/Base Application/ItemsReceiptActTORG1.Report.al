@@ -108,7 +108,7 @@ report 14918 "Items Receipt Act TORG-1"
             begin
                 FillHeaderBuffer(
                   DATABASE::"Purchase Header",
-                  "Document Type",
+                  "Document Type".AsInteger(),
                   "No.",
                   "Document Date",
                   "Posting Date",
@@ -247,7 +247,7 @@ report 14918 "Items Receipt Act TORG-1"
             begin
                 FillHeaderBuffer(
                   DATABASE::"Item Document Header",
-                  0,
+                  "Purchase Document Type"::Quote.AsInteger(),
                   "No.",
                   "Document Date",
                   "Posting Date",
@@ -352,28 +352,28 @@ report 14918 "Items Receipt Act TORG-1"
                 ExcelReportBuilderMgr.SetSheet('Sheet3');
                 ExcelReportBuilderMgr.AddSection('PAGE3');
 
-                if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type", HeaderBuffer."No.",
+                if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
                      DocumentSignature."Employee Type"::Chairman, EmployeePosition, EmployeeName, EmployeeDocument)
                 then begin
                     ExcelReportBuilderMgr.AddDataToSection('CommissionHeadTitle', EmployeePosition);
                     ExcelReportBuilderMgr.AddDataToSection('CommissionHeadName', EmployeeName);
                 end;
 
-                if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type", HeaderBuffer."No.",
+                if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
                      DocumentSignature."Employee Type"::Member1, EmployeePosition, EmployeeName, EmployeeDocument)
                 then begin
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Title', EmployeePosition);
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Name', EmployeeName);
                 end;
 
-                if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type", HeaderBuffer."No.",
+                if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
                      DocumentSignature."Employee Type"::Member2, EmployeePosition, EmployeeName, EmployeeDocument)
                 then begin
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Title', EmployeePosition);
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Name', EmployeeName);
                 end;
 
-                if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type", HeaderBuffer."No.",
+                if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
                      DocumentSignature."Employee Type"::Member3, EmployeePosition, EmployeeName, EmployeeDocument)
                 then begin
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember3Title', EmployeePosition);
@@ -588,7 +588,7 @@ report 14918 "Items Receipt Act TORG-1"
     [Scope('OnPrem')]
     procedure FillHeaderBuffer(TableID: Integer; DocumentType: Integer; DocumentNo: Code[20]; DocumentDate: Date; PostingDate: Date; BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20]; LocationCode: Code[10]; VendorVatInvoiceNo: Code[20]; VendorVatInvoiceDate: Date; AgreementNo: Code[20]; ExtAgreementNo: Text[30])
     begin
-        HeaderBuffer."Document Type" := DocumentType;
+        HeaderBuffer."Document Type" := "Purchase Document Type".FromInteger(DocumentType);
         HeaderBuffer."No." := DocumentNo;
         HeaderBuffer."Buy-from Vendor No." := BuyFromVendorNo;
         HeaderBuffer."Pay-to Vendor No." := PayToVendorNo;

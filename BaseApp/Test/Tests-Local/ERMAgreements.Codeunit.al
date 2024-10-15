@@ -1095,12 +1095,12 @@ codeunit 144508 "ERM Agreements"
         VendorLedgerEntry.TestField("Vendor Posting Group", VendorAgreement."Vendor Posting Group");
     end;
 
-    local procedure CreatePostPayment(AccountType: Option; CVNo: Code[20]; AmountValue: Decimal; AgreementNo: Code[20]): Code[20]
+    local procedure CreatePostPayment(AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20]; AmountValue: Decimal; AgreementNo: Code[20]): Code[20]
     begin
         exit(CreateApplyPayment(AccountType, CVNo, AmountValue, 0, '', AgreementNo));
     end;
 
-    local procedure CreateApplyPayment(AccountType: Option; CVNo: Code[20]; AmountValue: Decimal; AppliedDocType: Option; AppliedDocNo: Code[20]; AgreementNo: Code[20]): Code[20]
+    local procedure CreateApplyPayment(AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20]; AmountValue: Decimal; AppliedDocType: Option; AppliedDocNo: Code[20]; AgreementNo: Code[20]): Code[20]
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -1125,7 +1125,7 @@ codeunit 144508 "ERM Agreements"
         exit(GenJnlLine."Document No.")
     end;
 
-    local procedure CreatePostPrepayment(AccountType: Option; CVNo: Code[20]; AmountValue: Decimal; AgreementNo: Code[20]; PrepaymentDocNo: Code[20]): Code[20]
+    local procedure CreatePostPrepayment(AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20]; AmountValue: Decimal; AgreementNo: Code[20]; PrepaymentDocNo: Code[20]): Code[20]
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -1164,7 +1164,7 @@ codeunit 144508 "ERM Agreements"
           CustLedgerEntry.Amount, AppliedDocType, DocumentNo, AgreementNo);
     end;
 
-    local procedure CreateSalesPrepayment(AgreementNo: Code[20]; DocumentType: Option; PrepmtDocNo: Code[20]): Code[20]
+    local procedure CreateSalesPrepayment(AgreementNo: Code[20]; DocumentType: Enum "Sales Document Type"; PrepmtDocNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
         SalesLine: Record "Sales Line";
@@ -1191,7 +1191,7 @@ codeunit 144508 "ERM Agreements"
           VendLedgerEntry.Amount, AppliedDocType, DocumentNo, AgreementNo);
     end;
 
-    local procedure CreatePurchPrepayment(AgreementNo: Code[20]; DocumentType: Option; PrepmtDocNo: Code[20]): Code[20]
+    local procedure CreatePurchPrepayment(AgreementNo: Code[20]; DocumentType: Enum "Purchase Document Type"; PrepmtDocNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
         PurchaseLine: Record "Purchase Line";
@@ -1439,7 +1439,7 @@ codeunit 144508 "ERM Agreements"
         until VendLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyGLEntryAgrmt(DocumentType: Option; DocumentNo: Code[20]; AgreementNo: Code[20])
+    local procedure VerifyGLEntryAgrmt(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AgreementNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin

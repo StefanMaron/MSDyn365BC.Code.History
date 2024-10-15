@@ -659,7 +659,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Setup: Create Item with Dimension and Post Item Journal Line.
         Initialize;
         Quantity := LibraryRandom.RandDec(100, 2);  // Use Random value for Quantity.
-        CreateItem(Item, Item."Costing Method"::FIFO);
+        CreateItem(Item, Item."Replenishment System"::" ");
         UpdateItemDimension(DefaultDimension, Item."No.");
         CreateLocation(Location, false, false, false, false);
         PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code, Quantity, false);
@@ -730,7 +730,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        Direction: Option Outbound,Inbound;
         LotNo: Code[20];
     begin
         // Verify Tracking on Posted Inventory Pick when Tracking is assigned on Transfer Order.
@@ -741,7 +740,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibraryVariableStorage.Enqueue(LotNo); // for ItemTrackingLinesPageHandler
         LibraryVariableStorage.Enqueue(LotNo); // for ItemTrackingLinesPageHandler
         CreateInitialSetupForTransferOrder(TransferLine, CreateLotTrackedItem, true, true, false, false);
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseRequest."Source Document"::"Outbound Transfer", TransferLine."Document No.", false, true, false);
         FindWarehouseActivityNo(WarehouseActivityLine, TransferLine."Document No.", WarehouseActivityLine."Activity Type"::"Invt. Pick");
@@ -1416,7 +1415,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         StockkeepingUnit.Modify(true);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -1446,7 +1445,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         exit(Location.Code);
     end;
 
-    local procedure CreateCustomer(LocationCode: Code[10]; Reserve: Option): Code[20]
+    local procedure CreateCustomer(LocationCode: Code[10]; Reserve: Enum "Reserve Method"): Code[20]
     var
         Customer: Record Customer;
     begin
@@ -1517,7 +1516,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CreateAndReleaseTransferOrder(TransferLine, ItemNo, Location.Code, RequireReceive, RequirePutaway, Quantity);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
 
@@ -1742,7 +1741,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ProductionBOMLine.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; LocationCode: Code[10])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LocationCode: Code[10])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1757,7 +1756,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
@@ -1804,7 +1803,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         SalesOrder.SalesLines.Reserve.Invoke;
     end;
 
-    local procedure PostItemJournalLine(EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; Tracking: Boolean)
+    local procedure PostItemJournalLine(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; Tracking: Boolean)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1867,14 +1866,14 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    local procedure SelectWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure SelectWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
         WarehouseReceiptLine.FindFirst;
     end;
 
-    local procedure SelectWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure SelectWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
@@ -1969,7 +1968,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure UpdateSKUReorderingPolicy(var SKU: Record "Stockkeeping Unit"; ReorderingPolicy: Option; ReorderPoint: Decimal; ReorderQty: Decimal)
+    local procedure UpdateSKUReorderingPolicy(var SKU: Record "Stockkeeping Unit"; ReorderingPolicy: Enum "Reordering Policy"; ReorderPoint: Decimal; ReorderQty: Decimal)
     begin
         with SKU do begin
             Validate("Reordering Policy", ReorderingPolicy);

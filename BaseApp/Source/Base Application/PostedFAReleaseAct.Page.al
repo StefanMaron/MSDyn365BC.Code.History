@@ -117,7 +117,7 @@ page 12476 "Posted FA Release Act"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -139,7 +139,7 @@ page 12476 "Posted FA Release Act"
             action("&Navigate")
             {
                 ApplicationArea = FixedAssets;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

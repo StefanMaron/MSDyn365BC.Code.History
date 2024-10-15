@@ -204,7 +204,7 @@ codeunit 132208 "Library - Trees"
         end;
     end;
 
-    procedure CreateMixedTree(var Item: Record Item; TopItemReplSystem: Option; CostingMethod: Option; TreeDepth: Integer; NoOfComps: Integer; NoOfRoutingLines: Integer)
+    procedure CreateMixedTree(var Item: Record Item; TopItemReplSystem: Enum "Replenishment System"; CostingMethod: Enum "Costing Method"; TreeDepth: Integer; NoOfComps: Integer; NoOfRoutingLines: Integer)
     var
         BOMComponent: Record "BOM Component";
         Item1: Record Item;
@@ -711,7 +711,7 @@ codeunit 132208 "Library - Trees"
     procedure GetQtyPerInTree(var QtyPerParent: Decimal; var QtyPerTopItem: Decimal; ParentItemNo: Code[20]; CompItemNo: Code[20])
     var
         Stop: Boolean;
-        Type: Option " ",Item,"Production BOM";
+        Type: Enum "Production BOM Line Type";
     begin
         Stop := false;
         QtyPerParent := 1;
@@ -719,7 +719,7 @@ codeunit 132208 "Library - Trees"
         GetQtyPerInSubTree(QtyPerParent, QtyPerTopItem, Type::Item, ParentItemNo, CompItemNo, Stop);
     end;
 
-    local procedure GetQtyPerInSubTree(var QtyPerParent: Decimal; var QtyPerTopItem: Decimal; Type: Option " ",Item,"Production BOM"; No: Code[20]; LeafItemNo: Code[20]; var Stop: Boolean)
+    local procedure GetQtyPerInSubTree(var QtyPerParent: Decimal; var QtyPerTopItem: Decimal; Type: Enum "Production BOM Line Type"; No: Code[20]; LeafItemNo: Code[20]; var Stop: Boolean)
     var
         Item: Record Item;
         BOMComponent: Record "BOM Component";

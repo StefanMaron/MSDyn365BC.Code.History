@@ -1,5 +1,8 @@
 codeunit 2820 "Native - Attachments"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

@@ -93,7 +93,7 @@ page 14975 "Sales Invoice Lines"
         if Selection = 0 then
             exit;
         CurrPage.SetSelectionFilter(Rec);
-        CorrDocMgt.SetSalesHeader(SalesHeader."Document Type", SalesHeader."No.");
+        CorrDocMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         CorrDocMgt.SetCorrectionType(Selection - 1);
         CorrDocMgt.CreateSalesLinesFromPstdInv(Rec);
     end;

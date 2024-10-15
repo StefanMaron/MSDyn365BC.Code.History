@@ -301,7 +301,7 @@ codeunit 147110 "SCM Item Charge Assignment"
         CreatePurchDocLine(PurchHeader, PurchLine.Type::"Charge (Item)", ItemNo, Qty, UnitCost, LineAmt);
     end;
 
-    local procedure CreatePurchDocLine(PurchHeader: Record "Purchase Header"; ItemType: Option; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; LineAmt: Decimal)
+    local procedure CreatePurchDocLine(PurchHeader: Record "Purchase Header"; ItemType: Enum "Purchase Line Type"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; LineAmt: Decimal)
     var
         PurchLine: Record "Purchase Line";
     begin
@@ -332,7 +332,7 @@ codeunit 147110 "SCM Item Charge Assignment"
         CreateSalesDocLine(SalesHeader, SalesLine.Type::"Charge (Item)", ItemNo, Qty, UnitCost, LineAmt);
     end;
 
-    local procedure CreateSalesDocLine(var SalesHeader: Record "Sales Header"; ItemType: Option; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; LineAmt: Decimal)
+    local procedure CreateSalesDocLine(var SalesHeader: Record "Sales Header"; ItemType: Enum "Sales Line Type"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; LineAmt: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin

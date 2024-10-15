@@ -127,7 +127,7 @@ table 17416 "Posted Payroll Document"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

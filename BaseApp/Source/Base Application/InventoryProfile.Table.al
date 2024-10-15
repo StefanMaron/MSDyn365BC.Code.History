@@ -335,7 +335,7 @@ table 99000853 "Inventory Profile"
         AutoReservedQty: Decimal;
     begin
         SalesLine.TestField(Type, SalesLine.Type::Item);
-        SetSource(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", '', 0);
+        SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
         "Item No." := SalesLine."No.";
         "Variant Code" := SalesLine."Variant Code";
         "Location Code" := SalesLine."Location Code";
@@ -377,7 +377,7 @@ table 99000853 "Inventory Profile"
         AutoReservedQty: Decimal;
     begin
         SetSource(
-          DATABASE::"Prod. Order Component", ProdOrderComp.Status, ProdOrderComp."Prod. Order No.",
+          DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.",
           ProdOrderComp."Line No.", '', ProdOrderComp."Prod. Order Line No.");
         "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
         "Ref. Order No." := ProdOrderComp."Prod. Order No.";
@@ -455,7 +455,7 @@ table 99000853 "Inventory Profile"
                     end;
                 end else begin
                     "Primary Order Type" := DATABASE::"Planning Component";
-                    "Primary Order Status" := PlanningComponent."Ref. Order Status";
+                    "Primary Order Status" := PlanningComponent."Ref. Order Status".AsInteger();
                     "Primary Order No." := PlanningComponent."Ref. Order No.";
                 end;
             PlanningComponent."Ref. Order Type"::Assembly:
@@ -477,7 +477,7 @@ table 99000853 "Inventory Profile"
                     end;
                 end else begin
                     "Primary Order Type" := DATABASE::"Planning Component";
-                    "Primary Order Status" := PlanningComponent."Ref. Order Status";
+                    "Primary Order Status" := PlanningComponent."Ref. Order Status".AsInteger();
                     "Primary Order No." := PlanningComponent."Ref. Order No.";
                 end;
         end;
@@ -529,7 +529,7 @@ table 99000853 "Inventory Profile"
         AutoReservedQty: Decimal;
     begin
         PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
-        SetSource(DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", '', 0);
+        SetSource(DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", '', 0);
         "Item No." := PurchaseLine."No.";
         "Variant Code" := PurchaseLine."Variant Code";
         "Location Code" := PurchaseLine."Location Code";
@@ -568,7 +568,7 @@ table 99000853 "Inventory Profile"
         ReservEntry: Record "Reservation Entry";
         AutoReservedQty: Decimal;
     begin
-        SetSource(DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, '', ProdOrderLine."Line No.");
+        SetSource(DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, '', ProdOrderLine."Line No.");
         "Item No." := ProdOrderLine."Item No.";
         "Variant Code" := ProdOrderLine."Variant Code";
         "Location Code" := ProdOrderLine."Location Code";
@@ -600,7 +600,7 @@ table 99000853 "Inventory Profile"
         AutoReservedQty: Decimal;
     begin
         AsmLine.TestField(Type, AsmLine.Type::Item);
-        SetSource(DATABASE::"Assembly Line", AsmLine."Document Type", AsmLine."Document No.", AsmLine."Line No.", '', 0);
+        SetSource(DATABASE::"Assembly Line", AsmLine."Document Type".AsInteger(), AsmLine."Document No.", AsmLine."Line No.", '', 0);
         "Ref. Order Type" := "Ref. Order Type"::Assembly;
         "Ref. Order No." := AsmLine."Document No.";
         "Ref. Line No." := AsmLine."Line No.";
@@ -631,7 +631,7 @@ table 99000853 "Inventory Profile"
         ReservEntry: Record "Reservation Entry";
         AutoReservedQty: Decimal;
     begin
-        SetSource(DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", 0, '', 0);
+        SetSource(DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", 0, '', 0);
         "Item No." := AsmHeader."Item No.";
         "Variant Code" := AsmHeader."Variant Code";
         "Location Code" := AsmHeader."Location Code";
@@ -723,6 +723,7 @@ table 99000853 "Inventory Profile"
         ReservEntry: Record "Reservation Entry";
         DummyTempTrackingEntry: Record "Reservation Entry" temporary;
         CrntInvProfile: Record "Inventory Profile";
+        TransferDirection: Enum "Transfer Direction";
         AutoReservedQty: Decimal;
         MinQtyInbnd: Decimal;
         MinQtyOutbnd: Decimal;
@@ -733,12 +734,12 @@ table 99000853 "Inventory Profile"
         "Location Code" := TransLine."Transfer-from Code";
 
         TransLine.CalcFields("Reserved Qty. Outbnd. (Base)", "Reserved Qty. Inbnd. (Base)");
-        TransLine.SetReservationFilters(ReservEntry, 0);
+        TransLine.SetReservationFilters(ReservEntry, TransferDirection::Outbound);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingEntry);
         MinQtyOutbnd := TransLine."Reserved Qty. Outbnd. (Base)" - AutoReservedQty;
 
         CrntInvProfile := Rec;
-        TransLine.SetReservationFilters(ReservEntry, 1);
+        TransLine.SetReservationFilters(ReservEntry, TransferDirection::Inbound);
         AutoReservedQty := TransferBindings(ReservEntry, DummyTempTrackingEntry);
         MinQtyInbnd := TransLine."Reserved Qty. Inbnd. (Base)" - AutoReservedQty;
         Rec := CrntInvProfile;
@@ -768,6 +769,7 @@ table 99000853 "Inventory Profile"
         ReservEntry: Record "Reservation Entry";
         DummyTempTrackingEntry: Record "Reservation Entry" temporary;
         CrntInvProfile: Record "Inventory Profile";
+        TransferDirection: Enum "Transfer Direction";
         AutoReservedQty: Decimal;
         MinQtyInbnd: Decimal;
         MinQtyOutbnd: Decimal;
@@ -778,12 +780,12 @@ table 99000853 "Inventory Profile"
         "Location Code" := TransLine."Transfer-to Code";
 
         TransLine.CalcFields("Reserved Qty. Outbnd. (Base)", "Reserved Qty. Inbnd. (Base)");
-        TransLine.SetReservationFilters(ReservEntry, 1);
+        TransLine.SetReservationFilters(ReservEntry, TransferDirection::Inbound);
         AutoReservedQty := TransferBindings(ReservEntry, TrackingReservEntry);
         MinQtyInbnd := TransLine."Reserved Qty. Inbnd. (Base)" - AutoReservedQty;
 
         CrntInvProfile := Rec;
-        TransLine.SetReservationFilters(ReservEntry, 0);
+        TransLine.SetReservationFilters(ReservEntry, TransferDirection::Outbound);
         AutoReservedQty := -TransferBindings(ReservEntry, DummyTempTrackingEntry);
         MinQtyOutbnd := TransLine."Reserved Qty. Outbnd. (Base)" - AutoReservedQty;
         Rec := CrntInvProfile;
@@ -815,7 +817,7 @@ table 99000853 "Inventory Profile"
         AutoReservedQty: Decimal;
     begin
         ServLine.TestField(Type, ServLine.Type::Item);
-        SetSource(DATABASE::"Service Line", ServLine."Document Type", ServLine."Document No.", ServLine."Line No.", '', 0);
+        SetSource(DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.", '', 0);
         "Item No." := ServLine."No.";
         "Variant Code" := ServLine."Variant Code";
         "Location Code" := ServLine."Location Code";
@@ -887,7 +889,8 @@ table 99000853 "Inventory Profile"
                     TrackingEntry := ReservEntry;
                     TrackingEntry.Insert();
                 end;
-                if ReservEntry."Reservation Status" < ReservEntry."Reservation Status"::Surplus
+                if (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Reservation) or
+                    (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Tracking)
                 then
                     if (ReservEntry.Binding = ReservEntry.Binding::"Order-to-Order")
                     then begin
@@ -1115,7 +1118,6 @@ table 99000853 "Inventory Profile"
     begin
         "Serial No." := ItemLedgEntry."Serial No.";
         "Lot No." := ItemLedgEntry."Lot No.";
-        "CD No." := ItemLedgEntry."CD No.";
 
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
     end;
@@ -1124,7 +1126,6 @@ table 99000853 "Inventory Profile"
     begin
         "Serial No." := InvtProfile."Serial No.";
         "Lot No." := InvtProfile."Lot No.";
-        "CD No." := InvtProfile."CD No.";
 
         OnAfterCopyTrackingFromInvtProfile(Rec, InvtProfile);
     end;
@@ -1133,7 +1134,6 @@ table 99000853 "Inventory Profile"
     begin
         "Serial No." := ReservEntry."Serial No.";
         "Lot No." := ReservEntry."Lot No.";
-        "CD No." := ReservEntry."CD No.";
 
         OnAfterCopyTrackingFromReservEntry(Rec, ReservEntry);
     end;
@@ -1148,15 +1148,15 @@ table 99000853 "Inventory Profile"
             SetRange("Lot No.", InventoryProfile."Lot No.")
         else
             SetRange("Lot No.");
-        if InventoryProfile."CD No." <> '' then
-            SetRange("CD No.", InventoryProfile."CD No.")
-        else
-            SetRange("CD No.");
+
+        OnAfterSetTrackingFilter(Rec, InventoryProfile);
     end;
 
-    procedure TrackingExists(): Boolean
+    procedure TrackingExists() IsTrackingExists: Boolean
     begin
-        exit(("Lot No." <> '') or ("Serial No." <> '') or ("CD No." <> ''));
+        IsTrackingExists := ("Lot No." <> '') or ("Serial No." <> '');
+
+        OnAfterTrackingExists(Rec, IsTrackingExists);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1246,6 +1246,16 @@ table 99000853 "Inventory Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferToTrackingEntry(var ReservationEntry: Record "Reservation Entry"; InventoryProfile: Record "Inventory Profile"; UseSecondaryFields: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingExists(InventoryProfile: Record "Inventory Profile"; var IsTrackingExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilter(var InventoryProfile: Record "Inventory Profile"; FromInventoryProfile: Record "Inventory Profile")
     begin
     end;
 

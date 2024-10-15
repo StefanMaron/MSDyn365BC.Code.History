@@ -14,7 +14,7 @@ report 17485 "Report FP to Excel"
             var
                 BDRangeNo: Integer;
             begin
-                BDRangeNo := CalcEmployeeBDRange("Birth Date", Gender);
+                BDRangeNo := CalcEmployeeBDRange("Birth Date", Gender.AsInteger());
                 if BDRangeNo = 0 then
                     CurrReport.Skip();
 

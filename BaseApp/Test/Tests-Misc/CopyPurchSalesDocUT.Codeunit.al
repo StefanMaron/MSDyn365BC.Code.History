@@ -15,8 +15,6 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
-        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         BeforeSalesTxt: Label 'BeforeSales';
         BeforePurchaseTxt: Label 'BeforePurchase';
         AfterSalesTxt: Label 'AfterSales';
@@ -46,12 +44,12 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         CreateNewSalesHeader(FromSalesHeader."Sell-to Customer No.", ToSalesHeader);
 
         // [WHEN] When run "Copy Document Mgt.".CopySalesDoc
-        RunCopySalesDoc(FromSalesHeader."No.", ToSalesHeader, SalesDocType::Invoice, false, false);
+        RunCopySalesDoc(FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, false, false);
 
         // [THEN] Event OnBeforeCopySalesDocument fired with parameters FromDocType = "Invoice", FromDocNo = "X" and ToSalesHeader = "Y"
-        VerifyEventArgs(SalesDocType::Invoice, FromSalesHeader."No.", ToSalesHeader.RecordId, BeforeSalesTxt);
+        VerifyEventArgs("Sales Document Type From"::Invoice.AsInteger(), FromSalesHeader."No.", ToSalesHeader.RecordId, BeforeSalesTxt);
         // [THEN] Event OnAfterCopySalesDocument fired with parameters FromDocType = "Invoice", FromDocNo = "X" and ToSalesHeader = "Y"
-        VerifyEventArgs(SalesDocType::Invoice, FromSalesHeader."No.", ToSalesHeader.RecordId, AfterSalesTxt);
+        VerifyEventArgs("Sales Document Type From"::Invoice.AsInteger(), FromSalesHeader."No.", ToSalesHeader.RecordId, AfterSalesTxt);
     end;
 
     [Test]
@@ -75,12 +73,12 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         CreateNewPurchaseHeader(FromPurchaseHeader."Buy-from Vendor No.", ToPurchaseHeader);
 
         // [WHEN] When run "Copy Document Mgt.".CopyPurchDoc
-        RunCopyPurchaseDoc(FromPurchaseHeader."No.", ToPurchaseHeader, PurchDocType::Invoice, false, false);
+        RunCopyPurchaseDoc(FromPurchaseHeader."No.", ToPurchaseHeader, "Purchase Document Type From"::Invoice, false, false);
 
         // [THEN] Event OnBeforeCopyPurchaseDocument fired with parameters FromDocType = "Invoice", FromDocNo = "X" and ToPurchaseHeader = "Y"
-        VerifyEventArgs(PurchDocType::Invoice, FromPurchaseHeader."No.", ToPurchaseHeader.RecordId, BeforePurchaseTxt);
+        VerifyEventArgs("Purchase Document Type From"::Invoice.AsInteger(), FromPurchaseHeader."No.", ToPurchaseHeader.RecordId, BeforePurchaseTxt);
         // [THEN] Event OnAfterCopyPurchaseDocument fired with parameters FromDocType = "Invoice", FromDocNo = "X" and ToPurchaseHeader = "Y"
-        VerifyEventArgs(PurchDocType::Invoice, FromPurchaseHeader."No.", ToPurchaseHeader.RecordId, AfterPurchaseTxt);
+        VerifyEventArgs("Purchase Document Type From"::Invoice.AsInteger(), FromPurchaseHeader."No.", ToPurchaseHeader.RecordId, AfterPurchaseTxt);
     end;
 
     [Test]
@@ -148,7 +146,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
 
         // [WHEN] CopySalesDoc is used to copy Sales Invoice to Sales Credit memo.
         CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocumentMgt.CopySalesDoc(SalesDocType::Invoice, FromSalesHeader."No.", ToSalesHeader);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Invoice, FromSalesHeader."No.", ToSalesHeader);
 
         // [THEN] Sales Credit Memo has the same Payment Term Code as Sales Invoice.
         Assert.AreEqual(PaymentTerms.Code, ToSalesHeader."Payment Terms Code", '');
@@ -177,7 +175,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
 
         // [WHEN] CopyPurchDoc is used to copy Purchase Invoice to Purchase Credit memo.
         CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocumentMgt.CopyPurchDoc(PurchDocType::Invoice, FromPurchHeader."No.", ToPurchHeader);
+        CopyDocumentMgt.CopyPurchDoc("Purchase Document Type From"::Invoice, FromPurchHeader."No.", ToPurchHeader);
 
         // [THEN] Purchase Credit Memo has the same Payment Term Code as Purchase Invoice.
         Assert.AreEqual(PaymentTerms.Code, ToPurchHeader."Payment Terms Code", '');
@@ -234,23 +232,23 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         exit(Result);
     end;
 
-    local procedure RunCopyPurchaseDoc(DocumentNo: Code[20]; NewPurchHeader: Record "Purchase Header"; DocType: Option; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    local procedure RunCopyPurchaseDoc(DocumentNo: Code[20]; NewPurchHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; IncludeHeader: Boolean; RecalculateLines: Boolean)
     var
         CopyPurchDoc: Report "Copy Purchase Document";
     begin
         Clear(CopyPurchDoc);
-        CopyPurchDoc.InitializeRequest(DocType, DocumentNo, IncludeHeader, RecalculateLines);
+        CopyPurchDoc.SetParameters(FromDocType, DocumentNo, IncludeHeader, RecalculateLines);
         CopyPurchDoc.SetPurchHeader(NewPurchHeader);
         CopyPurchDoc.UseRequestPage(false);
         CopyPurchDoc.RunModal;
     end;
 
-    local procedure RunCopySalesDoc(DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; DocType: Option; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    local procedure RunCopySalesDoc(DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; IncludeHeader: Boolean; RecalculateLines: Boolean)
     var
         CopySalesDoc: Report "Copy Sales Document";
     begin
         Clear(CopySalesDoc);
-        CopySalesDoc.InitializeRequest(DocType, DocumentNo, IncludeHeader, RecalculateLines);
+        CopySalesDoc.SetParameters(FromDocType, DocumentNo, IncludeHeader, RecalculateLines);
         CopySalesDoc.SetSalesHeader(NewSalesHeader);
         CopySalesDoc.UseRequestPage(false);
         CopySalesDoc.RunModal;

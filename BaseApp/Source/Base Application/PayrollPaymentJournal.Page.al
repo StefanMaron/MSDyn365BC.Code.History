@@ -409,7 +409,7 @@ page 17449 "Payroll Payment Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }
@@ -740,7 +740,7 @@ page 17449 "Payroll Payment Journal"
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Payment Journal", 4, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"Payment Journal", "Gen. Journal Template Type"::Payments, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);

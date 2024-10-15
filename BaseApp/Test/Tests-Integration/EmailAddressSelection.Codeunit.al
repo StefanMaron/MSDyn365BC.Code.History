@@ -36,7 +36,7 @@ codeunit 136580 "Email Address Selection"
 
         // [WHEN] An Order is created
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        ReportSelections.GetEmailBodyCustomText(TempPath, GetOrderConfirmationId, SalesHeader, Customer."No.", SendToEmail, '');
+        ReportSelections.GetEmailBodyTextForCust(TempPath, GetOrderConfirmationId, SalesHeader, Customer."No.", SendToEmail, '');
         // [THEN] No email should be found for this document
         Assert.IsTrue(SendToEmail = '', 'Send to ' + SendToEmail + 'Expected no email');
     end;
@@ -68,7 +68,7 @@ codeunit 136580 "Email Address Selection"
         LibraryMarketing.CreateSalesQuoteWithContact(SalesHeader, Contact."No.", CustomorTemplateCode);
 
         // [THEN] The document should be send to the email from the contact
-        ReportSelections.GetEmailBodyCustomText(TempPath, GetSalesQuoteId, SalesHeader, SalesHeader."Sell-to Customer No.", SendToEmail, '');
+        ReportSelections.GetEmailBodyTextForCust(TempPath, GetSalesQuoteId, SalesHeader, SalesHeader."Sell-to Customer No.", SendToEmail, '');
         Assert.IsTrue(SendToEmail = ContactEmailTok, 'Send to ' + SendToEmail + 'Expected ' + ContactEmailTok);
     end;
 
@@ -92,7 +92,7 @@ codeunit 136580 "Email Address Selection"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
 
         // [THEN] The document should be send to the email from the contact
-        ReportSelections.GetEmailBodyCustomText(TempPath, GetOrderConfirmationId, SalesHeader, Customer."No.", SendToEmail, '');
+        ReportSelections.GetEmailBodyTextForCust(TempPath, GetOrderConfirmationId, SalesHeader, Customer."No.", SendToEmail, '');
         Assert.IsTrue(SendToEmail = CustomerEmailTok, 'Send to ' + SendToEmail + 'Expected ' + CustomerEmailTok);
     end;
 
@@ -114,7 +114,7 @@ codeunit 136580 "Email Address Selection"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader."Sell-to E-Mail" := SalesHeaderEmailTok;
         SalesHeader.Modify();
-        ReportSelections.GetEmailBodyCustomText(TempPath, GetOrderConfirmationId, SalesHeader, Customer."No.", SendToEmail, '');
+        ReportSelections.GetEmailBodyTextForCust(TempPath, GetOrderConfirmationId, SalesHeader, Customer."No.", SendToEmail, '');
         SalesHeader."Sell-to E-Mail" := SalesHeaderEmailTok;
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsTrue(SendToEmail = SalesHeaderEmailTok, 'Send to ' + SendToEmail + ' Expected ' + SalesHeaderEmailTok);

@@ -129,7 +129,7 @@ page 12472 "Posted FA Writeoff Act"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -158,7 +158,7 @@ page 12472 "Posted FA Writeoff Act"
 
                     trigger OnAction()
                     begin
-                        // CurrPage.WriteoffLines.PAGE.ShowDimensions;
+                        // CurrPage.WriteoffLines.PAGE.ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -211,7 +211,7 @@ page 12472 "Posted FA Writeoff Act"
             action("&Navigate")
             {
                 ApplicationArea = FixedAssets;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

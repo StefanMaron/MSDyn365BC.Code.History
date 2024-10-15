@@ -29,6 +29,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Field Name, %2 = Amount, %3 = Table Name';
         PostingErr: Label 'There is nothing to post.';
@@ -38,7 +39,6 @@ codeunit 134386 "ERM Sales Documents II"
         SalesDocumentFoundErr: Label '%1 must not exist for order No %2.', Comment = '%1 = Table Name, %2 = Document No.';
         SalesInvoiceMustBeDeletedErr: Label 'Sales Invoice must be deleted.';
         BlankSellToCustomerFieldErr: Label 'Sell-to Customer No. field must be empty.';
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         RecurrentDocumentDateErr: Label 'Document Date must be the same as in Create Recurring Sales Inv. report.';
         RecurrentExpiredDateErr: Label 'No sales invoice must be created for expired Valid To Date in Standard Customer Sales Code.';
         IncorrectSalesTypeToCopyPricesErr: Label 'To copy sales prices, The Sales Type Filter field must contain Customer.';
@@ -167,7 +167,6 @@ codeunit 134386 "ERM Sales Documents II"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         StandardSalesLine: Record "Standard Sales Line";
         PostedSaleInvoiceNo: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // Verify Posted Sales Line of one document is copied correctly in Sales Line of second document.
 
@@ -181,7 +180,7 @@ codeunit 134386 "ERM Sales Documents II"
         Commit();  // COMMIT is required here.
 
         // Exercise: Copy Sales Document.
-        SalesCopyDocument(SalesHeader2, PostedSaleInvoiceNo, DocumentType::"Posted Invoice", false);
+        SalesCopyDocument(SalesHeader2, PostedSaleInvoiceNo, "Sales Document Type From"::"Posted Invoice", false);
 
         // Verify: Verify values on Copy Sales Lines .
         VerifyCopySalesLine(PostedSaleInvoiceNo, SalesHeader2."No.");
@@ -1134,7 +1133,7 @@ codeunit 134386 "ERM Sales Documents II"
         Commit();
 
         // Exercise: Copy Sales Document.
-        SalesCopyDocument(SalesHeader2, PostedSaleInvoiceNo, DocumentType::"Posted Invoice", false);
+        SalesCopyDocument(SalesHeader2, PostedSaleInvoiceNo, "Sales Document Type From"::"Posted Invoice", false);
 
         // Verify Sell-to Customer No. in copied lines.
         VerifySalesBlankLinesOnCopiedDocument(SalesHeader2."No.");
@@ -3715,6 +3714,7 @@ codeunit 134386 "ERM Sales Documents II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Documents II");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -3755,7 +3755,7 @@ codeunit 134386 "ERM Sales Documents II"
           VATPostingSetup, SalesHeader, SalesHeader."Document Type"::Order, TotalBaseAmount, TotalVATAmount, PriceIncludingVAT);
     end;
 
-    local procedure CreateSalesDocWithTwoVATSetupLines(var VATPostingSetup: array[2] of Record "VAT Posting Setup"; var SalesHeader: Record "Sales Header"; DocumentType: Option; var TotalBaseAmount: Decimal; var TotalVATAmount: Decimal; PriceIncludingVAT: Boolean)
+    local procedure CreateSalesDocWithTwoVATSetupLines(var VATPostingSetup: array[2] of Record "VAT Posting Setup"; var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var TotalBaseAmount: Decimal; var TotalVATAmount: Decimal; PriceIncludingVAT: Boolean)
     var
         GLAccount: Record "G/L Account";
         SalesLine: Record "Sales Line";
@@ -3779,7 +3779,7 @@ codeunit 134386 "ERM Sales Documents II"
         end;
     end;
 
-    local procedure CreateSalesDocWithItemAndVATSetup(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocWithItemAndVATSetup(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -3822,7 +3822,7 @@ codeunit 134386 "ERM Sales Documents II"
         Customer.Get(CustomerNo);
     end;
 
-    local procedure CreditLimitSalesDocLineUnitPriceIncrease(DocumentType: Option; var NewUnitPrice: Decimal): Code[20]
+    local procedure CreditLimitSalesDocLineUnitPriceIncrease(DocumentType: Enum "Sales Document Type"; var NewUnitPrice: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -3870,7 +3870,7 @@ codeunit 134386 "ERM Sales Documents II"
         exit(SalesHeader."No.");
     end;
 
-    local procedure CreditLimitSalesDocLineUnitPriceDecrease(DocumentType: Option; var NewUnitPrice: Decimal): Code[20]
+    local procedure CreditLimitSalesDocLineUnitPriceDecrease(DocumentType: Enum "Sales Document Type"; var NewUnitPrice: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -4163,7 +4163,7 @@ codeunit 134386 "ERM Sales Documents II"
         PostCode.Insert(true);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -4178,7 +4178,7 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         with SalesLine do
             for i := 1 to LibraryRandom.RandInt(5) do begin
-                LibrarySales.CreateSalesLine(SalesLine, SalesHeader, 0, '', 0);
+                LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::" ", '', 0);
                 Validate(Description, LibraryUtility.GenerateGUID);
                 Modify(true);
             end;
@@ -4195,7 +4195,7 @@ codeunit 134386 "ERM Sales Documents II"
         TransferExtendedText.InsertSalesExtText(SalesLine);
     end;
 
-    local procedure DeleteSalesLine(DocumentNo: Code[20]; Type: Option; ItemNo: Code[20])
+    local procedure DeleteSalesLine(DocumentNo: Code[20]; Type: eNUM "Sales Line Type"; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -4203,14 +4203,14 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLine.Delete(true);
     end;
 
-    local procedure CreateSalesDocumentFillUnitPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; UnitPrice: Decimal)
+    local procedure CreateSalesDocumentFillUnitPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
         ModifySalesLineUnitPrice(SalesLine, UnitPrice);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; SelltoCustomerNo: Code[20]; Type: Option; No: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SelltoCustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         // Create Sales Order using Random Quantity for Sales Line.
         Clear(SalesHeader);
@@ -4218,7 +4218,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Using Random Number Generator for Random Quantity.
     end;
 
-    local procedure CreateSaleHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSaleHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
     begin
@@ -4272,7 +4272,7 @@ codeunit 134386 "ERM Sales Documents II"
         StandardCustomerSalesCode.InsertSalesLines(SalesHeader);
     end;
 
-    local procedure CreateSalesDocWithCrLimitCustomer(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option)
+    local procedure CreateSalesDocWithCrLimitCustomer(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type")
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         CustNo: Code[20];
@@ -4285,7 +4285,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryVariableStorage.Enqueue(CustNo);
     end;
 
-    local procedure CreateSalesDocWithIncreasedAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; CustNo: Code[20]; Amount: Decimal)
+    local procedure CreateSalesDocWithIncreasedAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CustNo: Code[20]; Amount: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
         LibrarySales.CreateSalesLine(
@@ -4446,7 +4446,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrice.Insert(true);
     end;
 
-    local procedure CreateSalesPriceWithStartingDate(var SalesPrice: Record "Sales Price"; SalesType: Option; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date)
+    local procedure CreateSalesPriceWithStartingDate(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date)
     begin
         SalesPrice.Init();
         SalesPrice.Validate("Sales Type", SalesType);
@@ -4456,7 +4456,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrice.Insert(true);
     end;
 
-    local procedure CreateSalesPriceWithoutStartingDate(var SalesPrice: Record "Sales Price"; SalesType: Option; ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
+    local procedure CreateSalesPriceWithoutStartingDate(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
     begin
         SalesPrice.Init();
         SalesPrice.Validate("Sales Type", SalesType);
@@ -4499,7 +4499,7 @@ codeunit 134386 "ERM Sales Documents II"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreatePaymentMethodCode(BalAccountType: Option): Code[10]
+    local procedure CreatePaymentMethodCode(BalAccountType: Enum "Payment Balance Account Type"): Code[10]
     var
         PaymentMethod: Record "Payment Method";
     begin
@@ -4643,14 +4643,13 @@ codeunit 134386 "ERM Sales Documents II"
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvDiscountAmount, SalesHeader);
     end;
 
-    local procedure DueDateOnSalesDocumentAfterCopyDocument(SalesHeaderDocumentType: Option)
+    local procedure DueDateOnSalesDocumentAfterCopyDocument(SalesHeaderDocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
         SalesLine: Record "Sales Line";
         PaymentTerms: Record "Payment Terms";
         SalesInvoiceNo: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Setup: Create and Post Sales Order and Create Sales Document.
         Initialize;
@@ -4662,7 +4661,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeaderDocumentType, SalesHeader."Sell-to Customer No.");
 
         // Exercise: Run Copy Sales Document Report with Include Header,Recalculate Lines as True.
-        SalesCopyDocument(SalesHeader2, SalesInvoiceNo, DocumentType::"Posted Invoice", true);
+        SalesCopyDocument(SalesHeader2, SalesInvoiceNo, "Sales Document Type From"::"Posted Invoice", true);
 
         // Verify: Verify Due Date on Sale Header.
         VerifyDueDateOnSalesHeader(SalesHeader2, PaymentTerms."Due Date Calculation");
@@ -4693,7 +4692,7 @@ codeunit 134386 "ERM Sales Documents II"
         exit(SalesInvoiceHeader."No.");
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
@@ -4713,7 +4712,7 @@ codeunit 134386 "ERM Sales Documents II"
         exit(ICGLAccount."No.");
     end;
 
-    local procedure FindSalesLineByType(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; Type: Option; ItemNo: Code[20])
+    local procedure FindSalesLineByType(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; Type: Enum "Sales Line Type"; ItemNo: Code[20])
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, Type);
@@ -4806,7 +4805,7 @@ codeunit 134386 "ERM Sales Documents II"
         exit(CustomerPostingGroup."Receivables Account");
     end;
 
-    local procedure CalcTotalLineAmount(DocType: Option; DocNo: Code[20]): Decimal
+    local procedure CalcTotalLineAmount(DocType: Enum "Sales Document Type"; DocNo: Code[20]): Decimal
     var
         SalesLine: Record "Sales Line";
     begin
@@ -4818,7 +4817,7 @@ codeunit 134386 "ERM Sales Documents II"
         end;
     end;
 
-    local procedure MockSalesLine(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; LineType: Option; No: Code[20])
+    local procedure MockSalesLine(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; No: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -4961,12 +4960,12 @@ codeunit 134386 "ERM Sales Documents II"
         PostedSaleInvoiceNo := FindPostedSalesOrderToInvoice(SalesHeader."No.");
     end;
 
-    local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Option; ReCalculateLines: Boolean)
+    local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type From"; ReCalculateLines: Boolean)
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocumentType, DocumentNo, true, ReCalculateLines);
+        CopySalesDocument.SetParameters(DocumentType, DocumentNo, true, ReCalculateLines);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.Run;
     end;

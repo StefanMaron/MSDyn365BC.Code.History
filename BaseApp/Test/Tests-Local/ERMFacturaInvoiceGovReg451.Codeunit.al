@@ -14,7 +14,6 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRUReports: Codeunit "Library RU Reports";
         Assert: Codeunit Assert;
-        SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
         IsInitialized: Boolean;
         WrongFacturaFieldValErr: Label 'Report has wrong field value';
         DashTxt: Label '-';
@@ -31,7 +30,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
 
         // Verify Dash fields filling if Factura printed from Prepayment Invoice
         CreateReleaseInvoice(
-          SalesHeader, SalesLineType::Item, LibraryInventory.CreateItemNo, 1, true);
+          SalesHeader, "Sales Line Type"::Item, LibraryInventory.CreateItemNo, 1, true);
         CreatePrepaymentJournalLine(
           GenJournalLine, SalesHeader."Sell-to Customer No.", SalesHeader."No.", SalesHeader."Amount Including VAT");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -54,9 +53,9 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
 
         // Verify Dash Address filling if Invoice Item line Qty = 0
         CreateReleaseInvoice(
-          SalesHeader, SalesLineType::Item, LibraryInventory.CreateItemNo, 0, false);
+          SalesHeader, "Sales Line Type"::Item, LibraryInventory.CreateItemNo, 0, false);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLineType::"G/L Account",
+          SalesLine, SalesHeader, "Sales Line Type"::"G/L Account",
           LibraryERM.CreateGLAccountWithSalesSetup, 1);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         FacturaInvoiceExcelExport(SalesHeader."No.");
@@ -71,7 +70,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
     procedure OnlyResourceFacturaDashPrint()
     begin
         // Verify Resource line only Factura Dash address printing
-        ResourceGLOrderFacturaDashPrint(SalesLineType::Resource, LibraryResource.CreateResourceNo);
+        ResourceGLOrderFacturaDashPrint("Sales Line Type"::Resource, LibraryResource.CreateResourceNo);
     end;
 
     [Test]
@@ -79,23 +78,25 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
     procedure OnlyGLAccountFacturaDashPrint()
     begin
         // Verify G/L line only Factura Dash address printing
-        ResourceGLOrderFacturaDashPrint(SalesLineType::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        ResourceGLOrderFacturaDashPrint("Sales Line Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
     end;
+
 
     [Test]
     [Scope('OnPrem')]
     procedure MixedResourceFacturaDashPrint()
     begin
         // Check Item line presence cancels Dash printing (Resource case)
-        ResourceGLMixedOrderFacturaDashPrint(SalesLineType::Resource, LibraryResource.CreateResourceNo);
+        ResourceGLMixedOrderFacturaDashPrint("Sales Line Type"::Resource, LibraryResource.CreateResourceNo);
     end;
+
 
     [Test]
     [Scope('OnPrem')]
     procedure MixedGLAccFacturaDashPrint()
     begin
         // Check Item line presence cancels Dash printing (G/L Account case)
-        ResourceGLMixedOrderFacturaDashPrint(SalesLineType::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        ResourceGLMixedOrderFacturaDashPrint("Sales Line Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
     end;
 
     local procedure Initialize()
@@ -113,12 +114,12 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         IsInitialized := true;
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNo);
     end;
 
-    local procedure CreateReleaseInvoice(var SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Qty: Decimal; Release: Boolean)
+    local procedure CreateReleaseInvoice(var SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Qty: Decimal; Release: Boolean)
     var
         Item: Record Item;
         Customer: Record Customer;
@@ -137,7 +138,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
     end;
 
-    local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Qty: Decimal)
+    local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Qty: Decimal)
     var
         SalesLine: Record "Sales Line";
         LibraryRandom: Codeunit "Library - Random";
@@ -240,7 +241,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         PostedFacturaInvoice.Run;
     end;
 
-    local procedure ResourceGLMixedOrderFacturaDashPrint(SalesLine1Type: Option; ResourceFANo: Code[20])
+    local procedure ResourceGLMixedOrderFacturaDashPrint(SalesLine1Type: Enum "Sales Line Type"; ResourceFANo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -248,9 +249,8 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
     begin
         Initialize;
 
-        CreateReleaseInvoice(
-          SalesHeader, SalesLine1Type, ResourceFANo, 1, false);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType::Item, LibraryInventory.CreateItemNo, 1);
+        CreateReleaseInvoice(SalesHeader, SalesLine1Type, ResourceFANo, 1, false);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, LibraryInventory.CreateItemNo, 1);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         FacturaInvoiceExcelExport(SalesHeader."No.");
         VerifyAddressNotDash(DashTxt, DashTxt);
@@ -259,7 +259,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         VerifyAddressNotDash(DashTxt, DashTxt);
     end;
 
-    local procedure ResourceGLOrderFacturaDashPrint(SalesLine1Type: Option; ResourceFANo: Code[20])
+    local procedure ResourceGLOrderFacturaDashPrint(SalesLine1Type: Enum "Sales Line Type"; ResourceFANo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];

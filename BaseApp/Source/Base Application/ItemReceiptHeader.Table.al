@@ -101,7 +101,7 @@ table 12451 "Item Receipt Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

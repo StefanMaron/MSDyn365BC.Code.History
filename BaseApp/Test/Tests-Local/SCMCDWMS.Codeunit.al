@@ -80,7 +80,7 @@ codeunit 147108 "SCM CD WMS"
         LibraryCDTracking.CreateSalesOrder(SalesHeader, Customer."No.", Location.Code);
         Qty[2] := 5;
         LibraryCDTracking.CreateSalesLineItem(SalesLine, SalesHeader, Item."No.", LibraryRandom.RandDec(100, 2), Qty[2]);
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         PostWhseShptFromSalesOrder(WhseShptHeader, WhseShptLine, SalesHeader, Item, BinArray[2]);
@@ -137,7 +137,7 @@ codeunit 147108 "SCM CD WMS"
         Qty[2] := 5;
         LibraryCDTracking.CreateSalesLineItem(
           SalesLine, SalesHeader, Item."No.", LibraryRandom.RandDec(100, 2), Qty[2]);
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
         LibraryCDTracking.CreateSalesTrkgFromRes(SalesHeader, true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -202,7 +202,7 @@ codeunit 147108 "SCM CD WMS"
           SalesLine, SalesHeader, Item."No.", LibraryRandom.RandDec(100, 2), Qty[2]);
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine, '', '', CDNo, Qty[2]);
 
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         PostWhseShptFromSalesOrder(WhseShptHeader, WhseShptLine, SalesHeader, Item, BinArray[2]);
@@ -355,7 +355,7 @@ codeunit 147108 "SCM CD WMS"
 
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine, '', '', CDNo[1], 15);
         LibraryCDTracking.CreateSalesLineTracking(ReservationEntry, SalesLine, '', '', CDNo[2], 5);
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         PostWhseShptFromSalesOrder(WhseShptHeader, WhseShptLine, SalesHeader, Item, BinArray[3]);
@@ -403,7 +403,7 @@ codeunit 147108 "SCM CD WMS"
         OpenSalesItemTrackingLines(SalesLine, CD);
 
         // [WHEN] Run "Reserve" action and choose to reserve specific CD number "CD2"
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [THEN] CD No. "CD2" is reserved
         ReservationEntry.SetRange("CD No.", CD[2]);
@@ -483,13 +483,13 @@ codeunit 147108 "SCM CD WMS"
     local procedure OpenPurchaseItemTrackingLines(PurchaseLine: Record "Purchase Line"; TrackingNo: array[2] of Code[20])
     begin
         EnqueueTrackingNumbers(TrackingNo);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure OpenSalesItemTrackingLines(SalesLine: Record "Sales Line"; TrackingNo: array[2] of Code[20])
     begin
         EnqueueTrackingNumbers(TrackingNo);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure UpdateBin(BinCode: Code[30]; ZoneCode: Code[10]; BinTypeCode: Code[10])
@@ -571,7 +571,7 @@ codeunit 147108 "SCM CD WMS"
         end;
     end;
 
-    local procedure CheckLastItemLedgEntryByType(EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; CDNo: Code[30]; Qty: Decimal)
+    local procedure CheckLastItemLedgEntryByType(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; CDNo: Code[30]; Qty: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

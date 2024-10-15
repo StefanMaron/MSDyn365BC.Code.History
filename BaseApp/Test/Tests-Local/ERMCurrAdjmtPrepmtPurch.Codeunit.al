@@ -859,7 +859,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
     end;
 
-    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; PostingDate: Date; AccountNo: Code[20]; CurrencyCode: Code[10]; IsPrepayment: Boolean; EntryAmount: Decimal)
+    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; AccountNo: Code[20]; CurrencyCode: Code[10]; IsPrepayment: Boolean; EntryAmount: Decimal)
     begin
         with GenJnlLine do begin
             LibraryERM.CreateGeneralJnlLine(
@@ -874,7 +874,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure CreateItemPurchDocWithCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PostingDate: Date; CurrencyCode: Code[10])
+    local procedure CreateItemPurchDocWithCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date; CurrencyCode: Code[10])
     begin
         CreatePurchHeaderWithCurrency(PurchaseHeader, DocumentType, PostingDate, CurrencyCode, LibraryPurchase.CreateVendorNo);
 
@@ -884,7 +884,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchHeaderWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; PostingDate: Date; CurrencyCode: Code[10]; VendorNo: Code[20])
+    local procedure CreatePurchHeaderWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date; CurrencyCode: Code[10]; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);
@@ -1063,7 +1063,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
         ExpectedDocNo: Code[20];
-        ExpectedDocType: Option;
+        ExpectedDocType: Enum "Gen. Journal Document Type";
         ExpectedAmount: Decimal;
     begin
         ExpectedAmount :=
@@ -1103,7 +1103,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         AdjustExchangeRates.Run;
     end;
 
-    local procedure RunChangeVendorVATInvoice(var VATPostingSetup: Record "VAT Posting Setup"; DocType: Option; DocNo: Code[20]) InvNo: Code[20]
+    local procedure RunChangeVendorVATInvoice(var VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]) InvNo: Code[20]
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         Vendor: Record Vendor;
@@ -1128,14 +1128,14 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         exit(InvNo);
     end;
 
-    local procedure FindVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Option; DocNo: Code[20])
+    local procedure FindVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         VendLedgEntry.SetRange("Document Type", DocType);
         VendLedgEntry.SetRange("Document No.", DocNo);
         VendLedgEntry.FindLast;
     end;
 
-    local procedure FindDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocType: Option; DocNo: Code[20]; EntryType: Option)
+    local procedure FindDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Option)
     begin
         with DtldVendLedgEntry do begin
             SetRange("Document Type", DocType);
@@ -1146,7 +1146,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocType: Option; DocNo: Code[20]; GLAccNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20])
     begin
         with GLEntry do begin
             SetRange("Document Type", DocType);
@@ -1169,7 +1169,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         VendorVATInvoiceReportHandler.OK.Invoke;
     end;
 
-    local procedure VerifyZeroRemAmtOnLedgEntry(DocType: Option; DocNo: Code[20])
+    local procedure VerifyZeroRemAmtOnLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -1183,7 +1183,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure VerifyUnappliedLedgerEntry(DocType: Option; DocNo: Code[20])
+    local procedure VerifyUnappliedLedgerEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -1197,21 +1197,21 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure VerifyGainLossEntries(DocType: Option; DocNo: Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; ExpectedAmount: Decimal)
+    local procedure VerifyGainLossEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; ExpectedAmount: Decimal)
     begin
         VerifyDtldVendLedgEntry(DocType, DocNo, IsRaise, ExpectedAmount);
         VerifyGLEntry(
           DocType, DocNo, GetGainLossAccount(CurrencyCode, IsRaise), -ExpectedAmount);
     end;
 
-    local procedure VerifyCorrGainLossEntries(DocType: Option; DocNo: Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; ExpectedAmount: Decimal)
+    local procedure VerifyCorrGainLossEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; ExpectedAmount: Decimal)
     begin
         VerifyDtldVendLedgEntry(DocType, DocNo, IsRaise, ExpectedAmount);
         VerifyGLEntry(
           DocType, DocNo, GetGainLossAccount(CurrencyCode, IsRaise), -ExpectedAmount);
     end;
 
-    local procedure VerifyDtldVendLedgEntry(DocType: Option; DocNo: Code[20]; IsRaise: Boolean; ExpectedAmount: Decimal)
+    local procedure VerifyDtldVendLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; IsRaise: Boolean; ExpectedAmount: Decimal)
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -1242,7 +1242,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure VerifyPrepmtDiffGLEntry(DocType: Option; DocNo: Code[20])
+    local procedure VerifyPrepmtDiffGLEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendPostingGroup: Record "Vendor Posting Group";
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -1285,7 +1285,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
           VendLedgEntry."Document Type"::Payment, DocNo, GetPDBalAccount(Currency, DocNo, true));
     end;
 
-    local procedure VerifyGLEntry(DocType: Option; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyGLEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1296,7 +1296,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure VerifyDebitCreditGLEntry(DocType: Option; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedDebitAmount: Decimal; ExpectedCreditAmount: Decimal)
+    local procedure VerifyDebitCreditGLEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedDebitAmount: Decimal; ExpectedCreditAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1307,7 +1307,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure VerifyGLEntryAmounts(DocType: Option; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal; ExpectedDebitAmount: Decimal; ExpectedCreditAmount: Decimal)
+    local procedure VerifyGLEntryAmounts(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal; ExpectedDebitAmount: Decimal; ExpectedCreditAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1319,7 +1319,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure VerifyGLEntryDoesNotExist(DocType: Option; DocNo: Code[20]; GLAccNo: Code[20])
+    local procedure VerifyGLEntryDoesNotExist(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1344,7 +1344,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         end;
     end;
 
-    local procedure VerifyGLAndCorrespPairEntry(DocumentType: Option; DocumentNo: Code[20]; DebitAccNo: Code[20]; CreditAccNo: Code[20]; DebitAmount: Decimal)
+    local procedure VerifyGLAndCorrespPairEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DebitAccNo: Code[20]; CreditAccNo: Code[20]; DebitAmount: Decimal)
     begin
         VerifyGLEntryAmounts(DocumentType, DocumentNo, DebitAccNo, DebitAmount, DebitAmount, 0);
         VerifyGLEntryAmounts(DocumentType, DocumentNo, CreditAccNo, -DebitAmount, 0, DebitAmount);

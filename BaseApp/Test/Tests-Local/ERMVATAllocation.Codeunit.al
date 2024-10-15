@@ -241,8 +241,8 @@ codeunit 144008 "ERM VAT Allocation"
         Item2.Get(
           LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
 
-        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0));
-        GLAccount2.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0));
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
+        GLAccount2.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
 
         PostingDate := WorkDate;
 

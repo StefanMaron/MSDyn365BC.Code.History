@@ -369,7 +369,7 @@ page 12408 "Gen. Journal Line Card"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

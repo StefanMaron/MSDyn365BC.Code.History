@@ -55,7 +55,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         Initialize;
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, 0);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
         LibrarySales.CreateCustomer(Customer);
         Customer."Vendor No." := Vendor."No.";
         Customer.Modify();
@@ -105,7 +105,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         Initialize;
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, 0);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
         CreatePostPurchInvoice(Vendor."No.", GLAccountNo, CalcDate('<CM+1D>', WorkDate));
         CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM+2D>', WorkDate));
         CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", CalcDate('<CM+2D>', WorkDate));
@@ -128,7 +128,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         Initialize;
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, 0);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
         SetupDimensionCodes(DimCode, DimValueCode);
         CreatePostPurchInvoicesWithDim(Vendor."No.", GLAccountNo, DimCode, DimValueCode);
         CreatePostVATSettlJnlLineForUnrealVATEntries(Vendor."No.", WorkDate);
@@ -154,7 +154,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         Initialize;
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, 0);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
 
         VATSetlDate := CalcDate('<CM+1D>', WorkDate);
         VATReinsDate := CalcDate('<CM+1M+1D>', WorkDate);
@@ -260,7 +260,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         LibraryERM.CreateReinstmtVATPostingSetup(VATPostingSetup);
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Full VAT");
         VATPostingSetup.Validate("Purchase VAT Account", GLAccNo);
         VATPostingSetup.Modify(true);
@@ -292,7 +292,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         // [GIVEN] Posted Purchase Credit Memo
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
-        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, 0);
+        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
         CreatePostPurchCrMemo(Vendor."No.", GLAccNo, CalcDate('<-CM>', WorkDate));
         // [GIVEN] Posted VAT Settlement
         CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM>', WorkDate));
@@ -445,7 +445,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         Initialize;
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, 0);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
         CreatePostPurchInvoice(Vendor."No.", GLAccountNo, CalcDate('<1D>', WorkDate));
         // [GIVEN] Posted VAT Settlement
         VATPostingDate := CalcDate('<2D>', WorkDate);
@@ -496,7 +496,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         Initialize;
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
-        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, 0);
+        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
 
         GetVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", GLAccNo);
         SetupPostingDateAndCurrExchRates(InvPostingDate, PrepmtPostingDate, CurrencyCode, Factor);
@@ -612,7 +612,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         Initialize;
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, 0);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
 
         VATSetlDate := CalcDate('<CM+1D>', WorkDate);
         VATReinsDate := CalcDate('<CM+1M+1D>', WorkDate);
@@ -635,7 +635,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         CreatePostPurchDoc(PurchaseHeader."Document Type"::"Credit Memo", VendNo, GLAccountNo, PostingDate);
     end;
 
-    local procedure CreatePostPurchDoc(DocType: Option; VendNo: Code[20]; GLAccountNo: Code[20]; PostingDate: Date)
+    local procedure CreatePostPurchDoc(DocType: Enum "Purchase Document Type"; VendNo: Code[20]; GLAccountNo: Code[20]; PostingDate: Date)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -727,7 +727,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         exit(PurchHeader."Amount Including VAT");
     end;
 
-    local procedure CreatePostPrepaymentWithCurrency(PostingDate: Date; CurrencyCode: Code[10]; AccountType: Option; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
+    local procedure CreatePostPrepaymentWithCurrency(PostingDate: Date; CurrencyCode: Code[10]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -876,7 +876,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         end;
     end;
 
-    local procedure FindVATSettlementVATEntry(GenJnlLine: Record "Gen. Journal Line"; PrepmtDiff: Boolean; EntryType: Option): Integer
+    local procedure FindVATSettlementVATEntry(GenJnlLine: Record "Gen. Journal Line"; PrepmtDiff: Boolean; EntryType: Enum "General Posting Type"): Integer
     var
         VATEntry: Record "VAT Entry";
     begin

@@ -276,7 +276,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
         ItemJnlLine."Item Category Code" := TransLine3."Item Category Code";
 
         ReserveTransLine.TransferTransferToItemJnlLine(TransLine3,
-          ItemJnlLine, ItemJnlLine."Quantity (Base)", 0, true);
+          ItemJnlLine, ItemJnlLine."Quantity (Base)", "Transfer Direction"::Outbound, true);
 
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
@@ -378,7 +378,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
         if TempHandlingSpecification.Find('-') then begin
             repeat
                 ReserveTransLine.TransferTransferToTransfer(
-                  FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", 1, TempHandlingSpecification);
+                  FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", "Transfer Direction"::Inbound, TempHandlingSpecification);
                 TransferQty += TempHandlingSpecification."Quantity (Base)";
             until TempHandlingSpecification.Next = 0;
             TempHandlingSpecification.DeleteAll();
@@ -386,7 +386,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
 
         if TransferQty > 0 then
             ReserveTransLine.TransferTransferToTransfer(
-              FromTransLine, ToTransLine, TransferQty, 1, DummySpecification);
+              FromTransLine, ToTransLine, TransferQty, "Transfer Direction"::Inbound, DummySpecification);
     end;
 
     local procedure GetLocation(LocationCode: Code[10])

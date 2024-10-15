@@ -86,11 +86,9 @@ table 5621 "FA Journal Line"
         {
             Caption = 'Posting Date';
         }
-        field(9; "Document Type"; Option)
+        field(9; "Document Type"; Enum "FA Journal Line Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,,Invoice,Credit Memo';
-            OptionMembers = " ",,Invoice,"Credit Memo";
         }
         field(10; "Document Date"; Date)
         {
@@ -329,7 +327,7 @@ table 5621 "FA Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -345,7 +343,7 @@ table 5621 "FA Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(12400; "Location Code"; Code[10])
@@ -549,7 +547,7 @@ table 5621 "FA Journal Line"
                 else
                     OnConvertToLedgEntryCase(FALedgEntry, FAJnlLine);
             end;
-            exit("FA Posting Type");
+            exit("FA Posting Type".AsInteger());
         end;
     end;
 

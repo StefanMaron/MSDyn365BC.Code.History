@@ -628,7 +628,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         // UT: Check TransferVendLedgEntry/TransferCustLedgerEntry functionality
         CreateVendLedgerEntry(
-          VendLedgEntry, LibraryRandom.RandInt(6), LibraryUtility.GenerateGUID, GetNextTransactionNo);
+          VendLedgEntry, "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(6)), LibraryUtility.GenerateGUID, GetNextTransactionNo);
         with VendLedgEntry do begin
             "Posting Date" := WorkDate;
             Description := LibraryUtility.GenerateGUID;
@@ -638,7 +638,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         CheckCVLedgEntryVendor(VendLedgEntry, CVLedgerEntryBuffer);
 
         CreateCustLedgerEntry(
-          CustLedgEntry, LibraryRandom.RandInt(6), LibraryUtility.GenerateGUID, GetNextTransactionNo);
+          CustLedgEntry, "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(6)), LibraryUtility.GenerateGUID, GetNextTransactionNo);
         with CustLedgEntry do begin
             "Posting Date" := WorkDate;
             Description := LibraryUtility.GenerateGUID;
@@ -1410,22 +1410,16 @@ codeunit 147126 "ERM Manual VAT Settlement"
         end;
     end;
 
-    local procedure AddPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure AddPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, Type,
-          No,
-          Quantity);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(50, 100, 2));
         PurchaseLine.Modify(true);
     end;
 
-    local procedure AddSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure AddSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, Type,
-          No,
-          Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
 
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(50, 100, 2));
         SalesLine.Modify(true);
@@ -1494,7 +1488,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreatePurchInv(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; Type: Option; Items: array[2] of Code[20]; NoOfLines: Integer; NoOfItems: Integer)
+    local procedure CreatePurchInv(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; Type: Enum "Purchase Line Type"; Items: array[2] of Code[20]; NoOfLines: Integer; NoOfItems: Integer)
     var
         PurchaseLine: Record "Purchase Line";
         Counter: Integer;
@@ -1508,16 +1502,14 @@ codeunit 147126 "ERM Manual VAT Settlement"
     end;
 
     local procedure CreatePurchCrM(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; PurchaseInvoiceNo: Code[20])
-    var
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", PurchaseInvoiceNo, true, false);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PurchaseInvoiceNo, true, false);
     end;
 
-    local procedure CreateSalesInv(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; Type: Option; Items: array[2] of Code[20]; NoOfLines: Integer; NoOfItems: Integer)
+    local procedure CreateSalesInv(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; Type: Enum "Sales Line Type"; Items: array[2] of Code[20]; NoOfLines: Integer; NoOfItems: Integer)
     var
         SalesLine: Record "Sales Line";
         Counter: Integer;
@@ -1531,11 +1523,9 @@ codeunit 147126 "ERM Manual VAT Settlement"
     end;
 
     local procedure CreateSalesCrM(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; SalesInvoiceNo: Code[20])
-    var
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", SalesInvoiceNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, true, false);
     end;
 
     local procedure CreateReleaseSalesInvoiceWithCurrency(var SalesHeader: Record "Sales Header"; PostingDate: Date; CurrencyCode: Code[10]; VATPostingSetup: Record "VAT Posting Setup"): Decimal
@@ -1652,7 +1642,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePostPrepaymentWithCurrency(PostingDate: Date; CurrencyCode: Code[10]; AccountType: Option; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
+    local procedure CreatePostPrepaymentWithCurrency(PostingDate: Date; CurrencyCode: Code[10]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; EntryAmount: Decimal; PrepmtDocNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1747,7 +1737,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         CreatePurchDocLine(PurchHeader, PurchLine.Type::"Charge (Item)", ItemNo, Qty, UnitCost, LineAmt);
     end;
 
-    local procedure FindLastItemChargePurchLine(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindLastItemChargePurchLine(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         with PurchLine do begin
             SetRange("Document Type", "Document Type"::Invoice);
@@ -1758,7 +1748,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         end;
     end;
 
-    local procedure CreatePurchDocLine(PurchHeader: Record "Purchase Header"; ItemType: Option; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; LineAmt: Decimal)
+    local procedure CreatePurchDocLine(PurchHeader: Record "Purchase Header"; ItemType: Enum "Purchase Line Type"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; LineAmt: Decimal)
     var
         PurchLine: Record "Purchase Line";
     begin
@@ -1777,7 +1767,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         CreateSalesDocLine(SalesHeader, SalesLine.Type::"Charge (Item)", ItemNo, Qty, UnitPrice, LineAmt);
     end;
 
-    local procedure CreateSalesDocLine(SalesHeader: Record "Sales Header"; ItemType: Option; ItemNo: Code[20]; Qty: Decimal; UnitPrice: Decimal; LineAmt: Decimal)
+    local procedure CreateSalesDocLine(SalesHeader: Record "Sales Header"; ItemType: Enum "Sales Line Type"; ItemNo: Code[20]; Qty: Decimal; UnitPrice: Decimal; LineAmt: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1789,7 +1779,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         end;
     end;
 
-    local procedure GetLastItemChargeSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure GetLastItemChargeSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         with SalesLine do begin
             SetRange("Document Type", "Document Type"::Invoice);
@@ -1926,7 +1916,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateVendorAndPostInvoice(VATPostingSetup: Record "VAT Posting Setup"; Type: Option; Items: array[2] of Code[20]; NoOfLines: Integer; NoOfItems: Integer): Code[20]
+    local procedure CreateVendorAndPostInvoice(VATPostingSetup: Record "VAT Posting Setup"; Type: Enum "Purchase Line Type"; Items: array[2] of Code[20]; NoOfLines: Integer; NoOfItems: Integer): Code[20]
     var
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
@@ -1936,7 +1926,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateVendorAndPostInvoiceWithGLAcc(VATBusinessPostingGroup: Code[20]; Type: Option; Items: array[2] of Code[20]; NoOfLines: Integer; NoOfItems: Integer): Code[20]
+    local procedure CreateVendorAndPostInvoiceWithGLAcc(VATBusinessPostingGroup: Code[20]; Type: Enum "Purchase Line Type"; Items: array[2] of Code[20]; NoOfLines: Integer; NoOfItems: Integer): Code[20]
     var
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
@@ -2027,7 +2017,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         end;
     end;
 
-    local procedure CreateVendLedgerEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; TransactionNo: Integer)
+    local procedure CreateVendLedgerEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TransactionNo: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -2042,7 +2032,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         end;
     end;
 
-    local procedure CreateCustLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; TransactionNo: Integer)
+    local procedure CreateCustLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TransactionNo: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -2096,7 +2086,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         end;
     end;
 
-    local procedure CheckCVLedgEntry(CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; PostingDate: Date; EntryNo: Integer; CVNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; CVLEDescription: Text[100])
+    local procedure CheckCVLedgEntry(CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; PostingDate: Date; EntryNo: Integer; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CVLEDescription: Text[100])
     begin
         with CVLedgerEntryBuffer do begin
             TestField("Posting Date", PostingDate);
@@ -2126,7 +2116,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
           CustLedgEntry."Document No.", CustLedgEntry.Description);
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; GenJnlLine: Record "Gen. Journal Line"; VATEntryType: Option; UnrealizedVATEntryNo: Integer)
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; GenJnlLine: Record "Gen. Journal Line"; VATEntryType: Enum "General Posting Type"; UnrealizedVATEntryNo: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -2135,7 +2125,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
             RecRef.GetTable(VATEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Transaction No." := GetNextTransactionNo;
-            "Object Type" := GenJnlLine."Object Type";
+            "Object Type" := "Gen. Journal Account Type".FromInteger(GenJnlLine."Object Type");
             "Object No." := GenJnlLine."Object No.";
             "Unrealized VAT Entry No." := LibraryRandom.RandInt(100);
             "Posting Date" := WorkDate;
@@ -2176,7 +2166,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
     end;
 
-    local procedure FindVATSettlementVATEntry(GenJnlLine: Record "Gen. Journal Line"; PrepmtDiff: Boolean; EntryType: Option): Integer
+    local procedure FindVATSettlementVATEntry(GenJnlLine: Record "Gen. Journal Line"; PrepmtDiff: Boolean; EntryType: Enum "General Posting Type"): Integer
     var
         VATEntry: Record "VAT Entry";
     begin

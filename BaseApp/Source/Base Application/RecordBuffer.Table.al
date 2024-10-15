@@ -47,7 +47,7 @@ table 6529 "Record Buffer"
         }
         field(9; "Primary Key Field 1 Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 1 No.")));
             Caption = 'Primary Key Field 1 Name';
             FieldClass = FlowField;
@@ -65,7 +65,7 @@ table 6529 "Record Buffer"
         }
         field(12; "Primary Key Field 2 Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 2 No.")));
             Caption = 'Primary Key Field 2 Name';
             FieldClass = FlowField;
@@ -83,7 +83,7 @@ table 6529 "Record Buffer"
         }
         field(15; "Primary Key Field 3 Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 3 No.")));
             Caption = 'Primary Key Field 3 Name';
             FieldClass = FlowField;
@@ -105,7 +105,7 @@ table 6529 "Record Buffer"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(21; "Lot No."; Code[50])
@@ -115,7 +115,7 @@ table 6529 "Record Buffer"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(22; "Item No."; Code[20])
@@ -137,7 +137,7 @@ table 6529 "Record Buffer"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 2, "CD No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"CD No.", "CD No.");
             end;
         }
     }
@@ -162,5 +162,6 @@ table 6529 "Record Buffer"
 
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingType: Enum "Item Tracking Type";
 }
 

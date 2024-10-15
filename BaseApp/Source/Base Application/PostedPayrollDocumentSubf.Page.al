@@ -184,7 +184,7 @@ page 17418 "Posted Payroll Document Subf."
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

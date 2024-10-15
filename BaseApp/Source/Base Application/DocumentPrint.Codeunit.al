@@ -35,15 +35,18 @@ codeunit 229 "Document-Print"
     local procedure DoPrintSalesHeaderToDocumentAttachment(SalesHeader: Record "Sales Header"; ShowNotificationAction: Boolean);
     var
         ReportSelections: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
     begin
+        ReportUsage := GetSalesDocTypeUsage(SalesHeader);
+
         SalesHeader.SetRecFilter();
         CalcSalesDisc(SalesHeader);
-        ReportSelections.SaveAsDocumentAttachment(GetSalesDocTypeUsage(SalesHeader), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+        ReportSelections.SaveAsDocumentAttachment(ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
     end;
 
     procedure PrintSalesInvoiceToDocumentAttachment(var SalesHeader: Record "Sales Header"; SalesInvoicePrintToAttachmentOption: Integer)
     begin
-        case SalesInvoicePrintToAttachmentOption of
+        case "Sales Invoice Print Option".FromInteger(SalesInvoicePrintToAttachmentOption) of
             "Sales Invoice Print Option"::"Draft Invoice":
                 PrintSalesHeaderToDocumentAttachment(SalesHeader);
             "Sales Invoice Print Option"::"Pro Forma Invoice":
@@ -72,7 +75,7 @@ codeunit 229 "Document-Print"
     var
         Usage: Option "Order Confirmation","Work Order","Pick Instruction";
     begin
-        case SalesOrderPrintToAttachmentOption of
+        case "Sales Order Print Option".FromInteger(SalesOrderPrintToAttachmentOption) of
             "Sales Order Print Option"::"Order Confirmation":
                 PrintSalesOrderToAttachment(SalesHeader, Usage::"Order Confirmation");
             "Sales Order Print Option"::"Pro Forma Invoice":
@@ -115,7 +118,8 @@ codeunit 229 "Document-Print"
     begin
         SalesHeader.SetRecFilter();
         CalcSalesDisc(SalesHeader);
-        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"Pro Forma S. Invoice", SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"Pro Forma S. Invoice".AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
     end;
 
     procedure PrintSalesOrderToAttachment(var SalesHeader: Record "Sales Header"; Usage: Option "Order Confirmation","Work Order","Pick Instruction")
@@ -132,33 +136,40 @@ codeunit 229 "Document-Print"
     local procedure DoPrintSalesOrderToAttachment(SalesHeader: Record "Sales Header"; Usage: Option "Order Confirmation","Work Order","Pick Instruction"; ShowNotificationAction: Boolean)
     var
         ReportSelections: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
     begin
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
             exit;
 
+        ReportUsage := GetSalesOrderUsage(Usage);
+
         SalesHeader.SetRange("No.", SalesHeader."No.");
         CalcSalesDisc(SalesHeader);
 
-        ReportSelections.SaveAsDocumentAttachment(GetSalesOrderUsage(Usage), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
     end;
 
     local procedure DoPrintSalesHeader(SalesHeader: Record "Sales Header"; SendAsEmail: Boolean)
     var
         ReportSelections: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
+        ReportUsage := GetSalesDocTypeUsage(SalesHeader);
+
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeader.SetRange("No.", SalesHeader."No.");
         CalcSalesDisc(SalesHeader);
-        OnBeforeDoPrintSalesHeader(SalesHeader, GetSalesDocTypeUsage(SalesHeader), SendAsEmail, IsPrinted);
+        OnBeforeDoPrintSalesHeader(SalesHeader, ReportUsage.AsInteger(), SendAsEmail, IsPrinted);
         if IsPrinted then
             exit;
 
         if SendAsEmail then
             ReportSelections.SendEmailToCust(
-              GetSalesDocTypeUsage(SalesHeader), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt, true, SalesHeader.GetBillToNo)
+                ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt, true, SalesHeader.GetBillToNo)
         else
-            ReportSelections.Print(GetSalesDocTypeUsage(SalesHeader), SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
+            ReportSelections.PrintForCust(ReportUsage, SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
 
     [Scope('OnPrem')]
@@ -178,11 +189,11 @@ codeunit 229 "Document-Print"
             Commit();
             if SendAsEmail then
                 ReportSelections.SendEmailToCust(
-                  GetSalesInvoiceDocTypeUsage(SalesInvHeader), SalesInvHeader, "No.",
+                  GetSalesInvoiceDocTypeUsage(SalesInvHeader).AsInteger(), SalesInvHeader, "No.",
                   ReportDistributionMgt.GetFullDocumentTypeText(SalesInvHeader), ShowRequestForm, "Bill-to Customer No.")
             else
                 ReportSelections.PrintWithDocPrintOption(
-                  GetSalesInvoiceDocTypeUsage(SalesInvHeader), SalesInvHeader, FieldNo("Bill-to Customer No."),
+                  GetSalesInvoiceDocTypeUsage(SalesInvHeader).AsInteger(), SalesInvHeader, FieldNo("Bill-to Customer No."),
                   ShowRequestForm, DATABASE::Customer, DocPrintBuffer);
         end;
     end;
@@ -190,17 +201,19 @@ codeunit 229 "Document-Print"
     procedure PrintPurchHeader(PurchHeader: Record "Purchase Header")
     var
         ReportSelections: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
+        ReportUsage := GetPurchDocTypeUsage(PurchHeader);
+
         PurchHeader.SetRange("Document Type", PurchHeader."Document Type");
         PurchHeader.SetRange("No.", PurchHeader."No.");
         CalcPurchDisc(PurchHeader);
-        OnBeforeDoPrintPurchHeader(PurchHeader, GetPurchDocTypeUsage(PurchHeader), IsPrinted);
+        OnBeforeDoPrintPurchHeader(PurchHeader, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelections.PrintWithGUIYesNoWithCheckVendor(
-          GetPurchDocTypeUsage(PurchHeader), PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
+        ReportSelections.PrintWithDialogForVend(ReportUsage, PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure PrintPurchaseHeaderToDocumentAttachment(var PurchaseHeader: Record "Purchase Header");
@@ -217,10 +230,13 @@ codeunit 229 "Document-Print"
     local procedure DoPrintPurchaseHeaderToDocumentAttachment(PurchaseHeader: Record "Purchase Header"; ShowNotificationAction: Boolean)
     var
         ReportSelections: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
     begin
+        ReportUsage := GetPurchDocTypeUsage(PurchaseHeader);
+
         PurchaseHeader.SetRecFilter();
         CalcPurchDisc(PurchaseHeader);
-        ReportSelections.SaveAsDocumentAttachment(GetPurchDocTypeUsage(PurchaseHeader), PurchaseHeader, PurchaseHeader."No.", PurchaseHeader."Pay-to Vendor No.", ShowNotificationAction);
+        ReportSelections.SaveAsDocumentAttachment(ReportUsage.AsInteger(), PurchaseHeader, PurchaseHeader."No.", PurchaseHeader."Pay-to Vendor No.", ShowNotificationAction);
     end;
 
     procedure PrintBankAccStmt(BankAccStmt: Record "Bank Account Statement")
@@ -233,7 +249,7 @@ codeunit 229 "Document-Print"
         if IsPrinted then
             exit;
 
-        ReportSelections.Print(ReportSelections.Usage::"B.Stmt", BankAccStmt, 0);
+        ReportSelections.PrintReport(ReportSelections.Usage::"B.Stmt", BankAccStmt);
     end;
 
     procedure PrintCheck(var NewGenJnlLine: Record "Gen. Journal Line")
@@ -248,7 +264,7 @@ codeunit 229 "Document-Print"
         if IsPrinted then
             exit;
 
-        ReportSelections.Print(ReportSelections.Usage::"B.Check", GenJnlLine, 0);
+        ReportSelections.PrintReport(ReportSelections.Usage::"B.Check", GenJnlLine);
     end;
 
     procedure PrintTransferHeader(TransHeader: Record "Transfer Header")
@@ -261,58 +277,67 @@ codeunit 229 "Document-Print"
         if IsPrinted then
             exit;
 
-        ReportSelections.Print(ReportSelections.Usage::Inv1, TransHeader, 0);
+        ReportSelections.PrintReport(ReportSelections.Usage::Inv1, TransHeader);
     end;
 
     procedure PrintServiceContract(ServiceContract: Record "Service Contract Header")
     var
         ReportSelection: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
+        ReportUsage := GetServContractTypeUsage(ServiceContract);
+
         ServiceContract.SetRange("Contract No.", ServiceContract."Contract No.");
-        OnBeforePrintServiceContract(ServiceContract, GetServContractTypeUsage(ServiceContract), IsPrinted);
+        OnBeforePrintServiceContract(ServiceContract, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelection.FilterPrintUsage(GetServContractTypeUsage(ServiceContract));
+        ReportSelection.Reset();
+        ReportSelection.SetRange(Usage, ReportUsage);
         if ReportSelection.IsEmpty then
             Error(Text001, ReportSelection.TableCaption, Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
 
-        ReportSelection.Print(
-          GetServContractTypeUsage(ServiceContract), ServiceContract, ServiceContract.FieldNo("Bill-to Customer No."));
+        ReportSelection.PrintForCust(ReportUsage, ServiceContract, ServiceContract.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintServiceHeader(ServiceHeader: Record "Service Header")
     var
         ReportSelection: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
+        ReportUsage := GetServHeaderDocTypeUsage(ServiceHeader);
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
         CalcServDisc(ServiceHeader);
-        OnBeforePrintServiceHeader(ServiceHeader, GetServHeaderDocTypeUsage(ServiceHeader), IsPrinted);
+        OnBeforePrintServiceHeader(ServiceHeader, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelection.FilterPrintUsage(GetServHeaderDocTypeUsage(ServiceHeader));
+        ReportSelection.Reset();
+        ReportSelection.SetRange(Usage, ReportUsage);
         if ReportSelection.IsEmpty then
             Error(Text002, ReportSelection.FieldCaption("Report ID"), ServiceHeader.TableCaption, ReportSelection.TableCaption);
 
-        ReportSelection.Print(GetServHeaderDocTypeUsage(ServiceHeader), ServiceHeader, ServiceHeader.FieldNo("Customer No."));
+        ReportSelection.PrintForCust(ReportUsage, ServiceHeader, ServiceHeader.FieldNo("Customer No."));
     end;
 
     procedure PrintAsmHeader(AsmHeader: Record "Assembly Header")
     var
         ReportSelections: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
+        ReportUsage := GetAsmHeaderDocTypeUsage(AsmHeader);
+
         AsmHeader.SetRange("Document Type", AsmHeader."Document Type");
         AsmHeader.SetRange("No.", AsmHeader."No.");
-        OnBeforePrintAsmHeader(AsmHeader, GetAsmHeaderDocTypeUsage(AsmHeader), IsPrinted);
+        OnBeforePrintAsmHeader(AsmHeader, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelections.Print(GetAsmHeaderDocTypeUsage(AsmHeader), AsmHeader, 0);
+        ReportSelections.PrintReport(ReportUsage, AsmHeader);
     end;
 
     [Scope('OnPrem')]
@@ -324,53 +349,64 @@ codeunit 229 "Document-Print"
         GenJnlLine.Copy(NewGenJnlLine);
         GenJnlLine.TestField(Amount);
         if NewGenJnlLine."Credit Amount" <> 0 then
-            ReportSelection.Print(ReportSelection.Usage::UCI, GenJnlLine, 0)
+            ReportSelection.PrintReport(ReportSelection.Usage::UCI, GenJnlLine)
         else
-            ReportSelection.Print(ReportSelection.Usage::UCO, GenJnlLine, 0);
+            ReportSelection.PrintReport(ReportSelection.Usage::UCO, GenJnlLine);
     end;
 
     procedure PrintSalesOrder(SalesHeader: Record "Sales Header"; Usage: Option "Order Confirmation","Work Order","Pick Instruction")
     var
         ReportSelection: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
             exit;
 
+        ReportUsage := GetSalesOrderUsage(Usage);
+
         SalesHeader.SetRange("No.", SalesHeader."No.");
         CalcSalesDisc(SalesHeader);
-        OnBeforePrintSalesOrder(SalesHeader, GetSalesOrderUsage(Usage), IsPrinted);
+        OnBeforePrintSalesOrder(SalesHeader, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelection.PrintWithGUIYesNo(GetSalesOrderUsage(Usage), SalesHeader, GuiAllowed, SalesHeader.FieldNo("Bill-to Customer No."));
+        ReportSelection.PrintWithDialogForCust(
+            ReportUsage, SalesHeader, GuiAllowed, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintSalesHeaderArch(SalesHeaderArch: Record "Sales Header Archive")
     var
         ReportSelection: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
-        SalesHeaderArch.SetRecFilter;
-        OnBeforePrintSalesHeaderArch(SalesHeaderArch, GetSalesArchDocTypeUsage(SalesHeaderArch), IsPrinted);
+        ReportUsage := GetSalesArchDocTypeUsage(SalesHeaderArch);
+
+        SalesHeaderArch.SetRecFilter();
+        OnBeforePrintSalesHeaderArch(SalesHeaderArch, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelection.Print(GetSalesArchDocTypeUsage(SalesHeaderArch), SalesHeaderArch, SalesHeaderArch.FieldNo("Bill-to Customer No."));
+        ReportSelection.PrintForCust(
+            ReportUsage, SalesHeaderArch, SalesHeaderArch.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintPurchHeaderArch(PurchHeaderArch: Record "Purchase Header Archive")
     var
         ReportSelection: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
-        PurchHeaderArch.SetRecFilter;
-        OnBeforePrintPurchHeaderArch(PurchHeaderArch, GetPurchArchDocTypeUsage(PurchHeaderArch), IsPrinted);
+        ReportUsage := GetPurchArchDocTypeUsage(PurchHeaderArch);
+
+        PurchHeaderArch.SetRecFilter();
+        OnBeforePrintPurchHeaderArch(PurchHeaderArch, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelection.PrintWithGUIYesNoVendor(
-          GetPurchArchDocTypeUsage(PurchHeaderArch), PurchHeaderArch, true, PurchHeaderArch.FieldNo("Buy-from Vendor No."));
+        ReportSelection.PrintWithDialogForVend(
+            ReportUsage, PurchHeaderArch, true, PurchHeaderArch.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure PrintProformaSalesInvoice(SalesHeader: Record "Sales Header")
@@ -379,11 +415,12 @@ codeunit 229 "Document-Print"
         IsPrinted: Boolean;
     begin
         SalesHeader.SetRecFilter;
-        OnBeforePrintProformaSalesInvoice(SalesHeader, ReportSelections.Usage::"Pro Forma S. Invoice", IsPrinted);
+        OnBeforePrintProformaSalesInvoice(SalesHeader, ReportSelections.Usage::"Pro Forma S. Invoice".AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelections.Print(ReportSelections.Usage::"Pro Forma S. Invoice", SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
+        ReportSelections.PrintForCust(
+            ReportSelections.Usage::"Pro Forma S. Invoice", SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintInvtOrderTest(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; ShowRequestForm: Boolean)
@@ -461,7 +498,7 @@ codeunit 229 "Document-Print"
     begin
         PurchHeader.Copy(NewPurchHeader);
         PurchHeader.SetRecFilter;
-        ReportSelection.PrintWithGUIYesNoWithCheckVendor(
+        ReportSelection.PrintWithDialogWithCheckForVend(
           ReportSelection.Usage::UAS, PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
@@ -482,10 +519,10 @@ codeunit 229 "Document-Print"
             case "Document Type" of
                 "Document Type"::Shipment:
                     ReportSelection.PrintWithDocPrintOption(
-                      ReportSelection.Usage::UIS, ItemDocHeader, 0, true, DATABASE::Customer, DocPrintBuffer);
+                      ReportSelection.Usage::UIS.AsInteger(), ItemDocHeader, 0, true, DATABASE::Customer, DocPrintBuffer);
                 "Document Type"::Receipt:
                     ReportSelection.PrintWithDocPrintOption(
-                      ReportSelection.Usage::UIR, ItemDocHeader, 0, true, DATABASE::Customer, DocPrintBuffer);
+                      ReportSelection.Usage::UIR.AsInteger(), ItemDocHeader, 0, true, DATABASE::Customer, DocPrintBuffer);
             end;
         end;
     end;
@@ -505,7 +542,7 @@ codeunit 229 "Document-Print"
 
             Commit();
             ReportSelections.PrintWithDocPrintOption(
-              ReportSelections.Usage::IR, ItemRcptHeader, 0, ShowRequestForm, DATABASE::Customer, DocPrintBuffer);
+              ReportSelections.Usage::IR.AsInteger(), ItemRcptHeader, 0, ShowRequestForm, DATABASE::Customer, DocPrintBuffer);
         end;
     end;
 
@@ -520,9 +557,9 @@ codeunit 229 "Document-Print"
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
             if Reclass then
-                ReportSelection.Print(ReportSelection.Usage::IRJ, ItemJnlLine, 0)
+                ReportSelection.PrintReport(ReportSelection.Usage::IRJ, ItemJnlLine)
             else
-                ReportSelection.Print(ReportSelection.Usage::PIJ, ItemJnlLine, 0);
+                ReportSelection.PrintReport(ReportSelection.Usage::PIJ, ItemJnlLine);
         end;
     end;
 
@@ -542,7 +579,7 @@ codeunit 229 "Document-Print"
 
             Commit();
             ReportSelection.PrintWithDocPrintOption(
-              ReportSelection.Usage::FAJ, FAJnlLine, 0, true, DATABASE::Customer, DocPrintBuffer);
+              ReportSelection.Usage::FAJ.AsInteger(), FAJnlLine, 0, true, DATABASE::Customer, DocPrintBuffer);
         end;
     end;
 
@@ -556,7 +593,7 @@ codeunit 229 "Document-Print"
             Copy(NewFAReclassJnlLine);
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            ReportSelection.Print(ReportSelection.Usage::FARJ, FAReclassJnlLine, 0);
+            ReportSelection.PrintReport(ReportSelection.Usage::FARJ, FAReclassJnlLine);
         end;
     end;
 
@@ -587,7 +624,7 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-    local procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header"): Integer
+    local procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         CopyOfSalesHeader: Record "Sales Header";
@@ -622,13 +659,13 @@ codeunit 229 "Document-Print"
                     IsHandled := false;
                     OnGetSalesDocTypeUsageElseCase(SalesHeader, TypeUsage, IsHandled);
                     if IsHandled then
-                        exit(TypeUsage);
+                        exit("Report Selection Usage".FromInteger(TypeUsage));
                     Error('');
                 end;
         end;
     end;
 
-    local procedure GetSalesInvoiceDocTypeUsage(SalesInvoiceHeader: Record "Sales Invoice Header"): Integer
+    local procedure GetSalesInvoiceDocTypeUsage(SalesInvoiceHeader: Record "Sales Invoice Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TempSalesHeader: Record "Sales Header" temporary;
@@ -640,7 +677,7 @@ codeunit 229 "Document-Print"
         exit(ReportSelections.Usage::"S.Invoice");
     end;
 
-    local procedure GetPurchDocTypeUsage(PurchHeader: Record "Purchase Header"): Integer
+    local procedure GetPurchDocTypeUsage(PurchHeader: Record "Purchase Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -663,13 +700,13 @@ codeunit 229 "Document-Print"
                     IsHandled := false;
                     OnGetPurchDocTypeUsageElseCase(PurchHeader, TypeUsage, IsHandled);
                     if IsHandled then
-                        exit(TypeUsage);
+                        exit("Report Selection Usage".FromInteger(TypeUsage));
                     Error('');
                 end;
         end;
     end;
 
-    local procedure GetServContractTypeUsage(ServiceContractHeader: Record "Service Contract Header"): Integer
+    local procedure GetServContractTypeUsage(ServiceContractHeader: Record "Service Contract Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -684,13 +721,13 @@ codeunit 229 "Document-Print"
                     IsHandled := false;
                     OnGetServContractTypeUsageElseCase(ServiceContractHeader, TypeUsage, IsHandled);
                     if IsHandled then
-                        exit(TypeUsage);
+                        exit("Report Selection Usage".FromInteger(TypeUsage));
                     Error('');
                 end;
         end;
     end;
 
-    local procedure GetServHeaderDocTypeUsage(ServiceHeader: Record "Service Header"): Integer
+    local procedure GetServHeaderDocTypeUsage(ServiceHeader: Record "Service Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -709,13 +746,13 @@ codeunit 229 "Document-Print"
                     IsHandled := false;
                     OnGetServHeaderDocTypeUsageElseCase(ServiceHeader, TypeUsage, IsHandled);
                     if IsHandled then
-                        exit(TypeUsage);
+                        exit("Report Selection Usage".FromInteger(TypeUsage));
                     Error('');
                 end;
         end;
     end;
 
-    local procedure GetAsmHeaderDocTypeUsage(AsmHeader: Record "Assembly Header"): Integer
+    local procedure GetAsmHeaderDocTypeUsage(AsmHeader: Record "Assembly Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -723,20 +760,20 @@ codeunit 229 "Document-Print"
     begin
         case AsmHeader."Document Type" of
             AsmHeader."Document Type"::Quote,
-          AsmHeader."Document Type"::"Blanket Order",
-          AsmHeader."Document Type"::Order:
+            AsmHeader."Document Type"::"Blanket Order",
+            AsmHeader."Document Type"::Order:
                 exit(ReportSelections.Usage::"Asm.Order");
             else begin
                     IsHandled := false;
                     OnGetAsmHeaderTypeUsageElseCase(AsmHeader, TypeUsage, IsHandled);
                     if IsHandled then
-                        exit(TypeUsage);
+                        exit("Report Selection Usage".FromInteger(TypeUsage));
                     Error('');
                 end;
         end;
     end;
 
-    local procedure GetSalesOrderUsage(Usage: Option "Order Confirmation","Work Order","Pick Instruction"): Integer
+    local procedure GetSalesOrderUsage(Usage: Option "Order Confirmation","Work Order","Pick Instruction"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -752,7 +789,7 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-    local procedure GetSalesArchDocTypeUsage(SalesHeaderArchive: Record "Sales Header Archive"): Integer
+    local procedure GetSalesArchDocTypeUsage(SalesHeaderArchive: Record "Sales Header Archive"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -771,13 +808,13 @@ codeunit 229 "Document-Print"
                     IsHandled := false;
                     OnGetSalesArchDocTypeUsageElseCase(SalesHeaderArchive, TypeUsage, IsHandled);
                     if IsHandled then
-                        exit(TypeUsage);
+                        exit("Report Selection Usage".FromInteger(TypeUsage));
                     Error('');
                 end;
         end
     end;
 
-    local procedure GetPurchArchDocTypeUsage(PurchHeaderArchive: Record "Purchase Header Archive"): Integer
+    local procedure GetPurchArchDocTypeUsage(PurchHeaderArchive: Record "Purchase Header Archive"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -796,7 +833,7 @@ codeunit 229 "Document-Print"
                     IsHandled := false;
                     OnGetPurchArchDocTypeUsageElseCase(PurchHeaderArchive, TypeUsage, IsHandled);
                     if IsHandled then
-                        exit(TypeUsage);
+                        exit("Report Selection Usage".FromInteger(TypeUsage));
                     Error('');
                 end;
         end;

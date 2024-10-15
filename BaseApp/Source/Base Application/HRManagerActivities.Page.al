@@ -149,7 +149,7 @@ page 35652 "HR Manager Activities"
                     action("N&avigate")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'N&avigate';
+                        Caption = 'Find entries...';
                         RunObject = Page Navigate;
                         ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
                     }

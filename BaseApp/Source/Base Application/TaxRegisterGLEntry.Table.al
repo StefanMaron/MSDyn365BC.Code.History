@@ -357,7 +357,7 @@ table 17209 "Tax Register G/L Entry"
         else
             "Debit Amount" := GLCorrespondenceEntry.Amount;
         "Ledger Entry No." := GLCorrespondenceEntry."Debit Entry No.";
-        "Document Type" := GLCorrespondenceEntry."Document Type";
+        "Document Type" := GLCorrespondenceEntry."Document Type".AsInteger();
         "Document No." := GLCorrespondenceEntry."Document No.";
         GLEntry.Get(GLCorrespondenceEntry."Debit Entry No.");
         Description := GLEntry.Description;

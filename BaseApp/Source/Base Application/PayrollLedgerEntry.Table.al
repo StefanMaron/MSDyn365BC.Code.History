@@ -384,7 +384,7 @@ table 17418 "Payroll Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

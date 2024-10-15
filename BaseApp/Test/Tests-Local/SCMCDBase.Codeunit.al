@@ -43,7 +43,7 @@ codeunit 147100 "SCM CD Base"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryCDTracking.CreateItemUnitOfMeasure(Item."No.", UnitOfMeasure.Code, 20);
 
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", 10, Location.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, Location.Code);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[1], 6);
         LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[2], 4);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -132,7 +132,7 @@ codeunit 147100 "SCM CD Base"
         Initialize;
         LibraryCDTracking.InitScenario1Item2CD(Location, Item, CDNo);
         InitQty(TotalQty, Qty);
-        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
+        LibraryCDTracking.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
         for i := 1 to ArrayLen(Qty) do
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[i], Qty[i]);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -177,7 +177,7 @@ codeunit 147100 "SCM CD Base"
         LibraryCDTracking.InitScenario1Item2CD(Location, Item, CDNo);
         InitQty(TotalQty, Qty);
         LibraryCDTracking.CreateItemJnlLine(
-          ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
+          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
         for i := 1 to ArrayLen(Qty) do
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[i], Qty[i]);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -186,7 +186,7 @@ codeunit 147100 "SCM CD Base"
         LibraryCDTracking.CreateSalesOrder(SalesHeader, Customer."No.", Location.Code);
         LibraryCDTracking.CreateSalesLineItem(
           SalesLine, SalesHeader, Item."No.", LibraryRandom.RandDec(100, 2), TotalQty);
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
         LibraryCDTracking.CreateSalesTrkgFromRes(SalesHeader, true);
 
         for i := 1 to ArrayLen(Qty) do
@@ -222,7 +222,7 @@ codeunit 147100 "SCM CD Base"
         LibraryCDTracking.InitScenario1Item2CD(Location, Item, CDNo);
         InitQty(TotalQty, Qty);
         LibraryCDTracking.CreateItemJnlLine(
-          ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
+          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
 
         for i := 1 to ArrayLen(Qty) do
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[i], Qty[i]);
@@ -291,7 +291,7 @@ codeunit 147100 "SCM CD Base"
         end;
 
         LibraryCDTracking.CreateItemJnlLine(
-          ItemJnlLine, EntryType::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, LocationFrom.Code);
+          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, LocationFrom.Code);
         for i := 1 to ArrayLen(Qty) do
             LibraryCDTracking.CreateItemJnlLineTracking(ReservationEntry, ItemJnlLine, '', '', CDNo[i], Qty[i]);
         LibraryCDTracking.PostItemJnlLine(ItemJnlLine);
@@ -791,7 +791,7 @@ codeunit 147100 "SCM CD Base"
         VerifyAppliedCustLedgEntry(DocumentNo, CustLedgerEntry."Document Type"::Invoice);
     end;
 
-    local procedure VerifyAppliedCustLedgEntry(DocumentNo: Code[20]; DocType: Option)
+    local procedure VerifyAppliedCustLedgEntry(DocumentNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

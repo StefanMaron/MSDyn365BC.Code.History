@@ -203,6 +203,8 @@ page 6500 "Item Tracking Summary"
         MaxQuantity: Decimal;
         SelectedQuantity: Decimal;
         CurrBinCode: Code[20];
+
+    protected var
         [InDataSet]
         SelectedQuantityVisible: Boolean;
         [InDataSet]
@@ -327,7 +329,7 @@ page 6500 "Item Tracking Summary"
             until Next = 0;
     end;
 
-    local procedure DrillDownEntries(FieldNumber: Integer)
+    protected procedure DrillDownEntries(FieldNumber: Integer)
     var
         TempReservEntry2: Record "Reservation Entry" temporary;
     begin

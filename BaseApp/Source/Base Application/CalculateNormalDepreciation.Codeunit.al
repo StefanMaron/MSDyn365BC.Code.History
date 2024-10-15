@@ -533,7 +533,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                   DeprBook."Periodic Depr. Date Calc.");
             end;
 
-            DeprMethod := "Depreciation Method";
+            DeprMethod := "Depreciation Method".AsInteger();
             if DateFromProjection = 0D then begin
                 if ("Depreciation Method" = "Depreciation Method"::"SL-RU") or
                    ("Depreciation Method" = "Depreciation Method"::"DB/SL-RU")

@@ -98,6 +98,7 @@ codeunit 6113 "Item Data Migration Facade"
         GlobalItem.Modify(RunTrigger);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure CreateSalesLineDiscountIfNeeded(SalesTypeToSet: Option Customer,"Customer Disc. Group","All Customers",Campaign; SalesCodeToSet: Code[10]; TypeToSet: Option Item,"Item Disc. Group"; CodeToSet: Code[20]; LineDiscountPercentToSet: Decimal): Boolean
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -355,7 +356,7 @@ codeunit 6113 "Item Data Migration Facade"
     begin
         CreateReservEntry.CreateReservEntryFor(
           DATABASE::"Item Journal Line",
-          ItemJournalLine."Entry Type",
+          ItemJournalLine."Entry Type".AsInteger(),
           ItemJournalLine."Journal Template Name",
           ItemJournalLine."Journal Batch Name",
           0,

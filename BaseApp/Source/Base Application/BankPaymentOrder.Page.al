@@ -79,7 +79,7 @@ page 12422 "Bank Payment Order"
 
                         trigger OnValidate()
                         begin
-                            AccountNoOnAfterValidate;
+                            AccountNoOnAfterValidate();
                         end;
                     }
                     field("Beneficiary Bank Code"; "Beneficiary Bank Code")
@@ -309,7 +309,7 @@ page 12422 "Bank Payment Order"
 
                         trigger OnValidate()
                         begin
-                            PayerVendorNoOnAfterValidate;
+                            PayerVendorNoOnAfterValidate();
                         end;
                     }
                     field("Payer Beneficiary Bank Code"; "Payer Beneficiary Bank Code")

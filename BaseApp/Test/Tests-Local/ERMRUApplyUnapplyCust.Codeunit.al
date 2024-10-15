@@ -183,7 +183,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
           CustLedgEntry."Document Type"::Payment, PaymentDocNo);
     end;
 
-    local procedure UnapplyCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

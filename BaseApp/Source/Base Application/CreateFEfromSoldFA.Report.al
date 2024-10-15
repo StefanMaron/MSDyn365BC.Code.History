@@ -165,7 +165,7 @@ report 17304 "Create FE from Sold FA"
 
                         trigger OnValidate()
                         begin
-                            FETemplateNoOnAfterValidate;
+                            FETemplateNoOnAfterValidate();
                         end;
                     }
                     field(NoSeriesCode; NoSeriesCode)

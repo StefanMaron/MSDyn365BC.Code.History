@@ -58,7 +58,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         // Torg-1 Report. Partially Posted Purch. Order.
         RunReceiptDeviationsTorg2Report(
-          CreatePartialPostPurchDoc(TotalQtys), '', WorkDate, '', DATABASE::"Purchase Header", PurchaseHeader."Document Type"::Order);
+          CreatePartialPostPurchDoc(TotalQtys), '', WorkDate, '', DATABASE::"Purchase Header", PurchaseHeader."Document Type"::Order.AsInteger());
         VerifyTorg2Totals(100, 95, TotalQtys);
     end;
 
@@ -724,7 +724,7 @@ codeunit 144102 "SCM Inventory reports"
         end;
     end;
 
-    local procedure EnqueueReportsNos(DocUsage: Option)
+    local procedure EnqueueReportsNos(DocUsage: Enum "Report Selection Usage")
     var
         ReportSelections: Record "Report Selections";
     begin

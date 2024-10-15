@@ -12,8 +12,6 @@ codeunit 135209 "Azure Key Vault Module Test"
         Assert: Codeunit Assert;
         MLForecastTok: Label 'ml-forecast';
         MachineLearningTok: Label 'machinelearning';
-        QBOConsumerKeyTok: Label 'qbo-consumerkey';
-        QBOConsumerSecretTok: Label 'qbo-consumersecret';
         AmcNameTok: Label 'amcname';
         AmcPasswordTok: Label 'amcpassword';
         YodleeCobrandNameTok: Label 'YodleeCobrandName';
@@ -93,8 +91,6 @@ codeunit 135209 "Azure Key Vault Module Test"
         MockAzureKeyvaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
         MLForecast: Text;
         MachineLearning: Text;
-        QBOConsumerKey: Text;
-        QBOConsumerSecret: Text;
         AmcName: Text;
         Amcpassword: Text;
         YodleeCobrandPassword: Text;
@@ -118,10 +114,6 @@ codeunit 135209 "Azure Key Vault Module Test"
         MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
           StrSubstNo('machinelearning-%1', TenantId), LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
         MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          QBOConsumerKeyTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          QBOConsumerSecretTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
           AmcNameTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
         MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
           AmcPasswordTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
@@ -136,16 +128,14 @@ codeunit 135209 "Azure Key Vault Module Test"
 
         // [WHEN] The secret names have been allowed in the list
         MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt,
-          StrSubstNo('%1,%2,%3,%4,%5,%6,%7,%8,%9', MLForecastTok, MachineLearningTok, QBOConsumerKeyTok,
-            QBOConsumerSecretTok, AmcNameTok, AmcPasswordTok, YodleeCobrandNameTok, YodleeCobrandPasswordTok,
+          StrSubstNo('%1,%2,%3,%4,%5,%6,%7', MLForecastTok, MachineLearningTok,
+            AmcNameTok, AmcPasswordTok, YodleeCobrandNameTok, YodleeCobrandPasswordTok,
             YodleeServiceUriTok));
 
         // [WHEN] The secrets are retrieved
         TimeSeriesManagement.GetMLForecastCredentials(APIURI, APIKey, LimitType, Limit);
         AzureKeyVault.GetAzureKeyVaultSecret(MLForecastTok, MLForecast);
         AzureKeyVault.GetAzureKeyVaultSecret(MachineLearningTok, MachineLearning);
-        AzureKeyVault.GetAzureKeyVaultSecret(QBOConsumerKeyTok, QBOConsumerKey);
-        AzureKeyVault.GetAzureKeyVaultSecret(QBOConsumerSecretTok, QBOConsumerSecret);
         AzureKeyVault.GetAzureKeyVaultSecret(AmcNameTok, AmcName);
         AzureKeyVault.GetAzureKeyVaultSecret(AmcPasswordTok, Amcpassword);
         AzureKeyVault.GetAzureKeyVaultSecret(YodleeCobrandNameTok, YodleeCobranName);
@@ -159,8 +149,6 @@ codeunit 135209 "Azure Key Vault Module Test"
         Assert.AreNotNearlyEqual(Limit, 0, 0.01, 'Timeout was 0');
         Assert.AreNotEqual(MLForecast, '', 'MLForecast was empty');
         Assert.AreNotEqual(MachineLearning, '', 'Machine learning was empty');
-        Assert.AreNotEqual(QBOConsumerKey, '', 'QBOConsumerKey was empty');
-        Assert.AreNotEqual(QBOConsumerSecret, '', 'QBOConsumerSecret was empty');
         Assert.AreNotEqual(AmcName, '', 'AmcName was empty');
         Assert.AreNotEqual(Amcpassword, '', 'Amcpassword was empty');
         Assert.AreNotEqual(YodleeCobranName, '', 'YodleeCobranName was empty');

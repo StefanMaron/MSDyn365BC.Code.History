@@ -294,7 +294,7 @@
 
         if SalesLineToCheck.FindSet then begin
             ReservationEntry."Source Type" := DATABASE::"Sales Line";
-            ReservationEntry."Source Subtype" := SalesHeader."Document Type";
+            ReservationEntry."Source Subtype" := SalesHeader."Document Type".AsInteger();
             SignFactor := CreateReservEntry.SignFactor(ReservationEntry);
             repeat
                 // Only Item where no SerialNo or LotNo is required

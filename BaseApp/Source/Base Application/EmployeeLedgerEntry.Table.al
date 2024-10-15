@@ -233,7 +233,7 @@ table 17413 "Employee Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

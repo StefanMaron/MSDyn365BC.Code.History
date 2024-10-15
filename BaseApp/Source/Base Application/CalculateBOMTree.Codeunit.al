@@ -514,6 +514,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         with BOMBuffer do begin
             CopyOfBOMBuffer.Copy(BOMBuffer);
+            SetRange("Inventoriable", true);
             if Find then
                 repeat
                     if Indentation = 0 then begin
@@ -528,6 +529,7 @@ codeunit 5870 "Calculate BOM Tree"
                         TraverseTree(BOMBuffer, AvailToUse::QtyAvail);
                     end;
                 until Next = 0;
+            SetRange("Inventoriable");
             Copy(CopyOfBOMBuffer);
         end;
     end;

@@ -38,7 +38,7 @@ page 14972 "Sales Corr. Invoice Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field(Description; Description)
@@ -165,7 +165,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -176,7 +176,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -187,7 +187,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -200,7 +200,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("FA Comments")

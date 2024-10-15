@@ -85,7 +85,7 @@ page 17283 "Tax Reg. Norm Term Formula"
 
                     trigger OnValidate()
                     begin
-                        AccountNoOnAfterValidate;
+                        AccountNoOnAfterValidate();
                     end;
                 }
                 field("Bal. Account No."; "Bal. Account No.")

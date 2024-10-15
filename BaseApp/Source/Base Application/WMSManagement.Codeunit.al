@@ -1,4 +1,4 @@
-codeunit 7302 "WMS Management"
+﻿codeunit 7302 "WMS Management"
 {
 
     trigger OnRun()
@@ -17,6 +17,7 @@ codeunit 7302 "WMS Management"
         TempErrorLog: Record "License Information" temporary;
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhseMgt: Codeunit "Whse. Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         ShowError: Boolean;
@@ -34,7 +35,6 @@ codeunit 7302 "WMS Management"
         Text015: Label 'You cannot use a %1 because %2 %3 is set up with %4.';
         Text016: Label '%1 = ''%2'', %3 = ''%4'', %5 = ''%6'', %7 = ''%8'': The total base quantity to take %9 must be equal to the total base quantity to place %10.';
         UserIsNotWhseEmployeeErr: Label 'You must first set up user %1 as a warehouse employee.';
-        Text12416: Label '%1 = ''%2'', %3 = ''%4'', %5 = ''%6'', %7 = ''%8'', %9 = ''%10'': The total base quantity to take %11 must be equal to the total base quantity to place %12.';
         UserIsNotWhseEmployeeAtWMSLocationErr: Label 'You must first set up user %1 as a warehouse employee at a location with the Bin Mandatory setting.', Comment = '%1: USERID';
         DefaultLocationNotDirectedPutawayPickErr: Label 'You must set up a location with the Directed Put-away and Pick setting and assign it to user %1.', Comment = '%1: USERID';
 
@@ -61,11 +61,11 @@ codeunit 7302 "WMS Management"
             SetZoneAndBins(ItemJnlLine, WhseJnlLine, ToTransfer);
             if ("Journal Template Name" <> '') and ("Journal Batch Name" <> '') then begin
                 WhseJnlLine.SetSource(DATABASE::"Item Journal Line", ItemJnlTemplateType, "Document No.", "Line No.", 0);
-                WhseJnlLine."Source Document" := WhseMgt.GetSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+                WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
             end else
                 if "Job No." <> '' then begin
                     WhseJnlLine.SetSource(DATABASE::"Job Journal Line", ItemJnlTemplateType, "Document No.", "Line No.", 0);
-                    WhseJnlLine."Source Document" := WhseMgt.GetSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+                    WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
                 end;
             WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::" ";
             if "Job No." = '' then
@@ -93,7 +93,7 @@ codeunit 7302 "WMS Management"
             InitWhseJnlLine(ItemJnlLine, WhseJnlLine, "Output Quantity (Base)");
             SetZoneAndBinsForOutput(ItemJnlLine, WhseJnlLine);
             WhseJnlLine.SetSource(DATABASE::"Item Journal Line", 5, "Order No.", "Order Line No.", 0); // Output Journal
-            WhseJnlLine."Source Document" := WhseMgt.GetSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+            WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
             WhseJnlLine.SetWhseDoc(WhseJnlLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
             WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
             WhseJnlLine."Reference No." := "Order No.";
@@ -115,7 +115,7 @@ codeunit 7302 "WMS Management"
             InitWhseJnlLine(ItemJnlLine, WhseJnlLine, "Quantity (Base)");
             SetZoneAndBinsForConsumption(ItemJnlLine, WhseJnlLine);
             WhseJnlLine.SetSource(DATABASE::"Item Journal Line", 4, "Order No.", "Order Line No.", "Prod. Order Comp. Line No."); // Consumption Journal
-            WhseJnlLine."Source Document" := WhseMgt.GetSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+            WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
             WhseJnlLine.SetWhseDoc(WhseJnlLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
             WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
             WhseJnlLine."Reference No." := "Order No.";
@@ -128,7 +128,6 @@ codeunit 7302 "WMS Management"
     var
         BinContent: Record "Bin Content";
         ItemTrackingCode: Record "Item Tracking Code";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         QtyAbsBase: Decimal;
     begin
         GetItem(WhseJnlLine."Item No.");
@@ -474,9 +473,7 @@ codeunit 7302 "WMS Management"
                ("Location Code" <> '')
             then begin
                 if "Source Subtype" in [0, 1, 2, 3] then
-                    if ("Lot No." <> xTrackingSpecification."Lot No.") or
-                       ("Serial No." <> xTrackingSpecification."Serial No.") or
-                       ("CD No." <> xTrackingSpecification."CD No.") or
+                    if not HasSameTracking(xTrackingSpecification) or
                        ((xTrackingSpecification."Expiration Date" <> 0D) and
                         ("Expiration Date" <> xTrackingSpecification."Expiration Date")) or
                        ("Quantity (Base)" <> xTrackingSpecification."Quantity (Base)")
@@ -484,9 +481,7 @@ codeunit 7302 "WMS Management"
                         GetLocation("Location Code");
                         if Location."Directed Put-away and Pick" then begin
                             GetItem("Item No.");
-                            if ItemTrackingCode."SN Warehouse Tracking" or ItemTrackingCode."Lot Warehouse Tracking" or
-                               ItemTrackingCode."CD Warehouse Tracking"
-                            then
+                            if ItemTrackingCode.IsWarehouseTracking() then
                                 Error(Text013,
                                   LowerCase(Item.TableCaption),
                                   LowerCase(Location.TableCaption), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
@@ -510,9 +505,7 @@ codeunit 7302 "WMS Management"
                         GetLocation("Location Code");
                         if Location."Directed Put-away and Pick" then begin
                             GetItem("Item No.");
-                            if ItemTrackingCode."SN Warehouse Tracking" or ItemTrackingCode."Lot Warehouse Tracking" or
-                               ItemTrackingCode."CD Warehouse Tracking"
-                            then
+                            if ItemTrackingCode.IsWarehouseTracking() then
                                 Error(Text014,
                                   LowerCase(Item.TableCaption),
                                   LowerCase(Location.TableCaption), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
@@ -697,73 +690,69 @@ codeunit 7302 "WMS Management"
         ErrorText: Text[250];
     begin
         WhseActivLine.Copy(WhseActivLine2);
-        with WhseActivLine do begin
-            SetCurrentKey("Activity Type", "No.", "Item No.", "Variant Code", "Action Type");
-            SetRange("Activity Type", "Activity Type");
-            SetRange("No.", "No.");
-            SetRange("Action Type");
-            if FindSet then
-                repeat
-                    if not TempWhseActivLine.Get("Activity Type", "No.", "Line No.") then begin
-                        WhseActivLine3.Copy(WhseActivLine);
 
-                        WhseActivLine3.SetRange("Item No.", "Item No.");
-                        WhseActivLine3.SetRange("Variant Code", "Variant Code");
-                        WhseActivLine3.SetTrackingFilterFromWhseActivityLine(WhseActivLine);
-                        OnCheckBalanceQtyToHandleOnAfterSetFilters(WhseActivLine3, WhseActivLine);
+        WhseActivLine.SetCurrentKey("Activity Type", "No.", "Item No.", "Variant Code", "Action Type");
+        WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type");
+        WhseActivLine.SetRange("No.", WhseActivLine."No.");
+        WhseActivLine.SetRange("Action Type");
+        if WhseActivLine.FindSet() then
+            repeat
+                if not TempWhseActivLine.Get(WhseActivLine."Activity Type", WhseActivLine."No.", WhseActivLine."Line No.") then begin
+                    WhseActivLine3.Copy(WhseActivLine);
 
-                        if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Take) or
-                           (WhseActivLine2.GetFilter("Action Type") = '')
-                        then begin
-                            WhseActivLine3.SetRange("Action Type", WhseActivLine3."Action Type"::Take);
-                            if WhseActivLine3.FindSet then
-                                repeat
-                                    QtyToPick := QtyToPick + WhseActivLine3."Qty. to Handle (Base)";
-                                    TempWhseActivLine := WhseActivLine3;
-                                    TempWhseActivLine.Insert();
-                                until WhseActivLine3.Next = 0;
-                        end;
+                    WhseActivLine3.SetRange("Item No.", WhseActivLine."Item No.");
+                    WhseActivLine3.SetRange("Variant Code", WhseActivLine."Variant Code");
+                    WhseActivLine3.SetTrackingFilterFromWhseActivityLine(WhseActivLine);
+                    OnCheckBalanceQtyToHandleOnAfterSetFilters(WhseActivLine3, WhseActivLine);
 
-                        if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Place) or
-                           (WhseActivLine2.GetFilter("Action Type") = '')
-                        then begin
-                            WhseActivLine3.SetRange("Action Type", WhseActivLine3."Action Type"::Place);
-                            if WhseActivLine3.FindSet then
-                                repeat
-                                    QtyToPutAway := QtyToPutAway + WhseActivLine3."Qty. to Handle (Base)";
-                                    TempWhseActivLine := WhseActivLine3;
-                                    TempWhseActivLine.Insert();
-                                until WhseActivLine3.Next = 0;
-                        end;
-
-                        if QtyToPick <> QtyToPutAway then begin
-                            if (WhseActivLine3.GetFilter("Serial No.") <> '') or
-                               (WhseActivLine3.GetFilter("Lot No.") <> '') or
-                               (WhseActivLine3.GetFilter("CD No.") <> '')
-                            then
-                                ErrorText :=
-                                  StrSubstNo(
-                                    Text12416,
-                                    FieldCaption("Item No."), "Item No.",
-                                    FieldCaption("Variant Code"), "Variant Code",
-                                    FieldCaption("Lot No."), "Lot No.",
-                                    FieldCaption("Serial No."), "Serial No.",
-                                    FieldCaption("CD No."), "CD No.",
-                                    QtyToPick, QtyToPutAway)
-                            else
-                                ErrorText :=
-                                  StrSubstNo(
-                                    Text005,
-                                    FieldCaption("Item No."), "Item No.", FieldCaption("Variant Code"),
-                                    "Variant Code", QtyToPick, QtyToPutAway);
-                            HandleError(ErrorText);
-                        end;
-
-                        QtyToPick := 0;
-                        QtyToPutAway := 0;
+                    if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Take) or
+                        (WhseActivLine2.GetFilter("Action Type") = '')
+                    then begin
+                        WhseActivLine3.SetRange("Action Type", WhseActivLine3."Action Type"::Take);
+                        if WhseActivLine3.FindSet() then
+                            repeat
+                                QtyToPick := QtyToPick + WhseActivLine3."Qty. to Handle (Base)";
+                                TempWhseActivLine := WhseActivLine3;
+                                TempWhseActivLine.Insert();
+                            until WhseActivLine3.Next() = 0;
                     end;
-                until Next = 0;
-        end;
+
+                    if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Place) or
+                        (WhseActivLine2.GetFilter("Action Type") = '')
+                    then begin
+                        WhseActivLine3.SetRange("Action Type", WhseActivLine3."Action Type"::Place);
+                        if WhseActivLine3.FindSet() then
+                            repeat
+                                QtyToPutAway := QtyToPutAway + WhseActivLine3."Qty. to Handle (Base)";
+                                TempWhseActivLine := WhseActivLine3;
+                                TempWhseActivLine.Insert();
+                            until WhseActivLine3.Next() = 0;
+                    end;
+
+                    if QtyToPick <> QtyToPutAway then begin
+                        if WhseActivLine3.TrackingFilterExists() then
+                            ErrorText :=
+                              StrSubstNo(
+                                Text016,
+                                WhseActivLine.FieldCaption("Item No."), WhseActivLine."Item No.",
+                                WhseActivLine.FieldCaption("Variant Code"), WhseActivLine."Variant Code",
+                                WhseActivLine.FieldCaption("Lot No."), WhseActivLine."Lot No.",
+                                WhseActivLine.FieldCaption("Serial No."), WhseActivLine."Serial No.",
+                                QtyToPick, QtyToPutAway)
+                        else
+                            ErrorText :=
+                                StrSubstNo(
+                                Text005,
+                                WhseActivLine.FieldCaption("Item No."), WhseActivLine."Item No.",
+                                WhseActivLine.FieldCaption("Variant Code"), WhseActivLine."Variant Code",
+                                QtyToPick, QtyToPutAway);
+                        HandleError(ErrorText);
+                    end;
+
+                    QtyToPick := 0;
+                    QtyToPutAway := 0;
+                end;
+            until WhseActivLine.Next() = 0;
     end;
 
     procedure CheckPutAwayAvailability(BinCode: Code[20]; CheckFieldCaption: Text[100]; CheckTableCaption: Text[100]; ValueToPutAway: Decimal; ValueAvailable: Decimal; Prohibit: Boolean)
@@ -986,7 +975,7 @@ codeunit 7302 "WMS Management"
             Clear(ItemTrackingCode);
     end;
 
-    local procedure GetProdOrderCompLine(var ProdOrderCompLine: Record "Prod. Order Component"; Status: Option; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ProdOrdCompLineNo: Integer): Boolean
+    local procedure GetProdOrderCompLine(var ProdOrderCompLine: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ProdOrdCompLineNo: Integer): Boolean
     begin
         if (ProdOrderNo = '') or
            (ProdOrderLineNo = 0) or
@@ -1172,7 +1161,13 @@ codeunit 7302 "WMS Management"
         end;
     end;
 
+    [Obsolete('Replaced by ShowPostedSourceDocument()', '17.0')]
     procedure ShowPostedSourceDoc(PostedSourceDoc: Option " ","Posted Receipt",,"Posted Return Receipt",,"Posted Shipment",,"Posted Return Shipment",,"Posted Transfer Receipt","Posted Transfer Shipment"; PostedSourceNo: Code[20])
+    begin
+        ShowPostedSourceDocument("Warehouse Shipment Posted Source Document".FromInteger(PostedSourceDoc), PostedSourceNo);
+    end;
+
+    procedure ShowPostedSourceDocument(PostedSourceDoc: Enum "Warehouse Shipment Posted Source Document"; PostedSourceNo: Code[20])
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
@@ -1219,7 +1214,7 @@ codeunit 7302 "WMS Management"
                     PAGE.RunModal(PAGE::"Posted Transfer Receipt", TransReceiptHeader);
                 end;
             else
-                OnShowPostedSourceDoc(PostedSourceDoc, PostedSourceNo);
+                OnShowPostedSourceDoc(PostedSourceDoc.AsInteger(), PostedSourceNo);
         end;
     end;
 
@@ -1275,19 +1270,16 @@ codeunit 7302 "WMS Management"
     local procedure TransferWhseItemTrkg(var WhseJnlLine: Record "Warehouse Journal Line"; ItemJnlLine: Record "Item Journal Line")
     var
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         ItemTrackingMgt.GetWhseItemTrkgSetup(ItemJnlLine."Item No.", WhseItemTrackingSetup);
         if not WhseItemTrackingSetup.TrackingRequired() then
             exit;
-        if WhseItemTrackingSetup."Serial No. Required" then begin
+
+        if WhseItemTrackingSetup."Serial No. Required" then
             WhseJnlLine.TestField("Qty. per Unit of Measure", 1);
-            WhseJnlLine."Serial No." := ItemJnlLine."Serial No.";
-        end;
-        if WhseItemTrackingSetup."Lot No. Required" then
-            WhseJnlLine."Lot No." := ItemJnlLine."Lot No.";
-        if WhseItemTrackingSetup."CD No. Required" then
-            WhseJnlLine."CD No." := ItemJnlLine."CD No.";
+
+        WhseItemTrackingSetup.CopyTrackingFromItemJournalLine(ItemJnlLine);
+        WhseJnlLine.CopyTrackingFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
         WhseJnlLine."Warranty Date" := ItemJnlLine."Warranty Date";
         WhseJnlLine."Expiration Date" := ItemJnlLine."Item Expiration Date";
 
@@ -1298,7 +1290,7 @@ codeunit 7302 "WMS Management"
     begin
         with TransferLine do begin
             WhseJnlLine.SetSource(DATABASE::"Transfer Line", PostingType, "Document No.", "Line No.", 0);
-            WhseJnlLine."Source Document" := WhseMgt.GetSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+            WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
             if PostingType = PostingType::Shipment then
                 WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted T. Shipment"
             else
@@ -1519,7 +1511,18 @@ codeunit 7302 "WMS Management"
         exit(BinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, '', '', '', CurrBinCode));
     end;
 
+    [Obsolete('Replaced by BinContentLookup() with parameter WhseItemTrackingSetup.', '17.0')]
     procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; CDNo: Code[30]; CurrBinCode: Code[20]): Code[20]
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        WhseItemTrackingSetup."CD No." := CDNo;
+        exit(BinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, WhseItemTrackingSetup, CurrBinCode));
+    end;
+
+    procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; CurrBinCode: Code[20]): Code[20]
     var
         BinContent: Record "Bin Content";
     begin
@@ -1530,14 +1533,14 @@ codeunit 7302 "WMS Management"
         BinContent.SetRange("Variant Code", VariantCode);
 
         if ItemTrackingCode."SN Warehouse Tracking" then
-            if SerialNo <> '' then
-                BinContent.SetRange("Serial No. Filter", SerialNo);
+            if WhseItemTrackingSetup."Serial No." <> '' then
+                BinContent.SetRange("Serial No. Filter", WhseItemTrackingSetup."Serial No.");
         if ItemTrackingCode."Lot Warehouse Tracking" then
-            if LotNo <> '' then
-                BinContent.SetRange("Lot No. Filter", LotNo);
+            if WhseItemTrackingSetup."Lot No." <> '' then
+                BinContent.SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
         if ItemTrackingCode."CD Warehouse Tracking" then
-            if CDNo <> '' then
-                BinContent.SetRange("CD No. Filter", CDNo);
+            if WhseItemTrackingSetup."CD No." <> '' then
+                BinContent.SetRange("CD No. Filter", WhseItemTrackingSetup."CD No.");
 
         if ZoneCode <> '' then
             BinContent.SetRange("Zone Code", ZoneCode);
@@ -1552,16 +1555,16 @@ codeunit 7302 "WMS Management"
 
     procedure FindBin(LocationCode: Code[10]; BinCode: Code[20]; ZoneCode: Code[10])
     var
-        Bin: Record Bin;
+        Bin2: Record Bin;
     begin
         if ZoneCode <> '' then begin
-            Bin.SetCurrentKey("Location Code", "Zone Code", Code);
-            Bin.SetRange("Location Code", LocationCode);
-            Bin.SetRange("Zone Code", ZoneCode);
-            Bin.SetRange(Code, BinCode);
-            Bin.FindFirst;
+            Bin2.SetCurrentKey("Location Code", "Zone Code", Code);
+            Bin2.SetRange("Location Code", LocationCode);
+            Bin2.SetRange("Zone Code", ZoneCode);
+            Bin2.SetRange(Code, BinCode);
+            Bin2.FindFirst();
         end else
-            Bin.Get(LocationCode, BinCode);
+            Bin2.Get(LocationCode, BinCode);
     end;
 
     procedure FindBinContent(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10])
@@ -1603,6 +1606,14 @@ codeunit 7302 "WMS Management"
     end;
 
     procedure GetCaption(DestType: Option " ",Customer,Vendor,Location,Item,Family,"Sales Order"; SourceDoc: Option " ","Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output"; Selection: Integer): Text[50]
+    begin
+        exit(
+            GetCaptionClass(
+                "Warehouse Destination Type".FromInteger(DestType),
+                "Warehouse Activity Source Document".FromInteger(SourceDoc), Selection));
+    end;
+
+    procedure GetCaptionClass(DestType: Enum "Warehouse Destination Type"; SourceDoc: Enum "Warehouse Activity Source Document"; Selection: Integer): Text[50]
     var
         PurchHeader: Record "Purchase Header";
         Vendor: Record Vendor;
@@ -1668,7 +1679,13 @@ codeunit 7302 "WMS Management"
         end;
     end;
 
+    [Obsolete('Replaced by GetDestinationEntityName', '17.0')]
     procedure GetDestinationName(DestType: Option " ",Customer,Vendor,Location,Item,Family,"Sales Order"; DestNo: Code[20]): Text[100]
+    begin
+        exit(GetDestinationEntityName("Warehouse Destination Type".FromInteger(DestType), DestNo));
+    end;
+
+    procedure GetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestNo: Code[20]): Text[100]
     var
         Vendor: Record Vendor;
         Customer: Record Customer;
@@ -1677,23 +1694,23 @@ codeunit 7302 "WMS Management"
         Family: Record Family;
         SalesHeader: Record "Sales Header";
     begin
-        case DestType of
-            DestType::Customer:
+        case DestinationType of
+            DestinationType::Customer:
                 if Customer.Get(DestNo) then
                     exit(Customer.Name);
-            DestType::Vendor:
+            DestinationType::Vendor:
                 if Vendor.Get(DestNo) then
                     exit(Vendor.Name);
-            DestType::Location:
+            DestinationType::Location:
                 if Location.Get(DestNo) then
                     exit(Location.Name);
-            DestType::Item:
+            DestinationType::Item:
                 if Item.Get(DestNo) then
                     exit(Item.Description);
-            DestType::Family:
+            DestinationType::Family:
                 if Family.Get(DestNo) then
                     exit(Family.Description);
-            DestType::"Sales Order":
+            DestinationType::"Sales Order":
                 if SalesHeader.Get(SalesHeader."Document Type"::Order, DestNo) then
                     exit(SalesHeader."Sell-to Customer Name");
         end;
@@ -1730,14 +1747,9 @@ codeunit 7302 "WMS Management"
     begin
         with WhseActivityLine do begin
             SetRange("Activity Type", "Activity Type"::"Invt. Pick");
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", 0, false);
+            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0, false);
             SetRange("Assemble to Order", true);
-            if "Serial No." <> '' then
-                SetRange("Serial No.", "Serial No.");
-            if "Lot No." <> '' then
-                SetRange("Lot No.", "Lot No.");
-            if "CD No." <> '' then
-                SetRange("CD No.", "CD No.");
+            SetTrackingFilterIfNotEmpty();
         end;
     end;
 
@@ -1749,18 +1761,27 @@ codeunit 7302 "WMS Management"
         exit(not WhseActivityLine.IsEmpty);
     end;
 
+    [Obsolete('Replaced by CalcQtyBaseOnATOInvtPick with parameter ItemTrackingSetup.', '17.0')]
     procedure CalcQtyBaseOnATOInvtPick(SalesLine: Record "Sales Line"; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]) QtyBase: Decimal
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        WhseItemTrackingSetup."CD No." := CDNo;
+        exit(CalcQtyBaseOnATOInvtPick(SalesLine, WhseItemTrackingSetup));
+    end;
+
+    procedure CalcQtyBaseOnATOInvtPick(SalesLine: Record "Sales Line"; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyBase: Decimal
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        WhseActivityLine."Serial No." := SerialNo;
-        WhseActivityLine."Lot No." := LotNo;
-        WhseActivityLine."CD No." := CDNo;
+        WhseActivityLine.CopyTrackingFromItemTrackingSetup(WhseItemTrackingSetup);
         SetFiltersOnATOInvtPick(SalesLine, WhseActivityLine);
-        if WhseActivityLine.FindSet then
+        if WhseActivityLine.FindSet() then
             repeat
                 QtyBase += WhseActivityLine."Qty. Outstanding (Base)";
-            until WhseActivityLine.Next = 0;
+            until WhseActivityLine.Next() = 0;
     end;
 
     procedure CheckOutboundBlockedBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10])
@@ -1776,7 +1797,7 @@ codeunit 7302 "WMS Management"
     local procedure SetFiltersOnATOWhseShpt(SalesLine: Record "Sales Line"; var WhseShptLine: Record "Warehouse Shipment Line")
     begin
         with WhseShptLine do begin
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", false);
+            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
             SetRange("Assemble to Order", true);
         end;
     end;
@@ -1848,18 +1869,24 @@ codeunit 7302 "WMS Management"
         end;
     end;
 
+    [Obsolete('Replaced by GetProdRoutingLastOperationFromBinCode with enum Production Order Status.', '17.0')]
     procedure GetProdRtngLastOperationFromBinCode(ProdOrderStatus: Option; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]; LocationCode: Code[10]): Code[20]
+    begin
+        exit(
+            GetProdRoutingLastOperationFromBinCode(
+                "Production Order Status".FromInteger(ProdOrderStatus), ProdOrderNo, RoutingRefNo, RoutingNo, LocationCode));
+    end;
+
+    procedure GetProdRoutingLastOperationFromBinCode(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]; LocationCode: Code[10]): Code[20]
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        with ProdOrderRoutingLine do begin
-            SetRange(Status, ProdOrderStatus);
-            SetRange("Prod. Order No.", ProdOrderNo);
-            SetRange("Routing Reference No.", RoutingRefNo);
-            SetRange("Routing No.", RoutingNo);
-            if FindLast then
-                exit(GetProdCenterBinCode(Type, "No.", LocationCode, false, 0));
-        end;
+        ProdOrderRoutingLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderRoutingLine.SetRange("Routing Reference No.", RoutingRefNo);
+        ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
+        if ProdOrderRoutingLine.FindLast() then
+            exit(GetProdCenterBinCode(ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.", LocationCode, false, 0));
     end;
 
     procedure GetPlanningRtngLastOperationFromBinCode(WkshTemplateName: Code[10]; WkshBatchName: Code[10]; WkshLineNo: Integer; LocationCode: Code[10]): Code[20]
@@ -1875,7 +1902,7 @@ codeunit 7302 "WMS Management"
         end;
     end;
 
-    procedure GetProdCenterLocationCode(Type: Option "Work Center","Machine Center"; No: Code[20]): Code[10]
+    procedure GetProdCenterLocationCode(Type: Enum "Capacity Type"; No: Code[20]): Code[10]
     var
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
@@ -1894,17 +1921,17 @@ codeunit 7302 "WMS Management"
         end;
     end;
 
-    procedure GetProdCenterBinCode(Type: Option "Work Center","Machine Center"; No: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
+    procedure GetProdCenterBinCode(Type: Enum "Capacity Type"; No: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
     begin
         case Type of
             Type::"Work Center":
-                exit(GetWorkCenterBinCode(No, LocationCode, UseFlushingMethod, FlushingMethod));
+                exit(GetWorkCenterBinCode(No, LocationCode, UseFlushingMethod, "Flushing Method".FromInteger(FlushingMethod)));
             Type::"Machine Center":
-                exit(GetMachineCenterBinCode(No, LocationCode, UseFlushingMethod, FlushingMethod));
+                exit(GetMachineCenterBinCode(No, LocationCode, UseFlushingMethod, "Flushing Method".FromInteger(FlushingMethod)));
         end;
     end;
 
-    local procedure GetMachineCenterBinCode(MachineCenterNo: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
+    local procedure GetMachineCenterBinCode(MachineCenterNo: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method"): Code[20]
     var
         MachineCenter: Record "Machine Center";
     begin
@@ -1912,19 +1939,19 @@ codeunit 7302 "WMS Management"
             if (MachineCenter."Location Code" = LocationCode) and
                (MachineCenter."From-Production Bin Code" <> '')
             then
-                exit(MachineCenter.GetBinCode(UseFlushingMethod, FlushingMethod));
+                exit(MachineCenter.GetBinCode(UseFlushingMethod, FlushingMethod.AsInteger()));
 
             exit(GetWorkCenterBinCode(MachineCenter."Work Center No.", LocationCode, UseFlushingMethod, FlushingMethod));
         end;
     end;
 
-    local procedure GetWorkCenterBinCode(WorkCenterNo: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
+    local procedure GetWorkCenterBinCode(WorkCenterNo: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method"): Code[20]
     var
         WorkCenter: Record "Work Center";
     begin
         if WorkCenter.Get(WorkCenterNo) then
             if WorkCenter."Location Code" = LocationCode then
-                exit(WorkCenter.GetBinCode(UseFlushingMethod, FlushingMethod));
+                exit(WorkCenter.GetBinCode(UseFlushingMethod, FlushingMethod.AsInteger()));
     end;
 
     [IntegrationEvent(false, false)]

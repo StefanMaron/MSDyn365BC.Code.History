@@ -60,14 +60,12 @@ table 17317 "Tax Calc. Item Entry"
         {
             Caption = 'Correction';
         }
-        field(25; "Ledger Entry Type"; Option)
+        field(25; "Ledger Entry Type"; Enum "Item Ledger Entry Type")
         {
-            CalcFormula = Lookup ("Item Ledger Entry"."Entry Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
+            CalcFormula = Lookup("Item Ledger Entry"."Entry Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
             Caption = 'Ledger Entry Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output;
         }
         field(30; "Dimension 1 Value Code"; Code[20])
         {
@@ -91,7 +89,7 @@ table 17317 "Tax Calc. Item Entry"
         }
         field(35; "Item Ledger Source Type"; Option)
         {
-            CalcFormula = Lookup ("Item Ledger Entry"."Source Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
+            CalcFormula = Lookup("Item Ledger Entry"."Source Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
             Caption = 'Item Ledger Source Type';
             Editable = false;
             FieldClass = FlowField;
@@ -192,7 +190,7 @@ table 17317 "Tax Calc. Item Entry"
         field(57; "Outstand. Quantity"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Item Application Entry".Quantity WHERE("Batch Item Ledger Entry No." = FIELD("Appl. Entry No."),
+            CalcFormula = Sum("Item Application Entry".Quantity WHERE("Batch Item Ledger Entry No." = FIELD("Appl. Entry No."),
                                                                        "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
             Caption = 'Outstand. Quantity';
             Editable = false;

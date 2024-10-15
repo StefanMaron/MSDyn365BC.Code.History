@@ -153,7 +153,7 @@ codeunit 12410 "VAT Prepayment-Post"
         Currency: Record Currency;
         VATPostingSetup: Record "VAT Posting Setup";
         TemplateDocumentNo: Code[20];
-        TemplateDocumentType: Integer;
+        TemplateDocumentType: Enum "Sales Document Type";
         PrepmtFactor: Decimal;
     begin
         if (GenJnlLine."Prepayment Document No." = '') or

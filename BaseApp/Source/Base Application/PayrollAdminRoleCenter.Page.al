@@ -266,7 +266,7 @@ page 35651 "Payroll Admin Role Center"
             action("Navi&gate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Navi&gate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';

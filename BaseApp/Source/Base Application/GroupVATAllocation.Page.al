@@ -78,7 +78,7 @@ page 14928 "Group VAT Allocation"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }

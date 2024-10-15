@@ -81,7 +81,6 @@ table 6507 "Item Entry Relation"
         "Item Entry No." := TrackingSpecification."Entry No.";
         "Serial No." := TrackingSpecification."Serial No.";
         "Lot No." := TrackingSpecification."Lot No.";
-        "CD No." := TrackingSpecification."CD No.";
 
         OnAfterInitFromTrackingSpec(Rec, TrackingSpecification);
     end;
@@ -90,7 +89,6 @@ table 6507 "Item Entry Relation"
     begin
         "Serial No." := ItemLedgEntry."Serial No.";
         "Lot No." := ItemLedgEntry."Lot No.";
-        "CD No." := ItemLedgEntry."CD No.";
 
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
     end;
@@ -99,7 +97,6 @@ table 6507 "Item Entry Relation"
     begin
         "Serial No." := ItemJnlLine."Serial No.";
         "Lot No." := ItemJnlLine."Lot No.";
-        "CD No." := ItemJnlLine."CD No.";
 
         OnAfterCopyTrackingFromItemJnlLine(Rec, ItemJnlLine);
     end;
@@ -108,7 +105,6 @@ table 6507 "Item Entry Relation"
     begin
         "Serial No." := TrackingSpecification."Serial No.";
         "Lot No." := TrackingSpecification."Lot No.";
-        "CD No." := TrackingSpecification."CD No.";
 
         OnAfterCopyTrackingFromSpec(Rec, TrackingSpecification);
     end;

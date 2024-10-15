@@ -554,7 +554,7 @@ page 14973 "Sales Corrective Credit Memo"
                     var
                         ApprovalEntries: Page "Approval Entries";
                     begin
-                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type", "No.");
+                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                         ApprovalEntries.Run;
                     end;
                 }
@@ -723,7 +723,7 @@ page 14973 "Sales Corrective Credit Memo"
                     var
                         CorrDocMgt: Codeunit "Corrective Document Mgt.";
                     begin
-                        CorrDocMgt.SetSalesHeader("Document Type", "No.");
+                        CorrDocMgt.SetSalesHeader("Document Type".AsInteger(), "No.");
                         CorrDocMgt.SelectPstdSalesDocLines;
                     end;
                 }

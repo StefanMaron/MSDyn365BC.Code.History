@@ -431,7 +431,7 @@ page 12438 "Cash Order Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }
@@ -708,7 +708,8 @@ page 12438 "Cash Order Journal"
     var
         JnlSelected: Boolean;
     begin
-        GenJnlManagement.TemplateSelection(PAGE::"Cash Order Journal", 10, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(
+            PAGE::"Cash Order Journal", "Gen. Journal Template Type"::"Cash Order Payments", false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);

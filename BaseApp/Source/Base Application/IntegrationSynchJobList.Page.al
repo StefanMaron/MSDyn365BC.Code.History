@@ -43,10 +43,17 @@ page 5338 "Integration Synch. Job List"
                     ToolTip = 'Specifies the name of the table mapping that was used for the integration synchronization job.';
                     Visible = false;
                 }
+                field(Uncoupled; Uncoupled)
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the number of records that were uncoupled during the integration synchronization job.';
+                    Visible = UncouplingSpecificColumnsVisible;
+                }
                 field(Inserted; Inserted)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of new records that were created in the destination database table (such as the Dynamics 365 Sales Account entity or Business Central Customer table) by the integration synchronization job.';
+                    Visible = SynchSpecificColumnsVisible;
                 }
                 field(Modified; Modified)
                 {
@@ -57,11 +64,13 @@ page 5338 "Integration Synch. Job List"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies entries that were deleted when synchronizing Dynamics 365 Sales data and Dynamics 365 data.';
+                    Visible = SynchSpecificColumnsVisible;
                 }
                 field(Unchanged; Unchanged)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of records that were not changed in the destination database table (such as the Dynamics 365 Sales Account entity or Dynamics 365 Customer table) by the integration synchronization job.';
+                    Visible = SynchSpecificColumnsVisible;
                 }
                 field(Failed; Failed)
                 {
@@ -93,6 +102,14 @@ page 5338 "Integration Synch. Job List"
                     ApplicationArea = Suite;
                     Caption = 'Direction';
                     ToolTip = 'Specifies in which direction data is synchronized.';
+                    Visible = SynchSpecificColumnsVisible;
+                }
+                field(Type; Type)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Type';
+                    ToolTip = 'Specifies the type of the integration synchronization job.';
+                    Visible = SynchSpecificColumnsVisible and UncouplingSpecificColumnsVisible;
                 }
                 field(Message; Message)
                 {
@@ -140,6 +157,24 @@ page 5338 "Integration Synch. Job List"
         }
     }
 
+    trigger OnInit()
+    var
+        TempIntegrationSynchJob: Record "Integration Synch. Job" temporary;
+        JobTypeFilter: Text;
+    begin
+        JobTypeFilter := GetFilter(Type);
+        if JobTypeFilter <> '' then begin
+            TempIntegrationSynchJob.SetRange(Type, TempIntegrationSynchJob.Type::Uncoupling);
+            UncouplingSpecificColumnsVisible := GetFilter(Type) = TempIntegrationSynchJob.GetFilter(Type);
+            SynchSpecificColumnsVisible := not UncouplingSpecificColumnsVisible;
+            if UncouplingSpecificColumnsVisible then
+                CurrPage.Caption(IntegrationUncouplingJobsCaptionTxt);
+        end else begin
+            UncouplingSpecificColumnsVisible := true;
+            SynchSpecificColumnsVisible := true;
+        end;
+    end;
+
     trigger OnAfterGetRecord()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -147,12 +182,15 @@ page 5338 "Integration Synch. Job List"
     begin
         if IntegrationTableMapping.Get("Integration Table Mapping Name") then begin
             TableMetadata.Get(IntegrationTableMapping."Table ID");
-            if "Synch. Direction" = "Synch. Direction"::ToIntegrationTable then
-                SynchDirection :=
-                  StrSubstNo(SynchDirectionTxt, TableMetadata.Caption, IntegrationTableMapping.GetExtendedIntegrationTableCaption)
+            if Type = Type::Uncoupling then
+                SynchDirection := ''
             else
-                SynchDirection :=
-                  StrSubstNo(SynchDirectionTxt, IntegrationTableMapping.GetExtendedIntegrationTableCaption, TableMetadata.Caption);
+                if "Synch. Direction" = "Synch. Direction"::ToIntegrationTable then
+                    SynchDirection :=
+                      StrSubstNo(SynchDirectionTxt, TableMetadata.Caption, IntegrationTableMapping.GetExtendedIntegrationTableCaption())
+                else
+                    SynchDirection :=
+                      StrSubstNo(SynchDirectionTxt, IntegrationTableMapping.GetExtendedIntegrationTableCaption(), TableMetadata.Caption);
         end;
         DoHideDuration := "Finish Date/Time" < "Start Date/Time";
         if DoHideDuration then
@@ -165,9 +203,12 @@ page 5338 "Integration Synch. Job List"
 
     var
         SynchDirectionTxt: Label '%1 to %2.', Comment = '%1 = Source table caption, %2 = Destination table caption';
+        IntegrationUncouplingJobsCaptionTxt: Label 'Integration Uncoupling Jobs';
         SynchDirection: Text;
         DoHideDuration: Boolean;
         Duration: Duration;
         HasRecords: Boolean;
+        UncouplingSpecificColumnsVisible: Boolean;
+        SynchSpecificColumnsVisible: Boolean;
 }
 

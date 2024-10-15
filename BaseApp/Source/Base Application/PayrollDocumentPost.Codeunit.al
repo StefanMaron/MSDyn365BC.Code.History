@@ -689,7 +689,7 @@ codeunit 17405 "Payroll Document - Post"
     begin
         with GenJnlLine do begin
             "Account Type" := "Account Type"::"G/L Account";
-            "Document Type" := 0;
+            "Document Type" := "Document Type"::" ";
             "Document No." := PostedPayrollDocLine."Document No.";
             Description := PostedPayrollDocLine.Description;
             Amount := PostedPayrollDocLine."Payroll Amount";

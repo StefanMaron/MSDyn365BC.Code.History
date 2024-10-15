@@ -256,7 +256,7 @@ report 14919 "Item Report TORG-29"
 
                         trigger OnValidate()
                         begin
-                            LocationCodeOnAfterValidate;
+                            LocationCodeOnAfterValidate();
                         end;
                     }
                     field(ReportNo; ReportNo)

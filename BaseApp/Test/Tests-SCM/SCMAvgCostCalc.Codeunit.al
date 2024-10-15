@@ -573,7 +573,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         CreatePurchaseLineWithJob(
           PurchaseLine, PurchaseHeader, Item."No.", LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(300, 400));
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -592,7 +592,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure PreciseAvgCostPerEntriesHavingOpenOutboundEntries()
     var
         Item: Record Item;
@@ -629,7 +629,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure PreciseAvgCostPerEntriesHavingBothOpenInboundAndOutboundEntries()
     var
         Item: Record Item;
@@ -951,7 +951,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         MockItemLedgerEntry(ItemLedgerEntry, ItemNo, -NegativeQty, 0, -NegativeAmt, -NegativeAmtACY);
     end;
 
-    local procedure GetItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Integer)
+    local procedure GetItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         LibraryUtility: Codeunit "Library - Utility";
     begin
@@ -972,7 +972,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemJournalBatch.Insert(true);
     end;
 
-    local procedure GetItemJournalTemplate(TemplateType: Integer): Code[10]
+    local procedure GetItemJournalTemplate(TemplateType: Enum "Item Journal Template Type"): Code[10]
     var
         ItemJournalTemplate: Record "Item Journal Template";
         LibraryUtility: Codeunit "Library - Utility";

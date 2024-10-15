@@ -823,7 +823,7 @@ codeunit 144723 "ERM Cash Orders"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; NoSeriesCode: Code[20]; LineAmount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; NoSeriesCode: Code[20]; LineAmount: Decimal)
     var
         BalanceBankAccount: Record "Bank Account";
         NoSeriesManagement: Codeunit NoSeriesManagement;
@@ -901,7 +901,7 @@ codeunit 144723 "ERM Cash Orders"
         Commit();
     end;
 
-    local procedure CreateGenJournalLineWithBlankDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateGenJournalLineWithBlankDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal)
     var
         BalanceBankAccount: Record "Bank Account";
     begin
@@ -957,7 +957,7 @@ codeunit 144723 "ERM Cash Orders"
         PrintCashOrderFromJournalLine(GenJournalLineCopy);
     end;
 
-    local procedure FindCheckLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; DocType: Option; DocNo: Code[20])
+    local procedure FindCheckLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         with CheckLedgerEntry do begin
             SetRange("Bank Account No.", BankAccountNo);

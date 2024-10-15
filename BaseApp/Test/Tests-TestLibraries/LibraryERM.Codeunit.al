@@ -39,7 +39,7 @@ codeunit 131300 "Library - ERM"
         exit(Round(ApplicationAmount, Currency."Appln. Rounding Precision", Currency.InvoiceRoundingDirection));
     end;
 
-    procedure ApplyCustomerLedgerEntries(ApplyingDocumentType: Option; DocumentType: Option; ApplyingDocumentNo: Code[20]; DocumentNo: Code[20])
+    procedure ApplyCustomerLedgerEntries(ApplyingDocumentType: Enum "Gen. Journal Document Type"; DocumentType: Enum "Gen. Journal Document Type"; ApplyingDocumentNo: Code[20]; DocumentNo: Code[20])
     var
         ApplyingCustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -57,7 +57,7 @@ codeunit 131300 "Library - ERM"
         PostCustLedgerApplication(ApplyingCustLedgerEntry);
     end;
 
-    procedure ApplyVendorLedgerEntries(ApplyingDocumentType: Option; DocumentType: Option; ApplyingDocumentNo: Code[20]; DocumentNo: Code[20])
+    procedure ApplyVendorLedgerEntries(ApplyingDocumentType: Enum "Gen. Journal Document Type"; DocumentType: Enum "Gen. Journal Document Type"; ApplyingDocumentNo: Code[20]; DocumentNo: Code[20])
     var
         ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -163,7 +163,7 @@ codeunit 131300 "Library - ERM"
         AnalysisView.Insert(true);
     end;
 
-    procedure CreateAndPostTwoGenJourLinesWithSameBalAccAndDocNo(var GenJournalLine: Record "Gen. Journal Line"; BalAccType: Option; BalAccNo: Code[20]; Amount: Decimal): Code[20]
+    procedure CreateAndPostTwoGenJourLinesWithSameBalAccAndDocNo(var GenJournalLine: Record "Gen. Journal Line"; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -471,7 +471,7 @@ codeunit 131300 "Library - ERM"
         ItemDiscountGroup.Insert(true);
     end;
 
-    procedure CreateDeferralTemplate(var DeferralTemplate: Record "Deferral Template"; CalcMethod: Option; StartDate: Option; NumOfPeriods: Integer)
+    procedure CreateDeferralTemplate(var DeferralTemplate: Record "Deferral Template"; CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer)
     begin
         DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" :=
@@ -484,7 +484,7 @@ codeunit 131300 "Library - ERM"
         DeferralTemplate.Insert(true);
     end;
 
-    procedure CreateDeferralTemplateCode(CalcMethod: Option; StartDate: Option; NumOfPeriods: Integer): Code[10]
+    procedure CreateDeferralTemplateCode(CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer): Code[10]
     var
         DeferralTemplate: Record "Deferral Template";
     begin
@@ -642,22 +642,23 @@ codeunit 131300 "Library - ERM"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
-        CreateGeneralJnlLineWithBalAcc(GenJournalLine, JournalTemplateName, JournalBatchName, DocumentType, AccountType, AccountNo,
-          GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", Amount);
+        CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, JournalTemplateName, JournalBatchName, DocumentType, AccountType, AccountNo,
+            GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", Amount);
     end;
 
-    procedure CreateGeneralJnlLineWithBalAcc(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    procedure CreateGeneralJnlLineWithBalAcc(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLine(GenJournalLine, JournalTemplateName, JournalBatchName, DocumentType, AccountType, AccountNo,
           BalAccountType, BalAccountNo, Amount);
     end;
 
-    procedure CreateGeneralJnlLine2(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    procedure CreateGeneralJnlLine2(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -667,14 +668,14 @@ codeunit 131300 "Library - ERM"
           GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", Amount);
     end;
 
-    procedure CreateGeneralJnlLine2WithBalAcc(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    procedure CreateGeneralJnlLine2WithBalAcc(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     begin
         // This function should replace the identical one above, but it requires a lot of changes to existing tests so I'm keeping both for now and will refactor when time permits
         LibraryJournals.CreateGenJournalLine2(GenJournalLine, JournalTemplateName, JournalBatchName, DocumentType, AccountType, AccountNo,
           BalAccountType, BalAccountNo, Amount);
     end;
 
-    procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; FAPostingType: Option; FANo: Code[20]; Amount: Decimal)
+    procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; FANo: Code[20]; Amount: Decimal)
     var
         FAJournalBatch: Record "FA Journal Batch";
         NoSeries: Record "No. Series";
@@ -752,7 +753,7 @@ codeunit 131300 "Library - ERM"
         exit(CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
     end;
 
-    procedure CreateGLAccountWithVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option): Code[20]
+    procedure CreateGLAccountWithVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -957,13 +958,12 @@ codeunit 131300 "Library - ERM"
     var
         Language: Record Language;
     begin
-        Language.Init();
-        Language.Code := LibraryUtility.GenerateRandomCode(Language.FieldNo(Code), DATABASE::Language);
-        Language.Insert(true);
+        // TODO: BUG 134976 - Get random codes
+        Language.Get('ENU');
         exit(Language.Code);
     end;
 
-    procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Type: Option; "Code": Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
+    procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Type: Enum "Sales Line Discount Type"; "Code": Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         SalesLineDiscount.Init();
         SalesLineDiscount.Validate(Type, Type);
@@ -1101,7 +1101,7 @@ codeunit 131300 "Library - ERM"
         OnAfterCreatePostCode(PostCode);
     end;
 
-    local procedure CreatePrepaymentVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalcType: Option; GenPostingType: Option ,Purchase,Sale; SetupGLAccount: Record "G/L Account"; VATAccountNo: Code[20])
+    local procedure CreatePrepaymentVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalcType: Enum "Tax Calculation Type"; GenPostingType: Enum "General Posting Type"; SetupGLAccount: Record "G/L Account"; VATAccountNo: Code[20])
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -1141,7 +1141,7 @@ codeunit 131300 "Library - ERM"
         OnAfterCreatePrepaymentVATPostingSetup(VATPostingSetup, VATCalcType, GenPostingType, SetupGLAccount, VATAccountNo);
     end;
 
-    local procedure CreatePrepaymentGenPostingSetup(var GenPostingSetup: Record "General Posting Setup"; var PrepmtGLAccount: Record "G/L Account"; GenPostingType: Option " ",Purchase,Sale; SetupGLAccount: Record "G/L Account")
+    local procedure CreatePrepaymentGenPostingSetup(var GenPostingSetup: Record "General Posting Setup"; var PrepmtGLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type"; SetupGLAccount: Record "G/L Account")
     var
         GenBusPostingGroup: Record "Gen. Business Posting Group";
         GenProdPostingGroup: Record "Gen. Product Posting Group";
@@ -1181,7 +1181,7 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
-    procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"; var PrepmtGLAccount: Record "G/L Account"; GenPostingType: Option " ",Purchase,Sale; VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax"; PrepmtVATCalcType: Option)
+    procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"; var PrepmtGLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type"; VATCalcType: Enum "Tax Calculation Type"; PrepmtVATCalcType: Enum "Tax Calculation Type")
     var
         GenPostingSetup: Record "General Posting Setup";
         PassedGLAccount: Record "G/L Account";
@@ -1193,7 +1193,7 @@ codeunit 131300 "Library - ERM"
 
         CreateGLAccount(LineGLAccount);
 
-        OnBeforeSetPostingGroupsOnPrepmtGLAccount(LineGLAccount, PrepmtGLAccount, GenPostingType, VATCalcType, PrepmtVATCalcType, Handled);
+        OnBeforeSetPostingGroupsOnPrepmtGLAccount(LineGLAccount, PrepmtGLAccount, GenPostingType, VATCalcType.AsInteger(), PrepmtVATCalcType.AsInteger(), Handled);
 
         if Handled then
             exit;
@@ -1206,7 +1206,7 @@ codeunit 131300 "Library - ERM"
             SetPostingGroupsOnPrepmtGLAccount(LineGLAccount, GenPostingSetup, GenPostingType, VATCalcType, PassedGLAccount);
         end;
 
-        OnAfterSetPostingGroupsOnPrepmtGLAccount(LineGLAccount, PrepmtGLAccount, GenPostingType, VATCalcType, PrepmtVATCalcType);
+        OnAfterSetPostingGroupsOnPrepmtGLAccount(LineGLAccount, PrepmtGLAccount, GenPostingType, VATCalcType.AsInteger(), PrepmtVATCalcType.AsInteger());
     end;
 
     procedure CreateReasonCode(var ReasonCode: Record "Reason Code")
@@ -1235,7 +1235,7 @@ codeunit 131300 "Library - ERM"
         ReminderLevel.Insert(true);
     end;
 
-    procedure CreateReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; Type: Option)
+    procedure CreateReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; Type: Enum "Reminder Source Type")
     var
         RecRef: RecordRef;
     begin
@@ -1373,7 +1373,7 @@ codeunit 131300 "Library - ERM"
         OnAfterCreateVATPostingSetup(VATPostingSetup);
     end;
 
-    procedure CreateVATPostingSetupWithAccounts(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATRate: Decimal)
+    procedure CreateVATPostingSetupWithAccounts(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATRate: Decimal)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -1695,7 +1695,7 @@ codeunit 131300 "Library - ERM"
             CreateCurrency(Currency);
     end;
 
-    procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         // Finds the matching Customer Ledger Entry from a General Journal Line.
         with CustLedgerEntry do begin
@@ -1994,7 +1994,7 @@ codeunit 131300 "Library - ERM"
             CreateVATProductPostingGroup(VATProductPostingGroup);
     end;
 
-    procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     begin
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
@@ -2018,7 +2018,7 @@ codeunit 131300 "Library - ERM"
               VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
 
-    procedure FindZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    procedure FindZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     begin
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
@@ -2047,7 +2047,7 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
-    procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         // Finds the matching Vendor Ledger Entry from a General Journal Line.
         with VendorLedgerEntry do begin
@@ -2057,7 +2057,7 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
-    procedure FindDeferralLine(var DeferralLine: Record "Deferral Line"; DeferralDocType: Option; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
+    procedure FindDeferralLine(var DeferralLine: Record "Deferral Line"; DeferralDocType: Enum "Deferral Document Type"; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
     begin
         with DeferralLine do begin
             SetRange("Deferral Doc. Type", DeferralDocType);
@@ -2674,7 +2674,7 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
-    local procedure SetPostingGroupsOnPrepmtGLAccount(var GLAccount: Record "G/L Account"; GenPostingSetup: Record "General Posting Setup"; GenPostingType: Option " ",Purchase,Sale; VATCalcType: Option; SetupGLAccount: Record "G/L Account")
+    local procedure SetPostingGroupsOnPrepmtGLAccount(var GLAccount: Record "G/L Account"; GenPostingSetup: Record "General Posting Setup"; GenPostingType: Enum "General Posting Type"; VATCalcType: Enum "Tax Calculation Type"; SetupGLAccount: Record "G/L Account")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -2841,7 +2841,7 @@ codeunit 131300 "Library - ERM"
         IntrastatSetup.Modify(true);
     end;
 
-    procedure SetupReportSelection(ReportUsage: Option; ReportId: Integer)
+    procedure SetupReportSelection(ReportUsage: Enum "Report Selection Usage"; ReportId: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -2891,7 +2891,7 @@ codeunit 131300 "Library - ERM"
         GeneralPostingSetup.Modify();
     end;
 
-    procedure UpdateGLAccountWithPostingSetup(var GLAccount: Record "G/L Account"; GenPostingType: Option; GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")
+    procedure UpdateGLAccountWithPostingSetup(var GLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type"; GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         with GLAccount do begin
             Validate("Gen. Posting Type", GenPostingType);
@@ -2941,7 +2941,7 @@ codeunit 131300 "Library - ERM"
         exit(Round(VATAmount, Currency."Amount Rounding Precision", Currency.VATRoundingDirection));
     end;
 
-    procedure VerifyVendApplnWithZeroTransNo(DocumentNo: Code[20]; DocumentType: Option; AmountLCY: Decimal)
+    procedure VerifyVendApplnWithZeroTransNo(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AmountLCY: Decimal)
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -2954,7 +2954,7 @@ codeunit 131300 "Library - ERM"
         DtldVendLedgEntry.TestField("Amount (LCY)", AmountLCY);
     end;
 
-    procedure VerifyCustApplnWithZeroTransNo(DocumentNo: Code[20]; DocumentType: Option; AmountLCY: Decimal)
+    procedure VerifyCustApplnWithZeroTransNo(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AmountLCY: Decimal)
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -3006,7 +3006,7 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup.Modify(true);
     end;
 
-    procedure ApplyCustomerLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    procedure ApplyCustomerLedgerEntry(ApplyingDocType: Enum "Gen. Journal Document Type"; ApplyingDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         ApplyingCustLedgEntry: Record "Cust. Ledger Entry";
         AppliesToCustLedgEntry: Record "Cust. Ledger Entry";
@@ -3019,7 +3019,7 @@ codeunit 131300 "Library - ERM"
         PostCustLedgerApplication(ApplyingCustLedgEntry);
     end;
 
-    procedure ApplyVendorLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    procedure ApplyVendorLedgerEntry(ApplyingDocType: Enum "Gen. Journal Document Type"; ApplyingDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         ApplyingVendLedgEntry: Record "Vendor Ledger Entry";
         AppliesToVendLedgEntry: Record "Vendor Ledger Entry";
@@ -3033,7 +3033,7 @@ codeunit 131300 "Library - ERM"
         PostVendLedgerApplication(ApplyingVendLedgEntry);
     end;
 
-    procedure PreviewApplyCustomerLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    procedure PreviewApplyCustomerLedgerEntry(ApplyingDocType: Enum "Gen. Journal Document Type"; ApplyingDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         ApplyingCustLedgEntry: Record "Cust. Ledger Entry";
         AppliesToCustLedgEntry: Record "Cust. Ledger Entry";
@@ -3049,7 +3049,7 @@ codeunit 131300 "Library - ERM"
         CustEntryApplyPostedEntries.PreviewApply(ApplyingCustLedgEntry, ApplyingCustLedgEntry."Document No.", 0D);
     end;
 
-    procedure PreviewApplyVendorLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    procedure PreviewApplyVendorLedgerEntry(ApplyingDocType: Enum "Gen. Journal Document Type"; ApplyingDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         ApplyingVendLedgEntry: Record "Vendor Ledger Entry";
         AppliesToVendLedgEntry: Record "Vendor Ledger Entry";
@@ -3088,7 +3088,7 @@ codeunit 131300 "Library - ERM"
           GenJnlLine, GenJnlLine."Account Type"::Vendor, VendorNo, PostingDate, '', Amount, CurrencyCode);
     end;
 
-    local procedure CreatePrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; PostingDate: Date; PrepmtDocNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
+    local procedure CreatePrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; PrepmtDocNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Payment, AccountType, AccountNo, Amount);
@@ -3218,22 +3218,22 @@ codeunit 131300 "Library - ERM"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePrepaymentVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalcType: Option; GenPostingType: Option ,Purchase,Sale; SetupGLAccount: Record "G/L Account"; VATAccountNo: Code[20]; var Handled: Boolean)
+    local procedure OnBeforeCreatePrepaymentVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalcType: Enum "Tax Calculation Type"; GenPostingType: Enum "General Posting Type"; SetupGLAccount: Record "G/L Account"; VATAccountNo: Code[20]; var Handled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreatePrepaymentVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalcType: Option; GenPostingType: Option ,Purchase,Sale; SetupGLAccount: Record "G/L Account"; VATAccountNo: Code[20])
+    local procedure OnAfterCreatePrepaymentVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalcType: Enum "Tax Calculation Type"; GenPostingType: Enum "General Posting Type"; SetupGLAccount: Record "G/L Account"; VATAccountNo: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetPostingGroupsOnPrepmtGLAccount(var LineGLAccount: Record "G/L Account"; var PrepmtGLAccount: Record "G/L Account"; GenPostingType: Option " ",Purchase,Sale; VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax"; PrepmtVATCalcType: Option; var Handled: Boolean)
+    local procedure OnBeforeSetPostingGroupsOnPrepmtGLAccount(var LineGLAccount: Record "G/L Account"; var PrepmtGLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type"; VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax"; PrepmtVATCalcType: Option; var Handled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPostingGroupsOnPrepmtGLAccount(var LineGLAccount: Record "G/L Account"; var PrepmtGLAccount: Record "G/L Account"; GenPostingType: Option " ",Purchase,Sale; VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax"; PrepmtVATCalcType: Option)
+    local procedure OnAfterSetPostingGroupsOnPrepmtGLAccount(var LineGLAccount: Record "G/L Account"; var PrepmtGLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type"; VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax"; PrepmtVATCalcType: Option)
     begin
     end;
 

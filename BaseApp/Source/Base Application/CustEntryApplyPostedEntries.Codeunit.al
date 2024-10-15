@@ -469,7 +469,7 @@
         DtldCVLedgEntryBuf."Gen. Posting Type" := DtldCVLedgEntryBuf."Gen. Posting Type"::Sale;
 
         AmtDiffManagement.InsertPrepmtDiffBufEntry(
-          DtldCVLedgEntryBuf, DtldCVLedgEntryBuf."Gen. Posting Type"::Sale, 0);
+          DtldCVLedgEntryBuf, DtldCVLedgEntryBuf."Gen. Posting Type"::Sale.AsInteger(), 0);
     end;
 
     procedure PreviewApply(CustLedgEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)

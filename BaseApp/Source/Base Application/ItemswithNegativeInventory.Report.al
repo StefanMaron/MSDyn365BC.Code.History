@@ -3,6 +3,7 @@ report 5757 "Items with Negative Inventory"
     DefaultLayout = RDLC;
     RDLCLayout = './ItemswithNegativeInventory.rdlc';
     Caption = 'Items with Negative Inventory';
+    DataAccessIntent = ReadOnly;
 
     dataset
     {
@@ -137,6 +138,7 @@ report 5757 "Items with Negative Inventory"
                     {
                         ApplicationArea = Location;
                         Caption = 'Location Code';
+                        ShowMandatory = true;
                         ToolTip = 'Specifies the location for items with negative inventory.';
 
                         trigger OnLookup(var Text: Text): Boolean

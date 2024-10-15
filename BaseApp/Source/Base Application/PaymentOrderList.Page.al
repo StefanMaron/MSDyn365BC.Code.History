@@ -296,7 +296,7 @@ page 12424 "Payment Order List"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.Update;
                     end;
                 }

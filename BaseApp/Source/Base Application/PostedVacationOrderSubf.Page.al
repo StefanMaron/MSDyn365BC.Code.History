@@ -92,7 +92,7 @@ page 17463 "Posted Vacation Order Subf"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

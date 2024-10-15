@@ -260,7 +260,7 @@ page 35610 "Purchase Advance Reports"
                     var
                         ApprovalEntries: Page "Approval Entries";
                     begin
-                        ApprovalEntries.Setfilters(DATABASE::"Purchase Header", "Document Type", "No.");
+                        ApprovalEntries.Setfilters(DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
                         ApprovalEntries.Run;
                     end;
                 }

@@ -181,7 +181,7 @@ page 14984 "Direct Transfer Subform"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Reserve from &Inventory")
@@ -272,7 +272,7 @@ page 14984 "Direct Transfer Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -285,7 +285,7 @@ page 14984 "Direct Transfer Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLinesWithReclass(0);
+                        OpenItemTrackingLinesWithReclass("Transfer Direction"::Outbound);
                     end;
                 }
             }

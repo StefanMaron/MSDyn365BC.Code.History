@@ -72,8 +72,10 @@ table 5600 "Fixed Asset"
             var
                 FASubclass: Record "FA Subclass";
             begin
-                if "FA Subclass Code" = '' then
+                if "FA Subclass Code" = '' then begin
+                    Validate("FA Posting Group", FASubclass."Default FA Posting Group");
                     exit;
+                end;
 
                 FASubclass.Get("FA Subclass Code");
                 if "FA Class Code" <> '' then begin
@@ -178,7 +180,7 @@ table 5600 "Fixed Asset"
         }
         field(19; Insured; Boolean)
         {
-            CalcFormula = Exist ("Ins. Coverage Ledger Entry" WHERE("FA No." = FIELD("No."),
+            CalcFormula = Exist("Ins. Coverage Ledger Entry" WHERE("FA No." = FIELD("No."),
                                                                     "Disposed FA" = CONST(false)));
             Caption = 'Insured';
             Editable = false;
@@ -186,7 +188,7 @@ table 5600 "Fixed Asset"
         }
         field(20; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Fixed Asset"),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST("Fixed Asset"),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -239,7 +241,7 @@ table 5600 "Fixed Asset"
         }
         field(30; Acquired; Boolean)
         {
-            CalcFormula = Exist ("FA Depreciation Book" WHERE("FA No." = FIELD("No."),
+            CalcFormula = Exist("FA Depreciation Book" WHERE("FA No." = FIELD("No."),
                                                               "Acquisition Date" = FILTER(<> 0D)));
             Caption = 'Acquired';
             FieldClass = FlowField;
@@ -291,16 +293,16 @@ table 5600 "Fixed Asset"
                     if FASetup."Disposal Depr. Book" <> '' then
                         DeleteFADeprBook("No.", FASetup."Disposal Depr. Book");
                     if FASetup."Future Depr. Book" <> '' then
-                        InsertFADeprBook("No.", FASetup."Future Depr. Book", '', 0, 0)
+                        InsertFADeprBook("No.", FASetup."Future Depr. Book", '', "FA Depreciation Method"::"Straight-Line", 0)
                     else
                         Message(Text12400);
                 end else begin
                     if FASetup."Future Depr. Book" <> '' then
                         DeleteFADeprBook("No.", FASetup."Future Depr. Book");
                     if FASetup."Release Depr. Book" <> '' then
-                        InsertFADeprBook("No.", FASetup."Release Depr. Book", '', 0, 0);
+                        InsertFADeprBook("No.", FASetup."Release Depr. Book", '', "FA Depreciation Method"::"Straight-Line", 0);
                     if FASetup."Default Depr. Book" <> '' then
-                        InsertFADeprBook("No.", FASetup."Default Depr. Book", '', 0, 0);
+                        InsertFADeprBook("No.", FASetup."Default Depr. Book", '', "FA Depreciation Method"::"Straight-Line", 0);
                 end;
             end;
         }
@@ -436,7 +438,7 @@ table 5600 "Fixed Asset"
         }
         field(12418; "Unrealized VAT Amount"; Decimal)
         {
-            CalcFormula = Sum ("VAT Entry"."Remaining Unrealized Amount" WHERE("Object Type" = CONST("Fixed Asset"),
+            CalcFormula = Sum("VAT Entry"."Remaining Unrealized Amount" WHERE("Object Type" = CONST("Fixed Asset"),
                                                                                "Object No." = FIELD("No."),
                                                                                Type = CONST(Purchase)));
             Caption = 'Unrealized VAT Amount';
@@ -457,7 +459,7 @@ table 5600 "Fixed Asset"
         field(12427; "G/L Starting Balance"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST("Fixed Asset"),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST("Fixed Asset"),
                                                         "Source No." = FIELD("No."),
                                                         "G/L Account No." = FIELD("G/L Account No. Filter"),
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -470,7 +472,7 @@ table 5600 "Fixed Asset"
         field(12428; "G/L Net Change"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST("Fixed Asset"),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST("Fixed Asset"),
                                                         "Source No." = FIELD("No."),
                                                         "G/L Account No." = FIELD("G/L Account No. Filter"),
                                                         "Posting Date" = FIELD("Date Filter"),
@@ -483,7 +485,7 @@ table 5600 "Fixed Asset"
         field(12429; "G/L Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST("Fixed Asset"),
+            CalcFormula = Sum("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST("Fixed Asset"),
                                                                 "Source No." = FIELD("No."),
                                                                 "G/L Account No." = FIELD("G/L Account No. Filter"),
                                                                 "Posting Date" = FIELD("Date Filter"),
@@ -496,7 +498,7 @@ table 5600 "Fixed Asset"
         field(12430; "G/L Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST("Fixed Asset"),
+            CalcFormula = Sum("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST("Fixed Asset"),
                                                                  "Source No." = FIELD("No."),
                                                                  "G/L Account No." = FIELD("G/L Account No. Filter"),
                                                                  "Posting Date" = FIELD("Date Filter"),
@@ -509,7 +511,7 @@ table 5600 "Fixed Asset"
         field(12431; "G/L Balance to Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST("Fixed Asset"),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST("Fixed Asset"),
                                                         "Source No." = FIELD("No."),
                                                         "G/L Account No." = FIELD("G/L Account No. Filter"),
                                                         "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
@@ -674,7 +676,7 @@ table 5600 "Fixed Asset"
         field(17302; "Tax Amount"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Tax Diff. Ledger Entry"."Tax Amount" WHERE("Tax Diff. Code" = FIELD("Tax Difference Code"),
+            CalcFormula = Sum("Tax Diff. Ledger Entry"."Tax Amount" WHERE("Tax Diff. Code" = FIELD("Tax Difference Code"),
                                                                            "Source Type" = CONST("Future Expense"),
                                                                            "Source No." = FIELD("No."),
                                                                            "Posting Date" = FIELD("FA Posting Date Filter")));
@@ -973,21 +975,21 @@ table 5600 "Fixed Asset"
         if TaxRegisterSetup.Get then;
         if "FA Type" = "FA Type"::"Future Expense" then begin
             if FASetup."Future Depr. Book" <> '' then
-                InsertFADeprBook("No.", FASetup."Future Depr. Book", Description, 0, 0);
+                InsertFADeprBook("No.", FASetup."Future Depr. Book", Description, "FA Depreciation Method"::"Straight-Line", 0);
             if TaxRegisterSetup."Future Exp. Depreciation Book" <> '' then
-                InsertFADeprBook("No.", TaxRegisterSetup."Future Exp. Depreciation Book", Description, 0, 0);
+                InsertFADeprBook("No.", TaxRegisterSetup."Future Exp. Depreciation Book", Description, "FA Depreciation Method"::"Straight-Line", 0);
         end else begin
             if FASetup."Release Depr. Book" <> '' then
                 InsertFADeprBook("No.", FASetup."Release Depr. Book", Description, FADeprBook."Depreciation Method"::"SL-RU", 0);
             if FASetup."Default Depr. Book" <> '' then
-                InsertFADeprBook("No.", FASetup."Default Depr. Book", Description, 0, 0);
+                InsertFADeprBook("No.", FASetup."Default Depr. Book", Description, "FA Depreciation Method"::"Straight-Line", 0);
             if TaxRegisterSetup."Tax Depreciation Book" <> '' then
                 InsertFADeprBook("No.", TaxRegisterSetup."Tax Depreciation Book", Description,
                   FADeprBook."Depreciation Method"::"SL-RU", TaxRegisterSetup."Default Depr. Bonus %");
         end;
     end;
 
-    local procedure InsertFADeprBook(FANo: Code[20]; DeprBookCode: Code[10]; Description: Text[100]; DepreciationMethod: Option; DeprBonus: Decimal)
+    local procedure InsertFADeprBook(FANo: Code[20]; DeprBookCode: Code[10]; Description: Text[100]; DepreciationMethod: Enum "FA Depreciation Method"; DeprBonus: Decimal)
     var
         FADeprBook: Record "FA Depreciation Book";
     begin

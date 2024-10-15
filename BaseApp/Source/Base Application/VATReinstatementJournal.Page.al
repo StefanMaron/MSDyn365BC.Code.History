@@ -195,7 +195,7 @@ page 14946 "VAT Reinstatement Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -271,7 +271,7 @@ page 14946 "VAT Reinstatement Journal"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -316,7 +316,7 @@ page 14946 "VAT Reinstatement Journal"
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"VAT Reinstatement Journal", 14, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"VAT Reinstatement Journal", "Gen. Journal Template Type"::"VAT Reinstatement", false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);

@@ -82,7 +82,7 @@ page 12481 "Posted FA Movement Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)

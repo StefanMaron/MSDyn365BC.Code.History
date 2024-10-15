@@ -66,7 +66,7 @@ table 14901 "Vendor Agreement"
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST(Agreement),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST(Agreement),
                                                              "No." = FIELD("No.")));
             Caption = 'Comment';
             FieldClass = FlowField;
@@ -140,11 +140,9 @@ table 14901 "Vendor Agreement"
         {
             Caption = 'Prices Including VAT';
         }
-        field(39; Blocked; Option)
+        field(39; Blocked; Enum "Vendor Blocked")
         {
             Caption = 'Blocked';
-            OptionCaption = ' ,Payment,All';
-            OptionMembers = " ",Payment,All;
         }
         field(46; Priority; Integer)
         {
@@ -177,7 +175,7 @@ table 14901 "Vendor Agreement"
         field(58; Balance; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor No."),
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor No."),
                                                                            "Agreement No." = FIELD("No.")));
             Caption = 'Balance';
             Editable = false;
@@ -186,7 +184,7 @@ table 14901 "Vendor Agreement"
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No."),
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No."),
                                                                                    "Agreement No." = FIELD("No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
@@ -196,7 +194,7 @@ table 14901 "Vendor Agreement"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor No."),
                                                                           "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                           "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                           "Posting Date" = FIELD("Date Filter"),
@@ -208,7 +206,7 @@ table 14901 "Vendor Agreement"
         field(61; "Net Change (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No."),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                                   "Posting Date" = FIELD("Date Filter"),
@@ -239,7 +237,7 @@ table 14901 "Vendor Agreement"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Debit Amount" WHERE("Vendor No." = FIELD("Vendor No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Debit Amount" WHERE("Vendor No." = FIELD("Vendor No."),
                                                                                   "Entry Type" = FILTER(<> Application),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -254,7 +252,7 @@ table 14901 "Vendor Agreement"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Credit Amount" WHERE("Vendor No." = FIELD("Vendor No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Credit Amount" WHERE("Vendor No." = FIELD("Vendor No."),
                                                                                    "Entry Type" = FILTER(<> Application),
                                                                                    "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -268,7 +266,7 @@ table 14901 "Vendor Agreement"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Debit Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Debit Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No."),
                                                                                         "Entry Type" = FILTER(<> Application),
                                                                                         "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                         "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -282,7 +280,7 @@ table 14901 "Vendor Agreement"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Credit Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Credit Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No."),
                                                                                          "Entry Type" = FILTER(<> Application),
                                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -351,7 +349,7 @@ table 14901 "Vendor Agreement"
         field(12427; "G/L Starting Balance"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
                                                         "Source No." = FIELD("Vendor No."),
                                                         "Agreement No." = FIELD("No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
@@ -365,7 +363,7 @@ table 14901 "Vendor Agreement"
         field(12428; "G/L Net Change"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
                                                         "Source No." = FIELD("Vendor No."),
                                                         "Agreement No." = FIELD("No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
@@ -379,7 +377,7 @@ table 14901 "Vendor Agreement"
         field(12429; "G/L Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST(Vendor),
                                                                 "Source No." = FIELD("Vendor No."),
                                                                 "G/L Account No." = FIELD("G/L Account Filter"),
                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -393,7 +391,7 @@ table 14901 "Vendor Agreement"
         field(12430; "G/L Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST(Vendor),
                                                                  "Source No." = FIELD("Vendor No."),
                                                                  "G/L Account No." = FIELD("G/L Account Filter"),
                                                                  "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -407,7 +405,7 @@ table 14901 "Vendor Agreement"
         field(12431; "G/L Balance to Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
                                                         "Source No." = FIELD("Vendor No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -505,7 +503,7 @@ table 14901 "Vendor Agreement"
         PurchSetup.Get();
         if DimValue.Get(PurchSetup."Vendor Agreement Dim. Code", "No.") then begin
             DimValue.Name := CopyStr("No.", 1, MaxStrLen(DimValue.Name));
-            if Blocked > 0 then
+            if Blocked <> Blocked::" " then
                 DimValue.Blocked := true
             else
                 DimValue.Blocked := false;

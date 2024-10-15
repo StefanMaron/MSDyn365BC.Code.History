@@ -621,7 +621,7 @@ table 12403 "Gen. Journal Line Archive"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1001; "Job Task No."; Code[20])

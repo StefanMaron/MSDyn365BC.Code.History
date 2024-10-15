@@ -111,6 +111,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         ClassifyCountrySpecificTablesPart2;
         ClassifyCountrySpecificTablesPart3;
+        OnAfterClassifyCountrySpecificTables();
     end;
 
     local procedure ClassifyCountrySpecificTablesPart2()
@@ -395,5 +396,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyVATReportHeader.FieldNo("Submitted By"));
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"VAT Return Period");
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClassifyCountrySpecificTables()
+    begin
+    end;
+}

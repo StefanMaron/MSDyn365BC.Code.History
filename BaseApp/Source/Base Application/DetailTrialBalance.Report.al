@@ -7,6 +7,7 @@ report 4 "Detail Trial Balance"
     Caption = 'Detail Trial Balance';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

@@ -108,7 +108,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         CreateCustomerAndInvoice(SalesHeader, Customer, ShipToAddress);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        LibrarySales.CopySalesDocument(SalesHeader, SalesDocType::"Posted Invoice", DocumentNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);
         FindSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
         UpdateSalesHeaderAddSheet(SalesHeader, CalcDate('<1D>', WorkDate), WorkDate, true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -300,7 +300,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         ShipToAddress.Modify(true);
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; CustomerNo: Code[20]; ShipToCode: Code[10])
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; ShipToCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -427,7 +427,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         SalesHeader.Modify();
     end;
 
-    local procedure FindSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", DocumentNo);
@@ -506,7 +506,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         end;
     end;
 
-    local procedure VerifyKPPCodeBlanketQuoteOrder(DocType: Option)
+    local procedure VerifyKPPCodeBlanketQuoteOrder(DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         ShipToAddress: Record "Ship-to Address";

@@ -67,7 +67,7 @@ page 12423 "Ingoing Cash Order"
 
                     trigger OnValidate()
                     begin
-                        AccountNoOnAfterValidate;
+                        AccountNoOnAfterValidate();
                     end;
                 }
                 field("Agreement No."; "Agreement No.")

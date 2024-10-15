@@ -72,7 +72,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingAction := ItemTrackingAction::SelectEntries;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Availability of Lot No on Item Tracking Page. Verification done on ItemTrackingPageHandler.
     end;
@@ -95,7 +95,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingAction := ItemTrackingAction::SelectEntries;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Service Order Post without error for Item with Item Tracking.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -119,7 +119,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingAction := ItemTrackingAction::SelectEntries;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Service Order Post without error for Item with Item Tracking.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -142,7 +142,7 @@ codeunit 136146 "Service Item Tracking"
         LotNo := ServiceLine."Customer No.";  // Value not important, assign Customer No. as LotNo.
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Availability Warning Message for Lot Number.
         Assert.IsTrue(StrPos(ActualMessage, AvailabilityMessage) > 0, ErrorMustBeSame);
@@ -166,7 +166,7 @@ codeunit 136146 "Service Item Tracking"
         OriginalQuantity := OriginalQuantity + LibraryRandom.RandInt(10);  // Using Random value to excess Original Quantity.
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify corrections warning message for excess quantity has been defined.
         Assert.IsTrue(StrPos(ActualMessage, CorrectionMessage) > 0, ErrorMustBeSame);
@@ -187,7 +187,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingAction := ItemTrackingAction::AssignSerialNo;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify corrections warning message for excess quantity has been defined.
         Assert.IsTrue(StrPos(ActualMessage, CorrectionMessage) > 0, ErrorMustBeSame);
@@ -209,7 +209,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingAction := ItemTrackingAction::AssignSerialNo;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify corrections warning message for less Quantity has been defined.
         Assert.IsTrue(StrPos(ActualMessage, CorrectionMessage) > 0, ErrorMustBeSame);
@@ -251,11 +251,11 @@ codeunit 136146 "Service Item Tracking"
         Initialize;
         AssignItemTrackingAndPostPurchaseOrder('', LibraryUtility.GetGlobalNoSeriesCode, false, true, ItemTrackingAction::AssignSerialNo);
         CreateShipToAddressAndUpdateServiceLine(ServiceLine, ItemNo, OriginalQuantity);
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
         ItemTrackingAction := ItemTrackingAction::AssignSerialNo;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify corrections warning message for excess quantity.
         Assert.IsTrue(StrPos(ActualMessage, CorrectionMessage) > 0, ErrorMustBeSame);
@@ -278,7 +278,7 @@ codeunit 136146 "Service Item Tracking"
         LibraryVariableStorage.Enqueue(ServiceLine."Customer No.");  // Value not important, Enqueue Customer No. as Serial No.
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Availability Warning Message for Serial No.
         Assert.IsTrue(StrPos(ActualMessage, AvailabilityMessage) > 0, ErrorMustBeSame);
@@ -299,7 +299,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingAction := ItemTrackingAction::AssignSerialNo;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify corrections warning message for excess quantity.
         Assert.IsTrue(StrPos(ActualMessage, CorrectionMessage) > 0, ErrorMustBeSame);
@@ -322,7 +322,7 @@ codeunit 136146 "Service Item Tracking"
         LotNo := FindLotNoFromItemLedgerEntry;  // Assign Lot No. to global variable.
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify values on Item Tracking Summary page after Lookup on field Lot No on Item Tracking Page. Verification done on 'ItemTrackingPageHandler' page handler.
     end;
@@ -342,7 +342,7 @@ codeunit 136146 "Service Item Tracking"
         CreateShipToAddressAndUpdateServiceLine(ServiceLine, ItemNo, OriginalQuantity);
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Availability Warning Message for Lot No.
         Assert.IsTrue(StrPos(ActualMessage, AvailabilityMessage) > 0, ErrorMustBeSame);
@@ -365,7 +365,7 @@ codeunit 136146 "Service Item Tracking"
         LotNo := FindLotNoFromItemLedgerEntry;  // Assign Lot No. to global variable.
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify values on Item Tracking Lines page after Lookup on field Lot No. and closing Item Tracking Summary page. Verification done on 'ItemTrackingPageHandler' page handler.
     end;
@@ -388,7 +388,7 @@ codeunit 136146 "Service Item Tracking"
         AvailabilitySerialNo := false;  // Assign to global variable.
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Availability Serial No. field must be No on the Item Tracking Lines page. Verification done in the 'ItemTrackingPageHandler' page handler.
     end;
@@ -410,7 +410,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingAction := ItemTrackingAction::AssignSerialNo;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Availability Warning Message Serial No.
         Assert.IsTrue(StrPos(ActualMessage, AvailabilityMessage) > 0, ErrorMustBeSame);
@@ -434,7 +434,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingAction := ItemTrackingAction::SelectEntries;
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Service Order Post without error with Item Tracking.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -691,7 +691,7 @@ codeunit 136146 "Service Item Tracking"
         ServiceLineList.Trap;
 
         // 2. Exercise: Open Service Line List page using Service Order page.
-        ServiceOrders.Control1902018507."Outstanding Serv. Orders (LCY)".DrillDown;
+        ServiceOrders.Control1902018507."Outstanding Serv. Orders (LCY)".Drilldown();
 
         // 3. Verify.
         ServiceLineList."Document No.".AssertEquals(ServiceLine."Document No.");
@@ -719,7 +719,7 @@ codeunit 136146 "Service Item Tracking"
         AvailableCredit.Trap;
 
         // 2. Exercise: Open Available Credit page using Service Order page.
-        ServiceOrders.Control1900316107.AvailableCreditLCY.DrillDown;
+        ServiceOrders.Control1900316107.AvailableCreditLCY.Drilldown();
 
         // 3. Verify.
         AvailableCredit."Serv Shipped Not Invoiced(LCY)".AssertEquals(ServiceLine."Amount Including VAT");
@@ -742,7 +742,7 @@ codeunit 136146 "Service Item Tracking"
         ServiceItemCard.Trap;
 
         // 2. Exercise: Open Service Item Card page using Service Order page.
-        ServiceOrder.Control1906530507."Service Item No.".DrillDown;
+        ServiceOrder.Control1906530507."Service Item No.".Drilldown();
 
         // 3. Verify.
         ServiceItemCard."No.".AssertEquals(ServiceLine."Service Item No.");
@@ -779,7 +779,7 @@ codeunit 136146 "Service Item Tracking"
 
         // 2. Exercise: Open Customer Ledger Entries page using Service Order page.
         No := ServiceHeader."Bill-to Customer No.";
-        ServiceOrders.Control1902018507."Sales (LCY)".DrillDown;
+        ServiceOrders.Control1902018507."Sales (LCY)".Drilldown();
 
         // 3. Verify: Correct filter is set in the CustomerLedger Entries page. This is done in the 'CustomerLedgerEntriesPageHandler' handler
     end;
@@ -801,7 +801,7 @@ codeunit 136146 "Service Item Tracking"
         OpenServiceOrderPage(ServiceOrder, ServiceLine."Document No.");
 
         // 2. Exercise: Open Component List page using Service Order page.
-        ServiceOrder.Control1906530507.ComponentList.DrillDown;
+        ServiceOrder.Control1906530507.ComponentList.Drilldown();
 
         // 3. Verify: Verify Component List page value, done in ServiceItemComponentListPageHandler page handler.
     end;
@@ -823,7 +823,7 @@ codeunit 136146 "Service Item Tracking"
         OpenServiceOrderPage(ServiceOrder, ServiceLine."Document No.");
 
         // 2. Exercise: Open Skilled Resource List page using Service Order page.
-        ServiceOrder.Control1906530507.SkilledResources.DrillDown;
+        ServiceOrder.Control1906530507.SkilledResources.Drilldown();
 
         // 3. Verify: Verify Skilled Resources List page caption done in SkilledResourceListPageHandler page handler.
     end;
@@ -845,7 +845,7 @@ codeunit 136146 "Service Item Tracking"
         CustomerCard.Trap;
 
         // 2. Exercise: Open Customer Card page using Service Order page.
-        ServiceOrder.Control1907829707."No.".DrillDown;
+        ServiceOrder.Control1907829707."No.".Drilldown();
 
         // 3. Verify.
         CustomerCard."No.".AssertEquals(ServiceLine."Customer No.");
@@ -868,7 +868,7 @@ codeunit 136146 "Service Item Tracking"
         ServiceOrders.Trap;
 
         // 2. Exercise: Open Service Orders page using Service Order page.
-        ServiceOrder.Control1907829707.NoOfOrders.DrillDown;
+        ServiceOrder.Control1907829707.NoOfOrdersTile.Drilldown();
 
         // 3. Verify: Verify Service Orders page caption.
         Assert.ExpectedMessage(StrSubstNo(OrderCaption, ServiceLine."Customer No."), ServiceOrders.Caption);
@@ -891,7 +891,7 @@ codeunit 136146 "Service Item Tracking"
         ServiceQuotes.Trap;
 
         // 2. Exercise: Open Service Quotes page using Service Order page.
-        ServiceOrder.Control1907829707.NoOfQuotes.DrillDown;
+        ServiceOrder.Control1907829707.NoOfQuotesTile.Drilldown();
 
         // 3. Verify: Verify Service Quotes page caption.
         Assert.ExpectedMessage(StrSubstNo(QuoteCaption, ServiceLine."Customer No."), ServiceQuotes.Caption);
@@ -914,7 +914,7 @@ codeunit 136146 "Service Item Tracking"
         ServiceInvoices.Trap;
 
         // 2. Exercise: Open Service Invoices page using Service Order page.
-        ServiceOrder.Control1907829707.NoOfInvoices.DrillDown;
+        ServiceOrder.Control1907829707.NoOfInvoicesTile.Drilldown();
 
         // 3. Verify: Verify Service Inoices page caption.
         Assert.ExpectedMessage(StrSubstNo(InvoicesCaption, ServiceLine."Customer No."), ServiceInvoices.Caption);
@@ -937,7 +937,7 @@ codeunit 136146 "Service Item Tracking"
         ServiceCreditMemos.Trap;
 
         // 2. Exercise: Open Service Credit Memo page using Service Order page.
-        ServiceOrder.Control1907829707.NoOfCreditMemos.DrillDown;
+        ServiceOrder.Control1907829707.NoOfCreditMemosTile.Drilldown();
 
         // 3. Verify: Verify Service Credit Memos page caption.
         Assert.ExpectedMessage(StrSubstNo(CreditMemosCaption, ServiceLine."Customer No."), ServiceCreditMemos.Caption);
@@ -960,7 +960,7 @@ codeunit 136146 "Service Item Tracking"
         PostedServiceShipments.Trap;
 
         // 2. Exercise: Open Posted Service Shipment page using Service Order page.
-        ServiceOrder.Control1907829707.NoOfPostedShipments.DrillDown;
+        ServiceOrder.Control1907829707.NoOfPostedShipmentsTile.Drilldown();
 
         // 3. Verify: Verify for Posted Service Shipments page caption.
         Assert.AreEqual(StrSubstNo(PostedServiceShipmentsCaption), PostedServiceShipments.Caption, ValidationError);
@@ -983,7 +983,7 @@ codeunit 136146 "Service Item Tracking"
         PostedServiceInvoices.Trap;
 
         // 2. Exercise: Open Posted Service Invoices page using Service Order page.
-        ServiceOrder.Control1907829707.NoOfPostedInvoices.DrillDown;
+        ServiceOrder.Control1907829707.NoOfPostedInvoicesTile.Drilldown();
 
         // 3. Verify: Verify Posted Service Invoices page caption.
         Assert.AreEqual(StrSubstNo(PostedServiceInvoicesCaption), PostedServiceInvoices.Caption, ValidationError);
@@ -1006,7 +1006,7 @@ codeunit 136146 "Service Item Tracking"
         PostedServiceCreditMemos.Trap;
 
         // 2. Exercise: Open Posted Service Credit Memos page using Service Order page.
-        ServiceOrder.Control1907829707.NoOfPostedCreditMemos.DrillDown;
+        ServiceOrder.Control1907829707.NoOfPostedCreditMemosTile.Drilldown();
 
         // 3. Verify: Verify Posted Service Credit Memos page caption.
         Assert.AreEqual(StrSubstNo(PostedServiceCreditMemosCaption), PostedServiceCreditMemos.Caption, ValidationError);
@@ -1035,7 +1035,7 @@ codeunit 136146 "Service Item Tracking"
         LibraryVariableStorage.Enqueue(ServiceLine.Quantity); // Enqueue Value for ItemTrackingAndVerifyItemTrackingQtyPageHandler.
 
         // 3. Verify: Verify the Item Tracking Quantity on Service Item Worksheet in ItemTrackingAndVerifyItemTrackingQtyPageHandler.
-        ServiceLine.OpenItemTrackingLines;
+        ServiceLine.OpenItemTrackingLines();
     end;
 
     [HandlerFunctions('ItemTrackingSummaryPageHandler')]
@@ -1098,7 +1098,7 @@ codeunit 136146 "Service Item Tracking"
         end;
         ServiceLine.Modify(true);
         ItemTrackingAction := ItemTrackingAction::CreateCustomizedSerialNo;
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // EXECUTE: Post the service invoice
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -1145,14 +1145,15 @@ codeunit 136146 "Service Item Tracking"
         ServiceLine.Validate("Location Code", LocationCode);
         ServiceLine.Modify(true);
         ItemTrackingAction := ItemTrackingAction::SelectEntries;
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
         LibraryVariableStorage.Enqueue(FindSerialNoFromItemLedgerEntry); // Enqueue Serial No.
 
         // EXECUTE: Create Pick, Register Pick and post Warehouse shipment with ship option, Invoice Service order partialy.
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Service Line", ServiceHeader."Document Type", ServiceHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Service Line", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No."));
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         RegisterWarehouseActivity(ServiceHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
@@ -1226,7 +1227,7 @@ codeunit 136146 "Service Item Tracking"
 
         // [GIVEN] Assign Serial No. to Service Line
         ItemTrackingAction := ItemTrackingAction::SelectEntries;
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking in "ItemTrackingPageHandler"
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking in "ItemTrackingPageHandler"
 
         // [WHEN] Post Service Invoice
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -1320,10 +1321,10 @@ codeunit 136146 "Service Item Tracking"
         // [GIVEN] Whse. Receipt is posted, Put-away is registered.
         CreatePurchaseOrderForLocation(PurchaseHeader, PurchaseLine, Location.Code, ItemNo[1], Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignLotNo);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         CreatePurchaseLineWithLocationCode(PurchaseLine, PurchaseHeader, ItemNo[2], Location.Code, Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         CreateAndPostWhseReceiptFromPO(PurchaseHeader);
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
@@ -1343,7 +1344,8 @@ codeunit 136146 "Service Item Tracking"
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Service Line", ServiceHeader."Document Type", ServiceHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Service Line", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No."));
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         RegisterWarehouseActivity(ServiceHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
 
@@ -1355,7 +1357,7 @@ codeunit 136146 "Service Item Tracking"
             WarehouseShipmentLine.Modify(true);
             LibraryVariableStorage.Enqueue(ItemTrackingAction::AdjustQtyToHandle);
             LibraryVariableStorage.Enqueue(-1);
-            WarehouseShipmentLine.OpenItemTrackingLines;
+            WarehouseShipmentLine.OpenItemTrackingLines();
         end;
 
         // [WHEN] Post the warehouse shipment.
@@ -1455,7 +1457,7 @@ codeunit 136146 "Service Item Tracking"
         CreatePurchaseOrder(PurchaseHeader);
         FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
         ItemTrackingAction := ItemTrackingAction2;
-        PurchaseLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
     end;
 
     local procedure AssignItemTrackingAndPostPurchaseOrderWithMaxQtyItem(var Item: Record Item; LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; ItemTrackingAction2: Option)
@@ -1475,7 +1477,7 @@ codeunit 136146 "Service Item Tracking"
         FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
         ItemTrackingAction := ItemTrackingAction2;
         LibraryVariableStorage.Enqueue(false); // Enqueue for ItemTrackingAndVerifyItemTrackingQtyPageHandler.
-        PurchaseLine.OpenItemTrackingLines; // Assign Item Tracking on page handler.
+        PurchaseLine.OpenItemTrackingLines(); // Assign Item Tracking on page handler.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
@@ -1489,7 +1491,7 @@ codeunit 136146 "Service Item Tracking"
         OriginalQuantity := Quantity;  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         CreatePurchaseOrderForLocation(PurchaseHeader, PurchaseLine, LocationCode, ItemNo, Quantity);
         ItemTrackingAction := ItemTrackingAction2;
-        PurchaseLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
         if SetExpirationDate then
             UpdateReservationEntry(PurchaseLine."No.", ExpirationDate);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1503,7 +1505,7 @@ codeunit 136146 "Service Item Tracking"
         CreateShipToAddressAndUpdateServiceLine(ServiceLine, ItemNo, OriginalQuantity + Quantity);
         ServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
         ItemTrackingAction := ItemTrackingAction::SelectEntries;
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
     end;
 
     local procedure AssignItemTrackingOnServiceOrderWithItem(var Item: Record Item; var ServiceLine: Record "Service Line"; Quantity: Integer)
@@ -1514,7 +1516,7 @@ codeunit 136146 "Service Item Tracking"
         ServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
         ItemTrackingAction := ItemTrackingAction::SelectEntries;
         LibraryVariableStorage.Enqueue(false); // Enqueue for ItemTrackingAndVerifyItemTrackingQtyPageHandler.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
     end;
 
     local procedure CreateItemWithSerialAndLotNo(LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; CreateNewItemTrackingCode: Boolean): Code[20]
@@ -1561,7 +1563,7 @@ codeunit 136146 "Service Item Tracking"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; CustomerNo: Code[20]; ItemNumber: Code[20]; DocumentType: Option)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; CustomerNo: Code[20]; ItemNumber: Code[20]; DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";
@@ -1572,13 +1574,13 @@ codeunit 136146 "Service Item Tracking"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNumber);
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
-        LibraryService.CreateServiceItemComponent(ServiceItemComponent, ServiceItem."No.", ServiceLine.Type::Item, ServiceLine."No.");
+        LibraryService.CreateServiceItemComponent(ServiceItemComponent, ServiceItem."No.", "Service Item Component Type"::Item, ServiceLine."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocumentWithLine(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20]; ServiceItemNo: Code[20])
+    local procedure CreateServiceDocumentWithLine(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; ServiceItemNo: Code[20])
     var
         ServiceItemLine: Record "Service Item Line";
     begin
@@ -1630,12 +1632,12 @@ codeunit 136146 "Service Item Tracking"
         ServiceItemComponent: Record "Service Item Component";
         ServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceItemComponent(ServiceItemComponent, ServiceItemLine."Service Item No.", ServiceLine.Type::Item, ItemNo);
+        LibraryService.CreateServiceItemComponent(ServiceItemComponent, ServiceItemLine."Service Item No.", "Service Item Component Type"::Item, ItemNo);
         LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo, Qty);
         ServiceLine.Validate("Location Code", LocationCode);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Modify(true);
-        ServiceLine.OpenItemTrackingLines;
+        ServiceLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateShipToAddressAndUpdateServiceLine(var ServiceLine: Record "Service Line"; ItemNumber: Code[20]; Quantity: Decimal)
@@ -1786,7 +1788,7 @@ codeunit 136146 "Service Item Tracking"
         exit(WarehouseActivityLine."No.");
     end;
 
-    local procedure FindWarehouseReceiptNo(SourceDocument: Option; SourceNo: Code[20]): Code[20]
+    local procedure FindWarehouseReceiptNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
@@ -1812,7 +1814,7 @@ codeunit 136146 "Service Item Tracking"
         end;
     end;
 
-    local procedure PostWarehouseReceipt(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin

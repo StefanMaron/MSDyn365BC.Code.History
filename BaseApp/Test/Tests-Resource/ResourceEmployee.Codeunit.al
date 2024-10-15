@@ -16,6 +16,7 @@ codeunit 136400 "Resource Employee"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         IncrementMessageErr: Label 'Employee No must be incremented as per the setup.';
         EditableErr: Label '%1 should not be editable.';
@@ -177,11 +178,14 @@ codeunit 136400 "Resource Employee"
         EmployeeCard: TestPage "Employee Card";
     begin
         // Test Employee No. is incremented by AssistEdit automatically as per the setup.
+        LibraryTemplates.DisableTemplatesFeature();
 
         // 1. Setup: Find Next Employee No.
         HumanResourcesSetup.Get();
 
         // 2. Exercise: Genrate New Employee No. by click on AssistEdit Button with No. Series Code.
+
+        commit();
         EmployeeCard.OpenNew;
         EmployeeCard."No.".AssistEdit; // Get No. Series Code in EmployeeNoSeriesCode.
 
@@ -548,6 +552,7 @@ codeunit 136400 "Resource Employee"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Employee");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;
@@ -574,7 +579,10 @@ codeunit 136400 "Resource Employee"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NoSeriesListModalHandler(var NoSeriesList: TestPage "No. Series List")
+    var
+        visible: Boolean;
     begin
+        visible := NoSeriesList.Code.Visible();
         EmployeeNoSeriesCode := NoSeriesList.Code.Value;
     end;
 

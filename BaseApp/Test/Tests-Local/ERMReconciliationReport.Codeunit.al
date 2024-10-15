@@ -789,7 +789,7 @@ codeunit 144719 "ERM Reconciliation Report"
               "Applies-to Doc. Type"::"Credit Memo", CrMemoNo, '', LineAmount);
     end;
 
-    local procedure CreateApplyPostGenJnlLine(PostingDate: Date; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20]; AgreementNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateApplyPostGenJnlLine(PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AgreementNo: Code[20]; LineAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -804,15 +804,15 @@ codeunit 144719 "ERM Reconciliation Report"
         end;
     end;
 
-    local procedure CreatePostGenJnlLine(LineAmount: Decimal; AccType: Option; AccNo: Code[20]; AgreementNo: Code[20]; PostingDate: Date)
+    local procedure CreatePostGenJnlLine(LineAmount: Decimal; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AgreementNo: Code[20]; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            CreateApplyPostGenJnlLine(PostingDate, "Document Type"::Payment, AccType, AccNo, 0, '', AgreementNo, LineAmount);
+            CreateApplyPostGenJnlLine(PostingDate, "Document Type"::Payment, AccType, AccNo, "Gen. Journal Document Type"::" ", '', AgreementNo, LineAmount);
     end;
 
-    local procedure CreateApplyPost2GenJnlLines(Amount: Decimal; AccType: Option; AccNo: Code[20]; AgreementNo1: Code[20]; AgreementNo2: Code[20]; AppliesToDocNo: Code[20]): Decimal
+    local procedure CreateApplyPost2GenJnlLines(Amount: Decimal; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AgreementNo1: Code[20]; AgreementNo2: Code[20]; AppliesToDocNo: Code[20]): Decimal
     var
         GenJnlLine1: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -1059,11 +1059,9 @@ codeunit 144719 "ERM Reconciliation Report"
     end;
 
     local procedure CreateCorrectionSalesCreditMemo(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; InvoiceNo: Code[20]; AgreementNo: Code[20])
-    var
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-        LibrarySales.CopySalesDocument(SalesHeader, DocType::"Posted Invoice", InvoiceNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", InvoiceNo, true, false);
         SalesHeader.Validate("Agreement No.", AgreementNo);
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
         SalesHeader.Validate("Applies-to Doc. No.", InvoiceNo);
@@ -1085,7 +1083,7 @@ codeunit 144719 "ERM Reconciliation Report"
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        LibrarySales.CopySalesDocument(SalesHeader, DocType::"Posted Credit Memo", InvoiceNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Credit Memo", InvoiceNo, true, false);
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::"Credit Memo");
         SalesHeader.Validate("Applies-to Doc. No.", InvoiceNo);
         SalesHeader.Modify();

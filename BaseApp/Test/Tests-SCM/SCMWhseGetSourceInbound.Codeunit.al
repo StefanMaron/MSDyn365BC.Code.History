@@ -611,7 +611,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
     begin
         WhseSourceCreateDocument.SetWhseWkshLine(WhseWorksheetLine);
-        WhseSourceCreateDocument.Initialize(UserId, 0, false, false, false);
+        WhseSourceCreateDocument.Initialize(UserId, "Whse. Activity Sorting Method"::None, false, false, false);
         WhseSourceCreateDocument.UseRequestPage(false);
         WhseSourceCreateDocument.Run;
     end;

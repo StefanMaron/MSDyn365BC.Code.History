@@ -134,9 +134,7 @@ page 1600 "Outlook Mail Engine"
         end;
         FieldValuesText := DelChr(FieldValuesText, '>', ',');
 
-        SendTraceTag('0000BOY', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
-            StrSubstNo(OfficeAddinStartedTelemetryMsg, GetFilters(), FieldValuesText),
-            DataClassification::CustomerContent);
+        Session.LogMessage('0000BOY', StrSubstNo(OfficeAddinStartedTelemetryMsg, GetFilters(), FieldValuesText), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 }
 
