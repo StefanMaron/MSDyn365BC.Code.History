@@ -573,7 +573,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         ErrorMessage.SetContext(IntrastatJnlBatch);
         Assert.AreEqual(1, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
+        Assert.ExpectedMessage(FieldName, ErrorMessage."Message");
     end;
 
     local procedure VerifyBatchTwoErrors(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName1: Text; FieldName2: Text)
@@ -586,9 +586,9 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         ErrorMessage.SetContext(IntrastatJnlBatch);
         Assert.AreEqual(2, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(FieldName1, ErrorMessage.Description);
+        Assert.ExpectedMessage(FieldName1, ErrorMessage."Message");
         ErrorMessage.Next();
-        Assert.ExpectedMessage(FieldName2, ErrorMessage.Description);
+        Assert.ExpectedMessage(FieldName2, ErrorMessage."Message");
     end;
 
     local procedure VerifyNoBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -609,7 +609,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         ErrorMessage.SetRange("Record ID", IntrastatJnlLine.RecordId());
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
+        Assert.ExpectedMessage(FieldName, ErrorMessage."Message");
     end;
 
     [RequestPageHandler]

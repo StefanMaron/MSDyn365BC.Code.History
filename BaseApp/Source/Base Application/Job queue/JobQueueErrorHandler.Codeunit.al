@@ -45,7 +45,7 @@ codeunit 450 "Job Queue Error Handler"
         JobQueueDispatcher.OnAfterExecuteJob(JobQueueEntry, false);
 #endif
 
-        JobQueueEntry."Error Message" := ErrorMessages.Description;
+        JobQueueEntry."Error Message" := ErrorMessages."Message";
         JobQueueEntry.Modify();
 
 #if not CLEAN19

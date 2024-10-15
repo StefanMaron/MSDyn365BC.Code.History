@@ -332,9 +332,9 @@ codeunit 5775 "Whse. Management"
                     QtyOutstanding := ProdOrderLine."Remaining Quantity";
                     QtyBaseOutstanding := ProdOrderLine."Remaining Qty. (Base)";
                 end;
-            DATABASE::"Job Planning Line":
+            DATABASE::Job, DATABASE::"Job Planning Line":
                 begin
-                    JobPlanningLine.Setrange(Status, SourceSubType);
+                    JobPlanningLine.Setrange(Status, "Job Planning Line Status"::Order);
                     JobPlanningLine.SetRange("Job No.", SourceNo);
                     JobPlanningLine.SetRange("Job Contract Entry No.", SourceLineNo);
                     if JobPlanningLine.FindFirst() then begin

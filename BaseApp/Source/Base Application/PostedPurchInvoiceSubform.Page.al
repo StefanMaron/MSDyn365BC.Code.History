@@ -107,6 +107,12 @@ page 139 "Posted Purch. Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price, in LCY, of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
+                field("VAT %"; Rec."VAT %")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the VAT %.';
+                    Visible = false;
+                }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;

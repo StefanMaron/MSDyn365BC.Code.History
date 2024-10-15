@@ -188,7 +188,7 @@
                 OnTransProdOrderLineOnAfterFromProdOrderLineFindSet(FromProdOrderLine, ToProdOrderLine, NewStatus);
                 repeat
                     IsHandled := false;
-                    OnTransProdOrderLineOnBeforeFromProdOrderLineLoop(FromProdOrderLine, ToProdOrderLine, NewStatus, IsHandled);
+                    OnTransProdOrderLineOnBeforeFromProdOrderLineLoop(FromProdOrderLine, ToProdOrderLine, NewStatus, IsHandled, ToProdOrder);
                     if not IsHandled then begin
                         ToProdOrderLine := FromProdOrderLine;
                         ToProdOrderLine.Status := ToProdOrder.Status;
@@ -401,7 +401,13 @@
     var
         FromProdOrderCommentLine: Record "Prod. Order Comment Line";
         ToProdOrderCommentLine: Record "Prod. Order Comment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransProdOrderCmtLine(FromProdOrder, ToProdOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         with FromProdOrderCommentLine do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
@@ -423,7 +429,13 @@
     var
         FromProdOrderRtngComment: Record "Prod. Order Rtng Comment Line";
         ToProdOrderRtngComment: Record "Prod. Order Rtng Comment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransProdOrderRtngCmtLn(FromProdOrder, ToProdOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         with FromProdOrderRtngComment do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
@@ -444,7 +456,13 @@
     var
         FromProdOrderBOMComment: Record "Prod. Order Comp. Cmt Line";
         ToProdOrderBOMComment: Record "Prod. Order Comp. Cmt Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransProdOrderBOMCmtLine(FromProdOrder, ToProdOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         with FromProdOrderBOMComment do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
@@ -800,6 +818,7 @@
                         ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
                         ProdOrderRtngLine.SetRange("Routing Reference No.", "Line No.");
                         ProdOrderRtngLine.SetRange("Next Operation No.", '');
+                        ProdOrderRtngLine.SetRange("Flushing Method");
                         if not ProdOrderRtngLine.IsEmpty() then begin
                             ProdOrderRtngLine.SetFilter("Flushing Method", '<>%1', ProdOrderRtngLine."Flushing Method"::Backward);
                             ShowWarning := not ProdOrderRtngLine.IsEmpty();
@@ -1157,6 +1176,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransProdOrderRtngCmtLn(FromProductionOrder: Record "Production Order"; ToProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransProdOrderCmtLine(FromProductionOrder: Record "Production Order"; ToProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransProdOrderBOMCmtLine(FromProductionOrder: Record "Production Order"; ToProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferLinks(FromProdOrder: Record "Production Order"; ToProdOrder: Record "Production Order"; var IsHandled: Boolean)
     begin
     end;
@@ -1327,7 +1361,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransProdOrderLineOnBeforeFromProdOrderLineLoop(FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line"; NewStatus: Enum "Production Order Status"; var IsHandled: Boolean)
+    local procedure OnTransProdOrderLineOnBeforeFromProdOrderLineLoop(FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line"; NewStatus: Enum "Production Order Status"; var IsHandled: Boolean; ToProductionOrder: Record "Production Order")
     begin
     end;
 

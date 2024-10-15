@@ -1,8 +1,8 @@
 codeunit 1501 "Workflow Management"
 {
-    Permissions = TableData Workflow = r,
-                  TableData "Workflow Step" = r,
-                  TableData "Workflow Step Instance" = rimd,
+    Permissions = TableData Workflow = R,
+                  TableData "Workflow Step" = R,
+                  TableData "Workflow Step Instance" = Rimd,
                   TableData "Workflow Table Relation Value" = rimd,
                   TableData "Workflow Event Queue" = rimd,
                   TableData "Workflow Step Argument" = d,

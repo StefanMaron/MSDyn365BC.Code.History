@@ -2257,6 +2257,7 @@
                     CopyFilter("Dimension 2 Filter", GLAcc."Global Dimension 2 Filter");
                     CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
                     GLAcc.FilterGroup(2);
+                    OnDrillDownOnGLAccCatFilterOnAfterGLAccSetFilterGroup2(AccScheduleLine, GLAcc);
                     GLAcc.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, "Dimension 1 Totaling"));
                     GLAcc.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, "Dimension 2 Totaling"));
                     GLAcc.FilterGroup(8);
@@ -2696,6 +2697,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDrillDownTotalingTypeElseCase(var TempColumnLayout: Record "Column Layout" temporary; var AccSchedLine: Record "Acc. Schedule Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownOnGLAccCatFilterOnAfterGLAccSetFilterGroup2(var AccScheduleLine: Record "Acc. Schedule Line"; var GLAccount: Record "G/L Account")
     begin
     end;
 }

@@ -847,7 +847,14 @@ codeunit 424 "Export Analysis View"
     end;
 
     local procedure CheckCombination(Show: Integer; AmountField: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCombination(GLAccountSource, Show, AmountField, IsHandled);
+        if IsHandled then
+            exit;
+
         if not GLAccountSource then
             exit;
 
@@ -958,6 +965,11 @@ codeunit 424 "Export Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnExportDataOnAfterCloseBook(var TempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCombination(GLAccountSource: Boolean; Show: Integer; AmountField: Integer; var IsHandled: Boolean)
     begin
     end;
 }
