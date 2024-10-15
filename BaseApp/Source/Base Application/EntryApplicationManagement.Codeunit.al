@@ -64,6 +64,7 @@ codeunit 10202 "Entry Application Management"
         ClosingVendLedgEntry: Record "Vendor Ledger Entry";
         AmountToApply: Decimal;
         PaymentDiscount: Decimal;
+        IsHandled: Boolean;
     begin
         // Temporary Table, AppliedVendLedgEntry, to be filled in with everything that VendLedgEntry applied to.
         // Note that within AppliedVendLedgEntry, the "Amount to Apply" field will be filled in with the Amount Applied.
@@ -84,33 +85,41 @@ codeunit 10202 "Entry Application Management"
                 PmtDtldVendLedgEntry.SetRange("Vendor No.", DtldVendLedgEntry."Vendor No.");
                 PmtDtldVendLedgEntry.FindSet();
                 repeat
-                    PaymentDiscount := 0;
-                    if PmtDtldVendLedgEntry."Posting Date" <= PmtDtldVendLedgEntry."Initial Entry Due Date" then
-                        PaymentDiscount := PmtDtldVendLedgEntry."Remaining Pmt. Disc. Possible";
-                    if UseLCY then
-                        AmountToApply := -PmtDtldVendLedgEntry."Amount (LCY)" - PaymentDiscount
-                    else
-                        AmountToApply := -PmtDtldVendLedgEntry.Amount - PaymentDiscount;
-                    PmtVendLedgEntry.Get(PmtDtldVendLedgEntry."Vendor Ledger Entry No.");
-                    AppliedVendLedgEntry := PmtVendLedgEntry;
-                    if AppliedVendLedgEntry.Find then begin
-                        AppliedVendLedgEntry."Amount to Apply" += AmountToApply;
-                        AppliedVendLedgEntry.Modify();
-                    end else begin
+                    IsHandled := false;
+                    OnGetAppliedVendEntriesOnBeforePrepareAppliedVendLedgEntry(AppliedVendLedgEntry, VendLedgEntry, UseLCY, PmtDtldVendLedgEntry, IsHandled);
+                    if not IsHandled then begin
+                        PaymentDiscount := 0;
+                        if PmtDtldVendLedgEntry."Posting Date" <= PmtDtldVendLedgEntry."Initial Entry Due Date" then
+                            PaymentDiscount := PmtDtldVendLedgEntry."Remaining Pmt. Disc. Possible";
+                        if UseLCY then
+                            AmountToApply := -PmtDtldVendLedgEntry."Amount (LCY)" - PaymentDiscount
+                        else
+                            AmountToApply := -PmtDtldVendLedgEntry.Amount - PaymentDiscount;
+                        PmtVendLedgEntry.Get(PmtDtldVendLedgEntry."Vendor Ledger Entry No.");
                         AppliedVendLedgEntry := PmtVendLedgEntry;
-                        AppliedVendLedgEntry."Amount to Apply" := AmountToApply;
-                        if VendLedgEntry."Closed by Entry No." <> 0 then begin
-                            ClosingVendLedgEntry.Get(PmtDtldVendLedgEntry."Vendor Ledger Entry No.");
-                            if ClosingVendLedgEntry."Closed by Entry No." <> AppliedVendLedgEntry."Entry No." then
-                                AppliedVendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
+                        if AppliedVendLedgEntry.Find then begin
+                            AppliedVendLedgEntry."Amount to Apply" += AmountToApply;
+                            AppliedVendLedgEntry.Modify();
+                        end else begin
+                            AppliedVendLedgEntry := PmtVendLedgEntry;
+                            AppliedVendLedgEntry."Amount to Apply" := AmountToApply;
+                            if VendLedgEntry."Closed by Entry No." <> 0 then begin
+                                ClosingVendLedgEntry.Get(PmtDtldVendLedgEntry."Vendor Ledger Entry No.");
+                                if ClosingVendLedgEntry."Closed by Entry No." <> AppliedVendLedgEntry."Entry No." then
+                                    AppliedVendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
+                            end;
+                            AppliedVendLedgEntry.Insert();
                         end;
-                        AppliedVendLedgEntry.Insert();
                     end;
                 until PmtDtldVendLedgEntry.Next() = 0;
             until DtldVendLedgEntry.Next() = 0;
     end;
 
-    procedure GetAppliedVendorEntries(var TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary; VendorNo: Code[20]; PeriodDate: array[2] of Date; UseLCY: Boolean)
+    procedure GetAppliedVendorEntries(var
+                                          TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
+                                          VendorNo: Code[20];
+                                          PeriodDate: array[2] of Date;
+                                          UseLCY: Boolean)
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         PmtDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -195,6 +204,11 @@ codeunit 10202 "Entry Application Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetAppliedCustEntriesOnAfterFilterPmtDtldCustLedgEntry(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var PmtDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAppliedVendEntriesOnBeforePrepareAppliedVendLedgEntry(var AppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary; var VendLedgEntry: Record "Vendor Ledger Entry"; var UseLCY: Boolean; var PmtDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 }

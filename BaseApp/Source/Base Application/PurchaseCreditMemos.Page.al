@@ -274,12 +274,7 @@ page 9309 "Purchase Credit Memos"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Purchase Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Purchase Stats.", Rec)
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")

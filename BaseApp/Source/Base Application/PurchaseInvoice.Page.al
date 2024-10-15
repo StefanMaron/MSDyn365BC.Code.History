@@ -875,14 +875,9 @@ page 51 "Purchase Invoice"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
+                        PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Purchase Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Purchase Stats.", Rec);
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        ShowDocumentStatisticsPage();
                     end;
                 }
                 action(Vendor)
@@ -1160,6 +1155,7 @@ page 51 "Purchase Invoice"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -1178,6 +1174,7 @@ page 51 "Purchase Invoice"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }

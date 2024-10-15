@@ -416,6 +416,11 @@ page 118 "General Ledger Setup"
             group("Electronic Invoice")
             {
                 Caption = 'Electronic Invoice';
+                field("CFDI Enabled"; "CFDI Enabled")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies if the CFDI feature is enabled.';
+                }
                 field("SAT Certificate"; "SAT Certificate")
                 {
                     ApplicationArea = BasicMX;

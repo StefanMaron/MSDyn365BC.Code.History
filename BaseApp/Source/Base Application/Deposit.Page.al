@@ -149,6 +149,7 @@ page 10140 Deposit
                         if "Journal Batch Name" <> CurrentJnlBatchName then begin
                             Clear(Rec);
                             SyncFormWithJournal;
+                            OnChangeBatchActionOnAfterSyncFormWithJournal(GenJnlLine);
                         end;
                     end;
                 }
@@ -268,6 +269,11 @@ page 10140 Deposit
             exit(GetRangeMax("Journal Batch Name"));
 
         exit("No." + ' (' + "Journal Batch Name" + ')');
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnChangeBatchActionOnAfterSyncFormWithJournal(var GenJnlLine: Record "Gen. Journal Line")
+    begin
     end;
 }
 

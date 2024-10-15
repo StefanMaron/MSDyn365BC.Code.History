@@ -393,6 +393,8 @@ table 10140 "Deposit Header"
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2', "Bank Account No.", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAferShowDocDim(Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -427,6 +429,11 @@ table 10140 "Deposit Header"
 
     [IntegrationEvent(true, false)]
     local procedure OnInitInsertOnBeforeInitRecord(var xDepositHeader: Record "Deposit Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAferShowDocDim(var DepositHeader: Record "Deposit Header")
     begin
     end;
 }

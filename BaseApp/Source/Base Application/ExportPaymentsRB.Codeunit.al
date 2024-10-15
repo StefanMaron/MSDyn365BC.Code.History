@@ -55,8 +55,6 @@ codeunit 10091 "Export Payments (RB)"
 
     procedure StartExportFile(BankAccountNo: Code[20]; GenJnlLine: Record "Gen. Journal Line")
     var
-        GLSetup: Record "General Ledger Setup";
-        FileHeaderRec: Text[250];
         i: Integer;
     begin
         BuildIDModifier;
@@ -127,7 +125,23 @@ codeunit 10091 "Export Payments (RB)"
             TotalFileCredit := 0;
             RecordLength := 152;
             Transactions := 0;
-            FileHeaderRec := '';
+
+            WriteStartDataBlock(GenJnlLine);
+        end;
+    end;
+
+    local procedure WriteStartDataBlock(GenJnlLine: Record "Gen. Journal Line")
+    var
+        GLSetup: Record "General Ledger Setup";
+        FileHeaderRec: Text[250];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeWriteStartDataBlock(GenJnlLine, BankAccount, RecordLength, FileHeaderRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        with BankAccount do begin
             ExportPrnString(FileHeaderRec);
 
             FileHeaderRec := '';
@@ -190,7 +204,13 @@ codeunit 10091 "Export Payments (RB)"
     var
         FileControlRec: Text[250];
         ClientFile: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEndExportFile(BankAccount, FileControlRec, NoOfRec, TotalFileCredit, FileIsInProcess, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FileIsInProcess then
             Error(ExportFileNotEndedFileNotStartedErr);
 
@@ -297,8 +317,15 @@ codeunit 10091 "Export Payments (RB)"
         end;
     end;
 
-    local procedure ExportPrnString(var PrnString: Text[250])
+    procedure ExportPrnString(var PrnString: Text[250])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExportPrnString(BankAccount, PrnString, NoOfRec, ExportFile, RecordLength, IsHandled);
+        if IsHandled then
+            exit;
+
         PrnString := PadStr(PrnString, RecordLength, ' ');
         ExportFile.Write(PrnString);
         NoOfRec := NoOfRec + 1;
@@ -472,7 +499,15 @@ codeunit 10091 "Export Payments (RB)"
         IATAddressInfo1Rec: Text[250];
         IATAddressInfo2Rec: Text[250];
         IATRemittanceRec: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeWriteRecord(
+            GenJournalLine, Transactions, DetailRec, TraceNo, NoOfRec, BankAccount, AcctName, SettleDate,
+            RecipientBankNo, RecipientTransitNo, PaymentAmount, RecipientBankAcctNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJournalLine do begin
             Transactions := Transactions + 1;
             DetailRec := '';
@@ -559,6 +594,27 @@ codeunit 10091 "Export Payments (RB)"
                 NoOfCustInfoRec += +1;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEndExportFile(var BankAccount: Record "Bank Account"; var FileControlRec: Text[250]; var NoOfRec: Integer; var TotalFileCredit: Decimal; var FileIsInProcess: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportPrnString(var BankAccount: Record "Bank Account"; var PrnString: Text[250]; var NoOfRec: Integer; var ExportFile: File; var RecordLength: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteStartDataBlock(GenJnlLine: Record "Gen. Journal Line"; var BankAccount: Record "Bank Account"; var RecordLength: Integer; var FileHeaderRec: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeWriteRecord(var GenJournalLine: Record "Gen. Journal Line"; var Transactions: Integer; var DetailRec: Text[250]; var TraceNo: Integer; NoOfRec: Integer; var BankAccount: Record "Bank Account";
+    var AcctName: Text[30]; var SettleDate: Date; var RecipientBankNo: Text[20]; var RecipientTransitNo: Text[20]; var PaymentAmount: Decimal; var RecipientBankAcctNo: Text[30]; var IsHandled: Boolean)
+    begin
     end;
 }
 

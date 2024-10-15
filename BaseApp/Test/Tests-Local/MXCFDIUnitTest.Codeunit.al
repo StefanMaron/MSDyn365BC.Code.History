@@ -1943,9 +1943,10 @@ codeunit 144000 "MX CFDI Unit Test"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        if Enabled then
-            GeneralLedgerSetup."PAC Environment" := GeneralLedgerSetup."PAC Environment"::Test
-        else
+        if Enabled then begin
+            GeneralLedgerSetup."PAC Environment" := GeneralLedgerSetup."PAC Environment"::Test;
+            GeneralLedgerSetup."CFDI Enabled" := true;
+        end else
             GeneralLedgerSetup."PAC Environment" := GeneralLedgerSetup."PAC Environment"::Disabled;
         GeneralLedgerSetup.Modify();
     end;

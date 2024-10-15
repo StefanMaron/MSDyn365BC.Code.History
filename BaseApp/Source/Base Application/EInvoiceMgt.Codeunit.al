@@ -34,7 +34,7 @@ codeunit 10145 "E-Invoice Mgt."
         MethodType: Option "Request Stamp",Cancel;
         Text012: Label 'Cannot contact the PAC. You must specify a value for the %1 field in the %2 window for the PAC that you selected in the %3 window.', Comment = '%1=Certificate;%2=PACWebService table caption;%3=GLSetup table caption';
         Text013: Label 'Request Stamp,Send,Cancel';
-        Text014: Label 'You cannot perform this action because the %1 field in the %2 window is set to %3.';
+        Text014: Label 'CFDI feature is not enabled. Open the General Ledger Setup page, toggle the Enabled checkbox and specify the PAC Environment under the Electronic Invoice FastTab.';
         Text015: Label 'Do you want to cancel the electronic document?';
         Text016: Label 'The SMTP mail system returned the following error: %1.';
         FileDialogTxt: Label 'Import electronic invoice';
@@ -2166,7 +2166,7 @@ codeunit 10145 "E-Invoice Mgt."
             end;
 
             WriteOutStr(OutStream, FormatAmount(SubTotal - TotalDiscount + TotalTax - TotalRetention) + '|'); // Total
-                                                                                              // OutStream.WRITETEXT(FormatAmount("Amount Including VAT" + TotalDiscount + AdvanceAmount) + '|'); // Total
+                                                                                                              // OutStream.WRITETEXT(FormatAmount("Amount Including VAT" + TotalDiscount + AdvanceAmount) + '|'); // Total
             WriteOutStr(OutStream, Format('I') + '|'); // Ingreso -- TipoDeComprante
 
             if not Export then begin
@@ -2879,7 +2879,7 @@ codeunit 10145 "E-Invoice Mgt."
         if GLSetup."Sim. Request Stamp" then
             exit;
         if not IsPACEnvironmentEnabled then
-            Error(Text014, GLSetup.FieldCaption("PAC Environment"), GLSetup.TableCaption, GLSetup."PAC Environment");
+            Error(Text014);
 
         EInvoiceObjectFactory.GetWebServiceInvoker(IWebServiceInvoker);
 
@@ -4206,7 +4206,7 @@ codeunit 10145 "E-Invoice Mgt."
     begin
         XMLCurrNode := XMLNewChild;
 
-        AddAttribute(XMLDoc, XMLCurrNode, 'Base', FormatDecimal(BaseAmount,6));
+        AddAttribute(XMLDoc, XMLCurrNode, 'Base', FormatDecimal(BaseAmount, 6));
         AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', GetTaxCode(VATPct, VATAmount)); // Used to be IVA
         if not IsVATExempt then begin // When Sales Tax code is % then Tasa, else Exento
             AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
@@ -4382,7 +4382,7 @@ codeunit 10145 "E-Invoice Mgt."
     procedure IsPACEnvironmentEnabled(): Boolean
     begin
         GetGLSetupOnce();
-        exit(GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled);
+        exit((GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled) And GLSetup."CFDI Enabled");
     end;
 
     local procedure WriteOutStr(var OutStr: OutStream; TextParam: Text[1024])

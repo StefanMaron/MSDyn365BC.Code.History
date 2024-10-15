@@ -699,8 +699,20 @@
         field(10008; "PAC Environment"; Option)
         {
             Caption = 'PAC Environment';
-            OptionCaption = 'Disabled,Test,Production';
+            OptionCaption = ' ,Test,Production';
             OptionMembers = Disabled,Test,Production;
+        }
+        field(10009; "CFDI Enabled"; Boolean)
+        {
+            Caption = 'Enabled';
+
+            trigger OnValidate()
+            var
+                CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+            begin
+                if "CFDI Enabled" THEN
+                    "CFDI Enabled" := CustomerConsentMgt.ConfirmUserConsent();
+            end;
         }
         field(10010; "Sim. Signature"; Boolean)
         {

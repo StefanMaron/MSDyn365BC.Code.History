@@ -1,4 +1,4 @@
-table 10012 "Sales Tax Amount Difference"
+﻿table 10012 "Sales Tax Amount Difference"
 {
     Caption = 'Sales Tax Amount Difference';
 
@@ -148,9 +148,15 @@ table 10012 "Sales Tax Amount Difference"
                 ToTaxAmountDifference."Use Tax" := FromTaxAmountDifference."Use Tax";
                 ToTaxAmountDifference."Tax Difference" := FromTaxAmountDifference."Tax Difference";
                 ToTaxAmountDifference.Positive := FromTaxAmountDifference.Positive;
+                OnCopyTaxDifferenceRecordsOnBeforeToTaxAmountDifferenceInsert(ToTaxAmountDifference, FromTaxAmountDifference);
                 ToTaxAmountDifference.Insert();
             until FromTaxAmountDifference.Next() = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyTaxDifferenceRecordsOnBeforeToTaxAmountDifferenceInsert(var ToTaxAmountDifference: Record "Sales Tax Amount Difference"; var FromTaxAmountDifference: Record "Sales Tax Amount Difference")
+    begin
     end;
 }
 

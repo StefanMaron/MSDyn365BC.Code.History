@@ -1,4 +1,4 @@
-table 10123 "Posted Bank Rec. Header"
+﻿table 10123 "Posted Bank Rec. Header"
 {
     Caption = 'Posted Bank Rec. Header';
     DrillDownPageID = "Posted Bank Rec. List";
@@ -298,9 +298,15 @@ table 10123 "Posted Bank Rec. Header"
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       PostedBankRecLines."Dimension Set ID", PostedBankRecLines."Shortcut Dimension 1 Code",
                       PostedBankRecLines."Shortcut Dimension 2 Code");
+                    OnUpdateAllLineDimOnBeforePostedBankRecLinesModify(PostedBankRecLines);
                     PostedBankRecLines.Modify();
                 end;
             until PostedBankRecLines.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforePostedBankRecLinesModify(var PostedBankRecLines: Record "Posted Bank Rec. Line")
+    begin
     end;
 }
 

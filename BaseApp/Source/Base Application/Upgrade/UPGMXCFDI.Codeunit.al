@@ -9,7 +9,8 @@ codeunit 104151 "UPG. MX CFDI"
     trigger OnUpgradePerCompany()
     begin
         UpdateSATCatalogs;
-        UpdateCFDIFields
+        UpdateCFDIFields;
+        UpdateCFDIEnabled();
     end;
 
     local procedure UpdateSATCatalogs()
@@ -36,6 +37,24 @@ codeunit 104151 "UPG. MX CFDI"
         Codeunit.Run(Codeunit::"Update CFDI Fields Sales Doc");
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCFDIPurposeRelationFieldsDocUpdateTag());
+    end;
+
+    local procedure UpdateCFDIEnabled()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCFDIEnableOptionUpgradeTag()) then
+            exit;
+
+        if GeneralLedgerSetup.Get() then begin
+            GeneralLedgerSetup."CFDI Enabled" :=
+                GeneralLedgerSetup."PAC Environment" in [GeneralLedgerSetup."PAC Environment"::Test, GeneralLedgerSetup."PAC Environment"::Production];
+            GeneralLedgerSetup.Modify();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCFDIEnableOptionUpgradeTag());
     end;
 }
 

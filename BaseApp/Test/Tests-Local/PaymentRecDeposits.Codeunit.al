@@ -112,7 +112,7 @@ codeunit 142059 "Payment Rec Deposits"
     end;
 
     [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler')]
+    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOneDepositPostPaymentReconOutstBankTrxs()
     var
@@ -140,6 +140,7 @@ codeunit 142059 "Payment Rec Deposits"
 
         LibraryLowerPermissions.SetBanking;
         ImportBankStmt(BankAccRecon, TempBlobUTF8);
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
 
         // [WHEN] Payment Reconciliation Journal is opened
         // [WHEN] Automatically Apply the 1 line
@@ -159,7 +160,7 @@ codeunit 142059 "Payment Rec Deposits"
     end;
 
     [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler')]
+    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOneDepositOneSalePostPaymentReconOutstBankTrxs()
     var
@@ -189,6 +190,7 @@ codeunit 142059 "Payment Rec Deposits"
 
         LibraryLowerPermissions.SetBanking;
         ImportBankStmt(BankAccRecon, TempBlobUTF8);
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
         // [WHEN] Payment Reconciliation Journal is opened
@@ -211,7 +213,7 @@ codeunit 142059 "Payment Rec Deposits"
     end;
 
     [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler')]
+    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostTwoDepositKeepOneSalePayment()
     var
@@ -244,6 +246,7 @@ codeunit 142059 "Payment Rec Deposits"
 
         LibraryLowerPermissions.SetBanking;
         ImportBankStmt(BankAccRecon, TempBlobUTF8);
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
         // [WHEN] Payment Reconciliation Journal is opened
@@ -552,7 +555,7 @@ codeunit 142059 "Payment Rec Deposits"
     local procedure ApplyLineAndPost(var PmtReconJnl: TestPage "Payment Reconciliation Journal"; var EntryNoArray: array[3] of Integer; BankAccNo: Code[20]; BankAccRecon: Record "Bank Acc. Reconciliation")
     begin
         FillEntryNoArray(EntryNoArray, BankAccNo);
-
+        
         // Payment Reconciliation Journal is opened
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
 
@@ -747,6 +750,31 @@ codeunit 142059 "Payment Rec Deposits"
         CustLedgEntry.FindFirst;
 
         CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+    end;
+
+    local procedure GetLinesAndUpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation")
+    var
+        BankAccRecLine: Record "Bank Acc. Reconciliation Line";
+        TotalLinesAmount: Decimal;
+    begin
+        BankAccRecLine.LinesExist(BankAccRecon);
+        repeat
+            TotalLinesAmount += BankAccRecLine."Statement Amount";
+        until BankAccRecLine.Next() = 0;
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + TotalLinesAmount);
+    end;
+
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 
     [ConfirmHandler]

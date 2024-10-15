@@ -65,7 +65,6 @@ table 273 "Bank Acc. Reconciliation"
 
             trigger OnValidate()
             begin
-                TestField("Statement Type", "Statement Type"::"Bank Reconciliation");
                 BankAcc.Get("Bank Account No.");
                 if "Balance Last Statement" <> BankAcc."Balance Last Statement" then
                     if not

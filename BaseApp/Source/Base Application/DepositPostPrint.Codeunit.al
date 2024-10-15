@@ -15,7 +15,7 @@ codeunit 10142 "Deposit-Post + Print"
 
         if PostedDepositHeader.Get("No.") then begin
             PostedDepositHeader.SetRecFilter;
-            REPORT.Run(REPORT::Deposit, false, false, PostedDepositHeader);
+            PrintPostedDeposit();
         end;
     end;
 
@@ -24,5 +24,22 @@ codeunit 10142 "Deposit-Post + Print"
         PostedDepositHeader: Record "Posted Deposit Header";
         DepositPost: Codeunit "Deposit-Post";
         Text000: Label 'Do you want to post and print the Deposit?';
+
+    local procedure PrintPostedDeposit()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintPostedDeposit(PostedDepositHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        REPORT.Run(REPORT::Deposit, false, false, PostedDepositHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintPostedDeposit(var PostedDepositHeader: Record "Posted Deposit Header"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

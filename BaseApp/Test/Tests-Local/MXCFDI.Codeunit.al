@@ -3115,8 +3115,8 @@ codeunit 144001 "MX CFDI"
         UnitPrice := SalesLine."Unit Price" * 100 / (100 + SalesLine."VAT %");
         SalesLine."Amount Including VAT" := SalesLine.Amount * (1 + SalesLine."VAT %" / 100);
         SalesLineDisc."Amount Including VAT" := SalesLineDisc.Amount * (1 + SalesLineDisc."VAT %" / 100);
-        LineDiscExclVAT := 
-          Round(SalesLineDisc."Line Discount Amount" / (1 + SalesLineDisc."VAT %" / 100),Currency."Amount Rounding Precision");
+        LineDiscExclVAT :=
+          Round(SalesLineDisc."Line Discount Amount" / (1 + SalesLineDisc."VAT %" / 100), Currency."Amount Rounding Precision");
         VerifyRootNodeTotals(
           OriginalStr,
           SalesInvoiceHeader."Amount Including VAT", UnitPrice * (SalesLine.Quantity + SalesLineDisc.Quantity),
@@ -3197,8 +3197,8 @@ codeunit 144001 "MX CFDI"
         UnitPrice := ServiceLine."Unit Price" * 100 / (100 + ServiceLine."VAT %");
         ServiceLine."Amount Including VAT" := ServiceLine.Amount * (1 + ServiceLine."VAT %" / 100);
         ServiceLineDisc."Amount Including VAT" := ServiceLineDisc.Amount * (1 + ServiceLineDisc."VAT %" / 100);
-        LineDiscExclVAT := 
-          Round(ServiceLineDisc."Line Discount Amount" / (1 + ServiceLineDisc."VAT %" / 100),Currency."Amount Rounding Precision");
+        LineDiscExclVAT :=
+          Round(ServiceLineDisc."Line Discount Amount" / (1 + ServiceLineDisc."VAT %" / 100), Currency."Amount Rounding Precision");
         VerifyRootNodeTotals(
           OriginalStr,
           ServiceInvoiceHeader."Amount Including VAT", UnitPrice * (ServiceLine.Quantity + ServiceLineDisc.Quantity),
@@ -4660,6 +4660,7 @@ codeunit 144001 "MX CFDI"
     begin
         GLSetup.Get();
         GLSetup.Validate("PAC Environment", PACEnvironment);
+        GLSetup."CFDI Enabled" := true;
         GLSetup.Modify(true)
     end;
 
@@ -4702,6 +4703,7 @@ codeunit 144001 "MX CFDI"
             Validate("Sim. Request Stamp", true);
             Validate("Send PDF Report", true);
             "SAT Certificate" := CreateIsolatedCertificate;
+            "CFDI Enabled" := true;
             Modify(true);
         end;
 

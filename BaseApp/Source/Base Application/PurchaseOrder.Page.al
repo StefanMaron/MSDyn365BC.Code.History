@@ -964,9 +964,9 @@ page 50 "Purchase Order"
 
                     trigger OnAction()
                     begin
+                        PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        OpenPurchaseOrderStatistics;
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        ShowDocumentStatisticsPage();
                     end;
                 }
                 action(Vendor)
@@ -1254,6 +1254,7 @@ page 50 "Purchase Order"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -1272,6 +1273,7 @@ page 50 "Purchase Order"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }

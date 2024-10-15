@@ -320,6 +320,7 @@ report 1316 "Standard Statement"
                                 end;
 
                                 if PrintLine then begin
+                                    NumberOfCustLedgerEntryLines += 1;
                                     CustBalance := CustBalance + Amount;
                                     IsNewCustCurrencyGroup := IsFirstPrintLine;
                                     IsFirstPrintLine := false;
@@ -918,10 +919,13 @@ report 1316 "Standard Statement"
                           7, Format(Customer."Last Statement No."), 0, 0, DATABASE::Customer, Customer."No.", Customer."Salesperson Code", '',
                           StatementLbl + Format(Customer."Last Statement No."), '');
                 end;
+        FinishDateTime := CurrentDateTime();
+        LogReportTelemetry(StartDateTime, FinishDateTime, NumberOfCustLedgerEntryLines);
     end;
 
     trigger OnPreReport()
     begin
+        StartDateTime := CurrentDateTime();
         InitRequestPageDataInternal;
     end;
 
@@ -1021,6 +1025,14 @@ report 1316 "Standard Statement"
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your statement is attached to this message.';
+        TelemetryCategoryTxt: Label 'Report', Locked = true;
+        CustomerStatementReportGeneratedTxt: Label 'Customer Statement report generated.', Locked = true;
+
+    protected var
+        NumberOfCustLedgerEntryLines: Integer;
+        StartDateTime: DateTime;
+        FinishDateTime: DateTime;
+
 
     local procedure GetDate(PostingDate: Date; DueDate: Date): Date
     begin
@@ -1175,6 +1187,20 @@ report 1316 "Standard Statement"
             TempCurrency2.Insert();
             CustLedgerEntry.SetFilter("Currency Code", '>%1', CustLedgerEntry."Currency Code");
         end;
+    end;
+
+    local procedure LogReportTelemetry(StartDateTime: DateTime; FinishDateTime: DateTime; NumberOfLines: Integer)
+    var
+        Dimensions: Dictionary of [Text, Text];
+        ReportDuration: BigInteger;
+    begin
+        ReportDuration := FinishDateTime - StartDateTime;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('ReportStartTime', Format(StartDateTime, 0, 9));
+        Dimensions.Add('ReportFinishTime', Format(FinishDateTime, 0, 9));
+        Dimensions.Add('ReportDuration', Format(ReportDuration));
+        Dimensions.Add('NumberOfLines', Format(NumberOfLines));
+        Session.LogMessage('0000FJK', CustomerStatementReportGeneratedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
     [IntegrationEvent(false, false)]

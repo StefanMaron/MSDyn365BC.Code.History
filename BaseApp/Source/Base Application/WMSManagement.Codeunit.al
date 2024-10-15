@@ -130,7 +130,6 @@ codeunit 7302 "WMS Management"
     procedure CheckWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal; ToTransfer: Boolean)
     var
         BinContent: Record "Bin Content";
-        ItemTrackingCode: Record "Item Tracking Code";
         QtyAbsBase: Decimal;
         IsHandled: Boolean;
     begin
@@ -148,35 +147,7 @@ codeunit 7302 "WMS Management"
             if SourceJnl = SourceJnl::WhseJnl then
                 CheckAdjBinCode(WhseJnlLine);
 
-            if ItemTrackingCode.Get(Item."Item Tracking Code") then begin
-                if ("Serial No." <> '') and
-                   ("From Bin Code" <> '') and
-                   ItemTrackingCode."SN Specific Tracking" and
-                   ("From Bin Code" <> Location."Adjustment Bin Code") and
-                   (((Location."Adjustment Bin Code" <> '') and
-                     ("Entry Type" = "Entry Type"::Movement)) or
-                    (("Entry Type" <> "Entry Type"::Movement) or
-                     ("Source Document" = "Source Document"::"Reclass. Jnl.")))
-                then
-                    CheckSerialNo(
-                      "Item No.", "Variant Code", "Location Code", "From Bin Code",
-                      "Unit of Measure Code", "Serial No.", CalcReservEntryQuantity());
-
-                if ("Lot No." <> '') and
-                   ("From Bin Code" <> '') and
-                   ItemTrackingCode."Lot Specific Tracking" and
-                   ("From Bin Code" <> Location."Adjustment Bin Code") and
-                   (((Location."Adjustment Bin Code" <> '') and
-                     ("Entry Type" = "Entry Type"::Movement)) or
-                    (("Entry Type" <> "Entry Type"::Movement) or
-                     ("Source Document" = "Source Document"::"Reclass. Jnl.")))
-                then
-                    CheckLotNo(
-                      "Item No.", "Variant Code", "Location Code", "From Bin Code",
-                      "Unit of Measure Code", "Lot No.", CalcReservEntryQuantity());
-
-                OnCheckWhseJnlLineOnAfterCheckTracking(WhseJnlLine, ItemTrackingCode, Location);
-            end;
+            CheckWhseJnlLineTracking(WhseJnlLine);
 
             if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::Movement] then
                 if SourceJnl = SourceJnl::" " then begin
@@ -211,91 +182,57 @@ codeunit 7302 "WMS Management"
             QtyAbsBase := "Qty. (Absolute, Base)";
             IsHandled := false;
             OnCheckWhseJnlLineOnBeforeCheckBySourceJnl(WhseJnlLine, Bin, SourceJnl, BinContent, Location, DecreaseQtyBase, IsHandled);
-            if not IsHandled then
+            if not IsHandled then begin
+                CheckDecreaseBinContent(WhseJnlLine, SourceJnl, DecreaseQtyBase);
                 case SourceJnl of
                     SourceJnl::" ", SourceJnl::ItemJnl:
-                        begin
-                            if ("From Bin Code" <> '') and
-                               ("From Bin Code" <> Location."Adjustment Bin Code") and
-                               Location."Directed Put-away and Pick"
+                        if ("To Bin Code" <> '') and
+                           ("To Bin Code" <> Location."Adjustment Bin Code") and
+                           Location."Directed Put-away and Pick"
+                        then
+                            if BinContent.Get(
+                                 "Location Code", "To Bin Code",
+                                 "Item No.", "Variant Code", "Unit of Measure Code")
                             then begin
-                                BinContent.Get(
-                                  "Location Code", "From Bin Code",
-                                  "Item No.", "Variant Code", "Unit of Measure Code");
-                                BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
-                            end;
-
-                            if ("To Bin Code" <> '') and
-                               ("To Bin Code" <> Location."Adjustment Bin Code") and
-                               Location."Directed Put-away and Pick"
-                            then
-                                if BinContent.Get(
-                                     "Location Code", "To Bin Code",
-                                     "Item No.", "Variant Code", "Unit of Measure Code")
-                                then begin
-                                    if ("Reference Document" = "Reference Document"::"Posted Rcpt.") or
-                                       ("Reference Document" = "Reference Document"::"Posted Rtrn. Rcpt.") or
-                                       ("Reference Document" = "Reference Document"::"Posted T. Receipt")
-                                    then
-                                        BinContent.CheckIncreaseBinContent(
-                                          "Qty. (Absolute, Base)", 0, Cubage, Weight, Cubage, Weight, true, false)
-                                    else
-                                        BinContent.CheckIncreaseBinContent(
-                                          "Qty. (Absolute, Base)", "Qty. (Absolute, Base)", Cubage, Weight, Cubage, Weight, true, false)
-                                end else begin
-                                    GetBin("Location Code", "To Bin Code");
-                                    Bin.CheckIncreaseBin(
-                                      Bin.Code, "Item No.", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false);
-                                end;
-                        end;
-                    SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
-                        begin
-                            if ("From Bin Code" <> '') and
-                               Location."Directed Put-away and Pick"
-                            then begin
-                                BinContent.Get(
-                                  "Location Code", "From Bin Code",
-                                  "Item No.", "Variant Code", "Unit of Measure Code");
-                                BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
-                            end;
-
-                            if ("To Bin Code" <> '') and
-                               Location."Directed Put-away and Pick"
-                            then
-                                if BinContent.Get(
-                                     "Location Code", "To Bin Code",
-                                     "Item No.", "Variant Code", "Unit of Measure Code")
+                                if ("Reference Document" = "Reference Document"::"Posted Rcpt.") or
+                                   ("Reference Document" = "Reference Document"::"Posted Rtrn. Rcpt.") or
+                                   ("Reference Document" = "Reference Document"::"Posted T. Receipt")
                                 then
                                     BinContent.CheckIncreaseBinContent(
-                                      "Qty. (Absolute)", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false)
-                                else begin
-                                    GetBin("Location Code", "To Bin Code");
-                                    Bin.CheckIncreaseBin(
-                                      Bin.Code, "Item No.", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false);
-                                end;
-                        end;
-                    SourceJnl::WhseJnl:
-                        begin
-                            if ("From Bin Code" <> '') and
-                               ("From Bin Code" <> Location."Adjustment Bin Code") and
-                               Location."Directed Put-away and Pick"
-                            then begin
-                                if not ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then begin
-                                    BinContent.Get(
-                                      "Location Code", "From Bin Code",
-                                      "Item No.", "Variant Code", "Unit of Measure Code");
-                                    BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
-                                end;
-                            end;
-                            if ("To Bin Code" <> '') and
-                               ("To Bin Code" <> Location."Adjustment Bin Code") and
-                               Location."Directed Put-away and Pick"
-                            then begin
+                                      "Qty. (Absolute, Base)", 0, Cubage, Weight, Cubage, Weight, true, false)
+                                else
+                                    BinContent.CheckIncreaseBinContent(
+                                      "Qty. (Absolute, Base)", "Qty. (Absolute, Base)", Cubage, Weight, Cubage, Weight, true, false)
+                            end else begin
                                 GetBin("Location Code", "To Bin Code");
-                                Bin.CheckWhseClass("Item No.", false);
+                                Bin.CheckIncreaseBin(
+                                  Bin.Code, "Item No.", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false);
                             end;
+                    SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
+                        if ("To Bin Code" <> '') and
+                           Location."Directed Put-away and Pick"
+                        then
+                            if BinContent.Get(
+                                 "Location Code", "To Bin Code",
+                                 "Item No.", "Variant Code", "Unit of Measure Code")
+                            then
+                                BinContent.CheckIncreaseBinContent(
+                                  "Qty. (Absolute)", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false)
+                            else begin
+                                GetBin("Location Code", "To Bin Code");
+                                Bin.CheckIncreaseBin(
+                                  Bin.Code, "Item No.", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false);
+                            end;
+                    SourceJnl::WhseJnl:
+                        if ("To Bin Code" <> '') and
+                           ("To Bin Code" <> Location."Adjustment Bin Code") and
+                           Location."Directed Put-away and Pick"
+                        then begin
+                            GetBin("Location Code", "To Bin Code");
+                            Bin.CheckWhseClass("Item No.", false);
                         end;
                 end;
+            end;
             if QtyAbsBase <> "Qty. (Absolute, Base)" then begin
                 Validate("Qty. (Absolute, Base)");
                 Modify;
@@ -303,6 +240,93 @@ codeunit 7302 "WMS Management"
         end;
 
         OnAfterCheckWhseJnlLine(WhseJnlLine, SourceJnl, DecreaseQtyBase, ToTransfer);
+    end;
+
+    local procedure CheckDecreaseBinContent(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal)
+    var
+        BinContent: Record "Bin Content";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDecreaseBinContent(WhseJnlLine, SourceJnl, DecreaseQtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseJnlLine do
+            case SourceJnl of
+                SourceJnl::" ", SourceJnl::ItemJnl:
+                    if ("From Bin Code" <> '') and
+                       ("From Bin Code" <> Location."Adjustment Bin Code") and
+                       Location."Directed Put-away and Pick"
+                    then begin
+                        BinContent.Get(
+                          "Location Code", "From Bin Code",
+                          "Item No.", "Variant Code", "Unit of Measure Code");
+                        BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
+                    end;
+                SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
+                    if ("From Bin Code" <> '') and
+                       Location."Directed Put-away and Pick"
+                    then begin
+                        BinContent.Get(
+                          "Location Code", "From Bin Code",
+                          "Item No.", "Variant Code", "Unit of Measure Code");
+                        BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
+                    end;
+                SourceJnl::WhseJnl:
+                    if ("From Bin Code" <> '') and
+                       ("From Bin Code" <> Location."Adjustment Bin Code") and
+                       Location."Directed Put-away and Pick"
+                    then begin
+                        if not ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then begin
+                            BinContent.Get(
+                              "Location Code", "From Bin Code",
+                              "Item No.", "Variant Code", "Unit of Measure Code");
+                            BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
+                        end;
+                    end;
+            end;
+    end;
+
+    local procedure CheckWhseJnlLineTracking(var WhseJnlLine: Record "Warehouse Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWhseJnlLineTracking(WhseJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseJnlLine do
+            if ItemTrackingCode.Get(Item."Item Tracking Code") then begin
+                if ("Serial No." <> '') and
+                   ("From Bin Code" <> '') and
+                   ItemTrackingCode."SN Specific Tracking" and
+                   ("From Bin Code" <> Location."Adjustment Bin Code") and
+                   (((Location."Adjustment Bin Code" <> '') and
+                     ("Entry Type" = "Entry Type"::Movement)) or
+                    (("Entry Type" <> "Entry Type"::Movement) or
+                     ("Source Document" = "Source Document"::"Reclass. Jnl.")))
+                then
+                    CheckSerialNo(
+                      "Item No.", "Variant Code", "Location Code", "From Bin Code",
+                      "Unit of Measure Code", "Serial No.", CalcReservEntryQuantity());
+
+                if ("Lot No." <> '') and
+                   ("From Bin Code" <> '') and
+                   ItemTrackingCode."Lot Specific Tracking" and
+                   ("From Bin Code" <> Location."Adjustment Bin Code") and
+                   (((Location."Adjustment Bin Code" <> '') and
+                     ("Entry Type" = "Entry Type"::Movement)) or
+                    (("Entry Type" <> "Entry Type"::Movement) or
+                     ("Source Document" = "Source Document"::"Reclass. Jnl.")))
+                then
+                    CheckLotNo(
+                      "Item No.", "Variant Code", "Location Code", "From Bin Code",
+                      "Unit of Measure Code", "Lot No.", CalcReservEntryQuantity());
+
+                OnCheckWhseJnlLineOnAfterCheckTracking(WhseJnlLine, ItemTrackingCode, Location);
+            end;
     end;
 
     local procedure CheckWhseDocumentToZoneCode(WhseJnlLine: Record "Warehouse Journal Line")
@@ -1514,6 +1538,7 @@ codeunit 7302 "WMS Management"
                     WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::"Negative Adjmt.";
                     WhseJnlLine."From Bin Code" := "Bin Code";
                     if Location."Bin Mandatory" and Location."Require Pick" and Location."Require Shipment" then begin
+                        OnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJnlLine, ProdOrderCompLine);
                         if (ProdOrderCompLine."Planning Level Code" = 0) and
                            ((ProdOrderCompLine."Flushing Method" = ProdOrderCompLine."Flushing Method"::Manual) or
                             (ProdOrderCompLine."Flushing Method" = ProdOrderCompLine."Flushing Method"::"Pick + Backward") or
@@ -2108,6 +2133,11 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDecreaseBinContent(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemJnlLineLocation(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2243,12 +2273,22 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseJnlLineTracking(var WhseJnlLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetItemOnAfterGetItem(var Item: Record "Item")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnInitWhseJnlLineCopyFromItemJnlLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine: Record "Item Journal Line"; var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 

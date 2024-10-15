@@ -57,7 +57,7 @@
             OnCreateOutboxJnlTransactionOnBeforeOutboxJnlTransactionInsert(OutboxJnlTransaction, TempGenJnlLine);
             OutboxJnlTransaction.Insert();
         end;
-        OnInsertICOutboxTransaction(OutboxJnlTransaction);
+        OnInsertICOutboxTransaction(OutboxJnlTransaction, TempGenJnlLine);
         exit(ICTransactionNo);
     end;
 
@@ -228,7 +228,7 @@
                 SalesHeader.Modify();
             end;
         end;
-        OnBeforeICOutboxTransactionCreatedSalesDocTrans(SalesHeader, SalesLine, ICOutBoxSalesHeader, OutboxTransaction, LinesCreated);
+        OnBeforeICOutboxTransactionCreatedSalesDocTrans(SalesHeader, SalesLine, ICOutBoxSalesHeader, OutboxTransaction, LinesCreated, Post);
         OnInsertICOutboxSalesDocTransaction(OutboxTransaction);
     end;
 
@@ -510,6 +510,7 @@
             PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
+            OnCreateOutboxPurchDocTransOnAfterPurchLineSetFilters(PurchHeader, PurchLine);
             if PurchLine.Find('-') then
                 repeat
                     Init;
@@ -551,7 +552,7 @@
                 PurchHeader.Modify();
             end;
         end;
-        OnBeforeICOutboxTransactionCreatedPurchDocTrans(PurchHeader, PurchLine, ICOutBoxPurchHeader, OutboxTransaction, LinesCreated);
+        OnBeforeICOutboxTransactionCreatedPurchDocTrans(PurchHeader, PurchLine, ICOutBoxPurchHeader, OutboxTransaction, LinesCreated, Post);
         OnInsertICOutboxPurchDocTransaction(OutboxTransaction);
     end;
 
@@ -565,7 +566,7 @@
                (("Account Type" = "Account Type"::"G/L Account") and ("IC Partner G/L Acc. No." <> '')) or
                (("Account Type" = "Account Type"::"Bank Account") and ("IC Partner G/L Acc. No." <> ''))
             then
-                CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", TempGenJnlLine);
+                RunExchangeAccGLJournalLine(TransactionNo, TempGenJnlLine);
             if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"IC Partner"]) and
                ("Account No." <> '')
             then
@@ -573,6 +574,13 @@
             if "IC Partner G/L Acc. No." <> '' then
                 InsertOutboxJnlLine(TempGenJnlLine, TransactionNo, TransactionSource, true);
         end;
+    end;
+
+    local procedure RunExchangeAccGLJournalLine(TransactionNo: Integer; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+        CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", TempGenJnlLine);
+
+        OnAfterRunExchangeAccGLJournalLine(TempGenJnlLine, TransactionNo);
     end;
 
     local procedure InsertOutboxJnlLine(TempGenJnlLine: Record "Gen. Journal Line" temporary; TransactionNo: Integer; TransactionSource: Option "Rejected by Current Company"," Created by Current Company"; BalancingLine: Boolean)
@@ -722,6 +730,8 @@
                 HandledInboxJnlLine.Insert();
                 TempGenJnlLine."Line No." := "Line No.";
             end;
+
+        OnAfterCreateJournalLines(GenJnlLine2);
     end;
 
     procedure CreateSalesDocument(ICInboxSalesHeader: Record "IC Inbox Sales Header"; ReplacePostingDate: Boolean; PostingDate: Date)
@@ -767,6 +777,7 @@
             SalesHeader.Validate("Document Date", "Document Date");
             SalesHeader.Validate("Prices Including VAT", "Prices Including VAT");
             SalesHeader.Modify();
+            OnCreateSalesDocumentOnAfterSalesHeaderFirstModify(SalesHeader);
             SalesHeader.Validate("Due Date", "Due Date");
             SalesHeader.Validate("Payment Discount %", "Payment Discount %");
             SalesHeader.Validate("Pmt. Discount Date", "Pmt. Discount Date");
@@ -775,6 +786,7 @@
             SalesHeader."Shortcut Dimension 1 Code" := '';
             SalesHeader."Shortcut Dimension 2 Code" := '';
 
+            OnCreateSalesDocumentOnBeforeSetICDocDimFilters(SalesHeader, ICInboxSalesHeader);
             DimMgt.SetICDocDimFilters(
               ICDocDim, DATABASE::"IC Inbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
 
@@ -927,7 +939,7 @@
                 DimensionSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
             DimMgt.UpdateGlobalDimFromDimSetID(
               SalesLine."Dimension Set ID", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
-            OnAfterCreateSalesLines(ICInboxSalesLine, SalesLine);
+            OnAfterCreateSalesLines(ICInboxSalesLine, SalesLine, SalesHeader);
             SalesLine.Modify();
         end;
     end;
@@ -1004,6 +1016,7 @@
             PurchHeader."Shortcut Dimension 1 Code" := '';
             PurchHeader."Shortcut Dimension 2 Code" := '';
 
+            OnCreatePurchDocumentOnBeforeSetICDocDimFilters(PurchHeader, ICInboxPurchHeader);
             DimMgt.SetICDocDimFilters(
               ICDocDim, DATABASE::"IC Inbox Purchase Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
 
@@ -1163,7 +1176,7 @@
             PurchLine."Shortcut Dimension 1 Code" := '';
             PurchLine."Shortcut Dimension 2 Code" := '';
 
-            OnCreatePurchLinesOnAfterAssignPurchLineFields(PurchLine, ICInboxPurchLine);
+            OnCreatePurchLinesOnAfterAssignPurchLineFields(PurchLine, ICInboxPurchLine, PurchHeader);
 
             DimMgt.SetICDocDimFilters(
               ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
@@ -1250,7 +1263,7 @@
             InboxTransaction."Document Date" := HandledInboxTransaction2."Document Date";
             InboxTransaction."IC Partner G/L Acc. No." := HandledInboxTransaction2."IC Partner G/L Acc. No.";
             InboxTransaction."Source Line No." := HandledInboxTransaction2."Source Line No.";
-            OnRecreateInboxTransactionOnBeforeInboxTransactionInsert(InboxTransaction, HandledInboxTransaction2);
+            OnRecreateInboxTransactionOnBeforeInboxTransactionInsert(InboxTransaction, HandledInboxTransaction2, HandledInboxTransaction);
             InboxTransaction.Insert();
             case InboxTransaction."Source Type" of
                 InboxTransaction."Source Type"::Journal:
@@ -1405,7 +1418,7 @@
             OutboxTransaction."Document Date" := HandledOutboxTransaction2."Document Date";
             OutboxTransaction."IC Partner G/L Acc. No." := HandledOutboxTransaction2."IC Partner G/L Acc. No.";
             OutboxTransaction."Source Line No." := HandledOutboxTransaction2."Source Line No.";
-            OnRecreateOutboxTransactionOnBeforeOutboxTransactionInsert(OutboxTransaction, HandledOutboxTransaction2);
+            OnRecreateOutboxTransactionOnBeforeOutboxTransactionInsert(OutboxTransaction, HandledOutboxTransaction2, HandledOutboxTransaction);
             OutboxTransaction.Insert();
             case OutboxTransaction."Source Type" of
                 OutboxTransaction."Source Type"::"Journal Line":
@@ -2671,7 +2684,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction")
+    local procedure OnInsertICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
 
@@ -2706,7 +2719,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateSalesLines(ICInboxSalesLine: Record "IC Inbox Sales Line"; var SalesLine: Record "Sales Line")
+    local procedure OnAfterCreateSalesLines(ICInboxSalesLine: Record "IC Inbox Sales Line"; var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -2717,6 +2730,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePurchLines(ICInboxPurchLine: Record "IC Inbox Purchase Line"; var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateJournalLines(var GenJnlLine2: Record "Gen. Journal Line")
     begin
     end;
 
@@ -2766,7 +2784,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRunExchangeAccGLJournalLine(var TempGenJnlLine: Record "Gen. Journal Line" temporary; TransactionNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateOutboxPurchDocTransOnAfterTransferFieldsFromPurchHeader(var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxPurchDocTransOnAfterPurchLineSetFilters(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
     begin
     end;
 
@@ -2836,7 +2864,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeICOutboxTransactionCreatedSalesDocTrans(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; LinesCreated: Boolean)
+    local procedure OnBeforeICOutboxTransactionCreatedSalesDocTrans(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; LinesCreated: Boolean; Post: Boolean)
     begin
     end;
 
@@ -2851,7 +2879,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeICOutboxTransactionCreatedPurchDocTrans(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var ICOutboxPurchaseHeader: Record "IC Outbox Purchase Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; LinesCreated: Boolean)
+    local procedure OnBeforeICOutboxTransactionCreatedPurchDocTrans(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var ICOutboxPurchaseHeader: Record "IC Outbox Purchase Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; LinesCreated: Boolean; Post: Boolean)
     begin
     end;
 
@@ -2916,6 +2944,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesDocumentOnAfterSalesHeaderFirstModify(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesDocumentOnBeforeSetICDocDimFilters(var SalesHeader: Record "Sales Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesDocumentOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; ICInboxSalesHeader: Record "IC Inbox Sales Header")
     begin
     end;
@@ -2961,7 +2999,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRecreateInboxTransactionOnBeforeInboxTransactionInsert(var ICInboxTransaction: Record "IC Inbox Transaction"; HandledICInboxTrans: Record "Handled IC Inbox Trans.")
+    local procedure OnRecreateInboxTransactionOnBeforeInboxTransactionInsert(var ICInboxTransaction: Record "IC Inbox Transaction"; HandledICInboxTrans: Record "Handled IC Inbox Trans."; var HandledInboxTransaction: Record "Handled IC Inbox Trans.")
     begin
     end;
 
@@ -2991,7 +3029,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRecreateOutboxTransactionOnBeforeOutboxTransactionInsert(var ICOutboxTransaction: Record "IC Outbox Transaction"; HandledICOutboxTrans: Record "Handled IC Outbox Trans.")
+    local procedure OnRecreateOutboxTransactionOnBeforeOutboxTransactionInsert(var ICOutboxTransaction: Record "IC Outbox Transaction"; HandledICOutboxTrans: Record "Handled IC Outbox Trans."; var HandledOutboxTransaction: Record "Handled IC Outbox Trans.")
     begin
     end;
 
@@ -3051,6 +3089,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchDocumentOnBeforeSetICDocDimFilters(var PurchHeader: Record "Purchase Header"; var ICInboxPurchHeader: Record "IC Inbox Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreatePurchDocumentOnBeforePurchHeaderModify(var PurchHeader: Record "Purchase Header"; ICInboxPurchHeader: Record "IC Inbox Purchase Header")
     begin
     end;
@@ -3071,7 +3114,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePurchLinesOnAfterAssignPurchLineFields(var PurchaseLine: Record "Purchase Line"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
+    local procedure OnCreatePurchLinesOnAfterAssignPurchLineFields(var PurchaseLine: Record "Purchase Line"; ICInboxPurchLine: Record "IC Inbox Purchase Line"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 

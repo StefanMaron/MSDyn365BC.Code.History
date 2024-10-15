@@ -1087,16 +1087,14 @@
                     var
                         Handled: Boolean;
                     begin
+                        Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if not Handled then begin
-                            CalcInvDiscForHeader;
-                            Commit();
-                            OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                            if "Tax Area Code" = '' then
-                                PAGE.RunModal(PAGE::"Sales Statistics", Rec)
-                            else
-                                PAGE.RunModal(PAGE::"Sales Stats.", Rec);
-                        end
+                        if Handled then
+                            exit;
+
+                        PrepareOpeningDocumentStatistics();
+                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
+                        ShowDocumentStatisticsPage();
                     end;
                 }
                 action("Co&mments")
@@ -1399,6 +1397,7 @@
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
                 action(Reopen)
@@ -1417,6 +1416,7 @@
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
             }

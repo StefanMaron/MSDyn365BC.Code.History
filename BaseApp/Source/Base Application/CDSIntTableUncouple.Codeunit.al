@@ -4,7 +4,6 @@ codeunit 5337 "CDS Int. Table Uncouple"
 
     trigger OnRun()
     var
-        OriginalJobQueueEntry: Record "Job Queue Entry";
         ConnectionName: Text;
         Handled: Boolean;
     begin
@@ -15,7 +14,6 @@ codeunit 5337 "CDS Int. Table Uncouple"
         ConnectionName := CRMIntegrationTableSynch.InitConnection();
         CRMIntegrationTableSynch.TestConnection();
 
-        CRMIntegrationTableSynch.SetOriginalCRMJobQueueEntryOnHold(Rec, OriginalJobQueueEntry);
         PerformScheduledUncoupling(Rec);
 
         CRMIntegrationTableSynch.CloseConnection(ConnectionName);

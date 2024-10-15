@@ -746,6 +746,44 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(Customer."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceSalesTaxWithExpenseTaxDetails()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        SalesInvoice: TestPage "Sales Invoice";
+        TaxPercent: Decimal;
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Invoice] [Expense/Capitalize]
+        // [SCENARIO 407399] Tax Amount must be calculated in Document Totals when "Expense/Capitalize" is true in Tax Details
+        Initialize;
+
+        LibraryLowerPermissions.SetSalesDocsCreate();
+        LibraryLowerPermissions.AddO365Setup;
+
+        // [GIVEN] Tax setup where tax detail with "Expense/Capitalize" = TRUE and "Tax Below Maximum" = 10%
+        TaxPercent := LibraryRandom.RandIntInRange(10, 20);
+        TaxAreaCode := CreateTaxAreaLine(TaxDetail, true, TaxPercent);
+
+        CreateSalesDocumentWithCertainTax(SalesLine, SalesHeader."Document Type"::Invoice, TaxDetail, TaxAreaCode, TaxDetail."Tax Group Code");
+
+        // [WHEN] Open Sales Invoice card page
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
+
+        // [THEN] "Total Amoun Excl. Tax" = 100
+        // [THEN] "Total Tax" = (100 * 10%) = 10;
+        // [THEN] "Total Amoun Incl. Tax" = 110
+        SalesLine.TestField(Amount);
+        SalesInvoice.SalesLines."Total Amount Excl. VAT".AssertEquals(Round(SalesLine.Amount));
+        SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(Round(SalesLine.Amount * TaxPercent / 100));
+        SalesInvoice.SalesLines."Total Amount Incl. VAT".AssertEquals(Round(SalesLine.Amount * (100 + TaxPercent) / 100));
+        SalesInvoice.Close;
+    END;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -787,7 +825,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(Item."No.");
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader."Tax Area Code" := TaxAreaCode;
@@ -830,7 +868,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(TaxArea.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; var TaxGroupCode: Code[20]; TaxPercentage: Integer; var TaxAreaCode: Code[20]): Decimal
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; var TaxGroupCode: Code[20]; TaxPercentage: Integer; var TaxAreaCode: Code[20]): Decimal
     var
         TaxDetail: Record "Tax Detail";
     begin
@@ -839,7 +877,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(CreateSalesDocumentWithCertainTax(SalesLine, DocumentType, TaxDetail, TaxAreaCode, TaxGroupCode));
     end;
 
-    local procedure CreateSalesDocumentWithCertainTax(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]): Decimal
+    local procedure CreateSalesDocumentWithCertainTax(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]): Decimal
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1014,6 +1052,28 @@ codeunit 142054 SalesDocTotalsWithSalesTax
     begin
         LibraryERM.CreateTaxArea(TaxArea);
         exit(TaxArea.Code);
+    end;
+
+    local procedure CreateTaxAreaLine(var TaxDetail: Record "Tax Detail"; ExpenseCapitalize: Boolean; TaxPercent: Decimal): Code[20]
+    var
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+    begin
+        CreateSalesTaxDetail(TaxDetail, ExpenseCapitalize, TaxPercent);
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
+        exit(TaxArea.Code);
+    end;
+
+    local procedure CreateSalesTaxDetail(var TaxDetail: Record "Tax Detail"; ExpenseCapitalize: Boolean; TaxPercent: Decimal)
+    var
+        TaxGroup: Record "Tax Group";
+    begin
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxPercent);
+        TaxDetail.Validate("Expense/Capitalize", ExpenseCapitalize);
+        TaxDetail.Modify(true);
     end;
 
     [ModalPageHandler]

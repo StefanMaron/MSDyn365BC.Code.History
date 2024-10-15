@@ -104,6 +104,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BC O365 Tax Tests - NamedType TaxSetupNeededMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 231195361 - NamedType 2755199791" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The setup has not yet been completed.\\Are you sure that you want to exit?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CFDI Customer Consent Tests - NamedType SetupNotCompletedLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3378684604 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>

@@ -69,6 +69,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         Clear(SalesHeader);
         SalesHeader."No." := '';
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        OnCreateCopyDocumentOnBeforeSalesHeaderInsert(SalesHeader, SalesCrMemoHeader);
         SalesHeader.Insert(true);
         CopyDocMgt.SetPropertiesForInvoiceCorrection(false);
         CopyDocMgt.CopySalesDocForCrMemoCancelling(SalesCrMemoHeader."No.", SalesHeader);
@@ -459,6 +460,11 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestInventoryPostingSetup(SalesCrMemoLine: Record "Sales Cr.Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCopyDocumentOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

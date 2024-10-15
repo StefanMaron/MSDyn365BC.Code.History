@@ -1,4 +1,4 @@
-table 10124 "Posted Bank Rec. Line"
+﻿table 10124 "Posted Bank Rec. Line"
 {
     Caption = 'Posted Bank Rec. Line';
     DrillDownPageID = "Posted Bank Rec. Lines";
@@ -203,6 +203,7 @@ table 10124 "Posted Bank Rec. Line"
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
         TableID[1] := Type1;
         No[1] := No1;
@@ -214,6 +215,12 @@ table 10124 "Posted Bank Rec. Line"
         No[4] := No4;
         TableID[5] := Type5;
         No[5] := No5;
+
+        IsHandled := false;
+        OnCreateDimOnAfterSetTableIDs(Rec, TableID, No, IsHandled);
+        if IsHandled then
+            exit;
+
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         DimMgt.GetDefaultDimID(TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
@@ -224,6 +231,8 @@ table 10124 "Posted Bank Rec. Line"
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -240,6 +249,16 @@ table 10124 "Posted Bank Rec. Line"
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnAfterSetTableIDs(var PostedBankAccRecLine: Record "Posted Bank Rec. Line"; TableID: array[10] of Integer; No: array[10] of Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var PostedBankAccRecLine: Record "Posted Bank Rec. Line")
+    begin
     end;
 }
 

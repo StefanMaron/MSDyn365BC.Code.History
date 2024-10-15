@@ -3220,7 +3220,7 @@
         field(10002; "Retention VAT %"; Decimal)
         {
             Caption = 'Retention VAT %';
-            AutoFormatType = 2;	    
+            AutoFormatType = 2;
             MaxValue = 100;
             MinValue = 0;
         }
@@ -3830,7 +3830,8 @@
         else
             "Unit of Measure Code" := Item."Base Unit of Measure";
 
-        Validate("Purchasing Code", Item."Purchasing Code");
+        if "Document Type" = "Document Type"::Order then
+            Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo);
 
         InitDeferralCode();
@@ -4684,6 +4685,9 @@
                                   TotalAmount + Amount, TotalQuantityBase + "Quantity (Base)",
                                   SalesHeader."Currency Factor"), Currency."Amount Rounding Precision") -
                               TotalAmountInclVAT;
+                            "Amount Including VAT" += SalesTaxCalculate.CalculateExpenseTax(
+                                "Tax Area Code", "Tax Group Code", "Tax Liable", SalesHeader."Posting Date",
+                                TotalAmount + Amount, "Quantity (Base)", SalesHeader."Currency Factor");
                             OnAfterSalesTaxCalculate(Rec, SalesHeader, Currency);
                             UpdateVATPercent("VAT Base Amount", "Amount Including VAT" - "VAT Base Amount");
                         end;
@@ -7204,7 +7208,14 @@
     end;
 
     local procedure VerifyItemLineDim()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyItemLineDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsShippedReceivedItemDimChanged then
             ConfirmShippedReceivedItemDimChange;
     end;
@@ -7450,7 +7461,7 @@
             TempSalesLine := Rec;
             TempSalesLine.Insert();
             CalcSalesTaxLines(SalesHeader, TempSalesLine);
-            exit(Amount + (TempSalesLine."Amount Including VAT" - "Amount Including VAT"));
+            exit(TempSalesLine."Amount Including VAT");
         end;
 
         exit(CalcLineAmount);
@@ -9133,6 +9144,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyItemLineDim(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

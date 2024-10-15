@@ -113,6 +113,8 @@ codeunit 435 "IC Inbox Import"
                         ICInboxOutboxMgt.OutboxDocDimToInbox(
                           TempICDocDim, ICInboxDocDim, NewTableID, FromICPartnerCode, "Transaction Source");
                     until TempICDocDim.Next() = 0;
+
+                OnRunOnAfterTempICOutboxTransLoop(Rec, TempICOutboxTrans);
             until TempICOutboxTrans.Next() = 0;
 
     end;
@@ -181,6 +183,11 @@ codeunit 435 "IC Inbox Import"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeImportInboxTransaction(CompanyInfo: Record "Company Information"; var IStream: InStream; var TempICOutboxTransaction: Record "IC Outbox Transaction" temporary; var TempICOutboxJnlLine: Record "IC Outbox Jnl. Line" temporary; var TempICInboxOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim." temporary; var TempICOutboxSalesHeader: Record "IC Outbox Sales Header" temporary; var TempICOutboxSalesLine: Record "IC Outbox Sales Line" temporary; var TempICOutboxPurchaseHeader: Record "IC Outbox Purchase Header" temporary; var TempICOutboxPurchaseLine: Record "IC Outbox Purchase Line" temporary; var TempICDocDim: Record "IC Document Dimension" temporary; var FromICPartnerCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterTempICOutboxTransLoop(var IcInboxTransaction: Record "IC Inbox Transaction"; var IcOutBoxTransaction: Record "IC Outbox Transaction")
     begin
     end;
 }
