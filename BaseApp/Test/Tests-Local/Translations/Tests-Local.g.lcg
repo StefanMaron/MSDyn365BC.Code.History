@@ -509,6 +509,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Table,%2=Field]D;]A;(LookupHint=Codeunit Cartera Paym. Settlement - NamedType PaymentOrderSuccessfullyPostedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1452483504 - NamedType 3677629754" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Vendor Bank Account Code in Vendor Ledger Entry,%2=Vendor bank account,%3=Table Caption]D;]A;(LookupHint=Codeunit Cartera Paym. Settlement - NamedType RecipientErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1452483504 - NamedType 4290104312" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 documents have been rejected.]]></Val>

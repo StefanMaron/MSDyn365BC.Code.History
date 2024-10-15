@@ -551,6 +551,10 @@ table 254 "VAT Entry"
         {
             Caption = 'Do Not Send To SII';
         }
+        field(10725; "Ignore In SII"; Boolean)
+        {
+            Caption = 'Ignore In SII';
+        }
     }
 
     keys

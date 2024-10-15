@@ -79,6 +79,7 @@ report 7000085 "Partial Settl. - Payable"
                                 "Shortcut Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
                                 "Shortcut Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
                                 "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                                GenJnlLine.Validate("Recipient Bank Account", VendLedgEntry."Recipient Bank Account");
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd);
                                 Insert();
                                 SumLCYAmt := SumLCYAmt + "Amount (LCY)";
@@ -126,6 +127,7 @@ report 7000085 "Partial Settl. - Payable"
                                 "Shortcut Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
                                 "Shortcut Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
                                 "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                                GenJnlLine.Validate("Recipient Bank Account", VendLedgEntry."Recipient Bank Account");
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd);
                                 Insert();
                                 SumLCYAmt := SumLCYAmt + "Amount (LCY)";

@@ -509,7 +509,7 @@ codeunit 10740 "No Taxable Mgt."
                     InsertNoTaxableEntry(
                       NoTaxableEntry, NoTaxableEntry.Type::Purchase, Sign * LineAmount, VATPostingSetup."EU Service", NotIn347, 0, 0,
                       VATPostingSetup."VAT Calculation Type", VATBusPostGroup, VATProdPostGroup,
-                      GenBusPostGroup, GenProdPostGroup);
+                      GenBusPostGroup, GenProdPostGroup, VATPostingSetup."Ignore In SII");
                     UpdateAmountsInCurrency(NoTaxableEntry);
                 end;
             until Next() = 0;
@@ -565,7 +565,7 @@ codeunit 10740 "No Taxable Mgt."
                       NoTaxableEntry, NoTaxableEntry.Type::Sale, Sign * LineAmount, VATPostingSetup."EU Service", NotIn347,
                       VATPostingSetup."No Taxable Type", VATProductPostingGroup."Delivery Operation Code",
                       VATPostingSetup."VAT Calculation Type", VATBusPostGroup, VATProdPostGroup,
-                      GenBusPostGroup, GenProdPostGroup);
+                      GenBusPostGroup, GenProdPostGroup, VATPostingSetup."Ignore In SII");
                     UpdateAmountsInCurrency(NoTaxableEntry);
                 end;
             until Next() = 0;
@@ -608,11 +608,11 @@ codeunit 10740 "No Taxable Mgt."
           NoTaxableEntry, NoTaxableEntry.Type, Sign * Abs(EntryAmount), VATPostingSetup."EU Service", false,
           VATPostingSetup."No Taxable Type", VATProductPostingGroup."Delivery Operation Code",
           VATPostingSetup."VAT Calculation Type", VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
-          GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+          GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."Ignore In SII");
         UpdateAmountsInCurrency(NoTaxableEntry);
     end;
 
-    local procedure InsertNoTaxableEntry(var NoTaxableEntry: Record "No Taxable Entry"; EntryType: Enum "General Posting Type"; EntryAmount: Decimal; EUService: Boolean; NotIn347: Boolean; NoTaxableType: Option; DeliveryOperationCode: Option; VATCalculationType: Enum "Tax Calculation Type"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20])
+    local procedure InsertNoTaxableEntry(var NoTaxableEntry: Record "No Taxable Entry"; EntryType: Enum "General Posting Type"; EntryAmount: Decimal; EUService: Boolean; NotIn347: Boolean; NoTaxableType: Option; DeliveryOperationCode: Option; VATCalculationType: Enum "Tax Calculation Type"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20]; IgnoreInSII: Boolean)
     begin
         with NoTaxableEntry do begin
             Type := EntryType;
@@ -628,6 +628,7 @@ codeunit 10740 "No Taxable Mgt."
             "Gen. Bus. Posting Group" := GenBusPostingGroupCode;
             "Gen. Prod. Posting Group" := GenProdPostingGroupCode;
             Intracommunity := SIIManagement.IsIntracommunity("Country/Region Code");
+            NoTaxableEntry."Ignore In SII" := IgnoreInSII;
             Update(NoTaxableEntry);
         end;
     end;

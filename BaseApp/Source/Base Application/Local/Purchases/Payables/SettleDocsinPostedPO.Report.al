@@ -88,6 +88,7 @@ report 7000082 "Settle Docs. in Posted PO"
                                 "Source Code" := SourceCode;
                                 "System-Created Entry" := true;
                                 Validate("Dimension Set ID", VendLedgEntry."Dimension Set ID");
+                                GenJnlLine.Validate("Recipient Bank Account", VendLedgEntry."Recipient Bank Account");
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
                                 Insert();
                                 SumLCYAmt := SumLCYAmt + "Amount (LCY)";
@@ -134,6 +135,7 @@ report 7000082 "Settle Docs. in Posted PO"
                                 "Source Code" := SourceCode;
                                 "System-Created Entry" := true;
                                 Validate("Dimension Set ID", VendLedgEntry."Dimension Set ID");
+                                GenJnlLine.Validate("Recipient Bank Account", VendLedgEntry."Recipient Bank Account");
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
                                 Insert();
                                 SumLCYAmt := SumLCYAmt + "Amount (LCY)";

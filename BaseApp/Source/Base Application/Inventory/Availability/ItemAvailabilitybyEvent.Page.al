@@ -603,9 +603,20 @@ page 5530 "Item Availability by Event"
 
     procedure SetItem(var NewItem: Record Item)
     begin
+        CheckItemRecordIsAccessible(NewItem);
         Item.Copy(NewItem);
         UpdateItemRequestFields(Item);
         OnAfterSetItem(Item);
+    end;
+
+    local procedure CheckItemRecordIsAccessible(var NewItem: Record Item)
+    var
+        CheckItem: Record Item;
+    begin
+        if (NewItem."No." <> '') then begin
+            CheckItem.SetLoadFields("No.");
+            CheckItem.Get(NewItem."No.");
+        end;
     end;
 
     procedure SetForecastName(NewForcastName: Code[10])
