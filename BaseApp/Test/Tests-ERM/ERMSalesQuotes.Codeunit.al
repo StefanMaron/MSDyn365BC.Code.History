@@ -1739,6 +1739,36 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] The field Qty. to Assemble to Order is editable (Drill-down not invoke), Checked in CheckIsCommentLineIsBlankNumber.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSPrePaymentErrorOnNegValueQtySalsQuote()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 446418] Sales Quote control missing regarding Prepayments and negative quantities.
+
+        Initialize();
+
+        // [GIVEN] Create Item and Customer
+        Item.Get(CreateItem);
+        LibrarySales.CreateCustomer(Customer);
+
+        // [THEN] Update Prepayment % on customer.
+        Customer.Validate("Prepayment %", LibraryRandom.RandDec(100, 2));
+        Customer.Modify();
+
+        // [GIVEN] Create Sales Quote.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+        UpdateVatProdPostingGroup(Item, SalesHeader."Gen. Bus. Posting Group", SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [VERIFY] On Validate of Negative quantity prepayment error expected.
+        asserterror SalesLine.Validate(Quantity, -1 * SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1938,6 +1968,42 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.FindFirst();
         SalesHeader.TestField("Posting Date", 0D);
+    end;
+
+   local procedure UpdateVatProdPostingGroup(Item: Record Item; GenBusPostingGroup: Code[20]; VATBusPostingGrp: Code[20]; VATProdPostingGroup: Code[20])
+    var
+        GenPostingSetup: Record "General Posting Setup";
+        GLAcc: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        FindVATpostingSetup(VATPostingSetup, VATBusPostingGrp, VATProdPostingGroup);
+        if GenPostingSetup.Get(GenBusPostingGroup, Item."Gen. Prod. Posting Group") then
+            if GenPostingSetup."Sales Prepayments Account" <> '' then begin
+                GLAcc.Get(GenPostingSetup."Sales Prepayments Account");
+                GLAcc."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+                GLAcc.Modify();
+            end;
+    end;
+
+    local procedure FindVATpostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGrp: Code[20]; VATProdPostingGrouptxt: Code[20])
+    var
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+    begin
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostingGrp);
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATProdPostingGrouptxt);
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        IF not VATPostingSetup.FindFirst() then begin
+            LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGrp, VATProdPostingGroup.Code);
+            VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+            VATPostingSetup.Validate("VAT %", 0);
+            VATPostingSetup.Validate("VAT Identifier",
+              LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+            VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+            VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            VATPostingSetup.Validate("Tax Category", 'S');
+            VATPostingSetup.Insert(true);
+        end;
     end;
 
     [ConfirmHandler]

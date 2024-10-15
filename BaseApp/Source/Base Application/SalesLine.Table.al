@@ -3647,6 +3647,7 @@
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
         PrePaymentLineAmountEntered: Boolean;
+        SkipTaxCalculation: Boolean;
 
     procedure InitOutstanding()
     begin
@@ -4091,6 +4092,16 @@
         end;
     end;
 
+    procedure CanCalculateTax(): Boolean
+    begin
+        exit(SkipTaxCalculation);
+    end;
+
+    procedure SetSkipTaxCalulation(Skip: Boolean)
+    begin
+        SkipTaxCalculation := Skip;
+    end;
+
     procedure SetSalesHeader(NewSalesHeader: Record "Sales Header")
     begin
         SalesHeader := NewSalesHeader;
@@ -4484,7 +4495,8 @@
             exit;
 
         if ("Prepayment %" <> 0) and (Type <> Type::" ") then begin
-            TestField("Document Type", "Document Type"::Order);
+            IF not ("Document Type" In ["Document Type"::Order, "Document Type"::Quote]) then
+                FieldError("Document Type");
             TestField("No.");
             if CurrFieldNo = FieldNo("Prepayment %") then
                 if "System-Created Entry" and not IsServiceChargeLine() then
@@ -4560,8 +4572,8 @@
             end;
             if "Prepmt. Line Amount" <> 0 then begin
                 RemLineAmountToInvoice := GetLineAmountToHandleInclPrepmt(Quantity - "Quantity Invoiced");
-                if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
-                    FieldError("Prepmt. Line Amount", StrSubstNo(Text045, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
+                if RemLineAmountToInvoice < ("Prepmt Amt to Deduct" - "Prepmt Amt Deducted") then
+                    FieldError("Prepmt Amt to Deduct", StrSubstNo(Text045, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
             end;
         end else
             if (CurrFieldNo <> 0) and ("Line Amount" <> xRec."Line Amount") and
@@ -7767,7 +7779,7 @@
         "Transaction Specification" := SalesHeader."Transaction Specification";
         "Tax Area Code" := SalesHeader."Tax Area Code";
         "Tax Liable" := SalesHeader."Tax Liable";
-        if not "System-Created Entry" and ("Document Type" = "Document Type"::Order) and HasTypeToFillMandatoryFields() or
+        if not "System-Created Entry" and ("Document Type" In ["Document Type"::Order, "Document Type"::Quote]) and HasTypeToFillMandatoryFields() or
            IsServiceChargeLine()
         then
             "Prepayment %" := SalesHeader."Prepayment %";
