@@ -187,6 +187,12 @@ page 291 "Req. Worksheet"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
+                field("Purchaser Code"; Rec."Purchaser Code")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies which purchaser is assigned to the vendor.';
+                    Visible = false;
+                }
                 field("Order Address Code"; "Order Address Code")
                 {
                     ApplicationArea = Planning;
