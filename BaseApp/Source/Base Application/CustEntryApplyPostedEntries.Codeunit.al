@@ -261,6 +261,7 @@
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DateComprReg: Record "Date Compr. Register";
         TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         AdjustExchangeRates: Report "Adjust Exchange Rates";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
@@ -275,6 +276,10 @@
         GLEntry.LockTable();
         DtldCustLedgEntry.LockTable();
         CustLedgEntry.LockTable();
+        GLSetup.Get();
+        if GLSetup."Enable Russian Accounting" then
+            AmtDiffManagement.Init();
+
         CustLedgEntry.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.");
         OnPostUnApplyCustomerCommitOnAfterGetCustLedgEntry(CustLedgEntry);
         CheckPostingDate(PostingDate, MaxPostingDate);
@@ -300,6 +305,14 @@
                 CheckReversal(DtldCustLedgEntry."Cust. Ledger Entry No.");
                 if DtldCustLedgEntry."Transaction No." <> 0 then
                     CheckUnappliedEntries(DtldCustLedgEntry);
+
+                if DtldCustLedgEntry."Prepmt. Diff." then begin
+                    DetailedCVLedgEntryBuffer.TransferFields(DtldCustLedgEntry);
+                    DetailedCVLedgEntryBuffer.Amount := -DetailedCVLedgEntryBuffer.Amount;
+                    DetailedCVLedgEntryBuffer."Amount (LCY)" := -DetailedCVLedgEntryBuffer."Amount (LCY)";
+                    AmtDiffManagement.InsertPrepmtDiffBufEntry(
+                        DetailedCVLedgEntryBuffer, DetailedCVLedgEntryBuffer."Gen. Posting Type"::Sale, DtldCustLedgEntry."Transaction No.");
+                end;
             until DtldCustLedgEntry.Next = 0;
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);

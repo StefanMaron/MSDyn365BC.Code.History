@@ -181,7 +181,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         EntryAmount: array[3] of Decimal;
     begin
         Initialize;
-        SetCancelPrepmtAdjmtInGLSetup;
+        SetCancelPrepmtAdjmtInGLSetup(true, true);
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
           InvNo, PmtNo, EntryAmount, CurrencyCode, true, true);
@@ -205,7 +205,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
 
         Initialize;
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup;
+        SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment and invoice in FCY with different exchange rates
         PostInvAndPrepmtWithCurrency(
           InvNo, PmtNo, EntryAmount, CurrencyCode, true, true);
@@ -238,7 +238,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
 
         Initialize;
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup;
+        SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment with unrealized VAT Amount = "X" and invoice
         InvAmount := PostInvAndUnrealPrepmt(PmtNo, InvNo);
         // [GIVEN] Posted Vendor VAT Invoice for Prepayment
@@ -275,7 +275,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         Initialize;
         GLSetup.Get();
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup;
+        SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment with unrealized VAT Amount = "X" and invoice
         InvAmount := PostInvAndUnrealPrepmt(PmtNo, InvNo);
         PrepmtDocNo := GetNextPrepmtInvNo;
@@ -316,7 +316,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         Initialize;
 
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup;
+        SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Released Item Invoice "I" with FCY = 1000$ = 800$ + 200$ (VAT25%) = 60000 LCY = 48000 + 12000 (1$ = 60 LCY).
         // [GIVEN] Posted Prepayment FCY = 500$ = 400$ + 100$ = 25000 LCY = 20000 + 5000 (1$ = 50 LCY).
         // [GIVEN] Post Invoice.
@@ -360,7 +360,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         Initialize;
 
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup;
+        SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Released Item Invoice "I" with FCY = 1000$ = 800$ + 200$ (VAT25%) = 60000 LCY = 48000 + 12000 (1$ = 60 LCY).
         // [GIVEN] Posted Prepayment FCY = 500$ = 400$ + 100$ = 35000 LCY = 28000 + 7000 (1$ = 70 LCY).
         // [GIVEN] Post Invoice.
@@ -402,7 +402,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         Initialize;
 
         // [GIVEN] Enable "Cancel Prepmt. Adjmt. in TA" in general ledger setup
-        SetCancelPrepmtAdjmtInGLSetup;
+        SetCancelPrepmtAdjmtInGLSetup(true, true);
 
         // [GIVEN] Setup exchange rates for EUR: 1.5 on 16.02.2020, 2.1 on 16.03.2020, 2.8 on 16.04.2020
         SourceCurrencyCode := PrepareSetup(true, ExchRateAmount, true);
@@ -434,6 +434,71 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         // [THEN] Value Entry with item charge "EXCLTACOST" is created
         // [THEN] "Cost Amount (Actual)" in value entry is 10 * 100 * (2.8 - 1.5) = 1300
         VerifyPrepaymentAdjmtValueEntry(OrderPurchaseLine, ExchRateAmount[1], ExchRateAmount[3]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyPrepmtToInvWithCancelPrepmtAdjmtAndGLCorresp()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        VATEntry: Record "VAT Entry";
+        GLEntry: Record "G/L Entry";
+        GLCorrespondenceEntry: Record "G/L Correspondence Entry";
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        EntryAmount: array[3] of Decimal;
+    begin
+        // [FEATURE] [Prepayment Difference] [Cancel Curr. Prepmt. Adjmt.] [G/L Correspondence] [Unapply]
+        // [SCENARIO 390954] Unapply Prepayment from invoice with "Cancel Curr. Prepmt. Adjmt" and "Automatic G/L Correspondence"
+        Initialize();
+
+        // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option = Yes, "Automatic G/L Correspondence" = Yes in G/L Setup
+        SetCancelPrepmtAdjmtInGLSetup(true, false);
+        SetAutomaticGLCorrInGLSetup();
+
+        // [GIVEN] Posted Prepayment on 15/01/2021 and invoice for "GLAcc" on 15/02/2021 in FCY with diff. exch. rates and prepmt. diff. = 120, VAT % = 20
+        PostInvAndPrepmtWithCurrency(InvoiceNo, PaymentNo, EntryAmount, CurrencyCode, true, true);
+
+        PurchInvHeader.Get(InvoiceNo);
+        PurchInvLine.SetRange("Document No.", InvoiceNo);
+        PurchInvLine.FindFirst();
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.SetRange("G/L Account No.", PurchInvLine."No.");
+        Assert.RecordCount(GLEntry, 1);
+        GLCorrespondenceEntry.SetRange("Debit Source No.", PurchInvHeader."Buy-from Vendor No.");
+        GLCorrespondenceEntry.SetRange("Debit Account No.", PurchInvLine."No.");
+        Assert.RecordCount(GLCorrespondenceEntry, 1);
+
+        // [GIVEN] Apply Prepayment to Invoice
+        ApplyVendorPaymentToInvoice(PaymentNo, InvoiceNo);
+
+        VATEntry.SetRange("Document No.", InvoiceNo);
+        VATEntry.SetRange("Prepmt. Diff.", true);
+        VATEntry.FindFirst();
+        Assert.RecordCount(VATEntry, 1);
+        Assert.RecordCount(GLEntry, 2);
+        Assert.RecordCount(GLCorrespondenceEntry, 2);
+
+        // [WHEN] Unapply entries
+        UnApplyVendorPayment(PaymentNo);
+
+        // [THEN] G/L Entry and G/L correspondence entries unapplied for "GLAcc" account with Amount = 100 as VAT Base
+        Assert.RecordCount(VATEntry, 2);
+        Assert.RecordCount(GLEntry, 3);
+        Assert.RecordCount(GLCorrespondenceEntry, 3);
+        GLEntry.FindLast();
+        GLEntry.TestField(Amount, -VATEntry.Base);
+        GLCorrespondenceEntry.FindLast();
+        GLCorrespondenceEntry.TestField(Amount, -VATEntry.Base);
+
+        // [THEN] Purchase Invoice for prepmt. difference created with Amount Incl. VAT = 120
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VATEntry."Bill-to/Pay-to No.");
+        PurchInvHeader.SetRange(Closed, true);
+        PurchInvHeader.FindFirst();
+        PurchInvHeader.CalcFields("Amount Including VAT");
+        PurchInvHeader.TestField("Amount Including VAT", -VATEntry.Base - VATEntry.Amount);
     end;
 
     local procedure Initialize()
@@ -502,16 +567,25 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         VendPostingGroup.Modify(true);
     end;
 
-    local procedure SetCancelPrepmtAdjmtInGLSetup()
+    local procedure SetCancelPrepmtAdjmtInGLSetup(CancelCurrPrepmtAdjmt: Boolean; CancelPrepmtAdjmtInTA: Boolean)
     var
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
             Get;
-            "Cancel Curr. Prepmt. Adjmt." := true;
-            "Cancel Prepmt. Adjmt. in TA" := true;
+            "Cancel Curr. Prepmt. Adjmt." := CancelCurrPrepmtAdjmt;
+            "Cancel Prepmt. Adjmt. in TA" := CancelPrepmtAdjmtInTA;
             Modify(true);
         end;
+    end;
+
+    local procedure SetAutomaticGLCorrInGLSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Automatic G/L Correspondence", true);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure ApplyInvCurrToPrepmt(IsRaise: Boolean; IsCancelPrepmt: Boolean)
@@ -588,7 +662,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::Payment, PaymentDocNo);
-        LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
+        UnapplyVendLedgerEntries(VendLedgEntry."Entry No.", PaymentDocNo);
     end;
 
     local procedure UnApplyVendorRefund(RefundDocNo: Code[20])
@@ -596,7 +670,18 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::Refund, RefundDocNo);
-        LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
+        UnapplyVendLedgerEntries(VendLedgEntry."Entry No.", RefundDocNo);
+    end;
+
+    local procedure UnapplyVendLedgerEntries(VendEntryNo: Integer; DocumentNo: Code[20])
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
+    begin
+        DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendEntryNo);
+        DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
+        DetailedVendorLedgEntry.FindFirst();
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, DocumentNo, DetailedVendorLedgEntry."Posting Date");
     end;
 
     local procedure UnapplyInvAndRefundToPrepmt(IsRaise: Boolean; IsCancelPrepmt: Boolean)
@@ -1257,7 +1342,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
               FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption, GetFilters));
             VendPostingGroup.Get(VendLedgEntry."Vendor Posting Group");
             VerifyGLEntry(
-              DocType, DocNo, VendPostingGroup."Payables Account", -"Amount (LCY)");
+              DocType, DocNo, VendPostingGroup."Payables Account", "Amount (LCY)");
         end;
     end;
 

@@ -343,6 +343,7 @@
         SalesLinePostCategoryTok: Label 'Sales Line Post', Locked = true;
         SameIdFoundLbl: Label 'Same line id found.', Locked = true;
         EmptyIdFoundLbl: Label 'Empty line id found.', Locked = true;
+        ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
 
     local procedure GetZeroSalesLineRecID(SalesHeader: Record "Sales Header"; var SalesLineRecID: RecordId)
     var
@@ -977,7 +978,7 @@
     var
         SalesLineBackup: Record "Sales Line";
     begin
-        if not (SalesHeader.Invoice and (SalesLine."Qty. to Invoice" <> 0) and (SalesLine.Amount <> 0)) then
+        if not (SalesHeader.Invoice and (SalesLine."Qty. to Invoice" <> 0)) then
             exit;
 
         ItemJnlRollRndg := true;
@@ -1875,8 +1876,8 @@
             exit;
 
         with SalesLine do begin
-            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
-                TestField(Amount);
+            if Amount = 0 then
+                Error(ItemChargeZeroAmountErr, "No.");
             TestField("Job No.", '');
             TestField("Job Contract Entry No.", 0);
         end;
@@ -3604,7 +3605,6 @@
         with TempSalesLine do begin
             ResetTempLines(TempSalesLine);
             SetRange(Type, Type::"Charge (Item)");
-            SetFilter("Line Discount %", '<>100');
             if IsEmpty() then
                 exit;
 
@@ -6679,7 +6679,6 @@
         FromSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         InvEntry: Record "Cust. Ledger Entry";
         PayEntry: Record "Cust. Ledger Entry";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
         SalesPost: Codeunit "Sales-Post";
         AmtDiffMgt: Codeunit PrepmtDiffManagement;
         DocType: Enum "Sales Document Type From";
@@ -6729,43 +6728,7 @@
         SalesHeader."Posting Date" := DtldCVLedgEntryBuf."Posting Date";
         SalesHeader.Insert(true);
 
-        CopyDocMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocMgt.CopySalesDoc(DocType, InvEntry."Document No.", SalesHeader);
-        SalesHeader."Currency Code" := '';
-        SalesHeader."Currency Factor" := 0;
-        SalesHeader.Validate("Posting Date", DtldCVLedgEntryBuf."Posting Date");
-        // clear Unit Price to not having recalculation
-        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.ModifyAll("Currency Code", '');
-        SalesLine.ModifyAll("Unit Price", 0);
-        SalesHeader.Validate("Prices Including VAT", true);
-
-        GLSetup.Get();
-        SalesHeader.Correction := GLSetup."Mark Cr. Memos as Corrections" and
-          (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo");
-
-        SalesHeader."Invoice Disc. Code" := '';
-        if PrepaymentAdjustment then begin
-            SalesHeader."Prepmt. Diff. Appln. Entry No." := InvEntry."Entry No.";
-            SalesHeader."Posting No." := InvEntry."Document No.";
-            SalesHeader."Posting Description" := InvEntry.Description;
-            AmtDiffMgt.UpdatePDDocPostingNo(
-              SalesHeader."Posting No. Series", SalesHeader."Posting No.", InvEntry."Entry No.", 0,
-              SalesHeader."Document Type".AsInteger() - 2);
-        end;
-        SalesHeader.Receive := true;
-        SalesHeader.Invoice := true;
-
-        if PrepaymentAdjustment then
-            if AmtDiffMgt.IsDifferentTaxPeriod(InvEntry."Posting Date", SalesHeader."Posting Date") then begin
-                SalesHeader.Validate("Additional VAT Ledger Sheet", true);
-                SalesHeader.Validate("Corrected Document Date", InvEntry."Posting Date");
-            end;
-
-        // "No. Printed" field is used to pass initial VAT transaction number through the codeunit 80
-        SalesHeader."No. Printed" := DtldCVLedgEntryBuf."Transaction No.";
-        SalesHeader.Modify();
+        CopyUpdateCorrDoc(SalesHeader, InvEntry, DtldCVLedgEntryBuf, AmtDiffMgt, DocType, PrepaymentAdjustment);
 
         if (not SalesHeader."Prepmt. Diff.") or
            (SalesHeader."Prepmt. Diff." and (PayEntry."Currency Code" <> ''))
@@ -6785,6 +6748,54 @@
             SalesPost.SetIndirectCall(true);
             SalesPost.Run(SalesHeader);
         end;
+    end;
+
+    local procedure CopyUpdateCorrDoc(var SalesHeader: Record "Sales Header"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var PrepmtDiffManagement: Codeunit PrepmtDiffManagement; DocType: Enum "Sales Document Type From"; PrepmtAdjmt: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        PostedDocType: Option Invoice,"Credit Memo";
+    begin
+        CopyDocMgt.SetProperties(true, false, false, false, true, false, false);
+        CopyDocMgt.CopySalesDoc(DocType, CustLedgerEntry."Document No.", SalesHeader);
+        SalesHeader."Currency Code" := '';
+        SalesHeader."Currency Factor" := 0;
+        SalesHeader.Validate("Posting Date", DetailedCVLedgEntryBuffer."Posting Date");
+        // clear Unit Price to not having recalculation
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.ModifyAll("Currency Code", '');
+        SalesLine.ModifyAll("Unit Price", 0);
+        SalesHeader.Validate("Prices Including VAT", true);
+
+        GLSetup.Get();
+        SalesHeader.Correction := GLSetup."Mark Cr. Memos as Corrections" and
+          (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo");
+
+        SalesHeader."Invoice Disc. Code" := '';
+        if PrepmtAdjmt then begin
+            SalesHeader."Prepmt. Diff. Appln. Entry No." := CustLedgerEntry."Entry No.";
+            SalesHeader."Posting No." := CustLedgerEntry."Document No.";
+            SalesHeader."Posting Description" := CustLedgerEntry.Description;
+            if SalesHeader."Document Type" = PostedDocType::"Credit Memo" then
+                PostedDocType := PostedDocType::"Credit Memo"
+            else
+                PostedDocType := PostedDocType::Invoice;
+            PrepmtDiffManagement.UpdatePDDocPostingNo(
+              SalesHeader."Posting No. Series", SalesHeader."Posting No.", CustLedgerEntry."Entry No.", 0, PostedDocType);
+        end;
+        SalesHeader.Receive := true;
+        SalesHeader.Invoice := true;
+
+        if PrepmtAdjmt then
+            if PrepmtDiffManagement.IsDifferentTaxPeriod(CustLedgerEntry."Posting Date", SalesHeader."Posting Date") then begin
+                SalesHeader.Validate("Additional VAT Ledger Sheet", true);
+                SalesHeader.Validate("Corrected Document Date", CustLedgerEntry."Posting Date");
+            end;
+
+        // "No. Printed" field is used to pass initial VAT transaction number through the codeunit 80
+        SalesHeader."No. Printed" := DetailedCVLedgEntryBuffer."Transaction No.";
+        SalesHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -6931,7 +6942,6 @@
         InvEntry: Record "Cust. Ledger Entry";
         PayEntry: Record "Cust. Ledger Entry";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
         SalesPost: Codeunit "Sales-Post";
         AmtDiffMgt: Codeunit PrepmtDiffManagement;
         DocType: Enum "Sales Document Type From";
@@ -6981,40 +6991,7 @@
         SalesHeader."Prepmt. Diff." := true;
         SalesHeader.Insert(true);
 
-        CopyDocMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocMgt.CopySalesDoc(DocType, InvEntry."Document No.", SalesHeader);
-        SalesHeader.Validate("Currency Code", '');
-        SalesHeader.Validate("Posting Date", DtldCVLedgEntryBuf."Posting Date");
-        // clear Unit Price to not having recalculation
-        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.ModifyAll("Currency Code", '');
-        SalesLine.ModifyAll("Unit Price", 0);
-        SalesHeader.Validate("Prices Including VAT", true);
-
-        GLSetup.Get();
-        SalesHeader.Correction :=
-          GLSetup."Mark Cr. Memos as Corrections" and
-          (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo");
-
-        SalesHeader."Prepmt. Diff. Appln. Entry No." := InvEntry."Entry No.";
-        SalesHeader."Posting No." := InvEntry."Document No.";
-        SalesHeader."Posting Description" := InvEntry.Description;
-        AmtDiffMgt.UpdatePDDocPostingNo(
-          SalesHeader."Posting No. Series", SalesHeader."Posting No.", InvEntry."Entry No.", 0,
-          SalesHeader."Document Type".AsInteger() - 2);
-
-        SalesHeader.Receive := true;
-        SalesHeader.Invoice := true;
-
-        if AmtDiffMgt.IsDifferentTaxPeriod(InvEntry."Posting Date", SalesHeader."Posting Date") then begin
-            SalesHeader.Validate("Additional VAT Ledger Sheet", true);
-            SalesHeader.Validate("Corrected Document Date", InvEntry."Posting Date");
-        end;
-
-        // "No. Printed" field is used to pass initial VAT transaction number through the codeunit 80
-        SalesHeader."No. Printed" := DtldCVLedgEntryBuf."Transaction No.";
-        SalesHeader.Modify();
+        CopyUpdateCorrDoc(SalesHeader, InvEntry, DtldCVLedgEntryBuf, AmtDiffMgt, DocType, true);
 
         if PayEntry."Currency Code" <> '' then
             AmtDiffMgt.UpdateCorrDocDimSetID(

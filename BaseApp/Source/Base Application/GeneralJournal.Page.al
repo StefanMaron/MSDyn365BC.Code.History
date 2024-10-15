@@ -978,7 +978,7 @@ page 39 "General Journal"
                             if IsSimplePage then
                                 // If this page is opend in simple mode then use the current doc no. for every G/L lines that are created
                                 // from standard journal.
-                                StdGenJnl.CreateGenJnlFromStdJnlWithDocNo(StdGenJnl, CurrentJnlBatchName, CurrentDocNo)
+                                StdGenJnl.CreateGenJnlFromStdJnlWithDocNo(StdGenJnl, CurrentJnlBatchName, CurrentDocNo, CurrentPostingDate)
                             else
                                 StdGenJnl.CreateGenJnlFromStdJnl(StdGenJnl, CurrentJnlBatchName);
                             Message(Text000, StdGenJnl.Code);

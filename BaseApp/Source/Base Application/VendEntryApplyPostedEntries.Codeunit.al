@@ -263,6 +263,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         GenJnlLine: Record "Gen. Journal Line";
         DateComprReg: Record "Date Compr. Register";
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         AdjustExchangeRates: Report "Adjust Exchange Rates";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
@@ -277,6 +278,10 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         GLEntry.LockTable();
         DtldVendLedgEntry.LockTable();
         VendLedgEntry.LockTable();
+        GLSetup.Get();
+        if GLSetup."Enable Russian Accounting" then
+            AmtDiffManagement.Init();
+
         VendLedgEntry.Get(DtldVendLedgEntry2."Vendor Ledger Entry No.");
         OnPostUnApplyVendorOnAfterGetVendLedgEntry(VendLedgEntry);
         CheckPostingDate(PostingDate, MaxPostingDate);
@@ -302,6 +307,14 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                 CheckReversal(DtldVendLedgEntry."Vendor Ledger Entry No.");
                 if DtldVendLedgEntry."Transaction No." <> 0 then
                     CheckUnappliedEntries(DtldVendLedgEntry);
+
+                if DtldVendLedgEntry."Prepmt. Diff." then begin
+                    DetailedCVLedgEntryBuffer.TransferFields(DtldVendLedgEntry);
+                    DetailedCVLedgEntryBuffer.Amount := -DetailedCVLedgEntryBuffer.Amount;
+                    DetailedCVLedgEntryBuffer."Amount (LCY)" := -DetailedCVLedgEntryBuffer."Amount (LCY)";
+                    AmtDiffManagement.InsertPrepmtDiffBufEntry(
+                        DetailedCVLedgEntryBuffer, DetailedCVLedgEntryBuffer."Gen. Posting Type"::Purchase, DtldVendLedgEntry."Transaction No.");
+                end;
             until DtldVendLedgEntry.Next = 0;
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
