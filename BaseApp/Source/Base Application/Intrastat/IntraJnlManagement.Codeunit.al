@@ -14,6 +14,8 @@ codeunit 350 IntraJnlManagement
         Text003: Label 'Default Journal';
         OpenFromBatch: Boolean;
         AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
+        NewFileExport2022ReportMsg: Label 'The Intrastat report for 2022 is now available. To use it, open the Report Selections page and set up report ID 593. Choose Make Disk Tax Auth. in the Usage field.';
+        OpenReportSelectionsMsg: Label 'Open Report Selections.';
 
     procedure TemplateSelection(PageID: Integer; var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var JnlSelected: Boolean)
     var
@@ -337,6 +339,44 @@ codeunit 350 IntraJnlManagement
     begin
         Commit();
         Error(AdvChecklistErr);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Intrastat Journal", 'OnOpenPageEvent', '', false, false)]
+    local procedure OnOpenIntrastatJournalPage()
+    VAR
+        DACHReportSelections: Record "DACH Report Selections";
+        Notification: Notification;
+    begin
+        DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"Intrastat Disk");
+        DACHReportSelections.SetRange("Report ID", Report::"Intrastat - Make Disk Tax Auth");
+        if not DACHReportSelections.IsEmpty() then
+            exit;
+
+        Notification.Message := NewFileExport2022ReportMsg;
+        Notification.Scope := NOTIFICATIONSCOPE::LocalScope;
+        Notification.AddAction(OpenReportSelectionsMsg, Codeunit::IntraJnlManagement, 'OpenIntrastatReportSelections');
+        Notification.Send();
+    end;
+
+    procedure OpenIntrastatReportSelections(Notification: Notification);
+    begin
+        Page.RunModal(Page::"Report Selection - Intrastat");
+    end;
+
+    procedure RoundTotalWeight(TotalWeight: Decimal): Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeRoundTotalWeight(IsHandled, TotalWeight);
+        if IsHandled then
+            exit(TotalWeight);
+
+        exit(Round(TotalWeight, 0.001));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundTotalWeight(var IsHandled: Boolean; var TotalWeight: Decimal)
+    begin
     end;
 }
 
