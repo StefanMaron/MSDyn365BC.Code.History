@@ -11417,6 +11417,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Check - NamedType PostingDateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 414629551 - NamedType 3102599359" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Posted Shipment Date]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Check - NamedType PostedShipmentDateTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 534852332 - NamedType 1482674974" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Posted Service Shipment]]></Val>
