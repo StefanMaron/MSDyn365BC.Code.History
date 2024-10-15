@@ -1,4 +1,4 @@
-codeunit 9997 "Upgrade Tag Def - Country"
+﻿codeunit 9997 "Upgrade Tag Def - Country"
 {
 
     trigger OnRun()
@@ -16,6 +16,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(GetCFDIEnableOptionUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCompanyInformationRFCNumberUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPACWebServiceDetailsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSATAddressUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -74,5 +75,10 @@ codeunit 9997 "Upgrade Tag Def - Country"
         exit('MS-462312-PACWebServiceDetails-20230202');
     end;
 
+
+    procedure GetSATAddressUpgradeTag(): Code[250]
+    begin
+        exit('MS-477864-SATAddress-20230814');
+    end;
 }
 

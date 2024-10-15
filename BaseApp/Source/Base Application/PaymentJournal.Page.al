@@ -53,6 +53,12 @@ page 256 "Payment Journal"
                     StyleExpr = HasPmtFileErr;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+                field("Invoice Received Date"; Rec."Invoice Received Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the date when the related document was received.';
+                    Visible = false;
+                }
                 field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;

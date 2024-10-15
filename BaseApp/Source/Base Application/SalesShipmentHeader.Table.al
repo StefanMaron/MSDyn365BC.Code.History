@@ -600,6 +600,16 @@
             Caption = 'Error Description';
             Editable = false;
         }
+        field(10037; "Date/Time Stamp Received"; DateTime)
+        {
+            Caption = 'Date/Time Stamp Received';
+            Editable = false;
+        }
+        field(10038; "Date/Time Cancel Sent"; DateTime)
+        {
+            Caption = 'Date/Time Cancel Sent';
+            Editable = false;
+        }
         field(10040; "PAC Web Service Name"; Text[50])
         {
             Caption = 'PAC Web Service Name';
@@ -669,6 +679,14 @@
         {
             Caption = 'Transit-to Location';
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            ObsoleteReason = 'Replaced with SAT Address ID.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif             
         }
         field(10056; "Medical Insurer Name"; Text[50])
         {
@@ -705,6 +723,19 @@
         field(27008; "Marked as Canceled"; Boolean)
         {
             Caption = 'Marked as Canceled';
+        }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+            TableRelation = "SAT Address";
+
+            trigger OnLookup()
+            var
+                SATAddress: Record "SAT Address";
+            begin
+                if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
+                    Rec."SAT Address ID" := SATAddress.Id;
+            end;
         }
     }
 
