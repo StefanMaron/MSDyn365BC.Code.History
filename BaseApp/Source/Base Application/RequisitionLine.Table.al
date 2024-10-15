@@ -1,4 +1,4 @@
-table 246 "Requisition Line"
+﻿table 246 "Requisition Line"
 {
     Caption = 'Requisition Line';
     DataCaptionFields = "Journal Batch Name", "Line No.";
@@ -344,7 +344,7 @@ table 246 "Requisition Line"
                         if ("Location Code" <> '') and ("No." <> '') and not IsDropShipment then begin
                             GetLocation("Location Code");
                             ShouldGetDefaultBin := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
-                            OnValidateLocationCodeOnBeforeGetDefaultBin(Rec, ShouldGetDefaultBin, Location);
+                            OnValidateLocationCodeOnBeforeGetDefaultBin(Rec, ShouldGetDefaultBin, Location, CurrFieldNo);
                             if ShouldGetDefaultBin then
                                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                         end;
@@ -2868,13 +2868,17 @@ table 246 "Requisition Line"
 
         GetWorkCenter;
         if ("Replenishment System" = "Replenishment System"::Purchase) and not Subcontracting then begin
-            GetLineWithPrice(LineWithPrice);
-            LineWithPrice.SetLine(PriceType::Purchase, Rec);
-            PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
-            PriceCalculation.ApplyDiscount();
-            PriceCalculation.ApplyPrice(CalledByFieldNo);
-            PriceCalculation.GetLine(Line);
-            Rec := Line;
+            IsHandled := false;
+            OnGetDirectCostOnBeforePriceCalculation(Rec, IsHandled);
+            If not IsHandled then begin
+                GetLineWithPrice(LineWithPrice);
+                LineWithPrice.SetLine(PriceType::Purchase, Rec);
+                PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
+                PriceCalculation.ApplyDiscount();
+                PriceCalculation.ApplyPrice(CalledByFieldNo);
+                PriceCalculation.GetLine(Line);
+                Rec := Line;
+            end;
         end;
 
         OnAfterGetDirectCost(Rec, CalledByFieldNo);
@@ -2952,9 +2956,13 @@ table 246 "Requisition Line"
         "Ending Date" :=
           LeadTimeMgt.PlannedEndingDate(
             "No.", "Location Code", "Variant Code", "Vendor No.", LeadTime, "Ref. Order Type", "Starting Date");
+
+        OnAfterCalcEndingDate(Rec, LeadTime);
     end;
 
     procedure CalcStartingDate(LeadTime: Code[20])
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeCalcStartingDate(Rec, LeadTime);
 
@@ -2981,7 +2989,10 @@ table 246 "Requisition Line"
           LeadTimeMgt.PlannedStartingDate(
             "No.", "Location Code", "Variant Code", "Vendor No.", LeadTime, "Ref. Order Type", "Ending Date");
 
-        Validate("Order Date", "Starting Date");
+        IsHandled := false;
+        OnCalcStartingDateOnBeforeValidateOrderDate(Rec, LeadTime, IsHandled);
+        If not IsHandled then
+            Validate("Order Date", "Starting Date");
 
         if "Ref. Order Type" = "Ref. Order Type"::Transfer then
             CalcTransferShipmentDate;
@@ -2991,7 +3002,13 @@ table 246 "Requisition Line"
     var
         TransferRoute: Record "Transfer Route";
         DateFormula: DateFormula;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcTransferShipmentDate(Rec, IsHandled);
+        If IsHandled then
+            exit;
+
         Evaluate(DateFormula, LeadTimeMgt.WhseOutBoundHandlingTime("Transfer-from Code"));
         TransferRoute.CalcShipmentDateBackward("Transfer Shipment Date", "Starting Date", DateFormula, "Transfer-from Code");
     end;
@@ -3761,6 +3778,8 @@ table 246 "Requisition Line"
 
     local procedure SetReplenishmentSystemFromTransfer(StockkeepingUnit: Record "Stockkeeping Unit")
     begin
+        OnBeforeSetReplenishmentSystemFromTransfer(Rec, Item, StockkeepingUnit, CurrFieldNo);
+
         "Ref. Order Type" := "Ref. Order Type"::Transfer;
         Clear("Ref. Order Status");
         "Ref. Order No." := '';
@@ -4180,7 +4199,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnBeforeGetDefaultBin(RequisitionLine: Record "Requisition Line"; var ShouldGetDefaultBin: Boolean; Location: Record Location)
+    local procedure OnValidateLocationCodeOnBeforeGetDefaultBin(RequisitionLine: Record "Requisition Line"; var ShouldGetDefaultBin: Boolean; Location: Record Location; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -4318,5 +4337,29 @@ table 246 "Requisition Line"
     local procedure OnLookupFromLocationOnAfterSetFilters(RequisitionLine: Record "Requisition Line"; var Location: Record Location)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcEndingDate(var Rec: Record "Requisition Line"; LeadTime: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDirectCostOnBeforePriceCalculation(var Rec: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcStartingDateOnBeforeValidateOrderDate(var Rec: Record "Requisition Line"; var LeadTime: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetReplenishmentSystemFromTransfer(var RequisitionLine: Record "Requisition Line"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTransferShipmentDate(var Rec: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+}

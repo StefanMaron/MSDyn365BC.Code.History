@@ -54,7 +54,7 @@ page 7 "Customer Price Groups"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the customer price group is coupled to a price list in Dynamics 365 Sales.';
-                    Visible = CRMIntegrationEnabled;
+                    Visible = CRMIntegrationEnabled and not ExtendedPriceEnabled;
                 }
             }
         }
@@ -147,7 +147,7 @@ page 7 "Customer Price Groups"
             group(ActionGroupCRM)
             {
                 Caption = 'Dynamics 365 Sales';
-                Visible = CRMIntegrationEnabled;
+                Visible = CRMIntegrationEnabled and not ExtendedPriceEnabled;
                 action(CRMGoToPricelevel)
                 {
                     ApplicationArea = Suite;

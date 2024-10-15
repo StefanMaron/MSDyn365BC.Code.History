@@ -1886,7 +1886,7 @@
                     OnApplyItemLedgEntryOnBeforeCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry);
                     ReservEngineMgt.CloseReservEntry(ReservEntry, false, false);
                     OnApplyItemLedgEntryOnAfterCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry, ReservEntry);
-                    OldItemLedgEntry.CalcFields("Reserved Quantity");
+                    OldItemLedgEntry.CalcReservedQuantity();
                     AppliedQty := -Abs(ReservEntry."Quantity (Base)");
                 end;
             end else
@@ -1895,7 +1895,7 @@
             OnApplyItemLedgEntryOnBeforeStartApplication(ItemLedgEntry, OldItemLedgEntry, StartApplication);
 
             if StartApplication then begin
-                ItemLedgEntry.CalcFields("Reserved Quantity");
+                ItemLedgEntry.CalcReservedQuantity();
                 if ItemLedgEntry."Applies-to Entry" <> 0 then begin
                     if FirstApplication then begin
                         FirstApplication := false;
@@ -1926,7 +1926,7 @@
                     OldItemLedgEntry.Copy(ItemLedgEntry2)
                 end;
 
-                OldItemLedgEntry.CalcFields("Reserved Quantity");
+                OldItemLedgEntry.CalcReservedQuantity();
                 OnAfterApplyItemLedgEntryOnBeforeCalcAppliedQty(OldItemLedgEntry, ItemLedgEntry);
 
                 if Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") >
@@ -2027,7 +2027,7 @@
 
                 UpdateItemLedgerEntryRemainingQuantity(ItemLedgEntry, AppliedQty, OldItemLedgEntry, CausedByTransfer);
 
-                ItemLedgEntry.CalcFields("Reserved Quantity");
+                ItemLedgEntry.CalcReservedQuantity();
                 if ItemLedgEntry."Remaining Quantity" + ItemLedgEntry."Reserved Quantity" = 0 then
                     exit;
             end;
@@ -2079,7 +2079,10 @@
         if IsHandled then
             exit;
 
-        ToItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        if FromItemLedgEntry."Serial No." <> '' then
+            ToItemLedgEntry.SetCurrentKey("Serial No.", "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date")
+        else
+            ToItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         ToItemLedgEntry.SetRange("Item No.", FromItemLedgEntry."Item No.");
         ToItemLedgEntry.SetRange(Open, true);
         ToItemLedgEntry.SetRange("Variant Code", FromItemLedgEntry."Variant Code");
@@ -2135,7 +2138,7 @@
 
         OnTestFirstApplyItemLedgEntryOnAfterTestFields(ItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
 
-        OldItemLedgEntry.CalcFields("Reserved Quantity");
+        OldItemLedgEntry.CalcReservedQuantity();
         CheckApplication(ItemLedgEntry, OldItemLedgEntry);
 
         if Abs(OldItemLedgEntry."Remaining Quantity") <= Abs(OldItemLedgEntry."Reserved Quantity") then
@@ -5196,7 +5199,7 @@
                         if not Application.Fixed() then begin
                             UnApply(Application);
                             OldItemLedgEntry.Get(OldItemLedgEntry."Entry No.");
-                            OldItemLedgEntry.CalcFields("Reserved Quantity");
+                            OldItemLedgEntry.CalcReservedQuantity();
                             Enough :=
                               Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") >=
                               Abs("Remaining Quantity");

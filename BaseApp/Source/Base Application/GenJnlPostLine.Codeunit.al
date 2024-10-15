@@ -1500,6 +1500,7 @@
             EmployeeLedgerEntry."Amount to Apply" := 0;
             EmployeeLedgerEntry."Applies-to Doc. No." := '';
             EmployeeLedgerEntry."Applies-to ID" := '';
+            OnPostEmployeeOnBeforeEmployeeLedgerEntryInsert(GenJnlLine, EmployeeLedgerEntry);
             EmployeeLedgerEntry.Insert(true);
 
             // Post detailed employee entries
@@ -2032,7 +2033,7 @@
         GLEntry."Additional-Currency Amount" :=
           GLCalcAddCurrency(Amount, AmountAddCurr, GLEntry."Additional-Currency Amount", UseAmountAddCurr, GenJnlLine);
 
-        OnAfterInitGLEntry(GLEntry, GenJnlLine, Amount, AmountAddCurr, UseAmountAddCurr, CurrencyFactor);
+        OnAfterInitGLEntry(GLEntry, GenJnlLine, Amount, AmountAddCurr, UseAmountAddCurr, CurrencyFactor, GLReg);
     end;
 
     procedure InitGLEntryVAT(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; BalAccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; UseAmtAddCurr: Boolean)
@@ -3128,7 +3129,7 @@
         CustLedgEntry."Entry No." := NextEntryNo;
         CustLedgEntry."Transaction No." := NextTransactionNo;
 
-        OnAfterInitCustLedgEntry(CustLedgEntry, GenJnlLine);
+        OnAfterInitCustLedgEntry(CustLedgEntry, GenJnlLine, GLReg);
     end;
 
     local procedure InitVendLedgEntry(GenJnlLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
@@ -3140,7 +3141,7 @@
         VendLedgEntry."Entry No." := NextEntryNo;
         VendLedgEntry."Transaction No." := NextTransactionNo;
 
-        OnAfterInitVendLedgEntry(VendLedgEntry, GenJnlLine);
+        OnAfterInitVendLedgEntry(VendLedgEntry, GenJnlLine, GLReg);
     end;
 
     local procedure InitEmployeeLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
@@ -7814,7 +7815,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitGLEntry(var GLEntry: Record "G/L Entry"; GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; AddCurrAmount: Decimal; UseAddCurrAmount: Boolean; var CurrencyFactor: Decimal)
+    local procedure OnAfterInitGLEntry(var GLEntry: Record "G/L Entry"; GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; AddCurrAmount: Decimal; UseAddCurrAmount: Boolean; var CurrencyFactor: Decimal; var GLRegister: Record "G/L Register")
     begin
     end;
 
@@ -7834,12 +7835,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterInitCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var GLRegister: Record "G/L Register")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterInitVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var GLRegister: Record "G/L Register")
     begin
     end;
 
@@ -8405,7 +8406,7 @@
     end;
 #endif
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendorV19(DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var VendorPostingGroup: Record "Vendor Posting Group"; GenJournalLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -9495,6 +9496,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnContinuePostingOnIncreaseNextTransactionNo(var GenJnlLine: Record "Gen. Journal Line"; var NextTransactionNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostEmployeeOnBeforeEmployeeLedgerEntryInsert(var GenJnlLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 }

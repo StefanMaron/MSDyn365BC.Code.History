@@ -869,7 +869,8 @@
                 ApplicationArea = All;
                 SubPageLink = "Table ID" = CONST(38),
                               "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
+                              "Document No." = FIELD("No."),
+                              Status = const(Open);
                 Visible = OpenApprovalEntriesExistForCurrUser;
             }
             part(ApprovalFactBox; "Approval FactBox")
@@ -1638,9 +1639,13 @@
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        ShowConfirmCloseUnposted: Boolean;
     begin
-        if not DocumentIsPosted then
-            exit(ConfirmCloseUnposted);
+        ShowConfirmCloseUnposted := not DocumentIsPosted;
+        OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(Rec, ShowConfirmCloseUnposted);
+        if ShowConfirmCloseUnposted then
+            exit(Rec.ConfirmCloseUnposted());
     end;
 
     var
@@ -1923,6 +1928,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var ShowConfirmCloseUnposted: Boolean)
     begin
     end;
 }

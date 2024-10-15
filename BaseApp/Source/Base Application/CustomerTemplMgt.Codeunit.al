@@ -607,20 +607,25 @@ codeunit 1381 "Customer Templ. Mgt."
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Config. Template Management", 'OnBeforeInsertRecordWithKeyFields', '', false, false)]
     local procedure OnBeforeInsertRecordWithKeyFieldsHandler(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
-    var
-        Customer: Record Customer;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        FldRef: FieldRef;
     begin
         if RecRef.Number = Database::Customer then begin
             if ConfigTemplateHeader."Instance No. Series" = '' then
                 exit;
 
-            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Customer."No.", Customer."No. Series");
-            FldRef := RecRef.Field(Customer.FieldNo("No."));
-            FldRef.Value := Customer."No.";
-            FldRef := RecRef.Field(Customer.FieldNo("No. Series"));
-            FldRef.Value := Customer."No. Series";
+            FillCustomerKeyFromInitSeries(RecRef, ConfigTemplateHeader);
         end;
+    end;
+
+    procedure FillCustomerKeyFromInitSeries(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
+    var
+        Customer: Record Customer;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        FldRef: FieldRef;
+    begin
+        NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Customer."No.", Customer."No. Series");
+        FldRef := RecRef.Field(Customer.FieldNo("No."));
+        FldRef.Value := Customer."No.";
+        FldRef := RecRef.Field(Customer.FieldNo("No. Series"));
+        FldRef.Value := Customer."No. Series";
     end;
 }

@@ -1,4 +1,4 @@
-report 12177 "Suggest Vendor Bills"
+﻿report 12177 "Suggest Vendor Bills"
 {
     Caption = 'Suggest Vendor Bills';
     ProcessingOnly = true;
@@ -141,9 +141,15 @@ report 12177 "Suggest Vendor Bills"
                 VendorBillLine."Vendor Entry No." := "Vendor Ledger Entry"."Entry No.";
                 VendorBillLine."Reason Code" := VendorBillHeader."Reason Code";
                 NextLineNo := NextLineNo + 10000;
+                OnCreateLineOnBeforeVendorBillLineInsert(VendorBillLine, VendorBillHeader, "Vendor Ledger Entry");
                 VendorBillLine.Insert(true);
             end;
         end;
+    end;
+
+    [IntegrationEvent(false,false)]
+    local procedure OnCreateLineOnBeforeVendorBillLineInsert(var VendorBillLine: Record "Vendor Bill Line"; VendorBillHeader: Record "Vendor Bill Header"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
     end;
 }
 
