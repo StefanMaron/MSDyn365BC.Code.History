@@ -176,6 +176,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM - Miscellaneous APAC - NamedType JournalLinesCreatedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1576777842 - NamedType 1322276160" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.]D;]A;(LookupHint=Codeunit ERM - Miscellaneous APAC - NamedType LinesNotUpdatedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1576777842 - NamedType 1973478151" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Message does not match Error.]]></Val>

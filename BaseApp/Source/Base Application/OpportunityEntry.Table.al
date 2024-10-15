@@ -417,7 +417,13 @@
     var
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestCust(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Cont.Get("Contact No.");
 
         if Cont.Type = Cont.Type::Person then
@@ -883,6 +889,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitOpportunityEntry(Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestCust(OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
     begin
     end;
 

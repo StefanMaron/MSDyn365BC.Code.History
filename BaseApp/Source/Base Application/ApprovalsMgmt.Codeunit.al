@@ -537,13 +537,17 @@
     var
         ApprovalEntry: Record "Approval Entry";
         ApprovalEntry2: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
         ApprovalEntry.SetCurrentKey("Table ID", "Record ID to Approve", Status, "Workflow Step Instance ID", "Sequence No.");
         ApprovalEntry.SetRange("Table ID", RecRef.Number);
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Created);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
-        OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef);
+        IsHandled := false;
+        OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef, IsHandled);
+        if IsHandled then
+            exit;
 
         if ApprovalEntry.FindFirst then begin
             ApprovalEntry2.CopyFilters(ApprovalEntry);
@@ -1324,6 +1328,7 @@
     procedure CheckPurchaseApprovalPossible(var PurchaseHeader: Record "Purchase Header") Result: Boolean
     var
         IsHandled: Boolean;
+        ShowNothingToApproveError: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckPurchaseApprovalPossible(PurchaseHeader, Result, IsHandled);
@@ -1333,7 +1338,9 @@
         if not IsPurchaseApprovalsWorkflowEnabled(PurchaseHeader) then
             Error(NoWorkflowEnabledErr);
 
-        if not PurchaseHeader.PurchLinesExist then
+        ShowNothingToApproveError := not PurchaseHeader.PurchLinesExist;
+        OnCheckPurchaseApprovalPossibleOnAfterCalcShowNothingToApproveError(PurchaseHeader, ShowNothingToApproveError);
+        if ShowNothingToApproveError then
             Error(NothingToApproveErr);
 
         OnAfterCheckPurchaseApprovalPossible(PurchaseHeader);
@@ -1909,6 +1916,7 @@
     begin
         ApprovalEntry.SetRange("Table ID", RecordIDToApprove.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordIDToApprove);
+        OnDeleteApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         if not ApprovalEntry.IsEmpty() then
             ApprovalEntry.DeleteAll(true);
         DeleteApprovalCommentLines(RecordIDToApprove);
@@ -2225,7 +2233,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeIsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; var ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -2295,12 +2303,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckPurchaseApprovalPossibleOnAfterCalcShowNothingToApproveError(var PurchaseHeader: Record "Purchase Header"; var ShowNothingToApproveError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDelegateSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry"; CheckCurrentUser: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnDelegateSelectedApprovalRequestOnBeforeSubstituteUserIdForApprovalEntry(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteApprovalEntriesOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
     begin
     end;
 
@@ -2355,7 +2373,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    local procedure OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 

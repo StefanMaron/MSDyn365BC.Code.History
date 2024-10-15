@@ -32,6 +32,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         CurrentSaveValuesId: Integer;
+        LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
 
     [Test]
     [Scope('OnPrem')]
@@ -992,6 +993,55 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         GSTPurchaseEntries.Close();
     end;
 
+    [Scope('OnPrem')]
+    procedure ACYAmountsChangeInPurchLineOnHeaderPostingDateValidation()
+    var
+        Currency: Record Currency;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NewExchRate: Decimal;
+    begin
+        // [FEATURE] [Purchase] ACY]
+        // [SCENARIO 412958] ACY amounts in purchase line change after Stan validates "Posting Date" in purchase header
+
+        Initialize();
+
+        // [GIVEN] ACY Currency is "USD" in General Ledger Setup
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetAddReportingCurrency(Currency.Code);
+
+        // [GIVEN] Two exchange rates:
+        // [GIVEN] "Starting Date" = 01.01.2021, "Exch. Rate Amount" = 10
+        // [GIVEN] "Starting Date" = 02.01.2021, "Exch. Rate Amount" = 20
+        LibraryERM.CreateExchangeRate(
+          Currency.Code, WorkDate(), LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        NewExchRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate() + 1, NewExchRate, NewExchRate);
+
+        // [GIVEN] Purchase invoice with "Posting Date" = 01.01.2021, "VAT Base" = 100, "VAT %" = 10
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+        LibraryVariableStorage.Enqueue(StrSubstNo(LinesNotUpdatedMsg, PurchaseHeader.FieldCaption("Posting Date")));
+
+        // [WHEN] Change posting date in purchase header to 02.01.2021
+        PurchaseHeader.Validate("Posting Date", WorkDate() + 1);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "VAT Base (ACY)" is 2000 ("VAT Base" * "Exch. Rate Amount" = 100 * 20)
+        // [THEN] "Amount (ACY)" is 2000
+        // [THEN] "Amount Including VAT (ACY)" is 2200 ("Amount (ACY)" + "VAT Base (ACY)" * "VAT %" / 100 = 2000 + 2000 * 10 / 100)
+        PurchaseLine.Find();
+        PurchaseLine.TestField("VAT Base (ACY)", Round(PurchaseLine."VAT Base Amount" * NewExchRate));
+        PurchaseLine.TestField("Amount (ACY)", PurchaseLine."VAT Base (ACY)");
+        PurchaseLine.TestField(
+          "Amount Including VAT (ACY)",
+          Round(PurchaseLine."Amount (ACY)" + PurchaseLine."VAT Base (ACY)" * PurchaseLine."VAT %" / 100));
+    end;
+    
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";

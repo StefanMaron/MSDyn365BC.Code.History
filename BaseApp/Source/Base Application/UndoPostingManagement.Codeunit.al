@@ -554,7 +554,7 @@ codeunit 5817 "Undo Posting Management"
     begin
         if InvoicedEntry then begin
             TempApplyToItemLedgEntry.SetRange("Completely Invoiced", false);
-            if TempApplyToItemLedgEntry.IsEmpty() then begin
+            if AreAllItemEntriesCompletelyInvoiced(TempApplyToItemLedgEntry) then begin
                 TempApplyToItemLedgEntry.SetRange("Completely Invoiced");
                 exit;
             end;
@@ -593,6 +593,15 @@ codeunit 5817 "Undo Posting Management"
             TempItemLedgEntry := TempApplyToItemLedgEntry;
             TempItemLedgEntry.Insert();
         until TempApplyToItemLedgEntry.Next() = 0;
+    end;
+
+    procedure AreAllItemEntriesCompletelyInvoiced(var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary): Boolean
+    var
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+    begin
+        TempItemLedgerEntry.Copy(TempApplyToItemLedgEntry, true);
+        TempItemLedgerEntry.SetRange("Completely Invoiced", false);
+        exit(TempItemLedgerEntry.IsEmpty());
     end;
 
     local procedure AdjustQuantityRounding(var ItemJnlLine: Record "Item Journal Line"; var NonDistrQuantity: Decimal; NonDistrQuantityBase: Decimal)

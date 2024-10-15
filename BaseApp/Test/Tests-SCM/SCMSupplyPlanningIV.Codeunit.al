@@ -29,6 +29,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -2294,6 +2295,64 @@ codeunit 137077 "SCM Supply Planning -IV"
     end;
 
     [Test]
+    procedure DoNotCopyDimensionSetIDFromReqLineToTransferHeader()
+    var
+        Item: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        DimensionSetID: Integer;
+    begin
+        // [FEATURE] [Dimension] [Transfer]
+        // [SCENARIO 407898] Dimension Set ID is not copied from planning worksheet to a new transfer header.
+        Initialize();
+
+        // [GIVEN] Item with dimension.
+        LibraryInventory.CreateItem(Item);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create SKU for the item at location "Red" with replenishment system Transfer from location "Blue".
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationRed.Code, Item."No.", '');
+        StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
+        StockkeepingUnit.Validate("Replenishment System", StockkeepingUnit."Replenishment System"::Transfer);
+        StockkeepingUnit.Validate("Transfer-from Code", LocationBlue.Code);
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Create a line in planning worksheet for future transfer order.
+        // [GIVEN] Dimension Set ID = "X" on the requisition line.
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate("Location Code", LocationRed.Code);
+        RequisitionLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        RequisitionLine.Validate("Starting Date", WorkDate());
+        RequisitionLine.Validate("Action Message", RequisitionLine."Action Message"::New);
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
+        DimensionSetID := RequisitionLine."Dimension Set ID";
+
+        // [WHEN] Carry out action message.
+        RequisitionLine.SetRecFilter();
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [THEN] Transfer order has been created.
+        // [THEN] Dimension Set ID = "X" on the transfer line.
+        TransferLine.SetRange("Item No.", Item."No.");
+        TransferLine.FindFirst();
+        TransferLine.TestField("Dimension Set ID", DimensionSetID);
+
+        // [THEN] Dimension Set ID = 0 on the transfer header.
+        TransferHeader.Get(TransferLine."Document No.");
+        TransferHeader.TestField("Dimension Set ID", 0);
+    end;
+
+    [Test]
     procedure CurrencyCodeOnPlanningLineForCancelPurchase()
     var
         Item: Record Item;
@@ -2327,6 +2386,74 @@ codeunit 137077 "SCM Supply Planning -IV"
         SelectRequisitionLine(RequisitionLine, Item."No.");
         RequisitionLine.TestField("Action Message", RequisitionLine."Action Message"::Cancel);
         RequisitionLine.TestField("Currency Code", CurrencyCode);
+    end;
+
+    [Test]
+    procedure PlanningWontTryToRescheduleReleasedProdOrderWithPostedOutput()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        DatePeriod: DateFormula;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Production Order] [Reschedule]
+        // [SCENARIO 413877] The planning system won't try to reschedule released production order with posted output.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(500, 1000);
+
+        // [GIVEN] Manufacturing item with "Lot Accumulation Period" = 1 month, and "Maximum Order Quantity" = 1000.
+        CreateLotForLotItem(Item, Item."Replenishment System"::"Prod. Order");
+        Evaluate(DatePeriod, '<1M>');
+        Item.Validate("Lot Accumulation Period", DatePeriod);
+        Item.Validate("Maximum Order Quantity", Qty);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for 1000 pcs, shipment date = WORKDATE + 2 weeks.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        SalesLine.Validate("Shipment Date", LibraryRandom.RandDate(20));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Calculate regerenative plan and carry out action message.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.ModifyAll("Accept Action Message", true);
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [GIVEN] Firm planned production order is created. Change the status to "Released".
+        ProductionOrder.SetRange("Source No.", Item."No.");
+        ProductionOrder.FindFirst();
+        LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+          ProductionOrder."No.", ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released);
+
+        // [GIVEN] Post output for 200 pcs, this production order can't be rescheduled any more.
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+        CreateAndPostOutputJournal(ProdOrderLine, Qty / 5);
+
+        // [GIVEN] Another sales order for 1000 pcs, shipment date = WORKDATE.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        SalesLine.Validate("Shipment Date", WorkDate());
+        SalesLine.Modify(true);
+
+        // [WHEN] Calculate regenerative plan.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+
+        // [THEN] The system suggests to plan 1000 pcs.
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.CalcSums(Quantity);
+        RequisitionLine.TestField(Quantity, Qty);
+
+        // [THEN] The planning system does not suggest rescheduling the released production order.
+        RequisitionLine.SetRange("Ref. Order No.", ProdOrderLine."Prod. Order No.");
+        Assert.RecordIsEmpty(RequisitionLine);
     end;
 
     local procedure Initialize()
@@ -3034,6 +3161,21 @@ codeunit 137077 "SCM Supply Planning -IV"
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostOutputJournal(ProdOrderLine: Record "Prod. Order Line"; OutputQty: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryManufacturing.CreateOutputJournal(
+          ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, ProdOrderLine."Item No.", ProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Output Quantity", OutputQty);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure CreateTransferOrderWithReceiptDate(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; TransferFrom: Code[10]; TransferTo: Code[10]; Quantity: Decimal)

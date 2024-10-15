@@ -297,7 +297,7 @@ codeunit 141020 "ERM Miscellaneous Features"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         NameValueBuffer: Record "Name/Value Buffer";
-        ERMMiscellaneousFeatures : Codeunit "ERM Miscellaneous Features";
+        ERMMiscellaneousFeatures: Codeunit "ERM Miscellaneous Features";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
         // [FEATURE] [Purchase] [Remittance Advice]
@@ -320,7 +320,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [WHEN] Print Remittance Advance is being hit
         VendorLedgerEntries.RemittanceAdvance.Invoke();
 
-        // [THEN] Report Remittance Advice - Entries run
+        // [THEN] Report Remittance Advice - Entries run (saved by OnAfterSaveReportAsPDF)
         NameValueBuffer.Get(SessionId);
         Assert.IsTrue(FILE.Exists(NameValueBuffer.Value), '');
         UnbindSubscription(ERMMiscellaneousFeatures);
@@ -549,5 +549,25 @@ codeunit 141020 "ERM Miscellaneous Features"
         NameValueBuffer.Insert(true);
         IsHandled := true;
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterSaveReportAsPDF', '', false, false)]
+    local procedure OnAfterSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; FilePath: Text[250]; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob");
+    var
+        NameValueBuffer: Record "Name/Value Buffer";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        if TempBlob.HasValue() then begin
+            // export the BLOB to a new temp server file.
+            FileName := FileManagement.ServerTempFileName('pdf');
+            FileManagement.BLOBExportToServerFile(TempBlob, FileName);
+
+            NameValueBuffer.Init();
+            NameValueBuffer.ID := SessionId;
+            NameValueBuffer.Value := FileName;
+            NameValueBuffer.Insert(true);
+        end;
+    end;
+
 }
 

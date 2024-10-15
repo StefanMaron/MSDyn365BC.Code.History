@@ -388,6 +388,7 @@
             VendLedgEntry.Modify();
             OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(NewVendLedgEntry, VendLedgEntry, GenJnlPostLine);
             Insert;
+            OnReverseVendLedgEntryOnAfterInsertVendLedgEntry(NewVendLedgEntry);
 
             if NextDtldVendLedgEntryEntryNo = 0 then begin
                 DtldVendLedgEntry.FindLast;
@@ -598,6 +599,7 @@
         CustLedgEntry."Closed by Currency Amount" := -CustLedgEntry2."Remaining Amount";
         CustLedgEntry.Open := false;
         CustLedgEntry.Modify();
+        OnApplyCustLedgEntryByReversalOnAfterCustLedgEntryModify(CustLedgEntry);
 
         NewDtldCustLedgEntry := DtldCustLedgEntry2;
         NewDtldCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
@@ -630,6 +632,7 @@
         VendLedgEntry."EFT Amount Transferred" := 0;
         VendLedgEntry."EFT Bank Account No." := '';
         VendLedgEntry.Modify();
+        OnApplyVendLedgEntryByReversalOnAfterVendLedgEntryModify(VendLedgEntry);
 
         NewDtldVendLedgEntry := DtldVendLedgEntry2;
         NewDtldVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
@@ -1017,6 +1020,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnReverseVendLedgEntryOnAfterInsertVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnReverseEmplLedgEntryOnBeforeInsertEmplLedgEntry(var NewEmployeeLedgerEntry: Record "Employee Ledger Entry"; EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
@@ -1062,7 +1070,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyCustLedgEntryByReversalOnAfterCustLedgEntryModify(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendLedgEntryByReversalOnAfterVendLedgEntryModify(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

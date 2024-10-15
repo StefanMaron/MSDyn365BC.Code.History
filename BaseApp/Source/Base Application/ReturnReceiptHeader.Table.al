@@ -794,7 +794,14 @@ table 6660 "Return Receipt Header"
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if UserSetupMgt.GetSalesFilter <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
@@ -813,6 +820,11 @@ table 6660 "Return Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ReturnRcptHeader: Record "Return Receipt Header"; ShowDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var ReturnReceiptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
     begin
     end;
 

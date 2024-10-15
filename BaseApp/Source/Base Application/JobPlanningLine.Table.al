@@ -978,7 +978,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
             end;
@@ -2224,22 +2231,29 @@
     end;
 
     [Scope('OnPrem')]
-    procedure UpdatePlannedDueDate()
+    procedure UpdatePlannedDueDate() Changed: Boolean;
     var
-        JobRec: Record Job;
         Customer: Record Customer;
         PaymentTerms: Record "Payment Terms";
         DueDateCalculation: DateFormula;
+        xPlanningDueDate: Date;
     begin
+        xPlanningDueDate := "Planning Due Date";
+        if "Planning Date" = 0D then
+            exit(false);
         "Planning Due Date" := "Planning Date";
-        if "Planning Due Date" <> 0D then begin
-            JobRec.Get("Job No.");
-            Customer.Get(JobRec."Bill-to Customer No.");
-            if PaymentTerms.Get(Customer."Payment Terms Code") then begin
-                PaymentTerms.GetDueDateCalculation(DueDateCalculation);
-                "Planning Due Date" := CalcDate(DueDateCalculation, "Planning Date");
-            end;
+        GetJob();
+        if Job."No." = '' then
+            exit(false);
+        Customer.SetLoadFields("Payment Terms Code");
+        if not Customer.Get(Job."Bill-to Customer No.") then
+            exit(false);
+        PaymentTerms.SetLoadFields("Due Date Calculation");
+        if PaymentTerms.Get(Customer."Payment Terms Code") then begin
+            PaymentTerms.GetDueDateCalculation(DueDateCalculation);
+            "Planning Due Date" := CalcDate(DueDateCalculation, "Planning Date");
         end;
+        exit("Planning Due Date" <> xPlanningDueDate);
     end;
 
     procedure ClearValues()
@@ -2480,6 +2494,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateModification(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

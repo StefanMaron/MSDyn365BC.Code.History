@@ -832,6 +832,7 @@ codeunit 8800 "Custom Layout Reporting"
     begin
         // The request page should have the appropriate parameters set for the chosen output method
         OutputMethod := GetOptionValueFromRequestPage(GetRequestParametersText(ReportID), 'ChosenOutputMethod');
+        OnSetOutputTypeOnAfterSetOutputMethod(OutputMethod);
         if OutputMethod <> '' then begin
             if not Evaluate(OptionInt, OutputMethod) then
                 Error(OutputNotSupportedErr);
@@ -1612,6 +1613,11 @@ codeunit 8800 "Custom Layout Reporting"
 
     [IntegrationEvent(false, false)]
     local procedure OnSaveAsReportOnBeforeFileClose(ReportSaved: Boolean; var DataRecRef: RecordRef; ReportID: Integer; RepFormat: ReportFormat; var FileStream: OutStream)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetOutputTypeOnAfterSetOutputMethod(var OutputMethod: Text)
     begin
     end;
 }

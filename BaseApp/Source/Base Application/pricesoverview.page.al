@@ -35,7 +35,7 @@ page 7024 "Prices Overview"
                     field(SourceType; PriceSource."Source Type")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Applies-to Type Filter';
+                        Caption = 'Assign-to Type Filter';
                         ToolTip = 'Specifies a filter for which prices to display.';
 
                         trigger OnValidate()
@@ -50,7 +50,7 @@ page 7024 "Prices Overview"
                     field(ParentSourceNo; ParentSourceNoFilter)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Applies-to Parent No. Filter';
+                        Caption = 'Assign-to Parent No. Filter';
                         Visible = ParentSourceNoFilterEditable;
                         ToolTip = 'Specifies a filter for which prices to display.';
 
@@ -76,7 +76,7 @@ page 7024 "Prices Overview"
                     field(SourceNo; SourceNoFilter)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Applies-to No. Filter';
+                        Caption = 'Assign-to Filter';
                         Enabled = SourceNoFilterEditable;
                         ToolTip = 'Specifies a filter for which prices to display.';
 
@@ -428,6 +428,19 @@ page 7024 "Prices Overview"
                     Editable = PriceLineEditable;
                     ToolTip = 'Specifies if the price includes VAT.';
                 }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
             }
         }
     }

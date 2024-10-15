@@ -1820,12 +1820,14 @@
             Caption = 'Serial No. Filter';
             FieldClass = FlowFilter;
         }
-        field(6515; "Package No. Filter"; Code[30])
+#pragma warning disable
+        field(6515; "Package No. Filter"; Code[50])
         {
             Caption = 'Package No. Filter';
             CaptionClass = '6,3';
             FieldClass = FlowFilter;
         }
+#pragma warning enable
         field(6650; "Qty. on Purch. Return"; Decimal)
         {
             AccessByPermission = TableData "Return Receipt Header" = R;
