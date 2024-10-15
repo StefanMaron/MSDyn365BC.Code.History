@@ -1,4 +1,4 @@
-report 207 "Sales - Credit Memo"
+﻿report 207 "Sales - Credit Memo"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesCreditMemo.rdlc';
@@ -456,6 +456,8 @@ report 207 "Sales - Credit Memo"
                                 VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                             VATAmountLine.InsertLine;
+
+                            OnAfterCalculateSalesTax("Sales Cr.Memo Header", "Sales Cr.Memo Line", NNC_TotalAmount, NNC_TotalAmountInclVat, NNC_TotalAmountInclVat);
                         end;
 
                         trigger OnPreDataItem()
@@ -905,6 +907,11 @@ report 207 "Sales - Credit Memo"
               FormatDocument.SetText(
                 "Applies-to Doc. No." <> '', Format(StrSubstNo(Text003, Format("Applies-to Doc. Type"), "Applies-to Doc. No.")));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSalesTax(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var TotalAmount: Decimal; var TotalAmountVAT: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

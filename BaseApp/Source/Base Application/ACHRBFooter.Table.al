@@ -41,6 +41,10 @@ table 10305 "ACH RB Footer"
         {
             Caption = 'Number of Cust Info Records';
         }
+        field(10; "File Creation Number"; Integer)
+        {
+            Caption = 'File Creation Number';
+        }
     }
 
     keys

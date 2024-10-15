@@ -5,10 +5,12 @@ codeunit 142073 "UT PAG Order Entry"
 
     trigger OnRun()
     begin
-        // [FEATURE] [Service] [UI]
+        // [FEATURE] [UI]
     end;
 
     var
+        Assert: Codeunit Assert;
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -668,6 +670,942 @@ codeunit 142073 "UT PAG Order Entry"
         VATPostingSetup.Insert();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderInvoiceListAvailableInBasic()
+    var
+        SalesOrderInvoiceList: TestPage "Sales Order Invoice List";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Invoice List and its elements in Basic Setup
+        Initialize();
+
+        // [GIVEN] Basic Setup was enabled
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] Sales Order Invoice List can be opened and its elements are available
+        SalesOrderInvoiceList.OpenView();
+
+        Assert.IsTrue(SalesOrderInvoiceList."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceList."Sell-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."Sell-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceList."Sell-to Customer Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."Sell-to Customer Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceList."External Document No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."External Document No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceList."Location Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."Location Code".Visible(), '');
+
+        SalesOrderInvoiceList.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderInvoiceListAvailableInFoundation()
+    var
+        SalesOrderInvoiceList: TestPage "Sales Order Invoice List";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Invoice List and its elements in Foundation Setup
+        Initialize();
+
+        // [GIVEN] Foundation Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Sales Order Invoice List can be opened and its elements are available
+        SalesOrderInvoiceList.OpenView();
+
+        Assert.IsTrue(SalesOrderInvoiceList."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceList."Sell-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."Sell-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceList."Sell-to Customer Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."Sell-to Customer Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceList."External Document No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."External Document No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceList."Location Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceList."Location Code".Visible(), '');
+
+        SalesOrderInvoiceList.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderInvoiceAvailableInBasic()
+    var
+        SalesOrderInvoice: TestPage "Sales Order Invoice";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Invoice and its elements in Basic Setup
+        Initialize();
+
+        // [GIVEN] Basic Setup was enabled
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] Sales Order Invoice can be opened and its elements are available
+        SalesOrderInvoice.OpenView();
+
+        Assert.IsTrue(SalesOrderInvoice."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Sell-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Sell-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Sell-to Customer Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Sell-to Customer Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Posting Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Posting Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Order Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Order Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Document Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Document Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Salesperson Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Salesperson Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Currency Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Currency Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Status.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Status.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Address".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Address".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Address 2".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Address 2".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to City".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to City".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to County".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to County".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Post Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Post Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Contact".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Contact".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Shortcut Dimension 1 Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Shortcut Dimension 1 Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Shortcut Dimension 2 Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Shortcut Dimension 2 Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Payment Terms Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Payment Terms Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Due Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Due Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Payment Discount %".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Payment Discount %".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Pmt. Discount Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Pmt. Discount Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Payment Method Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Payment Method Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Tax Liable".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Tax Liable".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Tax Area Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Tax Area Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Statistics.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Statistics.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Card.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Card.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Co&mments".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Co&mments".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Invoices.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Invoices.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Dimensions.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Dimensions.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Calculate &Invoice Discount".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Calculate &Invoice Discount".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Re&open".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Re&open".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."P&ost".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."P&ost".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Post and &Print".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Post and &Print".Visible(), '');
+
+        SalesOrderInvoice.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderInvoiceAvailableInFoundation()
+    var
+        SalesOrderInvoice: TestPage "Sales Order Invoice";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Invoice and its elements in Foundation Setup
+        Initialize();
+
+        // [GIVEN] Basic Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Sales Order Invoice can be opened and its elements are available
+        SalesOrderInvoice.OpenView();
+
+        Assert.IsTrue(SalesOrderInvoice."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Sell-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Sell-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Sell-to Customer Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Sell-to Customer Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Posting Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Posting Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Order Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Order Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Document Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Document Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Salesperson Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Salesperson Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Currency Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Currency Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Status.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Status.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Address".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Address".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Address 2".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Address 2".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to City".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to City".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to County".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to County".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Post Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Post Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Contact".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Bill-to Contact".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Shortcut Dimension 1 Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Shortcut Dimension 1 Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Shortcut Dimension 2 Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Shortcut Dimension 2 Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Payment Terms Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Payment Terms Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Due Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Due Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Payment Discount %".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Payment Discount %".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Pmt. Discount Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Pmt. Discount Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Payment Method Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Payment Method Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Tax Liable".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Tax Liable".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Tax Area Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Tax Area Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Statistics.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Statistics.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Card.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Card.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Co&mments".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Co&mments".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Invoices.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Invoices.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice.Dimensions.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice.Dimensions.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Calculate &Invoice Discount".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Calculate &Invoice Discount".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Re&open".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Re&open".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."P&ost".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."P&ost".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoice."Post and &Print".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoice."Post and &Print".Visible(), '');
+
+        SalesOrderInvoice.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderInvoiceSubformAvailableInBasic()
+    var
+        SalesOrderInvoiceSubform: TestPage "Sales Order Invoice Subform";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Invoice List and its elements in Basic Setup
+        Initialize();
+
+        // [GIVEN] Basic Setup was enabled
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] Sales Order Invoice List can be opened and its elements are available
+        SalesOrderInvoiceSubform.OpenView();
+
+        Assert.IsTrue(SalesOrderInvoiceSubform.Type.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform.Type.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform.Description.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform.Description.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Unit of Measure Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Unit of Measure Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Unit Price".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Unit Price".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Tax Group Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Tax Group Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Line Amount".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Line Amount".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Amount Including VAT".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Amount Including VAT".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Line Discount %".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Line Discount %".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity Shipped".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity Shipped".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Qty. to Invoice".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Qty. to Invoice".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity Invoiced".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity Invoiced".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Shipment Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Shipment Date".Visible(), '');
+
+        SalesOrderInvoiceSubform.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderInvoiceSubformAvailableInFoundation()
+    var
+        SalesOrderInvoiceSubform: TestPage "Sales Order Invoice Subform";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Invoice List and its elements in Foundation Setup
+        Initialize();
+
+        // [GIVEN] Foundation Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Sales Order Invoice List can be opened and its elements are available
+        SalesOrderInvoiceSubform.OpenView();
+
+        Assert.IsTrue(SalesOrderInvoiceSubform.Type.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform.Type.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform.Description.Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform.Description.Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Unit of Measure Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Unit of Measure Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Unit Price".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Unit Price".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Tax Group Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Tax Group Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Line Amount".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Line Amount".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Amount Including VAT".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Amount Including VAT".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Line Discount %".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Line Discount %".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity Shipped".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity Shipped".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Qty. to Invoice".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Qty. to Invoice".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity Invoiced".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Quantity Invoiced".Visible(), '');
+
+        Assert.IsTrue(SalesOrderInvoiceSubform."Shipment Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderInvoiceSubform."Shipment Date".Visible(), '');
+
+        SalesOrderInvoiceSubform.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShipmentListAvailableInBasic()
+    var
+        SalesOrderShipmentList: TestPage "Sales Order Shipment List";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Shipment List and its elements in Basic Setup
+        Initialize();
+
+        // [GIVEN] Basic Setup was enabled
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] Sales Order Shipment List can be opened and its elements are available
+        SalesOrderShipmentList.OpenView();
+
+        Assert.IsTrue(SalesOrderShipmentList."Location Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentList."Location Code".Visible(), '');
+
+        SalesOrderShipmentList.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShipmentListAvailableInFoundation()
+    var
+        SalesOrderShipmentList: TestPage "Sales Order Shipment List";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Shipment List and its elements in Foundation Setup
+        Initialize();
+
+        // [GIVEN] Foundation Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Sales Order Shipment List can be opened and its elements are available
+        SalesOrderShipmentList.OpenView();
+
+        Assert.IsTrue(SalesOrderShipmentList."Location Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentList."Location Code".Visible(), '');
+
+        SalesOrderShipmentList.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShipmentAvailableInBasic()
+    var
+        SalesOrderShipment: TestPage "Sales Order Shipment";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Invoice and its elements in Basic Setup
+        Initialize();
+
+        // [GIVEN] Basic Setup was enabled
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] Sales Order Invoice can be opened and its elements are available
+        SalesOrderShipment.OpenView();
+
+        Assert.IsTrue(SalesOrderShipment."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Sell-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Sell-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Sell-to Customer Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Sell-to Customer Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Bill-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Bill-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Bill-to Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Bill-to Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Tax Liable".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Tax Liable".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Posting Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Posting Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Order Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Order Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Document Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Document Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Requested Delivery Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Requested Delivery Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Promised Delivery Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Promised Delivery Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Salesperson Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Salesperson Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shortcut Dimension 1 Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shortcut Dimension 1 Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shortcut Dimension 2 Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shortcut Dimension 2 Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Status.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Status.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."On Hold".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."On Hold".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Address".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Address".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Address 2".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Address 2".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to City".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to City".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to County".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to County".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Post Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Post Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Contact".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Contact".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to UPS Zone".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to UPS Zone".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Tax Area Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Tax Area Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.FreightAmount.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.FreightAmount.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Location Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Location Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Outbound Whse. Handling Time".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Outbound Whse. Handling Time".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipment Method Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipment Method Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipping Agent Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipping Agent Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipping Agent Service Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipping Agent Service Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipping Time".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipping Time".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Late Order Shipping".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Late Order Shipping".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Package Tracking No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Package Tracking No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipment Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipment Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipping Advice".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipping Advice".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Statistics.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Statistics.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Card.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Card.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Co&mments".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Co&mments".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."S&hipments".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."S&hipments".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Invoices.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Invoices.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Dimensions.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Dimensions.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Order &Promising".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Order &Promising".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Sales Shipment per Package".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Sales Shipment per Package".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Re&open".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Re&open".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Test Report".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Test Report".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."P&ost".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."P&ost".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Post and &Print".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Post and &Print".Visible(), '');
+
+        SalesOrderShipment.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShipmentAvailableInFoundation()
+    var
+        SalesOrderShipment: TestPage "Sales Order Shipment";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Invoice and its elements in Foundation Setup
+        Initialize();
+
+        // [GIVEN] Foundation Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Sales Order Invoice can be opened and its elements are available
+        SalesOrderShipment.OpenView();
+
+        Assert.IsTrue(SalesOrderShipment."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Sell-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Sell-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Sell-to Customer Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Sell-to Customer Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Bill-to Customer No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Bill-to Customer No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Bill-to Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Bill-to Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Tax Liable".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Tax Liable".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Posting Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Posting Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Order Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Order Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Document Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Document Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Requested Delivery Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Requested Delivery Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Promised Delivery Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Promised Delivery Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Salesperson Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Salesperson Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shortcut Dimension 1 Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shortcut Dimension 1 Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shortcut Dimension 2 Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shortcut Dimension 2 Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Status.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Status.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."On Hold".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."On Hold".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Name".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Name".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Address".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Address".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Address 2".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Address 2".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to City".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to City".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to County".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to County".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Post Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Post Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to Contact".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to Contact".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Ship-to UPS Zone".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Ship-to UPS Zone".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Tax Area Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Tax Area Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.FreightAmount.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.FreightAmount.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Location Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Location Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Outbound Whse. Handling Time".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Outbound Whse. Handling Time".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipment Method Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipment Method Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipping Agent Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipping Agent Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipping Agent Service Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipping Agent Service Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipping Time".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipping Time".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Late Order Shipping".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Late Order Shipping".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Package Tracking No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Package Tracking No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipment Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipment Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Shipping Advice".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Shipping Advice".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Statistics.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Statistics.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Card.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Card.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Co&mments".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Co&mments".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."S&hipments".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."S&hipments".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Invoices.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Invoices.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment.Dimensions.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.Dimensions.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Order &Promising".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Order &Promising".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Sales Shipment per Package".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Sales Shipment per Package".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Re&open".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Re&open".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Test Report".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Test Report".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."P&ost".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."P&ost".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipment."Post and &Print".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment."Post and &Print".Visible(), '');
+
+        SalesOrderShipment.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShipmentSubformAvailableInBasic()
+    var
+        SalesOrderShipmentSubform: TestPage "Sales Order Shipment Subform";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Shipment Subform and its elements in Basic Setup
+        Initialize();
+
+        // [GIVEN] Basic Setup was enabled
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] Sales Order Shipment Subform can be opened and its elements are available
+        SalesOrderShipmentSubform.OpenView();
+
+        Assert.IsTrue(SalesOrderShipmentSubform.Type.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform.Type.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform.Description.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform.Description.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Location Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Location Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Quantity".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Quantity".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Reserved Quantity".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Reserved Quantity".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Unit of Measure Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Unit of Measure Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Qty. to Ship".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Qty. to Ship".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Quantity Shipped".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Quantity Shipped".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Planned Delivery Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Planned Delivery Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Planned Shipment Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Planned Shipment Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Shipment Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Shipment Date".Visible(), '');
+
+        SalesOrderShipmentSubform.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShipmentSubformAvailableInFoundation()
+    var
+        SalesOrderShipmentSubform: TestPage "Sales Order Shipment Subform";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 360794] User can access Sales Order Shipment Subform and its elements in Foundation Setup
+        Initialize();
+
+        // [GIVEN] Foundation Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Sales Order Shipment Subform can be opened and its elements are available
+        SalesOrderShipmentSubform.OpenView();
+
+        Assert.IsTrue(SalesOrderShipmentSubform.Type.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform.Type.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."No.".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."No.".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform.Description.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform.Description.Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Location Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Location Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Quantity".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Quantity".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Reserved Quantity".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Reserved Quantity".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Unit of Measure Code".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Unit of Measure Code".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Qty. to Ship".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Qty. to Ship".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Quantity Shipped".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Quantity Shipped".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Planned Delivery Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Planned Delivery Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Planned Shipment Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Planned Shipment Date".Visible(), '');
+
+        Assert.IsTrue(SalesOrderShipmentSubform."Shipment Date".Enabled(), '');
+        Assert.IsTrue(SalesOrderShipmentSubform."Shipment Date".Visible(), '');
+
+        SalesOrderShipmentSubform.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -689,7 +1627,7 @@ codeunit 142073 "UT PAG Order Entry"
         FindGeneralPostingSetup(GeneralPostingSetup);
         InventoryPostingGroup.FindFirst;
         Item."No." := LibraryUTUtility.GetNewCode;
-        Item."Base Unit of Measure" := LibraryUTUtility.GetNewCode10;
+        Item."Base Unit of Measure" := CreateUnitOfMeasure(Item."No.");
         Item."Inventory Posting Group" := InventoryPostingGroup.Code;  // Use Hardcode Value due to Posting routine Call.
         Item."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";  // Use Hardcode Value due to Posting routine Call.
         Item.Insert();
@@ -707,12 +1645,15 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option)
     var
+        Item: Record Item;
         GeneralPostingSetup: Record "General Posting Setup";
         SalesHeader: Record "Sales Header";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
         FindGeneralPostingSetup(GeneralPostingSetup);
+        Item.Get(CreateItem());
+
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
         SalesHeader."Sell-to Customer No." := CreateCustomer;
@@ -732,7 +1673,8 @@ codeunit 142073 "UT PAG Order Entry"
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."Line No." := LibraryRandom.RandInt(100);
         SalesLine."Shipment Date" := WorkDate;
-        SalesLine."No." := CreateItem;
+        SalesLine."No." := Item."No.";
+        SalesLine."Unit of Measure Code" := Item."Base Unit of Measure";
         SalesLine.Reserve := SalesLine.Reserve::Always;
         SalesLine.Quantity := LibraryRandom.RandDec(10, 2);
         SalesLine."Unit Price" := LibraryRandom.RandDec(100, 2);

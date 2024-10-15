@@ -38,25 +38,25 @@ report 10130 "Availability Projection"
             column(ItemFilter; ItemFilter)
             {
             }
-            column(FORMAT_PeriodStartingDate_2___________Text005_________FORMAT_PeriodStartingDate_3__1_; Format(PeriodStartingDate[2]) + ' ' + Text005 + ' ' + Format(PeriodStartingDate[3] - 1))
+            column(FORMAT_PeriodStartingDate_2___________Text005_________FORMAT_PeriodStartingDate_3__1_; Format(PeriodStartingDate[2], 0, '<Month,2>/<Day,2>/<Year4>') + ' ' + Text005 + ' ' + Format(PeriodStartingDate[3] - 1, 0, '<Month,2>/<Day,2>/<Year4>'))
             {
             }
-            column(FORMAT_PeriodStartingDate_3___________Text005_________FORMAT_PeriodStartingDate_4__1_; Format(PeriodStartingDate[3]) + ' ' + Text005 + ' ' + Format(PeriodStartingDate[4] - 1))
+            column(FORMAT_PeriodStartingDate_3___________Text005_________FORMAT_PeriodStartingDate_4__1_; Format(PeriodStartingDate[3], 0, '<Month,2>/<Day,2>/<Year4>') + ' ' + Text005 + ' ' + Format(PeriodStartingDate[4] - 1, 0, '<Month,2>/<Day,2>/<Year4>'))
             {
             }
-            column(FORMAT_PeriodStartingDate_4___________Text005_________FORMAT_PeriodStartingDate_5__1_; Format(PeriodStartingDate[4]) + ' ' + Text005 + ' ' + Format(PeriodStartingDate[5] - 1))
+            column(FORMAT_PeriodStartingDate_4___________Text005_________FORMAT_PeriodStartingDate_5__1_; Format(PeriodStartingDate[4], 0, '<Month,2>/<Day,2>/<Year4>') + ' ' + Text005 + ' ' + Format(PeriodStartingDate[5] - 1, 0, '<Month,2>/<Day,2>/<Year4>'))
             {
             }
-            column(FORMAT_PeriodStartingDate_5___________Text005_________FORMAT_PeriodStartingDate_6__1_; Format(PeriodStartingDate[5]) + ' ' + Text005 + ' ' + Format(PeriodStartingDate[6] - 1))
+            column(FORMAT_PeriodStartingDate_5___________Text005_________FORMAT_PeriodStartingDate_6__1_; Format(PeriodStartingDate[5], 0, '<Month,2>/<Day,2>/<Year4>') + ' ' + Text005 + ' ' + Format(PeriodStartingDate[6] - 1, 0, '<Month,2>/<Day,2>/<Year4>'))
             {
             }
-            column(FORMAT_PeriodStartingDate_6___________Text005_________FORMAT_PeriodStartingDate_7__1_; Format(PeriodStartingDate[6]) + ' ' + Text005 + ' ' + Format(PeriodStartingDate[7] - 1))
+            column(FORMAT_PeriodStartingDate_6___________Text005_________FORMAT_PeriodStartingDate_7__1_; Format(PeriodStartingDate[6], 0, '<Month,2>/<Day,2>/<Year4>') + ' ' + Text005 + ' ' + Format(PeriodStartingDate[7] - 1, 0, '<Month,2>/<Day,2>/<Year4>'))
             {
             }
-            column(Text003_________FORMAT_PeriodStartingDate_2__; Text003 + ' ' + Format(PeriodStartingDate[2]))
+            column(Text003_________FORMAT_PeriodStartingDate_2__; Text003 + ' ' + Format(PeriodStartingDate[2], 0, '<Month,2>/<Day,2>/<Year4>'))
             {
             }
-            column(Text004_________FORMAT_PeriodStartingDate_7__1_; Text004 + ' ' + Format(PeriodStartingDate[7] - 1))
+            column(Text004_________FORMAT_PeriodStartingDate_7__1_; Text004 + ' ' + Format(PeriodStartingDate[7] - 1, 0, '<Month,2>/<Day,2>/<Year4>'))
             {
             }
             column(Item__No__; "No.")

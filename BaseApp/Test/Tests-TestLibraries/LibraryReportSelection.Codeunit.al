@@ -7,7 +7,7 @@ codeunit 131103 "Library - Report Selection"
     end;
 
     var
-        EventHandled: Boolean;
+        EventHandledName: Text;
 
     [EventSubscriber(ObjectType::Table, 77, 'OnBeforeSendEmailToCust', '', false, false)]
     local procedure HandleOnBeforeSendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20]; var Handled: Boolean)
@@ -25,13 +25,27 @@ codeunit 131103 "Library - Report Selection"
     local procedure HandleOnBeforePrintPickHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var IsHandled: Boolean)
     begin
         IsHandled := true;
-        EventHandled := true;
+        EventHandledName := 'HandleOnBeforePrintPickHeader';
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 5776, 'OnBeforePrintPutAwayHeader', '', false, false)]
+    local procedure HandleOnBeforePrintPutAwayHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var IsHandled: Boolean)
+    begin
+        IsHandled := true;
+        EventHandledName := 'HandleOnBeforePrintPutAwayHeader';
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 5776, 'OnBeforePrintMovementHeader', '', false, false)]
+    local procedure HandleOnBeforePrintMovementHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var IsHandled: Boolean)
+    begin
+        IsHandled := true;
+        EventHandledName := 'HandleOnBeforePrintMovementHeader';
     end;
 
     [Scope('OnPrem')]
-    procedure GetEventHandled(): Boolean
+    procedure GetEventHandledName(): Text
     begin
-        exit(EventHandled);
+        exit(EventHandledName);
     end;
 }
 

@@ -419,6 +419,78 @@ codeunit 141442 "ERM Sales Prepmt. Include Tax"
         SalesLine.TestField("Amount Including VAT", AmountInclVAT);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PartialPostingForPrepmtIncludeTax()
+    var
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        TaxDetail: Record "Tax Detail";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        TaxPct: Integer;
+        PrepmtPct: Integer;
+        Quantity: Integer;
+        PrepmtAmount: Decimal;
+        Invoice1: Code[20];
+        Invoice2: Code[20];
+    begin
+        // [SCENARIO 359777] Post sales order partially when Prepmt. Include Tax = true.
+
+        // [GIVEN] Tax Details for tax jurisdiction with 5 %.
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        TaxPct := LibraryRandom.RandIntInRange(5, 10);
+        CreateTaxAreaSetupWithValues(TaxDetail, TaxArea.Code, TaxGroup.Code, TaxPct);
+
+        // [GIVEN] Posted Sales Order with "Prepmt. Include Tax" = TRUE and "Prepayment %" = 50.
+        // [GIVEN] Sales Line with Quantity = 2, Amount = 1000, Tax Amount = 50
+        PrepmtPct := LibraryRandom.RandIntInRange(1, 5) * 10;
+        Customer.Get(CreateCustomerWithTaxArea(TaxArea.Code));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Prepayment %", PrepmtPct);
+        SalesHeader.Validate("Prepmt. Include Tax", true);
+        SalesHeader.Modify(true);
+        Quantity := LibraryRandom.RandIntInRange(1, 5);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithTaxGroup(TaxGroup.Code), Quantity * 2);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 500));
+        SalesLine.Modify(true);
+        SalesHeader.CalcFields(Amount, "Amount Including VAT");
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+
+        // [GIVEN] Prepayment Invoice is posted with amount of 525 = (1000 + 50) * 50 %
+        PostSalesPrepmtInvoice(SalesHeader);
+        PrepmtAmount := Round(SalesHeader."Amount Including VAT" * PrepmtPct / 100);
+
+        // [GIVEN] Sales order is posted partially with 'Qty. to ship' = 1
+        SalesLine.Find;
+        SalesLine.Validate("Qty. to Ship", Quantity);
+        SalesLine.Modify(true);
+        Invoice1 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Post final invoice
+        Invoice2 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] First Sales Invoice is posted with Amount = 237.5 (500 - 525/2 ) Amount Incl. Tax =262.5 (525 - 525/2)
+        // [THEN] G/L Entry for Account Receivables has Amount = 262.5
+        // [THEN] G/L Entry for Sales Prepayments Account has Amount = 237.5
+        VerifyPostedSalesEntriesWithPrepmt(
+          Invoice1, GetGLAccountFromTaxJurisdiction(TaxGroup.Code), SalesHeader.Amount / 2,
+          (SalesHeader."Amount Including VAT" - SalesHeader.Amount) / 2,
+          SalesHeader.Amount / 2 - PrepmtAmount / 2, SalesHeader."Amount Including VAT" / 2 - PrepmtAmount / 2,
+          CustomerPostingGroup."Receivables Account", GeneralPostingSetup."Sales Prepayments Account", PrepmtAmount / 2);
+        // [THEN] Final invoice has same values after posting
+        VerifyPostedSalesEntriesWithPrepmt(
+          Invoice2, GetGLAccountFromTaxJurisdiction(TaxGroup.Code), SalesHeader.Amount / 2,
+          (SalesHeader."Amount Including VAT" - SalesHeader.Amount) / 2,
+          SalesHeader.Amount / 2 - PrepmtAmount / 2, SalesHeader."Amount Including VAT" / 2 - PrepmtAmount / 2,
+          CustomerPostingGroup."Receivables Account", GeneralPostingSetup."Sales Prepayments Account", PrepmtAmount / 2);
+    end;
+
     local procedure PrepareSOwithPostedPrepmtInv(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; NoOfLines: Integer; TaxAreaCode: Code[20]; ItemNo: Code[20]; PrepmtInclTax: Boolean)
     var
         i: Integer;
@@ -680,6 +752,14 @@ codeunit 141442 "ERM Sales Prepmt. Include Tax"
         VerifyPostedSalesInvoice(DocumentNo, ExpSalesInvAmount, ExpSalesInvRemAmount, ExpSalesInvRemAmount);
         VerifyVATEntries(DocumentNo, -ExpVATBase, -ExpVATAmount);
         VerifyGLEntries(DocumentNo, GLAccountFilter, -ExpVATAmount);
+    end;
+
+    local procedure VerifyPostedSalesEntriesWithPrepmt(DocumentNo: Code[20]; GLAccountFilter: Text; ExpVATBase: Decimal; ExpVATAmount: Decimal; ExpSalesInvAmount: Decimal; ExpSalesInvRemAmount: Decimal; ReceivablesAcc: Code[20]; PrepaymentAcc: Code[20]; PrepmtAmount: Decimal)
+    begin
+        VerifyPostedSalesEntries(
+          DocumentNo, GLAccountFilter, ExpVATBase, ExpVATAmount, ExpSalesInvAmount, ExpSalesInvRemAmount);
+        VerifyGLEntries(DocumentNo, ReceivablesAcc, ExpVATBase + ExpVATAmount - PrepmtAmount);
+        VerifyGLEntries(DocumentNo, PrepaymentAcc, PrepmtAmount);
     end;
 
     local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; ExpAmount: Decimal; ExpAmountInclVAT: Decimal; ExpRemAmount: Decimal)

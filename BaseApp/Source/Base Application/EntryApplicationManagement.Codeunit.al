@@ -30,6 +30,7 @@ codeunit 10202 "Entry Application Management"
                 PmtDtldCustLedgEntry.SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
                 PmtDtldCustLedgEntry.SetRange("Application No.", DtldCustLedgEntry."Application No.");
                 PmtDtldCustLedgEntry.SetRange("Customer No.", DtldCustLedgEntry."Customer No.");
+                OnGetAppliedCustEntriesOnAfterFilterPmtDtldCustLedgEntry(DtldCustLedgEntry, PmtDtldCustLedgEntry);
                 PmtDtldCustLedgEntry.FindSet;
                 repeat
                     if UseLCY then
@@ -159,7 +160,7 @@ codeunit 10202 "Entry Application Management"
                                         ClosingVendLedgEntry.Get(PmtDtldVendLedgEntry."Vendor Ledger Entry No.");
                                         if ClosingVendLedgEntry."Closed by Entry No." <> TempAppliedVendLedgEntry."Entry No." then
                                             TempAppliedVendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
-                                        TempAppliedVendLedgEntry."Amount to Apply" += 
+                                        TempAppliedVendLedgEntry."Amount to Apply" +=
                                             GetPaymentDiscount(ClosingVendLedgEntry."Closed by Entry No.", UseLCY);
                                     end;
                                     TempAppliedVendLedgEntry.Insert();
@@ -190,6 +191,11 @@ codeunit 10202 "Entry Application Management"
     begin
         TempInteger.Number := EntryNo;
         exit(TempInteger.Insert());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAppliedCustEntriesOnAfterFilterPmtDtldCustLedgEntry(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var PmtDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
     end;
 }
 

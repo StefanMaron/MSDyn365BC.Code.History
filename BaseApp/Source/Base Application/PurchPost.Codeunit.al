@@ -1,4 +1,4 @@
-codeunit 90 "Purch.-Post"
+﻿codeunit 90 "Purch.-Post"
 {
     Permissions = TableData "Sales Header" = m,
                   TableData "Sales Line" = m,
@@ -678,6 +678,8 @@ codeunit 90 "Purch.-Post"
                 Type::"Charge (Item)":
                     PostItemChargeLine(PurchHeader, PurchLine);
             end;
+
+            OnPostPurchLineOnAfterPostByType(PurchHeader, PurchLine, GenJnlPostLine);
 
             if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then begin
                 AdjustPrepmtAmountLCY(PurchHeader, PurchLine);
@@ -1951,6 +1953,8 @@ codeunit 90 "Purch.-Post"
         FixedAsset: Record "Fixed Asset";
         DeprBook: Record "Depreciation Book";
         FASetup: Record "FA Setup";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FACheckConsistency:	Codeunit "FA Check Consistency";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1965,6 +1969,8 @@ codeunit 90 "Purch.-Post"
             FixedAsset.Get("No.");
             FixedAsset.TestField("Budgeted Asset", false);
             DeprBook.Get("Depreciation Book Code");
+            if FADepreciationBook.Get("No.", "Depreciation Book Code") then
+                FACheckConsistency.CheckDisposalDate(FADepreciationBook, FixedAsset);
             if "Budgeted FA No." <> '' then begin
                 FixedAsset.Get("Budgeted FA No.");
                 FixedAsset.TestField("Budgeted Asset", true);
@@ -2650,7 +2656,7 @@ codeunit 90 "Purch.-Post"
                             TempVATAmountLineRemainder."Amount Including VAT" +=
                               TempVATAmountLine."Amount Including VAT" * CalcLineAmount / TempVATAmountLine.CalcLineAmount;
                         end;
-                    	CalculateAmountsInclVAT(PurchHeader, PurchLine, TempVATAmountLine, TempVATAmountLineRemainder);
+                        CalculateAmountsInclVAT(PurchHeader, PurchLine, TempVATAmountLine, TempVATAmountLineRemainder);
                         TempVATAmountLineRemainder."Amount Including VAT" :=
                           TempVATAmountLineRemainder."Amount Including VAT" - "Amount Including VAT";
                         TempVATAmountLineRemainder."VAT Amount" :=
@@ -2939,6 +2945,7 @@ codeunit 90 "Purch.-Post"
         with PurchHeader do begin
             SumPurchLines2(PurchHeader, PurchLine, OldPurchLine, QtyType, false);
             VATAmount := TotalPurchLine."Amount Including VAT" - TotalPurchLine.Amount;
+            OnSumPurchLinesTempOnAfterCalcVATAmount(PurchHeader, TotalPurchLine, OldPurchLine, VATAmount);
             if TotalPurchLine."VAT %" = 0 then
                 VATAmountText := VATAmountTxt
             else
@@ -4462,14 +4469,13 @@ codeunit 90 "Purch.-Post"
                     else
                         ActualCurrencyFactor := 1;
 
-                    if not PurchHeader."Prepmt. Include Tax" then
-                        UpdatePrepmtAmountInvBuf("Line No.", ActualCurrencyFactor);
+                    UpdatePrepmtAmountInvBuf("Line No.", ActualCurrencyFactor, PurchHeader."Prepmt. Include Tax");
                 until Next() = 0;
             Reset;
         end;
     end;
 
-    local procedure UpdatePrepmtAmountInvBuf(PrepmtSalesLineNo: Integer; CurrencyFactor: Decimal)
+    local procedure UpdatePrepmtAmountInvBuf(PrepmtSalesLineNo: Integer; CurrencyFactor: Decimal; PrepmtIncludeTax: Boolean)
     var
         PrepmtAmtRemainder: Decimal;
     begin
@@ -4478,9 +4484,12 @@ codeunit 90 "Purch.-Post"
             SetRange("Attached to Line No.", PrepmtSalesLineNo);
             if FindSet(true) then
                 repeat
-                    "Prepmt. Amount Inv. (LCY)" :=
-                      CalcRoundedAmount(CurrencyFactor * "VAT Base Amount", PrepmtAmtRemainder);
-                    Modify;
+                    if PrepmtIncludeTax then
+                        "Prepmt. Amount Inv. (LCY)" := "Prepmt Amt to Deduct"
+                    else
+                        "Prepmt. Amount Inv. (LCY)" :=
+                          CalcRoundedAmount(CurrencyFactor * "VAT Base Amount", PrepmtAmtRemainder);
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -4626,10 +4635,10 @@ codeunit 90 "Purch.-Post"
               GetAmountRoundingPrecisionInLCY("Document Type", "Document No.", "Currency Code");
 
             if (Abs(TotalRoundingAmount[1]) <= AmountRoundingPrecision) and
-               (Abs(TotalRoundingAmount[2]) <= AmountRoundingPrecision)
+               (Abs(TotalRoundingAmount[2]) <= AmountRoundingPrecision) and
+               ("Prepayment %" = 100)
             then begin
-                if "Prepayment %" = 100 then
-                    Prepmt100PctVATRoundingAmt := TotalRoundingAmount[1];
+                Prepmt100PctVATRoundingAmt := TotalRoundingAmount[1];
                 TotalRoundingAmount[1] := 0;
             end;
             "Prepmt. Amount Inv. (LCY)" := -TotalRoundingAmount[1];
@@ -5242,6 +5251,7 @@ codeunit 90 "Purch.-Post"
             "Inv. Discount Amount" := "Inv. Disc. Amount to Invoice";
             Amount := CalcLineAmount;
             "VAT Base Amount" := Amount;
+            OnAddSalesTaxLineToSalesTaxCalcOnBeforeOnBeforeTempPurchLineForSalesTaxInsert(TempPurchLineForSalesTax, PurchHeader);
             Insert;
         end;
         if not UseExternalTaxEngine then
@@ -5347,6 +5357,8 @@ codeunit 90 "Purch.-Post"
                       Round(TempSalesTaxAmtLine."Tax Base Amount");
                     GenJnlLine."VAT Base Amount" := GenJnlLine."VAT Base Amount (LCY)";
                     GenJnlLine."GST/HST" := PurchLine."GST/HST";
+
+                    OnPostSalesTaxToGLOnAfterGenJnlLineAssignField(GenJnlLine, PurchHeader, PurchLine);
 
                     if TaxJurisdiction.Code <> TempSalesTaxAmtLine."Tax Jurisdiction Code" then begin
                         TaxJurisdiction.Get(TempSalesTaxAmtLine."Tax Jurisdiction Code");
@@ -5568,6 +5580,8 @@ codeunit 90 "Purch.-Post"
                       Round(TempProvSalesTaxAmtLine."Tax Base Amount");
                     GenJnlLine."VAT Base Amount" := GenJnlLine."VAT Base Amount (LCY)";
 
+                    OnPostProvincialSalesTaxToGLOnAfterGenJnlLineAssignFields(GenJnlLine, PurchHeader);
+
                     if TaxJurisdiction.Code <> TempProvSalesTaxAmtLine."Tax Jurisdiction Code" then begin
                         TaxJurisdiction.Get(TempProvSalesTaxAmtLine."Tax Jurisdiction Code");
                         RemSalesTaxAmt := 0;
@@ -5583,7 +5597,7 @@ codeunit 90 "Purch.-Post"
                     GenJnlLine."Tax Jurisdiction Code" := TempProvSalesTaxAmtLine."Tax Jurisdiction Code";
                     if TempProvSalesTaxAmtLine."Tax Amount" <> 0 then begin
                         RemSalesTaxSrcAmt := RemSalesTaxSrcAmt +
-                          TempSalesTaxAmtLine."Tax Base Amount FCY" * TempSalesTaxAmtLine."Tax %" / 100;
+                          TempProvSalesTaxAmtLine."Tax Base Amount FCY" * TempProvSalesTaxAmtLine."Tax %" / 100;
                         GenJnlLine."Source Curr. VAT Amount" := Round(RemSalesTaxSrcAmt, Currency."Amount Rounding Precision");
                         RemSalesTaxSrcAmt := RemSalesTaxSrcAmt - GenJnlLine."Source Curr. VAT Amount";
                         RemSalesTaxAmt := RemSalesTaxAmt + TempProvSalesTaxAmtLine."Tax Amount";
@@ -5721,9 +5735,11 @@ codeunit 90 "Purch.-Post"
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
+        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') then
+            PurchLine.TestField("Unit of Measure Code");
+
         if PurchLine."Qty. per Unit of Measure" = 0 then
             if (PurchLine.Type = PurchLine.Type::Item) and
-               (PurchLine."Unit of Measure Code" <> '') and
                ItemUnitOfMeasure.Get(PurchLine."No.", PurchLine."Unit of Measure Code")
             then
                 PurchLine."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure"
@@ -7428,6 +7444,8 @@ codeunit 90 "Purch.-Post"
                     OnPostUpdateInvoiceLineOnAfterPurchOrderLineModify(PurchOrderLine, TempPurchLine);
                 until Next() = 0;
         end;
+
+        OnAfterPostUpdateInvoiceLine(TempPurchLine);
     end;
 
     local procedure PostUpdateCreditMemoLine()
@@ -7940,6 +7958,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemTrackingLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; WhseReceive: Boolean; WhseShip: Boolean; InvtPickPutaway: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostUpdateInvoiceLine(var PurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
 
@@ -8762,6 +8785,11 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostProvincialSalesTaxToGLOnAfterGenJnlLineAssignFields(var GenJnlLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostPurchLineOnAfterSetEverythingInvoiced(PurchaseLine: Record "Purchase Line"; var EverythingInvoiced: Boolean)
     begin
     end;
@@ -8878,6 +8906,26 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(true, false)]
     local procedure OnCheckAndUpdateOnAfterCopyAndCheckItemCharge(PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSalesTaxToGLOnAfterGenJnlLineAssignField(var GenJnlLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSalesTaxLineToSalesTaxCalcOnBeforeOnBeforeTempPurchLineForSalesTaxInsert(var TempPurchLineForSalesTax: Record "Purchase Line" temporary; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumPurchLinesTempOnAfterCalcVATAmount(PurchHeader: Record "Purchase Header"; TotalPurchLine: Record "Purchase Line"; OldPurchLine: Record "Purchase Line"; var VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPurchLineOnAfterPostByType(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 }

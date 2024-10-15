@@ -15,6 +15,7 @@ codeunit 144018 "SCM Inventory Reports"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -247,6 +248,38 @@ codeunit 144018 "SCM Inventory Reports"
 
         // [THEN] All 4 elements of requies page should be visible (verification inside InventoryValuationVerifyAARequestPageHandler)
         LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [HandlerFunctions('InventoryValuationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryValuationReportNonInventoryItems()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Inventory Valuation] [Non-Inventory]
+        // [SCENARIO 358497] Inventory Valuation report doesn't include Non-Inventory Items
+        Initialize;
+
+        // [GIVEN] Non-Inventory Item "NONINV"
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        Qty := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Purchased 100 pcs of "NONINV"on 22.01
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Run "Inventory Valuation" report on 23.01
+        RunInventoryValuationReport(Item."No.", WorkDate + 1);
+
+        // [THEN] Report doesn't include "NONINV"
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueNotExist('Item__No__', Item."No.");
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     local procedure Initialize()

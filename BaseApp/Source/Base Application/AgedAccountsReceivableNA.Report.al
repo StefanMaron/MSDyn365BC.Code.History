@@ -698,7 +698,7 @@ report 10040 "Aged Accounts Receivable NA"
         AmountsAreIn2Lbl: Label 'Amounts are in the customer''s local currency (report totals are in %1).';
         ReportTotalAmountDueLbl: Label 'Report Total Amount Due (%1)', Comment = '%1=currency code';
         DataLbl: Label 'Data';
-        AgedAccountsPayableLbl: Label 'Aged Accounts Payable';
+        AgedAccountsReceivableLbl: Label 'Aged Accounts Receivable';
         CompanyNameLbl: Label 'Company Name';
         ReportNoLbl: Label 'Report No.';
         ReportNameLbl: Label 'Report Name';
@@ -810,7 +810,7 @@ report 10040 "Aged Accounts Receivable NA"
         ExcelBuf.AddInfoColumn(CompanyInformation.Name, false, false, false, false, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.NewRow();
         ExcelBuf.AddInfoColumn(Format(ReportNameLbl), false, true, false, false, '', ExcelBuf."Cell Type"::Text);
-        ExcelBuf.AddInfoColumn(Format(AgedAccountsPayableLbl), false, false, false, false, '', ExcelBuf."Cell Type"::Text);
+        ExcelBuf.AddInfoColumn(Format(AgedAccountsReceivableLbl), false, false, false, false, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.NewRow();
         ExcelBuf.AddInfoColumn(Format(ReportNoLbl), false, true, false, false, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.AddInfoColumn(REPORT::"Aged Accounts Receivable NA", false, false, false, false, '', ExcelBuf."Cell Type"::Number);
@@ -899,7 +899,7 @@ report 10040 "Aged Accounts Receivable NA"
 
     local procedure CreateExcelbook()
     begin
-        ExcelBuf.CreateBookAndOpenExcel('', DataLbl, AgedAccountsPayableLbl, CompanyName(), UserId());
+        ExcelBuf.CreateBookAndOpenExcel('', DataLbl, AgedAccountsReceivableLbl, CompanyName(), UserId());
     end;
 }
 

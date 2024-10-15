@@ -186,6 +186,12 @@ page 5934 "Service Invoice Subform"
                     ToolTip = 'Specifies the service item number linked to this service line.';
                     Visible = false;
                 }
+                field("Service Item Serial No."; "Service Item Serial No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the serial number of the service item to which this service line is linked.';
+                    Visible = false;
+                }
                 field("Appl.-to Service Entry"; "Appl.-to Service Entry")
                 {
                     ApplicationArea = Service;

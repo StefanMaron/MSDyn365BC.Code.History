@@ -1,4 +1,4 @@
-codeunit 398 "Sales Tax Calculate"
+﻿codeunit 398 "Sales Tax Calculate"
 {
     Permissions = TableData "Sales Header" = rim,
                   TableData "Sales Line" = rim,
@@ -114,8 +114,14 @@ codeunit 398 "Sales Tax Calculate"
     var
         MaxAmount: Decimal;
         TaxBaseAmount: Decimal;
+        IsHandled: Boolean;
     begin
         TaxAmount := 0;
+        OnBeforeCalculateTax(TaxAreaCode, TaxGroupCode, TaxLiable);
+        IsHandled := false;
+        OnBeforeCalculateTaxProcedure(TaxAreaCode, TaxGroupCode, TaxLiable, Date, Amount, Quantity, ExchangeRate, TaxAmount, IsHandled);
+        If IsHandled then
+            exit;
 
         if not TaxLiable or (TaxAreaCode = '') or (TaxGroupCode = '') or
            ((Amount = 0) and (Quantity = 0))
@@ -404,7 +410,13 @@ codeunit 398 "Sales Tax Calculate"
         TaxAmount: Decimal;
         AddedTaxAmount: Decimal;
         TaxBaseAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitSalesTaxLines(TaxAreaCode, TaxGroupCode, TaxLiable, Amount, Quantity, Date, DesiredTaxAmount, TMPTaxDetail, IsHandled, Initialised, FirstLine);
+        if IsHandled then
+            exit;
+
         TaxAmount := 0;
 
         Initialised := true;
@@ -732,6 +744,8 @@ codeunit 398 "Sales Tax Calculate"
                     end;
                 until TaxAreaLine.Next = 0;
         end;
+
+        OnAfterAddSalesLine(TempSalesTaxLine, SalesLine, SalesHeader, ExchangeFactor);
     end;
 
     procedure AddSalesInvoiceLines(DocNo: Code[20])
@@ -895,6 +909,8 @@ codeunit 398 "Sales Tax Calculate"
                     end;
                 until TaxAreaLine.Next = 0;
         end;
+
+        OnAfterAddPurchLine(TempSalesTaxLine, PurchLine, PurchHeader, ExchangeFactor);
     end;
 
     procedure AddPurchInvoiceLines(DocNo: Code[20])
@@ -920,6 +936,7 @@ codeunit 398 "Sales Tax Calculate"
                 SalesTaxAmountLineCalc.InitFromPurchInvLine(PurchInvLine);
                 SalesTaxAmountLineCalc.CalcPurchLineSalesTaxAmountLine(
                   TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor, TaxDetail, PurchInvHeader."Posting Date");
+                OnAddPurchInvoiceLinesOnAfterCalcPurchLineSalesTaxAmountLine(TempSalesTaxLine, PurchInvLine, PurchInvHeader, ExchangeFactor);
             until PurchInvLine.Next = 0;
 
         CopyTaxDifferencesToTemp(
@@ -1247,6 +1264,7 @@ codeunit 398 "Sales Tax Calculate"
                                 SalesTaxAmountLine2."Tax %" := TaxDetail."Tax Below Maximum"
                             else
                                 SalesTaxAmountLine2."Tax %" := "Tax %";
+                    OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(SalesTaxAmountLine2, TempSalesTaxLine);
                     SalesTaxAmountLine2.Insert();
                 until Next(-1) = 0;
                 UpdateSalesTaxForPrepmt(SalesTaxAmountLine2, TotalTaxAmount, RoundTax);
@@ -1436,6 +1454,7 @@ codeunit 398 "Sales Tax Calculate"
                         then begin
                             if "Tax Type" = "Tax Type"::"Sales and Use Tax" then begin
                                 Amount := (SalesLine."Line Amount" - SalesLine."Inv. Discount Amount");
+                                OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxLine, SalesLine, SalesHeader);
                                 if "Tax Difference" <> 0 then
                                     TaxAmount := Amount * "Tax Amount" / "Tax Base Amount"
                                 else
@@ -1455,6 +1474,7 @@ codeunit 398 "Sales Tax Calculate"
                             SalesLine.Amount :=
                               SalesLine."Line Amount" - SalesLine."Inv. Discount Amount";
                             SalesLine."VAT Base Amount" := SalesLine.Amount;
+                            OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetSalesLineVATBaseAmount(SalesLine, SalesHeader);
                             if SalesLine2.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then begin
                                 if not IsFinalPrepaidSalesLine(SalesLine) then
                                     SalesLine2."Amount Including VAT" := SalesLine2."Amount Including VAT" + ReturnTaxAmount;
@@ -1489,6 +1509,7 @@ codeunit 398 "Sales Tax Calculate"
                     SalesLine.Amount :=
                       Round(SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", Currency."Amount Rounding Precision");
                     SalesLine."VAT Base Amount" := SalesLine.Amount;
+                    OnDistTaxOverSalesLinesOnSalesLineLoopOnAfterSetSalesLineVATBaseAmount(SalesLine, SalesHeader);
                     if SalesLine.Quantity = 0 then
                         SalesLine.Validate("Outstanding Amount", SalesLine."Amount Including VAT")
                     else
@@ -1560,6 +1581,7 @@ codeunit 398 "Sales Tax Calculate"
                         then begin
                             if "Tax Type" = "Tax Type"::"Sales and Use Tax" then begin
                                 Amount := (PurchLine."Line Amount" - PurchLine."Inv. Discount Amount");
+                                OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxLine, PurchLine, PurchHeader);
                                 if "Tax Difference" <> 0 then
                                     TaxAmount := Amount * "Tax Amount" / "Tax Base Amount"
                                 else
@@ -1610,6 +1632,7 @@ codeunit 398 "Sales Tax Calculate"
                             end;
                             PurchLine.Amount := PurchLine."Line Amount" - PurchLine."Inv. Discount Amount";
                             PurchLine."VAT Base Amount" := PurchLine.Amount;
+                            OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetPurchLineVATBaseAmount(PurchLine, PurchHeader);
                             if PurchLine2.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.") then begin
                                 PurchLine2."Amount Including VAT" := PurchLine2."Amount Including VAT" + ReturnTaxAmount;
                                 PurchLine2.Modify();
@@ -1622,11 +1645,7 @@ codeunit 398 "Sales Tax Calculate"
                                 PurchLine."Amount Including VAT" := PurchLine2."Amount Including VAT"
                             else
                                 PurchLine."Amount Including VAT" := PurchLine.Amount;
-                            if PurchLine.Amount <> 0 then
-                                PurchLine."VAT %" :=
-                                  Round(100 * (PurchLine."Amount Including VAT" - PurchLine.Amount) / PurchLine.Amount, 0.00001)
-                            else
-                                PurchLine."VAT %" := 0;
+                            UpdatePurchaseLineVatPct(PurchLine);
                             PurchLine.Modify();
                         end;
                     until PurchLine.Next = 0;
@@ -1642,6 +1661,7 @@ codeunit 398 "Sales Tax Calculate"
                     PurchLine.Amount :=
                       Round(PurchLine."Line Amount" - PurchLine."Inv. Discount Amount", Currency."Amount Rounding Precision");
                     PurchLine."VAT Base Amount" := PurchLine.Amount;
+                    OnDistTaxOverPurchLinesOnPurchLineLoopOnAfterSetPurchLineVATBaseAmount(PurchLine, PurchHeader);
                     if PurchLine.Quantity = 0 then
                         PurchLine.Validate("Outstanding Amount", PurchLine."Amount Including VAT")
                     else
@@ -2153,6 +2173,16 @@ codeunit 398 "Sales Tax Calculate"
             TaxDetail.SetFilter("Effective Date", '<=%1', Date);
     end;
 
+    local procedure UpdatePurchaseLineVatPct(var PurchLine: Record "Purchase Line")
+    begin
+        if PurchLine.Amount <> 0 then
+            PurchLine."VAT %" := Round(100 * (PurchLine."Amount Including VAT" - PurchLine.Amount) / PurchLine.Amount, 0.00001)
+        else
+            PurchLine."VAT %" := 0;
+
+        OnAfterUpdatePurchaseLineVatPct(PurchLine, PurchHeader);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddSalesLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean);
     begin
@@ -2160,6 +2190,22 @@ codeunit 398 "Sales Tax Calculate"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddPurchLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [Obsolete('Replaced by OnBeforeCalculateTaxProcedure', '17.0')]
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeCalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTaxProcedure(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal; var TaxAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitSalesTaxLines(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Amount: Decimal; Quantity: Decimal; Date: Date; DesiredTaxAmount: Decimal; var TMPTaxDetail: Record "Tax Detail"; var IsHandled: Boolean; var Initialised: Boolean; var FirstLine: Boolean)
     begin
     end;
 
@@ -2200,6 +2246,61 @@ codeunit 398 "Sales Tax Calculate"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPostedSummarizedSalesTaxTable(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var TempSalesTaxAmountDifference: Record "Sales Tax Amount Difference" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdatePurchaseLineVatPct(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverPurchLinesOnPurchLineLoopOnAfterSetPurchLineVATBaseAmount(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetPurchLineVATBaseAmount(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddPurchInvoiceLinesOnAfterCalcPurchLineSalesTaxAmountLine(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; PurchInvLine: Record "Purch. Inv. Line"; PurchInvHeader: Record "Purch. Inv. Header"; ExchangeFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSalesLine(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ExchangeFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverSalesLinesOnSalesLineLoopOnAfterSetSalesLineVATBaseAmount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetSalesLineVATBaseAmount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(var SalesTaxAmountLine2: Record "Sales Tax Amount Line" temporary; var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddPurchLine(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; ExchangeFactor: Decimal)
     begin
     end;
 }

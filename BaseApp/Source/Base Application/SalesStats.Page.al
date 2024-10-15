@@ -1,4 +1,4 @@
-page 10042 "Sales Stats."
+﻿page 10042 "Sales Stats."
 {
     Caption = 'Sales Statistics';
     DeleteAllowed = false;
@@ -361,6 +361,8 @@ page 10042 "Sales Stats."
         else
             TotalAmount2 := TotalAmount1 + TaxAmount;
 
+        OnUpdateHeaderInfoOnAfterCalcTotalAmount(Rec, TotalAmount1, TotalAmount2, TaxAmount);
+
         if "Prices Including VAT" then
             TotalSalesLineLCY.Amount := TotalAmount2
         else
@@ -533,6 +535,11 @@ page 10042 "Sales Stats."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxSalesStats(var SalesHeader: Record "Sales Header"; var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var SalesTaxAmountLine2: Record "Sales Tax Amount Line"; var SalesTaxCalculationOverridden: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateHeaderInfoOnAfterCalcTotalAmount(SalesHeader: Record "Sales Header"; TotalAmount1: Decimal; var TotalAmount2: Decimal; TaxAmount: Decimal)
     begin
     end;
 }

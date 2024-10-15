@@ -20,6 +20,8 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryService: Codeunit "Library - Service";
         IsInitialized: Boolean;
         AmtErrorMessage: Label 'The %1 must be %2 in %3.';
 
@@ -949,6 +951,75 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Verification done in handler.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LineAmtAfterChangeVATProdPostingGroupInSalesDocWithPricesInclVATAndLineDisc()
+    var
+        SalesLine: Record "Sales Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Sales] [Line Discount]
+        // [SCENARIO 361066] A line amount is correct when the VAT Product Posting Group changes in the sales document with line discount and "Prices Including VAT" option enabled.
+
+        Initialize();
+        CreateSalesInvWithLineDiscAndPricesInclVAT(SalesLine);
+        CreateNewVATPostingSetupBasedOnExisting(
+          VATPostingSetup, SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group", SalesLine."VAT %");
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.TestField("Line Discount Amount",
+          Round(
+            Round(SalesLine.Quantity * SalesLine."Unit Price") * SalesLine."Line Discount %" / 100));
+        SalesLine.TestField("Line Amount",
+          Round(SalesLine.Quantity * SalesLine."Unit Price") - SalesLine."Line Discount Amount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LineAmtAfterChangeVATProdPostingGroupInPurchDocWithPricesInclVATAndLineDisc()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Purchase] [Line Discount]
+        // [SCENARIO 361066] A line amount is correct when the VAT Product Posting Group changes in the purchase document with line discount and "Prices Including VAT" option enabled.
+
+        Initialize();
+        CreatePurchInvWithLineDiscAndPricesInclVAT(PurchaseLine);
+        CreateNewVATPostingSetupBasedOnExisting(
+          VATPostingSetup, PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group", PurchaseLine."VAT %");
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.TestField("Line Discount Amount",
+          Round(
+            Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLine."Line Discount %" / 100));
+        PurchaseLine.TestField("Line Amount",
+          Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") - PurchaseLine."Line Discount Amount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LineAmtAfterChangeVATProdPostingGroupInServDocWithPricesInclVATAndLineDisc()
+    var
+        ServiceLine: Record "Service Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Service] [Line Discount]
+        // [SCENARIO 361066] A line amount is correct when the VAT Product Posting Group changes in the service document with line discount and "Prices Including VAT" option enabled.
+
+        Initialize();
+        CreateServInvWithLineDiscAndPricesInclVAT(ServiceLine);
+        CreateNewVATPostingSetupBasedOnExisting(
+          VATPostingSetup, ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group", ServiceLine."VAT %");
+        ServiceLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        ServiceLine.TestField("Line Discount Amount",
+          Round(
+            Round(ServiceLine.Quantity * ServiceLine."Unit Price") * ServiceLine."Line Discount %" / 100));
+        ServiceLine.TestField("Line Amount",
+          Round(ServiceLine.Quantity * ServiceLine."Unit Price") - ServiceLine."Line Discount Amount");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1110,6 +1181,45 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchaseHeader.Modify(true);
     end;
 
+    local procedure CreateSalesInvWithLineDiscAndPricesInclVAT(var SalesLine: Record "Sales Line")
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(3, 10));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchInvWithLineDiscAndPricesInclVAT(var PurchaseLine: Record "Purchase Line")
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(3, 10));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateServInvWithLineDiscAndPricesInclVAT(var ServiceLine: Record "Service Line")
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        ServiceHeader.Validate("Prices Including VAT", true);
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceLine(
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(3, 10));
+        ServiceLine.Modify(true);
+    end;
+
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var Amount: Decimal; DocumentType: Option; CustomerNo: Code[20]; PricesIncludingVAT: Boolean)
     var
         Item: Record Item;
@@ -1201,6 +1311,17 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         Vendor.Modify(true);
         exit(Vendor."No.");
+    end;
+
+    local procedure CreateNewVATPostingSetupBasedOnExisting(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; VATRate: Decimal)
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup.Get(VATBusPostingGroupCode, VATProdPostingGroupCode);
+        VATPostingSetup.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup."VAT %" := VATRate + 1;
+        VATPostingSetup.Insert(true);
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

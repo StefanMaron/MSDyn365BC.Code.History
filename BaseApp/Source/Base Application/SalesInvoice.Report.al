@@ -1,4 +1,4 @@
-report 206 "Sales - Invoice"
+﻿report 206 "Sales - Invoice"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesInvoice.rdlc';
@@ -550,6 +550,7 @@ report 206 "Sales - Invoice"
                                 VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                             VATAmountLine.InsertLine;
+                            OnBeforeCalculateSalesTax("Sales Invoice Header", "Sales Invoice Line", VATAmountLine);
                             CalcVATAmountLineLCY(
                               "Sales Invoice Header", VATAmountLine, TempVATAmountLineLCY,
                               VATBaseRemainderAfterRoundingLCY, AmtInclVATRemainderAfterRoundingLCY);
@@ -560,6 +561,9 @@ report 206 "Sales - Invoice"
                             TotalAmountVAT += "Amount Including VAT" - Amount;
                             TotalAmountInclVAT += "Amount Including VAT";
                             TotalPaymentDiscountOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+
+                            OnAfterCalculateSalesTax("Sales Invoice Header", "Sales Invoice Line", TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
+
                         end;
 
                         trigger OnPreDataItem()
@@ -1434,6 +1438,11 @@ report 206 "Sales - Invoice"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSalesTax(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line"; var TotalAmount: Decimal; var TotalAmountVAT: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterInitReport()
     begin
@@ -1441,6 +1450,11 @@ report 206 "Sales - Invoice"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterPostDataItem(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesTax(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 }

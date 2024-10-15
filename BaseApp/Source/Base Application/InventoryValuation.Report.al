@@ -10,6 +10,7 @@ report 10139 "Inventory Valuation"
     {
         dataitem(Item; Item)
         {
+            DataItemTableView = WHERE(Type = CONST(Inventory));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Inventory Posting Group", "Costing Method", "Location Filter", "Variant Filter";
             column(CompanyInformation_Name; CompanyInformation.Name)

@@ -98,24 +98,28 @@ codeunit 144011 "Prepayment Sales"
         TaxAreaCode: Code[20];
         SalesPrepaymentsAccNo: Code[20];
     begin
-        // Setup: Create Tax Area with Detail, Create Item with Tax Group Code. Create and Update Sales Order with Prepmt. Include Tax. Update Qty to Ship on Sales Line.
+        // [SCENARIO] Partial posting of Sales Invoice with Prepmt. Include Tax
+        // [GIVEN] Create Tax Area with Detail, Create Item with Tax Group Code.
+        // [GIVEN] Create and Update Sales Order with Prepmt. Include Tax.
+        // [GIVEN] Update Qty to Ship on Sales Line with a half of Quantity
         TaxAreaCode := CreateTaxAreaWithDetail(TaxGroup);
         SalesPrepaymentsAccNo := CreatePrepaymentVATSetup(LineGLAccount);
         ItemNo := CreateItemWithPostingSetup(LineGLAccount, TaxGroup.Code);
         CreateSalesOrder(SalesHeader, ItemNo, LineGLAccount, true, true, TaxAreaCode, TaxGroup.Code);  // Tax Liable and Prepmt. Include Tax - TRUE.
         UpdateQuantityToShipOnSalesLine(SalesLine, SalesHeader."No.");  // Partial Quantity to Ship.
 
-        // Post partial Prepayment Invoice and Release Sales Order.
+        // [GIVEN] Post partial Prepayment Invoice and Release Sales Order.
         PostPrepaymentInvoiceAndReleaseSalesOrder(SalesHeader);
 
-        // Exercise: Post Sales Order as Ship and Invoice.
+        // [WHEN] Post Sales Order as Ship and Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // Verify: Verify that correct G/L Entry is created when posting Sales Order after posting partial Prepayment Invoice with Prepmt. Include Tax.
+        // [THEN] Correct G/L Entry is created when posting Sales Order after posting partial Prepayment Invoice with Prepmt. Include Tax.
+        // [THEN] G/L Entry for Sales Prepayment Account has a half of prepayment amount
         SalesHeader.CalcFields("Amount Including VAT");
         VerifyGLEntry(
           DocumentNo, SalesHeader."Document Type"::Invoice, SalesPrepaymentsAccNo,
-          Round(SalesHeader."Amount Including VAT" * SalesHeader."Prepayment %" / 100), '', '', false);  // Tax Liable - FALSE.
+          Round(SalesHeader."Amount Including VAT" * SalesHeader."Prepayment %" / 100 / 2), '', '', false);  // Tax Liable - FALSE.
     end;
 
     [Test]

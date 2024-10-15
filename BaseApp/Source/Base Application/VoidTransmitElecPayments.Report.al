@@ -45,6 +45,7 @@ report 10084 "Void/Transmit Elec. Payments"
                     "Check Printed" := false;
                     "Document No." := '';
                     CleanEFTExportTable("Gen. Journal Line");
+                    "EFT Export Sequence No." := 0;
                 end else
                     "Check Transmitted" := true;
 
@@ -109,7 +110,6 @@ report 10084 "Void/Transmit Elec. Payments"
         with BankAccount do begin
             Get("No.");
             TestField(Blocked, false);
-            TestField("Currency Code", '');  // local currency only
             TestField("Export Format");
 
             if UsageType <> UsageType::Transmit then
@@ -157,10 +157,12 @@ report 10084 "Void/Transmit Elec. Payments"
     var
         EFTExport: Record "EFT Export";
     begin
-        EFTExport.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-        EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        EFTExport.SetRange("Line No.", GenJournalLine."Line No.");
-        if EFTExport.FindLast then
+        if EFTExport.Get(
+            GenJournalLine."Journal Template Name",
+            GenJournalLine."Journal Batch Name",
+            GenJournalLine."Line No.",
+            GenJournalLine."EFT Export Sequence No.")
+        then
             EFTExport.Delete();
     end;
 }

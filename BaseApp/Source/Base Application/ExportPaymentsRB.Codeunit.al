@@ -24,6 +24,7 @@ codeunit 10091 "Export Payments (RB)"
         Customer: Record Customer;
         BankAccount: Record "Bank Account";
         CompanyInformation: Record "Company Information";
+        ExportEFTRB: Codeunit "Export EFT (RB)";
         RBMgt: Codeunit "File Management";
         ExportFile: File;
         TotalFileDebit: Decimal;
@@ -140,7 +141,7 @@ codeunit 10091 "Export Payments (RB)"
             AddToPrnString(FileHeaderRec, "Client No.", 11, 10, Justification::Left, '0');  // Client Number
             AddToPrnString(FileHeaderRec, "Client Name", 21, 30, Justification::Left, ' '); // Client Name
             AddNumToPrnString(FileHeaderRec, "Last E-Pay File Creation No.", 51, 4);      // File Creation Number
-            AddNumToPrnString(FileHeaderRec, JulianDate(FileDate), 55, 7);                // File Creation Date
+            AddNumToPrnString(FileHeaderRec, ExportEFTRB.JulianDate(FileDate), 55, 7);      // File Creation Date
             if GenJnlLine."Currency Code" = '' then begin
                 GLSetup.Get();
                 CurrencyType := GLSetup."LCY Code";
@@ -404,16 +405,6 @@ codeunit 10091 "Export Payments (RB)"
         RecipientBankAcctCountryCode := CustomerBankAccount."Country/Region Code"
     end;
 
-    local procedure JulianDate(NormalDate: Date): Integer
-    var
-        Year: Integer;
-        Days: Integer;
-    begin
-        Year := Date2DMY(NormalDate, 3);
-        Days := (NormalDate - DMY2Date(1, 1, Year)) + 1;
-        exit(Year * 1000 + Days);
-    end;
-
     local procedure BuildIDModifier()
     begin
         ModifierValues[1] := 'A';
@@ -505,7 +496,7 @@ codeunit 10091 "Export Payments (RB)"
             AddToPrnString(DetailRec, ' ', 70, 1, Justification::Left, ' ');
             AddAmtToPrnString(DetailRec, PaymentAmount, 71, 10);                                  // Payment Amount
             AddToPrnString(DetailRec, ' ', 81, 6, Justification::Left, ' ');
-            AddNumToPrnString(DetailRec, JulianDate(SettleDate), 87, 7);                          // Payment Date
+            AddNumToPrnString(DetailRec, ExportEFTRB.JulianDate(SettleDate), 87, 7);                // Payment Date
             AddToPrnString(DetailRec, AcctName, 94, 30, Justification::Left, ' ');                  // Customer Name
             AddToPrnString(DetailRec, Format(AcctLanguage), 124, 1, Justification::Left, ' ');      // Language Code
             AddToPrnString(DetailRec, ' ', 125, 1, Justification::Left, ' ');

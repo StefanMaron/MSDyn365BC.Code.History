@@ -244,7 +244,13 @@ codeunit 5510 "Production Journal Mgt"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         CostCalcMgt: Codeunit "Cost Calculation Management";
         QtyToPost: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertOutputItemJnlLine(ProdOrderRtngLine, ProdOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ProdOrderLine do begin
             if ProdOrderRtngLine."Prod. Order No." <> '' then // Operation exist
                 case ProdOrderRtngLine.Type of
@@ -556,6 +562,11 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertOutputItemJnlLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }

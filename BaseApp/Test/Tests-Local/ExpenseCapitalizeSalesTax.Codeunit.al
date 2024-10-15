@@ -107,7 +107,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
 
         // [GIVEN] Released Purchase Order with Expense Sales Tax, where "Tax To Be Expensed" = 100
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
-        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, TaxArea.Code, TaxGroup.Code);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, TaxArea.Code, TaxGroup.Code, LibraryRandom.RandDec(100, 2));
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Tax is reset for Purchase Line
@@ -527,6 +527,42 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         VerifyVATEntry(PostedDocNo, TaxJurisdictionCode, (Amount[1] + Amount[2]) * TaxRate1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseDocTaxToBeExpensedForSecondLine()
+    var
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine1: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+    begin
+        // [SCENARIO 360864] Adding second line to the purchase order with expense tax
+        Initialize;
+
+        // [GIVEN] Tax detailes for two tax jurisdicstions, 5% no expense, 7% with expense
+        CreateSalesTaxSetup(TaxArea, TaxGroup);
+        CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, LibraryRandom.RandIntInRange(5, 10), false);
+        CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, LibraryRandom.RandIntInRange(5, 10), true);
+
+        // [GIVEN] Purchase order with the line of Amount = 100, Amount Including VAT = 112, Tax To Be Expensed = 7
+        UpdatePurchaseSetup(true);
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseLine1, TaxArea.Code, TaxGroup.Code, LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Second line with the same No and Quantity is added to the purhase order
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine2, PurchaseHeader, PurchaseLine1.Type, PurchaseLine1."No.", PurchaseLine1.Quantity);
+
+        // [WHEN] Update 'Direct Unit Cost' to the same value as in first line
+        PurchaseLine2.Validate("Direct Unit Cost", PurchaseLine1."Direct Unit Cost");
+
+        // [THEN] New line has the same Amount = 100, Amount Including VAT = 112, Tax To Be Expensed = 7
+        PurchaseLine2.TestField(Amount, PurchaseLine1.Amount);
+        PurchaseLine2.TestField("Amount Including VAT", PurchaseLine1."Amount Including VAT");
+        PurchaseLine2.TestField("Tax To Be Expensed", PurchaseLine1."Tax To Be Expensed");
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -640,7 +676,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         end;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; DirectUnitCost: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
@@ -650,7 +686,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         CreateGLAccount(GLAccount, VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode);
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
 

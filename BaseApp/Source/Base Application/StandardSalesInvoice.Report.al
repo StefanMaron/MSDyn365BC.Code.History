@@ -1,4 +1,4 @@
-report 1306 "Standard Sales - Invoice"
+﻿report 1306 "Standard Sales - Invoice"
 {
     RDLCLayout = './StandardSalesInvoice.rdlc';
     WordLayout = './StandardSalesInvoice.docx';
@@ -421,6 +421,12 @@ report 1306 "Standard Sales - Invoice"
             column(CustomerPONumber; "External Document No.")
             {
             }
+            column(ExternalDocumentNo; "External Document No.")
+            {
+            }
+            column(ExternalDocumentNo_Lbl; FieldCaption("External Document No."))
+            {
+            }
             dataitem(Line; "Sales Invoice Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
@@ -650,7 +656,8 @@ report 1306 "Standard Sales - Invoice"
                         VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                     VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                     VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                    VATAmountLine.InsertLine;
+                    VATAmountLine.InsertLine();
+                    OnBeforeCalculateSalesTax(Header, Line, VATAmountLine);
 
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";
@@ -660,6 +667,8 @@ report 1306 "Standard Sales - Invoice"
                     TotalAmountVAT += "Amount Including VAT" - Amount;
                     TotalAmountInclVAT += "Amount Including VAT";
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+
+                    OnAfterCalculateSalesTax(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
                     if FirstLineHasBeenOutput then
                         Clear(DummyCompanyInfo.Picture);
@@ -843,6 +852,7 @@ report 1306 "Standard Sales - Invoice"
             }
             dataitem(VATClauseLine; "VAT Amount Line")
             {
+                DataItemTableView = SORTING("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", Positive);
                 UseTemporary = true;
                 column(VATIdentifier_VATClauseLine; "VAT Identifier")
                 {
@@ -1677,6 +1687,16 @@ report 1306 "Standard Sales - Invoice"
         end;
 
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSalesTax(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line"; var TotalAmount: Decimal; var TotalAmountVAT: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesTax(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
     end;
 }
 

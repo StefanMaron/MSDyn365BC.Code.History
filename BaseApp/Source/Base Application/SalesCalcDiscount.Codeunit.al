@@ -1,4 +1,4 @@
-codeunit 60 "Sales-Calc. Discount"
+﻿codeunit 60 "Sales-Calc. Discount"
 {
     TableNo = "Sales Line";
 
@@ -219,7 +219,13 @@ codeunit 60 "Sales-Calc. Discount"
     procedure CalculateIncDiscForHeader(var TempSalesHeader: Record "Sales Header")
     var
         SalesSetup: Record "Sales & Receivables Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateIncDiscForHeader(TempSalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesSetup.Get();
         if not SalesSetup."Calc. Inv. Discount" then
             exit;
@@ -269,6 +275,11 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateSalesLine2Quantity(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateIncDiscForHeader(var TempSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

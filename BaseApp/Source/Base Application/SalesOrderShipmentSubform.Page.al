@@ -19,11 +19,13 @@ page 10027 "Sales Order Shipment Subform"
                 ShowCaption = false;
                 field(Type; Type)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of the record on the document line. ';
                 }
                 field("No."; "No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
 
@@ -35,6 +37,7 @@ page 10027 "Sales Order Shipment Subform"
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the cross-reference number of the item specified on the line.';
                     Visible = false;
@@ -58,64 +61,75 @@ page 10027 "Sales Order Shipment Subform"
                 }
                 field("Variant Code"; "Variant Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Variant CodeEditable";
                     ToolTip = 'Specifies the variant number of the items sold.';
                     Visible = false;
                 }
                 field("Substitution Available"; "Substitution Available")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies that a substitute is available for the item on the sales line.';
                     Visible = false;
                 }
                 field("Purchasing Code"; "Purchasing Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a purchasing code that indicates actions that need to be taken to purchase this item. ';
                     Visible = false;
                 }
                 field(Nonstock; Nonstock)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies that the item on the sales line is a catalog item (an item not normally kept in inventory).';
                     Visible = false;
                 }
                 field(Description; Description)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a description of the shipment line.';
                 }
                 field(Control26; "Drop Shipment")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies whether to ship the items on the line directly to your customer.';
                     Visible = false;
                 }
                 field(Control106; "Special Order")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies that the item on the sales line is a special-order item.';
                     Visible = false;
                 }
                 field("Package Tracking No."; "Package Tracking No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Package Tracking No.Editable";
                     ToolTip = 'Specifies the shipping agent''s package number.';
                     Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the location from where inventory items are to be shipped by default, to the customer on the sales document.';
                 }
                 field("Bin Code"; "Bin Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bin from where items on the sales order line are taken from when they are shipped.';
                     Visible = false;
                 }
                 field(Quantity; Quantity)
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies the quantity of items on document line.';
@@ -127,12 +141,14 @@ page 10027 "Sales Order Shipment Subform"
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies how many of the units in the Quantity field are reserved.';
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the item''s unit of measure. ';
 
@@ -143,106 +159,125 @@ page 10027 "Sales Order Shipment Subform"
                 }
                 field("Unit of Measure"; "Unit of Measure")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the item''s unit of measure. ';
                     Visible = false;
                 }
                 field("Qty. to Ship"; "Qty. to Ship")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Editable = "Qty. to ShipEditable";
                     ToolTip = 'Specifies how many of the units in the Quantity field to post as shipped. ';
                 }
                 field("Quantity Shipped"; "Quantity Shipped")
                 {
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies how many of the units in the Quantity field have been posted as shipped.';
                 }
                 field("Allow Item Charge Assignment"; "Allow Item Charge Assignment")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = AllowItemChargeAssignmentEdita;
                     ToolTip = 'Specifies that you can assign item charges to this line.';
                     Visible = false;
                 }
                 field("Qty. to Assign"; "Qty. to Assign")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many of the units in the Quantity field to assign.';
                     Visible = false;
                 }
                 field("Qty. Assigned"; "Qty. Assigned")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many of the units in the Quantity field have been assigned.';
                     Visible = false;
                 }
                 field("Requested Delivery Date"; "Requested Delivery Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the requested delivery date for the sales order shipment.';
                     Visible = false;
                 }
                 field("Promised Delivery Date"; "Promised Delivery Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Promised Delivery DateEditable";
                     ToolTip = 'Specifies the promised delivery date for the sales order shipment.';
                     Visible = false;
                 }
                 field("Planned Delivery Date"; "Planned Delivery Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Planned Delivery DateEditable";
                     ToolTip = 'Specifies the planned date that the shipment will be delivered at the customer''s address.';
                 }
                 field("Planned Shipment Date"; "Planned Shipment Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Planned Shipment DateEditable";
                     ToolTip = 'Specifies the date that the shipment should ship from the warehouse.';
                 }
                 field("Shipment Date"; "Shipment Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Shipment DateEditable";
                     ToolTip = 'Specifies the date that the items on the line are in inventory and available to be picked. The shipment date is the date you expect to ship the items on the line.';
                 }
                 field("Shipping Agent Code"; "Shipping Agent Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Shipping Agent CodeEditable";
                     ToolTip = 'Specifies which shipping company will be used when you ship items to the customer.';
                     Visible = false;
                 }
                 field("Shipping Agent Service Code"; "Shipping Agent Service Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = ShippingAgentServiceCodeEditab;
                     ToolTip = 'Specifies the code for the shipping agent service to use for this customer.';
                     Visible = false;
                 }
                 field("Shipping Time"; "Shipping Time")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Shipping TimeEditable";
                     ToolTip = 'Specifies the shipping time for the order. This is the time it takes from when the order is shipped from the warehouse, to when the order is delivered to the customer''s address.';
                     Visible = false;
                 }
                 field("Whse. Outstanding Qty. (Base)"; "Whse. Outstanding Qty. (Base)")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the variant number of the items sold.';
                     Visible = false;
                 }
                 field("Outbound Whse. Handling Time"; "Outbound Whse. Handling Time")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the outbound warehouse handling time, which is used to calculate the planned shipment date.';
                     Visible = false;
                 }
                 field("FA Posting Date"; "FA Posting Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "FA Posting DateEditable";
                     ToolTip = 'Specifies the posting date for the fixed asset.';
                     Visible = false;
                 }
                 field("Appl.-from Item Entry"; "Appl.-from Item Entry")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Appl.-from Item EntryEditable";
                     ToolTip = 'Specifies the number of the item ledger entry that the sales credit memo line is applied from. This means that the inventory increase from this sales credit memo line is linked to the inventory decrease in the item ledger entry that you indicate in this field.';
                     Visible = false;
                 }
                 field("Appl.-to Item Entry"; "Appl.-to Item Entry")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Appl.-to Item EntryEditable";
                     ToolTip = 'Specifies the number of a particular item ledger entry that the line should be applied to. This means that the inventory decrease from this sales line will be taken from the inventory increase in the item ledger entry that you select in this field. This creates a link so that the cost of the applied-to item ledger entry is carried over to this line.';
                     Visible = false;
@@ -265,6 +300,7 @@ page 10027 "Sales Order Shipment Subform"
                     Image = Delivery;
                     action("Purchase &Order")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Purchase &Order';
                         Image = Document;
                         ToolTip = 'Purchase goods or services from a vendor.';
@@ -281,6 +317,7 @@ page 10027 "Sales Order Shipment Subform"
                     Image = SpecialOrder;
                     action(Action1902080804)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Purchase &Order';
                         Image = Document;
                         ToolTip = 'Purchase goods or services from a vendor.';
@@ -298,6 +335,7 @@ page 10027 "Sales Order Shipment Subform"
                 Image = Line;
                 action(Dimensions)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     ShortCutKey = 'Shift+Ctrl+D';
@@ -310,6 +348,7 @@ page 10027 "Sales Order Shipment Subform"
                 }
                 action("Item Charge &Assignment")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Charge &Assignment';
 					Enabled = Type = Type::"Charge (Item)";
                     ToolTip = 'Record additional direct costs, for example for freight. This action is available only for Charge (Item) line types.';
@@ -321,6 +360,7 @@ page 10027 "Sales Order Shipment Subform"
                 }
                 action("Item &Tracking Lines")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
 					Enabled = Type = Type::Item;

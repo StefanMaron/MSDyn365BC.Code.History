@@ -15,6 +15,8 @@ codeunit 141444 "ERM Purch. Prepmt. Include Tax"
         LibraryERM: Codeunit "Library - ERM";
         IncorrectAmountErr: Label 'Incorrect Amount for Document %1 Account %2';
         IncorrectInvRoundingErr: Label 'Incorrect invoice rounding precision';
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryInventory: Codeunit "Library - Inventory";
 
     [Test]
     [Scope('OnPrem')]
@@ -250,6 +252,80 @@ codeunit 141444 "ERM Purch. Prepmt. Include Tax"
         VerifyGLEntryAmount(PurchHeader."Last Posting No.", GenPostSetup."Purch. Prepayments Account", PrepmtAmount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PartialPostingForPrepmtIncludeTax()
+    var
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        TaxDetail: Record "Tax Detail";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        TaxPct: Integer;
+        PrepmtPct: Integer;
+        Quantity: Integer;
+        PrepmtAmount: Decimal;
+        Invoice1: Code[20];
+        Invoice2: Code[20];
+    begin
+        // [SCENARIO 359777] Post purchase order partially when Prepmt. Include Tax = true.
+
+        // [GIVEN] Tax Details for tax jurisdiction with 5 %.
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        TaxPct := LibraryRandom.RandIntInRange(5, 10);
+        CreateTaxAreaSetupWithValues(TaxDetail, TaxArea.Code, TaxGroup.Code, TaxPct);
+
+        // [GIVEN] Posted Purchase Order with "Prepmt. Include Tax" = TRUE and "Prepayment %" = 50.
+        // [GIVEN] Purchase Line with Quantity = 2, Amount = 1000, Tax Amount = 50
+        PrepmtPct := LibraryRandom.RandIntInRange(1, 5) * 10;
+        Vendor.Get(CreateVendorWithTaxArea(TaxArea.Code));
+        LibraryPurch.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Tax Area Code", TaxArea.Code);
+        PurchaseHeader.Validate("Prepayment %", PrepmtPct);
+        PurchaseHeader.Validate("Prepmt. Include Tax", true);
+        PurchaseHeader.Modify(true);
+        Quantity := LibraryRandom.RandIntInRange(1, 5);
+        LibraryPurch.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithTaxGroup(TaxGroup.Code), Quantity * 2);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 500));
+        PurchaseLine.Modify(true);
+        PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+
+        // [GIVEN] Prepayment Invoice is posted with amount of 525 = (1000 + 50) * 50 %
+        PostPurchPrepmtInvoice(PurchaseHeader);
+        PrepmtAmount := Round(PurchaseHeader."Amount Including VAT" * PrepmtPct / 100);
+
+        // [GIVEN] Purchase order is posted partially with 'Qty. to receive' = 1
+        PurchaseLine.Find;
+        PurchaseLine.Validate("Qty. to Receive", Quantity);
+        PurchaseLine.Modify(true);
+        Invoice1 := PostPurchOrder(PurchaseHeader);
+
+        // [WHEN] Post final invoice
+        Invoice2 := PostPurchOrder(PurchaseHeader);
+
+        // [THEN] First Purchase Invoice is posted with Amount = 237.5 (500 - 525/2 ) Amount Incl. Tax =262.5 (525 - 525/2)
+        // [THEN] G/L Entry for Account Payables has Amount = 262.5
+        // [THEN] G/L Entry for Purchase Prepayments Account has Amount = 237.5
+        VerifyPostedVendorEntriesWithPrepmt(
+          Invoice1, GetGLAccountFromTaxJurisdiction(TaxGroup.Code), PurchaseHeader.Amount / 2,
+          (PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount) / 2,
+          PurchaseHeader.Amount / 2 - PrepmtAmount / 2, PurchaseHeader."Amount Including VAT" / 2 - PrepmtAmount / 2,
+          VendorPostingGroup."Payables Account", GeneralPostingSetup."Purch. Prepayments Account", PrepmtAmount / 2);
+        // [THEN] Final invoice has same values after posting
+        VerifyPostedVendorEntriesWithPrepmt(
+          Invoice2, GetGLAccountFromTaxJurisdiction(TaxGroup.Code), PurchaseHeader.Amount / 2,
+          (PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount) / 2,
+          PurchaseHeader.Amount / 2 - PrepmtAmount / 2, PurchaseHeader."Amount Including VAT" / 2 - PrepmtAmount / 2,
+          VendorPostingGroup."Payables Account", GeneralPostingSetup."Purch. Prepayments Account", PrepmtAmount / 2);
+    end;
+
     local procedure PreparePOwithPostedPrepmtInv(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; NoOfLines: Integer)
     var
         i: Integer;
@@ -266,6 +342,17 @@ codeunit 141444 "ERM Purch. Prepmt. Include Tax"
         PurchHeader."Document Type" := PurchHeader."Document Type"::Order;
         CreatePurchDoc(PurchHeader, FindTaxAreaCode, PurchHeader."Currency Code", PurchHeader."Prepmt. Include Tax");
         PreparePurchLine(PurchLine, PurchHeader);
+    end;
+
+    local procedure CreateItemWithTaxGroup(TaxGroupCode: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Tax Group Code", TaxGroupCode);
+        Item.Validate("VAT Prod. Posting Group", '');
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; CurrencyCode: Code[10]; PrepmtInclTax: Boolean)
@@ -306,6 +393,34 @@ codeunit 141444 "ERM Purch. Prepmt. Include Tax"
         Vendor.Validate("Vendor Posting Group", LibraryPurch.FindVendorPostingGroup);
         Vendor.Modify(true);
         exit(Vendor."No.");
+    end;
+
+    local procedure CreateTaxAreaSetupWithValues(var TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxBelowMax: Decimal)
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxAreaLine: Record "Tax Area Line";
+    begin
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo);
+        TaxJurisdiction.Modify(true);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxBelowMax);
+        TaxDetail.Modify(true);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdiction.Code);
+    end;
+
+    local procedure GetGLAccountFromTaxJurisdiction(TaxGroupCode: Code[20]) GLAccFilter: Text
+    var
+        TaxDetail: Record "Tax Detail";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+    begin
+        TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
+        TaxDetail.FindSet;
+        repeat
+            TaxJurisdiction.Get(TaxDetail."Tax Jurisdiction Code");
+            GLAccFilter += TaxJurisdiction."Tax Account (Purchases)" + '|';
+        until TaxDetail.Next = 0;
+        GLAccFilter := CopyStr(GLAccFilter, 1, StrLen(GLAccFilter) - 1);
     end;
 
     local procedure PreparePurchLine(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
@@ -373,10 +488,10 @@ codeunit 141444 "ERM Purch. Prepmt. Include Tax"
         PurchPostPrepayments.Invoice(PurchHeader);
     end;
 
-    local procedure PostPurchOrder(var PurchHeader: Record "Purchase Header")
+    local procedure PostPurchOrder(var PurchHeader: Record "Purchase Header"): Code[20]
     begin
         PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
-        LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
+        exit(LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
     end;
 
     local procedure FindItem(): Code[20]
@@ -496,6 +611,53 @@ codeunit 141444 "ERM Purch. Prepmt. Include Tax"
             Assert.AreEqual(ExpectedAmount, Amount,
               StrSubstNo(IncorrectAmountErr, DocumentNo, GLAccNo));
         end;
+    end;
+
+    local procedure VerifyPostedVendorEntries(DocumentNo: Code[20]; GLAccountFilter: Text; ExpVATBase: Decimal; ExpVATAmount: Decimal; ExpSalesInvAmount: Decimal; ExpSalesInvRemAmount: Decimal)
+    begin
+        VerifyPostedVendorInvoice(DocumentNo, ExpSalesInvAmount, ExpSalesInvRemAmount, ExpSalesInvRemAmount);
+        VerifyVATEntries(DocumentNo, ExpVATBase, ExpVATAmount);
+        VerifyGLEntries(DocumentNo, GLAccountFilter, ExpVATAmount);
+    end;
+
+    local procedure VerifyPostedVendorEntriesWithPrepmt(DocumentNo: Code[20]; GLAccountFilter: Text; ExpVATBase: Decimal; ExpVATAmount: Decimal; ExpSalesInvAmount: Decimal; ExpSalesInvRemAmount: Decimal; ReceivablesAcc: Code[20]; PrepaymentAcc: Code[20]; PrepmtAmount: Decimal)
+    begin
+        VerifyPostedVendorEntries(
+          DocumentNo, GLAccountFilter, ExpVATBase, ExpVATAmount, ExpSalesInvAmount, ExpSalesInvRemAmount);
+        VerifyGLEntries(DocumentNo, ReceivablesAcc, -(ExpVATBase + ExpVATAmount - PrepmtAmount));
+        VerifyGLEntries(DocumentNo, PrepaymentAcc, -PrepmtAmount);
+    end;
+
+    local procedure VerifyPostedVendorInvoice(DocumentNo: Code[20]; ExpAmount: Decimal; ExpAmountInclVAT: Decimal; ExpRemAmount: Decimal)
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvHeader.CalcFields(Amount, "Amount Including VAT", "Remaining Amount");
+        PurchInvHeader.CalcFields(Amount);
+        PurchInvHeader.TestField(Amount, ExpAmount);
+        PurchInvHeader.TestField("Amount Including VAT", ExpAmountInclVAT);
+        PurchInvHeader.TestField("Remaining Amount", ExpRemAmount);
+    end;
+
+    local procedure VerifyVATEntries(DocumentNo: Code[20]; ExpBase: Decimal; ExpAmount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums(Base, Amount);
+        VATEntry.TestField(Base, ExpBase);
+        VATEntry.TestField(Amount, ExpAmount);
+    end;
+
+    local procedure VerifyGLEntries(DocumentNo: Code[20]; GLAccFilter: Text; ExpAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetFilter("G/L Account No.", GLAccFilter);
+        GLEntry.CalcSums(Amount);
+        GLEntry.TestField(Amount, ExpAmount);
     end;
 }
 

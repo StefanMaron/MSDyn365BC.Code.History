@@ -11,6 +11,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(Get1099DIV2018UpgradeTag);
         PerCompanyUpgradeTags.Add(GetCFDIPurposeRelationFieldsDocUpdateTag);
         PerCompanyUpgradeTags.Add(GetLastUpdateInvoiceEntryNoUpgradeTagUS);
+        PerCompanyUpgradeTags.Add(GetGenJnlLineEFTExportSequenceNoUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -42,6 +43,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     procedure GetDataExchDefinitionTypeTag(): Code[250]
     begin
         exit('MS-297272-DataExchDefinitionType-20191030');
+    end;
+
+    procedure GetGenJnlLineEFTExportSequenceNoUpgradeTag(): Code[250];
+    begin
+        exit('MS-360400-EFTUpdatePart2-20200615');
     end;
 }
 

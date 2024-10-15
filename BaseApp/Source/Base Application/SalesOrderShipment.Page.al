@@ -17,6 +17,7 @@ page 10026 "Sales Order Shipment"
                 Caption = 'General';
                 field("No."; "No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
 
@@ -28,6 +29,7 @@ page 10026 "Sales Order Shipment"
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the customer that you shipped the items to.';
 
@@ -38,76 +40,91 @@ page 10026 "Sales Order Shipment"
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the customer that you shipped the items to.';
                 }
                 field("Bill-to Customer No."; "Bill-to Customer No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the customer that the items are shipped to.';
                 }
                 field("Bill-to Name"; "Bill-to Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the customer that the items are shipped to.';
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                 }
                 field("Posting Date"; "Posting Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Posting DateEditable";
                     ToolTip = 'Specifies the date when the sales order was shipped.';
                 }
                 field("Order Date"; "Order Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Order DateEditable";
                     ToolTip = 'Specifies the date on which the related sales order was created.';
                 }
                 field("Document Date"; "Document Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Document DateEditable";
                     ToolTip = 'Specifies the date on which you created the sales document.';
                 }
                 field("Requested Delivery Date"; "Requested Delivery Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that your customer has requested to have the items delivered. The value in this field is used to calculate the shipment date, which is the date when the items must be available in inventory. If the customer does not request a date, leave the field blank, and the earliest possible date.';
                 }
                 field("Promised Delivery Date"; "Promised Delivery Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the delivery date that you promised the customer for the items on this line as a result of the Order Promising function.';
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Salesperson CodeEditable";
                     ToolTip = 'Specifies the salesperson that is assigned to the order.';
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the dimension value code that the sales line is associated with.';
                 }
                 field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the dimension value code that the sales line is associated with.';
                 }
                 field(Status; Status)
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the status of the document.';
                 }
                 field("On Hold"; "On Hold")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies if the document was put on hold when it was posted, for example because payment of the resulting customer ledger entries is overdue.';
                 }
             }
             part(SalesLines; "Sales Order Shipment Subform")
             {
+                ApplicationArea = Basic, Suite;
                 SubPageLink = "Document No." = FIELD("No.");
             }
             group(Shipping)
@@ -115,102 +132,123 @@ page 10026 "Sales Order Shipment"
                 Caption = 'Shipping';
                 field("Ship-to Code"; "Ship-to Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Ship-to CodeEditable";
                     ToolTip = 'Specifies the address that items were shipped to. This field is used when multiple the customer has multiple ship-to addresses.';
                 }
                 field("Ship-to Name"; "Ship-to Name")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Ship-to NameEditable";
                     ToolTip = 'Specifies the name of the customer at the address that the items were shipped to.';
                 }
                 field("Ship-to Address"; "Ship-to Address")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Ship-to AddressEditable";
                     ToolTip = 'Specifies the address that the items were shipped to.';
                 }
                 field("Ship-to Address 2"; "Ship-to Address 2")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Ship-to Address 2Editable";
                     ToolTip = 'Specifies an additional part of the address that the items were shipped to.';
                 }
                 field("Ship-to City"; "Ship-to City")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Ship-to CityEditable";
                     ToolTip = 'Specifies the city that the items were shipped to.';
                 }
                 field("Ship-to County"; "Ship-to County")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Ship-to State / ZIP Code';
                     Editable = "Ship-to CountyEditable";
                     ToolTip = 'Specifies the ship-state, ZIP code, ship-to province code, state code, postal code, or ZIP code as a part of the address.';
                 }
                 field("Ship-to Post Code"; "Ship-to Post Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Ship-to Post CodeEditable";
                     ToolTip = 'Specifies the post code at the address that the items were shipped to.';
                 }
                 field("Ship-to Contact"; "Ship-to Contact")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Ship-to ContactEditable";
                     ToolTip = 'Specifies the contact person at the address that the items were shipped to.';
                 }
                 field("Ship-to UPS Zone"; "Ship-to UPS Zone")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a UPS Zone code for this document, if UPS is used for shipments.';
                 }
                 field("Tax Area Code"; "Tax Area Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Tax Area CodeEditable";
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
                 field(FreightAmount; FreightAmount)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Freight Amount';
                     ToolTip = 'Specifies the freight amount for the shipment. When you create a sales order, you can specify freight charges as item charges on the sales order, or you can specify the freight charges in the Sales Order Shipment window.';
                 }
                 field("Location Code"; "Location Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Location CodeEditable";
                     ToolTip = 'Specifies the location from where inventory items are to be shipped by default, to the customer on the sales document.';
                 }
                 field("Outbound Whse. Handling Time"; "Outbound Whse. Handling Time")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the outbound warehouse handling time, which is used to calculate the planned shipment date.';
                 }
                 field("Shipment Method Code"; "Shipment Method Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Shipment Method CodeEditable";
                     ToolTip = 'Specifies how items on the sales document are shipped to the customer. By default, the field is filled with the value in the Shipment Method Code field on the customer card.';
                 }
                 field("Shipping Agent Code"; "Shipping Agent Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Shipping Agent CodeEditable";
                     ToolTip = 'Specifies which shipping company will be used when you ship items to the customer.';
                 }
                 field("Shipping Agent Service Code"; "Shipping Agent Service Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the shipping agent service to use for this customer.';
                 }
                 field("Shipping Time"; "Shipping Time")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the shipping time of the order. That is, the time it takes from when the order is shipped from the warehouse to when the order is delivered to the customer''s address.';
                 }
                 field("Late Order Shipping"; "Late Order Shipping")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the shipment of one or more lines has been delayed, or that the shipment date is before the work date.';
                 }
                 field("Package Tracking No."; "Package Tracking No.")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Package Tracking No.Editable";
                     ToolTip = 'Specifies the shipping agent''s package number.';
                 }
                 field("Shipment Date"; "Shipment Date")
                 {
+                    ApplicationArea = Basic, Suite;
                     Editable = "Shipment DateEditable";
                     ToolTip = 'Specifies the date when the items were shipped.';
                 }
                 field("Shipping Advice"; "Shipping Advice")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the customer accepts partial shipment of orders. If you select Partial, then the Qty. To Ship field can be lower than the Quantity field on sales lines.  ';
                 }
             }
@@ -219,24 +257,28 @@ page 10026 "Sales Order Shipment"
         {
             part(Control1903720907; "Sales Hist. Sell-to FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 Editable = false;
                 SubPageLink = "No." = FIELD("Sell-to Customer No.");
                 Visible = true;
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 Editable = false;
                 SubPageLink = "No." = FIELD("Bill-to Customer No.");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 Editable = false;
                 SubPageLink = "No." = FIELD("Sell-to Customer No.");
                 Visible = true;
             }
             part(Control1906127307; "Sales Line FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 Editable = false;
                 Provider = SalesLines;
                 SubPageLink = "Document Type" = FIELD("Document Type"),
@@ -246,6 +288,7 @@ page 10026 "Sales Order Shipment"
             }
             part(Control1901314507; "Item Invoicing FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 Editable = false;
                 Provider = SalesLines;
                 SubPageLink = "No." = FIELD("No.");
@@ -253,6 +296,7 @@ page 10026 "Sales Order Shipment"
             }
             part(Control1906354007; "Approval FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 Editable = false;
                 SubPageLink = "Table ID" = CONST(36),
                               "Document Type" = FIELD("Document Type"),
@@ -262,6 +306,7 @@ page 10026 "Sales Order Shipment"
             }
             part(Control1901796907; "Item Warehouse FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 Editable = false;
                 Provider = SalesLines;
                 SubPageLink = "No." = FIELD("No.");
@@ -269,6 +314,7 @@ page 10026 "Sales Order Shipment"
             }
             part(Control1907234507; "Sales Hist. Bill-to FactBox")
             {
+                ApplicationArea = Basic, Suite;
                 Editable = false;
                 SubPageLink = "No." = FIELD("Bill-to Customer No.");
                 Visible = false;
@@ -292,6 +338,7 @@ page 10026 "Sales Order Shipment"
                 Image = "Order";
                 action(Statistics)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
                     Promoted = true;
@@ -315,6 +362,7 @@ page 10026 "Sales Order Shipment"
                 }
                 action(Card)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Customer Card";
@@ -324,6 +372,7 @@ page 10026 "Sales Order Shipment"
                 }
                 action("Co&mments")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Sales Comment Sheet";
@@ -333,6 +382,7 @@ page 10026 "Sales Order Shipment"
                 }
                 action("S&hipments")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'S&hipments';
                     Image = Shipment;
                     RunObject = Page "Posted Sales Shipments";
@@ -342,6 +392,7 @@ page 10026 "Sales Order Shipment"
                 }
                 action(Invoices)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Invoices';
                     Image = Invoice;
                     RunObject = Page "Posted Sales Invoices";
@@ -351,6 +402,7 @@ page 10026 "Sales Order Shipment"
                 }
                 action(Dimensions)
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
@@ -363,6 +415,7 @@ page 10026 "Sales Order Shipment"
                 }
                 action("Order &Promising")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Order &Promising';
                     Image = OrderPromising;
                     ToolTip = 'View any order promising lines that are related to the shipment.';
@@ -382,6 +435,7 @@ page 10026 "Sales Order Shipment"
         {
             action("Sales Shipment per Package")
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Sales Shipment per Package';
                 Image = "Report";
                 Promoted = false;
@@ -399,6 +453,7 @@ page 10026 "Sales Order Shipment"
                 Image = "Action";
                 action("Re&open")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Re&open';
                     Image = ReOpen;
                     ToolTip = 'Reopen the document to change it after it has been approved. Approved documents have the Released status and must be opened before they can be changed.';
@@ -417,6 +472,7 @@ page 10026 "Sales Order Shipment"
                 Image = Post;
                 action("Test Report")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Test Report';
                     Ellipsis = true;
                     Image = TestReport;
@@ -430,6 +486,7 @@ page 10026 "Sales Order Shipment"
                 }
                 action("P&ost")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = Post;
@@ -462,6 +519,7 @@ page 10026 "Sales Order Shipment"
                 }
                 action("Post and &Print")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Ellipsis = true;
                     Image = PostPrint;

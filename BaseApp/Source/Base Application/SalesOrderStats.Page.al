@@ -1,4 +1,4 @@
-page 10038 "Sales Order Stats."
+﻿page 10038 "Sales Order Stats."
 {
     Caption = 'Sales Order Statistics';
     DeleteAllowed = false;
@@ -668,7 +668,7 @@ page 10038 "Sales Order Stats."
 
                     trigger OnValidate()
                     begin
-                        SalesPostPrepmt.UpdatePrepmtAmountOnSaleslines(Rec,PrepmtTotalAmount);
+                        SalesPostPrepmt.UpdatePrepmtAmountOnSaleslines(Rec, PrepmtTotalAmount);
                         FillPrepmtAmount;
                     end;
                 }
@@ -888,6 +888,9 @@ page 10038 "Sales Order Stats."
             Cust.CalcFields("Balance (LCY)")
         else
             Clear(Cust);
+
+        OnAfterGetRecordOnBeforeCalcCreditLimit(Rec, Cust, TotalAmount2);
+
         case true of
             Cust."Credit Limit (LCY)" = 0:
                 CreditLimitLCYExpendedPct := 0;
@@ -1287,6 +1290,11 @@ page 10038 "Sales Order Stats."
         Clear(TotalSalesLineLCY);
         Clear(BreakdownLabel);
         Clear(BreakdownAmt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnBeforeCalcCreditLimit(SalesHeader: Record "Sales Header"; var Customer: Record Customer; TotalAmount2: array[3] of Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

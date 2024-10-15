@@ -85,7 +85,7 @@ page 10810 "Generate EFT Files"
                                     EFTExport.SetRange("Line No.", "Line No.");
                                     EFTExport.SetRange("Sequence No.", "Sequence No.");
                                     if EFTExport.FindFirst then
-                                        EFTExport.Delete();
+                                        EFTExport.Delete(true);
                                 until Next = 0;
                             UpdateSubForm;
                         end else

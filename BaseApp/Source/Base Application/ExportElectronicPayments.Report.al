@@ -428,15 +428,6 @@ report 10083 "Export Electronic Payments"
 
             trigger OnPreDataItem()
             begin
-                // If we're in preview mode, the items haven't been exported yet - filter appropriately
-                if CurrReport.Preview then begin
-                    SetRange("Check Exported", false);
-                    SetRange("Check Printed", false);
-                end else begin
-                    SetRange("Check Exported", false);
-                    SetRange("Check Printed", false);
-                    SetRange("Check Transmitted", false);
-                end
             end;
         }
     }
@@ -524,6 +515,7 @@ report 10083 "Export Electronic Payments"
 
     trigger OnPreReport()
     var
+        GenJournalBatch: Record "Gen. Journal Batch";
         "Filter": Text;
     begin
         CompanyInformation.Get();
@@ -534,10 +526,15 @@ report 10083 "Export Electronic Payments"
         end;
         GenJournalTemplate.Get(Filter);
 
+        if not UseRequestPage() then
+            if "Gen. Journal Line".FindFirst() then
+                if GenJournalBatch.Get("Gen. Journal Line"."Journal Template Name", "Gen. Journal Line"."Journal Batch Name") then
+                    if GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account" then
+                        BankAccount."No." := GenJournalBatch."Bal. Account No.";
+
         with BankAccount do begin
             Get("No.");
             TestField(Blocked, false);
-            TestField("Currency Code", '');  // local currency only
             TestField("Export Format");
             TestField("Last Remittance Advice No.");
         end;

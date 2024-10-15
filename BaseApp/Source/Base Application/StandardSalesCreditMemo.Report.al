@@ -1,4 +1,4 @@
-report 1307 "Standard Sales - Credit Memo"
+﻿report 1307 "Standard Sales - Credit Memo"
 {
     RDLCLayout = './StandardSalesCreditMemo.rdlc';
     WordLayout = './StandardSalesCreditMemo.docx';
@@ -558,7 +558,8 @@ report 1307 "Standard Sales - Credit Memo"
                         VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                     VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                     VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                    VATAmountLine.InsertLine;
+                    VATAmountLine.InsertLine();
+                    OnBeforeCalculateSalesTax(Header, Line, VATAmountLine);
 
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";
@@ -568,6 +569,8 @@ report 1307 "Standard Sales - Credit Memo"
                     TotalAmountVAT += "Amount Including VAT" - Amount;
                     TotalAmountInclVAT += "Amount Including VAT";
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+
+                    OnAfterCalculateSalesTax(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
                     FormatDocument.SetSalesCrMemoLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
 
@@ -727,7 +730,8 @@ report 1307 "Standard Sales - Credit Memo"
             }
             dataitem(VATClauseLine; "VAT Amount Line")
             {
-                UseTemporary = true;
+                DataItemTableView = SORTING("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", Positive);
+				UseTemporary = true;
                 column(VATIdentifier_VATClauseLine; "VAT Identifier")
                 {
                 }
@@ -1273,6 +1277,16 @@ report 1307 "Standard Sales - Credit Memo"
         end;
         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
         SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmountLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSalesTax(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var TotalAmount: Decimal; var TotalAmountVAT: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesTax(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

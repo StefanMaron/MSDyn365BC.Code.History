@@ -1,5 +1,6 @@
 page 36626 "Sales Order Shipment List"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Sales Order Shipping';
     CardPageID = "Sales Order Shipment";
     DataCaptionFields = "Document Type";
@@ -40,6 +41,7 @@ page 36626 "Sales Order Shipment List"
                 }
                 field("Location Code"; "Location Code")
                 {
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the location from where inventory items are to be shipped by default, to the customer on the sales document.';
                     Visible = true;
                 }

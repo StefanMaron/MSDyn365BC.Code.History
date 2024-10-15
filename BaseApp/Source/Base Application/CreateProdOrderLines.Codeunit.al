@@ -1,4 +1,4 @@
-codeunit 99000787 "Create Prod. Order Lines"
+﻿codeunit 99000787 "Create Prod. Order Lines"
 {
     Permissions = TableData Item = r,
                   TableData "Sales Header" = r,
@@ -86,6 +86,7 @@ codeunit 99000787 "Create Prod. Order Lines"
             repeat
                 if FamilyLine."Item No." <> '' then begin
                     InitProdOrderLine(FamilyLine."Item No.", '', ProdOrder."Location Code");
+                    OnCopyFromFamilyOnAfterInitProdOrderLine(ProdOrder, FamilyLine, ProdOrderLine);
                     ProdOrderLine.Description := FamilyLine.Description;
                     ProdOrderLine."Description 2" := FamilyLine."Description 2";
                     ProdOrderLine.Validate("Unit of Measure Code", FamilyLine."Unit of Measure Code");
@@ -188,6 +189,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         case ProdOrder."Source Type" of
             ProdOrder."Source Type"::Item:
                 begin
+                    OnCreateProdOrderLineOnBeforeInitProdOrderLine(InsertNew);
                     InitProdOrderLine(ProdOrder."Source No.", VariantCode, ProdOrder."Location Code");
                     ProdOrderLine.Description := ProdOrder.Description;
                     ProdOrderLine."Description 2" := ProdOrder."Description 2";
@@ -411,7 +413,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         // this InsertNew is responsible for controlling if same POLine is added up or new POLine is created
         InsertNew := InsertNew and (ProdOrderComp."Planning Level Code" > 1);
 
-        OnCheckMakeOrderLineBeforeInsert(ProdOrderLine, ProdOrderComp);
+        OnCheckMakeOrderLineBeforeInsert(ProdOrderLine, ProdOrderComp, InsertNew);
         Inserted := InsertProdOrderLine;
         if MultiLevel then begin
             if Inserted then
@@ -638,6 +640,11 @@ codeunit 99000787 "Create Prod. Order Lines"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyFromFamilyOnAfterInitProdOrderLine(ProductionOrder: Record "Production Order"; FamilyLine: Record "Family Line"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyFromFamilyOnAfterInsertProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
@@ -678,7 +685,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckMakeOrderLineBeforeInsert(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnCheckMakeOrderLineBeforeInsert(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderComponent: Record "Prod. Order Component"; var InsertNew: Boolean)
     begin
     end;
 
@@ -694,6 +701,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsReplSystemProdOrder(SalesLine: Record "Sales Line"; var ReplanSystemProdOrder: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProdOrderLineOnBeforeInitProdOrderLine(var InsertNew: Boolean)
     begin
     end;
 }

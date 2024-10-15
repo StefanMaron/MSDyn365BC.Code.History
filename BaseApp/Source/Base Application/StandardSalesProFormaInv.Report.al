@@ -234,7 +234,8 @@ report 1302 "Standard Sales - Pro Forma Inv"
                     end else begin
                         LinePrice := Round(Amount / Quantity, Currency."Unit-Amount Rounding Precision");
                         LineAmount := Round(Amount * "Qty. to Invoice" / Quantity, Currency."Amount Rounding Precision");
-                        VATAmount := Round(("Amount Including VAT" - Amount) * "Qty. to Invoice" / Quantity, Currency."Amount Rounding Precision");
+                        VATAmount := Round(
+                            Amount * "VAT %" / 100 * "Qty. to Invoice" / Quantity, Currency."Amount Rounding Precision");
 
                         TotalAmount += LineAmount;
                         TotalWeight += Round("Qty. to Invoice" * "Net Weight");

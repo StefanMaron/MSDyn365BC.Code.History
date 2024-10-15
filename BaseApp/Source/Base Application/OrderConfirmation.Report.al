@@ -1,4 +1,4 @@
-report 205 "Order Confirmation"
+﻿report 205 "Order Confirmation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OrderConfirmation.rdlc';
@@ -919,6 +919,7 @@ report 205 "Order Confirmation"
                     SalesPost.GetSalesLines("Sales Header", SalesLine, 0);
                     SalesLine.CalcVATAmountLines(0, "Sales Header", SalesLine, VATAmountLine);
                     SalesLine.UpdateVATOnLines(0, "Sales Header", SalesLine, VATAmountLine);
+                    OnBeforeCalculateSalesTax("Sales Header", SalesLine, VATAmountLine);
                     VATAmount := VATAmountLine.GetTotalVATAmount;
                     VATBaseAmount := VATAmountLine.GetTotalVATBase;
                     VATDiscountAmount :=
@@ -941,6 +942,7 @@ report 205 "Order Confirmation"
                     PrepmtVATBaseAmount := PrepmtVATAmountLine.GetTotalVATBase;
                     PrepmtTotalAmountInclVAT := PrepmtVATAmountLine.GetTotalAmountInclVAT;
 
+                    OnAfterCalculateSalesTax("Sales Header", SalesLine, PrepmtSalesLine, VATBaseAmount, VATAmount, TotalAmountInclVAT);
                     if Number > 1 then begin
                         CopyText := FormatDocument.GetCOPYText;
                         OutputNo += 1;
@@ -1298,6 +1300,11 @@ report 205 "Order Confirmation"
         exit(PadStr('', 2, ' '));
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var PrepmtSalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal);
+    begin
+    end;
+    
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterInitReport()
     begin
@@ -1305,6 +1312,11 @@ report 205 "Order Confirmation"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterPostDataItem(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 }

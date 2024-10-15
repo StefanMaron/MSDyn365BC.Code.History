@@ -91,6 +91,8 @@ table 81 "Gen. Journal Line"
             IF ("Account Type" = CONST(Employee)) Employee;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Account No." <> xRec."Account No." then begin
                     ClearAppliedAutomatically;
@@ -130,6 +132,12 @@ table 81 "Gen. Journal Line"
                 Validate("VAT Prod. Posting Group");
                 UpdateLineBalance;
                 UpdateSource;
+
+                IsHandled := false;
+                OnAccountNoOnValidateOnBeforeCreateDim(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CreateDim(
                   DimMgt.TypeToTableID1("Account Type"), "Account No.",
                   DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
@@ -707,6 +715,7 @@ table 81 "Gen. Journal Line"
                                     CustLedgEntry.SetRange("Document Type", xRec."Applies-to Doc. Type");
                                 CustLedgEntry.SetRange("Customer No.", TempGenJnlLine."Account No.");
                                 CustLedgEntry.SetRange(Open, true);
+                                OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry);
                                 if CustLedgEntry.FindFirst then begin
                                     if CustLedgEntry."Amount to Apply" <> 0 then begin
                                         CustLedgEntry."Amount to Apply" := 0;
@@ -724,6 +733,7 @@ table 81 "Gen. Journal Line"
                                     VendLedgEntry.SetRange("Document Type", xRec."Applies-to Doc. Type");
                                 VendLedgEntry.SetRange("Vendor No.", TempGenJnlLine."Account No.");
                                 VendLedgEntry.SetRange(Open, true);
+                                OnAppliesToDocNoOnValidateOnAfterVendLedgEntrySetFilters(Rec, VendLedgEntry);
                                 if VendLedgEntry.FindFirst then begin
                                     if VendLedgEntry."Amount to Apply" <> 0 then begin
                                         VendLedgEntry."Amount to Apply" := 0;
@@ -2816,6 +2826,10 @@ table 81 "Gen. Journal Line"
             OptionCaption = ' ,Acquisition,Self Assessment,Rebate,New Housing Rebates,Pension Rebate';
             OptionMembers = " ",Acquisition,"Self Assessment",Rebate,"New Housing Rebates","Pension Rebate";
         }
+        field(10046; "EFT Export Sequence No."; Integer)
+        {
+            Caption = 'EFT Export Sequence No.';
+        }
         field(27040; "DIOT-Type of Operation"; Option)
         {
             Caption = 'DIOT Type of Operation';
@@ -4819,6 +4833,7 @@ table 81 "Gen. Journal Line"
         CustLedgEntry.SetRange("Customer No.", AccNo);
         CustLedgEntry.SetRange("Applies-to ID", AppliesToID);
         CustLedgEntry.SetRange(Open, true);
+        OnFindFirstCustLedgEntryWithAppliesToIDOnAfterSetFilters(Rec, CustLedgEntry);
         exit(CustLedgEntry.FindFirst)
     end;
 
@@ -4840,6 +4855,7 @@ table 81 "Gen. Journal Line"
         VendLedgEntry.SetRange("Vendor No.", AccNo);
         VendLedgEntry.SetRange("Applies-to ID", AppliesToID);
         VendLedgEntry.SetRange(Open, true);
+        OnFindFirstVendLedgEntryWithAppliesToIDOnAfterSetFilters(Rec, VendLedgEntry);
         exit(VendLedgEntry.FindFirst)
     end;
 
@@ -6475,6 +6491,11 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAccountNoOnValidateOnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplate: Record "Gen. Journal Template"; GenJournalBatch: Record "Gen. Journal Batch"; LastGenJournalLine: Record "Gen. Journal Line"; Balance: Decimal; BottomLine: Boolean)
     begin
     end;
@@ -6656,6 +6677,16 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempJobJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -6880,6 +6911,16 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFindFirstCustLedgEntryWithAppliesToIDOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindFirstVendLedgEntryWithAppliesToIDOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetFAVATSetupOnBeforeCheckGLAcc(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
     end;
@@ -7033,12 +7074,12 @@ table 81 "Gen. Journal Line"
         case "Applies-to Doc. Type" of
             "Applies-to Doc. Type"::Payment:
                 "Document Type" := "Document Type"::Invoice;
-        "Applies-to Doc. Type"::"Credit Memo":
+            "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
-        "Applies-to Doc. Type"::Invoice,
+            "Applies-to Doc. Type"::Invoice,
           "Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
-    end;
+        end;
     end;
 
     procedure UpdateAccountID()
@@ -7276,7 +7317,7 @@ table 81 "Gen. Journal Line"
     local procedure OnBeforeUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
-	
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDeferrals(GenJournalLine: Record "Gen. Journal Line"; var ReturnValue: Boolean; var IsHandled: Boolean);
     begin

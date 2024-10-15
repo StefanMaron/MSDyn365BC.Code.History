@@ -1,4 +1,4 @@
-report 1304 "Standard Sales - Quote"
+﻿report 1304 "Standard Sales - Quote"
 {
     RDLCLayout = './StandardSalesQuote.rdlc';
     WordLayout = './StandardSalesQuote.docx';
@@ -523,6 +523,8 @@ report 1304 "Standard Sales - Quote"
                     TotalAmountInclVAT += "Amount Including VAT";
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
 
+                    OnAfterCalculateSalesTax(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
+
                     FormatDocument.SetSalesLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
 
                     if FirstLineHasBeenOutput then
@@ -825,6 +827,7 @@ report 1304 "Standard Sales - Quote"
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
                 Line.CalcSalesTaxLines(Header, Line);
+                OnBeforeCalculateSalesTax(Header, Line, VATAmountLine);
 
                 if not IsReportInPreviewMode then
                     CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
@@ -1190,6 +1193,16 @@ report 1304 "Standard Sales - Quote"
             LanguageCode := Language.GetUserLanguageCode;
 
         CurrReport.Language := Language.GetLanguageIdOrDefault(LanguageCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
     end;
 }
 

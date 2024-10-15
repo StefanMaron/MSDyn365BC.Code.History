@@ -138,6 +138,22 @@ table 10307 "ACH Cecoban Detail"
             Caption = 'Data Exch. Line Def Code';
             NotBlank = true;
         }
+        field(100; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
+        }
+        field(101; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
+        field(102; "Document No."; Code[35])
+        {
+            Caption = 'Document No.';
+        }
+        field(103; "Applies-to Doc. No."; Code[20])
+        {
+            Caption = 'Applies-to Doc. No.';
+        }
     }
 
     keys

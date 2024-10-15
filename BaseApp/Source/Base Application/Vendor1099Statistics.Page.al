@@ -1,4 +1,4 @@
-page 10016 "Vendor 1099 Statistics"
+﻿page 10016 "Vendor 1099 Statistics"
 {
     Caption = 'Vendor 1099 Statistics';
     Editable = false;
@@ -201,6 +201,7 @@ page 10016 "Vendor 1099 Statistics"
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Vendor No.", Rec."No.");
             SetRange("Posting Date", PeriodDate[1], PeriodDate[2]);
+            OnCalculateVendor1099OnAfterSetFilters(PaymentEntry);
             if Find('-') then
                 repeat
                     ProcessInvoices;
@@ -299,6 +300,11 @@ page 10016 "Vendor 1099 Statistics"
         end;
         Clear(Codes[HiLineOnScreen]);
         Descriptions[HiLineOnScreen] := Text002;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateVendor1099OnAfterSetFilters(var PaymentEntry: Record "Vendor Ledger Entry")
+    begin
     end;
 }
 

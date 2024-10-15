@@ -1,4 +1,4 @@
-report 204 "Sales - Quote"
+﻿report 204 "Sales - Quote"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesQuote.rdlc';
@@ -649,11 +649,14 @@ report 204 "Sales - Quote"
                     SalesPost.GetSalesLines("Sales Header", SalesLine, 0);
                     SalesLine.CalcVATAmountLines(0, "Sales Header", SalesLine, VATAmountLine);
                     SalesLine.UpdateVATOnLines(0, "Sales Header", SalesLine, VATAmountLine);
+                    OnBeforeCalculateSalesTax("Sales Header", SalesLine, VATAmountLine);
                     VATAmount := VATAmountLine.GetTotalVATAmount;
                     VATBaseAmount := VATAmountLine.GetTotalVATBase;
                     VATDiscountAmount :=
                       VATAmountLine.GetTotalVATDiscount("Sales Header"."Currency Code", "Sales Header"."Prices Including VAT");
                     TotalAmountInclVAT := VATAmountLine.GetTotalAmountInclVAT;
+
+                    OnAfterCalculateSalesTax("Sales Header", SalesLine, VATBaseAmount, VATAmount, TotalAmountInclVAT);
 
                     if Number > 1 then begin
                         CopyText := FormatDocument.GetCOPYText;
@@ -978,6 +981,11 @@ report 204 "Sales - Quote"
         end;
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal);
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterInitReport()
     begin
@@ -985,6 +993,11 @@ report 204 "Sales - Quote"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterPostDataItem(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 }

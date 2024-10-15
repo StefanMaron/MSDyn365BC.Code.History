@@ -66,6 +66,14 @@ table 10811 "EFT Export Workset"
         {
             Caption = 'Account No.';
         }
+        field(15; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
+        }
+        field(16; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
         field(21; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';

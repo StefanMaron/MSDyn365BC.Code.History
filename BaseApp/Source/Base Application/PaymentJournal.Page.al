@@ -910,12 +910,10 @@
                             GenJournalBatch: Record "Gen. Journal Batch";
                             BulkVendorRemitReporting: Codeunit "Bulk Vendor Remit Reporting";
                             GenJnlLineRecordRef: RecordRef;
-                            Window: Dialog;
                             ExportNewLines: Boolean;
                         begin
                             CheckIfPrivacyBlocked;
 
-                            Window.Open(GeneratingPaymentsMsg);
                             GenJournalBatch.Get("Journal Template Name", CurrentJnlBatchName);
                             BankAccount.Get(GenJournalBatch."Bal. Account No.");
 
@@ -964,8 +962,6 @@
                                     BulkVendorRemitReporting.RunWithRecord(GenJnlLine)
                                 end;
                             end;
-
-                            Window.Close;
                         end;
                     }
                     action(VoidPayments)
@@ -1705,7 +1701,6 @@
     var
         Text000: Label 'Void Check %1?';
         Text001: Label 'Void all printed checks?';
-        GeneratingPaymentsMsg: Label 'Generating Payment file...';
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
