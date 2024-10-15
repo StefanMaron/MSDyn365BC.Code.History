@@ -1382,6 +1382,8 @@ codeunit 134099 "Purchase Documents"
             PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item.AsInteger(), '', QtyToAssign + 1);
         LibraryPurchase.CreatePurchaseLineWithoutVAT(
             PurchaseLineChargeItem, PurchaseHeaderOrder, PurchaseLineChargeItem.Type::"Charge (Item)".AsInteger(), '', QtyToAssign);
+        PurchaseLineChargeItem.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
+        PurchaseLineChargeItem.Modify(true);
         LibraryVariableStorage.Enqueue(QtyToAssign);
         PurchaseLineChargeItem.ShowItemChargeAssgnt();
         PurchaseLineChargeItem.Modify(true);
@@ -1402,6 +1404,8 @@ codeunit 134099 "Purchase Documents"
 
         LibraryPurchase.CreatePurchaseLineWithoutVAT(
             PurchaseLineChargeItem, PurchaseHeaderOrder, PurchaseLineChargeItem.Type::"Charge (Item)".AsInteger(), '', QtyToAssign);
+        PurchaseLineChargeItem.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
+        PurchaseLineChargeItem.Modify(true);
         LibraryPurchase.CreatePurchaseLineWithoutVAT(
           PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item.AsInteger(), '', QtyToAssign + 1);
 

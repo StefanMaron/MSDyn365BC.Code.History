@@ -13,6 +13,11 @@ codeunit 142067 "UT REPORTS GENERAL"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryJournals: Codeunit "Library - Journals";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         CountryFilterTxt: Label '%1: %2';
         LastUsedTxt: Label 'Last used options and filters';
         Assert: Codeunit Assert;
@@ -172,6 +177,88 @@ codeunit 142067 "UT REPORTS GENERAL"
         // [THEN] Report 10072 "Customer Statements" is run.
     end;
 
+    [Test]
+    [HandlerFunctions('TrialBalanceDetailSummaryPrintDetailRequestPageHandler')]
+    procedure RunTrialBalanceDetailSummaryReportGLEntriesWithDimensionsSortedByPostingDate()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Dimension1Value: array[2] of Record "Dimension Value";
+        Dimension2Value: array[2] of Record "Dimension Value";
+        GlobalDim1Code: Code[20];
+        GlobalDim2Code: Code[20];
+        GLAccountNo: Code[20];
+        PostedDocNo: array[4] of Code[20];
+    begin
+        // [FEATURE] [Trial Balance] [Dimensions]
+        //[SCENARIO 395883] Run "Trial Balance Detail/Summary" for G/L Account when G/L Entries' sorting order by Dimensions 1/2 is different from sorting order by Posting Date.
+        Initialize();
+        GeneralLedgerSetup.Get();
+        GlobalDim1Code := GeneralLedgerSetup."Global Dimension 1 Code";
+        GlobalDim2Code := GeneralLedgerSetup."Global Dimension 2 Code";
+
+        // [GIVEN] Two dimension values "A1" and "A2" of Global Dimension 1. Two dimension values "B1" and "B2" of Global Dimension 2.
+        LibraryDimension.CreateDimensionValueWithCode(Dimension1Value[1], LibraryUtility.GenerateGUID(), GlobalDim1Code);
+        LibraryDimension.CreateDimensionValueWithCode(Dimension1Value[2], LibraryUtility.GenerateGUID(), GlobalDim1Code);
+        LibraryDimension.CreateDimensionValueWithCode(Dimension2Value[1], LibraryUtility.GenerateGUID(), GlobalDim2Code);
+        LibraryDimension.CreateDimensionValueWithCode(Dimension2Value[2], LibraryUtility.GenerateGUID(), GlobalDim2Code);
+
+        // [GIVEN] Four G/L Entries "G1", "G2", "G3", "G4" with dimensions combinations "A1" "B1", "A1" "B2", "A2" "B1", "A2" "B2" and with Posting Dates 20.01, 15.01, 10.01, 05.01 accordingly.
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        PostedDocNo[1] := CreateAndPostGenJnlLineWithDimensions(GLAccountNo, Dimension1Value[1].Code, Dimension2Value[1].Code, WorkDate() + 20);
+        PostedDocNo[2] := CreateAndPostGenJnlLineWithDimensions(GLAccountNo, Dimension1Value[1].Code, Dimension2Value[2].Code, WorkDate() + 15);
+        PostedDocNo[3] := CreateAndPostGenJnlLineWithDimensions(GLAccountNo, Dimension1Value[2].Code, Dimension2Value[1].Code, WorkDate() + 10);
+        PostedDocNo[4] := CreateAndPostGenJnlLineWithDimensions(GLAccountNo, Dimension1Value[2].Code, Dimension2Value[2].Code, WorkDate() + 5);
+
+        // [WHEN] Run report "Trial Balance Detail/Summary".
+        LibraryVariableStorage.Enqueue(GLAccountNo);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(WorkDate() + 20);
+        Report.Run(Report::"Trial Balance Detail/Summary");
+
+        // [THEN] Lines for G/L Entries in the report results are sorted by Posting Date, i.e. in this order "G4", "G3", "G2", "G1".
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText(), '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('/DataSet/Result/G_L_Entry__Document_No__', PostedDocNo[4], 0);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('/DataSet/Result/G_L_Entry__Document_No__', PostedDocNo[3], 1);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('/DataSet/Result/G_L_Entry__Document_No__', PostedDocNo[2], 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('/DataSet/Result/G_L_Entry__Document_No__', PostedDocNo[1], 3);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('TrialBalanceDetailSummaryPrintDetailRequestPageHandler')]
+    procedure RunTrialBalanceDetailSummaryReportGLEntriesNoDimensionsSortedByPostingDate()
+    var
+        GLAccountNo: Code[20];
+        PostedDocNo: array[4] of Code[20];
+    begin
+        // [FEATURE] [Trial Balance]
+        //[SCENARIO 395883] Run "Trial Balance Detail/Summary" for G/L Account when G/L Entries' dimensions are not set and G/L Entries are created with descending Posting Date.
+        Initialize();
+
+        // [GIVEN] Four G/L Entries "G1", "G2", "G3", "G4" with empty Shortcut Dimension 1/2 codes and with Posting Dates 20.01, 15.01, 10.01, 05.01 accordingly.
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        PostedDocNo[1] := CreateAndPostGenJnlLineWithDimensions(GLAccountNo, '', '', WorkDate() + 20);
+        PostedDocNo[2] := CreateAndPostGenJnlLineWithDimensions(GLAccountNo, '', '', WorkDate() + 15);
+        PostedDocNo[3] := CreateAndPostGenJnlLineWithDimensions(GLAccountNo, '', '', WorkDate() + 10);
+        PostedDocNo[4] := CreateAndPostGenJnlLineWithDimensions(GLAccountNo, '', '', WorkDate() + 5);
+
+        // [WHEN] Run report "Trial Balance Detail/Summary".
+        LibraryVariableStorage.Enqueue(GLAccountNo);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(WorkDate() + 20);
+        Report.Run(Report::"Trial Balance Detail/Summary");
+
+        // [THEN] Lines for G/L Entries in the report results are sorted by Posting Date, i.e. in this order "G4", "G3", "G2", "G1".
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText(), '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('/DataSet/Result/G_L_Entry__Document_No__', PostedDocNo[4], 0);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('/DataSet/Result/G_L_Entry__Document_No__', PostedDocNo[3], 1);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('/DataSet/Result/G_L_Entry__Document_No__', PostedDocNo[2], 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('/DataSet/Result/G_L_Entry__Document_No__', PostedDocNo[1], 3);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -221,6 +308,25 @@ codeunit 142067 "UT REPORTS GENERAL"
         // Enqueue required for ReasonCodeListRequestPageHandler.
         LibraryVariableStorage.Enqueue(ReasonCode.Code);
         exit(ReasonCode.Code);
+    end;
+
+    local procedure CreateAndPostGenJnlLineWithDimensions(GLAccountNo: Code[20]; Dimension1ValueCode: Code[20]; Dimension2ValueCode: Code[20]; PostingDate: Date) PostedDocNo: Code[20]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        AccountType: Enum "Gen. Journal Account Type";
+    begin
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType::Invoice, AccountType::"G/L Account",
+            GLAccountNo, AccountType::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(100, 200, 2));
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Shortcut Dimension 1 Code", Dimension1ValueCode);
+        GenJournalLine.Validate("Shortcut Dimension 2 Code", Dimension2ValueCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure InsertReportSelections(ReportUsage: Option; Sequence: Code[10]; ReportID: Integer)
@@ -290,6 +396,25 @@ codeunit 142067 "UT REPORTS GENERAL"
     procedure CustomerStatementsCancelRequestPageHandler(var CustomerStatements: TestRequestPage "Customer Statements")
     begin
         CustomerStatements.Cancel.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure TrialBalanceDetailSummaryPrintDetailRequestPageHandler(var TrialBalanceDetailSummary: TestRequestPage "Trial Balance Detail/Summary")
+    var
+        FileName: Text;
+        GLAccountNo: Text;
+        FromDate: Date;
+        ToDate: Date;
+    begin
+        GLAccountNo := LibraryVariableStorage.DequeueText();
+        FromDate := LibraryVariableStorage.DequeueDate();
+        ToDate := LibraryVariableStorage.DequeueDate();
+        FileName := LibraryReportDataset.GetFileName();
+        LibraryVariableStorage.Enqueue(FileName);
+        TrialBalanceDetailSummary.PrintTransactionDetail.SetValue(true);
+        TrialBalanceDetailSummary."G/L Account".SetFilter("No.", GLAccountNo);
+        TrialBalanceDetailSummary."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', FromDate, ToDate));
+        TrialBalanceDetailSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
     end;
 }
 
