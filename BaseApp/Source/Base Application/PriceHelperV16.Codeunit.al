@@ -37,10 +37,15 @@ codeunit 7006 "Price Helper - V16"
             repeat
                 NewPriceListHeader := PriceListHeader;
                 NewPriceListHeader.Code := '';
-                if FilterParentSource then
-                    NewPriceListHeader."Parent Source No." := NewSourceNo
-                else
+                if FilterParentSource then begin
+                    NewPriceListHeader."Parent Source No." := NewSourceNo;
+                    NewPriceListHeader."Assign-to Parent No." := NewSourceNo;
+                    NewPriceListHeader."Filter Source No." := NewSourceNo;
+                end else begin
                     NewPriceListHeader."Source No." := NewSourceNo;
+                    NewPriceListHeader."Assign-to No." := NewSourceNo;
+                    NewPriceListHeader."Filter Source No." := NewSourceNo;
+                end;
                 NewPriceListHeader.Insert(true);
 
                 CopyPriceListLines(PriceListHeader.Code, NewPriceListHeader.Code, SourceType, OldSourceNo, NewSourceNo);
@@ -73,10 +78,13 @@ codeunit 7006 "Price Helper - V16"
                     if OldCode <> '' then
                         NewPriceListLine."Price List Code" := NewCode;
                     NewPriceListLine.SetNextLineNo();
-                    if FilterParentSource then
-                        NewPriceListLine."Parent Source No." := NewSourceNo
-                    else
+                    if FilterParentSource then begin
+                        NewPriceListLine."Parent Source No." := NewSourceNo;
+                        NewPriceListLine."Assign-to Parent No." := NewSourceNo;
+                    end else begin
                         NewPriceListLine."Source No." := NewSourceNo;
+                        NewPriceListLine."Assign-to No." := NewSourceNo;
+                    end;
                     NewPriceListLine.Insert(true);
                 end;
             until PriceListLine.Next() = 0;
@@ -142,8 +150,10 @@ codeunit 7006 "Price Helper - V16"
     begin
         PriceListLine.SetRange("Asset Type", AssetType);
         PriceListLine.SetRange("Asset No.", xAssetNo);
-        if not PriceListLine.IsEmpty() then
+        if not PriceListLine.IsEmpty() then begin
+            PriceListLine.ModifyAll("Product No.", AssetNo);
             PriceListLine.ModifyAll("Asset No.", AssetNo);
+        end;
 
         PriceWorksheetLine.SetRange("Asset Type", AssetType);
         PriceWorksheetLine.SetRange("Asset No.", xAssetNo);
@@ -160,14 +170,22 @@ codeunit 7006 "Price Helper - V16"
         PriceListLine.SetRange("Asset Type", AssetType::Item);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.SetRange("Variant Code", xVariantCode);
-        if not PriceListLine.IsEmpty() then
-            PriceListLine.ModifyAll("Variant Code", VariantCode);
+        if PriceListLine.FindSet(true) then
+            repeat
+                PriceListLine."Variant Code" := VariantCode;
+                PriceListLine."Variant Code Lookup" := VariantCode;
+                PriceListLine.Modify();
+            until PriceListLine.Next() = 0;
 
         PriceWorksheetLine.SetRange("Asset Type", AssetType::Item);
         PriceWorksheetLine.SetRange("Asset No.", ItemNo);
         PriceWorksheetLine.SetRange("Variant Code", xVariantCode);
-        if not PriceWorksheetLine.IsEmpty() then
-            PriceWorksheetLine.ModifyAll("Variant Code", VariantCode);
+        if PriceWorksheetLine.FindSet(true) then
+            repeat
+                PriceWorksheetLine."Variant Code" := VariantCode;
+                PriceWorksheetLine."Variant Code Lookup" := VariantCode;
+                PriceWorksheetLine.Modify();
+            until PriceWorksheetLine.Next() = 0;
     end;
 
     local procedure RenameSourceInPrices(SourceType: Enum "Price Source Type"; xSourceNo: Code[20]; SourceNo: Code[20])
@@ -178,12 +196,21 @@ codeunit 7006 "Price Helper - V16"
     begin
         PriceListHeader.SetRange("Source Type", SourceType);
         PriceListHeader.SetRange("Source No.", xSourceNo);
-        if not PriceListHeader.IsEmpty() then
-            PriceListHeader.ModifyAll("Source No.", SourceNo);
+        if PriceListHeader.FindSet(true) then
+            repeat
+                PriceListHeader."Source No." := SourceNo;
+                if PriceListHeader."Assign-to No." = xSourceNo then
+                    PriceListHeader."Assign-to No." := SourceNo;
+                if PriceListHeader."Filter Source No." = xSourceNo then
+                    PriceListHeader."Filter Source No." := SourceNo;
+                if PriceListHeader."Assign-to Parent No." = xSourceNo then
+                    PriceListHeader."Assign-to Parent No." := SourceNo;
+                PriceListHeader.Modify();
+            until PriceListHeader.Next() = 0;
 
         PriceListLine.SetRange("Source Type", SourceType);
         PriceListLine.SetRange("Source No.", xSourceNo);
-        if PriceListLine.FindSet() then
+        if PriceListLine.FindSet(true) then
             repeat
                 PriceListLine."Source No." := SourceNo;
                 PriceListLine."Assign-to No." := SourceNo;
@@ -205,7 +232,7 @@ codeunit 7006 "Price Helper - V16"
         PriceListHeader.SetRange("Source Type", SourceType);
         PriceListHeader.SetRange("Assign-to Parent No.", JobNo);
         PriceListHeader.SetRange("Source No.", xSourceNo);
-        if PriceListHeader.FindFirst() then
+        if PriceListHeader.FindSet(true) then
             repeat
                 PriceListHeader."Source No." := SourceNo;
                 PriceListHeader."Assign-to No." := SourceNo;
@@ -213,8 +240,9 @@ codeunit 7006 "Price Helper - V16"
             until PriceListHeader.Next() = 0;
 
         PriceListLine.SetRange("Source Type", SourceType);
+        PriceListLine.SetRange("Assign-to Parent No.", JobNo);
         PriceListLine.SetRange("Source No.", xSourceNo);
-        if PriceListLine.FindSet() then
+        if PriceListLine.FindSet(true) then
             repeat
                 PriceListLine."Source No." := SourceNo;
                 PriceListLine."Assign-to No." := SourceNo;
@@ -222,23 +250,32 @@ codeunit 7006 "Price Helper - V16"
             until PriceListLine.Next() = 0;
 
         PriceWorksheetLine.SetRange("Source Type", SourceType);
+        PriceWorksheetLine.SetRange("Assign-to Parent No.", JobNo);
         PriceWorksheetLine.SetRange("Source No.", xSourceNo);
         if not PriceWorksheetLine.IsEmpty() then
             PriceWorksheetLine.ModifyAll("Source No.", SourceNo);
     end;
 
-    local procedure RenameUnitOfMeasureInPrices(xUnitOfMeasureCode: Code[20]; UnitOfMeasureCode: Code[20])
+    local procedure RenameUnitOfMeasureInPrices(xUnitOfMeasureCode: Code[10]; UnitOfMeasureCode: Code[10])
     var
         PriceListLine: Record "Price List Line";
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         PriceListLine.SetRange("Unit of Measure Code", xUnitOfMeasureCode);
-        if not PriceListLine.IsEmpty() then
-            PriceListLine.ModifyAll("Unit of Measure Code", UnitOfMeasureCode);
+        if PriceListLine.FindSet(true) then
+            repeat
+                PriceListLine."Unit of Measure Code" := UnitOfMeasureCode;
+                PriceListLine."Unit of Measure Code Lookup" := UnitOfMeasureCode;
+                PriceListLine.Modify();
+            until PriceListLine.Next() = 0;
 
         PriceWorksheetLine.SetRange("Unit of Measure Code", xUnitOfMeasureCode);
-        if not PriceWorksheetLine.IsEmpty() then
-            PriceWorksheetLine.ModifyAll("Unit of Measure Code", UnitOfMeasureCode);
+        if PriceWorksheetLine.FindSet(true) then
+            repeat
+                PriceWorksheetLine."Unit of Measure Code" := UnitOfMeasureCode;
+                PriceWorksheetLine."Unit of Measure Code Lookup" := UnitOfMeasureCode;
+                PriceWorksheetLine.Modify();
+            until PriceWorksheetLine.Next() = 0;
     end;
 
     local procedure RenameParentSourceInPrices(SourceType: Enum "Price Source Type"; xSourceNo: Code[20]; SourceNo: Code[20])
@@ -249,13 +286,25 @@ codeunit 7006 "Price Helper - V16"
     begin
         PriceListHeader.SetRange("Source Type", SourceType);
         PriceListHeader.SetRange("Parent Source No.", xSourceNo);
-        if not PriceListHeader.IsEmpty() then
-            PriceListHeader.ModifyAll("Parent Source No.", SourceNo);
+        if PriceListHeader.FindSet(true) then
+            repeat
+                PriceListHeader."Parent Source No." := SourceNo;
+                if PriceListHeader."Filter Source No." = xSourceNo then
+                    PriceListHeader."Filter Source No." := SourceNo;
+                if PriceListHeader."Assign-to Parent No." = xSourceNo then
+                    PriceListHeader."Assign-to Parent No." := SourceNo;
+                PriceListHeader.Modify();
+            until PriceListHeader.Next() = 0;
 
         PriceListLine.SetRange("Source Type", SourceType);
         PriceListLine.SetRange("Parent Source No.", xSourceNo);
-        if not PriceListLine.IsEmpty() then
-            PriceListLine.ModifyAll("Parent Source No.", SourceNo);
+        if PriceListLine.FindSet(true) then
+            repeat
+                PriceListLine."Parent Source No." := SourceNo;
+                if PriceListLine."Assign-to Parent No." = xSourceNo then
+                    PriceListLine."Assign-to Parent No." := SourceNo;
+                PriceListLine.Modify();
+            until PriceListLine.Next() = 0;
 
         PriceWorksheetLine.SetRange("Source Type", SourceType);
         PriceWorksheetLine.SetRange("Parent Source No.", xSourceNo);
