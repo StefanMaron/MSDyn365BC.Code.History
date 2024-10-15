@@ -1,4 +1,4 @@
-table 7001 "Price List Line"
+﻿table 7001 "Price List Line"
 {
     fields
     {
@@ -122,7 +122,6 @@ table 7001 "Price List Line"
         {
             Caption = 'Product No.';
             DataClassification = CustomerContent;
-            NotBlank = true;
 
             trigger OnValidate()
             begin
@@ -721,6 +720,8 @@ table 7001 "Price List Line"
                     "Unit Cost" := PriceAsset."Unit Price 2";
                 end;
         end;
+
+        OnAfterCopyPriceFrom(Rec, PriceAsset);
     end;
 
     procedure SetNewRecord(NewRecord: Boolean)
@@ -967,6 +968,11 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromPriceSource(PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPriceFrom(var PriceListLine: Record "Price List Line"; PriceAsset: Record "Price Asset")
     begin
     end;
 

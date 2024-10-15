@@ -135,7 +135,7 @@ report 952 "Suggest Job Jnl. Lines"
                             JobJnlLine.Validate(Quantity, QtyToPost);
                             JobJnlLine.Validate(Chargeable, TempTimeSheetLine.Chargeable);
                             JobJnlLine."Reason Code" := JobJnlBatch."Reason Code";
-                            OnAfterTransferTimeSheetDetailToJobJnlLine(JobJnlLine, JobJnlTemplate, TempTimeSheetLine, TimeSheetDetail, JobJnlBatch);
+                            OnAfterTransferTimeSheetDetailToJobJnlLine(JobJnlLine, JobJnlTemplate, TempTimeSheetLine, TimeSheetDetail, JobJnlBatch, LineNo);
                             JobJnlLine.Insert();
                         end;
                     until TimeSheetDetail.Next() = 0;
@@ -213,7 +213,7 @@ report 952 "Suggest Job Jnl. Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferTimeSheetDetailToJobJnlLine(var JobJournalLine: Record "Job Journal Line"; JobJournalTemplate: Record "Job Journal Template"; var TempTimeSheetLine: Record "Time Sheet Line" temporary; TimeSheetDetail: Record "Time Sheet Detail"; JobJournalBatch: Record "Job Journal Batch")
+    local procedure OnAfterTransferTimeSheetDetailToJobJnlLine(var JobJournalLine: Record "Job Journal Line"; JobJournalTemplate: Record "Job Journal Template"; var TempTimeSheetLine: Record "Time Sheet Line" temporary; TimeSheetDetail: Record "Time Sheet Detail"; JobJournalBatch: Record "Job Journal Batch"; var LineNo: Integer)
     begin
     end;
 

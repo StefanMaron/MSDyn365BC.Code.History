@@ -162,7 +162,7 @@ codeunit 5360 "CDS Int. Table Couple"
                                             FieldType::Text:
                                                 if Format(MatchingLocalFieldRef.Value()) <> '' then begin
                                                     if not TempMatchingIntegrationFieldMapping."Case-Sensitive Matching" then
-                                                        MatchingIntegrationRecordFieldRef.SetFilter('''@' + Format(MatchingLocalFieldRef.Value()) + '''')
+                                                        MatchingIntegrationRecordFieldRef.SetFilter('''@' + Format(MatchingLocalFieldRef.Value()).Replace('''', '''''') + '''')
                                                     else
                                                         MatchingIntegrationRecordFieldRef.SetRange(MatchingLocalFieldRef.Value());
                                                     MatchingFieldCount += 1;

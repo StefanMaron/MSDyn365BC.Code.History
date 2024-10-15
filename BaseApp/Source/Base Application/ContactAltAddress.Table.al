@@ -92,7 +92,13 @@ table 5051 "Contact Alt. Address"
             trigger OnValidate()
             var
                 Contact: Text[90];
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePostPode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 PostCodeCheck.ValidatePostCode(
                   CurrFieldNo, DATABASE::"Contact Alt. Address", Rec.GetPosition, 0,
                   "Company Name", "Company Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
@@ -244,6 +250,11 @@ table 5051 "Contact Alt. Address"
     begin
         if "Search E-Mail" <> "E-Mail".ToUpper() then
             "Search E-Mail" := "E-Mail";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostPode(var ContactAltAddress: Record "Contact Alt. Address"; var IsHandled: Boolean)
+    begin
     end;
 }
 

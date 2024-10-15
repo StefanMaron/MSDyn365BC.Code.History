@@ -85,6 +85,12 @@ table 1222 "Data Exch. Def"
         {
             Caption = 'Custom Column Separator';
         }
+        field(20; "Line Separator"; Option)
+        {
+            Caption = 'Line Separator';
+            OptionMembers = "CRLF","CR","LF";
+            OptionCaption = 'CRLF,CR,LF';
+        }
     }
 
     keys

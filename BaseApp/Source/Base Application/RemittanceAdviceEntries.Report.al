@@ -233,8 +233,10 @@ report 400 "Remittance Advice - Entries"
                     DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
                     DtldVendLedgEntry.SetRange("Document Type", DtldVendLedgEntry."Document Type"::Payment);
                     DtldVendLedgEntry.SetRange("Document No.", "Vendor Ledger Entry"."Document No.");
-                    if not DtldVendLedgEntry.FindFirst then
+                    DtldVendLedgEntry.SetRange(Unapplied, false);
+                    if DtldVendLedgEntry.IsEmpty() then
                         CurrReport.Skip();
+                    DtldVendLedgEntry.CalcSums(Amount);
                     LineAmount := DtldVendLedgEntry.Amount;
                     LineDiscount := CurrExchRate.ExchangeAmtFCYToFCY("Posting Date", '', "Currency Code", "Pmt. Disc. Rcd.(LCY)");
 

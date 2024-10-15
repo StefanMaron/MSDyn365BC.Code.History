@@ -51,6 +51,7 @@ codeunit 137405 "SCM Item Tracking"
         QtyAndQtyOnWarehousePickMismatchErr: Label 'Quantity (%1) and Quantity to %3 (%2) does not match.';
         WrongNoOfTrackingSpecsErr: Label 'Wrong number of item tracking specifications';
         HandlingTypeStr: Option "Init Tracking","Double Quantities","Align Quantities","QtyToHandle < Qty";
+        ItemTrackingOption: Option AssignLotNo,SelectEntries;
         FieldNotFoundErr: Label 'The field with ID';
         FieldNotFoundCodeErr: Label 'TestFieldNotFound';
         BeforeExpirationDateShortErr: Label 'Expiration Date is before the posting date';
@@ -366,6 +367,355 @@ codeunit 137405 "SCM Item Tracking"
 
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
+        WarehouseSetup.Validate("Receipt Posting Policy", WHSetupReceiptPostingBackUp);
+        WarehouseSetup.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure E2EPurchaseAndSalesWHPicksWithPartialDecimalQtyToHandle()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        TempWhseActivLine: Record "Warehouse Activity Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Item: Record Item;
+        Location: Record Location;
+        BoxItemUnitOfMeasure: Record "Item Unit of Measure";
+        WarehouseSetup: Record "Warehouse Setup";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        ActionType: Enum "Warehouse Action Type";
+        WHSetupReceiptPostingBackUp: Option;
+        PurchaseQty: Integer;
+        SaleQty: integer;
+    begin
+         // [Bug 424108] When Pick is created for a partial decimal, we are not allowed to fill Qty. to Handle.
+        Initialize();
+
+        PurchaseQty := 23; //PCS
+        SaleQty := 2; //Box
+
+        // [GIVEN] Warehouse setup where posting errors are not supressed
+        WarehouseSetup.Get();
+        WHSetupReceiptPostingBackUp := WarehouseSetup."Receipt Posting Policy";
+        WarehouseSetup.Validate("Receipt Posting Policy", WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        WarehouseSetup.Modify();
+
+        // [GIVEN] Item with Lot Specific Tracking and Warehouse Tracking
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location 
+        LibraryWarehouse.CreateFullWMSLocation(Location, 10);
+
+        // [GIVEN] Second item unit of measure created for the item with Box of 12
+        LibraryInventory.CreateItemUnitOfMeasureCode(BoxItemUnitOfMeasure, Item."No.", 12);
+
+        // [GIVEN] Released Purchase Order with 2 Purchase Line, 23 Qty of PC
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", PurchaseQty);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Warehouse Receipt Lines creation is requested
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [THEN] Warehouse Receipt Lines are created
+        WarehouseReceiptLine.SetRange("Source Type", DATABASE::"Purchase Line");
+        WarehouseReceiptLine.SetRange("Source Subtype", PurchaseHeader."Document Type");
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        Assert.RecordCount(WarehouseReceiptLine, 1);
+        WarehouseReceiptLine.FindFirst();
+
+        // [WHEN] Warehouse Receipt is posted
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [THEN] No error is raised and 1 posted receipt line is created
+        PostedWhseReceiptLine.SetRange("Source Type", DATABASE::"Purchase Line");
+        PostedWhseReceiptLine.SetRange("Source Subtype", "Purchase Document Type"::Order);
+        PostedWhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        Assert.RecordCount(PostedWhseReceiptLine, 1);
+
+        // [THEN] Base quantity * 2 number of warehouse activity lines are created. * 2 to cover 1 take and 1 place
+        WarehouseActivityLine.SetRange("Source Type", Database::"Purchase Line");
+        WarehouseActivityLine.SetRange("Source Subtype", "Purchase Document Type"::Order);
+        WarehouseActivityLine.SetRange("Source No.", PurchaseHeader."No.");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        WarehouseActivityLine.FindFirst();
+
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Post Purchase Order
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Sales Order is created to exhaust the items that was putaway plus 1
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", SaleQty);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Unit of Measure Code", BoxItemUnitOfMeasure.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Sales document is released
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN]  Warehouse shipment lines are created
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [THEN] 1 Warehouse shipment line is created
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WarehouseShipmentLine.SetRange("Source Subtype", SalesLine."Document Type");
+        WarehouseShipmentLine.SetRange("Source No.", SalesLine."Document No.");
+        Assert.RecordCount(WarehouseShipmentLine, 1);
+
+        // [WHEN] Warehouse CreatePick is called
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [THEN] Warehouse activity lines are created
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Source Type", Database::"Sales Line");
+        WarehouseActivityLine.SetRange("Source Subtype", SalesLine."Document Type");
+        WarehouseActivityLine.SetRange("Source No.", SalesLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+
+        // [THEN] Warehouse activity lines created should have the correct Place and Take quantities
+        // [THEN] Set Qty to handle for Take and Place to max Quantity
+        for ActionType := "Warehouse Action Type"::Take to "Warehouse Action Type"::Place do begin
+            WarehouseActivityLine.SetRange("Action Type", ActionType);
+            WarehouseActivityLine.FindFirst();
+            if (ActionType = "Warehouse Action Type"::Take) then begin
+                WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity);
+            end;
+            if (ActionType = "Warehouse Action Type"::Place) then begin
+                WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity);
+            end;
+        end;
+
+        // [THEN] Then the warehouse activity lines are registered with no errors
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+        WarehouseSetup.Validate("Receipt Posting Policy", WHSetupReceiptPostingBackUp);
+        WarehouseSetup.Modify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandlerTrackingOption,ItemTrackingSummaryOkModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure E2ECreatePickOnItemWithUOMCaseOf6()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine1: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        TempWhseActivLine: Record "Warehouse Activity Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Item: Record Item;
+        Location: Record Location;
+        CASEItemUnitOfMeasure: Record "Item Unit of Measure";
+        WarehouseSetup: Record "Warehouse Setup";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        ActionType: Enum "Warehouse Action Type";
+        WHSetupReceiptPostingBackUp: Option;
+        PurchaseQty: Integer;
+        SaleQty: integer;
+        SplitQuantity: Integer;
+        BinCode: Code[20];
+    begin
+        // [Bug 424540] Escalated: Outbound pick Quantities are incorrect if pick is split with different UOM Codes
+        Initialize();
+
+        PurchaseQty := 728;
+        SaleQty := 1450;
+        SplitQuantity := 725;
+
+        // [GIVEN] Warehouse setup where posting errors are not supressed
+        WarehouseSetup.Get();
+        WHSetupReceiptPostingBackUp := WarehouseSetup."Receipt Posting Policy";
+        WarehouseSetup.Validate("Receipt Posting Policy", WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        WarehouseSetup.Modify();
+
+        // [GIVEN] Item with Lot Specific Tracking and Warehouse Tracking
+        Item.Get(CreateItemWithLotWarehouseTracking());
+
+        // [GIVEN] Location 
+        LibraryWarehouse.CreateFullWMSLocation(Location, 10);
+
+        // [GIVEN] Second item unit of measure created for the item with Case of 6
+        LibraryInventory.CreateItemUnitOfMeasureCode(CASEItemUnitOfMeasure, Item."No.", 6);
+
+        // [GIVEN] Set Sales Unit of Measure
+        Item.Validate("Sales Unit of Measure", Item."Base Unit of Measure");
+        Item.Validate("Purch. Unit of Measure", Item."Base Unit of Measure");
+        Item.Validate("Put-away Unit of Measure Code", CASEItemUnitOfMeasure.Code);
+        Item.Modify();
+
+        // [GIVEN] Released Purchase Order with 2 Purchase Line, 728 Qty of cases each
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine1, PurchaseHeader, PurchaseLine1.Type::Item, Item."No.", PurchaseQty);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine1.Type::Item, Item."No.", PurchaseQty);
+
+        PurchaseLine1.Validate("Location Code", Location.Code);
+        PurchaseLine1.Validate("Unit of Measure Code", CASEItemUnitOfMeasure.Code);
+        PurchaseLine1.Modify(true);
+
+        PurchaseLine2.Validate("Location Code", Location.Code);
+        PurchaseLine2.Validate("Unit of Measure Code", CASEItemUnitOfMeasure.Code);
+        PurchaseLine2.Modify(true);
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Warehouse Receipt Lines creation is requested
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [THEN] Warehouse Receipt Lines are created
+        WarehouseReceiptLine.SetRange("Source Type", DATABASE::"Purchase Line");
+        WarehouseReceiptLine.SetRange("Source Subtype", PurchaseHeader."Document Type");
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        Assert.RecordCount(WarehouseReceiptLine, 2);
+
+        if WarehouseReceiptLine.FindSet() then
+            REPEAT
+                WarehouseReceiptLine.Validate("Qty. to Receive", 725.5);
+                WarehouseReceiptLine.Modify(true);
+                LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
+                LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+                LibraryVariableStorage.Enqueue(4353);
+                WarehouseReceiptLine.OpenItemTrackingLines();
+            Until WarehouseReceiptLine.next = 0;
+
+        // [WHEN] Warehouse Receipt is posted
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [THEN] No error is raised and 1 posted receipt line is created
+        PostedWhseReceiptLine.SetRange("Source Type", DATABASE::"Purchase Line");
+        PostedWhseReceiptLine.SetRange("Source Subtype", "Purchase Document Type"::Order);
+        PostedWhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        Assert.RecordCount(PostedWhseReceiptLine, 2);
+
+        // [THEN] Base quantity * 2 number of warehouse activity lines are created. * 2 to cover 1 take and 1 place
+        WarehouseActivityLine.SetRange("Source Type", Database::"Purchase Line");
+        WarehouseActivityLine.SetRange("Source Subtype", "Purchase Document Type"::Order);
+        WarehouseActivityLine.SetRange("Source No.", PurchaseHeader."No.");
+        Assert.RecordCount(WarehouseActivityLine, 4);
+        WarehouseActivityLine.SetRange("Action Type", 2);
+
+        if WarehouseActivityLine.FindSet() then begin
+            REPEAT
+                if WarehouseActivityLine."Qty. to Handle" = 0.5 then begin
+                    WarehouseActivityLine."Bin Code" := BinCode;
+                    TempWhseActivLine := WarehouseActivityLine;
+                    TempWhseActivLine."Unit of Measure Code" := Item."Base Unit of Measure";
+                    TempWhseActivLine."Qty. per Unit of Measure" := 1;
+                    TempWhseActivLine.Validate(Quantity, TempWhseActivLine."Qty. (Base)");
+                    WarehouseActivityLine.ChangeUOMCode(WarehouseActivityLine, TempWhseActivLine);
+                    WarehouseActivityLine.Modify();
+                end else begin
+                    // [THEN]  Changing Place Qty. To Handle and Split Lines       
+                    BinCode := WarehouseActivityLine."Bin Code";
+                    WarehouseActivityLine.Validate("Qty. to Handle", SplitQuantity);
+                    WarehouseActivityLine.Modify();
+                    WarehouseActivityLine.SplitLine(WarehouseActivityLine);
+
+                end;
+            Until WarehouseActivityLine.next = 0;
+        end;
+
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Source Type", Database::"Purchase Line");
+        WarehouseActivityLine.SetRange("Source Subtype", "Purchase Document Type"::Order);
+        WarehouseActivityLine.SetRange("Source No.", PurchaseHeader."No.");
+        Assert.RecordCount(WarehouseActivityLine, 6);
+
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Post Purchase Order
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Sales Order is created to exhaust the items that was putaway
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", SaleQty);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Unit of Measure Code", CASEItemUnitOfMeasure.Code);
+        SalesLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(ItemTrackingOption::SelectEntries);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Sales document is released
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN]  Warehouse shipment lines are created
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [THEN] 1 Warehouse shipment line is created
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WarehouseShipmentLine.SetRange("Source Subtype", SalesLine."Document Type");
+        WarehouseShipmentLine.SetRange("Source No.", SalesLine."Document No.");
+        Assert.RecordCount(WarehouseShipmentLine, 1);
+
+        // [WHEN] Warehouse CreatePick is called
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [THEN] Warehouse activity lines are created
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Source Type", Database::"Sales Line");
+        WarehouseActivityLine.SetRange("Source Subtype", SalesLine."Document Type");
+        WarehouseActivityLine.SetRange("Source No.", SalesLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 6);
+
+        // [THEN] Warehouse activity lines created should have the correct Place and Take quantities
+        for ActionType := "Warehouse Action Type"::Take to "Warehouse Action Type"::Place do begin
+            WarehouseActivityLine.SetRange("Action Type", ActionType);
+            if (ActionType = "Warehouse Action Type"::Take) then begin
+                WarehouseActivityLine.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
+                WarehouseActivityLine.CalcSums(Quantity);
+                WarehouseActivityLine.TestField(Quantity, 3);
+
+                WarehouseActivityLine.SetRange("Unit of Measure Code", CASEItemUnitOfMeasure.Code);
+                WarehouseActivityLine.CalcSums(Quantity);
+                WarehouseActivityLine.TestField(Quantity, SaleQty - 0.5);
+            end;
+            if (ActionType = "Warehouse Action Type"::Place) then begin
+                WarehouseActivityLine.SetRange("Unit of Measure Code", CASEItemUnitOfMeasure.Code);
+                WarehouseActivityLine.CalcSums(Quantity);
+                WarehouseActivityLine.TestField(Quantity, SaleQty);
+            end;
+        end;
+
+        // [THEN] Then the warehouse activity lines are registered with no errors
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
         WarehouseSetup.Validate("Receipt Posting Policy", WHSetupReceiptPostingBackUp);
         WarehouseSetup.Modify();
     end;
@@ -5957,6 +6307,30 @@ codeunit 137405 "SCM Item Tracking"
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.FindFirst;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandlerTrackingOption(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case LibraryVariableStorage.DequeueInteger of
+            ItemTrackingOption::AssignLotNo:
+                begin
+                    ItemTrackingLines.New;
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                end;
+            ItemTrackingOption::SelectEntries:
+                ItemTrackingLines."Select Entries".Invoke;
+        end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryOkModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK.Invoke();
     end;
 
     [ModalPageHandler]

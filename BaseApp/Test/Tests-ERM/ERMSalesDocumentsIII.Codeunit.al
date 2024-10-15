@@ -28,6 +28,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        LibraryResource: Codeunit "Library - Resource";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         isInitialized: Boolean;
@@ -5526,6 +5527,64 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.AreEqual(WorkDescription, SalesShipmentHeader.GetWorkDescription(), '');
     end;
 
+    [Test]
+    [HandlerFunctions('SalespersonCommissionRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalespersonCommissionReportAdjustedProfitLCY()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Resource: Record Resource;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CustomerList: TestPage "Customer List";
+        CustomerStatistics: TestPage "Customer Statistics";
+        RequestPageXML: Text;
+        AdjustedProfitLCY: Decimal;
+    begin
+        // [SCENARIO 422598] Report "Salesperson - Commission" should correctly calculate Adjusted Profit 
+        Initialize;
+
+        // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandInt(100));
+        Item.Validate("Unit Price", Item."Unit Cost" + LibraryRandom.RandInt(10));
+        Item.Modify();
+
+        // [GIVEN] Create customer "CUST" with Salesperson = "SP"
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        Customer.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Customer.Modify();
+
+        // [GIVEN] Resource "R" with Unit Cost = 30, Unit Price = 100
+        LibraryResource.CreateResource(Resource, Customer."VAT Bus. Posting Group");
+
+        // [GIVEN] Create and post Sales Order for customer "CUST" with item "I" and Resource "RC"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Open statistics for customer "CUST" is being opened, Adjusted Profit (LCY) = 110 
+        CustomerList.OpenView;
+        CustomerList.FILTER.SetFilter("No.", SalesHeader."Sell-to Customer No.");
+        CustomerStatistics.Trap;
+        CustomerList.Statistics.Invoke;
+        AdjustedProfitLCY := CustomerStatistics.ThisPeriodAdjustedProfitLCY.AsDecimal;
+
+        Commit;
+        SalespersonPurchaser.SetFilter(Code, SalespersonPurchaser.Code);
+
+        // [WHEN] Run report "Salesperson - Commission"
+        RequestPageXML := Report.RunRequestPage(Report::"Salesperson - Commission", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Salesperson - Commission", SalespersonPurchaser, RequestPageXML);
+
+        // [THEN] "Adjusted Profit (LCY)" value = 110.
+        LibraryReportDataset.AssertElementWithValueExists('AdjProfit', AdjustedProfitLCY);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -6992,6 +7051,12 @@ codeunit 134387 "ERM Sales Documents III"
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.OK.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalespersonCommissionRequestPageHandler(var SalespersonCommission: TestRequestPage "Salesperson - Commission")
+    begin
     end;
 }
 

@@ -122,7 +122,6 @@ table 7022 "Price Worksheet Line"
         {
             Caption = 'Product No.';
             DataClassification = CustomerContent;
-            NotBlank = true;
 
             trigger OnValidate()
             begin
@@ -656,6 +655,7 @@ table 7022 "Price Worksheet Line"
         "Existing Unit Price" := PriceListLine."Unit Price";
         "Existing Direct Unit Cost" := PriceListLine."Direct Unit Cost";
         "Existing Unit Cost" := PriceListLine."Unit Cost";
+        OnAfterCopyExistingPrices(Rec, PriceListLine);
     end;
 
     procedure CopySourceFrom(PriceListHeader: Record "Price List Header")
@@ -959,6 +959,11 @@ table 7022 "Price Worksheet Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromPriceSource(PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyExistingPrices(var PriceWorksheetLine: Record "Price Worksheet Line"; PriceListLine: Record "Price List Line")
     begin
     end;
 

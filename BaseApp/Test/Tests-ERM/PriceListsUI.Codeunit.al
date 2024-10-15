@@ -2423,6 +2423,25 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T107_SalesPriceListPageKeepsChangedAmountType()
+    var
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] new Sales Price list for 'All Customers', where "Amount Type" is 'Price'
+        SalesPriceList.OpenNew();
+        SalesPriceList.SourceType.SetValue("Price Source Type"::"All Customers");
+        SalesPriceList.AmountType.SetValue("Price Amount Type"::Price);
+
+        // [WHEN] Change "Starting Date" to '010122'
+        SalesPriceList.StartingDate.SetValue(WorkDate() + 1);
+
+        // [THEN] "Amount Type" is 'Price'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
+    end;
+
+    [Test]
     procedure T120_JobCardPriceListsActionVisibleIfFeatureOn()
     var
         JobCard: TestPage "Job Card";
@@ -2895,6 +2914,25 @@ codeunit 134117 "Price Lists UI"
         // [THEN] SourceType is 'All Jobs' 
         Assert.IsFalse(PurchasePriceList.SourceType.Visible(), 'SourceType.Visible');
         PurchasePriceList.JobSourceType.AssertEquals("Price Source Type"::"All Jobs");
+    end;
+
+    [Test]
+    procedure T157_PurchPriceListPageKeepsChangedAmountType()
+    var
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] new Sales Price list for 'All Vendors', where "Amount Type" is 'Discount'
+        PurchasePriceList.OpenNew();
+        PurchasePriceList.SourceType.SetValue("Price Source Type"::"All Vendors");
+        PurchasePriceList.AmountType.SetValue("Price Amount Type"::Discount);
+
+        // [WHEN] Change "Starting Date" to '010122'
+        PurchasePriceList.StartingDate.SetValue(WorkDate() + 1);
+
+        // [THEN] "Amount Type" is 'Discount'
+        PurchasePriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
     end;
 
     [Test]

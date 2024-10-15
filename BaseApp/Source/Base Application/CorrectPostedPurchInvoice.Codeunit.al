@@ -21,6 +21,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if RedoApplications then
             ItemJnlPostLine.RedoApplications;
         UpdatePurchaseOrderLinesFromCancelledInvoice("No.");
+        OnRunOnAfterUpdatePurchaseOrderLinesFromCancelledInvoice(Rec, PurchaseHeader);
         Commit();
     end;
 
@@ -112,6 +113,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     var
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
+        OnBeforeCreateCopyDocument(PurchInvHeader, PurchaseHeader, DocumentType, SkipCopyFromDescription);
         Clear(PurchaseHeader);
         PurchaseHeader."Document Type" := DocumentType;
         PurchaseHeader."No." := '';
@@ -805,6 +807,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; SkipCopyFromDescription: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestIfInvoiceIsPaid(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
@@ -831,6 +838,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnHasLineDiscountSetup(PurchasesPayablesSetup: Record "Purchases & Payables Setup"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterUpdatePurchaseOrderLinesFromCancelledInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
