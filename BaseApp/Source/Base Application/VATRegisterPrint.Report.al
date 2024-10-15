@@ -409,7 +409,7 @@ report 12120 "VAT Register - Print"
                         end;
 
                         VATIdentifier.Get("VAT Identifier");
-                        DescrVATIdentifier := VATIdentifier.Description;
+                        DescrVATIdentifier := VATIdentifier.Code;
 
                         if (PrintingType = PrintingType::Final) and
                            not Preview
@@ -733,7 +733,7 @@ report 12120 "VAT Register - Print"
                         end;
 
                         VATIdentifier.Get("VAT Identifier");
-                        DescrVATIdentifier := VATIdentifier.Description;
+                        DescrVATIdentifier := VATIdentifier.Code;
 
                         if (PrintingType = PrintingType::Final) and
                            not Preview

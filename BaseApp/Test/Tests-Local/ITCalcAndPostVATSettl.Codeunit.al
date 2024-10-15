@@ -337,6 +337,60 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
           0, CalcDeductVATAmount(PurchAmount, VATPostingSetup."Deductible %", VATPostingSetup."VAT %"));
     end;
 
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CheckCorrectInputOfAdvancedAmount()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+        PurchAmount: Decimal;
+        AdvancedAmount: Decimal;
+        PostingDate: Date;
+        VATPeriod: Code[10];
+    begin
+        // [FEATURE] [Report] [VAT Settlement]
+        // [SCENARIO 348067] Run "Calc And Post VAT Settlement" with Advanced Amount
+        Initialize;
+
+        // [GIVEN] Created Posting Date and VAT Posting Setup
+        PostingDate := GetPostingDate();
+        PeriodicSettlementVATEntry.Modifyall("VAT Period Closed", true);
+        SetupVATPeriod(PostingDate, VATPeriod);
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Created and posted purchase incoice
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchAmount := LibraryRandom.RandIntInRange(1000, 10000);
+        CreateAndPostPurchInvoice(
+          LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
+          PostingDate, CreateGLAccountWithPostingGroups(VATPostingSetup), PurchAmount, '');
+
+        // [GIVEN] Set Advanced Amount in last period in Periodic Settlement VAT Entry
+        AdvancedAmount := LibraryRandom.RandDec(5000, 2);
+        PeriodicSettlementVATEntry.Get(VATPeriod);
+        PeriodicSettlementVATEntry.Validate("Advanced Amount", AdvancedAmount);
+        PeriodicSettlementVATEntry.Modify();
+        Commit();
+
+        // [WHEN] Run the report "Calc. and Post VAT Settlement"
+        LibraryVariableStorage.Enqueue(PostingDate);
+        VATPostingSetup.SetRecFilter;
+        REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false, VATPostingSetup);
+
+        // [THEN] Verify the "PeriodInputVATYearInputVAT" suggest Advanced Amount
+        // [THEN] Verify the "DebitNextPeriod" do not suggest Advanced Amount
+        // [THEN] Verify the "CreditNextPeriod" suggest Advanced Amount
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('PeriodInputVATYearInputVAT', AdvancedAmount);
+        LibraryReportDataset.AssertElementWithValueExists('DebitNextPeriod', 0);
+        LibraryReportDataset.AssertElementWithValueExists(
+            'CreditNextPeriod', CalcDeductVATAmount(PurchAmount, VATPostingSetup."Deductible %", VATPostingSetup."VAT %") + AdvancedAmount);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -571,6 +625,23 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
             LibraryReportValidation.FindColumnNoFromColumnCaption('Next Period Input VAT') + 9);
         Assert.IsTrue(InputVATFound, '');
         Assert.AreEqual(Format(DebitNextPeriodAmount), InputVAT, '');
+    end;
+
+    local procedure SetupVATPeriod(PostingDate: Date; var VATPeriod: Code[10])
+    var
+        PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+    begin
+        VatPeriod :=
+            Format(Date2DMY(CalcDate('<1M>', PostingDate), 3)) + '/' +
+            ConvertStr(Format(Date2DMY(CalcDate('<1M>', PostingDate), 2), 2), ' ', '0');
+        PeriodicSettlementVATEntry.Get(VatPeriod);
+        PeriodicSettlementVATEntry.Delete();
+        VatPeriod :=
+            Format(Date2DMY(PostingDate, 3)) + '/' +
+            ConvertStr(Format(Date2DMY(PostingDate, 2), 2), ' ', '0');
+        PeriodicSettlementVATEntry.Get(VatPeriod);
+        PeriodicSettlementVATEntry.Validate("VAT Period Closed", false);
+        PeriodicSettlementVATEntry.Modify(TRUE);
     end;
 
     [RequestPageHandler]

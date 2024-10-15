@@ -1229,6 +1229,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM  Miscellaneous - NamedType WrongResultErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1627676660 - NamedType 259881145" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you create an invoice based on order %1 with an existing posting number, it will cause a gap in the number series. \\Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Document number]D;]A;(LookupHint=Codeunit ERM  Miscellaneous - NamedType PostingNoExistsQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 731320485 - NamedType 3778098615" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A]]></Val>

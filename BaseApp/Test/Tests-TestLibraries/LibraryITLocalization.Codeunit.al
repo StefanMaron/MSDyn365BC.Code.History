@@ -417,6 +417,7 @@ codeunit 143000 "Library - IT Localization"
     begin
         DocumentSendingProfile.DeleteAll;
         DocumentSendingProfile.Init;
+        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
         DocumentSendingProfile.Validate(Disk,DocumentSendingProfile.Disk::"Electronic Document");
         DocumentSendingProfile.Validate("Disk Format",FatturaPA_ElectronicFormatTxt);
         DocumentSendingProfile.Validate(Default,true);

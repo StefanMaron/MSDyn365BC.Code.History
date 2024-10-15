@@ -272,6 +272,7 @@ table 38 "Purchase Header"
                     Vendor.Get("Pay-to Vendor No.");
 
                 if Vendor.LookupVendor(Vendor) then begin
+                    xRec := Rec;
                     "Pay-to Name" := Vendor.Name;
                     Validate("Pay-to Vendor No.", Vendor."No.");
                 end;
@@ -1116,6 +1117,7 @@ table 38 "Purchase Header"
                     Vendor.Get("Buy-from Vendor No.");
 
                 if Vendor.LookupVendor(Vendor) then begin
+                    xRec := Rec;
                     "Buy-from Vendor Name" := Vendor.Name;
                     Validate("Buy-from Vendor No.", Vendor."No.");
                 end;

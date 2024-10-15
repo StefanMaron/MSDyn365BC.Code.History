@@ -102,6 +102,7 @@ codeunit 144090 "ERM Withhold"
         WHTAmtZeroTestFieldErr: Label '%1 must have a value in %2', Comment = '%1=FIELDCAPTION("Withholding Tax Amount"),%2=TABLECAPTION("Purch. Withh. Contribution")';
         TestFieldErr: Label 'TestField';
         DialogErr: Label 'Dialog';
+        LibraryApplicationArea: Codeunit "Library - Application Area";
 
     [Test]
     [HandlerFunctions('ContributionCodesINPSModalPageHandler')]
@@ -1259,6 +1260,30 @@ codeunit 144090 "ERM Withhold"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ReasonCodeHasSameOptionStringInVendorBillWithholdingTaxAndTmpWithholdingContributionTables()
+    var
+        VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax";
+        TmpWithholdingContribution: Record "Tmp Withholding Contribution";
+        VendorBillWithholdingTaxRecRef: RecordRef;
+        TempWithholdingContributionRecRef: RecordRef;
+        VendorBilWithholdingTaxFieldRef: FieldRef;
+        TempWithholdingContributionFieldRef: FieldRef;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 327634] Field "Reason" has same option string in "Vendor Bill Withholding Tax" and "Tmp Withholding Contribution" tables
+
+        Initialize;
+        VendorBillWithholdingTaxRecRef.GetTable(VendorBillWithholdingTax);
+        VendorBilWithholdingTaxFieldRef := VendorBillWithholdingTaxRecRef.Field(VendorBillWithholdingTax.FieldNo(Reason));
+        TempWithholdingContributionRecRef.GetTable(TmpWithholdingContribution);
+        TempWithholdingContributionFieldRef := TempWithholdingContributionRecRef.Field(TmpWithholdingContribution.FieldNo(Reason));
+
+        Assert.AreEqual(
+          VendorBilWithholdingTaxFieldRef.OptionString(), TempWithholdingContributionFieldRef.OptionString(), 'Option string are different');
+    end;
+
+    [Test]
+    [Scope('Internal')]
     procedure WithholdingTaxHasReasonCodeK()
     var
         WithholdingTax: Record "Withholding Tax";
@@ -1511,9 +1536,111 @@ codeunit 144090 "ERM Withhold"
         VerifyVendorBillLineAmtToPayAndSocSecAmt(PurchWithhContribution, VendorBillHeader."No.", PurchaseHeader."Amount Including VAT");
     end;
 
+    [Test]
+    [Scope('Internal')]
+    procedure VendorBillWithholdingTaxPageHasFieldReason()
+    var
+        VendorBillWithhTax: TestPage "Vendor Bill Withh. Tax";
+    begin
+        // [SCENARIO 327634] A "Vendor Bill Withh. Tax" page has the "Reason" field
+
+        Initialize();
+        LibraryApplicationArea.EnableBasicSetup();
+        VendorBillWithhTax.OpenView();
+        Assert.IsTrue(VendorBillWithhTax.Reason.Visible(), 'A reason field is not visible');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxPaymentJnlWithAppliesToInvoiceZeroWHT()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PostedDocumentNo: Code[20];
+        WithholdCode: Code[20];
+        ContributionCode: Code[20];
+    begin
+        // [SCENARIO 347071] Withholding tax line appears with amount 0 for payment journal if amount of WHT on Invoice was 0
+        Initialize;
+
+        // [GIVEN] SocSec and WHT setup for 0% WHT
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+        WithholdCode := CreateWithholdCodeWithLineAndRates(100, 0);
+
+        // [GIVEN] Purchase invoce was posted
+        CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(PurchaseHeader, WithholdCode, ContributionCode, '');
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Payment Journal line with applies to Posted Invoice.
+        CreateAndApplyGeneralJnlLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, PostedDocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+
+        // [WHEN] Open SocSec Calculate and pressing OK
+        ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
+        // Invoke Handler - GenJnlLineTemplateListPageHandler.
+
+        // [THEN] General Journal Line for Withholding Tax with amount 0 exists.
+        VerifyGenJournalLineWithoutWHTAmount(GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('Internal')]
+    procedure VendorBillLineAmtToPayWhenSocSecAndManualWHTAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchWithhContribution: Record "Purch. Withh. Contribution";
+        VendorBillHeader: Record "Vendor Bill Header";
+        WithholdCode: Code[20];
+        ContributionCode: Code[20];
+    begin
+        // [FEATURE] [Suggest Vendor Bills] [Purch. Withh. Contribution]
+        // [SCENARIO 345618] Suggested Vendor Bill Line has proper Amounts in case Withholding Tax Amount was changed in Purch. Withh Contribution manually
+        Initialize();
+
+        // [GIVEN] Withholding Tax and Social Security were set up as follows:
+        // [GIVEN] Contribution Bracket with Taxable Base = 80 %
+        // [GIVEN] Contribution Code with Social Security 16 % and Free-Lance Amount 40 %
+        // [GIVEN] Withhold Code with Taxable Base 50 % and Withholding Tax 23 %
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+
+        // [GIVEN] Vendor Bill Header with Payment Method Code
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill());
+
+        // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
+        CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
+          PurchaseHeader, WithholdCode, ContributionCode, VendorBillHeader."Payment Method Code");
+
+        // [GIVEN] Purch. Withh Contribution had Withholding Tax Amount = 10000.0 * 50 % * 23 % = 1150.0
+        // [GIVEN] Purch. Withh Contribution had Total Social Security Amount = 10000.0 * 80 % * 16 % = 1280.0
+        // [GIVEN] Purch. Withh Contribution had Free-Lance Amount = 10000.0 * 80 % * 16 % * 40 % = 512.0
+        // [GIVEN] Purch. Withh Contribution had Withholding Tax Amount (Manual) = 1149 (decreased by 1 from calculated WHT Amount)
+        PurchWithhContribution.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        // [GIVEN] Modified Soc. Sec. Non Taxable Amount = 6000.0 in Purch. Withh Contribution (Free-Lance Amount was changed to 256.0 and Total Social Security Amount was changed to 640.0)
+        PurchWithhContribution.Validate("Soc.Sec.Non Taxable Amount", PurchWithhContribution."Contribution Base");
+        PurchWithhContribution.TestField("Withholding Tax Amount");
+        PurchWithhContribution.Validate("WHT Amount Manual", Round(PurchWithhContribution."Withholding Tax Amount" * 0.99));
+        Assert.AreNotEqual(PurchWithhContribution."WHT Amount Manual", PurchWithhContribution."Withholding Tax Amount", '');
+        PurchWithhContribution.Modify(true);
+
+        // [GIVEN] Purchase Invoice was posted
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Run report "Suggest Vendor Bills"
+        RunSuggestVendorBillsForVendorNo(VendorBillHeader, PurchaseHeader."Buy-from Vendor No.");
+
+        // [THEN] Vendor Bill Line is created with Amount to Pay = 11000.0 - 1149.0 - 256.0 = 9595.0
+        // [THEN] Social Security Amount = (10000.0 - 6000.0) * 16 % = 640.0 in Vendor Bill Line
+        VerifyVendorBillLineAmtToPayAndSocSecAmtWhtManual(
+          PurchWithhContribution, VendorBillHeader."No.", PurchaseHeader."Amount Including VAT");
+    end;
+
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure SetupWithhAndSocSec(var ContributionCode: Code[20]; var WithholdCode: Code[20])
@@ -2082,11 +2209,25 @@ codeunit 144090 "ERM Withhold"
         VendorBillLine: Record "Vendor Bill Line";
     begin
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeaderNo);
-        VendorBillLine.FindFirst;
+        VendorBillLine.FindFirst();
         VendorBillLine.TestField(
           "Amount to Pay",
           TotalAmtInclVAT - PurchWithhContribution."Withholding Tax Amount" - PurchWithhContribution."Free-Lance Amount");
         VendorBillLine.TestField("Social Security Amount", PurchWithhContribution."Total Social Security Amount");
+        VendorBillLine.TestField("Withholding Tax Amount", PurchWithhContribution."Withholding Tax Amount");
+    end;
+
+    local procedure VerifyVendorBillLineAmtToPayAndSocSecAmtWhtManual(PurchWithhContribution: Record "Purch. Withh. Contribution"; VendorBillHeaderNo: Code[20]; TotalAmtInclVAT: Decimal)
+    var
+        VendorBillLine: Record "Vendor Bill Line";
+    begin
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeaderNo);
+        VendorBillLine.FindFirst();
+        VendorBillLine.TestField(
+          "Amount to Pay",
+          TotalAmtInclVAT - PurchWithhContribution."WHT Amount Manual" - PurchWithhContribution."Free-Lance Amount");
+        VendorBillLine.TestField("Social Security Amount", PurchWithhContribution."Total Social Security Amount");
+        VendorBillLine.TestField("Withholding Tax Amount", PurchWithhContribution."WHT Amount Manual")
     end;
 
     local procedure VerifyContributions(SocialSecurityCode: Code[20]; INAILCode: Code[20]; SocialSecurityPct: Decimal; INAILFreeLancePct: Decimal)
@@ -2095,7 +2236,7 @@ codeunit 144090 "ERM Withhold"
     begin
         Contributions.SetRange("Social Security Code", SocialSecurityCode);
         Contributions.SetRange("INAIL Code", INAILCode);
-        Contributions.FindFirst;
+        Contributions.FindFirst();
         Contributions.TestField("Social Security %", SocialSecurityPct);
         Contributions.TestField("INAIL Free-Lance %", INAILFreeLancePct);
     end;
@@ -2106,7 +2247,7 @@ codeunit 144090 "ERM Withhold"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(DebitAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
 
@@ -2136,7 +2277,7 @@ codeunit 144090 "ERM Withhold"
     var
         SubformVendorBillLines: TestPage "Subform Vendor Bill Lines";
     begin
-        SubformVendorBillLines.OpenEdit;
+        SubformVendorBillLines.OpenEdit();
         SubformVendorBillLines.FILTER.SetFilter("Vendor No.", VendorNo);
         Assert.AreNearlyEqual(
           AmountToPay, SubformVendorBillLines."Amount to Pay".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
@@ -2151,7 +2292,7 @@ codeunit 144090 "ERM Withhold"
         WithhTaxesContributionCard."Withholding Tax Amount".AssertEquals(WithholdingTaxAmount);
         WithhTaxesContributionCard."Taxable Base".AssertEquals(TaxableBase);
         WithhTaxesContributionCard."Non Taxable Amount".AssertEquals(LineAmount - TaxableBase);
-        WithhTaxesContributionCard.OK.Invoke;
+        WithhTaxesContributionCard.OK.Invoke();
     end;
 
     local procedure VerifySocialSecurityCodeOnVendor(No: Code[20]; SocialSecurityCode: Code[20])
@@ -2164,7 +2305,7 @@ codeunit 144090 "ERM Withhold"
 
     local procedure VerifyTaxValueOnCertificationsReport(NonTaxableAmount: Decimal; TaxableBase: Decimal; WithholdingTaxAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NonTaxableAmountCap, NonTaxableAmount);
         LibraryReportDataset.AssertElementWithValueExists(TaxableBaseCap, TaxableBase);
         LibraryReportDataset.AssertElementWithValueExists(WithholdingTaxAmountCap, WithholdingTaxAmount);
@@ -2260,6 +2401,20 @@ codeunit 144090 "ERM Withhold"
         Assert.IsTrue(Found,
           StrSubstNo('Not possible to find option %1 in field %2 of table %3 with option string %4',
             OptionToVerify, TableID, FieldID, FieldRef.OptionString));
+    end;
+
+    local procedure VerifyGenJournalLineWithoutWHTAmount(GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalLine2: Record "Gen. Journal Line";
+    begin
+        with GenJournalLine2 do begin
+            SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+            SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+            SetRange("System-Created Entry", true);
+            SetRange("Applies-to Doc. No.", GenJournalLine."Applies-to Doc. No.");
+            FindFirst;
+            Assert.AreEqual(0, Amount, 'Amount in this line must be 0');
+        end;
     end;
 
     [ModalPageHandler]

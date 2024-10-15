@@ -255,8 +255,7 @@ page 12111 "Show Computed Withh. Contrib."
             GenJnlLine2.SetRange("Line No.");
             TmpGenJnlLine.Copy(GenJnlLine2);
 
-            if ("Withholding Tax Code" <> '') and
-               ("Withholding Tax Amount" <> 0)
+            if "Withholding Tax Code" <> ''
             then begin
                 if "Payment Line-Withholding" = 0 then begin
                     GenJnlLine.Init;

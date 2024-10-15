@@ -13,9 +13,9 @@ codeunit 376 "Check Entry Set Recon.-No."
 
     procedure ToggleReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; ChangeAmount: Boolean)
     begin
-        BankAccLedgEntry.LockTable;
-        CheckLedgEntry.LockTable;
-        BankAccReconLine.LockTable;
+        BankAccLedgEntry.LockTable();
+        CheckLedgEntry.LockTable();
+        BankAccReconLine.LockTable();
         BankAccReconLine.Find;
         if CheckLedgEntry."Statement No." = '' then begin
             SetReconNo(CheckLedgEntry, BankAccReconLine);
@@ -34,7 +34,7 @@ codeunit 376 "Check Entry Set Recon.-No."
             BankAccReconLine.Validate("Statement Amount", BankAccReconLine."Applied Amount")
         else
             BankAccReconLine.Validate("Statement Amount");
-        BankAccReconLine.Modify;
+        BankAccReconLine.Modify();
     end;
 
     procedure SetReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line")
@@ -57,7 +57,7 @@ codeunit 376 "Check Entry Set Recon.-No."
         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::"Check Entry Applied";
         CheckLedgEntry."Statement No." := BankAccReconLine."Statement No.";
         CheckLedgEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
-        CheckLedgEntry.Modify;
+        CheckLedgEntry.Modify();
 
         BankAccLedgEntry.Get(CheckLedgEntry."Bank Account Ledger Entry No.");
         BankAccLedgEntry.TestField(Open, true);
@@ -73,7 +73,7 @@ codeunit 376 "Check Entry Set Recon.-No."
           BankAccLedgEntry."Statement Status"::"Check Entry Applied";
         BankAccLedgEntry."Statement No." := '';
         BankAccLedgEntry."Statement Line No." := 0;
-        BankAccLedgEntry.Modify;
+        BankAccLedgEntry.Modify();
     end;
 
     procedure RemoveReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; Test: Boolean)
@@ -91,9 +91,9 @@ codeunit 376 "Check Entry Set Recon.-No."
         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Open;
         CheckLedgEntry."Statement No." := '';
         CheckLedgEntry."Statement Line No." := 0;
-        CheckLedgEntry.Modify;
+        CheckLedgEntry.Modify();
 
-        CheckLedgEntry2.Reset;
+        CheckLedgEntry2.Reset();
         CheckLedgEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
         CheckLedgEntry2.SetRange(
           "Bank Account Ledger Entry No.", CheckLedgEntry."Bank Account Ledger Entry No.");
@@ -111,8 +111,33 @@ codeunit 376 "Check Entry Set Recon.-No."
             BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
             BankAccLedgEntry."Statement No." := '';
             BankAccLedgEntry."Statement Line No." := 0;
-            BankAccLedgEntry.Modify;
+            BankAccLedgEntry.Modify();
         end;
+    end;
+
+    procedure RemoveApplication(var CheckLedgerEntry: Record "Check Ledger Entry")
+    var
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        CheckLedgerEntry.LockTable();
+        BankAccReconLine.LockTable();
+
+        if not BankAccReconLine.Get(
+            BankAccReconLine."Statement Type"::"Bank Reconciliation",
+            CheckLedgerEntry."Bank Account No.",
+            CheckLedgerEntry."Statement No.", CheckLedgerEntry."Statement Line No.")
+        then
+            exit;
+
+        BankAccReconLine.TestField("Statement Type", BankAccReconLine."Statement Type"::"Bank Reconciliation");
+        BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Check Ledger Entry");
+        RemoveReconNo(CheckLedgerEntry, BankAccReconLine, true);
+
+        BankAccReconLine."Applied Amount" += CheckLedgerEntry.Amount;
+        BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" - 1;
+        BankAccReconLine."Check No." := '';
+        BankAccReconLine.Validate("Statement Amount");
+        BankAccReconLine.Modify();
     end;
 }
 

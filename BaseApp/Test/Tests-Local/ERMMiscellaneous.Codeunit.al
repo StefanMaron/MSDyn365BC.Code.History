@@ -32,11 +32,13 @@ codeunit 144127 "ERM  Miscellaneous"
         LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         CustomerBillMsg: Label '1 customer bills have been issued.';
         PostingDateErr: Label 'Posting Date is not within your range of allowed posting dates in Gen. Journal Line Journal Template Name='''',Journal Batch Name=''''';
         ValueMatchErr: Label 'Value must match.';
         BankAccErr: Label 'Wrong Bank Account.';
         WrongResultErr: Label 'Wrong result of GetTaxCode';
+        PostingNoExistsQst: Label 'If you create an invoice based on order %1 with an existing posting number, it will cause a gap in the number series. \\Do you want to continue?', Comment = '%1=Document number';
 
     [Test]
     [HandlerFunctions('IssuingCustomerBillRequestPageHandler,MessageHandler')]
@@ -410,6 +412,46 @@ codeunit 144127 "ERM  Miscellaneous"
         Assert.AreEqual(BankAccCode, ServiceHeader."Bank Account", BankAccErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithMessageCheck')]
+    [Scope('OnPrem')]
+    procedure GetReceiptLinesForOrderWithPostingNoWarning()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        // [FEATURE] [UI] [No Series]
+        // [SCENARIO 342806] Running CreateInvLines on lines created from Order with already existing Posting No. results in a warning for user
+        Initialize();
+
+        // [GIVEN] Purchase order was created and assigned Posting No.
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseHeader."Posting No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Order was posted as receive
+        PurchRcptHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
+
+        // [GIVEN] Line exists on the receipt
+        PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+        PurchRcptLine.FindFirst();
+
+        // [GIVEN] Enqueue parameters for confirm handler
+        LibraryVariableStorage.Enqueue(StrSubstNo(PostingNoExistsQst, PurchaseHeader."No."));
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Running CreateInvLines on ReceiptLine from Receipt
+        asserterror PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        // [THEN] Warning pops up. User refuses
+        // handled by confirmhandler
+
+        // [THEN] Error pops up
+        Assert.ExpectedError('Cancelled by user.');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -638,6 +680,14 @@ codeunit 144127 "ERM  Miscellaneous"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('Internal')]
+    procedure ConfirmHandlerWithMessageCheck(Question: Text; var Reply: Boolean)
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Question, 'Message is not correct');
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

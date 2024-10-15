@@ -80,6 +80,16 @@ page 9811 "User ACS Setup"
         }
     }
 
+    trigger OnInit()
+    var
+        UserPermissions: Codeunit "User Permissions";
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        if ("User Security ID" <> UserSecurityId()) and EnvironmentInfo.IsSaaS() then
+            if not UserPermissions.CanManageUsersOnTenant(UserSecurityID()) then
+                error(CannotEditForOtherUsersErr);
+    end;
+
     trigger OnAfterGetRecord()
     begin
         NameID := IdentityManagement.GetNameIdentifier("User Security ID");
@@ -99,5 +109,6 @@ page 9811 "User ACS Setup"
         [InDataSet]
         AuthenticationID: Text[80];
         ACSStatus: Option Disabled,Pending,Registered,Unknown;
+        CannotEditForOtherUsersErr: Label 'You can only change your own ACS setup.';
 }
 

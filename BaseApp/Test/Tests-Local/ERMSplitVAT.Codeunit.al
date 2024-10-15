@@ -1,12 +1,11 @@
 codeunit 144561 "ERM Split VAT"
 {
-    // // [FEATURE] [Split VAT] [Sales]
-
     Subtype = Test;
     TestPermissions = Disabled;
 
     trigger OnRun()
     begin
+        // [FEATURE] [Split VAT]
     end;
 
     var
@@ -1638,6 +1637,39 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('Internal')]
+    procedure GenerateServiceSplitVATLinesDimensions()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DimensionValue: Record "Dimension Value";
+    begin
+        // [FEATURE] [Service] [Dimensions]
+        // [SCENARIO 345497] Service Line created by Generate Split VAT Lines function has dimensions copied from Service Header
+        Initialize();
+
+        // [GIVEN] Created split VAT Posting Setup
+        CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
+
+        // [GIVEN] Created Service Invoice with a Service Line
+        LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::Invoice);
+        LibrarySplitVAT.CreateServiceLine(ServiceLine, ServiceHeader, VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Assign dimension to the Service Header
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        ServiceHeader.Validate("Dimension Set ID", LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code));
+        ServiceHeader.Modify(true);
+
+        // [WHEN] Function Generate Split VAT Lines is being run
+        ServiceHeader.AddSplitVATLines();
+
+        // [THEN] Created Service Line has the same "Dimension Set ID" as its Service Header
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        ServiceLine.TestField("Dimension Set ID", ServiceHeader."Dimension Set ID");
     end;
 
     local procedure Initialize()

@@ -21,6 +21,11 @@ page 12198 "Vendor Bill Withh. Tax"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the vendor bill withholding taxes are paid to the tax authority.';
                 }
+                field(Reason; Reason)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the reason code.';
+                }
             }
             group("Withholding Tax")
             {

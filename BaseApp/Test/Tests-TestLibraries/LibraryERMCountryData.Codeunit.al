@@ -116,18 +116,18 @@ codeunit 131305 "Library - ERM Country Data"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Prevent Posted Doc. Deletion" := false;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     procedure UpdateSalesReceivablesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Prevent Posted Doc. Deletion" := false;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -207,11 +207,13 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateLocalData()
     var
+        SettlementVATEntry: Record "Periodic Settlement VAT Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Use Document Date in Currency", false);
         GeneralLedgerSetup.Modify(true);
+        SettlementVATEntry.ModifyAll("VAT Period Closed", false);
     end;
 
     procedure CompanyInfoSetVATRegistrationNo()
@@ -219,9 +221,9 @@ codeunit 131305 "Library - ERM Country Data"
         CompanyInformation: Record "Company Information";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     procedure AmountOnBankAccountLedgerEntriesPage(var BankAccountLedgerEntries: TestPage "Bank Account Ledger Entries"): Decimal
@@ -240,10 +242,10 @@ codeunit 131305 "Library - ERM Country Data"
     var
         UnitofMeasure: Record "Unit of Measure";
     begin
-        UnitofMeasure.Init;
+        UnitofMeasure.Init();
         UnitofMeasure.Code := Code;
         UnitofMeasure.Description := Code;
-        UnitofMeasure.Insert;
+        UnitofMeasure.Insert();
     end;
 }
 
