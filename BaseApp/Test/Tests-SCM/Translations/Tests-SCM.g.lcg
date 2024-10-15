@@ -3731,6 +3731,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Value]D;]A;(LookupHint=Codeunit SCM Inventory Documents - NamedType DimensionErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 917041221 - NamedType 1612705530" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value must match with %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Dimension Value]D;]A;(LookupHint=Codeunit SCM Inventory Documents - NamedType DimensionValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 917041221 - NamedType 4144387699" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Item No. are not equal]]></Val>
