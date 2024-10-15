@@ -241,14 +241,18 @@ codeunit 5051 SegManagement
             InteractionLogEntry.InsertRecord();
             NextInteractLogEntryNo := InteractionLogEntry."Entry No.";
         end else begin
-            InteractionLogEntry.Get(SegmentLine."Line No.");
-            OnLogInteractionOnAfterGetInteractLogEntryFromSegmentLine(InteractionLogEntry, SegmentLine, Postponed);
-            InteractionLogEntry.CopyFromSegment(SegmentLine);
-            InteractionLogEntry.Postponed := Postponed;
-            OnLogInteractionOnBeforeInteractionLogEntryModify(InteractionLogEntry);
-            InteractionLogEntry.Modify();
-            InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntry."Entry No.");
-            InterLogEntryCommentLine.DeleteAll();
+            IsHandled := false;
+            OnLogInteractionOnBeforeInteractLogEntryGet(NextInteractLogEntryNo, SegmentLine, Postponed, IsHandled);
+            if not IsHandled then begin
+                InteractionLogEntry.Get(SegmentLine."Line No.");
+                OnLogInteractionOnAfterGetInteractLogEntryFromSegmentLine(InteractionLogEntry, SegmentLine, Postponed);
+                InteractionLogEntry.CopyFromSegment(SegmentLine);
+                InteractionLogEntry.Postponed := Postponed;
+                OnLogInteractionOnBeforeInteractionLogEntryModify(InteractionLogEntry);
+                InteractionLogEntry.Modify();
+                InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntry."Entry No.");
+                InterLogEntryCommentLine.DeleteAll();
+            end;
         end;
 
         if TempInterLogEntryCommentLine.FindSet() then
@@ -259,6 +263,8 @@ codeunit 5051 SegManagement
                 OnLogInteractionOnBeforeInterLogEntryCommentLineInsert(InterLogEntryCommentLine);
                 InterLogEntryCommentLine.Insert();
             until TempInterLogEntryCommentLine.Next() = 0;
+
+        OnLogInteractionOnAfterInterLogEntryCommentLineInsert(InterLogEntryCommentLine, SegmentLine, NextInteractLogEntryNo);
 
         if Deliver and (SegmentLine."Correspondence Type".AsInteger() <> 0) and (not Postponed) then begin
             InteractionLogEntry."Delivery Status" := InteractionLogEntry."Delivery Status"::"In Progress";
@@ -956,6 +962,16 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFieldsToCampaignEntry(var CampaignEntry: Record "Campaign Entry"; var SegmentLine: Record "Segment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogInteractionOnAfterInterLogEntryCommentLineInsert(var InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; SegmentLine: Record "Segment Line"; NextInteractLogEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogInteractionOnBeforeInteractLogEntryGet(var NextInteractLogEntryNo: Integer; SegmentLine: Record "Segment Line"; Postponed: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

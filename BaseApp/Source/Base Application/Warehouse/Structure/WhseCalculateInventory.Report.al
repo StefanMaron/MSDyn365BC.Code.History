@@ -232,7 +232,7 @@ report 7390 "Whse. Calculate Inventory"
         if WhseJnlBatch."No. Series" = '' then
             NextDocNo := ''
         else
-            NextDocNo := NoSeries.GetNextNo(WhseJnlBatch."No. Series", RegisteringDate);
+            NextDocNo := NoSeries.PeekNextNo(WhseJnlBatch."No. Series", RegisteringDate);
     end;
 
     local procedure InitBinContent(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
