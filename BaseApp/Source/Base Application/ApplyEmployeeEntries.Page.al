@@ -643,10 +643,8 @@
 
     procedure SetEmplApplId()
     begin
-        if (CalcType = CalcType::GenJnlLine) and (TempApplyingEmplLedgEntry."Posting Date" < "Posting Date") then
-            Error(
-              EarlierPostingDateErr, TempApplyingEmplLedgEntry."Document Type", TempApplyingEmplLedgEntry."Document No.",
-              "Document Type", "Document No.");
+        CurrPage.SetSelectionFilter(EmplLedgEntry);
+        CheckEmplApplId(EmplLedgEntry);
 
         if TempApplyingEmplLedgEntry."Entry No." <> 0 then
             GenJnlApply.CheckAgainstApplnCurrency(
@@ -662,6 +660,17 @@
 
         ActionPerformed := EmplLedgEntry."Applies-to ID" <> '';
         CalcApplnAmount;
+    end;
+
+    procedure CheckEmplApplId(var EmplLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        if EmplLedgerEntry.FindSet() then
+            repeat
+                if (CalcType = CalcType::GenJnlLine) and (TempApplyingEmplLedgEntry."Posting Date" < EmplLedgerEntry."Posting Date") then
+                    Error(
+                        EarlierPostingDateErr, TempApplyingEmplLedgEntry."Document Type", TempApplyingEmplLedgEntry."Document No.",
+                        EmplLedgerEntry."Document Type", EmplLedgerEntry."Document No.");
+            until EmplLedgerEntry.Next() = 0;
     end;
 
     local procedure CalcApplnAmount()

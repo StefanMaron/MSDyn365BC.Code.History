@@ -152,8 +152,7 @@ report 698 "Get Sales Orders"
             then
                 Validate("Replenishment System", "Replenishment System"::Purchase);
 
-            if SpecOrder <> 1 then
-                Validate("Unit of Measure Code", SalesLine."Unit of Measure Code");
+            Validate("Unit of Measure Code", SalesLine."Unit of Measure Code");
             Validate(
               Quantity,
               Round(
