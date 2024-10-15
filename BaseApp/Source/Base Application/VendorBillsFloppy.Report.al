@@ -387,7 +387,14 @@ report 12175 "Vendor Bills Floppy"
 
     [Scope('OnPrem')]
     procedure RECORD50(Lines: Record "Vendor Bill Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRECORD50(Lines, TransfProgr, OutText, IsHandled);
+        if IsHandled then
+            exit;
+
         with Lines do begin
             OutText := ' 50' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
             if "Vendor Bill Line"."Cumulative Transfers" then
@@ -464,6 +471,11 @@ report 12175 "Vendor Bills Floppy"
                 PAGE.RunModal(0, VendorBankAccount, VendorBankAccount.IBAN);
             Error('');
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRECORD50(VendorBillLine: Record "Vendor Bill Line"; TransfProgr: Integer; var OutText: Text[120]; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -1,4 +1,4 @@
-page 49 "Purchase Quote"
+﻿page 49 "Purchase Quote"
 {
     Caption = 'Purchase Quote';
     PageType = Document;
@@ -262,6 +262,7 @@ page 49 "Purchase Quote"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field(Status; Status)
@@ -275,8 +276,8 @@ page 49 "Purchase Quote"
             part(PurchLines; "Purchase Quote Subform")
             {
                 ApplicationArea = Suite;
-                Editable = "Buy-from Vendor No." <> '';
-                Enabled = "Buy-from Vendor No." <> '';
+                Editable = PurchaseLinesAvailable;
+                Enabled = PurchaseLinesAvailable;
                 SubPageLink = "Document No." = FIELD("No.");
                 UpdatePropagation = Both;
             }
@@ -1328,6 +1329,8 @@ page 49 "Purchase Quote"
     trigger OnInit()
     begin
         ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled or ApplicationAreaMgmtFacade.IsAllDisabled;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1374,12 +1377,14 @@ page 49 "Purchase Quote"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        PurchaseLinesAvailable: Boolean;
         [InDataSet]
         IsJournalTemplateNameVisible: Boolean;
         [InDataSet]
         IsPaymentMethodCodeVisible: Boolean;
 
     protected var
+        IsActivityCodeMandatory: Boolean;
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
@@ -1393,6 +1398,21 @@ page 49 "Purchase Quote"
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
 
         OnAfterActivateFields();
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
+    end;
+
+    local procedure SetPurchaseLinesAvailability()
+    begin
+        PurchaseLinesAvailable := "Buy-from Vendor No." <> '';
+
+        OnAfterSetPurchaseLinesAvailability(Rec, PurchaseLinesAvailable);
     end;
 
     local procedure ApproveCalcInvDisc()
@@ -1446,6 +1466,7 @@ page 49 "Purchase Quote"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
+        SetPurchaseLinesAvailability();
     end;
 
     local procedure ValidateShippingOption()
@@ -1492,6 +1513,11 @@ page 49 "Purchase Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateCurrentShippingAndPayToOption(var ShipToOptions: Option "Default (Company Address)",Location,"Custom Address"; var PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetPurchaseLinesAvailability(var PurchaseHeader: Record "Purchase Header"; var PurchaseLinesAvailable: Boolean)
     begin
     end;
 

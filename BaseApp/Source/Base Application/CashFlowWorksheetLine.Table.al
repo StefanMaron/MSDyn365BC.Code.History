@@ -269,7 +269,7 @@
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1', "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1', "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
@@ -281,6 +281,8 @@
         DimMgt.AddDimSource(DefaultDimSource, TableID, No);
         Dimension := '';
         DimensionSetID := DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, '', Dimension, Dimension, 0, 0);
+
+        OnAfterMoveDefualtDimToJnlLineDim(Rec, DimensionSetID, DefaultDimSource);
     end;
 
     procedure CalculateCFAmountAndCFDate()
@@ -550,6 +552,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetNumberOfSourceTypes(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var Result: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMoveDefualtDimToJnlLineDim(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var DimensionSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 

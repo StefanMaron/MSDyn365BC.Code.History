@@ -21,7 +21,7 @@ codeunit 810 "Webservice Notification Mgt."
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         MyNotifications.InsertDefault(
-                  WebServiceAPINotificationId(), WEBServiceAPIDescriptionTok, WEBServiceAPIDescriptionTok, EnvironmentInfo.IsSaaS());
+                  WebServiceAPINotificationId(), CopyStr(WEBServiceAPIDescriptionTok, 1, 128), WEBServiceAPIDescriptionTok, EnvironmentInfo.IsSaaS());
     end;
 
     [Scope('OnPrem')]
@@ -50,7 +50,7 @@ codeunit 810 "Webservice Notification Mgt."
 
     var
         WEBServiceAPIDescriptionTok: Label 'If you want to set up an OData connection, for performance and stability reasons consider using an API page instead.';
-        
+
         DontShowAgainTok: Label 'Don''t show again';
         ShowMoreLinkTok: Label 'API documentation';
 }

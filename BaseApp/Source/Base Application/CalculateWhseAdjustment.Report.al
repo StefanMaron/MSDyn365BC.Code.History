@@ -71,6 +71,7 @@ report 7315 "Calculate Whse. Adjustment"
                                 ItemJnlLine.SetRange("Location Code", "Location Code");
                                 ItemJnlLine.SetRange("Unit of Measure Code", "Unit of Measure Code");
                                 ItemJnlLine.SetRange("Warehouse Adjustment", true);
+                                OnAfterGetRecordItemOnAfterItemJnlLineSetFilters(ItemJnlLine, TempAdjmtBinContentBuffer);
                                 if ItemJnlLine.FindSet() then
                                     repeat
                                         ReservationEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
@@ -85,6 +86,7 @@ report 7315 "Calculate Whse. Adjustment"
                                             "Qty. to Handle (Base)" += ReservationEntry."Qty. to Handle (Base)";
                                             OnBeforeAdjmtBinQuantityBufferModify(TempAdjmtBinContentBuffer, ReservationEntry);
                                             Modify;
+                                            OnAfterGetRecordItemOnAfterAdjmtBinContentBufferModify(TempAdjmtBinContentBuffer, ItemJnlLine, ReservationEntry);
                                         end;
                                     until ItemJnlLine.Next() = 0;
                             until Next() = 0;
@@ -103,8 +105,9 @@ report 7315 "Calculate Whse. Adjustment"
                                 SetRange("Location Code", "Location Code");
                                 SetRange("Variant Code", "Variant Code");
                                 SetRange("Unit of Measure Code", "Unit of Measure Code");
-
                                 SetFilter("Qty. to Handle (Base)", '>0');
+                                OnPostDataItemOnAfterAdjmtBinContentBufferSetFilters(TempAdjmtBinContentBuffer);
+
                                 CalcSums("Qty. to Handle (Base)");
                                 QtyInUOM :=
                                     UOMMgt.CalcQtyFromBase(
@@ -135,6 +138,7 @@ report 7315 "Calculate Whse. Adjustment"
                                 SetRange("Location Code");
                                 SetRange("Variant Code");
                                 SetRange("Unit of Measure Code");
+                                OnPostDataItemOnAfterAdjmtBinContentBufferClearFilters(TempAdjmtBinContentBuffer);
                             until Next() = 0;
                         Reset;
                         DeleteAll();
@@ -319,7 +323,7 @@ report 7315 "Calculate Whse. Adjustment"
                     QuantityBase2 := -QuantityBase2;
                 end;
 
-                OnInsertItemLineOnBeforeValidateFields(ItemJnlLine);
+                OnInsertItemLineOnBeforeValidateFields(ItemJnlLine, ItemJnlBatch, SourceCodeSetup);
                 Validate("Document No.", NextDocNo);
                 Validate("Item No.", TempBinContentBuffer."Item No.");
                 Validate("Variant Code", TempBinContentBuffer."Variant Code");
@@ -332,6 +336,7 @@ report 7315 "Calculate Whse. Adjustment"
                 "Quantity (Base)" := QuantityBase2;
                 "Invoiced Qty. (Base)" := QuantityBase2;
                 "Warehouse Adjustment" := true;
+                OnInsertItemJnlLineOnBeforeInsert(ItemJnlLine, TempAdjmtBinContentBuffer);
                 Insert(true);
                 OnAfterInsertItemJnlLine(ItemJnlLine);
 
@@ -384,7 +389,13 @@ report 7315 "Calculate Whse. Adjustment"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         OrderLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateReservationEntry(ItemJnlLine, TempBinContentBuffer, EntryType, UOMCode, IsHandled);
+        if IsHandled then
+            exit;
+
         TempBinContentBuffer.FindSet();
         repeat
             WarehouseEntry.SetCurrentKey(
@@ -494,6 +505,16 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemOnAfterItemJnlLineSetFilters(var ItemJournalLine: Record "Item Journal Line"; BinContentBuffer: Record "Bin Content Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemOnAfterAdjmtBinContentBufferModify(BinContentBuffer: Record "Bin Content Buffer"; var ItemJournalLine: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAdjmtBinQuantityBufferInsert(var BinContentBuffer: Record "Bin Content Buffer"; WarehouseEntry: Record "Warehouse Entry"; var SNLotNumbersByBin: Query "Lot Numbers by Bin")
     begin
     end;
@@ -509,6 +530,11 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReservationEntry(var ItemJournalLine: Record "Item Journal Line"; var TempBinContentBuffer: Record "Bin Content Buffer" temporary; EntryType: Option; UOMCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateReservationEntryOnBeforeCreateReservEntryCreateEntry(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -519,7 +545,22 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertItemLineOnBeforeValidateFields(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnInsertItemJnlLineOnBeforeInsert(var ItemJournalLine: Record "Item Journal Line"; TempBinContentBuffer: Record "Bin Content Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemLineOnBeforeValidateFields(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnAfterAdjmtBinContentBufferSetFilters(var TempBinContentBuffer: Record "Bin Content Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnAfterAdjmtBinContentBufferClearFilters(var TempBinContentBuffer: Record "Bin Content Buffer" temporary)
     begin
     end;
 

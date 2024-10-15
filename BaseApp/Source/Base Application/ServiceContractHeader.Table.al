@@ -797,7 +797,13 @@ table 5965 "Service Contract Header"
             trigger OnValidate()
             var
                 ServLedgEntry: Record "Service Ledger Entry";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePrepaid(Rec, xRec, ServLedgEntry, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Prepaid <> xRec.Prepaid then begin
                     if "Contract Type" = "Contract Type"::Contract then begin
                         ServLedgEntry.SetCurrentKey("Service Contract No.");
@@ -1611,11 +1617,7 @@ table 5965 "Service Contract Header"
         IsHandled: Boolean;
     begin
         ServMgtSetup.Get();
-        if "Contract No." = '' then begin
-            ServMgtSetup.TestField("Service Contract Nos.");
-            NoSeriesMgt.InitSeries(ServMgtSetup."Service Contract Nos.", xRec."No. Series", 0D,
-              "Contract No.", "No. Series");
-        end;
+        InitNoSeries();
         "Starting Date" := WorkDate;
         "First Service Date" := WorkDate;
 
@@ -1981,6 +1983,22 @@ table 5965 "Service Contract Header"
         end;
 
         OnAfterAssistEdit(OldServContract);
+    end;
+
+    local procedure InitNoSeries()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitNoSeries(Rec, xRec, ServMgtSetup, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Contract No." = '' then begin
+            ServMgtSetup.TestField("Service Contract Nos.");
+            NoSeriesMgt.InitSeries(ServMgtSetup."Service Contract Nos.", xRec."No. Series", 0D,
+              "Contract No.", "No. Series");
+        end;
     end;
 
     local procedure GetServiceContractNos() NoSeriesCode: Code[20]
@@ -2536,7 +2554,7 @@ table 5965 "Service Contract Header"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', "Contract Type", "Contract No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', "Contract Type", "Contract No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
@@ -2705,6 +2723,11 @@ table 5965 "Service Contract Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitNoSeries(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; ServMgtSetup: Record "Service Mgt. Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
@@ -2716,6 +2739,11 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNextInvoiceDate(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepaid(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

@@ -57,6 +57,7 @@
                                 end;
                                 SalesShptLine := "Sales Shipment Line";
                                 HasAmount := HasAmount or ("Qty. Shipped Not Invoiced" <> 0);
+                                OnSalesShipmentLineOnAfterGetRecordOnBeforeInsertInvLineFromShptLine(SalesLine);
                                 SalesShptLine.InsertInvLineFromShptLine(SalesLine);
                             end else
                                 NoOfSalesInvErrors := NoOfSalesInvErrors + 1;
@@ -152,31 +153,7 @@
             begin
                 CurrReport.Language := GlobalLanguage;
                 Window.Close;
-                if SalesHeader."No." <> '' then begin // Not the first time
-                    FinalizeSalesInvHeader;
-                    OnSalesShipmentHeaderOnAfterFinalizeSalesInvHeader(SalesHeader, NoOfSalesInvErrors, PostInv, HideDialog);
-                    if (NoOfSalesInvErrors = 0) and not HideDialog then begin
-                        if NoOfskippedShiment > 0 then
-                            Message(
-                              Text011,
-                              NoOfSalesInv, NoOfskippedShiment)
-                        else
-                            Message(
-                              Text010,
-                              NoOfSalesInv);
-                    end else
-                        if not HideDialog then
-                            if PostInv then
-                                Message(
-                                  Text007,
-                                  NoOfSalesInvErrors)
-                            else
-                                Message(
-                                  NotAllInvoicesCreatedMsg,
-                                  NoOfSalesInvErrors)
-                end else
-                    if not HideDialog then
-                        Message(Text008);
+                ShowResult();
             end;
 
             trigger OnPreDataItem()
@@ -403,41 +380,45 @@
     end;
 
     local procedure InsertSalesInvHeader()
+    var
+        IsHandled: Boolean;
     begin
-        GLSetup.Get();
-        Clear(SalesHeader);
-        with SalesHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Invoice;
-            "No." := '';
-            OnBeforeSalesInvHeaderInsert(SalesHeader, SalesOrderHeader);
-            Insert(true);
-            Validate("Sell-to Customer No.", SalesOrderHeader."Sell-to Customer No.");
-            Validate("Bank Account", SalesOrderHeader."Bank Account");
-            Validate("Operation Type", OperationType.Code);
-            Validate("Activity Code", SalesOrderHeader."Activity Code");
-            Validate("Bill-to Customer No.", SalesOrderHeader."Bill-to Customer No.");
-            Validate("Posting Date", PostingDateReq);
-            Validate("Document Date", DocDateReq);
-            Validate("Currency Code", SalesOrderHeader."Currency Code");
-            Validate("Payment Terms Code", SalesOrderHeader."Payment Terms Code");
-            Validate("Payment Method Code", SalesOrderHeader."Payment Method Code");
-            Validate("EU 3-Party Trade", SalesOrderHeader."EU 3-Party Trade");
-            if GLSetup."Journal Templ. Name Mandatory" then
-                Validate("Journal Templ. Name", SalesOrderHeader."Journal Templ. Name");
-            Validate("Salesperson Code", SalesOrderHeader."Salesperson Code");
-            Validate("Fattura Project Code", SalesOrderHeader."Fattura Project Code");
-            Validate("Fattura Tender Code", SalesOrderHeader."Fattura Tender Code");
-            "Salesperson Code" := SalesOrderHeader."Salesperson Code";
-            "Shortcut Dimension 1 Code" := SalesOrderHeader."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
-            OnBeforeSalesInvHeaderModify(SalesHeader, SalesOrderHeader);
-            Modify();
-            Commit();
-            HasAmount := false;
+        IsHandled := false;
+        OnBeforeInsertSalesInvHeader(SalesHeader, SalesOrderHeader, "Sales Shipment Header", "Sales Shipment Line", NoOfSalesInv, HasAmount, IsHandled);
+        if not IsHandled then begin
+            GLSetup.Get();
+            Clear(SalesHeader);
+            with SalesHeader do begin
+                Init();
+                "Document Type" := "Document Type"::Invoice;
+                "No." := '';
+                OnBeforeSalesInvHeaderInsert(SalesHeader, SalesOrderHeader);
+                Insert(true);
+                ValidateCustomerNo(SalesHeader, SalesOrderHeader);
+                Validate("Bank Account", SalesOrderHeader."Bank Account");
+                Validate("Operation Type", OperationType.Code);
+                Validate("Activity Code", SalesOrderHeader."Activity Code");
+                Validate("Posting Date", PostingDateReq);
+                Validate("Document Date", DocDateReq);
+                Validate("Currency Code", SalesOrderHeader."Currency Code");
+                Validate("Payment Terms Code", SalesOrderHeader."Payment Terms Code");
+                Validate("Payment Method Code", SalesOrderHeader."Payment Method Code");
+                Validate("EU 3-Party Trade", SalesOrderHeader."EU 3-Party Trade");
+                if GLSetup."Journal Templ. Name Mandatory" then
+                    Validate("Journal Templ. Name", SalesOrderHeader."Journal Templ. Name");
+                Validate("Salesperson Code", SalesOrderHeader."Salesperson Code");
+                Validate("Fattura Project Code", SalesOrderHeader."Fattura Project Code");
+                Validate("Fattura Tender Code", SalesOrderHeader."Fattura Tender Code");
+                "Salesperson Code" := SalesOrderHeader."Salesperson Code";
+                "Shortcut Dimension 1 Code" := SalesOrderHeader."Shortcut Dimension 1 Code";
+                "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
+                "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
+                OnBeforeSalesInvHeaderModify(SalesHeader, SalesOrderHeader);
+                Modify();
+                Commit();
+                HasAmount := false;
+            end;
         end;
-
         OnAfterInsertSalesInvHeader(SalesHeader, "Sales Shipment Header");
     end;
 
@@ -451,9 +432,45 @@
         CopyTextLines := NewCopyTextLines;
     end;
 
+    local procedure ValidateCustomerNo(var ToSalesHeader: Record "Sales Header"; FromSalesOrderHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateCustomerNo(ToSalesHeader, FromSalesOrderHeader, "Sales Shipment Header", "Sales Shipment Line", IsHandled);
+        if IsHandled then
+            exit;
+
+        ToSalesHeader.Validate("Sell-to Customer No.", FromSalesOrderHeader."Sell-to Customer No.");
+        ToSalesHeader.Validate("Bill-to Customer No.", FromSalesOrderHeader."Bill-to Customer No.");
+    end;
+
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
         HideDialog := NewHideDialog;
+    end;
+
+    local procedure ShowResult()
+    begin
+        OnBeforeShowResult(SalesHeader, NoOfSalesInvErrors, PostInv);
+
+        if SalesHeader."No." <> '' then begin // Not the first time
+            FinalizeSalesInvHeader();
+            OnSalesShipmentHeaderOnAfterFinalizeSalesInvHeader(SalesHeader, NoOfSalesInvErrors, PostInv, HideDialog);
+            if (NoOfSalesInvErrors = 0) and not HideDialog then begin
+                if NoOfskippedShiment > 0 then
+                    Message(Text011, NoOfSalesInv, NoOfskippedShiment)
+                else
+                    Message(Text010, NoOfSalesInv);
+            end else
+                if not HideDialog then
+                    if PostInv then
+                        Message(Text007, NoOfSalesInvErrors)
+                    else
+                        Message(NotAllInvoicesCreatedMsg, NoOfSalesInvErrors)
+        end else
+            if not HideDialog then
+                Message(Text008);
     end;
 
     local procedure ShouldFinalizeSalesInvHeader(SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; SalesShipmentLine: Record "Sales Shipment Line") Finalize: Boolean
@@ -492,12 +509,17 @@
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertSalesInvHeader(var SalesInvoiceHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var NoOfSalesInv: Integer; var HasAmount: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePreReport()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostReport()
     begin
     end;
@@ -508,12 +530,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowResult(var SalesInvoiceHeader: Record "Sales Header"; var NoOfSalesInvErrors: Integer; PostInvoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesInvHeaderModify(var SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesShipmentLineOnAfterGetRecord(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCustomerNo(ToSalesHeader: Record "Sales Header"; var FromSalesOrderHeader: Record "Sales Header"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -544,6 +576,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean; SalesShipmentLine: Record "Sales Shipment Line"; SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesShipmentLineOnAfterGetRecordOnBeforeInsertInvLineFromShptLine(var SalesLine: Record "Sales Line")
     begin
     end;
 

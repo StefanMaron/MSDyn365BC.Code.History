@@ -41,8 +41,8 @@ codeunit 134123 "Price List Line UT"
         SourceTypeMustBeErr: Label 'Assign-to Type must be equal to ''%1''', Comment = '%1 - source type value';
         ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. must have a value';
         ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. must be equal to ''''';
-        SourceNoMustBeFilledErr: Label 'Assign-to must have a value';
-        SourceNoMustBeBlankErr: Label 'Assign-to must be equal to ''''';
+        SourceNoMustBeFilledErr: Label 'Assign-to No. must have a value';
+        SourceNoMustBeBlankErr: Label 'Assign-to No. must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
         SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
         IsInitialized: Boolean;
@@ -1087,7 +1087,7 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Purchase] [Item Discount Group]
-        // [SCENARIO] Product Type 'Item Discounnt Group' is nnot allowed for 'Purchase'
+        // [SCENARIO] Product Type 'Item Discount Group' is not allowed for 'Purchase'
         Initialize();
 
         PriceListLine."Price Type" := "Price Type"::Purchase;
@@ -1346,7 +1346,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Verify source
         asserterror PriceListLine.Verify();
 
-        // [THEN] Error: "Assign-to must be equal to ''''"
+        // [THEN] Error: "Assign-to No. must be equal to ''''"
         Assert.ExpectedError(SourceNoMustBeBlankErr);
     end;
 
@@ -1366,7 +1366,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Verify source
         asserterror PriceListLine.Verify();
 
-        // [THEN] Error: "Assign-to must have a value"
+        // [THEN] Error: "Assign-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
@@ -2999,6 +2999,29 @@ codeunit 134123 "Price List Line UT"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('LookupItemModalHandler')]
+    procedure T216_LookupProductNo()
+    var
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        MockPriceListLine: TestPage "Mock Price List Line";
+    begin
+        // [FEATURE] [Asset]
+        Initialize();
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Price Line, where "Asset Type" is 'Item'
+        MockPriceListLine.OpenEdit();
+        MockPriceListLine."Asset Type".SetValue("Price Asset Type"::Item);
+        // [WHEN] Lookup "Asset No." set as 'I'
+        LibraryVariableStorage.Enqueue(Item."No."); // for LookupItemModalHandler
+        MockPriceListLine."Product No.".Lookup();
+
+        // [THEN] "Asset No." is 'I'
+        MockPriceListLine."Product No.".AssertEquals(Item."No.");
+    end;
+
     local procedure Initialize()
     begin
         Initialize(false);
@@ -3009,6 +3032,7 @@ codeunit 134123 "Price List Line UT"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price List Line UT");
         LibraryVariableStorage.Clear();
         LibraryPriceCalculation.EnableExtendedPriceCalculation(Enable);
+        LibraryPriceCalculation.SetUseCustomLookup(true);
 
         if isInitialized then
             exit;

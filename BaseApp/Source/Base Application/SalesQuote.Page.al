@@ -323,6 +323,7 @@ page 41 "Sales Quote"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field(Status; Status)
@@ -1662,6 +1663,8 @@ page 41 "Sales Quote"
     begin
         EnableBillToCustomerNo := true;
         EnableSellToCustomerTemplateCode := true;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1752,6 +1755,7 @@ page 41 "Sales Quote"
         BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
         [InDataSet]
         EnableBillToCustomerNo: Boolean;
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1765,6 +1769,14 @@ page 41 "Sales Quote"
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         SetEnableSellToCustomerTemplateCode();
         SetSalesLinesAvailability();
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     local procedure ApproveCalcInvDisc()

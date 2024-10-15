@@ -1527,6 +1527,33 @@ codeunit 144200 "FatturaPA Test"
         TempXMLBuffer.TestField(Value, Format(Amount, 0, '<Precision,2:5><Standard Format,9>'));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSalesInvoiceWithExtendedText()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+    begin
+        // [SCENARIO 429214] Export sales invoice with extended text
+        Initialize();
+
+        // [GIVEN] A posted Sales Invoice with 3 lines and 3 extended texts, one per each line
+        SalesInvoiceHeader.SetRange(
+          "No.", CreateAndPostSalesInvoiceWithExtText(CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer()));
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] The exported XML file has 3 RiferimentoTesto xml nodes.
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali/RiferimentoTesto');
+        Assert.RecordCount(TempXMLBuffer, 3);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1594,6 +1621,25 @@ codeunit 144200 "FatturaPA Test"
     begin
         CreateSalesDocument(SalesHeader, PaymentMethodCode, PaymentTermsCode, CustomerNo, SalesHeader."Document Type"::Invoice);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateAndPostSalesInvoiceWithExtText(PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ExtTextSalesLine: Record "Sales Line";
+        i: Integer;
+    begin
+        CreateSalesDocument(SalesHeader, PaymentMethodCode, PaymentTermsCode, CustomerNo, SalesHeader."Document Type"::Invoice);
+        for i := 1 to 3 do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+            LibrarySales.CreateSalesLineSimple(ExtTextSalesLine, SalesHeader);
+            ExtTextSalesLine.Description := 'extended text' + Format(i);
+            ExtTextSalesLine."Attached to Line No." := SalesLine."Line No.";
+            ExtTextSalesLine.Modify();
+        end;
+
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 

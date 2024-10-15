@@ -282,7 +282,7 @@
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = true;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -706,7 +706,7 @@
             part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = SalesDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
@@ -1446,6 +1446,8 @@
     begin
         JobQueueUsed := SalesSetup.JobQueueActive();
         SetExtDocNoMandatoryCondition();
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1544,6 +1546,9 @@
         [InDataSet]
         IsPaymentMethodCodeVisible: Boolean;
 
+    protected var
+        IsActivityCodeMandatory: Boolean;
+
     local procedure ActivateFields()
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
@@ -1551,6 +1556,14 @@
         GLSetup.Get();
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer)
@@ -1681,6 +1694,8 @@
 
         SalesDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+
+        OnAfterSetControlAppearance(Rec);
     end;
 
     procedure RunBackgroundCheck()
@@ -1722,6 +1737,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetControlAppearance(var SalesHeader: Record "Sales Header")
     begin
     end;
 

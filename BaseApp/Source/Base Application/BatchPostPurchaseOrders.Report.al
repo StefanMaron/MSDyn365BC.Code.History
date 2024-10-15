@@ -127,6 +127,8 @@
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
+
+            OnAfterOnOpenPage(ReceiveReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
     }
 
@@ -162,6 +164,11 @@
         if NewCalcInvDisc then
             PurchasesPayablesSetup.TestField("Calc. Inv. Discount", false);
         CalcInvDisc := NewCalcInvDisc;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnOpenPage(var ReceiveReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

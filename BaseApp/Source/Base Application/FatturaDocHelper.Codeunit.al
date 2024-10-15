@@ -457,6 +457,7 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
 
         CheckFatturaPANos(ErrorMessage);
+        OnAfterCheckMandatoryFields(HeaderRecRef, ErrorMessage);
     end;
 
     local procedure CheckCompanyInformationFields(var ErrorMessage: Record "Error Message")
@@ -1076,13 +1077,19 @@ codeunit 12184 "Fattura Doc. Helper"
         LineNoFieldRef: FieldRef;
         SourceTypeFound: Boolean;
         SourceNoNoValue: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBuildAttachedToLinesExtTextBuffer(TempFatturaLine, CurrRecRef, IsHandled);
+        if IsHandled then
+            exit;
+
         OriginalFatturaLine := TempFatturaLine;
         TempFatturaLine.Init();
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::"Extended Text");
         if TempFatturaLine.FindLast() then
             TempFatturaLine."Line No." := TempFatturaLine."Line No.";
-        TempFatturaLine."Related Line No." := TempFatturaLine."Line No.";
+        TempFatturaLine."Related Line No." := OriginalFatturaLine."Line No.";
         TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::"Extended Text";
 
         LineRecRef := CurrRecRef.Duplicate;
@@ -1579,6 +1586,16 @@ codeunit 12184 "Fattura Doc. Helper"
             exit;
         SalesHeader.Validate("Fattura Document Type", CrMemoCode);
         SalesHeader.Modify(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckMandatoryFields(HeaderRecRef: RecordRef; var ErrorMessage: Record "Error Message")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBuildAttachedToLinesExtTextBuffer(var TempFatturaLine: Record "Fattura Line" temporary; CurrRecRef: RecordRef; var IsHandled: Boolean)
+    begin
     end;
 }
 

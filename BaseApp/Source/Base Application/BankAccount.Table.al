@@ -490,7 +490,14 @@
             Caption = 'IBAN';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateIBAN(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CheckIBAN();
             end;
         }
@@ -1409,6 +1416,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var BankAccount: Record "Bank Account"; var xBankAccount: Record "Bank Account"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateIBAN(var BankAccount: Record "Bank Account"; var xBankAccount: Record "Bank Account"; var IsHandled: Boolean)
     begin
     end;
 

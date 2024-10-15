@@ -116,7 +116,7 @@ report 297 "Batch Post Sales Invoices"
             ReplaceDocumentDate := false;
             PrintDoc := false;
             PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
-            OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible);
+            OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible, PostingDateReq);
         end;
     }
 
@@ -136,7 +136,7 @@ report 297 "Batch Post Sales Invoices"
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean)
+    local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean; var PostingDateReq: Date)
     begin
     end;
 

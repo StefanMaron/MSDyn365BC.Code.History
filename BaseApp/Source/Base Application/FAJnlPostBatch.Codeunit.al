@@ -278,6 +278,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
             CompressDepr[1].SetRange("Document No.", "Document No.");
             CompressDepr[1].SetRange("Reason Code", "Reason Code");
             CompressDepr[1].SetRange("Posting Date", "Posting Date");
+            OnCreateCompressTableOnAfterCompressDeprSetFilters(CompressDepr, FAJnlLine, FA, DeprBook, FADeprBook);
 
             CompressDepr[2].Copy(CompressDepr[1]);
             if not CompressDepr[2].Find('-') then
@@ -350,6 +351,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 GenJnlLine."Shortcut Dimension 1 Code" := CompressDepr[1]."Global Dimension 1 Code";
                 GenJnlLine."Shortcut Dimension 2 Code" := CompressDepr[1]."Global Dimension 2 Code";
                 GenJnlLine.Validate(Amount, CompressDepr[1].Amount);
+                OnPostCompressTableOnBeforePostFirstLine(GenJnlLine, CompressDepr, FAJnlLine, FAPostingGr);
                 GenJnlPostLine.RunWithCheck(GenJnlLine);
 
                 GenJnlLine.Validate("Account No.", GlAcc2."No.");
@@ -357,9 +359,12 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 GenJnlLine."Shortcut Dimension 1 Code" := CompressDepr[1]."Global Dimension 1 Code";
                 GenJnlLine."Shortcut Dimension 2 Code" := CompressDepr[1]."Global Dimension 2 Code";
                 GenJnlLine.Validate(Amount, -CompressDepr[1].Amount);
+                OnPostCompressTableOnBeforePostSecondLine(GenJnlLine, CompressDepr, FAJnlLine, FAPostingGr);
                 GenJnlPostLine.RunWithCheck(GenJnlLine);
+                OnPostCompressTableOnAfterPostSecondLine(GenJnlLine, CompressDepr, FAJnlLine, FAPostingGr, GenJnlPostLine);
             until CompressDepr[1].Next() = 0;
         CompressDepr[1].DeleteAll();
+        OnAfterPostCompressTable(FAJnlLine);
     end;
 
     [Scope('OnPrem')]
@@ -442,6 +447,11 @@ codeunit 5633 "FA Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostCompressTable(FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckFAJnlLineDocumentNo(FAJnlLine: Record "FA Journal Line"; FAJnlBatch: Record "FA Journal Batch"; var IsHandled: Boolean)
     begin
     end;
@@ -457,12 +467,32 @@ codeunit 5633 "FA Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateCompressTableOnAfterCompressDeprSetFilters(var CompressDepreciation: array[2] of Record "Compress Depreciation" temporary; FAJournalLine: Record "FA Journal Line"; FixedAsset: Record "Fixed Asset"; DepreciationBook: Record "Depreciation Book"; FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeLockTable(var FAJnlLine: Record "FA Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostLinesOnAfterFAJnlPostLine(var FAJnlLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostCompressTableOnBeforePostFirstLine(var GenJournalLine: Record "Gen. Journal Line"; CompressDepreciation: array[2] of Record "Compress Depreciation" temporary; FAJournalLine: Record "FA Journal Line"; FAPostingGroup: Record "FA Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostCompressTableOnAfterPostSecondLine(var GenJournalLine: Record "Gen. Journal Line"; CompressDepreciation: array[2] of Record "Compress Depreciation" temporary; FAJournalLine: Record "FA Journal Line"; FAPostingGroup: Record "FA Posting Group"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostCompressTableOnBeforePostSecondLine(var GenJournalLine: Record "Gen. Journal Line"; CompressDepreciation: array[2] of Record "Compress Depreciation" temporary; FAJournalLine: Record "FA Journal Line"; FAPostingGroup: Record "FA Posting Group")
     begin
     end;
 }

@@ -366,7 +366,13 @@ codeunit 5940 ServContractManagement
     end;
 
     procedure CalcServLedgEntryDiscountPct(var ServiceLedgerEntry: Record "Service Ledger Entry")
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeCalcServLedgEntryDiscountPct(ServiceLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         ServiceLedgerEntry."Discount %" := 0;
         if ServiceLedgerEntry."Unit Price" <> 0 then
             ServiceLedgerEntry."Discount %" :=
@@ -383,6 +389,7 @@ codeunit 5940 ServContractManagement
         Cust2: Record Customer;
         UserMgt: Codeunit "User Setup Management";
         RecordLinkManagement: Codeunit "Record Link Management";
+        IsHandled: Boolean;
     begin
         if ServContract2."Invoice Period" = ServContract2."Invoice Period"::None then
             exit;
@@ -404,10 +411,12 @@ codeunit 5940 ServContractManagement
             ServHeader2."Journal Templ. Name" := ServMgtSetup."Serv. Contr. Inv. Templ. Name";
         end;
         ServMgtSetup.TestField("Contract Invoice Nos.");
-        OnCreateServHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, ServContract2);
-        NoSeriesMgt.InitSeries(
-          ServMgtSetup."Contract Invoice Nos.", '',
-          PostDate, ServHeader2."No.", ServHeader2."No. Series");
+        IsHandled := false;
+        OnCreateServHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, ServContract2, IsHandled);
+        if not IsHandled then
+            NoSeriesMgt.InitSeries(
+                ServMgtSetup."Contract Invoice Nos.", '',
+                PostDate, ServHeader2."No.", ServHeader2."No. Series");
         InsertServiceHeader(ServHeader2, ServContract2);
         ServInvNo := ServHeader2."No.";
 
@@ -598,7 +607,13 @@ codeunit 5940 ServContractManagement
         StdText: Record "Standard Text";
         FirstLine: Boolean;
         NewContract: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDetailedServiceLine(ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ServContractHeader.Get(ContractType, ContractNo);
         if ServContractHeader."Invoice Period" = ServContractHeader."Invoice Period"::None then
             exit;
@@ -729,6 +744,7 @@ codeunit 5940 ServContractManagement
         CreditMemoForm: Page "Service Credit Memo";
         ServContractForm: Page "Service Contract";
         LocationCode: Code[10];
+        IsHandled: Boolean;
     begin
         Clear(ServHeader2);
         ServDocReg.Reset();
@@ -775,10 +791,12 @@ codeunit 5940 ServContractManagement
             ServHeader2."Journal Templ. Name" := ServMgtSetup."Serv. Contr. Cr.M. Templ. Name";
         end;
         ServMgtSetup.TestField("Contract Credit Memo Nos.");
-        OnCreateOrGetCreditHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup);
-        NoSeriesMgt.InitSeries(
-          ServMgtSetup."Contract Credit Memo Nos.", ServHeader2."No. Series", 0D,
-          ServHeader2."No.", ServHeader2."No. Series");
+        IsHandled := false;
+        OnCreateOrGetCreditHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, IsHandled);
+        if not IsHandled then
+            NoSeriesMgt.InitSeries(
+                ServMgtSetup."Contract Credit Memo Nos.", ServHeader2."No. Series", 0D,
+                ServHeader2."No.", ServHeader2."No. Series");
         InsertServiceHeader(ServHeader2, ServContract);
         ServInvoiceNo := ServHeader2."No.";
         ServHeader2.Correction := GLSetup."Mark Cr. Memos as Corrections";
@@ -1676,18 +1694,7 @@ codeunit 5940 ServContractManagement
                 CustCheckCrLimit.ServiceContractHeaderCheck(ServContractHeader);
             end;
 
-            if "Ship-to Code" <> NewShipToCode then begin
-                if ServMgtSetup."Register Contract Changes" then
-                    ContractChangeLog.LogContractChange(
-                      "Contract No.", 0, FieldCaption("Ship-to Code"), 0, "Ship-to Code", NewShipToCode, '', 0);
-                "Ship-to Code" := NewShipToCode;
-                if NewShipToCode = '' then
-                    UpdateShiptoCode
-                else
-                    CalcFields(
-                      "Ship-to Name", "Ship-to Name 2", "Ship-to Address", "Ship-to Address 2",
-                      "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code");
-            end;
+            ProcessShiptoCodeChange(ServContractHeader, NewShipToCode, ContractChangeLog);
 
             UpdateServZone;
             UpdateCont("Customer No.");
@@ -1710,6 +1717,24 @@ codeunit 5940 ServContractManagement
 
         OnBeforeServContractHeaderModify(ServContractHeader);
         ServContractHeader.Modify();
+    end;
+
+    local procedure ProcessShiptoCodeChange(var ServContractHeader: Record "Service Contract Header"; NewShipToCode: Code[10]; var ContractChangeLog: Record "Contract Change Log")
+    begin
+        if ServContractHeader."Ship-to Code" <> NewShipToCode then begin
+            if ServMgtSetup."Register Contract Changes" then
+                ContractChangeLog.LogContractChange(
+                  ServContractHeader."Contract No.", 0, ServContractHeader.FieldCaption("Ship-to Code"), 0, ServContractHeader."Ship-to Code", NewShipToCode, '', 0);
+            ServContractHeader."Ship-to Code" := NewShipToCode;
+            if NewShipToCode = '' then
+                ServContractHeader.UpdateShiptoCode()
+            else
+                ServContractHeader.CalcFields(
+                  "Ship-to Name", "Ship-to Name 2", "Ship-to Address", "Ship-to Address 2",
+                  "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code");
+        end;
+
+        OnAfterProcessShiptoCodeChange(ServContractHeader);
     end;
 
     procedure ChangeCustNoOnServItem(NewCustomertNo: Code[20]; NewShipToCode: Code[10]; ServItem: Record "Service Item")
@@ -1743,7 +1768,13 @@ codeunit 5940 ServContractManagement
         ServContractHeader: Record "Service Contract Header";
         Cust: Record Customer;
         StdText: Record "Standard Text";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateHeadingServiceLine(ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ServContractHeader.Get(ContractType, ContractNo);
         if ServContractHeader."Invoice Period" = ServContractHeader."Invoice Period"::None then
             exit;
@@ -2400,6 +2431,11 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessShiptoCodeChange(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcInvAmounts(var InvAmount: array[4] of Decimal; var ServiceContractLine: Record "Service Contract Line"; InvFrom: Date; InvTo: Date; var IsHandled: Boolean)
     begin
     end;
@@ -2416,6 +2452,16 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateServLineForNewContract(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header"; var ServLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDetailedServiceLine(ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateHeadingServiceLine(ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2490,12 +2536,12 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateOrGetCreditHeaderOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; ServMgtSetup: Record "Service Mgt. Setup")
+    local procedure OnCreateOrGetCreditHeaderOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; ServMgtSetup: Record "Service Mgt. Setup"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateServHeaderOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; var ServMgtSetup: Record "Service Mgt. Setup"; ServContract2: Record "Service Contract Header")
+    local procedure OnCreateServHeaderOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; var ServMgtSetup: Record "Service Mgt. Setup"; ServContract2: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2566,6 +2612,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinishCodeunit(ServiceRegister: Record "Service Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcServLedgEntryDiscountPct(var ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

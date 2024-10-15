@@ -6,6 +6,7 @@ page 5979 "Posted Service Invoice Subform"
     LinksAllowed = false;
     PageType = ListPart;
     SourceTable = "Service Invoice Line";
+    SourceTableView = sorting("Document No.", "Service Item Line No.") order(Ascending);
 
     layout
     {

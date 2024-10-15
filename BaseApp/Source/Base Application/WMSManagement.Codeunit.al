@@ -239,7 +239,7 @@ codeunit 7302 "WMS Management"
             end;
         end;
 
-        OnAfterCheckWhseJnlLine(WhseJnlLine, SourceJnl, DecreaseQtyBase, ToTransfer);
+        OnAfterCheckWhseJnlLine(WhseJnlLine, SourceJnl, DecreaseQtyBase, ToTransfer, Item);
     end;
 
     local procedure CheckDecreaseBinContent(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal)
@@ -973,6 +973,7 @@ codeunit 7302 "WMS Management"
     procedure GetWarehouseEmployeeLocationFilter(UserName: code[50]): Text
     var
         WarehouseEmployee: Record "Warehouse Employee";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         Location: Record Location;
         AssignedLocations: List of [code[20]];
         WhseEmplLocationBuffer: Codeunit WhseEmplLocationBuffer;
@@ -2106,7 +2107,7 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal; ToTransfer: Boolean)
+    local procedure OnAfterCheckWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal; ToTransfer: Boolean; var Item: Record Item)
     begin
     end;
 

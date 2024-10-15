@@ -1,4 +1,4 @@
-codeunit 12153 SubcontractingPricesMgt
+﻿codeunit 12153 SubcontractingPricesMgt
 {
 
     trigger OnRun()
@@ -42,6 +42,7 @@ codeunit 12153 SubcontractingPricesMgt
         SubcontractorPrices.SetFilter("Item No.", '%1|%2', InSubcPrices."Item No.", '');
         SubcontractorPrices.SetRange("Start Date", 0D, InSubcPrices."Start Date");
         SubcontractorPrices.SetFilter("End Date", '>=%1|%2', InSubcPrices."Start Date", 0D);
+        OnRoutingPricelistCostOnAfterSetFilters(SubcontractorPrices, InSubcPrices, WorkCenter);
         if SubcontractorPrices.FindLast() then begin
             if SubcontractorPrices."Unit of Measure Code" = InSubcPrices."Unit of Measure Code" then begin
                 PricelistQtyPerUOM := ProdQtyPerUom;
@@ -157,6 +158,7 @@ codeunit 12153 SubcontractingPricesMgt
             SubcontractorPrices.SetFilter("Currency Code", '%1|%2', "Currency Code", '');
             if FixedUOM <> '' then
                 SubcontractorPrices.SetRange("Unit of Measure Code", FixedUOM);
+            OnGetSubcPriceForReqLineOnAfterSetFilters(SubcontractorPrices, ReqLine);
 
             if SubcontractorPrices.FindLast() then begin
                 if SubcontractorPrices."Unit of Measure Code" = "Unit of Measure Code" then begin
@@ -206,6 +208,16 @@ codeunit 12153 SubcontractingPricesMgt
             if "Pricelist UM Qty/Base UM Qty" = 0 then
                 "Pricelist UM Qty/Base UM Qty" := 1;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSubcPriceForReqLineOnAfterSetFilters(SubcontractorPrices: Record "Subcontractor Prices"; var ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRoutingPricelistCostOnAfterSetFilters(var SubcontractorPrices: Record "Subcontractor Prices"; var InSubcPrices: Record "Subcontractor Prices"; WorkCenter: Record "Work Center")
+    begin
     end;
 }
 

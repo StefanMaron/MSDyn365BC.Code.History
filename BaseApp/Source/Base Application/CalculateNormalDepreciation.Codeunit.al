@@ -241,7 +241,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                 FirstDeprDate := DeprStartingDate;
 
             IsHandled := false;
-            OnBeforeNumberofDayCalculateNumberofDays(FA, DeprBook, NumberofDays, FirstDeprDate, UntilDate, Year365Days, IsHandled);
+            OnBeforeNumberofDayCalculateNumberofDays(FA, DeprBook, NumberofDays, FirstDeprDate, UntilDate, Year365Days, IsHandled, FADeprBook);
             if not IsHandled then
                 NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
 
@@ -972,9 +972,10 @@ codeunit 5611 "Calculate Normal Depreciation"
         DeprBook: Record "Depreciation Book";
         var NumberofDays: Integer;
         FirstDeprDate: date;
-        UntilDate: Date;
+        var UntilDate: Date;
         Year365Days: Boolean;
-        var IsHandled: Boolean)
+        var IsHandled: Boolean;
+        FADepreciationBook: Record "FA Depreciation Book")
     begin
     end;
 

@@ -1091,6 +1091,7 @@
           DimMgt.GetRecDefaultDimID(
             GenJnlLine, 0, DefaultDimSource, GenJnlLine."Source Code",
             GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code", 0, 0);
+        OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
         GenJnlPostLine.Run(GenJnlLine);
     end;
 
@@ -1353,6 +1354,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnSalesTaxOnAfterVATEntrySetFilter(VATPostingSetup: Record "VAT Posting Setup"; VATType: enum "General Posting Type"; var VATEntry: Record "VAT Entry"; FindFirstEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

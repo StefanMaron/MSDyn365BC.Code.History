@@ -207,17 +207,22 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
     var
         SalesHeader: Record "Sales Header";
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         if SalesHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until SalesHeader.Next() = 0;
 
         if SalesOrderEntityBuffer.FindSet(true, false) then
             repeat
-                if not SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderEntityBuffer."No.") then
+                if not SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderEntityBuffer."No.") then begin
                     SalesOrderEntityBuffer.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until SalesOrderEntityBuffer.Next() = 0;
     end;
 
@@ -542,14 +547,14 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         CompletelyShipped: Boolean;
     begin
-        SearchSalesLine.Copy(SalesLine);
+        SearchSalesLine.CopyFilters(SalesLine);
         SearchSalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SearchSalesLine.SetRange("Document No.", SalesLine."Document No.");
         SearchSalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
         SearchSalesLine.SetRange("Location Code", SalesLine."Location Code");
         SearchSalesLine.SetRange("Completely Shipped", false);
 
-        CompletelyShipped := not SearchSalesLine.FindFirst();
+        CompletelyShipped := SearchSalesLine.IsEmpty();
 
         if not SalesOrderEntityBuffer.Get(SalesLine."Document No.") then
             exit;

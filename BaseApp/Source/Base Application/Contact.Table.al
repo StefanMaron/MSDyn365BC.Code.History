@@ -1452,6 +1452,10 @@
 
         Clear(Cust);
         Cust.SetInsertFromContact(true);
+        if CustomerTemplateCode <> '' then begin
+            CustTemplate.Get(CustomerTemplateCode);
+            CustomerTemplMgt.InitCustomerNo(Cust, CustTemplate);
+        end;
         Cust."Contact Type" := Type;
         OnCreateCustomerFromTemplateOnBeforeCustomerInsert(Cust, CustomerTemplateCode, Rec);
         Cust.Insert(true);
@@ -1473,10 +1477,8 @@
         OnCreateCustomerOnBeforeCustomerModify(Cust, Rec);
         Cust.Modify();
 
-        if CustomerTemplateCode <> '' then begin
-            CustTemplate.Get(CustomerTemplateCode);
+        if CustomerTemplateCode <> '' then
             CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustTemplate);
-        end;
         OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(Cust, CustTemplate, Rec);
 
         OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec);
@@ -1568,6 +1570,10 @@
 
         Clear(Vend);
         Vend.SetInsertFromContact(true);
+        if VendorTemplateCode <> '' then begin
+            VendorTempl.Get(VendorTemplateCode);
+            VendorTemplMgt.InitVendorNo(Vend, VendorTempl);
+        end;
         OnBeforeVendorInsert(Vend, Rec, VendorTemplateCode);
         Vend.Insert(true);
         Vend.SetInsertFromContact(false);
@@ -1600,10 +1606,8 @@
         if not IsHandled then
             Commit();
         Vend.Get(Vend."No.");
-        if VendorTemplateCode <> '' then begin
-            VendorTempl.Get(VendorTemplateCode);
+        if VendorTemplateCode <> '' then
             VendorTemplMgt.ApplyVendorTemplate(Vend, VendorTempl);
-        end;
 
         OnCreateVendorOnAfterUpdateVendor(Vend, Rec, ContBusRel);
 
@@ -1717,16 +1721,21 @@
     procedure CreateVendorLink()
     var
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
-        CheckForExistingRelationships(ContBusRel."Link to Table"::Vendor);
-        CheckIfPrivacyBlockedGeneric;
-        TestField("Company No.");
-        RMSetup.Get();
-        RMSetup.TestField("Bus. Rel. Code for Vendors");
-        CreateLink(
-          PAGE::"Vendor Link",
-          RMSetup."Bus. Rel. Code for Vendors",
-          ContBusRel."Link to Table"::Vendor);
+        IsHandled := false;
+        OnBeforeCreateVendorLink(Rec, IsHandled);
+        if not IsHandled then begin
+            CheckForExistingRelationships(ContBusRel."Link to Table"::Vendor);
+            CheckIfPrivacyBlockedGeneric;
+            TestField("Company No.");
+            RMSetup.Get();
+            RMSetup.TestField("Bus. Rel. Code for Vendors");
+            CreateLink(
+              PAGE::"Vendor Link",
+              RMSetup."Bus. Rel. Code for Vendors",
+              ContBusRel."Link to Table"::Vendor);
+        end;
     end;
 
     procedure CreateBankAccountLink()
@@ -3278,6 +3287,7 @@
         end;
 
         Employee.Init();
+        EmployeeTemplMgt.InitEmployeeNo(Employee, EmployeeTempl);
         Employee.Insert(true);
         EmployeeNo := Employee."No.";
 
@@ -3839,6 +3849,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateVendorFromTemplateOnBeforeCommit(Contact: Record Contact; Vend: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateVendorLink(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

@@ -945,7 +945,14 @@ table 32 "Item Ledger Entry"
     end;
 
     procedure GetReservationQty(var QtyReserved: Decimal; var QtyToReserve: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetReservationQty(Rec, QtyReserved, QtyToReserve, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields("Reserved Quantity");
         QtyReserved := "Reserved Quantity";
         QtyToReserve := "Remaining Quantity" - "Reserved Quantity";
@@ -1136,6 +1143,11 @@ table 32 "Item Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTrackingDoesNotExist(RecId: RecordId; ItemLedgEntry: Record "Item Ledger Entry"; FldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetReservationQty(var ItemLedgerEntry: Record "Item Ledger Entry"; var QtyReserved: Decimal; var QtyToReserve: Decimal; var IsHandled: Boolean)
     begin
     end;
 

@@ -2311,7 +2311,7 @@ codeunit 136306 "Job Invoicing"
         CreateCustomerWithAlternateShipToCode(Customer, ShipToAddress);
 
         // [GIVEN] Job for a customer created
-        CreateJobForCustomer(Job, Customer."No.");
+        LibraryJob.CreateJob(Job, Customer."No.");
 
         // [GIVEN] Job Task with Item job planning line
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -2551,7 +2551,7 @@ codeunit 136306 "Job Invoicing"
     end;
 
     [Test]
-    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceUsesSellToBillToShipToFields()
     var
@@ -2574,8 +2574,7 @@ codeunit 136306 "Job Invoicing"
         LibrarySales.CreateCustomer(BillToCustomer);
 
         // [GIVEN] Job for a customers created
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Sell-to Customer No.", SellToCustomer."No.");
+        LibraryJob.CreateJob(Job, SellToCustomer."No.");
         Job.Validate("Bill-to Customer No.", BillToCustomer."No.");
         Job.Modify(true);
 
@@ -2653,8 +2652,7 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Three Jobs "J1", "J2", "J3" for one Customer. Each Job has one Job Planning Line "P1" / "P2" / "P3" with G/L Account.
         CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
-            LibraryJob.CreateJob(Job);
-            UpdateSellBillToCustomerNoOnJob(Job, CustomerNo);
+            LibraryJob.CreateJob(Job, CustomerNo);
             LibraryJob.CreateJobTask(Job, JobTask);
             LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine[i]);
         end;
@@ -2699,8 +2697,7 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Three Jobs "J1", "J2", "J3" for one Customer. Each Job has one Job Planning Line "P1" / "P2" / "P3" with G/L Account.
         CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
-            LibraryJob.CreateJob(Job);
-            UpdateSellBillToCustomerNoOnJob(Job, CustomerNo);
+            LibraryJob.CreateJob(Job, CustomerNo);
             LibraryJob.CreateJobTask(Job, JobTask);
             LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine[i]);
             JobPlanningLine[i].Validate(Quantity, -JobPlanningLine[i].Quantity);
@@ -2747,8 +2744,7 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Three Jobs "J1", "J2", "J3" for one Customer. Each Job has one Job Planning Line "P1" / "P2" / "P3" with Resource.
         CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
-            LibraryJob.CreateJob(Job);
-            UpdateSellBillToCustomerNoOnJob(Job, CustomerNo);
+            LibraryJob.CreateJob(Job, CustomerNo);
             LibraryJob.CreateJobTask(Job, JobTask);
             LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine[i]);
         end;
@@ -2793,8 +2789,7 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Three Jobs "J1", "J2", "J3" for one Customer. Each Job has one Job Planning Line "P1" / "P2" / "P3" with Resource.
         CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
-            LibraryJob.CreateJob(Job);
-            UpdateSellBillToCustomerNoOnJob(Job, CustomerNo);
+            LibraryJob.CreateJob(Job, CustomerNo);
             LibraryJob.CreateJobTask(Job, JobTask);
             LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine[i]);
             JobPlanningLine[i].Validate(Quantity, -JobPlanningLine[i].Quantity);
@@ -2822,7 +2817,7 @@ codeunit 136306 "Job Invoicing"
     end;
 
     [Test]
-    [HandlerFunctions('TransferToInvoiceHandler,ConfirmHandlerVerifyQuestion,MessageHandler')]
+    [HandlerFunctions('TransferToInvoiceHandler,ConfirmHandlerMultipleResponses,MessageHandler')]
     procedure JobToSalesInvPriceInclVATDiff()
     var
         Customer: Record Customer;
@@ -2853,6 +2848,8 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Job with Job Task and Job Planning Line and Default Dimension Value = "DDV2"
         CreateJobWithJobTask(JobTask);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
         Job.Get(JobTask."Job No.");
         Job.Validate("Sell-to Customer No.", Customer."No.");
         Job.Modify();
@@ -3053,13 +3050,6 @@ codeunit 136306 "Job Invoicing"
         ShipToAddress.Modify(true);
     end;
 
-    local procedure CreateJobForCustomer(var Job: Record Job; CustomerNo: Code[20])
-    begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Sell-to Customer No.", CustomerNo);
-        Job.Modify(true);
-    end;
-
     local procedure CreateAndPostJobJournalLineWithTypeItem(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")
     var
         Item: Record Item;
@@ -3094,9 +3084,17 @@ codeunit 136306 "Job Invoicing"
 
     local procedure CreateJobWithJobTask(var JobTask: Record "Job Task")
     var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CreateJobWithJobTask(JobTask, Customer."No.");
+    end;
+
+    local procedure CreateJobWithJobTask(var JobTask: Record "Job Task"; CustomerNo: Code[20])
+    var
         Job: Record Job;
     begin
-        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJob(Job, CustomerNo);
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
 
@@ -3277,14 +3275,13 @@ codeunit 136306 "Job Invoicing"
     var
         Customer: Record Customer;
     begin
-        LibraryJob.CreateJob(Job);
+        LibrarySales.CreateCustomer(Customer);
+        LibraryJob.CreateJob(Job, Customer."No.");
         Job.Validate("WIP Method", FindJobWipMethods);
         Job.Validate("Starting Date", WorkDate);
         Job.Validate("Ending Date", WorkDate);
         Customer.Get(Job."Bill-to Customer No.");
         SetCustomerCurrencyCodePricesInclVAT(Customer, CurrencyCode, PricesInclVAT);
-        if CurrencyCode <> '' then
-            Job.Validate("Bill-to Customer No.", Customer."No.");
         Job.Modify(true);
     end;
 
@@ -3303,9 +3300,7 @@ codeunit 136306 "Job Invoicing"
     var
         Job: Record Job;
     begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", CustomerNo);
-        Job.Modify();
+        LibraryJob.CreateJob(Job, CustomerNo);
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLine(JobTask, LibraryJob.ItemType, ItemNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
         CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType, GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
@@ -3402,9 +3397,7 @@ codeunit 136306 "Job Invoicing"
 
     local procedure CreateJobWithCustomer(var Job: Record Job)
     begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Sell-to Customer No.", CreateCustomerwithDimension);
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, CreateCustomerwithDimension());
     end;
 
     local procedure CreateDefDimForItem(var DefaultDimension: Record "Default Dimension"; ItemNo: Code[20])
@@ -3794,13 +3787,6 @@ codeunit 136306 "Job Invoicing"
         SalesLine.Validate(Description, LibraryUtility.GenerateGUID());
         SalesLine.Modify(true);
         exit(SalesLine.Description);
-    end;
-
-    local procedure UpdateSellBillToCustomerNoOnJob(var Job: Record Job; CustomerNo: Code[20])
-    begin
-        Job.Validate("Sell-to Customer No.", CustomerNo);
-        Job.Validate("Bill-to Customer No.", CustomerNo);
-        Job.Modify(true);
     end;
 
     local procedure VerifyLineTypeInJobLedgerEntry(DocumentNo: Code[20]; JobNo: Code[20])

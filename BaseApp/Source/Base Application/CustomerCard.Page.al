@@ -2423,8 +2423,6 @@
             if "No." <> xRec."No." then
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
-        if Rec.GetFilter("Date Filter") = '' then
-            SetRange("Date Filter", 0D, WorkDate());
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         if AnyWorkflowExists then begin
             CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
@@ -2468,6 +2466,8 @@
 
     trigger OnOpenPage()
     begin
+        if Rec.GetFilter("Date Filter") = '' then
+            SetRange("Date Filter", 0D, WorkDate());
         if GuiAllowed() then
             OnOpenPageFunc();
         OnAfterOnOpenPage(Rec, xRec);

@@ -546,7 +546,13 @@ codeunit 12179 "Export FatturaPA Document"
         OrderNo: Code[20];
         Finished: Boolean;
         LineInfoExists: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePopulateOrderData(TempFatturaLine, TempFatturaHeader, TempXMLBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         // 2.1.2  DatiOrdineAcquisto
 
         TempFatturaLine.Reset();
@@ -772,6 +778,11 @@ codeunit 12179 "Export FatturaPA Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePopulatePaymentData(var TempFatturaLine: Record "Fattura Line"; TempFatturaHeader: Record "Fattura Header"; var TempXMLBuffer: record "XML Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePopulateOrderData(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary; var TempXMLBuffer: Record "XML Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 

@@ -311,7 +311,7 @@
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = true;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -1085,7 +1085,7 @@
             part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = SalesDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
@@ -2326,6 +2326,8 @@
     begin
         JobQueuesUsed := SalesSetup.JobQueueActive();
         SetExtDocNoMandatoryCondition();
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -2447,6 +2449,7 @@
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
         BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -2456,6 +2459,14 @@
         GLSetup.Get();
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     [Obsolete('Replaced by PostSalesOrder().', '18.0')]

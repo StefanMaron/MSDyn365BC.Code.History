@@ -305,6 +305,7 @@
         with IssuedFinChrgMemoHeader do begin
             Find;
             "No. Printed" := "No. Printed" + 1;
+            OnIncrNoPrintedOnBeforeModify(IssuedFinChrgMemoHeader);
             Modify;
             Commit();
         end;
@@ -544,6 +545,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckNegativeFinChrgMemoLineAmount(FinChrgMemoHeader: Record "Finance Charge Memo Header"; FinChrgMemoLine: Record "Finance Charge Memo Line"; FinChrgTerms: Record "Finance Charge Terms"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIncrNoPrintedOnBeforeModify(var IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
     end;
 

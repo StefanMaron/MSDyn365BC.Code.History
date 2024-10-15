@@ -639,7 +639,7 @@ page 5933 "Service Invoice"
             part(ServiceDocCheckFactbox; "Service Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = ServiceDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");

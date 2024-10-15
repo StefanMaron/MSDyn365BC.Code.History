@@ -3071,6 +3071,8 @@
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
             end;
         end;
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
@@ -3245,7 +3247,7 @@
                         until ServDocReg.Next() = 0;
                 end;
                 StoreServiceCommentLineToTemp(TempServiceCommentLine);
-                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header".AsInteger(), "Document Type".AsInteger(), "No.");
+                ServiceCommentLine.DeleteServiceInvoiceLinesRelatedComments(Rec);
                 IsHandled := false;
                 OnRecreateServLinesOnBeforeServLineDeleteAll(Rec, ServLine, CurrFieldNo, IsHandled);
                 if not IsHandled then
@@ -3275,6 +3277,7 @@
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("Table Subtype", "Document Type");
         ServiceCommentLine.SetRange("No.", "No.");
+        ServiceCommentLine.SetRange(Type, "Service Comment Line Type"::General);
         if ServiceCommentLine.FindSet() then
             repeat
                 TempServiceCommentLine := ServiceCommentLine;
@@ -3955,11 +3958,58 @@
     end;
 
     procedure InitRecord()
-    var
-        PostingNoSeries: Code[20];
     begin
         ServiceMgtSetup.Get();
         GLSetup.GetRecordOnce();
+        SetDefaultNoSeries();
+
+        if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then begin
+            "Order Date" := WorkDate;
+            "Order Time" := Time;
+        end;
+
+        "Posting Date" := WorkDate;
+        "Document Date" := WorkDate;
+        "Operation Occurred Date" := WorkDate;
+        "Default Response Time (Hours)" := ServiceMgtSetup."Default Response Time (Hours)";
+        "Link Service to Service Item" := ServiceMgtSetup."Link Service to Service Item";
+
+        if Cust.Get("Customer No.") then
+            Validate("Location Code", UserSetupMgt.GetLocation(2, Cust."Location Code", "Responsibility Center"));
+        OnInitRecordOnAfterValidateLocationCode(Rec, xRec);
+
+        if "Document Type" in ["Document Type"::"Credit Memo"] then begin
+            GLSetup.Get();
+            Correction := GLSetup."Mark Cr. Memos as Corrections";
+        end;
+
+        "Posting Description" := Format("Document Type") + ' ' + "No.";
+
+        Reserve := Reserve::Optional;
+
+        if Cust.Get("Customer No.") then
+            if Cust."Responsibility Center" <> '' then
+                "Responsibility Center" := UserSetupMgt.GetRespCenter(2, Cust."Responsibility Center")
+            else
+                "Responsibility Center" := UserSetupMgt.GetRespCenter(2, "Responsibility Center")
+        else
+            "Responsibility Center" := UserSetupMgt.GetServiceFilter;
+
+        Validate("Payment Terms Code");
+
+        OnAfterInitRecord(Rec);
+    end;
+
+    local procedure SetDefaultNoSeries()
+    var
+        PostingNoSeries: Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultNoSeries(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if GLSetup."Journal templ. Name Mandatory" then begin
             if "Journal Templ. Name" = '' then begin
                 if not IsCreditDocType() then
@@ -3999,42 +4049,6 @@
                         NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
                 end;
         end;
-
-        if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then begin
-            "Order Date" := WorkDate;
-            "Order Time" := Time;
-        end;
-
-        "Posting Date" := WorkDate;
-        "Document Date" := WorkDate;
-        "Operation Occurred Date" := WorkDate;
-        "Default Response Time (Hours)" := ServiceMgtSetup."Default Response Time (Hours)";
-        "Link Service to Service Item" := ServiceMgtSetup."Link Service to Service Item";
-
-        if Cust.Get("Customer No.") then
-            Validate("Location Code", UserSetupMgt.GetLocation(2, Cust."Location Code", "Responsibility Center"));
-        OnInitRecordOnAfterValidateLocationCode(Rec, xRec);
-
-        if "Document Type" in ["Document Type"::"Credit Memo"] then begin
-            GLSetup.Get();
-            Correction := GLSetup."Mark Cr. Memos as Corrections";
-        end;
-
-        "Posting Description" := Format("Document Type") + ' ' + "No.";
-
-        Reserve := Reserve::Optional;
-
-        if Cust.Get("Customer No.") then
-            if Cust."Responsibility Center" <> '' then
-                "Responsibility Center" := UserSetupMgt.GetRespCenter(2, Cust."Responsibility Center")
-            else
-                "Responsibility Center" := UserSetupMgt.GetRespCenter(2, "Responsibility Center")
-        else
-            "Responsibility Center" := UserSetupMgt.GetServiceFilter;
-
-        Validate("Payment Terms Code");
-
-        OnAfterInitRecord(Rec);
     end;
 
     local procedure InitRecordFromContact()
@@ -4201,7 +4215,7 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         OnShowDocDimOnBeforeUpdateAllLineDim(Rec, OldDimSetID, CurrFieldNo);
         if OldDimSetID <> "Dimension Set ID" then begin
@@ -5346,6 +5360,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ServiceHeader: Record "Service Header"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
 #if not CLEAN20
     [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
@@ -5548,6 +5567,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultNoSeries(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

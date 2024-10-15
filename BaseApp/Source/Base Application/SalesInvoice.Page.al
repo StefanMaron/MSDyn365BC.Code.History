@@ -286,7 +286,7 @@
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = true;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field(Status; Status)
@@ -553,34 +553,36 @@
                             var
                                 ShipToAddress: Record "Ship-to Address";
                                 ShipToAddressList: Page "Ship-to Address List";
+                                IsHandled: Boolean;
                             begin
-                                OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+                                IsHandled := false;
+                                OnBeforeValidateShipToOptions(Rec, ShipToOptions, IsHandled);
+                                if not IsHandled then
+                                    case ShipToOptions of
+                                        ShipToOptions::"Default (Sell-to Address)":
+                                            begin
+                                                Validate("Ship-to Code", '');
+                                                CopySellToAddressToShipToAddress;
+                                            end;
+                                        ShipToOptions::"Alternate Shipping Address":
+                                            begin
+                                                ShipToAddress.SetRange("Customer No.", "Sell-to Customer No.");
+                                                ShipToAddressList.LookupMode := true;
+                                                ShipToAddressList.SetTableView(ShipToAddress);
 
-                                case ShipToOptions of
-                                    ShipToOptions::"Default (Sell-to Address)":
-                                        begin
-                                            Validate("Ship-to Code", '');
-                                            CopySellToAddressToShipToAddress;
-                                        end;
-                                    ShipToOptions::"Alternate Shipping Address":
-                                        begin
-                                            ShipToAddress.SetRange("Customer No.", "Sell-to Customer No.");
-                                            ShipToAddressList.LookupMode := true;
-                                            ShipToAddressList.SetTableView(ShipToAddress);
-
-                                            if ShipToAddressList.RunModal = ACTION::LookupOK then begin
-                                                ShipToAddressList.GetRecord(ShipToAddress);
-                                                Validate("Ship-to Code", ShipToAddress.Code);
-                                                IsShipToCountyVisible := FormatAddress.UseCounty(ShipToAddress."Country/Region Code");
-                                            end else
-                                                ShipToOptions := ShipToOptions::"Custom Address";
-                                        end;
-                                    ShipToOptions::"Custom Address":
-                                        begin
-                                            Validate("Ship-to Code", '');
-                                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
-                                        end;
-                                end;
+                                                if ShipToAddressList.RunModal() = ACTION::LookupOK then begin
+                                                    ShipToAddressList.GetRecord(ShipToAddress);
+                                                    Validate("Ship-to Code", ShipToAddress.Code);
+                                                    IsShipToCountyVisible := FormatAddress.UseCounty(ShipToAddress."Country/Region Code");
+                                                end else
+                                                    ShipToOptions := ShipToOptions::"Custom Address";
+                                            end;
+                                        ShipToOptions::"Custom Address":
+                                            begin
+                                                Validate("Ship-to Code", '');
+                                                IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                                            end;
+                                    end;
 
                                 OnAfterValidateShipToOptions(Rec, ShipToOptions);
                             end;
@@ -976,7 +978,7 @@
             part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = SalesDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
@@ -1757,6 +1759,8 @@
     begin
         JobQueuesUsed := SalesSetup.JobQueueActive();
         SetExtDocNoMandatoryCondition();
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1861,6 +1865,7 @@
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
         BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1870,6 +1875,14 @@
         GLSetup.Get();
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
@@ -2071,7 +2084,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
+    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option; var IsHandled: Boolean)
     begin
     end;
 

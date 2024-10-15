@@ -271,6 +271,7 @@ table 12170 "Payment Lines"
                 PaymentLines."Discount Date Calculation" := PaymentLinesTerms."Discount Date Calculation";
                 PaymentLines."Discount %" := PaymentLinesTerms."Discount %";
                 PaymentLines."Due Date" := CalcDate(PaymentLinesTerms."Due Date Calculation", SalesHeader."Document Date");
+                OnCreatePaymentLinesSalesOnAfterPopulatePaymentLines(PaymentLines, PaymentLinesTerms, SalesHeader);
 
                 repeat
                     if PaymentLines."Due Date" < SalesHeader."Document Date" then
@@ -382,6 +383,7 @@ table 12170 "Payment Lines"
                 PaymentLines."Discount Date Calculation" := PaymentLinesTerms."Discount Date Calculation";
                 PaymentLines."Discount %" := PaymentLinesTerms."Discount %";
                 PaymentLines."Due Date" := CalcDate(PaymentLinesTerms."Due Date Calculation", PurchaseHeader."Document Date");
+                OnCreatePaymentLiensPurchasesOnAfterPopulatePaymentLines(PaymentLines, PaymentLinesTerms, PurchaseHeader);
 
                 if PaymentLines."Due Date" < PurchaseHeader."Document Date" then
                     PaymentLines."Due Date" := PurchaseHeader."Document Date";
@@ -603,6 +605,16 @@ table 12170 "Payment Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLiensPurchasesOnAfterPopulatePaymentLines(var PaymentLines: Record "Payment Lines"; PaymentLinesTerms: Record "Payment Lines"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLinesSalesOnAfterPopulatePaymentLines(var PaymentLines: Record "Payment Lines"; PaymentLinesTerms: Record "Payment Lines"; SalesHeader: Record "Sales Header")
     begin
     end;
 }

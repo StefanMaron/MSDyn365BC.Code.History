@@ -476,7 +476,14 @@
     end;
 
     procedure WithholdLineFilter(var WithholdCodeLine: Record "Withhold Code Line"; WithholdCode: Code[20]; ValidityDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeWithholdLineFilter(WithholdCodeLine, WithholdCode, ValidityDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if ValidityDate = 0D then
             ValidityDate := WorkDate;
 
@@ -600,6 +607,7 @@
             SetCurrentKey("Entry No.");
             SetRange("Closed by Entry No.");
             MarkedOnly(true);
+            OnGetRemainingWithhTaxAmountOnAfterVendLedgEntrySetFilters(VendLedgEntry, CreateVendLedgEntry, ComputedWithholdingTax, AppliestoOccurrenceNo);
 
             // Calculate the RemainingWithhTaxAmount by substracting amount from its applied amount
             RemainingWithhTaxAmount := ComputedWithholdingTax."Remaining Amount";
@@ -702,6 +710,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeWithholdLineFilter(var WithholdCodeLine: Record "Withhold Code Line"; WithholdCode: Code[20]; ValidityDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateWithholdingTaxOnRecalculate(var PurchWithhContribution: Record "Purch. Withh. Contribution"; PurchaseHeader: Record "Purchase Header"; var TotAmount: Decimal)
     begin
     end;
@@ -711,6 +724,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRemainingWithhTaxAmountOnAfterVendLedgEntrySetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; CreateVendLedgEntry: Record "Vendor Ledger Entry"; ComputedWithholdingTax: Record "Computed Withholding Tax"; AppliestoOccurrenceNo: Integer)
+    begin
+    end;
+    
     [IntegrationEvent(false, false)]
     local procedure OnPostPaymentsOnBeforeComputedWithholdingTaxModify(var TempWithholdingSocSec: Record "Tmp Withholding Contribution"; var ComputedWithholdingTax: Record "Computed Withholding Tax")
     begin

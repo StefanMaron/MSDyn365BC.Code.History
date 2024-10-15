@@ -1,4 +1,4 @@
-page 5098 "Task Card"
+﻿page 5098 "Task Card"
 {
     Caption = 'Task Card';
     DeleteAllowed = false;
@@ -584,6 +584,7 @@ page 5098 "Task Card"
             AllDayEventEnable := false;
         end;
 
+        OnEnableFieldsOnBeforeGetEndDateTime(Rec, StartTimeEnable, EndingTimeEnable, DurationEnable, LocationEnable, AllDayEventEnable);
         GetEndDateTime;
     end;
 
@@ -605,7 +606,9 @@ page 5098 "Task Card"
         else begin
             CompletedByEnable := true;
             CompletedByEditable := not Closed
-        end
+        end;
+
+        OnAfterSwitchCardControls(ContactNoEditable, NoOfAttendeesEnable, AttendeesAcceptedNoEnable);
     end;
 
     local procedure TeamCodeOnAfterValidate()
@@ -660,12 +663,41 @@ page 5098 "Task Card"
     local procedure RecurringOnPush()
     begin
         SetRecurringEditable;
+
+        OnAfterRecurringOnPush();
     end;
 
     local procedure ContactNoOnFormat(Text: Text[1024])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeContactNoOnFormat(Rec, IsHandled);
+        if isHandled then
+            exit;
+
         if Type = Type::Meeting then
             Text := MultipleTxt;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterRecurringOnPush()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSwitchCardControls(var ContactNoEditable: Boolean; var NoOfAttendeesEnable: Boolean; var AttendeesAcceptedNoEnable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeContactNoOnFormat(var ToDo: Record "To-Do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnEnableFieldsOnBeforeGetEndDateTime(var ToDo: Record "To-Do"; var StartTimeEnable: Boolean; var EndingTimeEnable: Boolean; var DurationEnable: Boolean; var LocationEnable: Boolean; var AllDayEventEnable: Boolean)
+    begin
     end;
 }
 

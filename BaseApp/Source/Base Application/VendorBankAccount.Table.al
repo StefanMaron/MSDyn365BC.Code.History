@@ -171,7 +171,14 @@ table 288 "Vendor Bank Account"
             Caption = 'IBAN';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateIBAN(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CheckIBAN();
             end;
         }
@@ -386,6 +393,11 @@ table 288 "Vendor Bank Account"
     
     [IntegrationEvent(false, false)]
     local procedure OnValidateBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; FieldToValidate: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateIBAN(var VendorBankAccount: Record "Vendor Bank Account"; var xVendorBankAccount: Record "Vendor Bank Account"; var IsHandled: Boolean)
     begin
     end;
 

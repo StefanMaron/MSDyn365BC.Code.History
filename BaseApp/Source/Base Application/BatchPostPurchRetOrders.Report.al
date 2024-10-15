@@ -15,6 +15,8 @@
             var
                 PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
             begin
+                OnBeforePurchaseHeaderOnPreDataItem("Purchase Header", ShipReq, InvReq);
+
                 PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Ship, ShipReq);
                 PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 PurchaseBatchPostMgt.RunBatch("Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, InvReq);
@@ -125,6 +127,8 @@
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
+
+            OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
     }
 
@@ -146,5 +150,15 @@
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseHeaderOnPreDataItem(var PurchaseHeader: Record "Purchase Header"; var ShipReq: Boolean; var InvReq: Boolean)
+    begin
+    end;
 }
 
