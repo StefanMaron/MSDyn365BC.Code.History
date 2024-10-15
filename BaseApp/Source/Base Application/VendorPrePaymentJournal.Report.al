@@ -574,8 +574,6 @@ report 317 "Vendor Pre-Payment Journal"
                             end;
                         end else
                             CalcAppliesToIDTotals;
-                        if "Document No." <> LastDocumentNo then begin
-                            LastDocumentNo := "Document No.";
                             case "Account Type" of
                                 "Account Type"::Customer:
                                     if Cust.Get("Account No.") then
@@ -583,8 +581,11 @@ report 317 "Vendor Pre-Payment Journal"
                                 "Account Type"::Vendor:
                                     if Vend.Get("Account No.") then
                                         CustVendName := Vend.Name;
+                                "Account Type"::"Bank Account":
+                                    if BankAcc.Get("Account No.") then
+                                        CustVendName := BankAcc.Name;
                             end;
-                        end;
+                        LastDocumentNo := "Document No.";
                         LastAccountNo := "Account No.";
                         LastAccountType := "Account Type";
                     end;

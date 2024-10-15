@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 codeunit 442 "Sales-Post Prepayments"
 {
     Permissions = TableData "Sales Line" = imd,
@@ -404,7 +404,7 @@ codeunit 442 "Sales-Post Prepayments"
                     end;
             end;
 
-        if PreviewMode and GLSetup."Journal Templ. Name Mandatory" then
+        if GLSetup."Journal Templ. Name Mandatory" then
             GenJournalTemplate.Get(SalesHeader."Journal Templ. Name");
     end;
 

@@ -3841,6 +3841,7 @@
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
         PrePaymentLineAmountEntered: Boolean;
+        SkipTaxCalculation: Boolean;
 
     procedure InitOutstanding()
     begin
@@ -4305,6 +4306,16 @@
         end;
     end;
 
+    procedure CanCalculateTax(): Boolean
+    begin
+        exit(SkipTaxCalculation);
+    end;
+
+    procedure SetSkipTaxCalulation(Skip: Boolean)
+    begin
+        SkipTaxCalculation := Skip;
+    end;
+
     procedure SetSalesHeader(NewSalesHeader: Record "Sales Header")
     begin
         SalesHeader := NewSalesHeader;
@@ -4702,7 +4713,7 @@
             TestField("Document Type", "Document Type"::Order);
 #else
             // NAVCZ
-            if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
+            if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote]) then
                 FieldError("Document Type");
             TestField(Type);
             // NAVCZ
@@ -4811,8 +4822,8 @@
             if ("Prepmt. Line Amount" <> 0) and (SalesHeader."Prepayment Type" <> SalesHeader."Prepayment Type"::Advance) then begin
 #endif
                 RemLineAmountToInvoice := GetLineAmountToHandleInclPrepmt(Quantity - "Quantity Invoiced");
-                if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
-                    FieldError("Prepmt. Line Amount", StrSubstNo(Text045, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
+                if RemLineAmountToInvoice < ("Prepmt Amt to Deduct" - "Prepmt Amt Deducted") then
+                    FieldError("Prepmt Amt to Deduct", StrSubstNo(Text045, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
             end;
 #if CLEAN19
         end else
@@ -8479,7 +8490,7 @@
         "Tax Liable" := SalesHeader."Tax Liable";
         // NAVCZ
         if not "System-Created Entry" and
-           ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) and
+           ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote]) and
            HasTypeToFillMandatoryFields() or IsServiceChargeLine()
         then
             // NAVCZ

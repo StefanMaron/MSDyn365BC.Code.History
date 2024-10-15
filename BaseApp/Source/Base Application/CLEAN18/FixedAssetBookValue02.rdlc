@@ -13472,7 +13472,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalNetChangeAmt3.Value)</Value>
+                                  <Value>=Last(Fields!TotalNetChangeAmt3.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=First(Fields!TotalNetChangeAmt3Format.Value)</Format>

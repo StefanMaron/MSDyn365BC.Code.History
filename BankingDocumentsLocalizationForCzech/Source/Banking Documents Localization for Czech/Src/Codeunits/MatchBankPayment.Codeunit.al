@@ -184,6 +184,7 @@ codeunit 31362 "Match Bank Payment CZB"
                                     if GenJournalLine."Applies-to Doc. Type" = GenJournalLine."Applies-to Doc. Type"::"Credit Memo" then
                                         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Refund);
                                 end;
+                                GenJournalLine.SetSuppressCommit(true);
                                 GenJournalLine.Validate("Applies-to Doc. No.", TempMatchBankPaymentBufferCZB."Document No.");
                             end;
                             if BankAccount."Dimension from Apply Entry CZB" then

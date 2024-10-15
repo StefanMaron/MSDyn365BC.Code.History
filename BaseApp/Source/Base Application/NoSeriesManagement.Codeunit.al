@@ -273,8 +273,6 @@
               NoSeriesLine."Ending No.", NoSeriesCode);
         end;
 
-        NoSeriesLine.Validate(Open);
-
         if ModifySeries and NoSeriesLine.Open and not NoSeriesLine."Allow Gaps in Nos." then
             ModifyNoSeriesLine(NoSeriesLine);
         if Not ModifySeries then
@@ -304,7 +302,7 @@
         OnBeforeModifyNoSeriesLine(NoSeriesLine, IsHandled);
         if IsHandled then
             exit;
-
+        NoSeriesLine.Validate(Open);
         NoSeriesLine.Modify;
     end;
 

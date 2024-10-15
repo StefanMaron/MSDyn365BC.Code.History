@@ -983,7 +983,9 @@
                 end;
         end;
 
-        OnAfterPostPurchLine(PurchHeader, PurchLine, SuppressCommit, PurchInvLine, PurchCrMemoLine);
+        OnAfterPostPurchLine(
+            PurchHeader, PurchLine, SuppressCommit, PurchInvLine, PurchCrMemoLine, PurchInvHeader, PurchCrMemoHeader, PurchLineACY,
+            GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode);
     end;
 
 #if not CLEAN20
@@ -1105,8 +1107,12 @@
         if (PurchLine."No." <> '') and not PurchLine."System-Created Entry" then begin
             CheckGLAccDirectPosting(PurchLine);
             if (PurchLine."Job No." <> '') and (PurchLine."Qty. to Invoice" <> 0) then begin
-                CreateJobPurchLine(JobPurchLine, PurchLine, PurchHeader."Prices Including VAT");
-                OnPostGLAccICLineOnAfterCreateJobPurchLine(PurchHeader);
+                IsHandled := false;
+                OnPostGLAccICLineOnBeforeCreateJobPurchLine(PurchHeader, PurchLine, IsHandled);
+                if not IsHandled then begin
+                    CreateJobPurchLine(JobPurchLine, PurchLine, PurchHeader."Prices Including VAT");
+                    OnPostGLAccICLineOnAfterCreateJobPurchLine(PurchHeader);
+                end;
 #if not CLEAN20
                 if UseLegacyInvoicePosting() then
                     JobPostLine.PostJobOnPurchaseLine(PurchHeader, PurchInvHeader, PurchCrMemoHeader, JobPurchLine, SrcCode)
@@ -1215,8 +1221,9 @@
         if IsHandled then
             exit;
 
-        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0)) then
+        if not IsItemChargeLineWithQuantityToInvoice(PurchHeader, PurchLine) then
             exit;
+
 #if not CLEAN20
         IsHandled := false;
         OnBeforePostItemChargeLine(PurchHeader, PurchLine, IsHandled);
@@ -1270,6 +1277,17 @@
 
                 OnPostItemChargeLineOnAfterPostItemCharge(TempItemChargeAssgntPurch, PurchHeader, PurchaseLineBackup, PurchLine);
             until TempItemChargeAssgntPurch.Next() = 0;
+    end;
+
+    local procedure IsItemChargeLineWithQuantityToInvoice(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeIsItemChargeLineWithQuantityToInvoice(PurchHeader, PurchLine, Result, IsHandled);
+        if IsHandled then
+            exit;
+
+        exit(PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0));
     end;
 
     local procedure PostItemTrackingLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
@@ -9500,7 +9518,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostPurchLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CommitIsSupressed: Boolean; PurchInvLine: Record "Purch. Inv. Line"; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    local procedure OnAfterPostPurchLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CommitIsSupressed: Boolean; var PurchInvLine: Record "Purch. Inv. Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLineACY: Record "Purchase Line"; GenJnlLineDocType: Enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SrcCode: Code[10])
     begin
     end;
 
@@ -11552,6 +11570,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemTrackingForShipment(var PurchHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGLAccICLineOnBeforeCreateJobPurchLine(var PurchHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsItemChargeLineWithQuantityToInvoice(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

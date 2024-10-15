@@ -830,7 +830,6 @@ codeunit 1400 DocumentNoVisibility
         FieldRef: FieldRef;
         NewNo: Code[20];
         RecAlreadyExists: Boolean;
-        RememberToSaveNoSeries: Boolean;
     begin
         OnBeforeCheckNumberSeries(RecVariant, NoSeriesCode, FieldNo, NoSeries);
         if (RecVariant.IsRecord or RecVariant.IsInteger) and (NoSeriesCode <> '') and NoSeries.Get(NoSeriesCode) then begin
@@ -843,13 +842,11 @@ codeunit 1400 DocumentNoVisibility
             FieldRef.SetRange(NewNo);
             RecAlreadyExists := not RecRef.IsEmpty;
             while RecAlreadyExists do begin
-                RememberToSaveNoSeries := true;
+                NoSeriesMgt.SaveNoSeries();
                 NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
                 FieldRef.SetRange(NewNo);
                 RecAlreadyExists := not RecRef.IsEmpty;
             end;
-            if RememberToSaveNoSeries then
-                NoSeriesMgt.SaveNoSeries();
         end;
     end;
 
