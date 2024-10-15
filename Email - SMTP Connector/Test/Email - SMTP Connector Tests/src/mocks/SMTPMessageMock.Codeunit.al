@@ -74,7 +74,7 @@ codeunit 139758 "SMTP Message Mock"
         end;
     end;
 
-    procedure GetMessage(EmailMessage: Codeunit "Email Message"; AccountId: Guid; var Message: Codeunit "SMTP Message")
+    procedure GetMessage(EmailMessage: Codeunit "Email Message"; AccountId: Guid; var Message: Codeunit "Connector SMTP Message")
     begin
         SMTPAccount.Get(AccountId);
 

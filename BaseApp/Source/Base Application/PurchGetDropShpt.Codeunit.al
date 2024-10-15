@@ -126,6 +126,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
             Modify; // Only version check
             SalesHeader.Modify(); // Only version check
         end;
+        OnAfterCode(PurchHeader, SalesHeader);
     end;
 
     local procedure CheckSalesLineQtyPerUnitOfMeasure()
@@ -242,6 +243,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
             exit(true);
         end;
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

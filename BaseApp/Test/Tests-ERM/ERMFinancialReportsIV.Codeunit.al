@@ -453,9 +453,9 @@ codeunit 134992 "ERM Financial Reports IV"
     end;
 
     [Test]
-    [HandlerFunctions('GLVATReconciliationRequestPageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('GLVATReconciliationRequestPageHandler,ConfirmHandlerWithVariable')]
     [Scope('OnPrem')]
-    procedure PrintGLVATReconciliationSameRowNo()
+    procedure PrintGLVATReconciliationSameRowNoConfirmYesOnce()
     var
         VATStatementTemplate: Record "VAT Statement Template";
         VATStatementName: Record "VAT Statement Name";
@@ -491,13 +491,68 @@ codeunit 134992 "ERM Financial Reports IV"
             GenJournalLine."Gen. Posting Type"::Purchase, -1, false);
 
         // [WHEN] Print report "G/L VAT Reconciliation" for VAT Statement "V"
-        Commit;
+        // Bug 429182: the only single confirmation request required when customer responds "Yes" to request for VAT Entry table adjustment
+        LibraryVariableStorage.Enqueue(true);
+        Commit();
         RequestPageXML := Report.RunRequestPage(Report::"G/L - VAT Reconciliation", RequestPageXML);
         LibraryReportDataset.RunReportAndLoad(Report::"G/L - VAT Reconciliation", VATStatementName, RequestPageXML);
 
         // [THEN] Both lines Sale and Purchase are printed
         LibraryReportDataset.AssertElementWithValueExists('VAT_Statement_Line_Description', VATStatementLine[1].Description);
         LibraryReportDataset.AssertElementWithValueExists('VAT_Statement_Line_Description', VATStatementLine[2].Description);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLVATReconciliationRequestPageHandler,ConfirmHandlerWithVariable')]
+    [Scope('OnPrem')]
+    procedure PrintGLVATReconciliationSameRowNoConfirmNoOnce()
+    var
+        VATStatementTemplate: Record "VAT Statement Template";
+        VATStatementName: Record "VAT Statement Name";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATStatementLine: array[2] of Record "VAT Statement Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        RequestPageXML: Text;
+    begin
+        // [FEATURE] [Report] [G/L VAT Reconciliation]
+        // [SCENARIO 416991] "G/L VAT Reconciliation" report prints VAT Statement Lines with same "Row No.", "VAT Bus./Prod" groups, but different Gen. Posting Type
+        Initialize();
+
+        // [GIVEN] VAT Statement "V"
+        CreateVATPostingSetupWithBlankVATBusPostingGroup(VATPostingSetup);
+        CreateVATStatementTemplateAndName(VATStatementTemplate, VATStatementName);
+
+        // [GIVEN] VAT Statement line 1 with "Row No." = "AAA" and "General Posting Type" = Sale
+        CreateVATStatementLine(VATStatementLine[1], VATStatementTemplate, VATStatementName, VATPostingSetup, "General Posting Type"::Sale);
+        VATStatementLine[1]."Row No." := 'AAA';
+        VATStatementLine[1].Description := 'Sale';
+        VATStatementLine[1].Modify();
+        CreateAndPostGeneralJournalLine(
+            VATPostingSetup, GenJournalLine."Account Type"::Customer, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"),
+            GenJournalLine."Gen. Posting Type"::Sale, 1, false);
+
+        // [GIVEN] VAT Statement line 2 with "Row No." = "AAA" and "General Posting Type" = Purchase
+        CreateVATStatementLine(VATStatementLine[2], VATStatementTemplate, VATStatementName, VATPostingSetup, "General Posting Type"::Purchase);
+        VATStatementLine[2]."Row No." := 'AAA';
+        VATStatementLine[2].Description := 'Purchase';
+        VATStatementLine[2].Modify();
+        CreateAndPostGeneralJournalLine(
+            VATPostingSetup, GenJournalLine."Account Type"::Vendor, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"),
+            GenJournalLine."Gen. Posting Type"::Purchase, -1, false);
+
+        // [WHEN] Print report "G/L VAT Reconciliation" for VAT Statement "V"
+        // Bug 429182: the only single confirmation request required when customer responds "No" to request for VAT Entry table adjustment
+        LibraryVariableStorage.Enqueue(false);
+        Commit();
+        RequestPageXML := Report.RunRequestPage(Report::"G/L - VAT Reconciliation", RequestPageXML);
+        asserterror LibraryReportDataset.RunReportAndLoad(Report::"G/L - VAT Reconciliation", VATStatementName, RequestPageXML);
+
+        // [THEN] Both lines Sale and Purchase are printed
+        Assert.ExpectedError('The VAT Entry table with filter <G/L Account No.: ''''> must not contain records.');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -511,8 +566,8 @@ codeunit 134992 "ERM Financial Reports IV"
 
         ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
         ObjectOptions.SetRange("Object ID", REPORT::"VAT Statement");
-        ObjectOptions.DeleteAll;
-        Commit;
+        ObjectOptions.DeleteAll();
+        Commit();
 
         if IsInitialized then
             exit;
@@ -895,6 +950,13 @@ codeunit 134992 "ERM Financial Reports IV"
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerWithVariable(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

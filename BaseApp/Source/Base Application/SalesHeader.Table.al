@@ -3292,8 +3292,6 @@
     end;
 
     trigger OnInsert()
-    var
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         InitInsert;
         InsertMode := true;
@@ -3307,7 +3305,7 @@
             SetDefaultSalesperson;
 
         if "Sell-to Customer No." <> '' then
-            StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+            StandardCodesMgtGlobal.CheckCreateSalesRecurringLines(Rec);
 
         DocSignMgt.SetDefaults(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
 
@@ -3390,6 +3388,7 @@
         DocSignMgt: Codeunit "Doc. Signature Management";
         PostingSetupMgt: Codeunit PostingSetupManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         CurrencyDate: Date;
         Confirmed: Boolean;
@@ -3591,6 +3590,11 @@
             exit;
 
         "Posting Description" := Format("Document Type") + ' ' + "No.";
+    end;
+
+    procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
+    begin
+        StandardCodesMgtGlobal := StandardCodesMgtNew;
     end;
 
     procedure AssistEdit(OldSalesHeader: Record "Sales Header") Result: Boolean

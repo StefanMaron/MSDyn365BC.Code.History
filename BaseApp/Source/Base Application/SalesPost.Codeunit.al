@@ -4922,6 +4922,7 @@
             NewAmountIncludingVAT := TotalPrepmtAmount[1] + TotalPrepmtAmount[2] + TotalRoundingAmount[1] + TotalRoundingAmount[2];
             if "Prepayment %" = 100 then
                 TotalRoundingAmount[1] += "Amount Including VAT" - NewAmountIncludingVAT;
+
             AmountRoundingPrecision :=
               GetAmountRoundingPrecisionInLCY("Document Type", "Document No.", "Currency Code");
 
@@ -4930,6 +4931,14 @@
                ("Prepayment %" = 100)
             then begin
                 Prepmt100PctVATRoundingAmt := TotalRoundingAmount[1];
+                TotalRoundingAmount[1] := 0;
+            end;
+
+            if (PricesInclVATRoundingAmount[1] <> 0) and (PricesInclVATRoundingAmount[1] = TotalRoundingAmount[1]) and
+               (PricesInclVATRoundingAmount[2] = 0) and (PricesInclVATRoundingAmount[2] = TotalRoundingAmount[2])
+               and FinalInvoice and ("Prepayment %" <> 100)
+            then begin
+                PricesInclVATRoundingAmount[1] := 0;
                 TotalRoundingAmount[1] := 0;
             end;
 

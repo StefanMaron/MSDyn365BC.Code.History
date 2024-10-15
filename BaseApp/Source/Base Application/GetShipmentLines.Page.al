@@ -284,6 +284,7 @@ page 5708 "Get Shipment Lines"
     begin
         CurrPage.SetSelectionFilter(Rec);
         SalesGetShpt.SetSalesHeader(SalesHeader);
+        OnCreateLinesOnAfterSalesGetShptSetSalesHeader(SalesHeader, Rec);
         SalesGetShpt.CreateInvLines(Rec);
     end;
 
@@ -302,6 +303,11 @@ page 5708 "Get Shipment Lines"
         OrderNo := SalesShipmentHeader."Order No.";
         YourReference := SalesShipmentHeader."Your Reference";
         ExternalDocumentNo := SalesShipmentHeader."External Document No.";
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateLinesOnAfterSalesGetShptSetSalesHeader(var SalesHeader: Record "Sales Header"; var SalesShipmentLine: Record "Sales Shipment Line")
+    begin
     end;
 }
 

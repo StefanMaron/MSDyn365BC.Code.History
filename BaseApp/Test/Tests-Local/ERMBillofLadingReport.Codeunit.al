@@ -12,9 +12,12 @@ codeunit 144722 "ERM Bill of Lading Report"
     var
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
 
     [Test]
@@ -33,18 +36,69 @@ codeunit 144722 "ERM Bill of Lading Report"
     end;
 
     [Test]
+    [HandlerFunctions('BOLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestReportExport()
     var
         SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LocalReportManagement: Codeunit "Local Report Management";
+        ItemDescription: Text;
+        VehicleDescription: Text;
+        VehicleRegNo: Text;
     begin
         // [FEATURE] [Sales] [Invoice]
-        // [SCENARIO 377117] Export "Bill of Lading" Excel for an open Sales Invoice
+        // [SCENARIO 424668] Export "Bill of Lading" Excel for an open Sales Invoice
 
+        // [GIVEN] Sales Invoice Header
         CreateReleaseSalesInvoice(SalesHeader);
         SalesHeader.SetRange("No.", SalesHeader."No.");
+        SalesHeader.CalcFields("Amount Including VAT (LCY)");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindFirst();
+        SalesLine."Net Weight" := LibraryRandom.RandIntInRange(2, 3);
+        SalesLine."Gross Weight" := LibraryRandom.RandIntInRange(4, 5);
+        SalesLine."Unit Volume" := LibraryRandom.RandIntInRange(1, 5);
+        SalesLine.Modify();
 
-        RunReport(SalesHeader);
+        ItemDescription := LibraryUtility.GenerateGUID();
+        VehicleDescription := LibraryUtility.GenerateGUID();
+        VehicleRegNo := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(ItemDescription);
+        LibraryVariableStorage.Enqueue(VehicleDescription);
+        LibraryVariableStorage.Enqueue(VehicleRegNo);
+        Commit();
+
+        // [WHEN] Run Bill Of lading report for the sales document
+        LibraryReportValidation.SetFileName(SalesHeader."No.");
+        RunReport(SalesHeader, LibraryReportValidation.GetFileName);
+
+        // [THEN] Sales Document number, Order Date and shipment info is exported
+        LibraryReportValidation.VerifyCellValueByRef('BU', 9, 1, Format(SalesHeader."Order Date"));
+        LibraryReportValidation.VerifyCellValueByRef('CQ', 9, 1, SalesHeader."No.");
+        LibraryReportValidation.VerifyCellValueByRef(
+          'B', 15, 1,
+          LocalReportManagement.GetCompanyName + '. ' +
+          LocalReportManagement.GetLegalAddress + LocalReportManagement.GetCompanyPhoneFax);
+
+        LibraryReportValidation.VerifyCellValueByRef('B', 20, 1, SalesHeader."Sell-to Customer No." + '  ');
+        LibraryReportValidation.VerifyCellValueByRef('B', 25, 1, ItemDescription);
+        LibraryReportValidation.VerifyCellValueByRef('BF', 25, 1, Format(SalesLine."Qty. to Ship"));
+        LibraryReportValidation.VerifyCellValueByRef(
+          'B', 27, 1,
+          LocalReportManagement.FormatReportValue(SalesLine."Qty. to Ship" * SalesLine."Net Weight", 2) + ',  ,' +
+          LocalReportManagement.FormatReportValue(SalesLine."Qty. to Ship" * SalesLine."Unit Volume", 2));
+        LibraryReportValidation.VerifyCellValueByRef(
+          'BF', 29, 1, LocalReportManagement.FormatAmount(SalesHeader."Amount Including VAT (LCY)"));
+
+        LibraryReportValidation.VerifyCellValueByRef('B', 47, 1, VehicleDescription);
+        LibraryReportValidation.VerifyCellValueByRef('BF', 47, 1, VehicleRegNo);
+
+        LibraryReportValidation.VerifyCellValueByRef(
+          'B', 86, 2, Format(SalesLine."Qty. to Ship" * SalesLine."Net Weight"));
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateReleaseSalesInvoice(var SalesHeader: Record "Sales Header")
@@ -98,14 +152,24 @@ codeunit 144722 "ERM Bill of Lading Report"
         end;
     end;
 
-    local procedure RunReport(var SalesHeader: Record "Sales Header")
+    local procedure RunReport(var SalesHeader: Record "Sales Header"; FileName: Text)
     var
         BillOfLading: Report "Bill of Lading";
     begin
         BillOfLading.SetTestMode(true);
-        BillOfLading.UseRequestPage(false);
+        BillOfLading.SetFileNameSilent(FileName);
         BillOfLading.SetTableView(SalesHeader);
-        BillOfLading.Run;
+        BillOfLading.Run();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BOLRequestPageHandler(var BillofLading: TestRequestPage "Bill of Lading")
+    begin
+        BillofLading.ItemDescription.SetValue(LibraryVariableStorage.DequeueText());
+        BillofLading.VehicleDescription.SetValue(LibraryVariableStorage.DequeueText());
+        BillofLading.VehicleRegistrationNo.SetValue(LibraryVariableStorage.DequeueText());
+        BillofLading.OK.Invoke();
     end;
 }
 

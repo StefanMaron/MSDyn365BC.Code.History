@@ -2003,7 +2003,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPostingDateWithExpirationDate(ItemLedgEntry, GlobalItemTrackingCode, OldItemLedgEntry, IsHandled);
+        OnBeforeCheckPostingDateWithExpirationDate(ItemLedgEntry, GlobalItemTrackingCode, OldItemLedgEntry, IsHandled, ItemJnlLine);
         if IsHandled then
             exit;
 
@@ -2314,7 +2314,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertItemLedgEntryProcedure(ItemLedgEntry, IsHandled);
+        OnBeforeInsertItemLedgEntryProcedure(ItemLedgEntry, IsHandled, ItemJnlLine);
         if IsHandled then
             exit;
 
@@ -5237,6 +5237,7 @@
 
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", CostItemLedgEntryNo);
+        ValueEntry.SetRange(Inventoriable, true);
         ValueEntry.SetRange("Valued By Average Cost", not ValuedByAverage);
         ValueEntry.ModifyAll("Valued By Average Cost", ValuedByAverage);
     end;
@@ -6204,7 +6205,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertItemLedgEntryProcedure(var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertItemLedgEntryProcedure(var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -7348,7 +7349,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPostingDateWithExpirationDate(var ItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code"; OldItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckPostingDateWithExpirationDate(var ItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code"; OldItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 

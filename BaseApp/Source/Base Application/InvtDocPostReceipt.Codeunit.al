@@ -18,24 +18,24 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
         Window: Dialog;
         LineCount: Integer;
+        HideProgressWindow: Boolean;
+        SuppressCommit: Boolean;
     begin
+        OnBeforeOnRun(Rec, SuppressCommit, HideProgressWindow);
+
         Rec.TestField("Document Type", Rec."Document Type"::Receipt);
 
         InvtDocHeader := Rec;
         InvtDocHeader.SetHideValidationDialog(HideValidationDialog);
 
         with InvtDocHeader do begin
-            TestField("No.");
-            TestField("Posting Date");
+            CheckInvtDocumentHeaderMandatoryFields(InvtDocHeader);
 
             CheckDim();
 
             DocSignMgt.CheckDocSignatures(DATABASE::"Invt. Document Header", "Document Type".AsInteger(), "No.");
 
-            InvtDocLine.Reset();
-            InvtDocLine.SetRange("Document Type", "Document Type");
-            InvtDocLine.SetRange("Document No.", "No.");
-            InvtDocLine.SetFilter(Quantity, '>0');
+            SetInvtDocumentLineFiltersFromDocument(InvtDocLine, InvtDocHeader);
             if not InvtDocLine.Find('-') then
                 Error(NothingToPostErr);
 
@@ -43,9 +43,11 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             if Location."Require Receive" or Location."Require Put-away" then
                 Error(WarehouseHandlingRequiredErr, "Location Code");
 
-            Window.Open('#1#################################\\' + PostingLinesMsg);
+            if not HideProgressWindow then begin
+                Window.Open('#1#################################\\' + PostingLinesMsg);
 
-            Window.Update(1, StrSubstNo(PostingDocumentTxt, "No."));
+                Window.Update(1, StrSubstNo(PostingDocumentTxt, "No."));
+            end;
 
             SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup."Invt. Receipt";
@@ -59,8 +61,10 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                 CODEUNIT.Run(CODEUNIT::"Release Invt. Document", InvtDocHeader);
                 Status := Status::Open;
                 Modify();
-                Commit();
+                if not SuppressCommit then
+                    Commit();
                 Status := Status::Released;
+                OnRunOnAfterSetStatusReleased(InvtDocHeader, InvtDocLine, SuppressCommit);
             end;
 
             TestField(Status, Status::Released);
@@ -75,6 +79,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             // Insert receipt header
             InvtRcptHeader.LockTable();
             InvtRcptHeader.Init();
+            OnRunOnAfterInvtRcptHeaderInit(InvtRcptHeader, InvtDocHeader);
             InvtRcptHeader."Location Code" := "Location Code";
             InvtRcptHeader."Document Date" := "Document Date";
             InvtRcptHeader."Posting Date" := "Posting Date";
@@ -94,6 +99,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             InvtRcptHeader."Dimension Set ID" := "Dimension Set ID";
             OnRunOnBeforeInvtRcptHeaderInsert(InvtRcptHeader, InvtDocHeader);
             InvtRcptHeader.Insert();
+            OnRunOnAfterInvtRcptHeaderInsert(InvtRcptHeader, InvtDocHeader);
 
             DocSignMgt.MoveDocSignToPostedDocSign(
               DocSign, DATABASE::"Invt. Document Header", "Document Type".AsInteger(), "No.",
@@ -109,10 +115,12 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             LineCount := 0;
             InvtRcptLine.LockTable();
             InvtDocLine.SetRange(Quantity);
+            OnRunOnBeforeInvtDocLineFind(InvtDocLine, InvtDocHeader);
             if InvtDocLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
+                    if not HideProgressWindow then
+                        Window.Update(2, LineCount);
 
                     if InvtDocLine."Item No." <> '' then begin
                         Item.Get(InvtDocLine."Item No.");
@@ -120,6 +128,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                     end;
 
                     InvtRcptLine.Init();
+                    OnRunOnAfterInvtRcptLineInit(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);
                     InvtRcptLine."Document No." := InvtRcptHeader."No.";
                     InvtRcptLine."Posting Date" := InvtRcptHeader."Posting Date";
                     InvtRcptLine."Document Date" := InvtRcptHeader."Document Date";
@@ -157,10 +166,13 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                     InvtRcptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
                     OnRunOnBeforeInvtRcptLineInsert(InvtRcptLine, InvtDocLine);
                     InvtRcptLine.Insert();
+                    OnRunOnAfterInvtRcptLineInsert(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);
 
                     PostItemJnlLine(InvtRcptHeader, InvtRcptLine);
                     ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, InvtRcptLine.RowID1());
                 until InvtDocLine.Next() = 0;
+
+            OnRunOnAfterInvtDocPost(InvtDocHeader, InvtDocLine);
 
             InvtSetup.Get();
             if InvtSetup.AutomaticCostAdjmtRequired() then
@@ -170,13 +182,19 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             Delete(true);
 
             InsertValueEntryRelation();
-            Commit();
-            Window.Close();
+            OnRunOnBeforeCommitPostInvtRcptDoc(InvtDocHeader, InvtDocLine, InvtRcptHeader, InvtRcptLine, ItemJnlLine, SuppressCommit);
+            if not SuppressCommit then
+                Commit();
+            OnRunOnAfterCommitPostInvtRcptDoc(InvtDocHeader, InvtDocLine, InvtRcptHeader, InvtRcptLine, ItemJnlLine, SuppressCommit);
+            if not HideProgressWindow then
+                Window.Close();
         end;
 
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
         Rec := InvtDocHeader;
+
+        OnAfterOnRun(Rec, InvtDocHeader, InvtDocLine, InvtRcptHeader, InvtRcptLine);
     end;
 
     var
@@ -207,13 +225,40 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         DimInvalidErr: Label 'The dimensions used in item receipt %1, line no. %2 are invalid. %3', Comment = '%1 - document number, %2 = line number, %3 - error message';
         InventoryPostingSetupMissingErr: Label 'Inventory posting setup missing for location code %1.', Comment = '%1 - location code';
 
+    local procedure CheckInvtDocumentHeaderMandatoryFields(var InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+        OnBeforeCheckInvtDocumentHeaderMandatoryFields(InvtDocumentHeader);
+
+        InvtDocumentHeader.TestField("No.");
+        InvtDocumentHeader.TestField("Posting Date");
+
+        OnAfterCheckInvtDocumentHeaderMandatoryFields(InvtDocumentHeader);
+    end;
+
+    local procedure SetInvtDocumentLineFiltersFromDocument(var InvtDocumentLine: Record "Invt. Document Line"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+        InvtDocumentLine.Reset();
+        InvtDocumentLine.SetRange("Document Type", InvtDocumentHeader."Document Type");
+        InvtDocumentLine.SetRange("Document No.", InvtDocumentHeader."No.");
+        InvtDocumentLine.SetFilter(Quantity, '>0');
+
+        OnAfterSetInvtDocumentLineFiltersFromDocument(InvtDocumentLine, InvtDocumentHeader);
+    end;
+
     local procedure PostItemJnlLine(InvtRcptHeader2: Record "Invt. Receipt Header"; InvtRcptLine2: Record "Invt. Receipt Line")
     var
         TempHandlingSpecification: Record "Tracking Specification" temporary;
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(InvtRcptHeader2, InvtRcptLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlLine.Init();
+        OnPostItemJnlLineOnAfterItemJnlLineInit(ItemJnlLine, InvtRcptHeader2, InvtRcptLine2);
         ItemJnlLine."Posting Date" := InvtRcptHeader2."Posting Date";
         ItemJnlLine."Document Date" := InvtRcptHeader2."Document Date";
         ItemJnlLine."Document No." := InvtRcptHeader2."No.";
@@ -242,6 +287,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             ItemJnlLine."Invoiced Qty. (Base)" := InvtRcptLine2."Quantity (Base)";
             ItemJnlLine.Amount := InvtRcptLine2.Amount;
         end;
+        OnAfterFillItemJournalLineQtyFromInvtShipmentLine(ItemJnlLine, InvtRcptLine2, InvtRcptHeader2);
 
         ItemJnlLine."Unit Amount" := InvtRcptLine2."Unit Amount";
         ItemJnlLine."Unit Cost" := InvtRcptLine2."Unit Cost";
@@ -263,6 +309,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         ItemJnlLine."Bin Code" := InvtRcptLine2."Bin Code";
         ItemJnlLine."Dimension Set ID" := InvtRcptLine2."Dimension Set ID";
 
+        OnPostItemJnlLineOnBeforeTransferInvtDocToItemJnlLine(InvtDocLine, ItemJnlLine, InvtRcptHeader2, InvtRcptLine2);
         ReserveInvtDocLine.TransferInvtDocToItemJnlLine(InvtDocLine, ItemJnlLine, ItemJnlLine.Quantity);
 
         OriginalQuantity := ItemJnlLine.Quantity;
@@ -273,6 +320,8 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
 
         ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification);
         PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification);
+
+        OnAfterPostItemJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, InvtRcptHeader2, InvtRcptLine2);
     end;
 
     local procedure CopyCommentLines(FromDocumentType: Enum "Inventory Comment Document Type"; ToDocumentType: Enum "Inventory Comment Document Type"; FromNumber: Code[20]; ToNumber: Code[20])
@@ -370,6 +419,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
+        OnBeforePostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification);
         ItemJnlLine.Quantity := OriginalQuantity;
         ItemJnlLine."Quantity (Base)" := OriginalQuantityBase;
         GetLocation(ItemJnlLine."Location Code");
@@ -383,6 +433,106 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                         WhseJnlPostLine.Run(TempWhseJnlLine2);
                     until TempWhseJnlLine2.Next() = 0;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckInvtDocumentHeaderMandatoryFields(var InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetInvtDocumentLineFiltersFromDocument(var InvtDocumentLine: Record "Invt. Document Line"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostItemJnlLine(ItemJournalLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; TrackingSpecification: Record "Tracking Specification"; InvtReceiptHeader: Record "Invt. Receipt Header"; InvtReceiptLine: Record "Invt. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var InvtDocumentHeader: Record "Invt. Document Header"; InvtDocumentHeader2: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; InvtReceiptHeader: Record "Invt. Receipt Header"; InvtReceiptLine: Record "Invt. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillItemJournalLineQtyFromInvtShipmentLine(var ItemJournalLine: Record "Item Journal Line"; InvtReceiptLine: Record "Invt. Receipt Line"; InvtReceiptHeader: Record "Invt. Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var InvtDocumentHeader: Record "Invt. Document Header"; var SuppressCommit: Boolean; var HideProgressWindow: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseJnlLine(ItemJournalLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInvtDocumentHeaderMandatoryFields(var InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemJnlLine(InvtReceiptHeader: Record "Invt. Receipt Header"; InvtReceiptLine: Record "Invt. Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSetStatusReleased(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterItemJnlLineInit(var ItemJournalLine: Record "Item Journal Line"; InvtReceiptHeader: Record "Invt. Receipt Header"; InvtReceiptLine: Record "Invt. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeTransferInvtDocToItemJnlLine(var InvtDocumentLine: Record "Invt. Document Line"; var ItemJournalLine: Record "Item Journal Line"; InvtReceiptHeader: Record "Invt. Receipt Header"; InvtReceiptLine: Record "Invt. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtRcptHeaderInit(var InvtReceiptHeader: Record "Invt. Receipt Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtRcptHeaderInsert(var InvtReceiptHeader: Record "Invt. Receipt Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtRcptLineInit(var InvtReceiptLine: Record "Invt. Receipt Line"; InvtDocumentLine: Record "Invt. Document Line"; var InvtShipmentHeader: Record "Invt. Receipt Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCommitPostInvtRcptDoc(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; InvtReceiptHeader: Record "Invt. Receipt Header"; InvtReceiptLine: Record "Invt. Receipt Line"; ItemJournalLine: Record "Item Journal Line"; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtRcptLineInsert(var InvtReceiptLine: Record "Invt. Receipt Line"; InvtDocumentLine: Record "Invt. Document Line"; var InvtReceiptHeader: Record "Invt. Receipt Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeInvtDocLineFind(var InvtDocumentLine: Record "Invt. Document Line"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtDocPost(InvtDocumentHeader: Record "Invt. Document Header"; InvtDocumentLine: Record "Invt. Document Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCommitPostInvtRcptDoc(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; InvtReceiptHeader: Record "Invt. Receipt Header"; InvtReceiptLine: Record "Invt. Receipt Line"; ItemJournalLine: Record "Item Journal Line"; var SuppressCommit: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

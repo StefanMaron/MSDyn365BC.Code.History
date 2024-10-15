@@ -2378,6 +2378,36 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert.ExpectedError(PaymentMethodErr);
     end;
 
+    [Test]
+    procedure ItemTemplateNonDefaultCostingMethod()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        InventorySetup: Record "Inventory Setup";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 426157] Creation item from template with "Costing Method" different from the inventory setup "Default Costing Method"
+        Initialize();
+
+        // Inventory setup with "Default Costing Method" = "CM1"
+        InventorySetup.Get();
+        InventorySetup."Default Costing Method" := InventorySetup."Default Costing Method"::Standard;
+        InventorySetup.Modify(true);
+
+        // [GIVEN] Item template with "Costing Method" = "CM2"
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Validate("Costing Method", ItemTempl."Costing Method"::Average);
+        ItemTempl.Modify(true);
+
+        // [WHEN] Create item "I"
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I" has "Costing Method" = "CM2"
+        Item.TestField("Costing Method", Item."Costing Method"::Average);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");
