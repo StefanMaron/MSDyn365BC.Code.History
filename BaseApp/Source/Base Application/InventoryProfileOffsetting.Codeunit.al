@@ -2742,7 +2742,7 @@
 
         SupplyInvtProfile.Modify();
 
-        OnAfterMaintainPlanningLine(ReqLine);
+        OnAfterMaintainPlanningLine(ReqLine, SupplyInvtProfile, NewPhase);
     end;
 
     local procedure ValidateUOMFromInventoryProfile(var RequisitionLine: Record "Requisition Line"; InventoryProfile: Record "Inventory Profile")
@@ -4723,6 +4723,8 @@
 
     local procedure CheckSupplyAndTrack(InventoryProfileFromDemand: Record "Inventory Profile"; InventoryProfileFromSupply: Record "Inventory Profile")
     begin
+        OnBeforeCheckSupplyAndTrack(InventoryProfileFromDemand, InventoryProfileFromSupply);
+
         if InventoryProfileFromSupply."Source Type" = DATABASE::"Item Ledger Entry" then
             Track(InventoryProfileFromDemand, InventoryProfileFromSupply, false, false, InventoryProfileFromSupply.Binding)
         else
@@ -4730,7 +4732,14 @@
     end;
 
     local procedure CheckPlanSKU(SKU: Record "Stockkeeping Unit"; DemandExists: Boolean; SupplyExists: Boolean; IsReorderPointPlanning: Boolean): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPlanSKU(SKU, IsHandled);
+        If IsHandled then
+            exit(false);
+
         if (CurrWorksheetType = CurrWorksheetType::Requisition) and
            (SKU."Replenishment System" in [SKU."Replenishment System"::"Prod. Order", SKU."Replenishment System"::Assembly])
         then
@@ -5661,7 +5670,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMaintainPlanningLine(var ReqLine: Record "Requisition Line")
+    local procedure OnAfterMaintainPlanningLine(var ReqLine: Record "Requisition Line"; SupplyInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete)
     begin
     end;
 
@@ -5872,6 +5881,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSetAcceptActionOnCaseRefOrderTypeTransfer(ReqLine: Record "Requisition Line"; var AcceptActionMsg: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPlanSKU(var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSupplyAndTrack(var InventoryProfileFromDemand: Record "Inventory Profile"; var InventoryProfileFromSupply: Record "Inventory Profile")
     begin
     end;
 }

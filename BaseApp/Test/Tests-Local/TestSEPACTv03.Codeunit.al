@@ -83,7 +83,7 @@ codeunit 144101 "Test SEPA CT v03"
         FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
 
         // verify
-        VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, true, NoOfDocuments);
+        VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, true, NoOfDocuments, LibraryERM.GetLCYCode());
         VerifyStandardEuroSEPAFields('.' + CopyStr(VendorBankAccount."Account Holder Address", 2), FormatIBAN(VendorBankAccount.IBAN));
         VerifyGrouping;
     end;
@@ -148,7 +148,7 @@ codeunit 144101 "Test SEPA CT v03"
 
         // [THEN] Xml file is exported with namespace 'xmlns:xsi=http://www.w3.org/2001/XMLSchemainstance'
         FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
-        VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, false, NoOfDocuments);
+        VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, false, NoOfDocuments, LibraryERM.GetLCYCode());
         VerifyGrouping;
     end;
 
@@ -266,7 +266,7 @@ codeunit 144101 "Test SEPA CT v03"
 
         // verify
         Assert.ExpectedError(ExportErrorsErr);
-        PaymentHistory.Find;
+        PaymentHistory.Find();
         Assert.IsTrue(PaymentHistory.Export, PaymentHistory.FieldName(Export));
         Assert.AreNotEqual('', PaymentHistory."File on Disk", PaymentHistory.FieldName("File on Disk"));
         VerifyPaymentHistoryCardExportErrorFactBox(PaymentHistory);
@@ -378,7 +378,7 @@ codeunit 144101 "Test SEPA CT v03"
             DetailLine."Serial No. (Entry)" := VendLedgEntry."Entry No.";
             DetailLine.Insert();
 
-            VendLedgEntry.Next;
+            VendLedgEntry.Next();
         end;
         ActualInfo := PaymentHistoryLine.GetUnstrRemitInfo;
         DetailLine.SetRange("Our Bank", '');
@@ -695,11 +695,11 @@ codeunit 144101 "Test SEPA CT v03"
         MockPaymentHistoryLine(PaymentHistoryLine, PaymentHistory, PaymentHistoryLine.Status::New, 1000.1);
 
         // [WHEN] Export "SEPA ISO20022 Pain 01.01.03"
-        PaymentHistory.SetRecFilter;
+        PaymentHistory.SetRecFilter();
         REPORT.RunModal(REPORT::"SEPA ISO20022 Pain 01.01.03", false, false, PaymentHistory);
 
         // [THEN] Exported XML contains "CtrlSum" = "1000.10"
-        PaymentHistory.Find;
+        PaymentHistory.Find();
         XMLReadHelper.Initialize(PaymentHistory."File on Disk", GetSEPACTNameSpace);
         XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:GrpHdr/ns:CtrlSum', '1000.10');
     end;
@@ -722,11 +722,11 @@ codeunit 144101 "Test SEPA CT v03"
         PaymentHistoryLine.Modify(true);
 
         // [WHEN] Export "SEPA ISO20022 Pain 008.001.02"
-        PaymentHistory.SetRecFilter;
+        PaymentHistory.SetRecFilter();
         REPORT.RunModal(REPORT::"SEPA ISO20022 Pain 008.001.02", false, false, PaymentHistory);
 
         // [THEN] Exported XML contains "CtrlSum" = "1000.10"
-        PaymentHistory.Find;
+        PaymentHistory.Find();
         XMLReadHelper.Initialize(PaymentHistory."File on Disk", 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
         XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrDrctDbtInitn/ns:GrpHdr/ns:CtrlSum', '1000.10');
     end;
@@ -879,7 +879,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SEPA", ChrgBr = "SLEV", DbtrAcct.Ccy = "EUR", CdtTrfTxInf.Amt.InstdAmt<Ccy = "EUR"> = 1000
         // [THEN] PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine = "X"
         // [THEN] Vendor Bank Account's IBAN is exported into CdtrAcct/Id/IBAN (TFS 311461)
-        VerifyStandardEuroXML(VendorBankAccount, FileName, TotalAmount);
+        VerifyStandardEuroXML(VendorBankAccount, FileName, TotalAmount, LibraryERM.GetLCYCode());
         // [THEN] Payment History Line has blank Currency Code (TFS 309218)
         VerifyPmtHistoryLineCurrencyCode(BankAccountNo, '');
     end;
@@ -915,7 +915,7 @@ codeunit 144101 "Test SEPA CT v03"
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
         // [THEN] Payment is exported in WorldPayment format
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode());
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode(), LibraryERM.GetLCYCode());
     end;
 
     [Test]
@@ -952,7 +952,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "EUR" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode, CurrencyCode);
         // [THEN] Payment History Line has Currency Code = 'USD' (TFS 309218)
         VerifyPmtHistoryLineCurrencyCode(BankAccountNo, CurrencyCode);
     end;
@@ -991,7 +991,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "USD" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, CurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, CurrencyCode, LibraryERM.GetLCYCode());
     end;
 
     [Test]
@@ -1027,7 +1027,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "EUR", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, CurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, CurrencyCode, CurrencyCode);
     end;
 
     [Test]
@@ -1066,7 +1066,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "GBP" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, InvCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, InvCurrencyCode, CurrencyCode);
     end;
 
     [Test]
@@ -1104,7 +1104,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "GBP"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode, LibraryERM.GetLCYCode());
     end;
 
     [Test]
@@ -1143,7 +1143,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "GBP" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode, EuroCurrencyCode);
     end;
 
     [Test]
@@ -1182,7 +1182,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "EUR" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode, LibraryERM.GetLCYCode());
     end;
 
     [Test]
@@ -1220,7 +1220,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SEPA", ChrgBr = "SLEV", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "EUR"> = 1000
         // [THEN] PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine = "X"
         // [THEN] Vendor Bank Account's IBAN is exported into CdtrAcct/Id/IBAN (TFS 311461)
-        VerifyStandardEuroXML(VendorBankAccount, FileName, TotalAmount);
+        VerifyStandardEuroXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
     end;
 
     [Test]
@@ -1258,7 +1258,7 @@ codeunit 144101 "Test SEPA CT v03"
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
         // [THEN] Payment is exported in WorldPayment format
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode, EuroCurrencyCode);
     end;
 
     [Test]
@@ -1299,7 +1299,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "GBP" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode, USDCurrencyCode);
     end;
 
     [Test]
@@ -1340,7 +1340,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "USD" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode, LibraryERM.GetLCYCode());
     end;
 
     [Test]
@@ -1380,7 +1380,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode, USDCurrencyCode);
     end;
 
     [Test]
@@ -1421,7 +1421,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "USD" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode, EuroCurrencyCode);
     end;
 
     [Test]
@@ -1462,7 +1462,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "EUR" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode, USDCurrencyCode);
     end;
 
     [Test]
@@ -1599,7 +1599,7 @@ codeunit 144101 "Test SEPA CT v03"
         Codeunit.Run(Codeunit::"Check SEPA ISO20022", DummyProposalLine);
         DummyProposalLine.TestField(
           "Error Message",
-          StrSubstNo(MustBeEnteredMsg, DummyProposalLine.FIELDCAPTION(IBAN), DummyProposalLine.TABLECAPTION));
+          StrSubstNo(MustBeEnteredMsg, DummyProposalLine.FIELDCAPTION(IBAN), DummyProposalLine.TableCaption()));
     end;
 
     [Test]
@@ -1852,7 +1852,7 @@ codeunit 144101 "Test SEPA CT v03"
             Validate(
               "Vendor Invoice No.",
               PadStr("Vendor Invoice No.", MaxStrLen("Vendor Invoice No."), Format(LibraryRandom.RandInt(9))));
-            Modify;
+            Modify();
         end;
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, false, true));
     end;
@@ -1879,7 +1879,7 @@ codeunit 144101 "Test SEPA CT v03"
         ExportProtocol: Record "Export Protocol";
     begin
         with ExportProtocol do begin
-            Init;
+            Init();
             Validate(Code, LibraryUtility.GenerateGUID());
             Validate("Check ID", CheckID);
             Validate("Docket ID", DocketID);
@@ -1906,7 +1906,7 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         with FreelyTransferableMaximum do
             if not Get(CountryRegionCode, CurrencyCode) then begin
-                Init;
+                Init();
                 Validate("Country/Region Code", CountryRegionCode);
                 Validate("Currency Code", CurrencyCode);
                 Validate(Amount, GetMaxNoOfDocuments * GetMaxDocumentAmount);
@@ -2015,34 +2015,34 @@ codeunit 144101 "Test SEPA CT v03"
     local procedure MockPaymentHistory(var PaymentHistory: Record "Payment History")
     begin
         with PaymentHistory do begin
-            Init;
+            Init();
             "Our Bank" := LibraryERM.CreateBankAccountNo;
             "Run No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockPaymentHistoryWithOurBank(var PaymentHistory: Record "Payment History"; OurBank: Code[20])
     begin
         with PaymentHistory do begin
-            Init;
+            Init();
             "Our Bank" := OurBank;
             "Run No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockPaymentHistoryLine(var PaymentHistoryLine: Record "Payment History Line"; PaymentHistory: Record "Payment History"; NewStatus: Option; NewAmount: Decimal)
     begin
         with PaymentHistoryLine do begin
-            Init;
+            Init();
             "Our Bank" := PaymentHistory."Our Bank";
             "Run No." := PaymentHistory."Run No.";
             "Line No." := LibraryUtility.GetNewRecNo(PaymentHistoryLine, FieldNo("Line No."));
             Status := NewStatus;
             Amount := NewAmount;
             "Direct Debit Mandate ID" := MockSEPADirectDebitMandate;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2058,7 +2058,7 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         MockPaymentHistoryLine(PaymentHistoryLine, PaymentHistory, PaymentHistoryLine.Status::New, Amount);
         PaymentHistoryLine."Foreign Amount" := ForeignAmount;
-        PaymentHistoryLine.Modify;
+        PaymentHistoryLine.Modify();
     end;
 
     local procedure MockSEPADirectDebitMandate(): Code[35]
@@ -2066,9 +2066,9 @@ codeunit 144101 "Test SEPA CT v03"
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
         with SEPADirectDebitMandate do begin
-            Init;
+            Init();
             ID := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit(ID);
         end;
     end;
@@ -2099,7 +2099,7 @@ codeunit 144101 "Test SEPA CT v03"
         PaymentHistory.ExportToPaymentFile;
 
         PaymentHistory.SetRange(Export, false);
-        PaymentHistory.Find;
+        PaymentHistory.Find();
         exit(PaymentHistory."File on Disk");
     end;
 
@@ -2185,7 +2185,7 @@ codeunit 144101 "Test SEPA CT v03"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             if "Local Currency" = "Local Currency"::Euro then
                 exit("LCY Code");
             exit("Currency Euro");
@@ -2382,7 +2382,7 @@ codeunit 144101 "Test SEPA CT v03"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Local Currency", LocalCurrency);
             if LocalCurrency = "Local Currency"::Other then
                 Validate("Currency Euro", CurrencyEuro);
@@ -2427,7 +2427,8 @@ codeunit 144101 "Test SEPA CT v03"
                 Assert.AreEqual('', AddrLine[i], Format(i));
     end;
 
-    local procedure VerifySEPACreditTransferFile(ExportFileName: Text; TotalAmount: Decimal; VendorBankAccount: Record "Vendor Bank Account"; GeneratedByReport: Boolean; NoOfDocuments: Integer)
+    local procedure VerifySEPACreditTransferFile(ExportFileName: Text; TotalAmount: Decimal; VendorBankAccount: Record "Vendor Bank Account";
+    GeneratedByReport: Boolean; NoOfDocuments: Integer; BankAccCurrency: Code[10])
     var
         CompanyInfo: Record "Company Information";
         Node: DotNet XmlNode;
@@ -2463,7 +2464,7 @@ codeunit 144101 "Test SEPA CT v03"
         if GeneratedByReport then begin
             XMLReadHelper.GetNodeByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:CtgyPurp', Node);
             XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:CtgyPurp/ns:Cd', 'SUPP');
-            XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:DbtrAcct/ns:Ccy', LibraryERM.GetLCYCode);
+            XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:DbtrAcct/ns:Ccy', BankAccCurrency);
         end;
 
         // Verify chars conversion
@@ -2504,13 +2505,13 @@ codeunit 144101 "Test SEPA CT v03"
         if GeneratedByReport then begin
             XMLReadHelper.GetNodeByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:CtgyPurp', Node);
             XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:CtgyPurp/ns:Cd', 'SUPP');
-            XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:DbtrAcct/ns:Ccy', LibraryERM.GetLCYCode);
+            XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:DbtrAcct/ns:Ccy', LibraryERM.GetLCYCode());
         end;
 
         // Verify chars conversion
         Employee."First Name" := '+' + CopyStr(Employee."First Name", 2); // '&'
         XMLReadHelper.VerifyNodeValueByXPath(
-          '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:Nm', Employee.FullName);
+          '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:Nm', Employee.FullName());
     end;
 
     local procedure VerifySEPACreditTransferFileCtrlSumInstdAmtRound(ExportFileName: Text; CtrlSum: Decimal; PaymentCurrency: Text)
@@ -2549,7 +2550,7 @@ codeunit 144101 "Test SEPA CT v03"
               Format(Abs(PaymentHistoryLine.Amount), 0, '<Precision,2:2><Standard Format,9>'), 1);
             PaymentHistoryLine.FindLast();
             PaymentHistoryLine.SetRange(Date);
-        until PaymentHistoryLine.Next = 0;
+        until PaymentHistoryLine.Next() = 0;
     end;
 
     local procedure VerifyEntryExist(VendorNo: Code[20])
@@ -2572,7 +2573,7 @@ codeunit 144101 "Test SEPA CT v03"
         File.Open(FileName);
         File.CreateInStream(InStream);
         InStream.Read(ReadText, 5);
-        File.Close;
+        File.Close();
         Assert.AreEqual(CheckString, ReadText, WrongSymbolFoundErr);
     end;
 
@@ -2625,16 +2626,16 @@ codeunit 144101 "Test SEPA CT v03"
           '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:ReqdExctnDt', Format(Today + 1, 0, 9), 2);
     end;
 
-    local procedure VerifyStandardEuroXML(VendorBankAccount: Record "Vendor Bank Account"; FileName: Text; TotalAmount: Decimal)
+    local procedure VerifyStandardEuroXML(VendorBankAccount: Record "Vendor Bank Account"; FileName: Text; TotalAmount: Decimal; BankAccCurrency: Code[10])
     begin
-        VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, TRUE, 1);
+        VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, TRUE, 1, BankAccCurrency);
         VerifyStandardEuroSEPAFields('.' + COPYSTR(VendorBankAccount."Account Holder Address", 2), FormatIBAN(VendorBankAccount.IBAN));
         VerifySEPACreditTransferFileCtrlSumInstdAmtRound(FileName, TotalAmount, GetEuroCurrencyCode);
     end;
 
-    local procedure VerifyGenericPaymentXML(VendorBankAccount: Record "Vendor Bank Account"; FileName: Text; TotalAmount: Decimal; PmtCurrencyCode: Code[10])
+    local procedure VerifyGenericPaymentXML(VendorBankAccount: Record "Vendor Bank Account"; FileName: Text; TotalAmount: Decimal; PmtCurrencyCode: Code[10]; BankAccCurrency: Code[10])
     begin
-        VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, TRUE, 1);
+        VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, TRUE, 1, BankAccCurrency);
         VerifyGenericPaymentSEPAFields(VendorBankAccount."Bank Account No.");
         VerifySEPACreditTransferFileCtrlSumInstdAmtRound(FileName, TotalAmount, PmtCurrencyCode);
     end;
@@ -2681,7 +2682,7 @@ codeunit 144101 "Test SEPA CT v03"
         PaymentHistoryCard.GotoRecord(PaymentHistory);
         PaymentHistoryCard."Payment File Errors"."Error Text".AssertEquals(
           StrSubstNo(BlankIBANErr, PaymentHistoryLine.Bank));
-        PaymentHistoryCard.Close;
+        PaymentHistoryCard.Close();
     end;
 
     [RequestPageHandler]

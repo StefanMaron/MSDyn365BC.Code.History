@@ -295,7 +295,14 @@ report 910 "Posted Assembly Order"
     local procedure GetUomDescription(UOMCode: Code[10]): Text[50]
     var
         UnitOfMeasure: Record "Unit of Measure";
+        IsHandled: Boolean;
+        Result: Text[50];
     begin
+        IsHandled := false;
+        OnBeforeGetUomDescription(UOMCode, Result, IsHandled);
+        If IsHandled then
+            exit(Result);
+
         if UnitOfMeasure.Get(UOMCode) then
             exit(UnitOfMeasure.Description);
         exit('');
@@ -312,6 +319,11 @@ report 910 "Posted Assembly Order"
     begin
         NoOfCopies := NewNoOfCopies;
         ShowInternalInfo := NewShowInternalInfo;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUomDescription(UOMCode: Code[10]; var Result: Text[50]; var IsHandled: Boolean)
+    begin
     end;
 }
 

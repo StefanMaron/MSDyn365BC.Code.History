@@ -100,7 +100,13 @@ table 11401 "CBG Statement Line"
                 Vend: Record Vendor;
                 Employee: Record Employee;
                 BankAccount: Record "Bank Account";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeAccountNoOnValidate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
                 "VAT Bus. Posting Group" := '';
@@ -278,9 +284,17 @@ table 11401 "CBG Statement Line"
             Caption = 'Amount';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                UpdateLineBalance;
-                CalculateVAT;
+                UpdateLineBalance();
+                CalculateVAT();
+
+                IsHandled := false;
+                OnBeforePmtTolCBGJnl(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (Amount <> xRec.Amount) and (Amount <> 0) then
                     PaymentToleranceMgt.PmtTolCBGJnl(Rec);
             end;
@@ -1117,7 +1131,13 @@ table 11401 "CBG Statement Line"
     var
         JournalTemplate: Record "Gen. Journal Template";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenerateDocumentNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Journal Template Name");
         JournalTemplate.Get("Journal Template Name");
         NoSeriesMgt.InitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series");
@@ -1731,6 +1751,21 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteAppliesToIDOnAfterSetVendorLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; var VendorLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateDocumentNo(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePmtTolCBGJnl(var CBGStatementLine: Record "CBG Statement Line"; var xCBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAccountNoOnValidate(var CBGStatementLine: Record "CBG Statement Line"; var xCBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
     begin
     end;
 }

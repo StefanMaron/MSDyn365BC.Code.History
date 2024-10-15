@@ -14,12 +14,12 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
             begin
                 ExportFileName := GenerateExportfilename(AlwaysNewFileName);
                 ExportProtocolCode := "Export Protocol";
-                ExportSEPAFile;
+                ExportSEPAFile();
 
                 Export := false;
                 if Status = Status::New then
                     Status := Status::Transmitted;
-                Modify;
+                Modify();
             end;
 
             trigger OnPreDataItem()
@@ -97,7 +97,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         StreamWriter := StreamWriter.StreamWriter(ServerTempFileName, false, UTF8Encoding.UTF8Encoding(false));
         OnBeforeXMLDomDocSave(XMLDomDoc);
         XMLDomDoc.Save(StreamWriter);
-        StreamWriter.Close;
+        StreamWriter.Close();
 
         ReportChecksum.GenerateChecksum("Payment History", ServerTempFileName, ExportProtocolCode);
         IsHandled := false;
@@ -288,7 +288,8 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         AddElement(XMLNodeCurr, 'IBAN', DelChr(CopyStr(BankAcc.IBAN, 1, 34)), '', XMLNewChild);
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
-        AddElement(XMLNodeCurr, 'Ccy', GLSetup."LCY Code", '', XMLNewChild);
+        AddElement(XMLNodeCurr, 'Ccy', GetCurrencyCode(BankAcc."Currency Code"), '', XMLNewChild);
+
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
         AddElement(XMLNodeCurr, 'DbtrAgt', '', '', XMLNewChild);
@@ -405,7 +406,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
-        UnstructuredRemitInfo := PaymentHistoryLine.GetUnstrRemitInfo;
+        UnstructuredRemitInfo := PaymentHistoryLine.GetUnstrRemitInfo();
         if UnstructuredRemitInfo <> '' then begin
             AddElement(XMLNodeCurr, 'RmtInf', '', '', XMLNewChild);
             XMLNodeCurr := XMLNewChild;
@@ -415,7 +416,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
 
         XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLNodeCurr := XMLNodeCurr.ParentNode;
-        PaymentHistoryLine.WillBeSent;
+        PaymentHistoryLine.WillBeSent();
         XMLNodeCurr := XMLParent;
     end;
 

@@ -3871,6 +3871,8 @@
         TestField("Check Printed", false);
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
+
+        OnAfterLookupShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
@@ -4557,6 +4559,7 @@
                     CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
                     CustLedgEntry.SetRange("Customer No.", AccNo);
                     CustLedgEntry.SetRange(Open, true);
+                    OnLookupAppliesToDocAnAfterSetCustLedgerEntryFilters(CustLedgEntry, Rec);
                     if "Applies-to Doc. No." <> '' then begin
                         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                         CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -4608,6 +4611,7 @@
                         end;
                         "Applies-to Doc. Type" := CustLedgEntry."Document Type";
                         "Applies-to Doc. No." := CustLedgEntry."Document No.";
+                        OnLookupAppliesToDocNoOnAfterSetCustAppliesToDocNo(CustLedgEntry, Rec);
                         "Applies-to ID" := '';
                     end else
                         Clear(ApplyCustEntries);
@@ -4617,6 +4621,7 @@
                     VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
                     VendLedgEntry.SetRange("Vendor No.", AccNo);
                     VendLedgEntry.SetRange(Open, true);
+                    OnLookupAppliesToDocAnAfterSetVendorLedgerEntryFilters(VendLedgEntry, Rec);
                     if "Applies-to Doc. No." <> '' then begin
                         VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                         VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -4668,6 +4673,7 @@
                         end;
                         "Applies-to Doc. Type" := VendLedgEntry."Document Type";
                         "Applies-to Doc. No." := VendLedgEntry."Document No.";
+                        OnLookupAppliesToDocNoOnAfterSetVendorAppliesToDocNo(VendLedgEntry, Rec);
                         "Applies-to ID" := '';
                     end else
                         Clear(ApplyVendEntries);
@@ -8743,5 +8749,36 @@
     local procedure OnValidateBalVATProdPostingGroupOnBeforeBalVATCalculationCheck(var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAcquisitionCost(var GenJournalLine: Record "Gen. Journal Line"; var AcquisitionCost: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocAnAfterSetCustLedgerEntryFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocAnAfterSetVendorLedgerEntryFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetCustAppliesToDocNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetVendorAppliesToDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
 }
 

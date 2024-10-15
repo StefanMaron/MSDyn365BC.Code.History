@@ -9,9 +9,12 @@ codeunit 6702 "O365 Contact Sync. Helper"
         O365SyncManagement: Codeunit "O365 Sync. Management";
         CountryRegionNotFoundErr: Label 'The Exchange Country/Region cannot be found in your company.';
         CreateExchangeContactTxt: Label 'Create exchange contact.';
+        CreateExchangeContactFailedTxt: Label 'Failed to create the new exchange contact.';
         CreateNavContactTxt: Label 'Create contact. - %1', Comment = '%1 = The contact';
         UniqueCompanyNameErr: Label 'The Exchange Company Name is not unique in your company.';
         LocalCountTelemetryTxt: Label 'Synchronizing %1 contacts to Exchange.', Locked = true;
+        ModifiedExchangeContactTxt: Label 'Modified the Exchange contact', Locked = true;
+        ModifiedExchangeContactFailedTxt: Label 'Failed to update the existing Exchange contact.', Locked = true;
 
     procedure GetO365Contacts(ExchangeSync: Record "Exchange Sync"; var TempContact: Record Contact temporary)
     var
@@ -102,9 +105,14 @@ codeunit 6702 "O365 Contact Sync. Helper"
                     O365SyncManagement.LogActivityFailed(ExchangeSync.RecordId, ExchangeSync."User ID",
                       CreateExchangeContactTxt, ExchangeContact.EMailAddress1)
                 else
-                    if found then
-                        ExchangeContact.Modify
-                    else begin
+                    if found then begin
+                        if ExchangeContact.Modify() then // update the contact in Exchange
+                            Session.LogMessage('0000GOF', ModifiedExchangeContactTxt, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory())
+                        else begin
+                            Session.LogMessage('0000I2D', ModifiedExchangeContactFailedTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+                            O365SyncManagement.LogActivityFailed(ExchangeSync.RecordId, ExchangeSync."User ID", ModifiedExchangeContactFailedTxt, ExchangeContact.EMailAddress1);
+                        end;
+                    end else begin
                         Clear(LocalExchangeContact);
                         LocalExchangeContact.Init();
                         LocalExchangeContact.SetFilter(EMailAddress1, '=%1', Contact."E-Mail");
@@ -112,7 +120,12 @@ codeunit 6702 "O365 Contact Sync. Helper"
                             O365SyncManagement.LogActivityFailed(ExchangeSync.RecordId, ExchangeSync."User ID",
                               CreateExchangeContactTxt, ExchangeContact.EMailAddress1)
                         else
-                            ExchangeContact.Insert
+                            if ExchangeContact.Insert() then // create the contact in Exchange
+                                Session.LogMessage('0000GOH', CreateExchangeContactTxt, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory())
+                            else begin
+                                Session.LogMessage('0000I2E', CreateExchangeContactFailedTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+                                O365SyncManagement.LogActivityFailed(ExchangeSync.RecordId, ExchangeSync."User ID", CreateExchangeContactFailedTxt, ExchangeContact.EMailAddress1);
+                            end;
                     end;
 
             until Contact.Next() = 0;

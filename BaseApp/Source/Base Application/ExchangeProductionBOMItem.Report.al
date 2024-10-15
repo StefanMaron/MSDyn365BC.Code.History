@@ -362,7 +362,9 @@ report 99001043 "Exchange Production BOM Item"
             CreateNewVersionEditable := true;
             CreateNewVersion := true;
             QtyMultiply := 1;
-            StartingDate := WorkDate;
+            StartingDate := WorkDate();
+
+            OnAfterOnInitReport(CreateNewVersion, StartingDate, DeleteExcComp);
         end;
 
         trigger OnOpenPage()
@@ -384,17 +386,7 @@ report 99001043 "Exchange Production BOM Item"
 
     trigger OnPreReport()
     begin
-        if StartingDate = 0D then
-            Error(Text000);
-
-        if FromBOMType = FromBOMType::" " then
-            Error(Text001);
-
-        if FromBOMNo = '' then
-            Error(Text002);
-
-        if (FromBOMType = ToBOMType) and (FromBOMNo = ToBOMNo) then
-            Error(ItemBOMExchangeErr, FromBOMType, FromBOMNo, ToBOMType, ToBOMNo);
+        CheckParameters();
     end;
 
     var
@@ -426,6 +418,28 @@ report 99001043 "Exchange Production BOM Item"
         CreateNewVersionEditable: Boolean;
         [InDataSet]
         DeleteExchangedComponentEditab: Boolean;
+
+    local procedure CheckParameters()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckParameters(StartingDate, FromBOMType, FromBOMNo, ToBOMType, ToBOMNo, IsHandled);
+        If IsHandled then
+            exit;
+
+        if StartingDate = 0D then
+            Error(Text000);
+
+        if FromBOMType = FromBOMType::" " then
+            Error(Text001);
+
+        if FromBOMNo = '' then
+            Error(Text002);
+
+        if (FromBOMType = ToBOMType) and (FromBOMNo = ToBOMNo) then
+            Error(ItemBOMExchangeErr, FromBOMType, FromBOMNo, ToBOMType, ToBOMNo);
+    end;
 
     local procedure CreateNewVersionOnAfterValidat()
     begin
@@ -499,6 +513,16 @@ report 99001043 "Exchange Production BOM Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecertifyLoopOnBeforeOnPreDataItem(FromBOMType: Enum "Production BOM Line Type"; FromBOMNo: Code[20]; ToBOMType: Enum "Production BOM Line Type"; ToBOMNo: Code[20]; QtyMultiply: Decimal; CreateNewVersion: Boolean; StartingDate: Date; Recertify: Boolean; CopyRoutingLink: Boolean; DeleteExcComp: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckParameters(StartingDate: Date; FromBOMType: Enum "Production BOM Line Type"; FromBOMNo: Code[20]; ToBOMType: Enum "Production BOM Line Type"; ToBOMNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInitReport(var CreateNewVersion: Boolean; var StartingDate: Date; var DeleteExcComp: Boolean)
     begin
     end;
 }
