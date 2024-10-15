@@ -30,7 +30,7 @@ codeunit 2003 "ML Prediction Management"
         TrainingPercent: Decimal;
         ApiUri: Text[250];
         [NonDebuggable]
-        ApiKey: Text[200];
+        ApiKey: SecretText;
         ApiTimeout: Integer;
         TrainingPercentageErr: Label 'The training percentage must be a decimal number between 0 and 1.';
         SomethingWentWrongErr: Label 'Oops, something went wrong when connecting to the Azure Machine Learning endpoint. Please contact your system administrator. %1.', Comment = '%1 = detailed error';
@@ -329,7 +329,7 @@ codeunit 2003 "ML Prediction Management"
     [NonDebuggable]
     local procedure InitializeAzureMLConnector()
     begin
-        if not AzureMLConnector.Initialize(ApiKey, ApiUri, ApiTimeout) then
+        if not AzureMLConnector.Initialize(ApiKey.Unwrap(), ApiUri, ApiTimeout) then
             Error(NotInitializedErr, GetLastDetailedError());
     end;
 
@@ -506,6 +506,19 @@ codeunit 2003 "ML Prediction Management"
     procedure MaxNoFeatures(): Integer
     begin
         exit(ArrayLen(FeatureNumbers));
+    end;
+
+    [NonDebuggable]
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure GetMachineLearningCredentials(var ApiUri: Text[250]; var ApiKey: SecretText; var LimitType: Option; var Limit: Decimal)
+    var
+        MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
+    begin
+        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(MachineLearningSecretNameTxt, ApiUri, ApiKey, LimitType, Limit);
+
+        if ApiUri = '' then
+            Error(NoCredentialsInKeyVaultErr);
     end;
 
     [NonDebuggable]

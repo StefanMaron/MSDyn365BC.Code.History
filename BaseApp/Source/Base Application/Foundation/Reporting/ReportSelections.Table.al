@@ -1969,7 +1969,7 @@ table 77 "Report Selections"
         REPORT.SaveAsHtml(ReportID, FilePath, RecordVariant);
     end;
 
-    local procedure FindReportSelections(var TempReportSelections: Record "Report Selections" temporary; AccountNo: Code[20]; TableNo: Integer): Boolean
+    procedure FindReportSelections(var TempReportSelections: Record "Report Selections" temporary; AccountNo: Code[20]; TableNo: Integer): Boolean
     var
         Handled: Boolean;
     begin

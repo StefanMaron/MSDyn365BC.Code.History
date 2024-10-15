@@ -5,6 +5,8 @@ codeunit 139611 "Shpfy Order Refund Test"
 
     var
         LibraryAssert: Codeunit "Library Assert";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryRandom: Codeunit "Library - Random";
 
     trigger OnRun()
     begin
@@ -34,6 +36,25 @@ codeunit 139611 "Shpfy Order Refund Test"
         ShpfyDocLinkToDoc.DeleteAll();
     end;
 
+    local procedure CreateAndValidateUnitOfMeasureCode(RefundId: BigInteger)
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        RefundLine: record "Shpfy Refund Line";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        RefundLine.SetRange("Refund Id", RefundId);
+        RefundLine.SetAutoCalcFields("Item No.", "Variant Code", Description, "Gift Card");
+        if RefundLine.FindSet(false) then
+            repeat
+                LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+                LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, RefundLine."Item No.", UnitOfMeasure.Code, LibraryRandom.RandInt(0));
+                if Item.Get(RefundLine."Item No.") then
+                    Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+                Item.Modify(true);
+            until RefundLine.Next() = 0;
+    end;
+
     [Test]
     procedure UnitTestCreateCrMemoFromRefundWithFullyRefundedItem()
     var
@@ -58,6 +79,9 @@ codeunit 139611 "Shpfy Order Refund Test"
         CanCreateDocument := IReturnRefundProcess.CanCreateSalesDocumentFor(enum::"Shpfy Source Document Type"::Refund, RefundId, errorInfo);
         // [THEN] CancreateDocument must be true
         LibraryAssert.IsTrue(CanCreateDocument, 'The result of IReturnRefundProcess.CanCreateSalesDocumentFor must be true');
+
+        // [GIVEN] Create and Validate Unit of Measure Code.
+        CreateAndValidateUnitOfMeasureCode(RefundId);
 
         // [WHEN] Execute IReturnRefundProcess.CreateSalesDocument(Enum::"Shpfy Source Document Type"::Refund, RefundId)
         SalesHeader := IReturnRefundProcess.CreateSalesDocument(Enum::"Shpfy Source Document Type"::Refund, RefundId);
@@ -132,6 +156,9 @@ codeunit 139611 "Shpfy Order Refund Test"
         CanCreateDocument := IReturnRefundProcess.CanCreateSalesDocumentFor(enum::"Shpfy Source Document Type"::Refund, RefundId, errorInfo);
         // [THEN] CancreateDocument must be true
         LibraryAssert.IsTrue(CanCreateDocument, 'The result of IReturnRefundProcess.CanCreateSalesDocumentFor must be true');
+
+        // [GIVEN] Create and Validate Unit of Measure Code.
+        CreateAndValidateUnitOfMeasureCode(RefundId);
 
         // [WHEN] Execute IReturnRefundProcess.CreateSalesDocument(Enum::"Shpfy Source Document Type"::Refund, RefundId)
         SalesHeader := IReturnRefundProcess.CreateSalesDocument(Enum::"Shpfy Source Document Type"::Refund, RefundId);
