@@ -337,7 +337,7 @@ codeunit 139310 "Exchange Setup Wizard Tests"
                 Init;
                 "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
                 "App ID" := CreateGuid;
-                SetSecretKey(CreateGuid);
+                SetSecretKeyToIsolatedStorage(CreateGuid);
                 Insert;
             end;
     end;

@@ -14,6 +14,9 @@ table 6300 "Azure AD App Setup"
         field(2; "Secret Key"; BLOB)
         {
             Caption = 'Secret Key';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The Secret Key has been moved to Isolated Storage. Use GetSecretKeyFromIsolatedStorage/SetSecretKeyToIsolatedStorage to retrieve or set the Secret Key.';
+            ObsoleteTag = '17.0';
         }
         field(3; "Primary Key"; Integer)
         {
@@ -23,6 +26,10 @@ table 6300 "Azure AD App Setup"
         field(4; "Redirect URL"; Text[150])
         {
             Caption = 'Redirect URL';
+        }
+        field(5; "Isolated Storage Secret Key"; Guid)
+        {
+            Caption = 'Isolated Storage Secret Key';
         }
     }
 
@@ -45,34 +52,34 @@ table 6300 "Azure AD App Setup"
     end;
 
     var
-        CryptographyManagement: Codeunit "Cryptography Management";
         OnlyOneRecordErr: Label 'There should be only one record for Azure AD App Setup.';
 
     [NonDebuggable]
-    procedure GetSecretKey() SecretKey: Text
-    var
-        InStream: InStream;
+    [Scope('OnPrem')]
+    procedure GetSecretKeyFromIsolatedStorage() SecretKey: Text
     begin
-        CalcFields("Secret Key");
-        "Secret Key".CreateInStream(InStream);
-        InStream.Read(SecretKey);
-
-        if CryptographyManagement.IsEncryptionPossible then
-            exit(CryptographyManagement.Decrypt(SecretKey));
+        if not IsNullGuid("Isolated Storage Secret Key") then
+            if not IsolatedStorage.Get("Isolated Storage Secret Key", DataScope::Company, SecretKey) then;
 
         exit(SecretKey);
     end;
 
     [NonDebuggable]
-    procedure SetSecretKey(SecretKey: Text)
+    [Scope('OnPrem')]
+    procedure SetSecretKeyToIsolatedStorage(SecretKey: Text)
     var
-        OutStream: OutStream;
+        NewSecretGuid: Guid;
     begin
-        if CryptographyManagement.IsEncryptionPossible then
-            SecretKey := CryptographyManagement.Encrypt(SecretKey);
+        if not IsNullGuid("Isolated Storage Secret Key") then
+            if not IsolatedStorage.Delete("Isolated Storage Secret Key", DataScope::Company) then;
 
-        "Secret Key".CreateOutStream(OutStream);
-        OutStream.Write(SecretKey);
+        NewSecretGuid := CreateGuid();
+
+        if (not EncryptionEnabled() or (StrLen(SecretKey) > 215)) then
+            IsolatedStorage.Set(NewSecretGuid, SecretKey, DataScope::Company)
+        else
+            IsolatedStorage.SetEncrypted(NewSecretGuid, SecretKey, DataScope::Company);
+
+        Rec."Isolated Storage Secret Key" := NewSecretGuid;
     end;
 }
-
