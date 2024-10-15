@@ -354,6 +354,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
     begin
+        Initialize();
+
         CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         CreateCustomerPackageData(ConfigPackage, ConfigPackageTable);
         SetDimensionAsColumns(ConfigPackageTable);
@@ -369,6 +371,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         SalesHeader: Record "Sales Header";
     begin
         // System do not suggests dimension tables while switch ON "Dimensions As Columns" for tables that have Dimension Set ID.
+        Initialize();
+
         CreateBasicPackageForDimSet(ConfigPackage, ConfigPackageTable, SalesHeader, DATABASE::"Sales Header");
         SetDimensionAsColumns(ConfigPackageTable);
 
@@ -388,6 +392,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         DimensionColumnCaption: Text[250];
     begin
         // Export table with Dimension Set: Verify Dimension Set exported as values in appropriate Dimension columns
+        Initialize();
 
         CreateBasicPackageForDimSet(ConfigPackage, ConfigPackageTable, SalesHeader, DATABASE::"Sales Header");
         SetDimensionAsColumns(ConfigPackageTable);
@@ -422,6 +427,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         TableID: Integer;
     begin
         // Verify Dimension Set imported with existing dimension created with correct values.
+        Initialize();
 
         TableID := DATABASE::"Sales Header";
         PrepareAndImportPackageForDimSet(
@@ -445,6 +451,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         TableID: Integer;
     begin
         // Verify Dimension Set is not created and config package error has been added.
+        Initialize();
 
         TableID := DATABASE::"Sales Header";
         PrepareAndImportPackageForDimSet(
@@ -472,6 +479,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         OldManualNos: Boolean;
     begin
         // Verify Dimension Set applied correctly.
+        Initialize();
+
         CreateBasicPackageForDimSet(ConfigPackage, ConfigPackageTable, SalesHeader, DATABASE::"Sales Header");
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
         SetDimensionAsColumns(ConfigPackageTable);
@@ -534,6 +543,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         DimVal: Record "Dimension Value";
         NewCustomerNo: Code[20];
     begin
+        Initialize();
+
         NewCustomerNo := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         FindDimensionWithValue(DimVal);
 

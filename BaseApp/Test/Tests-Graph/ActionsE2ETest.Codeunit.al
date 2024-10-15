@@ -121,7 +121,7 @@ codeunit 135541 "Actions E2E Test"
         PostAndSendInvoice();
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure TestPostAndSendInvoice()
     var
@@ -211,7 +211,7 @@ codeunit 135541 "Actions E2E Test"
         CancelAndSendInvoice();
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure TestCancelAndSendInvoice()
     var
@@ -264,7 +264,7 @@ codeunit 135541 "Actions E2E Test"
         SendPostedInvoice();
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure TestSendPostedInvoice()
     var
@@ -313,7 +313,7 @@ codeunit 135541 "Actions E2E Test"
         SendDraftInvoice();
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure TestSendDraftInvoice()
     var
@@ -362,7 +362,7 @@ codeunit 135541 "Actions E2E Test"
         SendCanceledInvoice();
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure TestSendCanceledInvoice()
     var
@@ -411,7 +411,7 @@ codeunit 135541 "Actions E2E Test"
         SendQuote();
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure TestSendQuote()
     var

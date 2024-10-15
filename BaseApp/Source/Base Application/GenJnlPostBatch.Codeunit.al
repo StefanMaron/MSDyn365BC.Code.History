@@ -132,7 +132,7 @@
             GenJnlTemplate.Get("Journal Template Name");
             GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
-            OnBeforeRaiseExceedLengthError(GenJnlBatch, RaiseError);
+            OnBeforeRaiseExceedLengthError(GenJnlBatch, RaiseError, GenJnlLine);
 
             if GenJnlTemplate.Recurring then begin
                 TempMarkedGenJnlLine.Copy(GenJnlLine);
@@ -239,7 +239,7 @@
 
             // Copy register no. and current journal batch name to general journal
             IsHandled := false;
-            OnProcessLinesOnBeforeSetGLRegNoToZero(GenJnlLine, GLRegNo, IsHandled);
+            OnProcessLinesOnBeforeSetGLRegNoToZero(GenJnlLine, GLRegNo, IsHandled, GenJnlPostLine);
             if not IsHandled then
                 if not GLReg.FindLast or (GLReg."No." <> GLRegNo) then
                     GLRegNo := 0;
@@ -1672,7 +1672,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRaiseExceedLengthError(var GenJournalBatch: Record "Gen. Journal Batch"; var RaiseError: Boolean)
+    local procedure OnBeforeRaiseExceedLengthError(var GenJournalBatch: Record "Gen. Journal Batch"; var RaiseError: Boolean; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -1767,7 +1767,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnProcessLinesOnBeforeSetGLRegNoToZero(var GenJournalLine: Record "Gen. Journal Line"; var GLRegNo: Integer; var IsHandled: Boolean)
+    local procedure OnProcessLinesOnBeforeSetGLRegNoToZero(var GenJournalLine: Record "Gen. Journal Line"; var GLRegNo: Integer; var IsHandled: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

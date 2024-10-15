@@ -42,12 +42,16 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     procedure Apply(CustLedgEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date): Boolean
     var
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
+        IsHandled: Boolean;
     begin
         OnBeforeApply(CustLedgEntry, DocumentNo, ApplicationDate);
         with CustLedgEntry do begin
-            if not PreviewMode then
-                if not PaymentToleranceMgt.PmtTolCust(CustLedgEntry) then
-                    exit(false);
+            IsHandled := false;
+            OnApplyOnBeforePmtTolCust(CustLedgEntry, PaymentToleranceMgt, PreviewMode, IsHandled);
+            if not IsHandled then
+                if not PreviewMode then
+                    if not PaymentToleranceMgt.PmtTolCust(CustLedgEntry) then
+                        exit(false);
             Get("Entry No.");
             CheckWHTAmount(CustLedgEntry);
 
@@ -323,7 +327,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             CollectAffectedLedgerEntries(TempCustLedgerEntry, DtldCustLedgEntry2);
             GenJnlPostLine.UnapplyCustLedgEntry(GenJnlLine, DtldCustLedgEntry2);
             AdjustExchangeRates.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
-            OnAfterPostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine);
+            OnAfterPostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine, CommitChanges);
 
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
@@ -568,7 +572,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostUnapplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnAfterPostUnapplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitChanges: Boolean)
     begin
     end;
 
@@ -644,6 +648,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyCustomerCommitOnAfterGetCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnBeforePmtTolCust(CustLedgEntry: Record "Cust. Ledger Entry"; var PaymentToleranceMgt: Codeunit "Payment Tolerance Management"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

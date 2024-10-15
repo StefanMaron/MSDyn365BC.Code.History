@@ -1383,6 +1383,55 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PickingToBinHavingFilterSymbolInCode()
+    var
+        Location: Record Location;
+        PickBin: Record Bin;
+        ShipBin: Record Bin;
+        ReceiveBin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Bin]
+        // [SCENARIO 371983] Picking to a bin having filter symbols ('&','|') in code.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with bins and required shipment, pick and put-away.
+        // [GIVEN] Create two bin codes containing filter symbols, set up them as "Shipment Bin Code" and "Receipt Bin Code" on location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, false, true);
+        LibraryWarehouse.CreateBin(PickBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ShipBin, Location.Code, 'SHIP&-B|N', '', '');
+        LibraryWarehouse.CreateBin(ReceiveBin, Location.Code, 'RECEIVE&-B|N', '', '');
+        Location.Validate("Shipment Bin Code", ShipBin.Code);
+        Location.Validate("Receipt Bin Code", ReceiveBin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create item, post inventory to a pick bin.
+        LibraryInventory.CreateItem(Item);
+        UpdateItemInventory(Item."No.", Location.Code, PickBin.Code, Qty);
+
+        // [GIVEN] Create sales order, release it and make a warehouse shipment.
+        CreateSalesOrder(SalesHeader, Location.Code, Item."No.", Qty);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [WHEN] Create pick.
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.");
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [THEN] A warehouse pick to the shipment bin has been created successfully.
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Bin Code", ShipBin.Code);
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";

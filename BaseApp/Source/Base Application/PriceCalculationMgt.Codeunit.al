@@ -9,7 +9,6 @@ codeunit 7001 "Price Calculation Mgt."
         ExtendedPriceFeatureIdTok: Label 'SalesPrices', Locked = true;
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
         FeatureIsOffErr: Label 'Extended price calculation feature is not enabled.';
-        FilterTok: Label '<>%1', Locked = true;
 
     procedure RefreshSetup() Updated: Boolean;
     var
@@ -120,11 +119,5 @@ codeunit 7001 "Price Calculation Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnFindSupportedSetup(var TempPriceCalculationSetup: Record "Price Calculation Setup" temporary)
     begin
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Feature Management", 'OnOpenFeatureMgtPage', '', false, false)]
-    local procedure HideFeatureOnOpenFeatureMgtPage(var FeatureIDFilter: Text; var IgnoreFilter: Boolean);
-    begin
-        FeatureIDFilter := StrSubstNo(FilterTok, GetFeatureKey());
     end;
 }

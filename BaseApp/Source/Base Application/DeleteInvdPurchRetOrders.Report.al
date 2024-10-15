@@ -57,6 +57,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                                 PurchLine.DeleteLinks;
                                             OnBeforePurchLineDelete(PurchLine);
                                             PurchLine.Delete();
+                                            OnAfterPurchLineDelete(PurchLine);
                                         end else
                                             AllLinesDeleted := false;
                                     until PurchLine.Next = 0;
@@ -83,6 +84,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
 
                                     OnBeforeDeletePurchaseHeader("Purchase Header");
                                     Delete;
+                                    OnAfterDeletePurchaseHeader("Purchase Header");
                                 end;
                                 Commit();
                             end;
@@ -133,6 +135,16 @@ report 6661 "Delete Invd Purch. Ret. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchLineDelete(var PurchLine: Record "Purchase Line")
     begin
     end;
 

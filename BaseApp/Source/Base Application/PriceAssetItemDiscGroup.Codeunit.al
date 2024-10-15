@@ -6,6 +6,7 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
 
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::"Item Discount Group";
         if ItemDiscountGroup.GetBySystemId(PriceAsset."Asset ID") then begin
             PriceAsset."Asset No." := ItemDiscountGroup.Code;
             FillAdditionalFields(PriceAsset);
@@ -15,6 +16,7 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
 
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::"Item Discount Group";
         if ItemDiscountGroup.Get(PriceAsset."Asset No.") then begin
             PriceAsset."Asset ID" := ItemDiscountGroup.SystemId;
             FillAdditionalFields(PriceAsset);
@@ -23,10 +25,14 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
     end;
 
     procedure IsLookupOK(var PriceAsset: Record "Price Asset"): Boolean
+    var
+        xPriceAsset: Record "Price Asset";
     begin
-        if ItemDiscountGroup.Get(PriceAsset."Asset No.") then;
+        xPriceAsset := PriceAsset;
+        if ItemDiscountGroup.Get(xPriceAsset."Asset No.") then;
         if Page.RunModal(Page::"Item Disc. Groups", ItemDiscountGroup) = ACTION::LookupOK then begin
-            PriceAsset.Validate("Asset No.", ItemDiscountGroup.Code);
+            xPriceAsset.Validate("Asset No.", ItemDiscountGroup.Code);
+            PriceAsset := xPriceAsset;
             exit(true)
         end;
     end;

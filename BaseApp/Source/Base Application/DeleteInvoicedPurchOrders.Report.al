@@ -87,6 +87,7 @@ report 499 "Delete Invoiced Purch. Orders"
 
                         OnBeforePurchLineDelete(PurchLine);
                         PurchLine.Delete();
+                        OnAfterPurchLineDelete(PurchLine);
                     until PurchLine.Next = 0;
 
                 PostPurchDelete.DeleteHeader(
@@ -115,6 +116,7 @@ report 499 "Delete Invoiced Purch. Orders"
                                 
                 OnBeforeDeletePurchaseHeader("Purchase Header");
                 Delete;
+                OnAfterDeletePurchaseHeader("Purchase Header");
 
                 Commit();
             end;
@@ -159,6 +161,16 @@ report 499 "Delete Invoiced Purch. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchLineDelete(var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

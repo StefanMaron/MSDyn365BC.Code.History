@@ -24,6 +24,7 @@ codeunit 28040 WHTManagement
         Vendor: Record Vendor;
         GLSetup: Record "General Ledger Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
         WHTBusPostGrp: Code[20];
         WHTProdPostGrp: Code[20];
         WHTRevenueType: Code[10];
@@ -7022,7 +7023,7 @@ codeunit 28040 WHTManagement
 
             if PurchLine.FindSet then
                 repeat
-                    if (PurchLine."Prepmt. Line Amount" - PurchLine."Prepmt. Amt. Inv.") <> 0 then
+                    if PurchasePostPrepayments.PrepmtAmount(PurchLine, 0) <> 0 then
                         if WHTPostingSetup.Get(PurchLine."WHT Business Posting Group", PurchLine."WHT Product Posting Group") then
                             if WHTPostingSetup."WHT %" > 0 then begin
                                 DocNo := "No.";
@@ -7050,11 +7051,9 @@ codeunit 28040 WHTManagement
                                         InsertPrepaymentUnrealizedWHT(TType::Purchase);
                                     WHTBusPostGrp := PurchLine."WHT Business Posting Group";
                                     WHTProdPostGrp := PurchLine."WHT Product Posting Group";
-                                    Amount := 0;
-                                    AbsorbBase := 0;
                                     AmountVAT := 0;
-                                    Amount := Amount + PurchLine."Prepayment Amount";
-                                    AbsorbBase := AbsorbBase + PurchLine."WHT Absorb Base";
+                                    Amount := PurchasePostPrepayments.PrepmtAmount(PurchLine, 0);
+                                    AbsorbBase := PurchLine."WHT Absorb Base";
                                     if AbsorbBase <> 0 then
                                         AmountVAT := AbsorbBase
                                     else
@@ -7062,8 +7061,8 @@ codeunit 28040 WHTManagement
                                 end else begin
                                     WHTBusPostGrp := PurchLine."WHT Business Posting Group";
                                     WHTProdPostGrp := PurchLine."WHT Product Posting Group";
-                                    Amount := Amount + PurchLine."Prepayment Amount";
-                                    AbsorbBase := AbsorbBase + PurchLine."WHT Absorb Base";
+                                    Amount += PurchasePostPrepayments.PrepmtAmount(PurchLine, 0);
+                                    AbsorbBase += PurchLine."WHT Absorb Base";
                                     if AbsorbBase <> 0 then
                                         AmountVAT := AbsorbBase
                                     else
@@ -7327,66 +7326,65 @@ codeunit 28040 WHTManagement
                 exit;
         end;
 
-        with PurchCrMemoHeader do begin
+        with PurchHeader do begin
             PurchLine.Reset();
             PurchLine.SetCurrentKey("Document Type", "Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            PurchLine.SetRange("Document Type", PurchHeader."Document Type");
-            PurchLine.SetRange("Document No.", PurchHeader."No.");
+            PurchLine.SetRange("Document Type", "Document Type");
+            PurchLine.SetRange("Document No.", "No.");
             PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
 
             if PurchLine.FindSet then
                 repeat
-                    if (PurchLine."Prepmt. Line Amount" - PurchLine."Prepmt. Amt. Inv.") <> 0 then
+                    if PurchLine."Prepmt. Line Amount" <> 0 then
                         if WHTPostingSetup.Get(PurchLine."WHT Business Posting Group", PurchLine."WHT Product Posting Group") then
-                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
-                                if WHTPostingSetup."WHT %" > 0 then begin
-                                    DocNo := "No.";
-                                    DocType := DocType::Invoice;
-                                    PayToAccType := PayToAccType::Vendor;
-                                    PayToVendCustNo := "Pay-to Vendor No.";
-                                    BuyFromAccType := BuyFromAccType::Vendor;
-                                    GenBusPostGrp := PurchLine."Gen. Bus. Posting Group";
-                                    GenProdPostGrp := PurchLine."Gen. Prod. Posting Group";
-                                    TransType := TransType::Purchase;
-                                    BuyFromVendCustNo := "Actual Vendor No.";
-                                    PostingDate := "Posting Date";
-                                    DocDate := "Document Date";
-                                    CurrencyCode := "Currency Code";
-                                    CurrFactor := "Currency Factor";
-                                    ApplyDocType := "Applies-to Doc. Type";
-                                    ApplyDocNo := "Applies-to Doc. No.";
-                                    SourceCode := "Source Code";
-                                    ReasonCode := "Reason Code";
+                            if WHTPostingSetup."WHT %" > 0 then begin
+                                DocNo := PurchCrMemoHeader."No.";
+                                DocType := DocType::"Credit Memo";
+                                PayToAccType := PayToAccType::Vendor;
+                                PayToVendCustNo := "Pay-to Vendor No.";
+                                BuyFromAccType := BuyFromAccType::Vendor;
+                                GenBusPostGrp := PurchLine."Gen. Bus. Posting Group";
+                                GenProdPostGrp := PurchLine."Gen. Prod. Posting Group";
+                                TransType := TransType::Purchase;
+                                BuyFromVendCustNo := "Actual Vendor No.";
+                                PostingDate := "Posting Date";
+                                DocDate := "Document Date";
+                                CurrencyCode := "Currency Code";
+                                CurrFactor := "Currency Factor";
+                                ApplyDocType := "Applies-to Doc. Type";
+                                ApplyDocNo := "Applies-to Doc. No.";
+                                SourceCode := PurchCrMemoHeader."Source Code";
+                                ReasonCode := "Reason Code";
 
-                                    if (WHTBusPostGrp <> PurchLine."WHT Business Posting Group") or
-                                       (WHTProdPostGrp <> PurchLine."WHT Product Posting Group")
-                                    then begin
-                                        if AmountVAT <> 0 then
-                                            InsertPrepaymentUnrealizedWHT(TType::Purchase);
-                                        WHTBusPostGrp := PurchLine."WHT Business Posting Group";
-                                        WHTProdPostGrp := PurchLine."WHT Product Posting Group";
-                                        Amount := 0;
-                                        AbsorbBase := 0;
-                                        AmountVAT := 0;
-                                        Amount := -(Amount + PurchLine."Prepayment Amount");
-                                        AbsorbBase := -(AbsorbBase + PurchLine."WHT Absorb Base");
-                                        if AbsorbBase <> 0 then
-                                            AmountVAT := AbsorbBase
-                                        else
-                                            AmountVAT := Amount;
-                                    end else begin
-                                        WHTBusPostGrp := PurchLine."WHT Business Posting Group";
-                                        WHTProdPostGrp := PurchLine."WHT Product Posting Group";
-                                        Amount := -(Amount + PurchLine."Prepayment Amount");
-                                        AbsorbBase := -(AbsorbBase + PurchLine."WHT Absorb Base");
-                                        if AbsorbBase <> 0 then
-                                            AmountVAT := AbsorbBase
-                                        else
-                                            AmountVAT := Amount;
-                                    end;
+                                if (WHTBusPostGrp <> PurchLine."WHT Business Posting Group") or
+                                   (WHTProdPostGrp <> PurchLine."WHT Product Posting Group")
+                                then begin
+                                    if AmountVAT <> 0 then
+                                        InsertPrepaymentUnrealizedWHT(TType::Purchase);
                                     WHTBusPostGrp := PurchLine."WHT Business Posting Group";
                                     WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                                    Amount := 0;
+                                    AbsorbBase := 0;
+                                    AmountVAT := 0;
+                                    Amount -= PurchLine."Prepmt. Line Amount";
+                                    AbsorbBase -= PurchLine."WHT Absorb Base";
+                                    if AbsorbBase <> 0 then
+                                        AmountVAT := AbsorbBase
+                                    else
+                                        AmountVAT := Amount;
+                                end else begin
+                                    WHTBusPostGrp := PurchLine."WHT Business Posting Group";
+                                    WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                                    Amount -= PurchLine."Prepmt. Line Amount";
+                                    AbsorbBase -= PurchLine."WHT Absorb Base";
+                                    if AbsorbBase <> 0 then
+                                        AmountVAT := AbsorbBase
+                                    else
+                                        AmountVAT := Amount;
                                 end;
+                                WHTBusPostGrp := PurchLine."WHT Business Posting Group";
+                                WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                            end;
                 until PurchLine.Next = 0;
             InsertPrepaymentUnrealizedWHT(TType::Purchase);
         end;

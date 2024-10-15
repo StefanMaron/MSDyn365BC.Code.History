@@ -1,4 +1,4 @@
-report 2 "General Journal - Test"
+﻿report 2 "General Journal - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GeneralJournalTest.rdlc';
@@ -358,6 +358,8 @@ report 2 "General Journal - Test"
                                                             FieldCaption("VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")));
                                             end;
                                             TestJobFields("Gen. Journal Line");
+
+                                            OnAfterGetRecordGenJournalLineOnAfterCheckAccTypeGLAccAccNo("Gen. Journal Line");
                                         end;
                                     "Account Type"::Customer, "Account Type"::Vendor:
                                         begin
@@ -471,6 +473,7 @@ report 2 "General Journal - Test"
                                                             Text011, FieldCaption("Bal. VAT Amount (LCY)"),
                                                             FieldCaption("Bal. VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")));
                                             end;
+                                            OnAfterGetRecordGenJournalLineOnAfterCheckBalAccTypeGLAccBalAccNo("Gen. Journal Line");
                                         end;
                                     "Bal. Account Type"::Customer, "Bal. Account Type"::Vendor:
                                         begin
@@ -2271,6 +2274,16 @@ report 2 "General Journal - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJournalLineOnAfterGetRecord(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalTemplate: Record "Gen. Journal Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordGenJournalLineOnAfterCheckBalAccTypeGLAccBalAccNo(GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordGenJournalLineOnAfterCheckAccTypeGLAccAccNo(GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

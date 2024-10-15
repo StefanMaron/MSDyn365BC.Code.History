@@ -43,5 +43,19 @@ codeunit 9004 "User Grp. Perm. Subscribers"
         UserGroupAccessControl.RemoveUserGroupPermissionSet(xRec."User Group Code", xRec."Role ID", xRec."App ID", xRec.Scope);
         UserGroupAccessControl.AddUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Tenant Permission Set", 'OnAfterRenameEvent', '', false, false)]
+    local procedure OnAfterPermissionSetRename(var Rec: Record "Tenant Permission Set"; var xRec: Record "Tenant Permission Set"; RunTrigger: Boolean)
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+    begin
+        UserGroupPermissionSet.SetRange("Role ID", xRec."Role ID");
+        if not UserGroupPermissionSet.FindSet() then
+            exit;
+
+        repeat
+            UserGroupPermissionSet.Rename(UserGroupPermissionSet."User Group Code", Rec."Role ID", UserGroupPermissionSet.Scope, UserGroupPermissionSet."App ID");
+        until UserGroupPermissionSet.Next() = 0;
+    end;
 }
 

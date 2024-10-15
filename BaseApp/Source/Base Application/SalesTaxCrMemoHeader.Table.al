@@ -22,7 +22,9 @@ table 28073 "Sales Tax Cr.Memo Header"
             NotBlank = true;
             TableRelation = Customer;
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(5; "Bill-to Name"; Text[100])
+#pragma warning restore AS0086
         {
             Caption = 'Bill-to Name';
         }
@@ -30,7 +32,9 @@ table 28073 "Sales Tax Cr.Memo Header"
         {
             Caption = 'Bill-to Name 2';
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(7; "Bill-to Address"; Text[100])
+#pragma warning restore AS0086
         {
             Caption = 'Bill-to Address';
         }
@@ -55,7 +59,9 @@ table 28073 "Sales Tax Cr.Memo Header"
             Caption = 'Ship-to Code';
             TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Sell-to Customer No."));
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(13; "Ship-to Name"; Text[100])
+#pragma warning restore AS0086
         {
             Caption = 'Ship-to Name';
         }
@@ -63,7 +69,9 @@ table 28073 "Sales Tax Cr.Memo Header"
         {
             Caption = 'Ship-to Name 2';
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(15; "Ship-to Address"; Text[100])
+#pragma warning restore AS0086
         {
             Caption = 'Ship-to Address';
         }
@@ -75,7 +83,9 @@ table 28073 "Sales Tax Cr.Memo Header"
         {
             Caption = 'Ship-to City';
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(18; "Ship-to Contact"; Text[100])
+#pragma warning restore AS0086
         {
             Caption = 'Ship-to Contact';
         }

@@ -369,6 +369,7 @@ page 9192 "Company Creation Wizard"
             until Next = 0;
 
         CompanyCreated := true;
+        OnFinishActionOnBeforeCurrPageClose(NewCompanyData, NewCompanyName);
         CurrPage.Close();
         if not (NewCompanyData in [NewCompanyData::None, NewCompanyData::"Full No Data"]) then
             Message(CompanySetUpInProgressMsg, NewCompanyName);
@@ -496,6 +497,11 @@ page 9192 "Company Creation Wizard"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateNewCompany(NewCompanyData: Option; NewCompanyName: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinishActionOnBeforeCurrPageClose(NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data"; NewCompanyName: Text[30])
     begin
     end;
 

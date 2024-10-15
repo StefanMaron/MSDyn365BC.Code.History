@@ -97,7 +97,13 @@ codeunit 99000833 "Req. Line-Reserve"
         ReqLine: Record "Requisition Line";
         ShowError: Boolean;
         HasError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyChange(NewReqLine, OldReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (NewReqLine.Type <> NewReqLine.Type::Item) and (OldReqLine.Type <> OldReqLine.Type::Item) then
             exit;
         if Blocked then
@@ -720,6 +726,11 @@ codeunit 99000833 "Req. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewReqLine: Record "Requisition Line"; OldReqLine: Record "Requisition Line"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyChange(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }
