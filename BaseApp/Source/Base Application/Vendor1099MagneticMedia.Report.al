@@ -723,14 +723,15 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetAmt(GetFullMiscCode(8), FormType, EndLine), 12)) +
           StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetAmt(GetFullMiscCode(10), FormType, EndLine), 12)) + // crop insurance  Payment A
+              MagMediaManagement.GetAmt(GetFullMiscCode(9), FormType, EndLine), 12)) +
           StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetAmt(GetFullMiscCode(12), FormType, EndLine), 12)) + // 409A deferral
+              MagMediaManagement.GetAmt(GetFullMiscCode(13), FormType, EndLine), 12)) +
           StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetAmt(GetFullMiscCode(13), FormType, EndLine), 12)) + // golden parachute  Payment B
+              MagMediaManagement.GetAmt(GetFullMiscCode(10), FormType, EndLine), 12)) +
           StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetAmt(GetFullMiscCode(14), FormType, EndLine), 12)) + // gross legal services Payment C
-          StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(0, 12)) +
+              MagMediaManagement.GetAmt(GetFullMiscCode(12), FormType, EndLine), 12)) +
+          StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetAmt(GetFullMiscCode(14), FormType, EndLine), 12)) +
           StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(HashTagTwelveCharsTok, MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(' ') + // Foreign Country Indicator
@@ -981,14 +982,15 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetTotal(GetFullMiscCode(8), FormType, EndLine), 18)) +
           StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetTotal(GetFullMiscCode(10), FormType, EndLine), 18)) + // crop insurance  Payment A
+              MagMediaManagement.GetTotal(GetFullMiscCode(9), FormType, EndLine), 18)) +
           StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetTotal(GetFullMiscCode(12), FormType, EndLine), 18)) + // 409A deferral
+              MagMediaManagement.GetTotal(GetFullMiscCode(13), FormType, EndLine), 18)) +
           StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetTotal(GetFullMiscCode(13), FormType, EndLine), 18)) + // golden parachute  Payment B
+              MagMediaManagement.GetTotal(GetFullMiscCode(10), FormType, EndLine), 18)) +
           StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetTotal(GetFullMiscCode(14), FormType, EndLine), 18)) + // gross legal services Payment C
-          StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(0, 18)) +
+              MagMediaManagement.GetTotal(GetFullMiscCode(12), FormType, EndLine), 18)) +
+          StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetTotal(GetFullMiscCode(14), FormType, EndLine), 18)) +
           StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo(HashTagEighteenCharsTok, MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo('                                                  ') +

@@ -2444,7 +2444,7 @@ Cstr(Fields!BuyfrmVendNo_PurchCrMemoHeaderCaption.Value)
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=SUM(Fields!Amt_PurchCrMemoLine.Value)</Value>
+                                                    <Value>=Last(Fields!TotalAmt_PurchCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>

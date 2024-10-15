@@ -24,6 +24,7 @@
         TempSalesTaxLine: Record "Sales Tax Amount Line" temporary;
         Currency: Record Currency;
         SalesHeader: Record "Sales Header";
+        TempSalesHeader: Record "Sales Header" temporary;
         PurchHeader: Record "Purchase Header";
         TaxAmountDifference: Record "Sales Tax Amount Difference";
         TempTaxAmountDifference: Record "Sales Tax Amount Difference" temporary;
@@ -633,6 +634,14 @@
         ClearAll;
     end;
 
+    internal procedure SetTmpSalesHeader(SalesHeader: Record "Sales Header")
+    begin
+        TempSalesHeader.Reset();
+        TempSalesHeader.DeleteAll();
+        TempSalesHeader := SalesHeader;
+        TempSalesHeader.Insert();
+    end;
+
     procedure AddSalesLine(SalesLine: Record "Sales Line")
     var
         TaxDetail: Record "Tax Detail";
@@ -648,7 +657,10 @@
 
         if not SalesHeaderRead then begin
             TempPrepaidSalesLine.DeleteAll();
-            SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+            if TempSalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
+                SalesHeader := TempSalesHeader
+            else
+                SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
             SalesHeaderRead := true;
             SalesHeader.TestField("Prices Including VAT", false);
             if not GetSalesTaxCountry(SalesHeader."Tax Area Code") then

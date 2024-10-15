@@ -549,11 +549,11 @@
                             if "Allow Invoice Disc." then
                                 VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                            VATAmountLine.InsertLine;
                             OnBeforeCalculateSalesTax("Sales Invoice Header", "Sales Invoice Line", VATAmountLine);
                             CalcVATAmountLineLCY(
                               "Sales Invoice Header", VATAmountLine, TempVATAmountLineLCY,
                               VATBaseRemainderAfterRoundingLCY, AmtInclVATRemainderAfterRoundingLCY);
+                            VATAmountLine.InsertLine();
 
                             TotalSubTotal += "Line Amount";
                             TotalInvoiceDiscountAmount -= "Inv. Discount Amount";

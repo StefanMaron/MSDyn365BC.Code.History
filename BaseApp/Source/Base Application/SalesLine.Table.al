@@ -6824,6 +6824,7 @@
                 SetRange("Document No.", SalesHeader."No.");
                 SetFilter(Type, '<>0');
                 SetFilter("Tax Group Code", '<>%1', '');
+                SalesTaxCalculate.SetTmpSalesHeader(SalesHeader);
                 if FindSet then
                     repeat
                         SalesTaxCalculate.AddSalesLine(SalesLine);
@@ -6832,6 +6833,7 @@
             SalesTaxCalculate.EndSalesTaxCalculation(SalesHeader."Posting Date");
         end;
         SalesLine2.CopyFilters(SalesLine);
+        SalesLine.SetSalesHeader(SalesHeader);
         SalesTaxCalculate.DistTaxOverSalesLines(SalesLine);
         SalesLine.CopyFilters(SalesLine2);
     end;

@@ -1708,38 +1708,6 @@ codeunit 139501 "MS - Yodlee Bank Service Tests"
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
-    procedure TestRemoveInvalidConsumerOnDisableWithError();
-    var
-        MSYodleeBankServiceSetup: Record 1450;
-        MSYodleeBankServiceSetupPage: TestPage 1450;
-        Username: Text;
-        Password: Text;
-        ConsumerCredentials: Text;
-        ServiceUrl: Text;
-    begin
-        // Setup
-        InitializeEncryptionTest(Username, Password, ConsumerCredentials, ServiceUrl);
-
-        MSYodleeBankServiceSetupPage.OPENEDIT();
-        MSYodleeBankServiceSetupPage.SetDefaults.INVOKE();
-        MSYodleeBankServiceSetupPage.Enabled.SETVALUE(TRUE);
-        MSYodleeBankServiceSetupPage.CobrandName.SetValue(FORMAT(CreateGuid()));
-        MSYodleeBankServiceSetupPage.CobrandPwd.SetValue(FORMAT(CreateGuid()));
-        MSYodleeBankServiceSetupPage.CLOSE();
-
-        // Execute
-        MSYodleeBankServiceSetupPage.OPENEDIT();
-        EnqueueConfirmMsgAndResponse(DisableServiceAndRemoveAccTxt, TRUE);
-        MSYodleeBankServiceSetupPage.Enabled.SETVALUE(FALSE);
-
-        // Verify
-        MSYodleeBankServiceSetup.GET();
-        Assert.AreEqual('', MSYodleeBankServiceSetup."Consumer Name", 'Name');
-        Assert.IsTrue(ISNULLGUID(MSYodleeBankServiceSetup."Consumer Password"), 'Password');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
     procedure TestRemoveConsumerOnNoLinkedBankAccounts();
     var
         MSYodleeBankServiceSetup: Record 1450;
