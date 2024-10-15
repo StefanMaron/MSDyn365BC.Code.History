@@ -90,13 +90,28 @@ table 1225 "Data Exch. Field Mapping"
         }
         field(12; "Target Table Caption"; Text[250])
         {
-            CalcFormula = Lookup ("Table Metadata".Caption WHERE(ID = FIELD("Target Table ID")));
+            CalcFormula = Lookup("Table Metadata".Caption WHERE(ID = FIELD("Target Table ID")));
             Caption = 'Target Table Caption';
             FieldClass = FlowField;
         }
         field(13; "Target Field Caption"; Text[30])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Target Table ID"),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Target Table ID"),
+                                                              "No." = FIELD("Target Field ID")));
+            Caption = 'Target Field Caption';
+            FieldClass = FlowField;
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
+            ObsoleteReason = 'Redesigned to a new field "Target Table Field Calcucation"';
+        }
+        field(14; "Target Table Field Caption"; Text[80])
+        {
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Target Table ID"),
                                                               "No." = FIELD("Target Field ID")));
             Caption = 'Target Field Caption';
             FieldClass = FlowField;
@@ -112,7 +127,7 @@ table 1225 "Data Exch. Field Mapping"
         }
         field(30; Priority; Integer)
         {
-            Caption = 'Priority';	
+            Caption = 'Priority';
         }
 
     }

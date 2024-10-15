@@ -71,7 +71,13 @@ codeunit 140 "EC Sales List Suggest Lines"
     local procedure AddOrUpdateECLLine(EUVATEntries: Query "EU VAT Entries")
     var
         ECSLVATReportLine: Record "ECSL VAT Report Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddOrUpdateECLLine(EUVATEntries, ECSLVATReportLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GetECLLine(ECSLVATReportLine, EUVATEntries);
         ECSLVATReportLine."Total Value Of Supplies" += EUVATEntries.Base;
         AddToRepLineRelation(EUVATEntries, ECSLVATReportLine);
@@ -158,6 +164,11 @@ codeunit 140 "EC Sales List Suggest Lines"
         until ECSLVATReportLineRelation.Next() = 0;
 
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddOrUpdateECLLine(EUVATEntries: Query "EU VAT Entries"; var ECSLVATReportLine: Record "ECSL VAT Report Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

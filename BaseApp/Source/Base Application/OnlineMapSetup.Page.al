@@ -37,6 +37,12 @@ page 800 "Online Map Setup"
                         HyperLink('http://go.microsoft.com/fwlink/?LinkID=248686');
                     end;
                 }
+                field(Enabled; Enabled)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Enabled';
+                    ToolTip = 'Specifies if the connection to online map service should be enabled';
+                }
             }
             group(Settings)
             {
@@ -105,8 +111,16 @@ page 800 "Online Map Setup"
         end;
     end;
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        IF NOT Enabled THEN
+            IF NOT CONFIRM(STRSUBSTNO(EnableServiceQst, CurrPage.CAPTION), TRUE) THEN
+                EXIT(FALSE);
+    end;
+
     var
         TermsOfUseLbl: Label 'Microsoft Bing Maps Services Agreement.';
         PrivacyStatementLbl: Label 'Microsoft Bing Maps Privacy Statement.';
+        EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 Name of the service (online map setup)';
 }
 

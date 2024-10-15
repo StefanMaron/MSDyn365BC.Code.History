@@ -612,17 +612,26 @@ codeunit 6060 "Hybrid Deployment"
         end;
     end;
 
-    internal procedure VerifyCanStartUpgrade(CompanyName: Text)
+    internal procedure VerifyCanStartUpgrade(CompanyName: Text): Boolean
     var
         IntelligentCloud: Record "Intelligent Cloud";
+        CurrentModuleInfo: ModuleInfo;
     begin
         if not IntelligentCloud.Get() then
-            exit;
+            exit(true);
 
         if not IntelligentCloud.Enabled then
-            exit;
+            exit(true);
+
+        NavApp.GetCurrentModuleInfo(CurrentModuleInfo);
+
+        // Skip HFes
+        if (CurrentModuleInfo.AppVersion().Major = CurrentModuleInfo.DataVersion().Major) and
+        (CurrentModuleInfo.AppVersion().Minor = CurrentModuleInfo.DataVersion().Minor) then
+            exit(false);
 
         OnCanStartUpgrade(CompanyName);
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

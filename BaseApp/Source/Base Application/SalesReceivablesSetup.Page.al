@@ -89,7 +89,7 @@
                 field("Default Posting Date"; "Default Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how to use the Posting Date field on sales documents.';
+                    ToolTip = 'Specifies which date must be used as the default posting date on sales documents.';
                 }
                 field("Default Quantity to Ship"; "Default Quantity to Ship")
                 {
@@ -200,7 +200,8 @@
                 }
                 field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
+                    Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of sales invoices.';
                     Visible = false;
