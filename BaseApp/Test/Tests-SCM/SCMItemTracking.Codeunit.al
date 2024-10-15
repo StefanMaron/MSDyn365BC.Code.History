@@ -2836,6 +2836,74 @@ codeunit 137405 "SCM Item Tracking"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesGetAvailabilityModalPageHandler,ConfirmHandlerTrue')]
+    procedure NoAvailWarningForNonSpecificLotTracking()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SerialNo: Code[20];
+        LotNo: Code[20];
+    begin
+        // [SCENARIO 409128] No availability warning in item tracking lines for non-specific lot tracking.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+        ItemTrackingCode.Validate("Lot Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        CreateItem(Item, ItemTrackingCode.Code, '', '');
+
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 1);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
+        SalesLine.OpenItemTrackingLines();
+
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Serial No. must not be available.');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Lot No. must be available.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesGetAvailabilityModalPageHandler,ConfirmHandlerTrue')]
+    procedure NoAvailWarningForNonSpecificSerialNoTracking()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SerialNo: Code[20];
+        LotNo: Code[20];
+    begin
+        // [SCENARIO 409128] No availability warning in item tracking lines for non-specific serial no. tracking.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("SN Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        CreateItem(Item, ItemTrackingCode.Code, '', '');
+
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 1);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
+        SalesLine.OpenItemTrackingLines();
+
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Serial No. must be available.');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Lot No. must not be available.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4700,6 +4768,18 @@ codeunit 137405 "SCM Item Tracking"
         end;
 
         ItemTrkgLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesGetAvailabilityModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilitySerialNo.AsBoolean);
+        LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilityLotNo.AsBoolean);
+
+        ItemTrackingLines.OK.Invoke();
     end;
 
     [ModalPageHandler]

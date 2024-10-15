@@ -9500,6 +9500,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Routing No.]D;]A;(LookupHint=Codeunit SCM Planning And Manufacturing - NamedType StatusMustBeCertifiedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1981732821 - NamedType 3154689621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Status must be equal to 'Certified']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning And Manufacturing - NamedType ProdBOMMustBeCertifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1981732821 - NamedType 3782561477" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Not all items were planned.]]></Val>

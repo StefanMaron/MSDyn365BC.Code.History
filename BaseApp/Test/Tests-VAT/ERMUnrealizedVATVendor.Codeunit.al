@@ -1373,6 +1373,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         FindLastVATEntry(VATEntry, PmtDocumentNo);
         VATEntry.TestField("Unrealized VAT Entry No.");
         VATEntry.TestField("Transaction No.", RealizedTransactionNo);
+        VATEntry.TestField("G/L Acc. No.");
 
         UnrealVATEntry.Get(VATEntry."Unrealized VAT Entry No.");
         UnrealVATEntry.TestField("Transaction No.", UnrealizedTransactionNo);

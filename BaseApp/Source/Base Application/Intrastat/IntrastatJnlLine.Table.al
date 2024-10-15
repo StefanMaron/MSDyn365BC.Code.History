@@ -275,7 +275,7 @@ table 263 "Intrastat Jnl. Line"
         key(Key5; "Journal Template Name", "Journal Batch Name", Type, "Internal Ref. No.")
         {
         }
-        key(Key6; "Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Area", "Transaction Specification", "Country/Region of Origin Code")
+        key(Key6; "Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Area", "Transaction Specification", "Country/Region of Origin Code", "Partner VAT ID")
         {
         }
         key(Key7; Type, "Internal Ref. No.")

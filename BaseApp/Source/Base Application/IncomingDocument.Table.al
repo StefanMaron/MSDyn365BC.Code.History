@@ -1479,14 +1479,22 @@
     end;
 
     procedure SaveErrorMessages(var TempErrorMessageRef: Record "Error Message" temporary)
+    var
+        EntryNo: Integer;
     begin
         if not TempErrorMessageRef.FindSet then
             exit;
 
+        Clear(TempErrorMessage);
+        if TempErrorMessage.FindLast() then;
+        EntryNo := TempErrorMessage.ID + 1;
+
         repeat
-            TempErrorMessage := TempErrorMessageRef;
+            TempErrorMessage.TransferFields(TempErrorMessageRef);
+            TempErrorMessage.ID := EntryNo;
             TempErrorMessage.Insert();
-        until TempErrorMessageRef.Next = 0;
+            EntryNo += 1;
+        until TempErrorMessageRef.Next() = 0;
     end;
 
     procedure RemoveFromJobQueue(ShowMessages: Boolean)

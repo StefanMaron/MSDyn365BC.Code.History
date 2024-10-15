@@ -1925,6 +1925,52 @@ codeunit 134154 "ERM Intercompany III"
         UnbindSubscription(ERMIntercompanyIII);
     end;
 
+    [Test]
+    [HandlerFunctions('GLPostingPreviewPageHandler')]
+    procedure ICGenJnlPostingPreviewSkipFileCreation()
+    var
+        CompanyInformation: Record "Company Information";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        ICGLAccount: Record "IC G/L Account";
+        ICPartner: Record "IC Partner";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        // [SCENARIO 415998] Intercompany transaction .xml file should not be created when preview posting of intercompany general journal
+        Initialize();
+
+        // [GIVEN] IC Setup, "IC Inbox Type"::"File Location"
+        // [GIVEN] IC Partner, "Inbox Type"::"File Location"
+        CreateFileLocationICSetup(CompanyInformation);
+        LibraryERM.CreateICPartner(ICPartner);
+        ICPartner.Validate("Inbox Type", ICPartner."Inbox Type"::"File Location");
+        ICPartner.Validate("Inbox Details", CompanyInformation."IC Inbox Details");
+        ICPartner.Modify(true);
+        // [GIVEN] Intercompany general journal line
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Intercompany);
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateICGeneralJournalLine(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            GenJournalLine."Bal. Account Type"::"IC Partner", ICPartner.Code, ICGLAccount."No.", 100, LibraryUtility.GenerateGUID);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        Commit();
+
+        // [WHEN] Preview posting of intercompany general journal
+        asserterror GenJnlPost.Preview(GenJournalLine);
+
+        // [THEN] Intercompany transaction file does not exist
+        FileName := StrSubstNo('%1\%2_1.xml', ICPartner."Inbox Details", ICPartner.Code);
+        Assert.IsFalse(FileManagement.ServerFileExists(FileName), 'IC transaction file should not exist on preview.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2525,6 +2571,19 @@ codeunit 134154 "ERM Intercompany III"
         CompanyInformation.Modify(true);
     end;
 
+    local procedure CreateFileLocationICSetup(var CompanyInformation: Record "Company Information")
+    var
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        FileName := FileManagement.ServerTempFileName('');
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Auto. Send Transactions", true);
+        CompanyInformation.Validate("IC Inbox Type", CompanyInformation."IC Inbox Type"::"File Location");
+        CompanyInformation.Validate("IC Inbox Details", FileManagement.GetDirectoryName(FileName));
+        CompanyInformation.Modify(true);
+    end;
+
     local procedure VerifySalesDocDimSet(DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -2668,6 +2727,12 @@ codeunit 134154 "ERM Intercompany III"
     procedure ICSetupPageHandler(var ICSetup: TestPage "IC Setup")
     begin
         ICSetup.Cancel.Invoke;
+    end;
+
+    [PageHandler]
+    procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    begin
+        GLPostingPreview.Close();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSendICDocument', '', false, false)]
