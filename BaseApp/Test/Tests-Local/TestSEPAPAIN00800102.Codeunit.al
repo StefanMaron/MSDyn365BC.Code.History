@@ -548,7 +548,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // Setup: Create and export multiple Payment Lines.
         Initialize();
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02';
         CreateExportProtocol(11000011);
         ExportMultilinePayment(BankAccountNo, 2, false, true);
 
@@ -655,7 +655,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         Initialize();
 
         // setup
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02';
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
 
         // exercise
@@ -737,7 +737,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         Initialize();
 
         // [GIVEN] Export Protocol "Generic SEPA" with Export ID = 11000012 which is id for "SEPA ISO20022 Pain 01.01.03" report.
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
         CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03");
 
         // [GIVEN] Transaction Mode "ABN" with Export Protocol "Generic SEPA" and WorldPayment = true.
@@ -779,7 +779,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         Initialize();
 
         // [GIVEN] Export Protocol "Generic SEPA" with Export ID = 11000012 which is id for "SEPA ISO20022 Pain 01.01.03" report.
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
         CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03");
 
         // [GIVEN] Transaction Mode "ABN" with Export Protocol "Generic SEPA" and WorldPayment = true.
@@ -822,7 +822,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         Initialize();
 
         // [GIVEN] Export Protocol "Generic SEPA" with Export ID = 11000012 which is id for "SEPA ISO20022 Pain 01.01.03" report.
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
         CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03");
 
         // [GIVEN] Transaction Mode "ABN" with Export Protocol "Generic SEPA" and WorldPayment = false.
@@ -859,7 +859,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         Initialize();
 
         // [GIVEN] Export Protocol "Generic SEPA" with Export ID = 11000012 which is id for "SEPA ISO20022 Pain 01.01.03" report.
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
         CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03");
 
         // [GIVEN] Transaction Mode "ABN" with Export Protocol "Generic SEPA" and WorldPayment = true.
@@ -902,7 +902,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         UpdateCompanyInfoAddress();
 
         // [GIVEN] Save NameSpace
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
 
         // [GIVEN] Create Export Protocol
         CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03", Codeunit::"Check SEPA ISO20022");
@@ -954,7 +954,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         Clear(NameSpace);
         ExportFileName := TemporaryPath + CopyStr(Format(CreateGuid()), 2, 10) + '.xml';
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02';
         CreateExportProtocol(11000013);
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test SEPA PAIN 008.001.02");
@@ -1351,7 +1351,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         // Setup: Create and export multiple Payment Lines.
         Initialize();
-        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
 
         CreateExportProtocol(ReportNo);
 
@@ -1571,7 +1571,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // intentionally commented out, since XSD schema must be saved on local hard disk
         // XMLReadHelper.ValidateXMLFileAgainstXSD(ExportFileName,
-        // 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08',FORMAT(XSDSchemaPathTxt));
+        // 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02',FORMAT(XSDSchemaPathTxt));
     end;
 
     local procedure VerifySEPAGroupHeader(PaymentHistory: Record "Payment History"; PaymentHistorySum: Text; NumberOfBatches: array[4] of Integer; NumberOfPayments: Integer)
