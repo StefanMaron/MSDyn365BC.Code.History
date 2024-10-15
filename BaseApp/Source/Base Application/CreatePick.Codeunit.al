@@ -555,7 +555,7 @@ codeunit 7312 "Create Pick"
                 if TotalQtytoPickBase > 0 then
                     FindSmallerUOMBin(
                         LocationCode, ItemNo, VariantCode, UnitofMeasureCode, ToBinCode,
-                        QtyPerUnitofMeasure, TotalQtytoPick, TempWhseItemTrackingLine, CrossDock, TotalQtytoPickBase, WhseItemTrackingSetup);
+                        QtyPerUnitofMeasure, TotalQtytoPick, TempWhseItemTrackingLine, CrossDock, TotalQtytoPickBase, WhseItemTrackingSetup, QtyRndPrec, QtyRndPrecBase);
             end;
         end;
     end;
@@ -884,7 +884,7 @@ codeunit 7312 "Create Pick"
     local procedure FindSmallerUOMBin(
         LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; ToBinCode: Code[20]; QtyPerUnitOfMeasure: Decimal;
         var TotalQtytoPick: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary;
-        CrossDock: Boolean; var TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
+        CrossDock: Boolean; var TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
     var
         ItemUOM: Record "Item Unit of Measure";
         FromBinContent: Record "Bin Content";
@@ -955,10 +955,10 @@ codeunit 7312 "Create Pick"
 
                                 CreateTempActivityLine(
                                     LocationCode, FromBinContent."Bin Code", FromBinContent."Unit of Measure Code",
-                                    ItemUOM."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase, 1, 0);
+                                    ItemUOM."Qty. per Unit of Measure", FromQtyToPick, FromQtyToPickBase, 1, 0, QtyRndPrec, QtyRndPrecBase);
                                 CreateTempActivityLine(
                                     LocationCode, ToBinCode, UnitofMeasureCode,
-                                    QtyPerUnitOfMeasure, ToQtyToPick, ToQtyToPickBase, 2, 0);
+                                    QtyPerUnitOfMeasure, ToQtyToPick, ToQtyToPickBase, 2, 0, QtyRndPrec, QtyRndPrecBase);
 
                                 TotalAvailQtyToPickBase := TotalAvailQtyToPickBase - ToQtyToPickBase;
                             end;
