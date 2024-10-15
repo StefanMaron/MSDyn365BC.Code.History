@@ -1,4 +1,4 @@
-table 750 "Standard General Journal"
+﻿table 750 "Standard General Journal"
 {
     Caption = 'Standard General Journal';
     LookupPageID = "Standard General Journals";
@@ -118,6 +118,7 @@ table 750 "Standard General Journal"
         else
             GenJnlLine."Line No." := 10000;
 
+        OnCopyGenJnlFromStdJnlOnBeforeGenJnlLineTransferFields(GenJnlLine, StdGenJnlLine);
         GenJnlLine.TransferFields(StdGenJnlLine, false);
         GenJnlLine.UpdateLineBalance;
         GenJnlLine."Currency Factor" := 0;
@@ -199,6 +200,11 @@ table 750 "Standard General Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlFromStdJnl(var GenJournalLine: Record "Gen. Journal Line"; StdGenJournalLine: Record "Standard General Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyGenJnlFromStdJnlOnBeforeGenJnlLineTransferFields(var GenJournalLine: Record "Gen. Journal Line"; var StdGenJournalLine: Record "Standard General Journal Line")
     begin
     end;
 }

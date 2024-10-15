@@ -38,7 +38,6 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         PlannedProdOrderLine: Record "Prod. Order Line";
         PlanningAssignment: Record "Planning Assignment";
         ProdOrder: Record "Production Order";
-        CurrWorksheetType: Option Requisition,Planning;
     begin
         with Item do begin
             if not PlanThisItem then
@@ -75,12 +74,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
             OnCodeOnBeforeInvtProfileOffsettingSetParm(Item);
 
-            InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType::Planning);
-            InvtProfileOffsetting.CalculatePlanFromWorksheet(
-              Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, MRP, RespectPlanningParm);
-
-            // Retrieve list of Planning Components handled:
-            InvtProfileOffsetting.GetPlanningCompList(TempPlanningCompList);
+            CalculateAndGetPlanningCompList();
 
             CopyFilter("Variant Filter", PlanningAssignment."Variant Code");
             CopyFilter("Location Filter", PlanningAssignment."Location Code");
@@ -102,6 +96,23 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
             TempItemList := Item;
             TempItemList.Insert();
         end;
+    end;
+
+    local procedure CalculateAndGetPlanningCompList()
+    var
+        CurrWorksheetType: Option Requisition,Planning;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateAndGetPlanningCompList(Item, CurrTemplateName, CurrWorksheetName, ToDate, FromDate, UseForecast, ExcludeForecastBefore, MfgSetup, MRP, RespectPlanningParm, TempPlanningCompList, IsHandled);
+        if IsHandled then
+            exit;
+
+        InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType::Planning);
+        InvtProfileOffsetting.CalculatePlanFromWorksheet(Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, MRP, RespectPlanningParm);
+
+        // Retrieve list of Planning Components handled:
+        InvtProfileOffsetting.GetPlanningCompList(TempPlanningCompList);
     end;
 
     procedure Initialize(NewFromDate: Date; NewToDate: Date; NewMPS: Boolean; NewMRP: Boolean; NewRespectPlanningParm: Boolean)
@@ -297,6 +308,11 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPreconditions(var Item: Record Item; MPS: Boolean; MRP: Boolean; FromDate: Date; ToDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateAndGetPlanningCompList(var Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; ToDate: Date; FromDate: Date; UseForecast: Code[10]; ExcludeForecastBefore: Date; MfgSetup: Record "Manufacturing Setup"; MRP: Boolean; RespectPlanningParm: Boolean; var TempPlanningCompList: Record "Planning Component" temporary; var IsHandled: Boolean)
     begin
     end;
 

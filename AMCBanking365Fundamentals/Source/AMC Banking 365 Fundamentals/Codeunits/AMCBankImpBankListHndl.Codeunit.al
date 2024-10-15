@@ -65,6 +65,7 @@ codeunit 20115 "AMC Bank Imp.BankList Hndl"
 
     end;
 
+    [NonDebuggable]
     local procedure PrepareSOAPRequestBody(var BankListExchRequestMessage: HttpRequestMessage; CountryFilter: Text)
     var
         AMCBankingSetup: Record "AMC Banking Setup";

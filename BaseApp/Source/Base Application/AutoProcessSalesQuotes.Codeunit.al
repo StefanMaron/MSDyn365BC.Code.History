@@ -18,7 +18,10 @@ codeunit 5354 "Auto Process Sales Quotes"
     local procedure CreateNAVSalesQuotesFromSubmittedCRMSalesquotes()
     var
         CRMQuote: Record "CRM Quote";
+        IntegrationTableSynch: Codeunit "Integration Table Synch.";
     begin
+        IntegrationTableSynch.OnAfterInitSynchJob(TableConnectionType::CRM, Database::"CRM Quote");
+
         CRMQuote.SetFilter(StateCode, '%1|%2', CRMQuote.StateCode::Active, CRMQuote.StateCode::Won);
         if CRMQuote.FindSet(true) then
             repeat

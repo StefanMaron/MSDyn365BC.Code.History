@@ -1,4 +1,4 @@
-codeunit 231 "Gen. Jnl.-Post"
+﻿codeunit 231 "Gen. Jnl.-Post"
 {
     EventSubscriberInstance = Manual;
     TableNo = "Gen. Journal Line";
@@ -51,6 +51,8 @@ codeunit 231 "Gen. Jnl.-Post"
             GenJnlTemplate.TestField("Force Posting Report", false);
             if GenJnlTemplate.Recurring and (GetFilter("Posting Date") <> '') then
                 FieldError("Posting Date", Text000);
+
+            OnCodeOnAfterCheckTemplate(GenJnlLine);
 
             if not (PreviewMode or HideDialog) then
                 if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
@@ -158,6 +160,11 @@ codeunit 231 "Gen. Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCheckTemplate(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
