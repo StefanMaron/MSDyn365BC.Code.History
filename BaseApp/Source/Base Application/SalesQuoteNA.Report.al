@@ -461,6 +461,7 @@ report 10076 "Sales Quote NA"
                             Clear(TaxLiable);
                             Clear(TaxAmount);
                             Clear(AmountExclInvDisc);
+                            TempSalesLine.Reset();
                             NumberOfLines := TempSalesLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;

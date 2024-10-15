@@ -231,6 +231,110 @@ codeunit 134443 "Acc. Schedule Creation Test"
         GeneralLedgerSetup.TestField("Acc. Sched. for Retained Earn.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleCreateBalanceSheetForTopLevelGLCategories()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCategory: Record "G/L Account Category";
+        CategGenerateAccSchedules: Codeunit "Categ. Generate Acc. Schedules";
+        AccScheduleOverview: Page "Acc. Schedule Overview";
+        AccScheduleOverviewTestPage: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO 380502] CreateBalanceSheet creates valid Account Schedule when only top-level system generated G/L Account categories exist.
+
+        // [GIVEN] G/L Account categories have only top-level system generated entries.
+        GLAccountCategory.SetRange("System Generated", false);
+        GLAccountCategory.DeleteAll();
+
+        // [WHEN] Account schedule for Balance Sheet is create using CreateBalanceSheet.
+        CategGenerateAccSchedules.CreateBalanceSheet;
+
+        // [THEN] Resulting Account Schedule can be opened by page Account Schedule Overview.
+        GeneralLedgerSetup.Get();
+        AccScheduleOverviewTestPage.Trap();
+        AccScheduleOverview.SetAccSchedName(GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
+        AccScheduleOverview.Run();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleCreateIncomeStatementForTopLevelGLCategories()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCategory: Record "G/L Account Category";
+        CategGenerateAccSchedules: Codeunit "Categ. Generate Acc. Schedules";
+        AccScheduleOverview: Page "Acc. Schedule Overview";
+        AccScheduleOverviewTestPage: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO 380502] CreateIncomeStatement creates valid Account Schedule when only top-level system generated G/L Account categories exist.
+
+        // [GIVEN] G/L Account categories have only top-level system generated entries.
+        GLAccountCategory.SetRange("System Generated", false);
+        GLAccountCategory.DeleteAll();
+
+        // [WHEN] Account schedule for Balance Sheet is create using CreateIncomeStatement.
+        CategGenerateAccSchedules.CreateIncomeStatement;
+
+        // [THEN] Resulting Account Schedule can be opened by page Account Schedule Overview.
+        GeneralLedgerSetup.Get();
+        AccScheduleOverviewTestPage.Trap();
+        AccScheduleOverview.SetAccSchedName(GeneralLedgerSetup."Acc. Sched. for Income Stmt.");
+        AccScheduleOverview.Run();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleCreateCashFlowStatementForTopLevelGLCategories()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCategory: Record "G/L Account Category";
+        CategGenerateAccSchedules: Codeunit "Categ. Generate Acc. Schedules";
+        AccScheduleOverview: Page "Acc. Schedule Overview";
+        AccScheduleOverviewTestPage: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO 380502] CreateCashFlowStatement creates valid Account Schedule when only top-level system generated G/L Account categories exist.
+
+        // [GIVEN] G/L Account categories have only top-level system generated entries.
+        GLAccountCategory.SetRange("System Generated", false);
+        GLAccountCategory.DeleteAll();
+
+        // [WHEN] Account schedule for Balance Sheet is create using CreateCashFlowStatement.
+        CategGenerateAccSchedules.CreateCashFlowStatement;
+
+        // [THEN] Resulting Account Schedule can be opened by page Account Schedule Overview.
+        GeneralLedgerSetup.Get();
+        AccScheduleOverviewTestPage.Trap();
+        AccScheduleOverview.SetAccSchedName(GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt");
+        AccScheduleOverview.Run();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleCreateRetainedEarningsStatementForTopLevelGLCategories()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCategory: Record "G/L Account Category";
+        CategGenerateAccSchedules: Codeunit "Categ. Generate Acc. Schedules";
+        AccScheduleOverview: Page "Acc. Schedule Overview";
+        AccScheduleOverviewTestPage: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO 380502] CreateRetainedEarningsStatement creates valid Account Schedule when only top-level system generated G/L Account categories exist.
+
+        // [GIVEN] G/L Account categories have only top-level system generated entries.
+        GLAccountCategory.SetRange("System Generated", false);
+        GLAccountCategory.DeleteAll();
+
+        // [WHEN] Account schedule for Balance Sheet is create using CreateRetainedEarningsStatement.
+        CategGenerateAccSchedules.CreateRetainedEarningsStatement;
+
+        // [THEN] Resulting Account Schedule can be opened by page Account Schedule Overview.
+        GeneralLedgerSetup.Get();
+        AccScheduleOverviewTestPage.Trap();
+        AccScheduleOverview.SetAccSchedName(GeneralLedgerSetup."Acc. Sched. for Retained Earn.");
+        AccScheduleOverview.Run();
+    end;
+
     local procedure CreateAccScheduleWithOneLine(Description: Text[80]): Code[10]
     var
         AccScheduleName: Record "Acc. Schedule Name";

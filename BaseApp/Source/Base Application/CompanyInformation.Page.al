@@ -77,7 +77,7 @@ Page 1 "Company Information"
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = VAT, BasicCA;
                     ToolTip = 'Specifies the company''s VAT registration number.';
 
                     trigger OnDrillDown()

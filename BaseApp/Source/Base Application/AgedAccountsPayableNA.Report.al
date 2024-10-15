@@ -11,6 +11,7 @@ report 10085 "Aged Accounts Payable NA"
     {
         dataitem(Vendor; Vendor)
         {
+            PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Vendor Posting Group", "Payment Terms Code", "Purchaser Code";
             column(Aged_Accounts_Payable_; 'Aged Accounts Payable')
             {
@@ -538,13 +539,6 @@ report 10085 "Aged Accounts Payable NA"
                     if VendLedgEntry.IsEmpty() then
                         CurrReport.Skip();
                 end;
-
-                if not PrintVendorWithZeroBalance then begin
-                    VendLedgEntry.SetRange("Vendor No.", "No.");
-                    VendLedgEntry.SetRange(Open, true);
-                    if VendLedgEntry.IsEmpty() then
-                        CurrReport.Skip();
-                end;
             end;
 
             trigger OnPreDataItem()
@@ -710,6 +704,7 @@ report 10085 "Aged Accounts Payable NA"
                     field(PrintVendorWithZeroBalanceControl; PrintVendorWithZeroBalance)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = false;
                         Caption = 'Print Vendors with Zero Balance';
                         ToolTip = 'Specifies if you want to print the list of vendors that have a balance of zero.';
                     }

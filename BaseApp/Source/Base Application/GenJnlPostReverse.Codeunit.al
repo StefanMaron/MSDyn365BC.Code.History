@@ -1,4 +1,4 @@
-codeunit 17 "Gen. Jnl.-Post Reverse"
+﻿codeunit 17 "Gen. Jnl.-Post Reverse"
 {
     Permissions = TableData "G/L Entry" = m,
                   TableData "Cust. Ledger Entry" = imd,
@@ -230,6 +230,8 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                                 ReverseBankAccLedgEntry(TempBankAccLedgEntry, GLEntry."Entry No.", GenJnlLine."Source Code");
                                 TempBankAccLedgEntry.Delete();
                             end;
+                        else
+                            OnReverseGLEntryOnCaseElse(GLEntry2, GLEntry);
                     end;
 
                     ReverseVAT(GLEntry, GenJnlLine."Source Code");
@@ -839,6 +841,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseGLEntryOnBeforeLoop(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseGLEntryOnCaseElse(GLEntry2: Record "G/L Entry"; GLEntry: Record "G/L Entry")
     begin
     end;
 

@@ -2141,6 +2141,36 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLineNo', SalesLine[2]."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SalesQuoteRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesQuoteReportKeepsSortingByLineNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Quote] [Report]
+        // [SCENARIO 331886] NA-localized "Sales Quote" report prints lines sorted as in the document.
+        Initialize();
+
+        CreateSalesDocumentWithTwoSalesLines(SalesLine[1], SalesLine[2], SalesLine[1]."Document Type"::Quote);
+        SalesLine[1].Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine[1].Modify(true);
+        SalesLine[2].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine[2].Modify(true);
+        SalesHeader.Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.");
+        SalesHeader.SetRecFilter();
+
+        Commit();
+        REPORT.Run(REPORT::"Sales Quote NA", true, true, SalesHeader);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLineNo', SalesLine[1]."No.");
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLineNo', SalesLine[2]."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -3145,6 +3175,13 @@ codeunit 142053 "ERM Sales/Purchase Document"
     procedure SalesReturnOrderRequestPageHandler(var ReturnAuthorization: TestRequestPage "Return Authorization")
     begin
         ReturnAuthorization.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesQuoteRequestPageHandler(var SalesQuoteNA: TestRequestPage "Sales Quote NA")
+    begin
+        SalesQuoteNA.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

@@ -1305,6 +1305,41 @@ codeunit 137292 "SCM Inventory Costing Orders"
         VerifyPairedItemLedgerEntriesAmount(Item."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestSalesPriceOnWkshRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestSalesPriceWithDifferentCustomePriceGroup()
+    var
+        Item: Record Item;
+        SalesPrice: Record "Sales Price";
+        CustomerPriceGroup: Record "Customer Price Group";
+        CustomerPriceGroup2: Record "Customer Price Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATBusinessPostingGroup2: Record "VAT Business Posting Group";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales Price]
+        // [SCENARIO 382762] Suggested Sales Prices inherit target Customer Price Group
+        Initialize();
+
+        // [GIVEN] Created two Customer Price Groups with different "Allow Invoice Disc.", "Allow Line Disc.", "Price Includes VAT", "VAT Bus. Posting Gr. (Price)"
+        ItemNo := CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup2);
+        CreateCustomCustomerPriceGroup(CustomerPriceGroup, true, true, true, VATBusinessPostingGroup.Code);
+        CreateCustomCustomerPriceGroup(CustomerPriceGroup2, false, false, false, VATBusinessPostingGroup2.Code);
+
+        // [WHEN] Run Suggest Sales Price on Worksheet from "Customer Price Group 1" to "Customer Price Group 2"
+        SetupSuggestSalesPrice(
+          SalesPrice, CustomerPriceGroup.Code, CustomerPriceGroup2.Code, 0, ItemNo, WorkDate, true, LibraryRandom.RandDec(100, 1));
+
+        // [THEN] "Allow Invoice Disc.", "Allow Line Disc.", "Price Includes VAT", "VAT Bus. Posting Gr. (Price)" are the same as in "Customer Price Group 2"
+        VerifyCustomerPriceGroupFieldsOnSalesPriceWorksheet(
+          SalesPrice, WorkDate, ItemNo, CustomerPriceGroup2.Code,
+          CustomerPriceGroup2."Allow Invoice Disc.", CustomerPriceGroup2."Allow Line Disc.",
+          CustomerPriceGroup2."Price Includes VAT", CustomerPriceGroup2."VAT Bus. Posting Gr. (Price)");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1345,6 +1380,29 @@ codeunit 137292 "SCM Inventory Costing Orders"
             AccountingPeriod."New Fiscal Year" := true;
             AccountingPeriod.Insert();
         end;
+    end;
+
+    local procedure CreateCustomCustomerPriceGroup(var CustomerPriceGroup: Record "Customer Price Group"; AllowInvDisc: Boolean; AllowLineDisc: Boolean; PriceInclVAT: Boolean; VATBusPostGroup: Code[20])
+    begin
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        CustomerPriceGroup.Validate("Allow Invoice Disc.", AllowInvDisc);
+        CustomerPriceGroup.Validate("Allow Line Disc.", AllowLineDisc);
+        CustomerPriceGroup.Validate("Price Includes VAT", PriceInclVAT);
+        CustomerPriceGroup.Validate("VAT Bus. Posting Gr. (Price)", VATBusPostGroup);
+        CustomerPriceGroup.Modify(true);
+    end;
+
+    local procedure VerifyCustomerPriceGroupFieldsOnSalesPriceWorksheet(SalesPrice: Record "Sales Price"; StartingDate: Date; ItemNo: Code[20]; SalesCode: Code[20]; AllowInvDisc: Boolean; AllowLineDisc: Boolean; PriceInclVAT: Boolean; VATBusPostGroup: Code[20])
+    var
+        SalesPriceWorksheet: Record "Sales Price Worksheet";
+    begin
+        SalesPriceWorksheet.Get(
+          StartingDate, SalesPrice."Ending Date", SalesPrice."Sales Type", SalesCode, SalesPrice."Currency Code", ItemNo,
+          SalesPrice."Variant Code", SalesPrice."Unit of Measure Code", SalesPrice."Minimum Quantity");
+        SalesPriceWorksheet.TestField("Allow Invoice Disc.", AllowInvDisc);
+        SalesPriceWorksheet.TestField("Allow Line Disc.", AllowLineDisc);
+        SalesPriceWorksheet.TestField("Price Includes VAT", PriceInclVAT);
+        SalesPriceWorksheet.TestField("VAT Bus. Posting Gr. (Price)", VATBusPostGroup);
     end;
 
     local procedure CloseInventoryPeriod(var InventoryPeriod: Record "Inventory Period"; ItemNo: Code[20]; ReOpen: Boolean)

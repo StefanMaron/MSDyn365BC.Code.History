@@ -11,7 +11,10 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     var
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
@@ -19,20 +22,6 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         IncorrectAmountOfLinesErr: Label 'The amount of lines must be greater than 0.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
 
-    local procedure Initialize()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
-    begin
-        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Purch Item Charge Tests");
-
-        LibraryVariableStorage.Clear();
-        LibraryApplicationArea.EnableItemChargeSetup();
-
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Receipt on Invoice" := true;
-        PurchasesPayablesSetup.Modify(true);
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -202,6 +191,91 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentGetReceiptLinesModalPageHandler')]
+    procedure CancelInvoiceWithChargeItemAssignedToMultipleShipmentLines()
+    var
+        Item: array[4] of Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineOrder: array[4] of Record "Purchase Line";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ValueEntry: Record "Value Entry";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        Index: Integer;
+    begin
+        // [FEATURE] [Copy Document]
+        // [SCENARIO 376402] System get Cost Amount (Actual) value from invoice's value entries when it copies document from Invoice to Credit Memo
+        Initialize;
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
+        PurchaseHeaderOrder.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeaderOrder.Modify();
+
+        for Index := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItemWithoutVAT(Item[Index]);
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLineOrder[Index], PurchaseHeaderOrder, PurchaseLineOrder[Index].Type::Item,
+              Item[Index]."No.", LibraryRandom.RandIntInRange(5, 20));
+            PurchaseLineOrder[Index].Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+            PurchaseLineOrder[Index]."Tax Group Code" := CreateTaxGroupCode();
+            PurchaseLineOrder[Index].Modify(true);
+        end;
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeaderInvoice.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeaderInvoice.Modify();
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineInvoice, PurchaseHeaderInvoice,
+          PurchaseLineInvoice.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNoWithoutVAT(), 1);
+        PurchaseLineInvoice.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLineInvoice."Tax Group Code" := CreateTaxGroupCode();
+        PurchaseLineInvoice.Modify(true);
+
+        LibraryVariableStorage.Enqueue(ArrayLen(Item));
+        for Index := 1 to ArrayLen(PurchaseLineOrder) do
+            LibraryVariableStorage.Enqueue(Index * 0.1);
+
+        GetReceiptLinesForItemCharge(PurchaseLineInvoice);
+        Commit();
+
+        PurchaseLineInvoice.ShowItemChargeAssgnt();
+
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true));
+
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        VerifyCostAmountOnValueEntries(Item, PurchaseLineInvoice, ValueEntry."Document Type"::"Purchase Invoice", 1);
+        VerifyCostAmountOnValueEntries(Item, PurchaseLineInvoice, ValueEntry."Document Type"::"Purchase Credit Memo", -1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    local procedure Initialize()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Purch Item Charge Tests");
+
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableItemChargeSetup();
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Receipt on Invoice" := true;
+        PurchasesPayablesSetup.Modify(true);
+
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateVATPostingSetup();
+    end;
+
     local procedure PostAndVerifyCorrectiveCreditMemo(PurchaseHeader: Record "Purchase Header")
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -225,21 +299,26 @@ codeunit 135300 "O365 Purch Item Charge Tests"
             CreateCurrencyWithCurrencyFactor(PurchaseHeader);
     end;
 
+    local procedure CreateTaxGroupCode(): Code[20]
+    var
+        TaxGroup: Record "Tax Group";
+    begin
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        exit(TaxGroup.Code);
+    end;
+
     local procedure AddItemLinesToPurchHeader(var PurchaseHeader: Record "Purchase Header"; AmountOfItemLines: Integer)
     var
         PurchaseLine: Record "Purchase Line";
-        TaxGroup: Record "Tax Group";
-        LibraryERM: Codeunit "Library - ERM";
         i: Integer;
     begin
         Assert.IsTrue(AmountOfItemLines > 0, IncorrectAmountOfLinesErr);
-        LibraryERM.CreateTaxGroup(TaxGroup);
 
         for i := 1 to AmountOfItemLines do begin
             LibraryPurchase.CreatePurchaseLineWithoutVAT(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
             PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
             PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
-            PurchaseLine."Tax Group Code" := TaxGroup.Code;
+            PurchaseLine."Tax Group Code" := CreateTaxGroupCode();
             PurchaseLine.Modify(true);
         end;
     end;
@@ -247,19 +326,16 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     local procedure AddItemChargeLinesToPurchHeader(var PurchaseHeader: Record "Purchase Header"; AmountOfItemChargeLines: Integer)
     var
         PurchaseLine: Record "Purchase Line";
-        TaxGroup: Record "Tax Group";
-        LibraryERM: Codeunit "Library - ERM";
         i: Integer;
     begin
         Assert.IsTrue(AmountOfItemChargeLines > 0, IncorrectAmountOfLinesErr);
-        LibraryERM.CreateTaxGroup(TaxGroup);
 
         for i := 1 to AmountOfItemChargeLines do begin
             LibraryPurchase.CreatePurchaseLineWithoutVAT(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", '', 1);
             PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
             PurchaseLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive;
             PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
-            PurchaseLine."Tax Group Code" := TaxGroup.Code;
+            PurchaseLine."Tax Group Code" := CreateTaxGroupCode();
             PurchaseLine.Modify(true);
 
             PurchaseLine.ShowItemChargeAssgnt();
@@ -269,6 +345,30 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     local procedure GenerateRandDecimalBetweenOneAndFive(): Decimal
     begin
         exit(LibraryRandom.RandDecInRange(1, 5, LibraryRandom.RandIntInRange(1, 5)));
+    end;
+
+    local procedure GetReceiptLinesForItemCharge(PurchaseLineSource: Record "Purchase Line")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
+    begin
+        PurchaseLineSource.TestField("Qty. to Invoice");
+
+        PurchRcptLine.SetRange("Buy-from Vendor No.", PurchaseLineSource."Buy-from Vendor No.");
+        PurchRcptLine.FindFirst();
+
+        ItemChargeAssignmentPurch."Document Type" := PurchaseLineSource."Document Type";
+        ItemChargeAssignmentPurch."Document No." := PurchaseLineSource."Document No.";
+        ItemChargeAssignmentPurch."Document Line No." := PurchaseLineSource."Line No.";
+        ItemChargeAssignmentPurch."Item Charge No." := PurchaseLineSource."No.";
+
+        ItemChargeAssignmentPurch.SetRange("Document Type", PurchaseLineSource."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Document No.", PurchaseLineSource."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchaseLineSource."Line No.");
+
+        ItemChargeAssignmentPurch."Unit Cost" := PurchaseLineSource."Direct Unit Cost";
+        ItemChargeAssgntPurch.CreateRcptChargeAssgnt(PurchRcptLine, ItemChargeAssignmentPurch);
     end;
 
     local procedure CreateCurrencyWithCurrencyFactor(var PurchaseHeader: Record "Purchase Header")
@@ -320,12 +420,46 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         until PurchaseLine.Next = 0;
     end;
 
+    local procedure VerifyCostAmountOnValueEntries(var Item: array[4] of Record Item; PurchaseLine: Record "Purchase Line"; ValueEntryDocumentType: Option; Sign: Integer)
+    var
+        ValueEntry: Record "Value Entry";
+        Index: Integer;
+    begin
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetRange("Document Type", ValueEntryDocumentType);
+        for Index := 1 to ArrayLen(Item) do begin
+            ValueEntry.SetRange("Item No.", Item[Index]."No.");
+            ValueEntry.SetRange("Item Charge No.", PurchaseLine."No.");
+            ValueEntry.FindFirst();
+            ValueEntry.TestField("Cost Amount (Actual)", Sign * PurchaseLine.Amount * Index / 10);
+        end;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
         ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke;
         ItemChargeAssignmentPurch.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemChargeAssignmentGetReceiptLinesModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    var
+        Index: Integer;
+        "Count": Integer;
+    begin
+        Count := LibraryVariableStorage.DequeueInteger();
+
+        ItemChargeAssignmentPurch.First();
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+
+        for Index := 2 to Count do begin
+            ItemChargeAssignmentPurch.Next();
+            ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        end;
+
+        ItemChargeAssignmentPurch.OK.Invoke();
     end;
 
     [StrMenuHandler]

@@ -10,6 +10,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
     var
         Assert: Codeunit Assert;
+        LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -795,7 +796,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // [GIVEN] Sales Order with Tax Area and Unit Price = 75
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, TaxAreaCode);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, 1, TaxGroupCode, TaxAreaCode, true, 0, 75, 75); // specific values needed for test
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', 1, TaxGroupCode, TaxAreaCode, true, 0, 75, 75); // specific values needed for test
 
         // [WHEN] Statistics opened for Sales Order
         // [THEN] On Statistics page: Tax Amount = 5.34
@@ -829,7 +830,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, TaxAreaCode[1]);
         for i := 1 to 3 do
             CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item, 1, TaxGroupCode, TaxAreaCode[i], true, 0, 13.333, 13.333); // specific values needed for test
+              SalesLine, SalesHeader, SalesLine.Type::Item, '', 1, TaxGroupCode, TaxAreaCode[i], true, 0, 13.333, 13.333); // specific values needed for test
 
         // [WHEN] Statistics opened for Sales Order
         // [THEN] On Statistics page: Tax Amount = 4 (13.333 * 10% * 3 => 3.9999, rounded to 4.00)
@@ -862,7 +863,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // [GIVEN] Sales Order with Tax Area and Unit Price = 75
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, TaxAreaCode);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, 1, TaxGroupCode, TaxAreaCode, true, 0, 75, 75); // specific values needed for test
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', 1, TaxGroupCode, TaxAreaCode, true, 0, 75, 75); // specific values needed for test
 
         // [WHEN] Statistics opened for Sales Order
         // [THEN] On Statistics page: Tax Amount = 5.35 (75 * 6.875 / 100 = 5.15625 (rounded = 5.16); 75 * 0.25 / 100 = 0.1875 (rounded = 0.19); Total = 5.16 + 0.19 = 5.35)
@@ -875,10 +876,10 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     [Scope('OnPrem')]
     procedure OnActionStatisticsSalesInvoiceWithPositiveAndNegativeAmounts()
     var
-        GLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TaxDetail: Record "Tax Detail";
+        GLAccountNo: Code[20];
         TaxAreaCode: Code[20];
         TaxGroupCode: Code[20];
     begin
@@ -893,18 +894,14 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         TaxAreaCode := CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code");
 
         // [GIVEN] G/L Account with Tax setup.
-        LibraryERM.CreateGLAccount(GLAccount);
-        GLAccount."Tax Group Code" := TaxGroupCode;
-        GLAccount.Modify();
+        GLAccountNo := CreateGLAccountWithTaxGroup(TaxGroupCode);
 
         // [GIVEN] Sales Invoice with:
         // [GIVEN] Sales Line with Type = "Item", Qty = 1, Amount = 6000;
         // [GIVEN] Sales Line with Type = "G/L Account"", Qty = -1, Amount = 1000.
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, TaxAreaCode);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, 1, TaxGroupCode, TaxAreaCode, true, 0, 6000, 6000);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", -1, TaxGroupCode, TaxAreaCode, true, 0, 1000, 1000);
-        SalesLine."No." := GLAccount."No.";
-        SalesLine.Modify();
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', 1, TaxGroupCode, TaxAreaCode, true, 0, 6000, 6000);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, -1, TaxGroupCode, TaxAreaCode, true, 0, 1000, 1000);
 
         // [WHEN] Statistics opened for Sales Invoice.
         // [THEN] On Statistics page: Tax Amount = 50 ((6000 - 1000) / 100 = 50)
@@ -912,44 +909,273 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         OpenStatisticsPageForSalesInvoice(SalesHeader."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderStatsInvokeInvVATLinesMPH,SalesTaxLinesSubformDynPosNegLinesMPH')]
+    procedure SalesTaxDiffPosAndNegLinesIncreasePositive()
+    var
+        SalesHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Tax Difference]
+        // [SCENAIRO 377669] Increasing of the Sales Tax Difference for the positive tax line
+        // [SCENAIRO 377669] in case of sales invoice with both positive and negative tax lines
+        Initialize();
+
+        // [GIVEN] Allowed max tax difference = 10
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Sales invoice with tax 10% and 2 lines: qty = 1, unit price = 10000, qty = -1, unit price = 1000
+        SalesHeaderNo := PapareSalesInvoiceWithNegAndPosLines(10, 10000, 1000);
+
+        // [GIVEN] Open Tax lines from statistics and set Tax Amount = 1010 for the positive line, close statistics
+        // [WHEN] Open Tax lines from statistics again
+        UpdateTaxDiffFromStatisticsReopenStatAndVerifyTaxLines(SalesHeaderNo, 10, 1000, 10, -100, 10, 0);
+
+        // [THEN] Positive Tax Line: Tax% = 10.1, Tax Amount = 1010
+        // [THEN] Negative Tax Line: Tax% = 10, Tax Amount = -100
+        VerifySalesTaxAmountDifferenceCount(SalesHeaderNo, 1);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, true, 10.1, 10);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsInvokeInvVATLinesMPH,SalesTaxLinesSubformDynPosNegLinesMPH')]
+    procedure SalesTaxDiffPosAndNegLinesDecreasePositive()
+    var
+        SalesHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Tax Difference]
+        // [SCENAIRO 377669] Decreasing of the Sales Tax Difference for the positive tax line
+        // [SCENAIRO 377669] in case of sales invoice with both positive and negative tax lines
+        Initialize();
+
+        // [GIVEN] Allowed max tax difference = 10
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Sales invoice with tax 10% and 2 lines: qty = 1, unit price = 10000, qty = -1, unit price = 1000
+        SalesHeaderNo := PapareSalesInvoiceWithNegAndPosLines(10, 10000, 1000);
+
+        // [GIVEN] Open Tax lines from statistics and set Tax Amount = 990 for the positive line, close statistics
+        // [WHEN] Open Tax lines from statistics again
+        UpdateTaxDiffFromStatisticsReopenStatAndVerifyTaxLines(SalesHeaderNo, 10, 1000, 10, -100, -10, 0);
+
+        // [THEN] Positive Tax Line: Tax% = 9.9, Tax Amount = 990
+        // [THEN] Negative Tax Line: Tax% = 10, Tax Amount = -100
+        VerifySalesTaxAmountDifferenceCount(SalesHeaderNo, 1);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, true, 9.9, -10);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsInvokeInvVATLinesMPH,SalesTaxLinesSubformDynPosNegLinesMPH')]
+    procedure SalesTaxDiffPosAndNegLinesIncreaseNegative()
+    var
+        SalesHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Tax Difference]
+        // [SCENAIRO 377669] Increasing of the Sales Tax Difference for the negative tax line
+        // [SCENAIRO 377669] in case of sales invoice with both positive and negative tax lines
+        Initialize();
+
+        // [GIVEN] Allowed max tax difference = 10
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Sales invoice with tax 10% and 2 lines: qty = 1, unit price = 10000, qty = -1, unit price = 1000
+        SalesHeaderNo := PapareSalesInvoiceWithNegAndPosLines(10, 10000, 1000);
+
+        // [GIVEN] Open Tax lines from statistics and set Tax Amount = -90 for the negative line, close statistics
+        // [WHEN] Open Tax lines from statistics again
+        UpdateTaxDiffFromStatisticsReopenStatAndVerifyTaxLines(SalesHeaderNo, 10, 1000, 10, -100, 0, 10);
+
+        // [THEN] Positive Tax Line: Tax% = 10, Tax Amount = 1000
+        // [THEN] Negative Tax Line: Tax% = 9, Tax Amount = -90
+        VerifySalesTaxAmountDifferenceCount(SalesHeaderNo, 1);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, false, -9, 10);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsInvokeInvVATLinesMPH,SalesTaxLinesSubformDynPosNegLinesMPH')]
+    procedure SalesTaxDiffPosAndNegLinesDecreasingNegative()
+    var
+        SalesHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Tax Difference]
+        // [SCENAIRO 377669] Decreasing of the Sales Tax Difference for the negative tax line
+        // [SCENAIRO 377669] in case of sales invoice with both positive and negative tax lines
+        Initialize();
+
+        // [GIVEN] Allowed max tax difference = 10
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Sales invoice with tax 10% and 2 lines: qty = 1, unit price = 10000, qty = -1, unit price = 1000
+        SalesHeaderNo := PapareSalesInvoiceWithNegAndPosLines(10, 10000, 1000);
+
+        // [GIVEN] Open Tax lines from statistics and set Tax Amount = -110 for the negative line, close statistics
+        // [WHEN] Open Tax lines from statistics again
+        UpdateTaxDiffFromStatisticsReopenStatAndVerifyTaxLines(SalesHeaderNo, 10, 1000, 10, -100, 0, -10);
+
+        // [THEN] Positive Tax Line: Tax% = 10, Tax Amount = 1000
+        // [THEN] Negative Tax Line: Tax% = 11, Tax Amount = -110
+        VerifySalesTaxAmountDifferenceCount(SalesHeaderNo, 1);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, false, -11, -10);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsInvokeInvVATLinesMPH,SalesTaxLinesSubformDynPosNegLinesMPH')]
+    procedure SalesTaxDiffPosAndNegLinesIncreaseBoth()
+    var
+        SalesHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Tax Difference]
+        // [SCENAIRO 377669] Increasing of the Sales Tax Difference for both tax lines
+        // [SCENAIRO 377669] in case of sales invoice with both positive and negative tax lines
+        Initialize();
+
+        // [GIVEN] Allowed max tax difference = 10
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Sales invoice with tax 10% and 2 lines: qty = 1, unit price = 10000, qty = -1, unit price = 1000
+        SalesHeaderNo := PapareSalesInvoiceWithNegAndPosLines(10, 10000, 1000);
+
+        // [GIVEN] Open Tax lines from statistics and set Tax Amount = 1005 for the positive line, -95 for the negative line, close statistics
+        // [WHEN] Open Tax lines from statistics again
+        UpdateTaxDiffFromStatisticsReopenStatAndVerifyTaxLines(SalesHeaderNo, 10, 1000, 10, -100, 5, 5);
+
+        // [THEN] Positive Tax Line: Tax% = 10.05, Tax Amount = 1005
+        // [THEN] Negative Tax Line: Tax% = 9.5, Tax Amount = -95
+        VerifySalesTaxAmountDifferenceCount(SalesHeaderNo, 2);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, true, 10.05, 5);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, false, -9.5, 5);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsInvokeInvVATLinesMPH,SalesTaxLinesSubformDynPosNegLinesMPH')]
+    procedure SalesTaxDiffPosAndNegLinesDecreaseBoth()
+    var
+        SalesHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Tax Difference]
+        // [SCENAIRO 377669] Decreasing of the Sales Tax Difference for both tax lines
+        // [SCENAIRO 377669] in case of sales invoice with both positive and negative tax lines
+        Initialize();
+
+        // [GIVEN] Allowed max tax difference = 10
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Sales invoice with tax 10% and 2 lines: qty = 1, unit price = 10000, qty = -1, unit price = 1000
+        SalesHeaderNo := PapareSalesInvoiceWithNegAndPosLines(10, 10000, 1000);
+
+        // [GIVEN] Open Tax lines from statistics and set Tax Amount = 995 for the positive line, -105 for the negative line, close statistics
+        // [WHEN] Open Tax lines from statistics again
+        UpdateTaxDiffFromStatisticsReopenStatAndVerifyTaxLines(SalesHeaderNo, 10, 1000, 10, -100, -5, -5);
+
+        // [THEN] Positive Tax Line: Tax% = 9.95, Tax Amount = 995
+        // [THEN] Negative Tax Line: Tax% = 9.5, Tax Amount = -95
+        VerifySalesTaxAmountDifferenceCount(SalesHeaderNo, 2);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, true, 9.95, -5);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, false, -10.5, -5);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatsInvokeInvVATLinesMPH,SalesTaxLinesSubformDynPosNegLinesMPH')]
+    procedure SalesTaxDiffPosAndNegLinesMix()
+    var
+        SalesHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Tax Difference]
+        // [SCENAIRO 377669] Changing of the Sales Tax Difference for both tax lines
+        // [SCENAIRO 377669] in case of sales invoice with both positive and negative tax lines
+        Initialize();
+
+        // [GIVEN] Allowed max tax difference = 10
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] Sales invoice with tax 10% and 2 lines: qty = 1, unit price = 10000, qty = -1, unit price = 1000
+        SalesHeaderNo := PapareSalesInvoiceWithNegAndPosLines(10, 10000, 1000);
+
+        // [GIVEN] Open Tax lines from statistics and set Tax Amount = 1005 for the positive line, -105 for the negative line, close statistics
+        // [WHEN] Open Tax lines from statistics again
+        UpdateTaxDiffFromStatisticsReopenStatAndVerifyTaxLines(SalesHeaderNo, 10, 1000, 10, -100, 5, -5);
+
+        // [THEN] Positive Tax Line: Tax% = 10.05, Tax Amount = 1005
+        // [THEN] Negative Tax Line: Tax% = 10.5, Tax Amount = -105
+        VerifySalesTaxAmountDifferenceCount(SalesHeaderNo, 2);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, true, 10.05, 5);
+        VerifySalesTaxAmountDifference(SalesHeaderNo, false, -10.5, -5);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean)
+    local procedure PapareSalesInvoiceWithNegAndPosLines(TaxPct: Decimal; LineAmountPos: Decimal; LineAmountNeg: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        TaxGroupCode := CreateTaxGroup();
+        CreateTaxDetail(TaxDetail, TaxGroupCode, TaxPct);
+        TaxAreaCode := CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code");
+
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, TaxAreaCode);
+        GLAccountNo := CreateGLAccountWithTaxGroup(TaxGroupCode);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1, TaxGroupCode, TaxAreaCode, true, 0, LineAmountPos, LineAmountPos);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, -1, TaxGroupCode, TaxAreaCode, true, 0, LineAmountNeg, LineAmountNeg);
+        exit(SalesHeader."No.");
+    end;
+
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean)
     var
         SalesHeader: Record "Sales Header";
     begin
         CreateSalesHeader(SalesHeader, DocumentType, TaxAreaCode);
         CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 2),
+          SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 2),
           TaxGroupCode, TaxAreaCode, TaxLiable, LibraryRandom.RandInt(3), LibraryRandom.RandDec(2, 2),
           LibraryRandom.RandDec(2, 2));
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; TaxAreaCode: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20])
     begin
         with SalesHeader do begin
             "Document Type" := DocumentType;
             "No." := LibraryUTUtility.GetNewCode;
             "Tax Area Code" := TaxAreaCode;
+            Status := Status::Released;
             Insert;
         end;
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Option; Qty: Decimal; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean; VATPct: Decimal; UnitPrice: Decimal; LineAmount: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type"; No: Code[20]; Qty: Decimal; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean; VATPct: Decimal; UnitPrice: Decimal; LineAmount: Decimal)
     begin
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindLast then;
+            if FindLast() then;
 
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             "Line No." += 10000;
             Type := LineType;
+            "No." := No;
             Quantity := Qty;
+            "Qty. to Invoice" := Qty;
             "Tax Group Code" := TaxGroupCode;
             "Tax Area Code" := TaxAreaCode;
             "Tax Liable" := TaxLiable;
@@ -1012,7 +1238,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         CreateTaxAreaLine(TaxAreaCode, TaxJurisdictionCode);
     end;
 
-    local procedure CreateTaxAreaWithLine(TaxJurisdictionCode: Code[10]): Code[10]
+    local procedure CreateTaxAreaWithLine(TaxJurisdictionCode: Code[10]): Code[20]
     var
         TaxArea: Record "Tax Area";
     begin
@@ -1041,7 +1267,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         TaxDetail.Insert();
     end;
 
-    local procedure CreateTaxGroup(): Code[10]
+    local procedure CreateTaxGroup(): Code[20]
     var
         TaxGroup: Record "Tax Group";
     begin
@@ -1057,6 +1283,16 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
         TaxJurisdiction.Insert();
         exit(TaxJurisdiction.Code);
+    end;
+
+    local procedure CreateGLAccountWithTaxGroup(TaxGroupCode: Code[20]): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Tax Group Code" := TaxGroupCode;
+        GLAccount.Modify();
+        exit(GLAccount."No.");
     end;
 
     local procedure OpenStatisticsPageForServiceCreditMemo(No: Code[20])
@@ -1209,6 +1445,27 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         SalesReceivablesSetup.Modify(true);
     end;
 
+    local procedure UpdateTaxDiffFromStatisticsReopenStatAndVerifyTaxLines(SalesHeaderNo: Code[20]; TaxPctPos: Decimal; TaxAmtPos: Decimal; TaxPctNeg: Decimal; TaxAmtNeg: Decimal; PosAmtDelta: Decimal; NegAmtDelta: Decimal)
+    var
+        NewTaxAmtPos: Decimal;
+        NewTaxAmtNeg: Decimal;
+    begin
+        NewTaxAmtPos := TaxAmtPos + PosAmtDelta;
+        NewTaxAmtNeg := TaxAmtNeg + NegAmtDelta;
+
+        LibraryVariableStorage.Enqueue(NewTaxAmtPos); // set new tax amount for positive line
+        LibraryVariableStorage.Enqueue(NewTaxAmtNeg); // set new tax amount for negative line
+        OpenStatisticsPageForSalesInvoice(SalesHeaderNo);
+        VerifyPosAndNegSalesTaxLinesFromStatPage(TaxPctPos, TaxAmtPos, TaxPctNeg, TaxAmtNeg); // previous state
+
+        LibraryVariableStorage.Enqueue(NewTaxAmtPos);
+        LibraryVariableStorage.Enqueue(NewTaxAmtNeg);
+        OpenStatisticsPageForSalesInvoice(SalesHeaderNo);
+        VerifyPosAndNegSalesTaxLinesFromStatPage(
+            TaxPctPos * NewTaxAmtPos / TaxAmtPos, NewTaxAmtPos,
+            TaxPctNeg * NewTaxAmtNeg / TaxAmtNeg, NewTaxAmtNeg);
+    end;
+
     local procedure VerifyTaxOnStatisticsPage(TaxAmount: Decimal; AmountIncTax: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1221,6 +1478,34 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         Assert.AreNearlyEqual(ExpectedTaxAmount, TaxAmount, GeneralLedgerSetup."Amount Rounding Precision", AmountMustEqualMsg);
         Assert.AreNearlyEqual(ExpectedAmountIncTax, AmountIncTax, GeneralLedgerSetup."Amount Rounding Precision", AmountMustEqualMsg);
         Assert.AreNotEqual(ExpectedTaxAmount, 0, 'Tax Amount must not be zero');
+    end;
+
+    local procedure VerifyPosAndNegSalesTaxLinesFromStatPage(ExpectedTaxPctPos: Decimal; ExpectedTaxAmtPos: Decimal; ExpectedTaxPctNeg: Decimal; ExpectedTaxAmtNeg: Decimal)
+    begin
+        Assert.AreEqual(ExpectedTaxPctPos, LibraryVariableStorage.DequeueDecimal, 'tax % for positive line');
+        Assert.AreEqual(ExpectedTaxAmtPos, LibraryVariableStorage.DequeueDecimal, 'tax amount for positive line');
+
+        Assert.AreEqual(ExpectedTaxPctNeg, LibraryVariableStorage.DequeueDecimal, 'tax % for negative line');
+        Assert.AreEqual(ExpectedTaxAmtNeg, LibraryVariableStorage.DequeueDecimal, 'tax amount for negative line');
+    end;
+
+    local procedure VerifySalesTaxAmountDifferenceCount(DocumentNo: Code[20]; ExpectedCount: Integer)
+    var
+        SalesTaxAmountDifference: Record "Sales Tax Amount Difference";
+    begin
+        SalesTaxAmountDifference.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(SalesTaxAmountDifference, ExpectedCount);
+    end;
+
+    local procedure VerifySalesTaxAmountDifference(DocumentNo: Code[20]; Positive: Boolean; ExpectedTaxPct: Decimal; ExpectedTaxDiff: Decimal)
+    var
+        SalesTaxAmountDifference: Record "Sales Tax Amount Difference";
+    begin
+        SalesTaxAmountDifference.SetRange("Document No.", DocumentNo);
+        SalesTaxAmountDifference.SetRange(Positive, Positive);
+        SalesTaxAmountDifference.FindFirst();
+        SalesTaxAmountDifference.TestField("Tax %", ExpectedTaxPct);
+        SalesTaxAmountDifference.TestField("Tax Difference", ExpectedTaxDiff);
     end;
 
     [ModalPageHandler]
@@ -1310,5 +1595,52 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         VerifyTaxOnStatisticsPage(PurchaseStatistics.VATAmount.AsDEcimal, PurchaseStatistics.TotalAmount2.AsDEcimal);
         PurchaseStatistics.OK.Invoke;
     end;
-}
 
+    [ModalPageHandler]
+    procedure SalesOrderStatsInvokeInvVATLinesMPH(var SalesOrderStats: TestPage "Sales Order Stats.")
+    begin
+        SalesOrderStats.NoOfVATLines_Invoicing.AssertEquals(2);
+        SalesOrderStats.NoOfVATLines_Invoicing.Drilldown();
+        SalesOrderStats.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SalesTaxLinesSubformDynPosNegLinesMPH(var SalesTaxLinesSubformDyn: TestPage "Sales Tax Lines Subform Dyn")
+    var
+        SetTaxAmountPositive: Decimal;
+        SetTaxAmountNegative: Decimal;
+        TaxPctPositive: Decimal;
+        TaxPctNegative: Decimal;
+        TaxAmtPositive: Decimal;
+        TaxAmtNegative: Decimal;
+    begin
+        SetTaxAmountPositive := LibraryVariableStorage.DequeueDecimal();
+        SetTaxAmountNegative := LibraryVariableStorage.DequeueDecimal();
+
+        SalesTaxLinesSubformDyn.First();
+        if SalesTaxLinesSubformDyn."Line Amount".AsDecimal() > 0 then begin
+            TaxPctPositive := SalesTaxLinesSubformDyn."Tax %".AsDecimal();
+            TaxAmtPositive := SalesTaxLinesSubformDyn."Tax Amount".AsDecimal();
+            SalesTaxLinesSubformDyn."Tax Amount".SetValue(SetTaxAmountPositive);
+
+            SalesTaxLinesSubformDyn.Next();
+            TaxPctNegative := SalesTaxLinesSubformDyn."Tax %".AsDecimal();
+            TaxAmtNegative := SalesTaxLinesSubformDyn."Tax Amount".AsDecimal();
+            SalesTaxLinesSubformDyn."Tax Amount".SetValue(SetTaxAmountNegative);
+        end else begin
+            TaxPctNegative := SalesTaxLinesSubformDyn."Tax %".AsDecimal();
+            TaxAmtNegative := SalesTaxLinesSubformDyn."Tax Amount".AsDecimal();
+            SalesTaxLinesSubformDyn."Tax Amount".SetValue(SetTaxAmountNegative);
+
+            SalesTaxLinesSubformDyn.Next();
+            TaxPctPositive := SalesTaxLinesSubformDyn."Tax %".AsDecimal();
+            TaxAmtPositive := SalesTaxLinesSubformDyn."Tax Amount".AsDecimal();
+            SalesTaxLinesSubformDyn."Tax Amount".SetValue(SetTaxAmountPositive);
+        end;
+
+        LibraryVariableStorage.Enqueue(TaxPctPositive);
+        LibraryVariableStorage.Enqueue(TaxAmtPositive);
+        LibraryVariableStorage.Enqueue(TaxPctNegative);
+        LibraryVariableStorage.Enqueue(TaxAmtNegative);
+    end;
+}

@@ -61,7 +61,6 @@ page 286 "Recurring Item Jnl."
                 field("Entry Type"; "Entry Type")
                 {
                     ApplicationArea = Suite;
-                    OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.';
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
                 }
                 field("Document No."; "Document No.")

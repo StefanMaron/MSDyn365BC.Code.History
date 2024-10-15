@@ -67,7 +67,13 @@ codeunit 1200 "Import Bank Statement"
     var
         DataExchColumnDef: Record "Data Exch. Column Def";
         DataExchField: Record "Data Exch. Field";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertColumn(DataExchLineDef, EntryNo, LineNo, NodeId, Name, ProgressWindow, IsHandled);
+        if IsHandled then
+            exit;
+
         // Note: The Data Exch. variable is passed by reference only to improve performance.
         DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
@@ -82,6 +88,11 @@ codeunit 1200 "Import Bank Statement"
                 DataExchField.InsertRecXMLField(EntryNo, LineNo, DataExchColumnDef."Column No.", NodeId, Value,
                   DataExchLineDef.Code);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertColumn(var DataExchLineDef: Record "Data Exch. Line Def"; EntryNo: Integer; LineNo: Integer; NodeId: Text[250]; Name: Text; var ProgressWindow: Dialog; var IsHandled: Boolean)
+    begin
     end;
 }
 

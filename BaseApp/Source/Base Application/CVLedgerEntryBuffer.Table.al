@@ -492,6 +492,7 @@ table 382 "CV Ledger Entry Buffer"
         "Max. Payment Tolerance" := VendLedgEntry."Max. Payment Tolerance";
         "Accepted Payment Tolerance" := VendLedgEntry."Accepted Payment Tolerance";
         "Accepted Pmt. Disc. Tolerance" := VendLedgEntry."Accepted Pmt. Disc. Tolerance";
+        "Pmt. Tolerance (LCY)" := VendLedgEntry."Pmt. Tolerance (LCY)";
         "Amount to Apply" := VendLedgEntry."Amount to Apply";
         Prepayment := VendLedgEntry.Prepayment;
 

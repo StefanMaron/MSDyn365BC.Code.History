@@ -1721,6 +1721,31 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryReportDataset.AssertElementTagWithValueExists('SalesHeader__External_Document_No__', SalesHeader."External Document No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderCheckVisibilityRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckOptionArchiveOrdersIsEnabledInSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        // [FEATURE] [Sales] [UT]
+        // [SCENARIO 381376] Request page option "Archive Orders" is enabled in Sales Order report when "Archive Orders" in Sales Setup set to "true"
+        Initialize();
+
+        // [GIVEN] Set "Archive Orders" in Sales Setup to "true"
+        SalesReceivablesSetup.Validate("Archive Orders", true);
+        SalesReceivablesSetup.Modify(true);
+        Commit();
+
+        // [WHEN] Run report "Sales Order"
+        REPORT.Run(REPORT::"Sales Order", true, false, SalesHeader);
+
+        // [THEN] "Archive Orders" option is enable in request page of Sales Order
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1743,6 +1768,7 @@ codeunit 142062 "ERM Misc. Report III"
         IsInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables setup");
     end;
 
     local procedure GetLCYCode(): Code[10]
@@ -2890,6 +2916,14 @@ codeunit 142062 "ERM Misc. Report III"
     procedure SalesDocumentTestRequestPageHandler(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     begin
         SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderCheckVisibilityRequestPageHandler(var SalesOrder: TestRequestPage "Sales Order")
+    begin
+        LibraryVariableStorage.Enqueue(SalesOrder.ArchiveDocument.Enabled());
+        SalesOrder.Cancel.Invoke();
     end;
 }
 

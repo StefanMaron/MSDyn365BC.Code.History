@@ -2,7 +2,7 @@ page 7200 "CDS Connection Setup"
 {
     AccessByPermission = TableData "CDS Connection Setup" = IM;
     ApplicationArea = Suite;
-    Caption = 'Common Data Service Connection Setup', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Dataverse Connection Setup', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -18,13 +18,13 @@ page 7200 "CDS Connection Setup"
         {
             group(Connection)
             {
-                Caption = 'Connection from Dynamics 365 Business Central to the Common Data Service environment';
+                Caption = 'Connection from Dynamics 365 Business Central to the Dataverse environment';
                 field("Server Address"; "Server Address")
                 {
                     ApplicationArea = Suite;
                     Enabled = IsEditable;
                     Editable = IsEditable;
-                    ToolTip = 'Specifies the URL of the Common Data Service environment that you want to connect to.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the URL of the Dataverse environment that you want to connect to.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     AssistEdit = true;
 
                     trigger OnValidate()
@@ -50,7 +50,7 @@ page 7200 "CDS Connection Setup"
                     ApplicationArea = Suite;
                     Editable = IsEditable;
                     Visible = IsUserNamePasswordVisible;
-                    ToolTip = 'Specifies the name of the user that will be used to connect to the Common Data Service environment and synchronize data. This must not be the administrator user account.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the name of the user that will be used to connect to the Dataverse environment and synchronize data. This must not be the administrator user account.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
                 field(Password; UserPassword)
                 {
@@ -58,7 +58,7 @@ page 7200 "CDS Connection Setup"
                     Editable = IsEditable;
                     Visible = IsUserNamePasswordVisible;
                     ExtendedDatatype = Masked;
-                    ToolTip = 'Specifies the password of the user that will be used to connect to the Common Data Service environment and synchronize data.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the password of the user that will be used to connect to the Dataverse environment and synchronize data.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     begin
@@ -74,7 +74,7 @@ page 7200 "CDS Connection Setup"
                     ApplicationArea = Suite;
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
-                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
                 field("Client Secret"; ClientSecret)
                 {
@@ -83,7 +83,7 @@ page 7200 "CDS Connection Setup"
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
                     ExtendedDatatype = Masked;
-                    ToolTip = 'Specifies the secret of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the secret of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
 
                     trigger OnValidate()
                     begin
@@ -99,7 +99,7 @@ page 7200 "CDS Connection Setup"
                     ApplicationArea = Suite;
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
-                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
                 field("SDK Version"; "Proxy Version")
                 {
@@ -109,7 +109,7 @@ page 7200 "CDS Connection Setup"
                     Visible = not SoftwareAsAService;
                     Editable = false;
                     Enabled = IsEditable;
-                    ToolTip = 'Specifies the software development kit version that is used to connect to the Common Data Service environment.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the software development kit version that is used to connect to the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnAssistEdit()
                     begin
@@ -122,8 +122,8 @@ page 7200 "CDS Connection Setup"
                 field("Is Enabled"; "Is Enabled")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Enabled', Comment = 'Name of the check box that shows whether the connection to the Common Data Service environment is enabled.';
-                    ToolTip = 'Specifies whether the connection to the Common Data Service environment is enabled. When you check this checkbox, you will be prompted to sign-in with an administrator user account and give consent to the application that will be used to connect to Common Data Service. The account will be used one time to install and configure components that the integration requires.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    Caption = 'Enabled', Comment = 'Name of the check box that shows whether the connection to the Dataverse environment is enabled.';
+                    ToolTip = 'Specifies whether the connection to the Dataverse environment is enabled. When you check this checkbox, you will be prompted to sign-in with an administrator user account and give consent to the application that will be used to connect to Dataverse. The account will be used one time to install and configure components that the integration requires.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     var
@@ -156,10 +156,10 @@ page 7200 "CDS Connection Setup"
                 field("CDS Version"; CDSVersion)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Common Data Service Version';
+                    Caption = 'Dataverse Version';
                     Editable = false;
                     StyleExpr = CDSVersionStatusStyleExpr;
-                    ToolTip = 'Specifies the version of Common Data Service that you are connected to.';
+                    ToolTip = 'Specifies the version of Dataverse that you are connected to.';
 
                     trigger OnDrillDown()
                     begin
@@ -175,7 +175,7 @@ page 7200 "CDS Connection Setup"
                     Caption = 'Solution Version';
                     Editable = false;
                     StyleExpr = SolutionVersionStatusStyleExpr;
-                    ToolTip = 'Specifies whether an integration solution is installed and configured in Common Data Service. You cannot change this setting.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies whether an integration solution is installed and configured in Dataverse. You cannot change this setting.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnDrillDown()
                     begin
@@ -191,7 +191,7 @@ page 7200 "CDS Connection Setup"
                     Caption = 'User Roles checked';
                     Editable = false;
                     StyleExpr = UserStatusStyleExpr;
-                    ToolTip = 'Specifies whether the integration user has the required roles in Common Data Service. You cannot change this setting.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies whether the integration user has the required roles in Dataverse. You cannot change this setting.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnDrillDown()
                     begin
@@ -207,7 +207,7 @@ page 7200 "CDS Connection Setup"
                     Caption = 'Team Roles checked';
                     Editable = false;
                     StyleExpr = TeamStatusStyleExpr;
-                    ToolTip = 'Specifies whether the team that owns the selected business unit has the required roles in Common Data Service. You cannot change this setting.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies whether the team that owns the selected business unit has the required roles in Dataverse. You cannot change this setting.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnDrillDown()
                     begin
@@ -223,7 +223,7 @@ page 7200 "CDS Connection Setup"
                     Caption = 'Entities availability checked';
                     Editable = false;
                     StyleExpr = EntitiesStatusStyleExpr;
-                    ToolTip = 'Specifies whether the entities are available in Common Data Service. You cannot change this setting.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies whether the entities are available in Dataverse. You cannot change this setting.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnDrillDown()
                     begin
@@ -242,14 +242,14 @@ page 7200 "CDS Connection Setup"
                 {
                     ApplicationArea = Advanced;
                     Editable = IsEditable;
-                    ToolTip = 'Specifies the authentication type that will be used to authenticate with the Common Data Service environment.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the authentication type that will be used to authenticate with the ComDataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
                 field("Connection String"; "Connection String")
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Connection String';
                     Editable = IsEditable;
-                    ToolTip = 'Specifies the connection string that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the connection string that will be used to connect to the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     begin
@@ -265,7 +265,7 @@ page 7200 "CDS Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
-                    ToolTip = 'Specifies the type of owner that will be assigned to any record that is created while synchronizing from Business Central to Common Data Service.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the type of owner that will be assigned to any record that is created while synchronizing from Business Central to Dataverse.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     begin
@@ -281,7 +281,7 @@ page 7200 "CDS Connection Setup"
                     Editable = false;
                     Enabled = IsEditable;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the business unit that you want to connect to in the Common Data Service environment.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the business unit that you want to connect to in the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnAssistEdit()
                     begin
@@ -308,7 +308,7 @@ page 7200 "CDS Connection Setup"
                 Promoted = true;
                 PromotedCategory = Process;
                 Enabled = IsEditable;
-                ToolTip = 'Runs Common Data Service Connection Setup Wizard.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Runs Dataverse Connection Setup Wizard.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 var
@@ -328,7 +328,7 @@ page 7200 "CDS Connection Setup"
                 Image = ValidateEmailLoggingSetup;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Test the connection to Common Data Service using the specified settings.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Test the connection to Dataverse using the specified settings.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 begin
@@ -344,7 +344,7 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Use Default Synchronization Setup';
                 Enabled = "Is Enabled";
                 Image = ResetStatus;
-                ToolTip = 'Resets the integration table mappings and synchronization jobs to the default values for a connection with Common Data Service. All current mappings are deleted.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Resets the integration table mappings and synchronization jobs to the default values for a connection with Dataverse. All current mappings are deleted.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 var
@@ -365,7 +365,7 @@ page 7200 "CDS Connection Setup"
                 Image = CoupledUsers;
                 Promoted = true;
                 PromotedCategory = "Report";
-                ToolTip = 'Open the list of users in Common Data Service to manually couple them with salespersons in Business Central.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Open the list of users in Dataverse to manually couple them with salespersons in Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 var
@@ -383,7 +383,7 @@ page 7200 "CDS Connection Setup"
                 Image = LinkAccount;
                 Promoted = true;
                 PromotedCategory = "Report";
-                ToolTip = 'Add the coupled Common Data Service users to the default owning team.';
+                ToolTip = 'Add the coupled Dataverse users to the default owning team.';
 
                 trigger OnAction()
                 var
@@ -402,7 +402,7 @@ page 7200 "CDS Connection Setup"
                 Promoted = true;
                 PromotedCategory = Category6;
                 PromotedIsBig = true;
-                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Common Data Service entities, as defined on the Integration Table Mappings page.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 begin
@@ -467,7 +467,7 @@ page 7200 "CDS Connection Setup"
                 Promoted = true;
                 PromotedCategory = Report;
                 Enabled = "Is Enabled";
-                ToolTip = 'View the integration solutions that help business apps synchronize data with Business Central through Common Data Service.';
+                ToolTip = 'View the integration solutions that help business apps synchronize data with Business Central through Dataverse.';
 
                 trigger OnAction()
                 begin
@@ -483,7 +483,7 @@ page 7200 "CDS Connection Setup"
                 Promoted = true;
                 PromotedCategory = Report;
                 Enabled = "Is Enabled";
-                ToolTip = 'View the roles assigned to the integration user. The integration user is the user account in Common Data Service that business apps use to synchronize data with Business Central through Common Data Service.';
+                ToolTip = 'View the roles assigned to the integration user. The integration user is the user account in Dataverse that business apps use to synchronize data with Business Central through Dataverse.';
 
                 trigger OnAction()
                 begin
@@ -499,7 +499,7 @@ page 7200 "CDS Connection Setup"
                 Promoted = true;
                 PromotedCategory = Report;
                 Enabled = "Is Enabled";
-                ToolTip = 'View the roles assigned to the team in Common Data Service that owns the coupled entities. This requires that you are using the Team ownership model.';
+                ToolTip = 'View the roles assigned to the team in Dataverse that owns the coupled entities. This requires that you are using the Team ownership model.';
 
                 trigger OnAction()
                 begin
@@ -541,7 +541,7 @@ page 7200 "CDS Connection Setup"
                 Image = JobListSetup;
                 Promoted = true;
                 PromotedCategory = Category6;
-                ToolTip = 'View the job queue entries that manage the scheduled synchronization between Common Data Service and Business Central.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'View the job queue entries that manage the scheduled synchronization between Dataverse and Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 var
@@ -649,13 +649,13 @@ page 7200 "CDS Connection Setup"
         UserPassword: Text;
         [NonDebuggable]
         ClientSecret: Text;
-        ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Common Data Service. All customizations to mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?';
+        ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Dataverse. All customizations to mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
-        EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Common Data Service Connection Setup)';
-        UnfavorableCDSVersionMsg: Label 'This version of Common Data Service might not work correctly with the base integration solution. We recommend you upgrade to a supported version.';
-        FavorableCDSVersionMsg: Label 'The version of Common Data Service is valid.';
-        UnfavorableSolutionMsg: Label 'The base integration solution was not detected in Common Data Service.';
-        FavorableSolutionMsg: Label 'The base integration solution is installed in Common Data Service.';
+        EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Dataverse Connection Setup)';
+        UnfavorableCDSVersionMsg: Label 'This version of Dataverse might not work correctly with the Dataverse Base Integration solution. We recommend you upgrade to a supported version.';
+        FavorableCDSVersionMsg: Label 'The version of Dataverse is valid.';
+        UnfavorableSolutionMsg: Label 'The base integration solution was not detected in Dataverse.';
+        FavorableSolutionMsg: Label 'The base integration solution is installed in Dataverse.';
         UnfavorableUserRolesMsg: Label 'Some base roles are not correctly assigned to the integration user.';
         FavorableEntitiesMsg: Label 'The base entities are available.';
         UnfavorableEntitiesMsg: Label 'Some base entities are not available.';
@@ -668,16 +668,16 @@ page 7200 "CDS Connection Setup"
         ConnectionFailedMsg: Label 'The connection test has failed. %1.', Comment = '%1 = Connection test failure error message';
         SynchronizeModifiedQst: Label 'This will synchronize all modified records in all integration table mappings.\The synchronization will run in the background so you can continue with other tasks.\\Do you want to continue?';
         SyncNowScheduledMsg: Label 'Synchronization of modified records is scheduled.\You can view details on the %1 page.', Comment = '%1 = The localized caption of page Integration Synch. Job List';
-        SetupSuccessfulMsg: Label 'The default setup for Common Data Service synchronization has completed successfully.';
-        DoYouWantToMakeSalesPeopleMappingQst: Label 'Do you want to map salespeople to users in Common Data Service?';
+        SetupSuccessfulMsg: Label 'The default setup for Dataverse synchronization has completed successfully.';
+        DoYouWantToMakeSalesPeopleMappingQst: Label 'Do you want to map salespeople to users in Dataverse?';
         UsersAddedToTeamMsg: Label 'Count of users added to the default owning team: %1.', Comment = '%1 - count of users.';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
-        DisableIntegrationQst: Label 'You are about to disable integration with Common Data Service, but many records remain coupled. Please remove all couplings before you disable the integration, unless you are not going to re-enable it later.\\Do you want to continue anyway?';
-        CDSConnEnabledOnPageTxt: Label 'CDS Connection has been enabled from CDS Connection Setup page', Locked = true;
-        CDSConnDisabledOnPageTxt: Label 'CDS Connection has been disabled from CDS Connection Setup page', Locked = true;
-        SuccessfullyRedeployedSolutionTxt: Label 'The CDS solutin has been successfully redeployed', Locked = true;
-        UnsuccessfullyRedeployedSolutionTxt: Label 'The CDS solutin has failed to be redeployed', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        DisableIntegrationQst: Label 'You are about to disable your integration with Dataverse, but some records are still coupled. If you will re-enable the integration later, you must remove all couplings before you disable the integration.\\Do you want to continue anyway?';
+        CDSConnEnabledOnPageTxt: Label 'Dataverse Connection has been enabled from Dataverse Connection Setup page', Locked = true;
+        CDSConnDisabledOnPageTxt: Label 'Dataverse Connection has been disabled from Dataverse Connection Setup page', Locked = true;
+        SuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solutin has been successfully redeployed', Locked = true;
+        UnsuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solutin has failed to be redeployed', Locked = true;
         IsEditable: Boolean;
         IsUserNamePasswordVisible: Boolean;
         IsClientIdClientSecretVisible: Boolean;

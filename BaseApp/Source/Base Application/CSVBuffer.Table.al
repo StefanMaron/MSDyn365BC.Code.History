@@ -1,3 +1,6 @@
+/// <summary>
+/// Table to store CSV (comma-separated values).
+/// </summary>
 table 1234 "CSV Buffer"
 {
     Caption = 'CSV Buffer';
@@ -39,31 +42,90 @@ table 1234 "CSV Buffer"
         CSVFile: DotNet File;
         StreamReader: DotNet StreamReader;
         Separator: Text[1];
+        CharactersToTrim: Text;
 
+    /// <summary>
+    /// Inserts an entry to the record.
+    /// </summary>
+    /// <param name="LineNo">The line number on which to insert the value.</param>
+    /// <param name="FieldNo">The field number (or position) on which to insert the value.</param>
+    /// <param name="FieldValue">The value to insert.</param>
     procedure InsertEntry(LineNo: Integer; FieldNo: Integer; FieldValue: Text[250])
     begin
-        Init;
-        "Line No." := LineNo;
-        "Field No." := FieldNo;
-        Value := FieldValue;
-        Insert;
+        Rec.Init();
+        Rec."Line No." := LineNo;
+        Rec."Field No." := FieldNo;
+        Rec.Value := FieldValue;
+        Rec.Insert();
     end;
 
+    /// <summary>
+    /// Loads data from a file.
+    /// </summary>
+    /// <remark>
+    /// Reads the content of the file by lines and separate values using <paramref name="CSVFieldSeparator"/>.
+    /// All the characters in <paramref name="CSVCharactersToTrim"/> will be removed from the beginning and the end of the read values.
+    /// </remark>
+    /// <param name="CSVFileName">The name of the file from which to laod data.</param>
+    /// <param name="CSVFieldSeparator">The separator to use to split the values.</param>
+    /// <param name="CSVCharactersToTrim">Characters to trim from the beginning and the end of the read values.</param>
+    [Scope('OnPrem')]
+    procedure LoadData(CSVFileName: Text; CSVFieldSeparator: Text[1]; CSVCharactersToTrim: Text)
+    begin
+        InitializeReader(CSVFileName, CSVFieldSeparator, CSVCharactersToTrim);
+        ReadLines(0);
+        StreamReader.Close();
+    end;
+
+    /// <summary>
+    /// Loads data from a file.
+    /// </summary>
+    /// <remark>
+    /// Reads the content of the file by lines and separate values using <paramref name="CSVFieldSeparator"/>.
+    /// </remark>
+    /// <param name="CSVFileName">The name of the file from which to load data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
     [Scope('OnPrem')]
     procedure LoadData(CSVFileName: Text; CSVFieldSeparator: Text[1])
     begin
-        InitializeReader(CSVFileName, CSVFieldSeparator);
-        ReadLines(0);
-        StreamReader.Close;
+        LoadData(CSVFileName, CSVFieldSeparator, '');
     end;
 
+    /// <summary>
+    /// Loads data from a stream.
+    /// </summary>
+    /// <remark>
+    /// Reads the content of the stream by lines and separate values using <paramref name="CSVFieldSeparator"/>.
+    /// All the characters in <paramref name="CSVCharactersToTrim"/> will be omitted from the read values.
+    /// </remark>
+    /// <param name="CSVInStream">The stream from which to laod data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
+    /// <param name="CSVCharactersToTrim">Characters to trim from the beginning and the end of the read values.</param>
+    procedure LoadDataFromStream(CSVInStream: InStream; CSVFieldSeparator: Text[1]; CSVCharactersToTrim: Text)
+    begin
+        InitializeReaderFromStream(CSVInStream, CSVFieldSeparator, CSVCharactersToTrim);
+        ReadLines(0);
+        StreamReader.Close();
+    end;
+
+    /// <summary>
+    /// Loads data from a stream.
+    /// </summary>
+    /// <remark>
+    /// Reads the content of the stream by lines and separate values using <paramref name="CSVFieldSeparator"/>.
+    /// </remark>
+    /// <param name="CSVInStream">The stream from which to laod data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
     procedure LoadDataFromStream(CSVInStream: InStream; CSVFieldSeparator: Text[1])
     begin
-        InitializeReaderFromStream(CSVInStream, CSVFieldSeparator);
-        ReadLines(0);
-        StreamReader.Close;
+        LoadDataFromStream(CSVInStream, CSVFieldSeparator, '');
     end;
 
+    /// <summary>
+    /// Saves the data stored in the record to a file.
+    /// </summary>
+    /// <param name="CSVFileName">The name of the output file.</param>
+    /// <param name="CSVFieldSeparator">The character to use as separator.</param>
     [Scope('OnPrem')]
     procedure SaveData(CSVFileName: Text; CSVFieldSeparator: Text[1])
     var
@@ -72,9 +134,14 @@ table 1234 "CSV Buffer"
     begin
         StreamWriter := StreamWriter.StreamWriter(CSVFile.Open(CSVFileName, FileMode.Create));
         WriteToStream(StreamWriter, CSVFieldSeparator);
-        StreamWriter.Close;
+        StreamWriter.Close();
     end;
 
+    /// <summary>
+    /// Saves the data stored in the record to a BLOB.
+    /// </summary>
+    /// <param name="TempBlob">The BLOB in which to save the data.</param>
+    /// <param name="CSVFieldSeparator">The character to use as separator.</param>
     procedure SaveDataToBlob(var TempBlob: Codeunit "Temp Blob"; CSVFieldSeparator: Text[1])
     var
         CSVOutStream: OutStream;
@@ -83,7 +150,7 @@ table 1234 "CSV Buffer"
         TempBlob.CreateOutStream(CSVOutStream);
         StreamWriter := StreamWriter.StreamWriter(CSVOutStream);
         WriteToStream(StreamWriter, CSVFieldSeparator);
-        StreamWriter.Close;
+        StreamWriter.Close();
     end;
 
     local procedure WriteToStream(var StreamWriter: DotNet StreamWriter; CSVFieldSeparator: Text[1])
@@ -101,8 +168,31 @@ table 1234 "CSV Buffer"
             until Next = 0;
     end;
 
+    /// <summary>
+    /// Initializes the CSV buffer.
+    /// </summary>
+    /// <remarks>
+    /// No data is inserted into the buffer.
+    /// </remarks>
+    /// <param name="CSVFileName">The name of the file from which to read data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
     [Scope('OnPrem')]
     procedure InitializeReader(CSVFileName: Text; CSVFieldSeparator: Text[1])
+    begin
+        InitializeReader(CSVFileName, CSVFieldSeparator, '');
+    end;
+
+    /// <summary>
+    /// Initializes the CSV buffer.
+    /// </summary>
+    /// <remarks>
+    /// No data is inserted into the buffer.
+    /// </remarks>
+    /// <param name="CSVFileName">The name of the file from which to read data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
+    /// <param name="CSVCharactersToTrim">Characters to trim from the beginning and the end of the read values.</param>
+    [Scope('OnPrem')]
+    procedure InitializeReader(CSVFileName: Text; CSVFieldSeparator: Text[1]; CSVCharactersToTrim: Text)
     var
         FileManagement: Codeunit "File Management";
         Encoding: DotNet Encoding;
@@ -110,14 +200,46 @@ table 1234 "CSV Buffer"
         FileManagement.IsAllowedPath(CSVFileName, false);
         StreamReader := StreamReader.StreamReader(CSVFile.OpenRead(CSVFileName), Encoding.Default);
         Separator := CSVFieldSeparator;
+        CharactersToTrim := CSVCharactersToTrim;
     end;
 
-    procedure InitializeReaderFromStream(CSVInStream: InStream; CSVFieldSeparator: Text[1])
+    /// <summary>
+    /// Initializes the CSV buffer.
+    /// </summary>
+    /// <remarks>
+    /// No data is inserted into the buffer.
+    /// </remarks>
+    /// <param name="CSVInStream">The stream from which to read data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
+    /// <param name="CSVCharactersToTrim">Characters to trim from the beginning and the end of the read values.</param>
+    procedure InitializeReaderFromStream(CSVInStream: InStream; CSVFieldSeparator: Text[1]; CSVCharactersToTrim: Text)
     begin
         StreamReader := StreamReader.StreamReader(CSVInStream);
         Separator := CSVFieldSeparator;
+        CharactersToTrim := CSVCharactersToTrim;
     end;
 
+    /// <summary>
+    /// Initializes the CSV buffer.
+    /// </summary>
+    /// <remarks>
+    /// No data is inserted into the buffer.
+    /// </remarks>
+    /// <param name="CSVInStream">The stream from which to read data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
+    procedure InitializeReaderFromStream(CSVInStream: InStream; CSVFieldSeparator: Text[1])
+    begin
+        InitializeReaderFromStream(CSVInStream, CSVFieldSeparator, '');
+    end;
+
+    /// <summary>
+    /// Populated the CSV buffer with entries.
+    /// </summary>
+    /// <remarks>
+    /// The entries are read from the stream with which the CSV buffer was initialized.
+    /// </remarks>
+    /// <param name="NumberOfLines">The number of lines to read. If called with 0 or less, the function will read all of the data.</param>
+    /// <returns>True if there were any read lines; otherwise - false.</returns>
     [Scope('OnPrem')]
     procedure ReadLines(NumberOfLines: Integer): Boolean
     var
@@ -130,38 +252,56 @@ table 1234 "CSV Buffer"
     begin
         if StreamReader.EndOfStream then
             exit(false);
+
         repeat
             String := StreamReader.ReadLine;
             CurrentLineNo += 1;
             CurrentIndex := 0;
             repeat
                 CurrentFieldNo += 1;
-                Init;
-                "Line No." := CurrentLineNo;
-                "Field No." := CurrentFieldNo;
+
+                Rec.Init();
+                Rec."Line No." := CurrentLineNo;
+                Rec."Field No." := CurrentFieldNo;
+
                 NextIndex := String.IndexOf(Separator, CurrentIndex);
                 if NextIndex = -1 then
                     Length := String.Length - CurrentIndex
                 else
                     Length := NextIndex - CurrentIndex;
+
                 if Length > 250 then
                     Length := 250;
-                Value := String.Substring(CurrentIndex, Length);
+                Rec.Value := String.Substring(CurrentIndex, Length);
+                Rec.Value := DelChr(Rec.Value, '<>', CharactersToTrim);
+
                 CurrentIndex := NextIndex + 1;
-                Insert;
+
+                Rec.Insert();
             until NextIndex = -1;
             CurrentFieldNo := 0;
         until StreamReader.EndOfStream or (CurrentLineNo = NumberOfLines);
+
         exit(true);
     end;
 
+    /// <summary>
+    /// Resets the filters on the record.
+    /// </summary>
     procedure ResetFilters()
     begin
-        SetRange("Line No.");
-        SetRange("Field No.");
-        SetRange(Value);
+        Rec.SetRange("Line No.");
+        Rec.SetRange("Field No.");
+        Rec.SetRange(Value);
     end;
 
+    /// <summary>
+    /// Gets a value from the record.
+    /// </summary>
+    /// <param name="LineNo">The line number to identify the value.</param>
+    /// <param name="FieldNo">The field number (or position) to identify the value.</param>
+    /// <error>The field in line %1 with index %2 does not exist. The data could not be retrieved.</error>
+    /// <returns>The value stored on line <paramref name="LineNo"/> and field <paramref name="FieldNo"/>.</returns>
     procedure GetValue(LineNo: Integer; FieldNo: Integer): Text[250]
     var
         TempCSVBuffer: Record "CSV Buffer" temporary;
@@ -169,9 +309,16 @@ table 1234 "CSV Buffer"
         TempCSVBuffer.Copy(Rec, true);
         if not TempCSVBuffer.Get(LineNo, FieldNo) then
             Error(IndexDoesNotExistErr, LineNo, FieldNo);
+
         exit(TempCSVBuffer.Value);
     end;
 
+    /// <summary>
+    /// Gets all the lines that contain a specific value on a specific field/position.
+    /// </summary>
+    /// <param name="FilterFieldNo">The field number (or position) of the value.</param>
+    /// <param name="FilterValue">The value to filter on.</param>
+    /// <param name="TempResultCSVBuffer">Out parameter to store the result.</param>
     procedure GetCSVLinesWhere(FilterFieldNo: Integer; FilterValue: Text; var TempResultCSVBuffer: Record "CSV Buffer" temporary)
     var
         TempCSVBuffer: Record "CSV Buffer" temporary;
@@ -179,20 +326,29 @@ table 1234 "CSV Buffer"
         TempResultCSVBuffer.Reset();
         TempResultCSVBuffer.DeleteAll();
         TempCSVBuffer.Copy(Rec, true);
-        SetRange("Field No.", FilterFieldNo);
-        SetRange(Value, FilterValue);
-        if FindSet then
+
+        Rec.SetRange("Field No.", FilterFieldNo);
+        Rec.SetRange(Value, FilterValue);
+
+        if Rec.FindSet() then
             repeat
                 TempCSVBuffer.SetRange("Line No.", "Line No.");
                 TempCSVBuffer.FindSet;
                 repeat
                     TempResultCSVBuffer := TempCSVBuffer;
                     TempResultCSVBuffer.Insert();
-                until TempCSVBuffer.Next = 0;
-            until Next = 0;
+                until TempCSVBuffer.Next() = 0;
+            until Rec.Next() = 0;
+
         TempResultCSVBuffer.SetRange("Field No.", 1);
     end;
 
+    /// <summary>
+    /// Gets the value on the current line with a specific field number (or position).
+    /// </summary>
+    /// <error>The field in line %1 with index %2 does not exist. The data could not be retrieved.</error>
+    /// <param name="FieldNo">The field number (or posistion) to identify the value.</param>
+    /// <returns>The value on the current line and field number <paramref name="FieldNo"/></returns>
     procedure GetValueOfLineAt(FieldNo: Integer): Text[250]
     var
         TempCSVBuffer: Record "CSV Buffer" temporary;
@@ -200,9 +356,14 @@ table 1234 "CSV Buffer"
         TempCSVBuffer.Copy(Rec, true);
         if not TempCSVBuffer.Get("Line No.", FieldNo) then
             Error(IndexDoesNotExistErr, "Line No.", FieldNo);
+
         exit(TempCSVBuffer.Value);
     end;
 
+    /// <summary>
+    /// Gets the number of columns store in the record.
+    /// </summary>
+    /// <returns>The number of fields for every line.</returns>
     procedure GetNumberOfColumns(): Integer
     var
         TempCSVBuffer: Record "CSV Buffer" temporary;
@@ -210,16 +371,20 @@ table 1234 "CSV Buffer"
         TempCSVBuffer.Copy(Rec, true);
         TempCSVBuffer.ResetFilters;
         TempCSVBuffer.SetRange("Line No.", "Line No.");
-        if TempCSVBuffer.FindLast then
+        if TempCSVBuffer.FindLast() then
             exit(TempCSVBuffer."Field No.");
 
         exit(0);
     end;
 
+    /// <summary>
+    /// Gets the number of lines stored in the record.
+    /// </summary>
+    /// <returns>The number of lines stored in the record.</returns>
     procedure GetNumberOfLines(): Integer
     begin
-        if FindLast then
-            exit("Line No.");
+        if Rec.FindLast() then
+            exit(Rec."Line No.");
 
         exit(0);
     end;
