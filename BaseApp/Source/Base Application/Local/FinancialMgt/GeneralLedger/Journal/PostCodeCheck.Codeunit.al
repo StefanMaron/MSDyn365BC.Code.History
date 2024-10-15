@@ -214,7 +214,7 @@ codeunit 28000 "Post Code Check"
         end;
     end;
 
-    internal procedure VerifyAddress(CurrentFieldNo: Integer; TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[50]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[30]; var PostCode: Code[20]; var County: Text[30]; var CountryCode: Code[10])
+    procedure VerifyAddress(CurrentFieldNo: Integer; TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[50]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[30]; var PostCode: Code[20]; var County: Text[30]; var CountryCode: Code[10])
     begin
         if (PostCode = '') or (City = '') or (CurrentFieldNo = 0) or (not GuiAllowed) then
             exit;

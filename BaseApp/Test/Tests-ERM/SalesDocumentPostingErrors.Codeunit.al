@@ -25,7 +25,6 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPlanning: Codeunit "Library - Planning";
         IsInitialized: Boolean;
-        DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
         CheckSalesLineMsg: Label 'Check sales document line.';
 
         // Expected error messages (from code unit 80).
@@ -427,7 +426,7 @@ codeunit 132501 "Sales Document Posting Errors"
         CustomerNo: Code[20];
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
-        // [SCENARIO] Batch posting of two documents (in background) verifies "Error Messages" that contains two lines per first document and one line for second document
+        // [SCENARIO] Batch posting of two documents (in background) verifies "Error Messages" that contains zero lines as we do not subscribe to the error handler mgt.
         Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
@@ -457,23 +456,11 @@ codeunit 132501 "Sales Document Posting Errors"
             LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
         until JobQueueEntry.Next() = 0;
 
-        // [THEN] "Error Message" table contains 3 lines:
-        // [THEN] 2 lines for Invoice '1002' and 1 line for Invoice '1003'
-        // [THEN] The first error for Invoice '1002' is 'Posting Date is not within your range of allowed posting dates.'
+        // [THEN] "Error Message" table contains 0 lines:
         ErrorMessage.SetRange("Context Record ID", SalesHeader[1].RecordId);
-        Assert.RecordCount(ErrorMessage, 2);
-        ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
-        // [THEN] The second error for Invoice '1002' is 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.'
-        ErrorMessage.Next();
-        ErrorMessage.Next();
-        Assert.ExpectedMessage(StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo), ErrorMessage."Message");
-
-        // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
+        Assert.RecordCount(ErrorMessage, 0);
         ErrorMessage.SetRange("Context Record ID", SalesHeader[2].RecordId);
-        Assert.RecordCount(ErrorMessage, 1);
-        ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
+        Assert.RecordCount(ErrorMessage, 0);
     end;
 
     [Test]
@@ -493,7 +480,7 @@ codeunit 132501 "Sales Document Posting Errors"
         CustomerNo: Code[20];
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
-        // [SCENARIO] Batch posting of document (in background) verifies "Error Messages" page that contains two lines for Job Queue Entry
+        // [SCENARIO] Batch posting of document (in background) verifies "Error Messages" page that contains one lines for Job Queue Entry (last error only)
         Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
@@ -525,10 +512,6 @@ codeunit 132501 "Sales Document Posting Errors"
         JobQueueEntries.ShowError.Invoke();
         ErrorMessages.First();
         Assert.IsSubstring(ErrorMessages.Description.Value, PostingDateNotAllowedErr);
-        ErrorMessages.Next();
-        ErrorMessages.Next();
-        Assert.IsSubstring(ErrorMessages.Description.Value, StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo));
-        Assert.IsFalse(ErrorMessages.Next(), 'Wrong number of error messages.');
     end;
 
     [Test]
@@ -846,8 +829,8 @@ codeunit 132501 "Sales Document Posting Errors"
 
         // [THEN] Verify Campaign No. is udpated.
         Assert.AreEqual(
-            Campaign."No.", 
-            SalesOrder."Campaign No.".Value(), 
+            Campaign."No.",
+            SalesOrder."Campaign No.".Value(),
             CampaignNoErr);
     end;
 

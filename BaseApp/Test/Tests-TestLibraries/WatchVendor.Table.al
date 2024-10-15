@@ -1,3 +1,5 @@
+namespace Microsoft.Purchases.Test;
+
 table 131320 "Watch Vendor"
 {
     ReplicateData = false;

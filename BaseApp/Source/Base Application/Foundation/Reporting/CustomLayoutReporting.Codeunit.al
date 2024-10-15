@@ -335,16 +335,17 @@ codeunit 8800 "Custom Layout Reporting"
                     // Run the report only for those objects that have this layout
                     GetLayoutIteratorKeyFilter(TempRecordRef, TempRecordKeyFieldRef, CustomReportLayoutCode); // set view based on intersection of lists
 
-                    // Run the report on the data record, using the above filter
-                    RunReportWithCustomReportSelection(TempRecordRef, ReportSelections."Report ID", CustomReportSelection, PrintIfEmailIsMissing);
+                    if TempRecordRef.FindFirst() then begin
+                        // Run the report on the data record, using the above filter
+                        RunReportWithCustomReportSelection(TempRecordRef, ReportSelections."Report ID", CustomReportSelection, PrintIfEmailIsMissing);
 
-                    // Save this list of objects reported on, using the 'iterator field', they will not get the default report layout later
-                    if TempRecordRef.FindFirst() then
+                        // Save this list of objects reported on, using the 'iterator field', they will not get the default report layout later
                         repeat
                             ReportedRecordKeyVal := Format(TempRecordKeyFieldRef.Value);
                             if not ReportedObjects.Contains(ReportedRecordKeyVal) then
                                 ReportedObjects.Add(ReportedRecordKeyVal);
                         until TempRecordRef.Next() = 0;
+                    end;
                 end;
             until CustomReportSelection.Next() = 0;
 
@@ -515,8 +516,8 @@ codeunit 8800 "Custom Layout Reporting"
             OutputType::XML:
                 SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Xml);
         end;
-        if CustomReportLayoutCode <> '' then
-            ReportLayoutSelection.ClearTempLayoutSelected();
+
+        ReportLayoutSelection.ClearTempLayoutSelected();
 
         CustomReportSelection.Validate("Report ID", ReportID);
         LogAndClearLastError(CustomReportSelection."Report Caption", DataRecRef.RecordId);

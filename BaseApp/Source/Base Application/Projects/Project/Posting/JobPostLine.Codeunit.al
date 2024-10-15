@@ -105,7 +105,7 @@ codeunit 1001 "Job Post-Line"
             InsertJobUsageLink(JobPlanningLine);
     end;
 
-    local procedure InsertJobUsageLink(JobPlanningLine: Record "Job Planning Line")
+    local procedure InsertJobUsageLink(var JobPlanningLine: Record "Job Planning Line")
     var
         JobUsageLink: Record "Job Usage Link";
         JobLedgerEntry: Record "Job Ledger Entry";
