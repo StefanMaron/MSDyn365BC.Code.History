@@ -3141,7 +3141,7 @@ page 8901 "Finance Manager Role Center"
                     Caption = 'Intrastat';
                     action("Intrastat Setup")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Intrastat Setup';
                         RunObject = page "Intrastat Setup";
                         Tooltip = 'Open the Intrastat Setup page.';
@@ -3155,42 +3155,42 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Transaction Types")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Transaction Types';
                         RunObject = page "Transaction Types";
                         Tooltip = 'Open the Transaction Types page.';
                     }
                     action("Transaction Specifications")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Transaction Specifications';
                         RunObject = page "Transaction Specifications";
                         Tooltip = 'Open the Transaction Specifications page.';
                     }
                     action("Transport Methods")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Transport Methods';
                         RunObject = page "Transport Methods";
                         Tooltip = 'Open the Transport Methods page.';
                     }
                     action("Entry/Exit Points")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Entry/Exit Points';
                         RunObject = page "Entry/Exit Points";
                         Tooltip = 'Open the Entry/Exit Points page.';
                     }
                     action("Areas")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Areas';
                         RunObject = page "Areas";
                         Tooltip = 'Open the Areas page.';
                     }
                     action("Intrastat Journal Templates")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Intrastat Journal Templates';
                         RunObject = page "Intrastat Journal Templates";
                         Tooltip = 'Open the Intrastat Journal Templates page.';
