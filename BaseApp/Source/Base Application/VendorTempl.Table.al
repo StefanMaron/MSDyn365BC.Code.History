@@ -13,6 +13,14 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Description';
         }
+        field(5; Address; Text[100])
+        {
+            Caption = 'Address';
+        }
+        field(6; "Address 2"; Text[50])
+        {
+            Caption = 'Address 2';
+        }
         field(7; City; Text[30])
         {
             Caption = 'City';
@@ -34,6 +42,24 @@ table 1383 "Vendor Templ."
             begin
                 PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
+        }
+        field(9; "Phone No."; Text[30])
+        {
+            Caption = 'Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+        field(10; "Telex No."; Text[20])
+        {
+            Caption = 'Telex No.';
+        }
+        field(14; "Our Account No."; Text[20])
+        {
+            Caption = 'Our Account No.';
+        }
+        field(15; "Territory Code"; Code[10])
+        {
+            Caption = 'Territory Code';
+            TableRelation = Territory;
         }
         field(16; "Global Dimension 1 Code"; Code[20])
         {
@@ -59,6 +85,12 @@ table 1383 "Vendor Templ."
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
+        field(19; "Budgeted Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Budgeted Amount';
+        }
         field(21; "Vendor Posting Group"; Code[20])
         {
             Caption = 'Vendor Posting Group';
@@ -74,6 +106,10 @@ table 1383 "Vendor Templ."
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(26; "Statistics Group"; Integer)
+        {
+            Caption = 'Statistics Group';
+        }
         field(27; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -84,10 +120,20 @@ table 1383 "Vendor Templ."
             Caption = 'Fin. Charge Terms Code';
             TableRelation = "Finance Charge Terms";
         }
+        field(29; "Purchaser Code"; Code[20])
+        {
+            Caption = 'Purchaser Code';
+            TableRelation = "Salesperson/Purchaser";
+        }
         field(30; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+        }
+        field(31; "Shipping Agent Code"; Code[10])
+        {
+            Caption = 'Shipping Agent Code';
+            TableRelation = "Shipping Agent";
         }
         field(33; "Invoice Disc. Code"; Code[20])
         {
@@ -119,6 +165,10 @@ table 1383 "Vendor Templ."
             Caption = 'Pay-to Vendor No.';
             TableRelation = Vendor;
         }
+        field(46; Priority; Integer)
+        {
+            Caption = 'Priority';
+        }
         field(47; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
@@ -132,10 +182,27 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Prices Including VAT';
         }
+        field(84; "Fax No."; Text[30])
+        {
+            Caption = 'Fax No.';
+        }
+        field(85; "Telex Answer Back"; Text[20])
+        {
+            Caption = 'Telex Answer Back';
+        }
+        field(86; "VAT Registration No."; Text[20])
+        {
+            Caption = 'VAT Registration No.';
+        }
         field(88; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+        }
+        field(90; GLN; Code[13])
+        {
+            Caption = 'GLN';
+            Numeric = true;
         }
         field(91; "Post Code"; Code[20])
         {
@@ -164,10 +231,33 @@ table 1383 "Vendor Templ."
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
+        field(93; "EORI Number"; Text[40])
+        {
+            Caption = 'EORI Number';
+        }
+        field(102; "E-Mail"; Text[80])
+        {
+            Caption = 'Email';
+            ExtendedDatatype = EMail;
+        }
+        field(103; "Home Page"; Text[80])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
             TableRelation = "No. Series";
+        }
+        field(108; "Tax Area Code"; Code[20])
+        {
+            Caption = 'Tax Area Code';
+            TableRelation = "Tax Area";
+        }
+        field(109; "Tax Liable"; Boolean)
+        {
+            Caption = 'Tax Liable';
         }
         field(110; "VAT Bus. Posting Group"; Code[20])
         {
@@ -178,6 +268,39 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Block Payment Tolerance';
         }
+        field(124; "Prepayment %"; Decimal)
+        {
+            Caption = 'Prepayment %';
+            DecimalPlaces = 0 : 5;
+            MaxValue = 100;
+            MinValue = 0;
+        }
+        field(150; "Privacy Blocked"; Boolean)
+        {
+            Caption = 'Privacy Blocked';
+
+            trigger OnValidate()
+            begin
+                if "Privacy Blocked" then
+                    Blocked := Blocked::All
+                else
+                    Blocked := Blocked::" ";
+            end;
+        }
+        field(160; "Disable Search by Name"; Boolean)
+        {
+            Caption = 'Disable Search by Name';
+            DataClassification = SystemMetadata;
+        }
+        field(170; "Creditor No."; Code[20])
+        {
+            Caption = 'Creditor No.';
+        }
+        field(840; "Cash Flow Payment Terms Code"; Code[10])
+        {
+            Caption = 'Cash Flow Payment Terms Code';
+            TableRelation = "Payment Terms";
+        }
         field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
@@ -186,10 +309,39 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Contact Type';
         }
+        field(5061; "Mobile Phone No."; Text[30])
+        {
+            Caption = 'Mobile Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+
+        field(5700; "Responsibility Center"; Code[10])
+        {
+            Caption = 'Responsibility Center';
+            TableRelation = "Responsibility Center";
+        }
         field(5701; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                if "Price Calculation Method" <> "Price Calculation Method"::" " then
+                    PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
+            end;
+        }
+        field(7600; "Base Calendar Code"; Code[10])
+        {
+            Caption = 'Base Calendar Code';
+            TableRelation = "Base Calendar";
         }
         field(7601; "Document Sending Profile"; Code[20])
         {
@@ -199,6 +351,161 @@ table 1383 "Vendor Templ."
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
             Caption = 'Validate EU Vat Reg. No.';
+        }
+        field(8510; "Over-Receipt Code"; Code[20])
+        {
+            Caption = 'Over-Receipt Code';
+            TableRelation = "Over-Receipt Code";
+        }
+        field(15000000; Remittance; Boolean)
+        {
+            Caption = 'Remittance';
+            NotBlank = true;
+        }
+        field(15000001; "Remittance Account Code"; Code[10])
+        {
+            Caption = 'Remittance Account Code';
+            TableRelation = "Remittance Account".Code;
+        }
+        field(15000002; "Recipient Bank Account No."; Code[35])
+        {
+            Caption = 'Recipient Bank Account No.';
+        }
+        field(15000003; "Remittance Agreement Code"; Code[10])
+        {
+            Caption = 'Remittance Agreement Code';
+            TableRelation = "Remittance Agreement".Code;
+        }
+        field(15000004; "BOLS Text Code"; Option)
+        {
+            Caption = 'BOLS Text Code';
+            OptionCaption = 'Transfer without advice,KID transfer,Transfer with advice,Money order,Salary,Seaman''s pay,Agricultural settlement,Pension/ Social security,Advice sent from institution other than BBS,Tax,Free text mass payment,Free text, Self-produced money order';
+            OptionMembers = "Transfer without advice","KID transfer","Transfer with advice","Money order",Salary,"Seaman's pay","Agricultural settlement","Pension/ Social security"," Advice sent from institution other than BBS",Tax,"Free text mass payment","Free text"," Self-produced money order";
+        }
+        field(15000005; "Recipient ref. 1 - inv."; Code[40])
+        {
+            Caption = 'Recipient ref. 1 - inv.';
+        }
+        field(15000006; "Recipient ref. 2 - inv."; Code[40])
+        {
+            Caption = 'Recipient ref. 2 - inv.';
+        }
+        field(15000007; "Recipient ref. 3 - inv."; Code[40])
+        {
+            Caption = 'Recipient ref. 3 - inv.';
+        }
+        field(15000008; "Recipient ref. 1 - cred."; Code[40])
+        {
+            Caption = 'Recipient ref. 1 - cred.';
+        }
+        field(15000009; "Recipient ref. 2 - cred."; Code[40])
+        {
+            Caption = 'Recipient ref. 2 - cred.';
+        }
+        field(15000010; "Recipient ref. 3 - cred."; Code[40])
+        {
+            Caption = 'Recipient ref. 3 - cred.';
+        }
+        field(15000011; "Payment Type Code Domestic"; Code[2])
+        {
+            Caption = 'Payment Type Code Domestic';
+        }
+        field(15000012; "Charges Domestic"; Option)
+        {
+            Caption = 'Charges Domestic';
+            OptionCaption = 'Debit remitter,Debit recipient,Default';
+            OptionMembers = "Debit remitter","Debit recipient",Default;
+        }
+        field(15000013; "Warning Notice"; Option)
+        {
+            Caption = 'Warning Notice';
+            OptionCaption = 'None,Phone,Fax,Other';
+            OptionMembers = "None",Phone,Fax,Other;
+        }
+        field(15000014; "Warning Text"; Code[25])
+        {
+            Caption = 'Warning Text';
+        }
+        field(15000015; SWIFT; Code[11])
+        {
+            Caption = 'SWIFT';
+        }
+        field(15000016; "Bank Name"; Code[35])
+        {
+            Caption = 'Bank Name';
+        }
+        field(15000017; "Bank Address 1"; Code[35])
+        {
+            Caption = 'Bank Address 1';
+        }
+        field(15000018; "Bank Address 2"; Code[35])
+        {
+            Caption = 'Bank Address 2';
+        }
+        field(15000019; "Bank Address 3"; Code[35])
+        {
+            Caption = 'Bank Address 3';
+        }
+        field(15000020; "SWIFT Remb. Bank"; Code[11])
+        {
+            Caption = 'SWIFT Remb. Bank';
+        }
+        field(15000021; "Rcpt. Bank Country/Region Code"; Code[2])
+        {
+            Caption = 'Rcpt. Bank Country/Region Code';
+            TableRelation = "Country/Region".Code;
+            //This property is currently not supported
+            //TestTableRelation = false;
+            ValidateTableRelation = false;
+        }
+        field(15000022; "Recipient Confirmation"; Option)
+        {
+            Caption = 'Recipient Confirmation';
+            OptionCaption = 'None,Telex,Fax';
+            OptionMembers = "None",Telex,Fax;
+        }
+        field(15000023; "Telex Country/Region Code"; Code[2])
+        {
+            Caption = 'Telex Country/Region Code';
+            TableRelation = "Country/Region".Code;
+            //This property is currently not supported
+            //TestTableRelation = false;
+            ValidateTableRelation = false;
+        }
+        field(15000024; "Telex/Fax No."; Text[18])
+        {
+            Caption = 'Telex/Fax No.';
+        }
+        field(15000025; "Recipient Contact"; Text[20])
+        {
+            Caption = 'Recipient Contact';
+        }
+        field(15000026; "Recipient Ref. Abroad"; Code[35])
+        {
+            Caption = 'Recipient Ref. Abroad';
+        }
+        field(15000027; "Payment Type Code Abroad"; Code[2])
+        {
+            Caption = 'Payment Type Code Abroad';
+            TableRelation = "Payment Type Code Abroad";
+        }
+        field(15000028; "Specification (Norges Bank)"; Code[60])
+        {
+            Caption = 'Specification (Norges Bank)';
+        }
+        field(15000029; "To Own Account"; Boolean)
+        {
+            Caption = 'To Own Account';
+        }
+        field(15000030; "Charges Abroad"; Option)
+        {
+            Caption = 'Charges Abroad';
+            OptionCaption = 'Debit remitter,Debit recipient,Default';
+            OptionMembers = "Debit remitter","Debit recipient",Default;
+        }
+        field(15000031; "Own Vendor Recipient Ref."; Boolean)
+        {
+            Caption = 'Own Vendor Recipient Ref.';
         }
     }
 

@@ -11,6 +11,9 @@ codeunit 351 "Intrastat Document Completion"
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeInsertEvent', '', false, false)]
     local procedure DefaultSalesDocuments(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not RunTrigger then
             exit;
 
@@ -37,6 +40,9 @@ codeunit 351 "Intrastat Document Completion"
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeInsertEvent', '', false, false)]
     local procedure DefaultPurchaseDcouments(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not RunTrigger then
             exit;
 
@@ -63,6 +69,9 @@ codeunit 351 "Intrastat Document Completion"
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeInsertEvent', '', false, false)]
     local procedure DefaultServiceDocuments(var Rec: Record "Service Header"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not RunTrigger then
             exit;
 

@@ -2013,17 +2013,6 @@
             IF ("Bal. Account Type" = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Bal. Account No."))
             ELSE
             IF ("Bal. Account Type" = CONST(Employee)) Employee."No." WHERE("Employee No. Filter" = FIELD("Bal. Account No."));
-
-            trigger OnValidate()
-            begin
-                if "Recipient Bank Account" = '' then
-                    exit;
-                if ("Document Type" in ["Document Type"::Invoice, "Document Type"::" ", "Document Type"::"Credit Memo"]) and
-                   (("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) or
-                    ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]))
-                then
-                    "Recipient Bank Account" := '';
-            end;
         }
         field(289; "Message to Recipient"; Text[140])
         {
@@ -3171,6 +3160,8 @@
         DontShowAgainActionTxt: Label 'Don''t show again.';
         SetDimFiltersActionTxt: Label 'Set dimension filters.';
         SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
+        TelemetryCategoryTxt: Label 'GenJournal', Locked = true;
+        GenJournalPostFailedTxt: Label 'General journal posting failed. Journal Template: %1, Journal Batch: %2', Locked = true;
 
     protected var
         Currency: Record Currency;
@@ -3950,6 +3941,8 @@
             CreateTempJobJnlLine();
             UpdatePricesFromJobJnlLine();
         end;
+
+        OnAfterValidateAmount(Rec);
     end;
 
     local procedure UpdateApplyToAmount()
@@ -4170,7 +4163,7 @@
             if CustLedgEntry.IsEmpty() then
                 CustLedgEntry.SetRange(Positive);
         end;
-        OnLookUpAppliesToDocCustOnAfterSetFilters(CustLedgEntry, Rec);
+        OnLookUpAppliesToDocCustOnAfterSetFilters(CustLedgEntry, Rec, AccNo);
 
         ApplyCustEntries.SetGenJnlLine(Rec, GenJnlLine.FieldNo("Applies-to Doc. No."));
         ApplyCustEntries.SetTableView(CustLedgEntry);
@@ -4178,6 +4171,7 @@
         ApplyCustEntries.LookupMode(true);
         if ApplyCustEntries.RunModal = ACTION::LookupOK then begin
             ApplyCustEntries.GetRecord(CustLedgEntry);
+            OnLookUpAppliesToDocCustOnAfterApplyCustEntriesGetRecord(Rec, CustLedgEntry);
             if AccNo = '' then begin
                 AccNo := CustLedgEntry."Customer No.";
                 if "Bal. Account Type" = "Bal. Account Type"::Customer then
@@ -4234,7 +4228,7 @@
             if VendLedgEntry.IsEmpty() then;
             VendLedgEntry.SetRange(Positive);
         end;
-        OnLookUpAppliesToDocVendOnAfterSetFilters(VendLedgEntry, Rec);
+        OnLookUpAppliesToDocVendOnAfterSetFilters(VendLedgEntry, Rec, AccNo);
 
         ApplyVendEntries.SetGenJnlLine(Rec, GenJnlLine.FieldNo("Applies-to Doc. No."));
         ApplyVendEntries.SetTableView(VendLedgEntry);
@@ -5473,6 +5467,8 @@
         ProcessGenJnlLines: Codeunit "Process Gen. Journal  Lines";
     begin
         ProcessGenJnlLines.ImportBankStatement(Rec);
+
+        OnAfterImportBankStatement(Rec);
     end;
 
     procedure ExportPaymentFile()
@@ -6353,6 +6349,7 @@
         Cust: Record Customer;
     begin
         Cust.Get("Account No.");
+        OnGetCustomerAccountOnAfterCustGet(Rec, Cust, CurrFieldNo);
         Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
         CheckICPartner(Cust."IC Partner Code", "Account Type", "Account No.");
         UpdateDescription(Cust.Name);
@@ -6397,6 +6394,7 @@
         Cust: Record Customer;
     begin
         Cust.Get("Bal. Account No.");
+        OnGetCustomerBalAccountOnAfterCustGet(Rec, Cust, CurrFieldNo);
         Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
         CheckICPartner(Cust."IC Partner Code", "Bal. Account Type", "Bal. Account No.");
         if "Account No." = '' then
@@ -7075,6 +7073,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterImportBankStatement(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetGLAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
     end;
@@ -7245,6 +7248,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateAmount(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateApplyRequirements(TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
@@ -7366,7 +7374,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookUpAppliesToDocCustOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnLookUpAppliesToDocCustOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20])
     begin
     end;
 
@@ -7486,6 +7494,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLookUpAppliesToDocCustOnAfterApplyCustEntriesGetRecord(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocEmplOnAfterSetFilters(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -7496,7 +7509,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookUpAppliesToDocVendOnAfterSetFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnLookUpAppliesToDocVendOnAfterSetFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20])
     begin
     end;
 
@@ -8053,8 +8066,24 @@
         Commit();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
 
-        if not Codeunit.Run(PostingCodeunitID, Rec) then
+        if not Codeunit.Run(PostingCodeunitID, Rec) then begin
             ErrorMessageHandler.ShowErrors();
+            LogFailurePostTelemetry();
+        end;
+    end;
+
+    local procedure LogFailurePostTelemetry()
+    var
+        ErrorMessage: Record "Error Message";
+        Dimensions: Dictionary of [Text, Text];
+        ErrorMessageTxt: Text;
+    begin
+        ErrorMessage.SetRange("Context Table Number", Database::"Gen. Journal Line");
+        if ErrorMessage.FindLast() then
+            ErrorMessageTxt := ErrorMessage.Description;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('Error', ErrorMessageTxt);
+        Session.LogMessage('0000F9J', StrSubstNo(GenJournalPostFailedTxt, Rec."Journal Template Name", Rec."Journal Batch Name"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
     local procedure RecallSetDimFiltersNotification()
@@ -8137,7 +8166,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; var DeferralAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -8198,6 +8227,16 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateJobTaskNo(xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetCustomerAccountOnAfterCustGet(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetCustomerBalAccountOnAfterCustGet(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; CallingFieldNo: Integer)
     begin
     end;
 

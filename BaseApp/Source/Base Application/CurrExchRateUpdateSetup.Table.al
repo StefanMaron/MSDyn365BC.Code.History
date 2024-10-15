@@ -34,8 +34,13 @@ table 1650 "Curr. Exch. Rate Update Setup"
             Caption = 'Enabled';
 
             trigger OnValidate()
+            var
+                CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
             begin
-                if Enabled then begin
+                if not xRec."Enabled" and Rec."Enabled" then
+                    Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsent();
+
+                if Rec.Enabled then begin
                     VerifyServiceURL;
                     VerifyDataExchangeLineDefinition;
                     AutoUpdateExchangeRates;

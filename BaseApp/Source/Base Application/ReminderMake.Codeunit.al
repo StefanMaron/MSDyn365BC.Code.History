@@ -61,7 +61,8 @@ codeunit 392 "Reminder-Make"
                 until CustLedgEntry.Next() = 0;
             CustLedgEntry.CopyFilters(CustLedgEntry2);
             RetVal := true;
-            OnCodeOnBeforeCurrencyLoop(CustLedgEntry, ReminderHeaderReq, ReminderTerms, OverdueEntriesOnly, IncludeEntriesOnHold, HeaderExists, CustLedgEntryLastIssuedReminderLevelFilter);
+            OnCodeOnBeforeCurrencyLoop(CustLedgEntry, ReminderHeaderReq, ReminderTerms, OverdueEntriesOnly,
+                IncludeEntriesOnHold, HeaderExists, CustLedgEntryLastIssuedReminderLevelFilter, Currency);
             if Currency.FindSet then
                 repeat
                     if not MakeReminder(Currency.Code) then
@@ -203,7 +204,8 @@ codeunit 392 "Reminder-Make"
                                 AddLineFeeForCustLedgEntry(CustLedgEntry, ReminderLevel, NextLineNo);
                             end;
                         until CustLedgEntry.Next() = 0;
-                    end
+                    end;
+                    OnMakeReminderOnAfterReminderLevelLoop(ReminderLevel, NextLineNo, StartLineInserted);
                 until ReminderLevel.Next(-1) = 0;
                 ReminderHeader."Reminder Level" := MaxReminderLevel;
                 ReminderHeader.Validate("Reminder Level");
@@ -703,12 +705,17 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnBeforeCurrencyLoop(CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; HeaderExists: Boolean; CustLedgEntryLastIssuedReminderLevelFilter: Text)
+    local procedure OnCodeOnBeforeCurrencyLoop(CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; HeaderExists: Boolean; CustLedgEntryLastIssuedReminderLevelFilter: Text; var TempCurrency: Record Currency temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnAfterReminderLevelLoop(var ReminderLevel: Record "Reminder Level"; var NextLineNo: Integer; StartLineInserted: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-page 554 "Analysis by Dimensions"
+﻿page 554 "Analysis by Dimensions"
 {
     Caption = 'Analysis by Dimensions';
     DeleteAllowed = false;
@@ -562,11 +562,17 @@ page 554 "Analysis by Dimensions"
         Dim4FilterEnable: Boolean;
         Text009: Label 'Unsupported Account Source %1.';
 
-    local procedure DimCodeToOption(DimCode: Text[30]): Integer
+    procedure DimCodeToOption(DimCode: Text[30]) Result: Integer
     var
         AccountCaption: Text[30];
         UnitCaption: Text[30];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDimCodeToOption(DimCode, AnalysisView, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetAccountCaption(AccountCaption, UnitCaption);
         case DimCode of
             AccountCaption:
@@ -596,7 +602,7 @@ page 554 "Analysis by Dimensions"
         end;
     end;
 
-    local procedure FindRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
+    procedure FindRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]) Found: Boolean
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
@@ -605,7 +611,6 @@ page 554 "Analysis by Dimensions"
         Period: Record Date;
         DimVal: Record "Dimension Value";
         PeriodFormMgt: Codeunit PeriodFormManagement;
-        Found: Boolean;
     begin
         case DimOption of
             DimOption::"G/L Account":
@@ -704,10 +709,11 @@ page 554 "Analysis by Dimensions"
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
         end;
-        exit(Found);
+
+        OnAfterFindRec(DimOption, DimCodeBuf, AnalysisView, Which, Found);
     end;
 
-    local procedure NextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer): Integer
+    procedure NextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) ResultSteps: Integer
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
@@ -716,7 +722,6 @@ page 554 "Analysis by Dimensions"
         Period: Record Date;
         DimVal: Record "Dimension Value";
         PeriodFormMgt: Codeunit PeriodFormManagement;
-        ResultSteps: Integer;
     begin
         case DimOption of
             DimOption::"G/L Account":
@@ -809,7 +814,8 @@ page 554 "Analysis by Dimensions"
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
         end;
-        exit(ResultSteps);
+
+        OnAfterNextRec(DimOption, DimCodeBuf, AnalysisView, Steps, ResultSteps);
     end;
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -937,6 +943,7 @@ page 554 "Analysis by Dimensions"
         if AnalysisView."Dimension 4 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, AnalysisView."Dimension 4 Code", '');
 
+        OnGetDimSelectionOnBeforeDimSelectionLookup(AnalysisView, DimSelection);
         DimSelection.LookupMode := true;
         if DimSelection.RunModal = ACTION::LookupOK then
             exit(DimSelection.GetDimSelCode);
@@ -1006,6 +1013,8 @@ page 554 "Analysis by Dimensions"
             if AnalysisViewFilter.Get(AnalysisView.Code, AnalysisView."Dimension 4 Code") then
                 "Dimension 4 Filter" := AnalysisViewFilter."Dimension Value Filter";
 
+        OnValidateAnalysisViewCodeOnAfterRecSetFilters(Rec, AnalysisView);
+
         case AnalysisView."Account Source" of
             AnalysisView."Account Source"::"G/L Account":
                 GLAccountSource := true;
@@ -1023,7 +1032,7 @@ page 554 "Analysis by Dimensions"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateLineDimCode(GLAccountSource, LineDimCode, InternalDateFilter, IsHandled);
+        OnBeforeValidateLineDimCode(GLAccountSource, LineDimCode, InternalDateFilter, IsHandled, Rec, AnalysisView, AnalysisViewEntry);
         if IsHandled then
             exit;
 
@@ -1057,7 +1066,7 @@ page 554 "Analysis by Dimensions"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateColumnDimCode(GLAccountSource, ColumnDimCode, InternalDateFilter, IsHandled);
+        OnBeforeValidateColumnDimCode(GLAccountSource, ColumnDimCode, InternalDateFilter, IsHandled, Rec, AnalysisView, AnalysisViewEntry, PeriodInitialized);
         if IsHandled then
             exit;
 
@@ -1085,7 +1094,7 @@ page 554 "Analysis by Dimensions"
             PeriodInitialized := false;
     end;
 
-    local procedure GetCaptionClass(AnalysisViewDimType: Integer): Text[250]
+    procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
     begin
         if AnalysisView.Code <> "Analysis View Code" then
             if AnalysisView.Get("Analysis View Code") then;
@@ -1119,6 +1128,8 @@ page 554 "Analysis by Dimensions"
                     exit(Text008);
                 end;
         end;
+
+        OnAfterGetCaptionClass(AnalysisViewDimType, AnalysisView, Result);
     end;
 
     local procedure CreateCaptionSet(RecRef: Record "Dimension Code Buffer"; Step: Option First,Previous,Same,Next; MaximumNoOfCaptions: Integer; var PrimaryKeyFirstCaptionInCurrSe: Text[1024]; var CaptionSet: array[32] of Text[1024]; var CaptionRange: Text[1024])
@@ -1209,13 +1220,43 @@ page 554 "Analysis by Dimensions"
         end;
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateColumnDimCode(var GLAccountSource: Boolean; var ColumnDimCode: Text[30]; var InternalDateFilter: Text; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterFindRec(var DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var DimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View"; Which: Text[250]; var Found: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateLineDimCode(var GLAccountSource: Boolean; var LineDimCode: Text[30]; var InternalDateFilter: Text; var IsHandled: Boolean)
+    local procedure OnAfterGetCaptionClass(AnalysisViewDimType: Integer; var AnalysisView: Record "Analysis View"; var ReturnValue: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterNextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var DimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View"; Steps: Integer; var ResultSteps: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDimCodeToOption(DimCode: Text[30]; var AnalysisView: Record "Analysis View"; Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateColumnDimCode(var GLAccountSource: Boolean; var ColumnDimCode: Text[30]; var InternalDateFilter: Text; var IsHandled: Boolean; var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry"; var PeriodInitialized: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateLineDimCode(var GLAccountSource: Boolean; var LineDimCode: Text[30]; var InternalDateFilter: Text; var IsHandled: Boolean; var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDimSelectionOnBeforeDimSelectionLookup(var AnalysisView: Record "Analysis View"; var DimSelection: Page "Dimension Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAnalysisViewCodeOnAfterRecSetFilters(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var AnalysisView: Record "Analysis View")
     begin
     end;
 }

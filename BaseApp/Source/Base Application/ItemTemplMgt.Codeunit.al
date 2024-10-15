@@ -39,29 +39,41 @@ codeunit 1336 "Item Templ. Mgt."
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         VATPostingSetup: Record "VAT Posting Setup";
+        ItemRecRef: RecordRef;
+        EmptyItemRecRef: RecordRef;
+        ItemTemplRecRef: RecordRef;
+        EmptyItemTemplRecRef: RecordRef;
+        ItemFldRef: FieldRef;
+        EmptyItemFldRef: FieldRef;
+        ItemTemplFldRef: FieldRef;
+        EmptyItemTemplFldRef: FieldRef;
+        i: Integer;
+        FieldExclusionList: List of [Integer];
     begin
-        Item.Type := ItemTempl.Type;
-        Item."Inventory Posting Group" := ItemTempl."Inventory Posting Group";
-        Item."Item Disc. Group" := ItemTempl."Item Disc. Group";
-        Item."Allow Invoice Disc." := ItemTempl."Allow Invoice Disc.";
-        Item."Price/Profit Calculation" := ItemTempl."Price/Profit Calculation";
-        Item."Profit %" := ItemTempl."Profit %";
-        Item."Costing Method" := ItemTempl."Costing Method";
-        Item."Indirect Cost %" := ItemTempl."Indirect Cost %";
-        Item."Gen. Prod. Posting Group" := ItemTempl."Gen. Prod. Posting Group";
-        Item."Automatic Ext. Texts" := ItemTempl."Automatic Ext. Texts";
-        Item."Tax Group Code" := ItemTempl."Tax Group Code";
-        Item."VAT Prod. Posting Group" := ItemTempl."VAT Prod. Posting Group";
-        Item."Item Category Code" := ItemTempl."Item Category Code";
-        Item."Service Item Group" := ItemTempl."Service Item Group";
-        Item."Warehouse Class Code" := ItemTempl."Warehouse Class Code";
-        Item."Item Tracking Code" := ItemTempl."Item Tracking Code";
-        Item."Serial Nos." := ItemTempl."Serial Nos.";
-        Item."Lot Nos." := ItemTempl."Lot Nos.";
-        Item.Blocked := ItemTempl.Blocked;
-        Item."Sales Blocked" := ItemTempl."Sales Blocked";
-        Item."Purchasing Blocked" := ItemTempl."Purchasing Blocked";
-        Item.Validate("Base Unit of Measure", ItemTempl."Base Unit of Measure");
+        ItemRecRef.GetTable(Item);
+        EmptyItemRecRef.Open(Database::Item);
+        EmptyItemRecRef.Init();
+        ItemTemplRecRef.GetTable(ItemTempl);
+        EmptyItemTemplRecRef.Open(Database::"Item Templ.");
+        EmptyItemTemplRecRef.Init();
+
+        FillFieldExclusionList(FieldExclusionList);
+
+        for i := 3 to ItemTemplRecRef.FieldCount do begin
+            ItemTemplFldRef := ItemTemplRecRef.FieldIndex(i);
+            if TemplateFieldCanBeProcessed(ItemTemplFldRef, FieldExclusionList) then begin
+                ItemFldRef := ItemRecRef.Field(ItemTemplFldRef.Number);
+                EmptyItemFldRef := EmptyItemRecRef.Field(ItemTemplFldRef.Number);
+                EmptyItemTemplFldRef := EmptyItemTemplRecRef.Field(ItemTemplFldRef.Number);
+                if (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value) then
+                    ItemFldRef.Value := ItemTemplFldRef.Value;
+            end;
+        end;
+        ItemRecRef.SetTable(Item);
+        if ItemTempl."Base Unit of Measure" <> '' then
+            Item.Validate("Base Unit of Measure", ItemTempl."Base Unit of Measure")
+        else
+            Item.Validate("Base Unit of Measure", GetUnitOfMeasureCode());
         if ItemTempl."Price Includes VAT" then begin
             SalesReceivablesSetup.Get();
             if not VATPostingSetup.Get(SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)", ItemTempl."VAT Prod. Posting Group") then
@@ -246,7 +258,7 @@ codeunit 1336 "Item Templ. Mgt."
         ItemTempl.Blocked := Item.Blocked;
         ItemTempl."Sales Blocked" := Item."Sales Blocked";
         ItemTempl."Purchasing Blocked" := Item."Purchasing Blocked";
-        ItemTempl.Validate("Base Unit of Measure", Item."Base Unit of Measure");
+        ItemTempl."Base Unit of Measure" := Item."Base Unit of Measure";
         ItemTempl."Price Includes VAT" := Item."Price Includes VAT";
         OnInsertTemplateFromItemOnBeforeItemTemplInsert(ItemTempl, Item);
         ItemTempl.Insert();
@@ -308,6 +320,37 @@ codeunit 1336 "Item Templ. Mgt."
         NoSeriesManagement.InitSeries(ItemTempl."No. Series", '', 0D, Item."No.", Item."No. Series");
     end;
 
+    local procedure GetUnitOfMeasureCode(): Code[10]
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        UnitOfMeasure.SetRange("International Standard Code", 'EA');
+        if UnitOfMeasure.FindFirst() then
+            exit(UnitOfMeasure.Code);
+
+        UnitOfMeasure.SetRange("International Standard Code");
+        if UnitOfMeasure.FindFirst() then
+            exit(UnitOfMeasure.Code);
+
+        exit('');
+    end;
+
+    local procedure TemplateFieldCanBeProcessed(TemplateFldRef: FieldRef; FieldExclusionList: List of [Integer]): Boolean
+    begin
+        exit(not (FieldExclusionList.Contains(TemplateFldRef.Number) or (TemplateFldRef.Number > 2000000000)));
+    end;
+
+    local procedure FillFieldExclusionList(var FieldExclusionList: List of [Integer])
+    var
+        ItemTempl: Record "Item Templ.";
+    begin
+        FieldExclusionList.Add(ItemTempl.FieldNo("Base Unit of Measure"));
+        FieldExclusionList.Add(ItemTempl.FieldNo("No. Series"));
+        FieldExclusionList.Add(ItemTempl.FieldNo("VAT Bus. Posting Gr. (Price)"));
+
+        OnAfterFillFieldExclusionList(FieldExclusionList);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
     begin
@@ -350,6 +393,11 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnShowTemplates(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillFieldExclusionList(var FieldExclusionList: List of [Integer])
     begin
     end;
 

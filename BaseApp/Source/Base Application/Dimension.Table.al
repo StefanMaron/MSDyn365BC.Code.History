@@ -138,27 +138,7 @@ table 348 Dimension
                     Error(Text002);
             until DimVal.Next() = 0;
 
-        DefaultDim.SetRange("Dimension Code", Code);
-        DefaultDim.DeleteAll(true);
-
-        DimVal.SetRange("Dimension Code", Code);
-        DimVal.DeleteAll(true);
-
-        DimComb.SetRange("Dimension 1 Code", Code);
-        DimComb.DeleteAll();
-
-        DimComb.Reset();
-        DimComb.SetRange("Dimension 2 Code", Code);
-        DimComb.DeleteAll();
-
-        SelectedDim.SetRange("Dimension Code", Code);
-        SelectedDim.DeleteAll();
-
-        AnalysisSelectedDim.SetRange("Dimension Code", Code);
-        AnalysisSelectedDim.DeleteAll();
-
-        DimTrans.SetRange(Code, Code);
-        DimTrans.DeleteAll();
+        DeleteRelatedRecords(Code);
 
         GLSetup.Get();
         case Code of
@@ -246,6 +226,35 @@ table 348 Dimension
             if AddText <> '' then
                 Text := StrSubstNo('%1 %2', Text, AddText);
         end;
+    end;
+
+    local procedure DeleteRelatedRecords(DimensionCode: Code[20])
+    begin
+        OnBeforeDeleteRelatedRecords(DimensionCode);
+
+        DefaultDim.SetRange("Dimension Code", DimensionCode);
+        DefaultDim.DeleteAll(true);
+
+        DimVal.SetRange("Dimension Code", DimensionCode);
+        DimVal.DeleteAll(true);
+
+        DimComb.SetRange("Dimension 1 Code", DimensionCode);
+        DimComb.DeleteAll();
+
+        DimComb.Reset();
+        DimComb.SetRange("Dimension 2 Code", DimensionCode);
+        DimComb.DeleteAll();
+
+        SelectedDim.SetRange("Dimension Code", DimensionCode);
+        SelectedDim.DeleteAll();
+
+        AnalysisSelectedDim.SetRange("Dimension Code", DimensionCode);
+        AnalysisSelectedDim.DeleteAll();
+
+        DimTrans.SetRange(Code, DimensionCode);
+        DimTrans.DeleteAll();
+
+        OnAfterDeleteRelatedRecords(DimensionCode);
     end;
 
     procedure CheckIfDimUsed(DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; BudgetNameChecked: Code[10]; AnalysisViewChecked: Code[10]; AnalysisAreaChecked: Integer): Boolean
@@ -568,6 +577,16 @@ table 348 Dimension
     local procedure SetLastModifiedDateTime()
     begin
         "Last Modified Date Time" := CurrentDateTime;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteRelatedRecords(DimensionCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRelatedRecords(DimensionCode: Code[20])
+    begin
     end;
 
     [IntegrationEvent(false, false)]
