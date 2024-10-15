@@ -430,7 +430,7 @@ table 11021 "Sales VAT Advance Notif."
         VATNo := CopyStr(DelChr(VATNo, '=', '/'), 1, MaxStrLen(VATNo));
 
         case CompanyInfo."Tax Office Area" of
-            8, 4, 2, 6, 3, 7, 1, 16:               // resedually old areas
+            8, 4, 2, 3, 7, 1, 16:               // resedually old areas
                 begin
                     PosTaxoffice := 9;
                     NumberTaxOffice := 2;       // Tax Office No.
@@ -439,7 +439,7 @@ table 11021 "Sales VAT Advance Notif."
                     PosDistinction := 16;
                     NumberDistinction := 4;     // Distinction No.
                 end;
-            9, 10, 11, 12, 13, 14, 15:            // Bavaria, Saarland and new areas
+            6, 9, 10, 11, 12, 13, 14, 15:            // Bavaria, Saarland and new areas
                 begin
                     PosTaxoffice := 8;
                     NumberTaxOffice := 3;

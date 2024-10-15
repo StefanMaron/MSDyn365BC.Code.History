@@ -1643,7 +1643,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [WHEN] Post Purchase Order with error.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        Assert.ExpectedError(Item.FieldCaption("Base Unit of Measure"));
+        Assert.ExpectedError(PurchaseLine.FieldCaption("Unit of Measure Code"));
 
         // [THEN] The archive copy of Purchase Order is not created.
         VerifyArchiveOfPurchOrder(PurchaseHeader, 0);

@@ -260,7 +260,7 @@ page 47 "Sales Invoice Subform"
                     ApplicationArea = SalesTax;
                     Editable = Type <> Type::" ";
                     Enabled = Type <> Type::" ";
-                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
+                    ShowMandatory = "Tax Area Code" <> '';
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
 
                     trigger OnValidate()

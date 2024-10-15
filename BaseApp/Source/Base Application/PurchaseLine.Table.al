@@ -635,12 +635,8 @@
             var
                 IsHandled: Boolean;
             begin
-                GetLocation("Location Code");
-                if (CurrFieldNo <> 0) and (Type = Type::Item) and (not "Drop Shipment") then begin
-                    if Location."Require Receive" and ("Qty. to Receive" <> 0) then
-                        CheckWarehouse;
-                    WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
-                end;
+                if ("Qty. to Receive" <> 0) then
+                    CheckLocationRequireReceive();
                 OnValidateQtyToReceiveOnAfterCheck(Rec, CurrFieldNo);
 
                 if "Qty. to Receive" = Quantity - "Quantity Received" then begin
@@ -1393,10 +1389,10 @@
                     end;
 
                 if PurchHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
-                    "Direct Unit Cost" :=
+                    Validate("Direct Unit Cost",
                       Round(
                         "Direct Unit Cost" * (100 + "VAT %") / (100 + xRec."VAT %"),
-                        Currency."Unit-Amount Rounding Precision");
+                        Currency."Unit-Amount Rounding Precision"));
                 UpdateAmounts;
             end;
         }
@@ -3128,6 +3124,9 @@
                         "Over-Receipt Code" := OverReceiptMgt.GetDefaultOverReceiptCode(Rec);
                     TestField("Over-Receipt Code");
                 end;
+
+                if ((CurrFieldNo <> FieldNo("Qty. to Receive")) and ("Over-Receipt Quantity" <> 0)) then
+                    CheckLocationRequireReceive();
                 if (CurrFieldNo <> FieldNo("Over-Receipt Quantity")) and (CurrFieldNo <> 0) and (CurrFieldNo <> FieldNo("Over-Receipt Code")) then
                     "Over-Receipt Quantity" += xRec."Over-Receipt Quantity";
                 if ("Over-Receipt Code" <> '') then begin
@@ -3833,6 +3832,8 @@
             "VAT Difference" := 0;
         end;
         NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
+
+        OnAfterCalcInvDiscToInvoice(Rec);
     end;
 
     procedure CalcLineAmount() LineAmount: Decimal
@@ -3929,7 +3930,10 @@
         if PurchHeader."Language Code" <> '' then
             GetItemTranslation;
 
-        "Unit of Measure Code" := Item."Purch. Unit of Measure";
+        if Item."Purch. Unit of Measure" <> '' then
+            "Unit of Measure Code" := Item."Purch. Unit of Measure"
+        else
+            "Unit of Measure Code" := Item."Base Unit of Measure";
         InitDeferralCode;
         OnAfterAssignItemValues(Rec, Item, CurrFieldNo);
     end;
@@ -4086,18 +4090,18 @@
         exit(not ReservEntry.IsEmpty);
     end;
 
-    local procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
+    procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
     begin
         exit(FieldCausedPriceCalculation = CurrPriceFieldNo);
     end;
 
-    local procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
+    procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
     begin
         if FieldCausedPriceCalculation = 0 then
             FieldCausedPriceCalculation := CurrPriceFieldNo;
     end;
 
-    local procedure ClearFieldCausedPriceCalculation()
+    procedure ClearFieldCausedPriceCalculation()
     begin
         FieldCausedPriceCalculation := 0;
     end;
@@ -5349,7 +5353,7 @@
         AmtToHandle: Decimal;
         RoundingLineInserted: Boolean;
     begin
-        if IsCalcVATAmountLinesHandled(PurchHeader, PurchLine, VATAmountLine) then
+        if IsCalcVATAmountLinesHandled(PurchHeader, PurchLine, VATAmountLine, QtyType) then
             exit;
 
         Currency.Initialize(PurchHeader."Currency Code");
@@ -6923,10 +6927,10 @@
             end;
     end;
 
-    local procedure IsCalcVATAmountLinesHandled(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line") IsHandled: Boolean
+    local procedure IsCalcVATAmountLinesHandled(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping) IsHandled: Boolean
     begin
         IsHandled := false;
-        OnBeforeCalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, IsHandled);
+        OnBeforeCalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, IsHandled, QtyType);
         exit(IsHandled);
     end;
 
@@ -6998,6 +7002,16 @@
               Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Discount Amount";
             "VAT Difference" := 0;
             LineAmountChanged := true;
+        end;
+    end;
+
+    local procedure CheckLocationRequireReceive();
+    begin
+        GetLocation("Location Code");
+        if (CurrFieldNo <> 0) and (Type = Type::Item) and (not "Drop Shipment") then begin
+            if Location."Require Receive" then
+                CheckWarehouse();
+            WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
         end;
     end;
 
@@ -7158,6 +7172,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDefaultQuantity(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcInvDiscToInvoice(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -7337,7 +7356,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcVATAmountLines(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCalcVATAmountLines(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean; QtyType: Option General,Invoicing,Shipping)
     begin
     end;
 

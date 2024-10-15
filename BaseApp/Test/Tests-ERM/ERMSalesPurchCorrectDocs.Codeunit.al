@@ -732,6 +732,55 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CancelPurchaseInvoiceWithGLAccountAndEmptyDirectCostAppliedAccount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        CancelledDocument: Record "Cancelled Document";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocNo: Code[20];
+        SavedDirecCostAppliedAcc: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Finance]
+        // [SCENARIO 347253] Cancel posted purchase invoice with G/L Account line and empty "Direct Cost Appplied Account" in the "Gen. Posting Setup"
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with resource
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify(true);
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] "Direct Cost Applied Account" is empty in the "Gen. Posting Setup"
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        SavedDirecCostAppliedAcc := GeneralPostingSetup."Direct Cost Applied Account";
+        GeneralPostingSetup."Direct Cost Applied Account" := '';
+        GeneralPostingSetup.Modify();
+        Commit();
+
+        // [WHEN] Cancel posted purchase invoice with resource line
+        PurchInvHeader.Get(DocNo);
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        // [THEN] Posted purchase invoice cancelled via credit memo with resource line
+        CancelledDocument.FindPurchCancelledInvoice(PurchInvHeader."No.");
+        PurchCrMemoLine.SetRange("Document No.", CancelledDocument."Cancelled By Doc. No.");
+        PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::"G/L Account");
+        PurchCrMemoLine.SetRange("No.", PurchaseLine."No.");
+        Assert.RecordCount(PurchCrMemoLine, 1);
+
+        GeneralPostingSetup."Direct Cost Applied Account" := SavedDirecCostAppliedAcc;
+        GeneralPostingSetup.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     [HandlerFunctions('ConfirmHandlerYes')]
     procedure UndoReceiveAfterCancelPurchaseInvoiceWithResource()
     var

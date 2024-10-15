@@ -140,6 +140,7 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
         // Discounts
         PriceCalculationBuffer."Allow Line Disc." := IsDiscountAllowed();
         PriceCalculationBuffer."Allow Invoice Disc." := false;
+        OnAfterFillBuffer(PriceCalculationBuffer, StandardItemJournalLine);
     end;
 
     local procedure AddSources()
@@ -168,6 +169,7 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
             AmountType::Cost:
                 StandardItemJournalLine."Unit Amount" := PriceListLine."Unit Cost";
         end;
+        OnAfterSetPrice(StandardItemJournalLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -180,6 +182,16 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer"; StandardItemJournalLine: Record "Standard Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPrice(var StandardItemJournalLine: Record "Standard Item Journal Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
     begin
     end;
 }

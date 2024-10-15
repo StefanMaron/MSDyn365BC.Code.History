@@ -59,7 +59,7 @@ codeunit 9024 "Azure AD Graph User"
     /// Gets the user's authentication object ID.
     /// </summary>
     /// <param name="UserSecurityId">The user's security ID.</param>
-    /// <error>User with Security ID <UserSecurityId> does not exist.</error>
+    /// <error>User with Security ID UserSecurityId does not exist.</error>
     /// <returns>The user's authentication object ID.</returns>
     [Scope('OnPrem')]
     procedure GetUserAuthenticationObjectId(UserSecurityId: Guid): Text
@@ -154,7 +154,10 @@ codeunit 9024 "Azure AD Graph User"
     /// <summary>    
     /// Gets the preferred language ID of the provided Graph user.
     /// </summary>
-    /// <remarks>Preferred language ID is derived from preferredLanguage property on the Graph user.</remarks>
+    /// <remarks>
+    /// Preferred language ID is derived from preferredLanguage property on the Graph user. 
+    /// If the preferred language is not set or it is set to a language that is not supported in Business Central, the function returns 0.
+    /// </remarks>
     /// <param name="GraphUser">The Azure AD user.</param>
     /// <returns>The preferred language ID of the provided Graph user. Can be used to set the preferred language using the Language module.</returns>
     [Scope('OnPrem')]

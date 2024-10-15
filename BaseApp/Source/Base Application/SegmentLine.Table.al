@@ -131,7 +131,13 @@ table 5077 "Segment Line"
                 SegInteractLanguage: Record "Segment Interaction Language";
                 InteractTemplLanguage: Record "Interaction Tmpl. Language";
                 InteractTmpl: Record "Interaction Template";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnValidateInteractionTemplateCode(Rec, Cont, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Contact No.");
                 Cont.Get("Contact No.");
                 "Attachment No." := 0;
@@ -1523,6 +1529,11 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleTriggerCaseElse(SegmentLine: Record "Segment Line"; InteractionTemplate: Record "Interaction Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateInteractionTemplateCode(var SegmentLine: Record "Segment Line"; var Cont: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

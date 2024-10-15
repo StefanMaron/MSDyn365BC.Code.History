@@ -793,6 +793,11 @@ table 295 "Reminder Header"
     end;
 
     local procedure InsertTextLines(ReminderHeader: Record "Reminder Header")
+    begin
+        InsertTextLines(ReminderHeader, ReminderText, NextLineNo, LineSpacing);
+    end;
+
+    procedure InsertTextLines(ReminderHeader: Record "Reminder Header"; var ReminderText: Record "Reminder Text"; var NextLineNo: Integer; LineSpacing: Integer)
     var
         CompanyInfo: Record "Company Information";
         AutoFormatType: Enum "Auto Format";

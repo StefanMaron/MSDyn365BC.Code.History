@@ -48,6 +48,7 @@ table 6300 "Azure AD App Setup"
         CryptographyManagement: Codeunit "Cryptography Management";
         OnlyOneRecordErr: Label 'There should be only one record for Azure AD App Setup.';
 
+    [NonDebuggable]
     procedure GetSecretKey() SecretKey: Text
     var
         InStream: InStream;
@@ -62,6 +63,7 @@ table 6300 "Azure AD App Setup"
         exit(SecretKey);
     end;
 
+    [NonDebuggable]
     procedure SetSecretKey(SecretKey: Text)
     var
         OutStream: OutStream;
