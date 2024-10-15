@@ -1453,7 +1453,7 @@
                     PurchLine2.TestField("No.", "No.");
                     PurchLine2.TestField("Pay-to Vendor No.", "Pay-to Vendor No.");
                     PurchLine2.TestField("Buy-from Vendor No.", "Buy-from Vendor No.");
-                    if "Drop Shipment" then begin
+                    if "Drop Shipment" or "Special Order" then begin
                         PurchLine2.TestField("Variant Code", "Variant Code");
                         PurchLine2.TestField("Location Code", "Location Code");
                         PurchLine2.TestField("Unit of Measure Code", "Unit of Measure Code");
