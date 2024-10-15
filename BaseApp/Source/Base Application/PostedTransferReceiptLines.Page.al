@@ -143,10 +143,10 @@ page 5759 "Posted Transfer Receipt Lines"
         TempTransRcptLine.Reset();
         TempTransRcptLine.CopyFilters(Rec);
         TempTransRcptLine.SetRange("Document No.", DocNo);
-        if not TempTransRcptLine.FindFirst then begin
+        if not TempTransRcptLine.FindFirst() then begin
             TransRcptLine.CopyFilters(Rec);
             TransRcptLine.SetRange("Document No.", DocNo);
-            TransRcptLine.FindFirst;
+            TransRcptLine.FindFirst();
             TempTransRcptLine := TransRcptLine;
             TempTransRcptLine.Insert();
         end;
@@ -159,7 +159,7 @@ page 5759 "Posted Transfer Receipt Lines"
         if CreateCostDistrib then begin
             FromTransRcptLine.Copy(Rec);
             CurrPage.SetSelectionFilter(FromTransRcptLine);
-            if FromTransRcptLine.FindFirst then begin
+            if FromTransRcptLine.FindFirst() then begin
                 ItemChargeAssgntPurch."Unit Cost" := UnitCost;
                 AssignItemChargePurch.CreateTransferRcptChargeAssgnt(FromTransRcptLine, ItemChargeAssgntPurch);
             end;

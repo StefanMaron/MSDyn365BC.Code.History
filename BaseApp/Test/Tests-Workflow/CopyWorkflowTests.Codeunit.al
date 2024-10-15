@@ -34,7 +34,7 @@ codeunit 134306 "Copy Workflow Tests"
         // [THEN] All the data in the Workflow Template and Workflow Steps is copied to a new workflow and the new Workflow is opened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         EventConditions :=
           CreateTwoStepsWorkflow(
@@ -78,7 +78,7 @@ codeunit 134306 "Copy Workflow Tests"
         // [THEN] All the data in the Workflow and Workflow Steps is copied to a new workflow and the new Workflow is opened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         EventConditions :=
           CreateTwoStepsWorkflow(
@@ -123,7 +123,7 @@ codeunit 134306 "Copy Workflow Tests"
         // [THEN] The new Workflow is not enabled.
 
         // Setup
-        Initialize;
+        Initialize();
 
         EventConditions :=
           CreateTwoStepsWorkflow(
@@ -171,7 +171,7 @@ codeunit 134306 "Copy Workflow Tests"
         // [THEN] All the data in the Workflow Template and Workflow Steps is copied to a new workflow and the new Workflow is opened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // create two existing workflows
         EventConditions :=
@@ -232,7 +232,7 @@ codeunit 134306 "Copy Workflow Tests"
         // [THEN] All the data in the Workflow and Workflow Steps is copied to a new workflow and the new Workflow is opened.
 
         // Setup
-        Initialize;
+        Initialize();
         // create two existing workflows
         EventConditions :=
           CreateTwoStepsWorkflow(
@@ -288,7 +288,7 @@ codeunit 134306 "Copy Workflow Tests"
         // [THEN] Nothing happens.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateTwoStepsWorkflow(
           FromWorkflow, WorkflowEvent,
@@ -327,7 +327,7 @@ codeunit 134306 "Copy Workflow Tests"
         // [THEN] Nothing happens.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateTwoStepsWorkflow(
           FromWorkflow, WorkflowEvent,
@@ -381,8 +381,8 @@ codeunit 134306 "Copy Workflow Tests"
     local procedure CreateAnyPurchaseHeaderEvent(var WorkflowEvent: Record "Workflow Event")
     begin
         WorkflowEvent.Init();
-        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
-        WorkflowEvent.Description := LibraryUtility.GenerateGUID;
+        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
+        WorkflowEvent.Description := LibraryUtility.GenerateGUID();
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
         WorkflowEvent."Request Page ID" := REPORT::"Workflow Event Simple Args";
         WorkflowEvent.Insert(true);
@@ -398,7 +398,7 @@ codeunit 134306 "Copy Workflow Tests"
         ToWorkflowStep.SetRange("Workflow Code", ToWorkflow.Code);
         ToWorkflowStep.SetRange(Type, ActivityType);
         Assert.AreEqual(1, ToWorkflowStep.Count, 'Unexpected number of steps.');
-        ToWorkflowStep.FindFirst;
+        ToWorkflowStep.FindFirst();
         ToWorkflowStep.TestField("Function Name", ActivityName);
 
         if WorkflowStepArgument.Get(ToWorkflowStep.Argument) then begin
@@ -418,22 +418,22 @@ codeunit 134306 "Copy Workflow Tests"
     begin
         ToWorkflowStep.SetRange("Workflow Code", ToWorkflow.Code);
         ToWorkflowStep.SetRange(Type, ToWorkflowStep.Type::"Event");
-        if not ToWorkflowStep.FindSet then
+        if not ToWorkflowStep.FindSet() then
             exit;
 
         repeat
             FromWorkflowStep.SetRange("Workflow Code", FromWorkflow.Code);
             FromWorkflowStep.SetRange("Function Name", ToWorkflowStep."Function Name");
-            FromWorkflowStep.FindFirst;
+            FromWorkflowStep.FindFirst();
             FromWorkflowRule.SetRange("Workflow Code", FromWorkflowStep."Workflow Code");
             FromWorkflowRule.SetRange("Workflow Step ID", FromWorkflowStep.ID);
-            if FromWorkflowRule.FindSet then
+            if FromWorkflowRule.FindSet() then
                 repeat
                     ToWorkflowRule.SetRange("Workflow Code", ToWorkflowStep."Workflow Code");
                     ToWorkflowRule.SetRange("Workflow Step ID", ToWorkflowStep.ID);
                     ToWorkflowRule.SetRange(Operator, FromWorkflowRule.Operator);
                     Assert.AreEqual(1, ToWorkflowRule.Count, 'Wrong no. of rules.');
-                    ToWorkflowRule.FindFirst;
+                    ToWorkflowRule.FindFirst();
                     ToWorkflowRule.TestField("Table ID", FromWorkflowRule."Table ID");
                     ToWorkflowRule.TestField("Field No.", FromWorkflowRule."Field No.");
                 until FromWorkflowRule.Next = 0;

@@ -26,8 +26,8 @@ codeunit 141042 "G/L Entry Description"
         // [SCENARIO] after Posting Sales Invoice, Sales Line Description correctly populates on G/L Entry.
 
         // Setup.
-        Description := LibraryUtility.GenerateGUID;
-        Description2 := LibraryUtility.GenerateGUID;
+        Description := LibraryUtility.GenerateGUID();
+        Description2 := LibraryUtility.GenerateGUID();
 
         // [WHEN] Create and Post Sales Invoice with Multiple Line.
         DocumentNo := CreateAndPostSalesInvoiceWithMultipleLine(Description, Description2);
@@ -47,8 +47,8 @@ codeunit 141042 "G/L Entry Description"
         // [SCENARIO] after Posting Purchase Invoice, Purchase Line Description correctly populates on G/L Entry.
 
         // Setup.
-        Description := LibraryUtility.GenerateGUID;
-        Description2 := LibraryUtility.GenerateGUID;
+        Description := LibraryUtility.GenerateGUID();
+        Description2 := LibraryUtility.GenerateGUID();
 
         // [WHEN] Create and Post Purchase Invoice with Multiple Line.
         DocumentNo := CreateAndPostPurchaseInvoiceWithMultipleLine(Description, Description2);
@@ -93,8 +93,8 @@ codeunit 141042 "G/L Entry Description"
         Description2: Text[50];
         DocumentNo: Code[20];
     begin
-        Description := LibraryUtility.GenerateGUID;
-        Description2 := LibraryUtility.GenerateGUID;
+        Description := LibraryUtility.GenerateGUID();
+        Description2 := LibraryUtility.GenerateGUID();
 
         // [WHEN] Create and Post Multiple General Journal Line.
         DocumentNo := CreateAndPostGenJournalWithMultipleLine(AccountType, AccountNo, Amount, Description, Description2);
@@ -222,7 +222,7 @@ codeunit 141042 "G/L Entry Description"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"G/L Account");
         GLEntry.SetRange(Description, Description);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount);
     end;
 

@@ -112,7 +112,7 @@ codeunit 145403 "AU Feature Bugs"
         ReversalEntry: Record "Reversal Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
     end;
@@ -250,7 +250,7 @@ codeunit 145403 "AU Feature Bugs"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField(Open, false);
         VendorLedgerEntry.TestField("Remaining Amount", 0);
     end;
@@ -262,7 +262,7 @@ codeunit 145403 "AU Feature Bugs"
         with GSTPurchaseEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst;
+            FindFirst();
             CalcSums(Amount);
             Assert.AreEqual(Amount, 0, AmountMustBeZeroMsg);
         end;

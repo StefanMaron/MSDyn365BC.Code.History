@@ -36,7 +36,7 @@ codeunit 141015 "ERM Prepayments APAC"
         // [SCENARIO] GL Entries in case of different Prepayment % with different Type on Purchase Line.
 
         // [GIVEN] Create Purchase Order, post multiple Prepayment Invoice with different percentage.
-        Initialize;
+        Initialize();
         OldFullGSTOnPrepayment := UpdateGeneralLedgerSetup(false);
         PrepaymentPct := 100;  // Required as Manual requirement.
         CreatePurchaseOrder(PurchaseHeader, PrepaymentPct / 4, true);  // 25 % Prepayment, Compress Prepayment - TRUE.
@@ -71,7 +71,7 @@ codeunit 141015 "ERM Prepayments APAC"
         // [SCENARIO] GL Entries in case of Prepayment % without Compress Prepayment on Purchase Header.
 
         // [GIVEN] Create Purchase Order without Compress Payment, post Prepayment Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandDecInRange(10, 20, 2), false);  // Using Random for Prepayment % and Compress Prepayment - FALSE
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
@@ -98,7 +98,7 @@ codeunit 141015 "ERM Prepayments APAC"
         // [SCENARIO] GL Entries in case of Prepayment % without Compress Prepayment on Sales Header.
 
         // [GIVEN] Create Sales Order without Compress Payment, post Prepayment Invoice.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesLine);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -139,7 +139,7 @@ codeunit 141015 "ERM Prepayments APAC"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(GenBusPostingGroup: Code[20]): Code[20]
@@ -264,7 +264,7 @@ codeunit 141015 "ERM Prepayments APAC"
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GetPrepaymentPurchaseInvoiceNo(ExternalDocumentNo: Code[20]): Code[20]
@@ -272,7 +272,7 @@ codeunit 141015 "ERM Prepayments APAC"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("External Document No.", ExternalDocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         exit(VendorLedgerEntry."Document No.");
     end;
 
@@ -303,7 +303,7 @@ codeunit 141015 "ERM Prepayments APAC"
 
     local procedure UpdateVendorInvoiceNo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 

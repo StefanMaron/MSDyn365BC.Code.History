@@ -43,7 +43,7 @@ codeunit 134147 "ERM Reverse Register No Error"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reverse posted Transaction.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -93,10 +93,10 @@ codeunit 134147 "ERM Reverse Register No Error"
         GLEntry: Record "G/L Entry";
     begin
         GeneralLedgerSetup.Get();
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           DebitAmount, GLEntry."Debit Amount", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(AmountError, DebitAmount, GLEntry."Entry No."));

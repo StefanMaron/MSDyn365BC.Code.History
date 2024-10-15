@@ -48,7 +48,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO] GL and GST Sales Entry after posting Sales Order and General Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(true, true, true, true, true);  // Using true for Enable GST (Australia),Adjustment Mandatory,GST Report,Full GST on Prepayment,Unrealized VAT.
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesInvoice(
@@ -82,7 +82,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO] GL and GST Purchase Entry after posting Purchase Order and General Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(true, true, true, true, true);  // Using true for Enable GST (Australia),Adjustment Mandatory,GST Report,Full GST on Prepayment,Unrealized VAT.
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         CreatePurchaseInvoice(
@@ -119,7 +119,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO] GL and GST Sales Entry after posting Sales Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(true, true, true, true, true);  // Using true for Enable GST (Australia),Adjustment Mandatory,GST Report,Full GST on Prepayment,Unrealized VAT.
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesInvoice(
@@ -154,7 +154,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO] G/L entries after unapply Customer Payment entry with Payment Tolerance and GST.
 
         // [GIVEN] Create and post Sales Invoice. Create General Journal line. Apply Invoice to Payment on Cash Receipt Journal with Payment Tolerance and Post it.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupGSTReport();
         UpdatePaymentToleranceOnGeneralLedgerSetup(true, true, true);  // True for AdjustForPaymentDisc, PmtDiscToleranceWarning and PmtToleranceWarning.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -206,7 +206,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO] G/L entries after unapply Vendor Payment entry with Payment Tolerance and GST.
 
         // [GIVEN] Create and post Purchase Invoice. Create General Journal line. Apply Invoice to Payment on Payment Journal with Payment Tolerance and Post it.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupGSTReport();
         UpdatePaymentToleranceOnGeneralLedgerSetup(true, true, true);  // True for AdjustForPaymentDisc, PmtDiscToleranceWarning and PmtToleranceWarning.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -256,8 +256,8 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO] Close Income Statement report runs successfully with Dimension Selection.
 
         // [GIVEN] Close the Fiscal Year and find General Journal Template and Batch. Find No. Series Line.
-        Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CloseFiscalYear();
         FindGeneralJournalTemplateAndBatch(GenJournalBatch, GenJournalTemplate.Type::General);
         NoSeriesLine.SetRange("Series Code", GenJournalBatch."No. Series");
         NoSeriesLine.FindFirst();
@@ -287,7 +287,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO] values on report Purchase Prepmt. Doc. - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseHeader(PurchaseHeader, Item."Gen. Prod. Posting Group");
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 0);  // 0 for Line Discount %.
@@ -318,7 +318,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO]  VAT Amount on Posted Purchase Invoice after posting Purchase prepayment.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseHeader(PurchaseHeader, Item."Gen. Prod. Posting Group");
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 0); // 0 for Line Discount %.
@@ -346,7 +346,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 213137] Value of "Document Date" of "Detailed Cust. Ledg. Entry" must be equal to value from Sales Invoice after posting
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with "Document Date" = '01.01.2020', "Posting Date" = '02.02.2021', WORKDATE = '03.03.2022'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -376,7 +376,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 213137] Value of "Document Date" of "Detailed Vendor Ledg. Entry" must be equal to value from Purchase Invoice after posting
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase invoice with "Document Date" = '01.01.2020', "Posting Date" = '02.02.2021', WORKDATE = '03.03.2022'
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -408,7 +408,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Reconciliation] [VAT]
         // [SCENARIO 374756] VAT Entry is created after posting Payment Reconciliation Journal with GLAccount with VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLAccount "A" with VAT Posting Setup
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -444,7 +444,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Sales] [GST] [Deferrals]
         // [SCENARIO 221286] When Sales Invoice with Item and Deferral Code is posted, a GST Entry is created.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Sales Invoice "SI" with Item in the Sales Line.
@@ -473,7 +473,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Sales] [GST] [Deferrals]
         // [SCENARIO 221286] When Sales Invoice with GL Account and Deferral Code is posted, a GST Entry is created.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Sales Invoice "SI" with GLAccount in the Sales Line.
@@ -503,7 +503,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Sales] [GST] [Deferrals]
         // [SCENARIO 221286] When Sales Credit Memo with Item and Deferral Code is posted, a GST Entry is created.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Sales Credit Memo "SC" with Item in the Sales Line.
@@ -534,7 +534,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Purchase] [GST] [Deferrals]
         // [SCENARIO 221286] When Purchase Invoice with Item and Deferral Code is posted, a GST Purchase Entry is created.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Purchase Invoice "PI" with Item in the Purchase Line.
@@ -564,7 +564,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Purchase] [GST] [Deferrals]
         // [SCENARIO 221286] When Purchase Invoice with GL Account and Deferral Code is posted, a GST Purchase Entry is created.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Purchase Invoice "PI" with Item in the Purchase Line.
@@ -594,7 +594,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Purchase] [GST] [Deferrals]
         // [SCENARIO 221286] When Purchase Credit Memo with Item and Deferral Code is posted, a GST Purchase Entry is created.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Purchase Credit Memo "PI" with Item in the Purchase Line.
@@ -624,7 +624,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [UT] [GST] [Deferrals]
         // [SCENARIO 221286] TAB49 GetGLAccountGST returns correct GL Account.
-        Initialize;
+        Initialize();
 
         Result := InvoicePostBuffer.GetGLAccountGST('', '');
         Assert.AreEqual('', Result, 'InvoicePostBuffer.GetGLAccountGST should return empty value');
@@ -652,7 +652,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 253900] When Sales Invoice with GL Account is posted, GL Entries are created with Description taken from the GL Account.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with G/L Account in the Sales Line.
         CreateSalesDocWithLine(
@@ -685,7 +685,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 253900] When Purchase Invoice with GL Account is posted, GL Entries are created with Description taken from the GL Account.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with G/L Account in the Purchase Line.
         CreatePurchDocWithLine(
@@ -718,7 +718,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 253900] When Service Invoice with GL Account is posted, GL Entries are created with Description taken from the GL Account.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice with G/L Account in the Service Line.
         CreateServiceDocWithLine(
@@ -749,7 +749,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         ExpectedDueDate: Date;
     begin
         // [SCENARIO 258164] Due Date is printed in report "AU/NZ Statement"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cust. Ledger Entry with "Due Date" = "06-02-2018"
         ExpectedDueDate := MockCustLedgerEntryWithDueDate;
@@ -778,7 +778,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         // [FEATURE] [Purchase] [ACY]
         // [SCENARIO 321551] Vendor Exchange rate in Purchase Order is used for Additional-Currency Amount Calculation.
-        Initialize;
+        Initialize();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         UpdateGeneralLedgerSetupGSTReport();
 
@@ -1046,9 +1046,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1056,16 +1056,16 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM - Miscellaneous APAC");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM - Miscellaneous APAC");
 
-        LibraryERMCountryData.UpdateLocalData;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
-        LibraryVariableStorage.Clear;
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryVariableStorage.Clear();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM - Miscellaneous APAC");
@@ -1340,7 +1340,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustomerNo: Code[20];
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Customer No." := CustomerNo;
@@ -1570,7 +1570,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             SetRange("Document No.", PostedDocNo);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("G/L Account No.", GetReceivablesAccountFromCustomerPostingGroup(CustomerNo));
-            FindFirst;
+            FindFirst();
             TestField(Description, ExpectedDescription);
         end;
     end;
@@ -1598,7 +1598,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             SetRange("Document No.", PostedDocNo);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("G/L Account No.", GetPayablesAccountFromVendorPostingGroup(VendorNo));
-            FindFirst;
+            FindFirst();
             TestField(Description, ExpectedDescription);
         end;
     end;

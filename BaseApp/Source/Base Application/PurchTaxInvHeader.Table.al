@@ -595,7 +595,7 @@ table 28075 "Purch. Tax Inv. Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     local procedure TestNoSeries(): Boolean

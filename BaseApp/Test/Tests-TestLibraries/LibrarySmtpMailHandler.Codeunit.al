@@ -51,28 +51,10 @@ codeunit 131105 "Library - SMTP Mail Handler"
         RunOnAfterTrySendSubscriber := false;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SMTP Mail", 'OnAfterSend', '', false, false)]
-    local procedure TrackResultOnAfterTrySend(var SendResult: Text)
-    begin
-        if not RunOnAfterTrySendSubscriber then
-            exit;
-
-        TempNameValueBuffer.SetRange(Name, LibraryUtility.ConvertCRLFToBackSlash(SendResult));
-        if not TempNameValueBuffer.IsEmpty() then
-            SendResult := '';
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeDoSending', '', false, false)]
     local procedure CancelSendingOnBeforeDoSending(var CancelSending: Boolean)
     begin
         CancelSending := DisableSending;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SMTP Mail", 'OnBeforeCreateMessage', '', false, false)]
-    local procedure SetSenderInfoOnBeforeCreateMessage(var FromName: Text; var FromAddress: Text; var Recipients: List of [Text]; var Subject: Text; var Body: Text)
-    begin
-        FromName := SenderNameGlobal;
-        FromAddress := SenderAddressGlobal;
     end;
 }
 

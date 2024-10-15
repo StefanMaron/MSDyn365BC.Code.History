@@ -7,14 +7,13 @@ codeunit 5972 "Service Info-Pane Management"
 
     var
         Item: Record Item;
-        ServHeader: Record "Service Header";
 
     procedure CalcAvailability(var ServLine: Record "Service Line"): Decimal
     var
         AvailableToPromise: Codeunit "Available to Promise";
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
-        PeriodType: Option Day,Week,Month,Quarter,Year;
+        PeriodType: Enum "Analysis Period Type";
         AvailabilityDate: Date;
         LookaheadDateformula: DateFormula;
     begin
@@ -32,7 +31,7 @@ codeunit 5972 "Service Info-Pane Management"
             OnCalcAvailabilityOnAfterSetItemFilters(Item, ServLine);
 
             exit(
-              AvailableToPromise.QtyAvailabletoPromise(
+              AvailableToPromise.CalcQtyAvailabletoPromise(
                 Item,
                 GrossRequirement,
                 ScheduledReceipt,
@@ -70,14 +69,6 @@ codeunit 5972 "Service Info-Pane Management"
                 Get(ServLine."No.");
             exit(true);
         end;
-    end;
-
-    local procedure GetServHeader(ServLine: Record "Service Line")
-    begin
-        if (ServLine."Document Type" <> ServHeader."Document Type") or
-           (ServLine."Document No." <> ServHeader."No.")
-        then
-            ServHeader.Get(ServLine."Document Type", ServLine."Document No.");
     end;
 
     procedure CalcNoOfServItemComponents(var ServItemLine: Record "Service Item Line"): Integer
@@ -188,7 +179,7 @@ codeunit 5972 "Service Info-Pane Management"
         if ServItem.Get(ServItemLine."Service Item No.") then begin
             Clear(SkilledResourceList);
             SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", ServItem."No.", ServItem.Description);
-            SkilledResourceList.RunModal;
+            SkilledResourceList.RunModal();
         end;
     end;
 

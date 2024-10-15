@@ -160,7 +160,7 @@ table 7190 "Sales Shipment Buffer"
         SalesInvoiceHeader.SetCurrentKey("Order No.");
         SalesInvoiceHeader.SetFilter("No.", '..%1', SalesInvoiceHeader2."No.");
         SalesInvoiceHeader.SetRange("Order No.", SalesInvoiceHeader2."Order No.");
-        if SalesInvoiceHeader.FindSet then
+        if SalesInvoiceHeader.FindSet() then
             repeat
                 SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
                 SalesInvoiceLine.SetRange("Line No.", SalesInvoiceLine2."Line No.");
@@ -181,7 +181,7 @@ table 7190 "Sales Shipment Buffer"
         SalesShipmentLine.SetRange("No.", SalesInvoiceLine2."No.");
         SalesShipmentLine.SetRange("Unit of Measure Code", SalesInvoiceLine2."Unit of Measure Code");
         SalesShipmentLine.SetFilter(Quantity, '<>%1', 0);
-        if SalesShipmentLine.FindSet then
+        if SalesShipmentLine.FindSet() then
             repeat
                 if SalesInvoiceHeader2."Get Shipment Used" then
                     CorrectShipment(SalesShipmentLine);
@@ -276,7 +276,7 @@ table 7190 "Sales Shipment Buffer"
         SetRange("Document No.", ShipmentNo);
         SetRange("Line No.", DocLineNo);
         SetRange("Posting Date", PostingDate);
-        if FindFirst then begin
+        if FindFirst() then begin
             Quantity += QtyOnShipment;
             Modify;
             exit;

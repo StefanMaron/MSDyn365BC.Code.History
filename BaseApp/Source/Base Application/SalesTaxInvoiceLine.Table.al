@@ -614,7 +614,7 @@ table 28072 "Sales Tax Invoice Line"
     begin
         SalesInvoiceHeader.Reset();
         SalesInvoiceHeader.SetRange("No.", "External Document No.");
-        if SalesInvoiceHeader.FindFirst then
+        if SalesInvoiceHeader.FindFirst() then
             PAGE.RunModal(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
     end;
 

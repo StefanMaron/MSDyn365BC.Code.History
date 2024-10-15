@@ -58,7 +58,7 @@ table 11609 "EFT Register"
     begin
         VendLedgerEntry.SetCurrentKey("EFT Register No.");
         VendLedgerEntry.SetRange("EFT Register No.", "No.");
-        if VendLedgerEntry.FindFirst then
+        if VendLedgerEntry.FindFirst() then
             Error(Text11000, TableCaption, FieldCaption("No."), VendLedgerEntry.TableCaption);
     end;
 

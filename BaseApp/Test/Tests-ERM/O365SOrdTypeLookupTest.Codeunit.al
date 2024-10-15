@@ -25,13 +25,13 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] Show Type field in OnPrem environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Opening a new Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [THEN] The Type field is visible and the Subtype field is not
         Assert.IsTrue(SalesOrder.SalesLines.Type.Visible, 'Regular type field should be visible for OnPrem');
@@ -45,12 +45,12 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] Show the Subtype field in SaaS environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment
 
         // [WHEN] Opening a new Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
         asserterror SalesOrder.SalesLines.Type.Activate;
@@ -67,10 +67,10 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] The lookup on Subtype contains the expected values for Sales Order and all values can be selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         TempOptionLookupBuffer.FindSet();
@@ -93,10 +93,10 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] A partial Subtype is entered into the Subtype field triggers autocomplete
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to ac
         SalesOrder.SalesLines.FilteredTypeField.SetValue(CopyStr(Format(SalesLine.Type::"G/L Account"), 1, 2));
@@ -122,10 +122,10 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] A blank Subtype is entered into the Subtype field stays blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to ' '
         SalesOrder.SalesLines.FilteredTypeField.SetValue(' ');
@@ -146,10 +146,10 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] When invalid values are entered into Subtype, an error is raised
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [WHEN] Setting the Subtype to Fixed Asset on the Sales Line
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::"Fixed Asset"));
@@ -162,7 +162,7 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
 
         // [WHEN] Setting the Subtype to a random value on the Sales Line
-        SalesOrder.SalesLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID);
+        SalesOrder.SalesLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID());
         // [THEN] The Subtype is set to Item
         SalesOrder.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
     end;
@@ -175,10 +175,10 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO 252686] When Subtype is blank and non standard value is entered into Subtype, Subtype = Item is assigned.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A blank Sales Order.
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to "AAA".
         SalesOrder.SalesLines.FilteredTypeField.SetValue('AAA');
@@ -195,10 +195,10 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO 252686] When Subtype is not blank and non standard value is entered into Subtype, Subtype is not changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Order with a line with Subtype = G/L Account.
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::"G/L Account"));
 
         // [WHEN] Setting the Subtype on the Sales Line to "AAA".
@@ -227,9 +227,9 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 S. Ord. Type Lookup Test");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         if IsInitialized then
             exit;
 

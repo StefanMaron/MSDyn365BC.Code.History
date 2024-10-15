@@ -187,7 +187,7 @@ codeunit 139452 "O365 Vendor Permission Test"
         LibraryPermissionsVerify.VerifyWritePermissionTrue(RecordRef);
 
         // [THEN] The user can read from the record and related tables
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         RecordRefWithAllRelations.Open(DATABASE::Vendor);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
@@ -202,7 +202,7 @@ codeunit 139452 "O365 Vendor Permission Test"
         RecordRefWithAllRelations: RecordRef;
     begin
         // [GIVEN] An Vendor with related records and a user with O365 Basic and Vendor View
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
 
         RecordRefWithAllRelations.Open(DATABASE::Vendor);

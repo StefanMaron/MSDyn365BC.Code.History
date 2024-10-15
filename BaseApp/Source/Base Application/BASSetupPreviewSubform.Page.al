@@ -150,7 +150,7 @@ page 11610 "BAS Setup Preview Subform"
                                     BASCalcEntry1.SetRange("Entry No.", GLEntry."Entry No.");
                                     BASCalcEntry1.SetRange("BAS Document No.", DocumentNo);
                                     BASCalcEntry1.SetRange("BAS Version", VersionNo);
-                                    if BASCalcEntry1.FindFirst then
+                                    if BASCalcEntry1.FindFirst() then
                                         if GLEntry."Posting Date" = NormalDate(GLEntry."Posting Date") then
                                             GLEntry.Mark(true);
                                 end;
@@ -160,7 +160,7 @@ page 11610 "BAS Setup Preview Subform"
                     end;
                     GLEntries.SetTableView(GLEntry);
                     GLEntries.LookupMode(false);
-                    GLEntries.RunModal;
+                    GLEntries.RunModal();
                 end;
             Type::"GST Entry Totaling":
                 begin
@@ -203,7 +203,7 @@ page 11610 "BAS Setup Preview Subform"
                                 BASCalcEntry1.SetRange("Entry No.", VATEntry."Entry No.");
                                 BASCalcEntry1.SetRange("BAS Document No.", DocumentNo);
                                 BASCalcEntry1.SetRange("BAS Version", VersionNo);
-                                if BASCalcEntry1.FindFirst then
+                                if BASCalcEntry1.FindFirst() then
                                     VATEntry.Mark(true);
                             end;
                         until VATEntry.Next() = 0;
@@ -211,7 +211,7 @@ page 11610 "BAS Setup Preview Subform"
                     end;
                     VATEntries.SetTableView(VATEntry);
                     VATEntries.LookupMode(false);
-                    VATEntries.RunModal;
+                    VATEntries.RunModal();
                 end;
             Type::"Row Totaling", Type::Description:
                 Error(Text000, FieldCaption(Type), Type);

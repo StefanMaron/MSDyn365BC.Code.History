@@ -106,7 +106,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
 
         // Verification contains several consequent error assertions, hence need to commit to avoid rollback after the first error
         Commit();
@@ -130,7 +130,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         asserterror ServiceLine.Delete(true);
         CleanSetupData();
     end;
@@ -151,15 +151,15 @@ codeunit 136142 "Service Warehouse Integration"
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
         CollectWarehouseShipmentLines(ServiceHeader."No.", TempWarehouseShipmentLine);
-        TempWarehouseShipmentLine.FindFirst;
+        TempWarehouseShipmentLine.FindFirst();
         WarehouseShipmentHeader.Get(TempWarehouseShipmentLine."No.");
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.RunModal;
+        WhseShipmentCreatePick.RunModal();
         Clear(WhseShipmentCreatePick);
         VerifyWhseShptLinesAgainstPick(ServiceHeader."No.", TempWarehouseShipmentLine."No.");
         CleanSetupData();
@@ -181,15 +181,15 @@ codeunit 136142 "Service Warehouse Integration"
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
         CollectWarehouseShipmentLines(ServiceHeader."No.", TempWarehouseShipmentLine);
-        TempWarehouseShipmentLine.FindFirst;
+        TempWarehouseShipmentLine.FindFirst();
         WarehouseShipmentHeader.Get(TempWarehouseShipmentLine."No.");
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.RunModal;
+        WhseShipmentCreatePick.RunModal();
         Clear(WhseShipmentCreatePick);
         RegisterPick(TempWarehouseShipmentLine."No.");
         VerifyWhseShptLinesAgainstRegisteredPick(ServiceHeader."No.", TempWarehouseShipmentLine."No.");
@@ -214,15 +214,15 @@ codeunit 136142 "Service Warehouse Integration"
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
         CollectWarehouseShipmentLines(ServiceHeader."No.", TempWarehouseShipmentLine);
-        TempWarehouseShipmentLine.FindFirst;
+        TempWarehouseShipmentLine.FindFirst();
         WarehouseShipmentHeader.Get(TempWarehouseShipmentLine."No.");
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.RunModal;
+        WhseShipmentCreatePick.RunModal();
         Clear(WhseShipmentCreatePick);
         RegisterPick(TempWarehouseShipmentLine."No.");
         VerifyWhseShptLinesAgainstRegisteredPick(ServiceHeader."No.", TempWarehouseShipmentLine."No.");
@@ -261,15 +261,15 @@ codeunit 136142 "Service Warehouse Integration"
         CreateWhseShipment(ServiceHeader, true);
         CollectServiceLines(ServiceHeader."No.", TempServiceLine);
         CollectWarehouseShipmentLines(ServiceHeader."No.", TempWarehouseShipmentLine);
-        TempWarehouseShipmentLine.FindFirst;
+        TempWarehouseShipmentLine.FindFirst();
         WarehouseShipmentHeader.Get(TempWarehouseShipmentLine."No.");
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.RunModal;
+        WhseShipmentCreatePick.RunModal();
         Clear(WhseShipmentCreatePick);
         RegisterPick(TempWarehouseShipmentLine."No.");
         VerifyWhseShptLinesAgainstRegisteredPick(ServiceHeader."No.", TempWarehouseShipmentLine."No.");
@@ -303,15 +303,15 @@ codeunit 136142 "Service Warehouse Integration"
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
         CollectWarehouseShipmentLines(ServiceHeader."No.", TempWarehouseShipmentLine);
-        TempWarehouseShipmentLine.FindFirst;
+        TempWarehouseShipmentLine.FindFirst();
         WarehouseShipmentHeader.Get(TempWarehouseShipmentLine."No.");
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.RunModal;
+        WhseShipmentCreatePick.RunModal();
         Clear(WhseShipmentCreatePick);
         RegisterPick(TempWarehouseShipmentLine."No.");
         ReduceWhseShipmentLineQtyToShip(TempWarehouseShipmentLine, 7);  // For all lines: Reduce quantity to ship by 7
@@ -338,7 +338,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         Initialize();
         CreateServiceOrder(ServiceHeader, 10, '', 0, 0, 0, 0, false);
-        ServiceOrderTP.OpenNew;
+        ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServiceHeader);
         ServiceOrderTP.ServItemLines."Service Lines".Invoke();
         CleanSetupData();
@@ -690,12 +690,12 @@ codeunit 136142 "Service Warehouse Integration"
 
         WarehouseShipmentHeader.Get(WhseShipmentNo);
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.RunModal;
+        WhseShipmentCreatePick.RunModal();
         Clear(WhseShipmentCreatePick);
         VerifyServiceOrderLinesAgainstPickItemTracking(WhseShipmentNo, TempReservationEntryT5902);
         // Register pick, validate whse entries:
@@ -729,12 +729,12 @@ codeunit 136142 "Service Warehouse Integration"
         WhseShipmentNo := GetWhseShipmentNo(ServiceHeader."No.");
         WarehouseShipmentHeader.Get(WhseShipmentNo);
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.RunModal;
+        WhseShipmentCreatePick.RunModal();
         Clear(WhseShipmentCreatePick);
         // Fill out whse pick lines:
         GetPick(WhseShipmentNo, TempWhseActivityLine);
@@ -769,7 +769,7 @@ codeunit 136142 "Service Warehouse Integration"
         CreateServiceOrder(ServiceHeader, 0, WhiteLocationCode, 0, 0, 0, 5, true);
         // Reserve against item ledger entry:
         ItemTrackingOption := 2;
-        ServiceOrderTP.OpenNew;
+        ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServiceHeader);
         ServiceOrderTP.ServItemLines."Service Lines".Invoke;
         // Try to create pick for another order - error expected;
@@ -780,9 +780,9 @@ codeunit 136142 "Service Warehouse Integration"
         WhseShipmentNo := GetWhseShipmentNo(ServiceHeader."No.");
         TryCreatePick(WhseShipmentNo, true);
         // Unreserve:
-        ReservationEntry.FindLast;
+        ReservationEntry.FindLast();
         ReservationEntry.Delete();
-        ReservationEntry.FindLast;
+        ReservationEntry.FindLast();
         ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Surplus;
         ReservationEntry.Modify();
         // Now it should be possible to pick:
@@ -1056,7 +1056,7 @@ codeunit 136142 "Service Warehouse Integration"
         PostedWhseShipmentLine.SetRange("Source Type", DATABASE::"Service Line");
         PostedWhseShipmentLine.SetRange("Source Subtype", 1);
         PostedWhseShipmentLine.SetRange("Source No.", ServiceOrderNo);
-        if PostedWhseShipmentLine.FindSet then
+        if PostedWhseShipmentLine.FindSet() then
             repeat
                 TempPostedWhseShipmentLine := PostedWhseShipmentLine;
                 TempPostedWhseShipmentLine.Insert();
@@ -1127,7 +1127,7 @@ codeunit 136142 "Service Warehouse Integration"
         if ItemJournalBatch.Get(ItemJournalTemplateName, ItemJournalBatchName) then
             ItemJournalBatch.Delete(true);
 
-        if TempVATPostingSetup.FindSet then
+        if TempVATPostingSetup.FindSet() then
             repeat
                 VATPostingSetup.Get(TempVATPostingSetup."VAT Bus. Posting Group", '');
                 VATPostingSetup.Delete(true);
@@ -1152,7 +1152,7 @@ codeunit 136142 "Service Warehouse Integration"
 
     local procedure CreateCustomer()
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
     end;
 
     local procedure CreateTestNoSeriesBackupData()
@@ -1228,11 +1228,11 @@ codeunit 136142 "Service Warehouse Integration"
         TempVATPostingSetup2.DeleteAll();
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
-        if VATPostingSetup.FindFirst then begin
+        if VATPostingSetup.FindFirst() then begin
             TempVATPostingSetup2 := VATPostingSetup;
             TempVATPostingSetup2.Insert();
             Clear(VATPostingSetup);
-            if VATBusinessPostingGroup.FindSet then
+            if VATBusinessPostingGroup.FindSet() then
                 repeat
                     VATPostingSetup := TempVATPostingSetup2;
                     VATPostingSetup."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
@@ -1337,7 +1337,7 @@ codeunit 136142 "Service Warehouse Integration"
         j: Integer;
     begin
         WhseJournalTemplate.SetRange(Type, WhseJournalTemplate.Type::Item);
-        WhseJournalTemplate.FindFirst;
+        WhseJournalTemplate.FindFirst();
         WhseTemplate := WhseJournalTemplate.Name;
         Clear(WhseJournalBatch);
         WhseJournalBatch."Journal Template Name" := WhseTemplate;
@@ -1402,8 +1402,8 @@ codeunit 136142 "Service Warehouse Integration"
         CalculateWhseAdjustment.UseRequestPage(false);
         CalculateWhseAdjustment.SetHideValidationDialog(true);
         CalculateWhseAdjustment.InitializeRequest(WorkDate, 'COD136142');
-        CalculateWhseAdjustment.Run;
-        if ItemJnlLine.FindSet then
+        CalculateWhseAdjustment.Run();
+        if ItemJnlLine.FindSet() then
             repeat
                 KeepItemJnlLine := false;
                 i := 0;
@@ -1469,7 +1469,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         Bin.SetRange("Location Code", WhiteLocationCode);
         Bin.SetRange("Zone Code", GetZoneCode);
-        Bin.FindFirst;
+        Bin.FindFirst();
         UsedBinCode := Bin.Code;
     end;
 
@@ -1481,7 +1481,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
         DefaultLocationCodeForUser := '';
-        if WarehouseEmployee.FindFirst then begin
+        if WarehouseEmployee.FindFirst() then begin
             DefaultLocationCodeForUser := WarehouseEmployee."Location Code";
             WarehouseEmployee.Default := false;
             WarehouseEmployee.Modify();
@@ -1492,7 +1492,7 @@ codeunit 136142 "Service Warehouse Integration"
 
     local procedure GetResource()
     begin
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ResourceNo := LibraryResource.CreateResourceNo();
     end;
 
     local procedure GetGLAcc()
@@ -1522,7 +1522,7 @@ codeunit 136142 "Service Warehouse Integration"
         Location: Record Location;
     begin
         Location.SetFilter(Code, '<>%1', LocCode);
-        Location.FindFirst;
+        Location.FindFirst();
         exit(Location.Code);
     end;
 
@@ -1536,7 +1536,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetRange("Whse. Document No.", WarehouseShipmentNo);
             SetRange("Whse. Document Type", "Whse. Document Type"::Shipment);
             SetRange("Activity Type", "Activity Type"::Pick);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempWarehouseActivityLine := WarehouseActivityLine;
                     TempWarehouseActivityLine.Insert();
@@ -1553,7 +1553,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetCurrentKey("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
             SetRange("Whse. Document No.", WSHNo);
             SetRange("Whse. Document Type", "Whse. Document Type"::Shipment);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempRegisteredWhseActivityLine := RegisteredWhseActivityLine;
                     TempRegisteredWhseActivityLine.Insert();
@@ -1567,7 +1567,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         GetPick(WSHNo, TempWhseActivityLine);
-        TempWhseActivityLine.FindFirst;
+        TempWhseActivityLine.FindFirst();
         WarehouseActivityLine := TempWhseActivityLine;
         CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
     end;
@@ -1748,7 +1748,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceOrderNo);
         Assert.AreEqual(1, ServiceInvoiceHeader.Count, 'Number of service invoices after invoicing service order');
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Item);
         Assert.AreEqual(TempServiceLine.Count, ServiceInvoiceLine.Count, 'Number of service invoice lines after invoicing service order');
@@ -1799,7 +1799,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         if Delta = 0 then
             exit;
-        if not TempWarehouseShipmentLine.FindSet then
+        if not TempWarehouseShipmentLine.FindSet() then
             exit;
         repeat
             WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
@@ -1837,12 +1837,12 @@ codeunit 136142 "Service Warehouse Integration"
             Assert.AreEqual(1, Count, 'Number of warehouse requests');
         end;
         // Get the whse shipment lines on the whse shipment:
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
         GetSourceDocuments.SetOneCreatedShptHeader(WarehouseShipmentHeader);
         GetSourceDocuments.SetSkipBlocked(true);
         GetSourceDocuments.UseRequestPage(false);
         GetSourceDocuments.SetTableView(WarehouseRequest);
-        GetSourceDocuments.RunModal;
+        GetSourceDocuments.RunModal();
         // Verify the fields of the shipment lines:
         VerifyWhseShipmentLinesAgainstServiceOrder(ServiceOrderNo, true);
     end;
@@ -1917,7 +1917,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetFilters(GetSourceDocuments, WarehouseShipmentHeader."Location Code");
         end;
         GetSourceDocuments.UseRequestPage(false);
-        GetSourceDocuments.RunModal;
+        GetSourceDocuments.RunModal();
     end;
 
     local procedure CreateSerialLotCode()
@@ -1928,7 +1928,7 @@ codeunit 136142 "Service Warehouse Integration"
         // SN Warehouse tracking:
         ItemTrackingCode.SetRange("SN Specific Tracking", true);
         ItemTrackingCode.SetRange("Lot Specific Tracking", false);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         ItemTrackingCode2 := ItemTrackingCode;
         ItemTrackingCode2.Code := GetFreeCode(ItemTrackingCode.Code);
         ItemTrackingCode2."SN Warehouse Tracking" := true;
@@ -1950,7 +1950,7 @@ codeunit 136142 "Service Warehouse Integration"
         // Lot Warehouse Tracking:
         ItemTrackingCode.SetRange("SN Specific Tracking", false);
         ItemTrackingCode.SetRange("Lot Specific Tracking", true);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         ItemTrackingCode2 := ItemTrackingCode;
         ItemTrackingCode2.Code := GetFreeCode(ItemTrackingCode.Code);
         ItemTrackingCode2."Lot Warehouse Tracking" := true;
@@ -2009,7 +2009,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         NextEntryNo := 1;
         with WhseItemTrackingLine do begin
-            if FindLast then
+            if FindLast() then
                 NextEntryNo := "Entry No." + 1;
             Init;
             "Entry No." := NextEntryNo;
@@ -2043,7 +2043,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceOrderTP: TestPage "Service Order";
     begin
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-        ServiceOrderTP.OpenNew;
+        ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServiceHeader);
         ServiceOrderTP.ServItemLines."Service Lines".Invoke;
     end;
@@ -2282,7 +2282,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetRange("Source ID", WhseShipmentNo);
             SetRange("Source Type", DATABASE::"Warehouse Shipment Line");
             SetRange("Source Subtype", 0);
-            if not FindSet then
+            if not FindSet() then
                 exit;
             repeat
                 TempWhseItemTrackingLine := WhseItemTrackingLine;
@@ -2299,7 +2299,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         WarehouseShipmentHeader.Get(WhseShptNo);
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
         WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
@@ -2308,7 +2308,7 @@ codeunit 136142 "Service Warehouse Integration"
         if ErrExpected then
             asserterror WhseShipmentCreatePick.RunModal
         else
-            WhseShipmentCreatePick.RunModal;
+            WhseShipmentCreatePick.RunModal();
     end;
 
     [MessageHandler]

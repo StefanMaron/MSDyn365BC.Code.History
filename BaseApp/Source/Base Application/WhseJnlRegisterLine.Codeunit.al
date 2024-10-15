@@ -403,7 +403,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Variant Code", VariantCode);
-        if BinContent.FindFirst then
+        if BinContent.FindFirst() then
             if BinContent."Bin Code" <> BinCode then begin
                 BinContent.Default := false;
                 OnUpdateDefaultBinContentOnBeforeBinContentModify(BinContent);
@@ -415,7 +415,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             BinContent2.SetRange("Item No.", ItemNo);
             BinContent2.SetRange("Variant Code", VariantCode);
             BinContent2.SetRange("Bin Code", BinCode);
-            BinContent2.FindFirst;
+            BinContent2.FindFirst();
             BinContent2.Default := true;
             OnUpdateDefaultBinContentOnBeforeBinContent2Modify(BinContent2);
             BinContent2.Modify();
@@ -431,7 +431,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Variant Code", VariantCode);
-        if BinContent.FindFirst then begin
+        if BinContent.FindFirst() then begin
             BinContent.Default := false;
             OnDeleteDefaultBinContentOnBeforeBinContentModify(BinContent);
             BinContent.Modify();

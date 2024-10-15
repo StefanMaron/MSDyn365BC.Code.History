@@ -99,7 +99,7 @@ page 11609 "BAS Setup Preview"
                     ExportBASSetupReport.SetValues(BASCalcSheet, Selection, PeriodSelection, ExcludeClosingEntries, BASCalcSheet.A1,
                       BASCalcSheet."BAS Version");
                     ExportBASSetupReport.SetTableView(BASSetup);
-                    ExportBASSetupReport.Run;
+                    ExportBASSetupReport.Run();
                 end;
             }
         }
@@ -125,7 +125,7 @@ page 11609 "BAS Setup Preview"
         ExcludeClosingEntriesEnable: Boolean;
         YouCannotPreviewErr: Label 'You cannot preview a %1 %2.', Comment = '%1 - Consolidated field; %2 - BAS Calculation Seeet table';
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Scope('OnPrem')]
     procedure UpdateSubForm()
     begin
         ExcludeClosingEntriesEnable := PeriodSelection = PeriodSelection::"Before and Within Period";

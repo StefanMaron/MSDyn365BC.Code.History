@@ -43,7 +43,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         LibraryAULocalization.EnableGSTSetup(true, false);
 
@@ -370,7 +370,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -402,7 +402,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -439,7 +439,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -475,7 +475,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         GenPostingSetup: Record "General Posting Setup";
         DocNo: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -504,7 +504,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         GenPostingSetup: Record "General Posting Setup";
         DocNo: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -537,7 +537,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -571,7 +571,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         GenPostingSetup: Record "General Posting Setup";
         DocNo: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -604,7 +604,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo2: Code[10];
     begin
         //r02
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -638,7 +638,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -671,7 +671,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -706,7 +706,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         InvoicedAmount: Decimal;
     begin
         //r03
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -746,7 +746,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         NewDate: Date;
         InvoicedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -784,7 +784,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.SetUnrealizedVAT(true);
@@ -996,7 +996,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
             SetFilter("VAT Prod. Posting Group", '<>%1', SalesLine."VAT Prod. Posting Group");
             SetFilter("VAT %", '>%1', SalesLine."VAT %");
         end;
-        if not VATPostingSetup.FindFirst then begin
+        if not VATPostingSetup.FindFirst() then begin
             LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, SalesLine."VAT Bus. Posting Group", VATProdPostingGroup.Code);
             VATPostingSetup.Validate("VAT %", SalesLine."VAT %" + LibraryRandom.RandInt(10));
@@ -1227,7 +1227,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         GLEntry.SetRange("G/L Account No.", AccountNo);
         if DoubleEntry then // There are 2 G/L Entries for the same account with the same Document No., so additional filter is needed
             GLEntry.SetFilter(Amount, '<=%1&>=%2', Amount + GetAmountRoundingPrecision, Amount - GetAmountRoundingPrecision);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         if Amount > 0 then
             DebitAmount := Amount
@@ -1258,7 +1258,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
                 GSTSalesEntry.SetFilter("GST Base", '<0')
             else
                 GSTSalesEntry.SetFilter("GST Base", '>=0');
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
 
         Assert.AreNearlyEqual(Base, GSTSalesEntry."GST Base", GetAmountRoundingPrecision,
           StrSubstNo(ValidationError, GSTSalesEntry.FieldCaption("GST Base"), Base, GSTSalesEntry.TableCaption));
@@ -1606,7 +1606,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
                 BaseRef.SetFilter('<0')
             else
                 BaseRef.SetFilter('>=0');
-        VATEntryRef.FindFirst;
+        VATEntryRef.FindFirst();
 
         Evaluate(ActualBase, Format(BaseRef.Value));
         Evaluate(ActualAmount, Format(AmountRef.Value));

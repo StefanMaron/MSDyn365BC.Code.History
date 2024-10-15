@@ -17,7 +17,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
         GetReturnShptLines.SetTableView(ReturnShptLine);
         GetReturnShptLines.LookupMode := true;
         GetReturnShptLines.SetPurchHeader(PurchHeader);
-        GetReturnShptLines.RunModal;
+        GetReturnShptLines.RunModal();
     end;
 
     var
@@ -106,7 +106,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
                 ItemChargeAssgntPurch.SetRange("Document Type", PurchOrderLine."Document Type");
                 ItemChargeAssgntPurch.SetRange("Document No.", PurchOrderLine."Document No.");
                 ItemChargeAssgntPurch.SetRange("Document Line No.", PurchOrderLine."Line No.");
-                if ItemChargeAssgntPurch.FindFirst then begin
+                if ItemChargeAssgntPurch.FindFirst() then begin
                     ItemChargeAssgntPurch.CalcSums("Qty. to Assign");
                     if ItemChargeAssgntPurch."Qty. to Assign" <> 0 then
                         CopyItemChargeAssgnt(
@@ -163,7 +163,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
                                 ReturnShptLine2.SetRange("Return Order No.", ItemChargeAssgntPurch."Applies-to Doc. No.");
                                 ReturnShptLine2.SetRange("Return Order Line No.", ItemChargeAssgntPurch."Applies-to Doc. Line No.");
                                 ReturnShptLine2.SetFilter(Quantity, '<>0');
-                                if ReturnShptLine2.FindFirst then begin
+                                if ReturnShptLine2.FindFirst() then begin
                                     PurchLine2.SetCurrentKey("Document Type", "Receipt No.", "Receipt Line No.");
                                     PurchLine2.SetRange("Document Type", PurchLine2."Document Type"::"Credit Memo");
                                     PurchLine2.SetRange("Return Shipment No.", ReturnShptLine2."Document No.");

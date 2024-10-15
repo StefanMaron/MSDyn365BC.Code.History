@@ -11,9 +11,9 @@ codeunit 28072 "Sales Tax Inv.-Printed"
         Modify;
 
         SalesTaxInvLine.SetRange("Document No.", "No.");
-        if SalesTaxInvLine.FindFirst then begin
+        if SalesTaxInvLine.FindFirst() then begin
             SalesInvHeader.SetRange("No.", SalesTaxInvLine."External Document No.");
-            if SalesInvHeader.FindFirst then begin
+            if SalesInvHeader.FindFirst() then begin
                 SalesInvHeader."Printed Tax Document" := true;
                 SalesInvHeader.Modify();
             end;

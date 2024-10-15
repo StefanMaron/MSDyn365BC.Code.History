@@ -162,8 +162,6 @@ page 9033 "Invite External Accountant"
                 InFooterBar = true;
 
                 trigger OnAction()
-                var
-                    ErrorMessage: Text;
                 begin
                     if Step = Step::DefineInformation then begin
                         if (NewUserEmailAddress <> '') and (NewFirstName <> '') and (NewLastName <> '') and (NewUserWelcomeEmail <> '') then begin
@@ -201,7 +199,6 @@ page 9033 "Invite External Accountant"
     trigger OnOpenPage()
     var
         DummyEmailAccount: Record "Email Account";
-        EmailFeature: Codeunit "Email Feature";
         EmailScenario: Codeunit "Email Scenario";
         EnvironmentInfo: Codeunit "Environment Information";
         InviteExternalAccountant: Codeunit "Invite External Accountant";
@@ -214,12 +211,8 @@ page 9033 "Invite External Accountant"
             Error(SaaSOnlyErrorErr);
 
         ProgressWindow.Open(WizardOpenValidationMsg);
-        if EmailFeature.IsEnabled() then begin
-            if not EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Invite External Accountant", DummyEmailAccount) then
-                Error(NoEmailAccountDefinedErr, Enum::"Email Scenario"::"Invite External Accountant");
-        end else
-            if not InviteExternalAccountant.VerifySMTPIsEnabledAndSetup() then
-                Error(SMTPMustBeSetupErrorErr);
+        if not EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Invite External Accountant", DummyEmailAccount) then
+            Error(NoEmailAccountDefinedErr, Enum::"Email Scenario"::"Invite External Accountant");
 
         if not InviteExternalAccountant.InvokeIsExternalAccountantLicenseAvailable(ErrorMessage, TargetLicense) then begin
             OnInvitationNoExternalAccountantLicenseFail;
@@ -290,7 +283,6 @@ page 9033 "Invite External Accountant"
         NotAllFieldsEnteredErrorErr: Label 'To continue, enter all required fields.';
         WasInvitationSuccessful: Boolean;
         NoEmailAccountDefinedErr: Label 'Email is not set up for the action you are trying to take. Ask your administrator to either add the %1 scenario to your email account, or to specify a default account for email scenarios.', Comment = '%1 = email scenario, e.g. "Email Printer"';
-        SMTPMustBeSetupErrorErr: Label 'SMTP must be configured prior to inviting external accountant. Contact your administrator.';
         NoUserTableWritePermissionErr: Label 'This step adds a user to your company, and only your administrator can do that. Please contact your administrator.';
         TargetLicense: Text;
 
@@ -416,22 +408,14 @@ page 9033 "Invite External Accountant"
         Email: Codeunit Email;
         EmailMessage: Codeunit "Email Message";
         MailManagement: Codeunit "Mail Management";
-        EmailFeature: Codeunit "Email Feature";
         EmailScenario: Codeunit "Email Scenario";
-        SMTPMail: Codeunit "SMTP Mail";
         SendToList: List of [Text];
     begin
         SendToList.Add(SendTo);
-        if EmailFeature.IsEnabled() then begin
-            EmailMessage.Create(SendToList, StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing),
-                    DefineFullEmailBody(NewUserWelcomeEmail), true);
-            EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Invite External Accountant", EmailAccount);
-            exit(Email.Send(EmailMessage, EmailAccount."Account Id", EmailAccount.Connector));
-        end else begin
-            SMTPMail.CreateMessage('', MailManagement.GetSenderEmailAddress(), SendToList,
-              StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing), DefineFullEmailBody(NewUserWelcomeEmail), true);
-            exit(SMTPMail.Send());
-        end;
+        EmailMessage.Create(SendToList, StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing),
+                DefineFullEmailBody(NewUserWelcomeEmail), true);
+        EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Invite External Accountant", EmailAccount);
+        exit(Email.Send(EmailMessage, EmailAccount."Account Id", EmailAccount.Connector));
     end;
 
     local procedure ResetControls()

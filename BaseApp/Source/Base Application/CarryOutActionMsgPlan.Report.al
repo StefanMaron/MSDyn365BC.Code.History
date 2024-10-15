@@ -24,24 +24,24 @@ report 99001020 "Carry Out Action Msg. - Plan."
                 case "Ref. Order Type" of
                     "Ref. Order Type"::"Prod. Order":
                         if ProdOrderChoice <> ProdOrderChoice::" " then
-                            CarryOutActions(2, ProdOrderChoice, ProdWkshTempl, ProdWkshName);
+                            CarryOutActions(2, ProdOrderChoice.AsInteger(), ProdWkshTempl, ProdWkshName);
                     "Ref. Order Type"::Purchase:
                         if PurchOrderChoice = PurchOrderChoice::"Copy to Req. Wksh" then
-                            CarryOutActions(0, PurchOrderChoice, ReqWkshTemp, ReqWksh);
+                            CarryOutActions(0, PurchOrderChoice.AsInteger(), ReqWkshTemp, ReqWksh);
                     "Ref. Order Type"::Transfer:
                         if TransOrderChoice <> TransOrderChoice::" " then begin
                             CarryOutAction.SetSplitTransferOrders(not CombineTransferOrders);
-                            CarryOutActions(1, TransOrderChoice, TransWkshTemp, TransWkshName);
+                            CarryOutActions(1, TransOrderChoice.AsInteger(), TransWkshTemp, TransWkshName);
                         end;
                     "Ref. Order Type"::Assembly:
                         if AsmOrderChoice <> AsmOrderChoice::" " then
-                            CarryOutActions(3, AsmOrderChoice, '', '');
+                            CarryOutActions(3, AsmOrderChoice.AsInteger(), '', '');
                     else
                         CurrReport.Skip();
                 end;
                 Commit();
 
-                OnAfterRequisitionLineOnAfterGetRecord("Requisition Line", ProdOrderChoice);
+                OnAfterRequisitionLineOnAfterGetRecord("Requisition Line", ProdOrderChoice.AsInteger());
             end;
 
             trigger OnPostDataItem()
@@ -124,7 +124,6 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         {
                             ApplicationArea = Manufacturing;
                             Caption = 'Production Order';
-                            OptionCaption = ' ,Planned,Firm Planned,Firm Planned & Print';
                             ToolTip = 'Specifies that you want to create production orders for item with the Prod. Order replenishment system. You can select to create either planned or firm planned production order, and you can have the new order documents printed.';
                         }
                     }
@@ -135,7 +134,6 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         {
                             ApplicationArea = Assembly;
                             Caption = 'Assembly Order';
-                            OptionCaption = ' ,Make Assembly Orders,Make Assembly Orders & Print';
                             ToolTip = 'Specifies the assembly orders that are created for items with the Assembly replenishment method.';
                         }
                     }
@@ -146,7 +144,6 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         {
                             ApplicationArea = Planning;
                             Caption = 'Purchase Order';
-                            OptionCaption = ' ,Make Purch. Orders,Make Purch. Orders & Print,Copy to Req. Wksh';
                             ToolTip = 'Specifies that you want to create purchase orders for items with the Purchase replenishment method. You can have the new order documents printed.';
 
                             trigger OnValidate()
@@ -207,7 +204,6 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         {
                             ApplicationArea = Location;
                             Caption = 'Transfer Order';
-                            OptionCaption = ' ,Make Trans. Orders,Make Trans. Orders & Print,Copy to Req. Wksh';
                             ToolTip = 'Specifies that you want to create transfer orders for items with the Transfer replenishment method in the SKU card. You can have the new order documents printed.';
 
                             trigger OnValidate()
@@ -328,15 +324,15 @@ report 99001020 "Carry Out Action Msg. - Plan."
         ProdWkshName: Code[10];
         CurrReqWkshTemp: Code[10];
         CurrReqWkshName: Code[10];
-        ProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh";
-        PurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh";
-        TransOrderChoice: Option " ","Make Trans. Orders","Make Trans. Orders & Print","Copy to Req. Wksh";
-        Text009: Label 'You must select a worksheet to copy to';
-        AsmOrderChoice: Option " ","Make Assembly Orders","Make Assembly Orders & Print";
+        ProdOrderChoice: Enum "Planning Create Prod. Order";
+        PurchOrderChoice: Enum "Planning Create Purchase Order";
+        TransOrderChoice: Enum "Planning Create Transfer Order";
+        AsmOrderChoice: Enum "Planning Create Assembly Order";
         PrintOrders: Boolean;
         CombineTransferOrders: Boolean;
         ReserveforPlannedProd: Boolean;
         NoPlanningResiliency: Boolean;
+        Text009: Label 'You must select a worksheet to copy to';
         Text010: Label 'Components were not reserved for orders with status Planned.';
         Text011: Label 'You must make order for both line %1 and %2 because they are associated.';
         Text012: Label 'Carrying Out Actions  #1########## @2@@@@@@@@@@@@@';
@@ -378,10 +374,10 @@ report 99001020 "Carry Out Action Msg. - Plan."
         SetReqWkshLine(ReqLine);
 
         InitializeRequest(
-          MfgUserTempl."Create Production Order",
-          MfgUserTempl."Create Purchase Order",
-          MfgUserTempl."Create Transfer Order",
-          MfgUserTempl."Create Assembly Order");
+          MfgUserTempl."Create Production Order".AsInteger(),
+          MfgUserTempl."Create Purchase Order".AsInteger(),
+          MfgUserTempl."Create Transfer Order".AsInteger(),
+          MfgUserTempl."Create Assembly Order".AsInteger());
 
         ReqWkshTemp := MfgUserTempl."Purchase Req. Wksh. Template";
         ReqWksh := MfgUserTempl."Purchase Wksh. Name";
@@ -419,10 +415,10 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     procedure InitializeRequest(NewProdOrderChoice: Option; NewPurchOrderChoice: Option; NewTransOrderChoice: Option; NewAsmOrderChoice: Option)
     begin
-        ProdOrderChoice := NewProdOrderChoice;
-        PurchOrderChoice := NewPurchOrderChoice;
-        TransOrderChoice := NewTransOrderChoice;
-        AsmOrderChoice := NewAsmOrderChoice;
+        ProdOrderChoice := "Planning Create Prod. Order".FromInteger(NewProdOrderChoice);
+        PurchOrderChoice := "Planning Create Purchase Order".FromInteger(NewPurchOrderChoice);
+        TransOrderChoice := "Planning Create Transfer Order".FromInteger(NewTransOrderChoice);
+        AsmOrderChoice := "Planning Create Assembly Order".FromInteger(NewAsmOrderChoice);
     end;
 
     procedure InitializeRequest2(NewProdOrderChoice: Option; NewPurchOrderChoice: Option; NewTransOrderChoice: Option; NewAsmOrderChoice: Option; NewReqWkshTemp: Code[10]; NewReqWksh: Code[10]; NewTransWkshTemp: Code[10]; NewTransWkshName: Code[10])
@@ -479,7 +475,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckLine("Requisition Line", PurchOrderChoice, TransOrderChoice, IsHandled);
+        OnBeforeCheckLine("Requisition Line", PurchOrderChoice.AsInteger(), TransOrderChoice.AsInteger(), IsHandled);
         if IsHandled then
             exit;
 
@@ -544,7 +540,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                 DATABASE::"Job Planning Line":
                     begin
                         JobPlanningLine.SetRange("Job Contract Entry No.", "Demand Line No.");
-                        JobPlanningLine.FindFirst;
+                        JobPlanningLine.FindFirst();
                         JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
                         JobPlanningLine.TestField("Job No.");
                         JobPlanningLine.TestField(Status, JobPlanningLine.Status::Order);
@@ -613,7 +609,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSupplyFrom("Requisition Line", PurchOrderChoice, TransOrderChoice, IsHandled);
+        OnBeforeCheckSupplyFrom("Requisition Line", PurchOrderChoice.AsInteger(), TransOrderChoice.AsInteger(), IsHandled);
         if IsHandled then
             exit;
 
@@ -635,7 +631,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
         PurchaseExists: Boolean;
     begin
         with RequisitionLine do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     PurchaseExists := "Ref. Order Type" = "Ref. Order Type"::Purchase;
                     if not PurchaseExists then

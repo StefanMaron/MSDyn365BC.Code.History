@@ -32,7 +32,7 @@ codeunit 141038 "ERM VAT - Details"
         // [SCENARIO] Verify GL and VAT Entry after posting sales credit memo with negative quantity.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesLine, SalesLine."Document Type"::"Credit Memo");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         CreateSalesLine(SalesLine2, SalesHeader, -LibraryRandom.RandDecInRange(1, 10, 2)); // Random for Quantity.
@@ -61,7 +61,7 @@ codeunit 141038 "ERM VAT - Details"
         // [SCENARIO] Verify GL and VAT Entry after posting sales invoice with negative quantity.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesLine, SalesLine."Document Type"::Invoice);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         CreateSalesLine(SalesLine2, SalesHeader, -LibraryRandom.RandDecInRange(1, 10, 2)); // Random for Quantity.
@@ -90,7 +90,7 @@ codeunit 141038 "ERM VAT - Details"
         // [SCENARIO] Verify GL and VAT Entry after posting purchase credit memo with negative quantity.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreatePurchaseLine(PurchaseLine2, PurchaseHeader, -LibraryRandom.RandDecInRange(1, 10, 2)); // Random for Quantity, less value from previous line.
@@ -119,7 +119,7 @@ codeunit 141038 "ERM VAT - Details"
         // [SCENARIO] Verify GL and VAT Entry after posting purchase invoice with negative quantity.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, PurchaseLine."Document Type"::Invoice);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreatePurchaseLine(PurchaseLine2, PurchaseHeader, -LibraryRandom.RandDecInRange(1, 10, 2)); // Random for Quantity, less value from previous line.
@@ -145,7 +145,7 @@ codeunit 141038 "ERM VAT - Details"
     begin
         // [FEATURE] [Sales][ACY]
         // [SCENARIO 374865] Post Sales Invoice with Additional Reporting Currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with "Exchange Rate Amount" = 7
         CreateCurrencyWithExchRateAmount(CurrencyCode);
@@ -173,7 +173,7 @@ codeunit 141038 "ERM VAT - Details"
     begin
         // [FEATURE] [Purchase][ACY]
         // [SCENARIO 374865] Post Purchase Invoice with Additional Reporting Currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with "Exchange Rate Amount" = 7
         CreateCurrencyWithExchRateAmount(CurrencyCode);
@@ -192,7 +192,7 @@ codeunit 141038 "ERM VAT - Details"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -282,7 +282,7 @@ codeunit 141038 "ERM VAT - Details"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.CalcSums("Credit Amount", "Debit Amount");
         Assert.AreNearlyEqual(AmountIncludingVATCredit, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
         Assert.AreNearlyEqual(AmountIncludingVATDebit, -GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
@@ -294,7 +294,7 @@ codeunit 141038 "ERM VAT - Details"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetFilter(Amount, AmountFilter, 0);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
     end;
 
@@ -306,7 +306,7 @@ codeunit 141038 "ERM VAT - Details"
             SetRange("Document No.", DocumentNo);
             SetRange("Bill-to/Pay-to No.", VendCustNo);
             SetRange(Base, LineBase);
-            FindFirst;
+            FindFirst();
             TestField("Additional-Currency Amount", VATAmountACY);
             TestField("Additional-Currency Base", VATBaseACY);
         end;

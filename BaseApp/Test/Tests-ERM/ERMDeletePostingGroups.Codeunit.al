@@ -27,7 +27,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         LibrarySales.CreateCustomer(Customer);
@@ -47,7 +47,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         LibrarySales.CreateCustomer(Customer);
@@ -69,7 +69,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
         LibraryPurchase.CreateVendor(Vendor);
@@ -89,7 +89,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         PurchaseLine: Record "Purchase Line";
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
         LibraryPurchase.CreateVendor(Vendor);
@@ -111,7 +111,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         // [FEATURE] [Inventory]
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
         LibraryInventory.CreateItem(Item);
@@ -139,7 +139,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
 
         // [GIVEN] Posted a G/L Entry, where "Location" = 'A',"Inv. Posting Group Code" = 'B'
-        if ValueEntry.FindLast then;
+        if ValueEntry.FindLast() then;
         ValueEntry."Entry No." += 1;
         ValueEntry."Location Code" := Location.Code;
         ValueEntry."Inventory Posting Group" := InventoryPostingGroup.Code;
@@ -170,7 +170,7 @@ codeunit 134070 "ERM Delete Posting Groups"
           GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
 
         // [GIVEN] Posted a G/L Entry, where "Gen. Bus. Posting Group" = 'A',"Gen. Prod. Posting Group" = 'B'
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         GLEntry."Entry No." += 1;
         GLEntry."Gen. Bus. Posting Group" := GeneralPostingSetup."Gen. Bus. Posting Group";
         GLEntry."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
@@ -201,7 +201,7 @@ codeunit 134070 "ERM Delete Posting Groups"
           VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
 
         // [GIVEN] Posted a G/L Entry, where "VAT Bus. Posting Group" = 'A',"VAT Prod. Posting Group" = 'B'
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         GLEntry."Entry No." += 1;
         GLEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         GLEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";

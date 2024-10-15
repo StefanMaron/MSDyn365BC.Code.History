@@ -21,7 +21,7 @@ codeunit 480 "Get Shortcut Dimension Values"
         Clear(ShortcutDimCode);
         if DimSetID = 0 then
             exit;
-        GetGLSetup;
+        GetGLSetup();
         for i := 1 to 8 do
             if GLSetupShortcutDimCode[i] <> '' then
                 ShortcutDimCode[i] := GetDimSetEntry(DimSetID, GLSetupShortcutDimCode[i]);

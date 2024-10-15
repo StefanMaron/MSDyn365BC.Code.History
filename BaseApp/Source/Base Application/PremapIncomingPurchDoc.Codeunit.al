@@ -98,7 +98,7 @@
 
             if CompanyInformation.GLN <> '' then begin
                 SetFilter(Value, StrSubstNo('<>%1&<>%2', CompanyInformation.GLN, ''''''));
-                if FindLast then
+                if FindLast() then
                     LogErrorMessage(EntryNo, CompanyInformation, CompanyInformation.FieldNo(GLN),
                       StrSubstNo(InvalidCompanyInfoGLNErr, GLN));
             end;
@@ -1368,7 +1368,7 @@
         Vendor.Reset();
         Vendor.SetCurrentKey(Blocked);
         Vendor.SetFilter(ABN, StrSubstNo('*%1', CopyStr(VATRegNo, StrLen(VATRegNo))));
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 if ExtractVatRegNo(Vendor.ABN, Vendor."Country/Region Code") =
                    ExtractVatRegNo(VATRegNo, Vendor."Country/Region Code")

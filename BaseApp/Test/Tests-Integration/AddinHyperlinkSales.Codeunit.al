@@ -934,8 +934,8 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Add-in Hyperlink Sales");
 
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         LibraryRandom.Init();
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
@@ -953,10 +953,10 @@ codeunit 139051 "Add-in Hyperlink Sales"
         SetNoSeries(DocType::"Credit Memo");
         SetNoSeries(DocType::Quote);
         SetNoSeries(DocType::Order);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         SalesHeader.DeleteAll(); // tests do not expect existing Sales Header

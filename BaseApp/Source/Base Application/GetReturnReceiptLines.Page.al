@@ -236,10 +236,10 @@ page 6638 "Get Return Receipt Lines"
         TempReturnRcptLine.Reset();
         TempReturnRcptLine.CopyFilters(Rec);
         TempReturnRcptLine.SetRange("Document No.", "Document No.");
-        if not TempReturnRcptLine.FindFirst then begin
+        if not TempReturnRcptLine.FindFirst() then begin
             ReturnRcptLine.CopyFilters(Rec);
             ReturnRcptLine.SetRange("Document No.", "Document No.");
-            if not ReturnRcptLine.FindFirst then
+            if not ReturnRcptLine.FindFirst() then
                 exit(false);
             TempReturnRcptLine := ReturnRcptLine;
             TempReturnRcptLine.Insert();

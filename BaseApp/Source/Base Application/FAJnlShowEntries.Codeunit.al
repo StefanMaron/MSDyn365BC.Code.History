@@ -15,7 +15,7 @@ codeunit 5634 "FA Jnl.-Show Entries"
             MaintenanceLedgEntry.SetRange("FA No.", "FA No.");
             if "Depreciation Book Code" <> '' then
                 MaintenanceLedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
-            if MaintenanceLedgEntry.FindLast then;
+            if MaintenanceLedgEntry.FindLast() then;
             PAGE.Run(PAGE::"Maintenance Ledger Entries", MaintenanceLedgEntry);
         end;
     end;

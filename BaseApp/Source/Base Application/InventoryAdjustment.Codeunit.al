@@ -184,7 +184,7 @@
         ConsumpAdjmtInPeriodWithOutput := 0D;
 
         TheItem.SetCurrentKey("Low-Level Code");
-        if TheItem.FindLast then
+        if TheItem.FindLast() then
             TheItem.SetRange("Low-Level Code", TheItem."Low-Level Code");
 
         with Item do
@@ -692,7 +692,7 @@
                         TempValueEntryCalcdOutbndCostBuf.DeleteAll();
                     end;
 
-                    InbndValueEntry.FindLast;
+                    InbndValueEntry.FindLast();
                     InbndValueEntry.SetRange("Document No.");
                     InbndValueEntry.SetRange("Document Line No.");
                 end;
@@ -901,7 +901,7 @@
               not Recursion);
     end;
 
-    local procedure IncludedInCostCalculation(InbndValueEntry: Record "Value Entry"; OutbndItemLedgEntryNo: Integer): Boolean
+    procedure IncludedInCostCalculation(InbndValueEntry: Record "Value Entry"; OutbndItemLedgEntryNo: Integer): Boolean
     var
         OutbndValueEntry: Record "Value Entry";
     begin
@@ -915,7 +915,7 @@
                     OutbndValueEntry.SetCurrentKey("Item Ledger Entry No.");
                     OutbndValueEntry.SetRange("Item Ledger Entry No.", OutbndItemLedgEntryNo);
                     OutbndValueEntry.SetFilter("Item Ledger Entry Quantity", '<>0');
-                    OutbndValueEntry.FindFirst;
+                    OutbndValueEntry.FindFirst();
                     exit(
                       (OutbndValueEntry."Entry No." > "Entry No.") or
                       (OutbndValueEntry.GetValuationDate > "Valuation Date") or
@@ -1000,7 +1000,7 @@
                         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
                         ValueEntry.SetRange("Item Charge No.", '');
                         ValueEntry.SetRange(Adjustment, false);
-                        ValueEntry.FindLast;
+                        ValueEntry.FindLast();
                         InitRndgResidualItemJnlLine(ItemJnlLine, ValueEntry);
                         PostItemJnlLine(ItemJnlLine, ValueEntry, RndgCost, RndgCostACY);
                     end;
@@ -1148,7 +1148,7 @@
             end;
             OnAvgValueEntriesToAdjustExistOnAfterSetAvgValueEntryFilters(ValueEntry);
 
-            if FindFirst then begin
+            if FindFirst() then begin
                 FindNextRange := true;
 
                 if "Valuation Date" > CalendarPeriod."Period End" then begin
@@ -1270,7 +1270,7 @@
         end;
     end;
 
-    local procedure ExpCostIsCompletelyInvoiced(ItemLedgEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry"): Boolean
+    procedure ExpCostIsCompletelyInvoiced(ItemLedgEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry"): Boolean
     begin
         with ItemLedgEntry do
             exit(ValueEntry."Expected Cost" and (Quantity = "Invoiced Quantity"));
@@ -1373,7 +1373,7 @@
                             FirstValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
                             FirstValueEntry.SetRange("Entry Type", "Entry Type"::"Direct Cost");
                             FirstValueEntry.SetRange("Item Charge No.", '');
-                            FirstValueEntry.FindFirst;
+                            FirstValueEntry.FindFirst();
                         end;
                     end;
 
@@ -1634,7 +1634,7 @@
     begin
         OrigValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         OrigValueEntry.SetRange("Item Ledger Entry No.", TempInvtAdjmtBuf."Item Ledger Entry No.");
-        OrigValueEntry.FindFirst;
+        OrigValueEntry.FindFirst();
 
         with OrigValueEntry do begin
             ItemJnlLine.Init();
@@ -2024,7 +2024,7 @@
                 AvgCostAdjmtPoint.SetRange("Item No.", "No.");
                 AvgCostAdjmtPoint.SetRange("Cost Is Adjusted", false);
                 if "Costing Method" <> "Costing Method"::Average then begin
-                    if AvgCostAdjmtPoint.FindFirst then
+                    if AvgCostAdjmtPoint.FindFirst() then
                         AvgCostAdjmtPoint.ModifyAll("Cost Is Adjusted", true);
                 end;
                 "Cost is Adjusted" := AvgCostAdjmtPoint.IsEmpty;
@@ -2235,7 +2235,7 @@
             SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.");
             SetRange("Item Ledger Entry No.", "Transferred-from Entry No.");
             SetRange("Inbound Item Entry No.", "Transferred-from Entry No.");
-            FindFirst;
+            FindFirst();
             if "Transferred-from Entry No." <> 0 then
                 GetOrigPosItemLedgEntryNo(ItemApplnEntry);
         end;
@@ -2352,8 +2352,8 @@
     begin
         with AvgCostExceptionBuf do begin
             SetFilter(Number, '>%1', ValueEntryNo);
-            if not FindFirst then begin
-                Integer.FindLast;
+            if not FindFirst() then begin
+                Integer.FindLast();
                 SetRange(Number);
                 exit(Integer.Number);
             end;
@@ -2395,7 +2395,7 @@
                         UpdateJobItemCost.SetTableView(Job);
                         UpdateJobItemCost.UseRequestPage := false;
                         UpdateJobItemCost.SetProperties(true);
-                        UpdateJobItemCost.RunModal;
+                        UpdateJobItemCost.RunModal();
                     until TempJobToAdjustBuf.Next() = 0;
             end;
     end;
@@ -2499,7 +2499,7 @@
                       "Item Ledger Entry Type", '%1|%2',
                       "Item Ledger Entry Type"::Output,
                       "Item Ledger Entry Type"::"Assembly Output");
-                    if FindFirst then
+                    if FindFirst() then
                         ConsumpAdjmtInPeriodWithOutput := AvgCostAdjmtEntryPoint."Valuation Date";
                 end;
             end;
@@ -2606,7 +2606,7 @@
             end;
             OnIsOutputWithSelfConsumptionOnAfterSetConsumpValueEntryFilters(ConsumpValueEntry);
 
-            if FindFirst then begin
+            if FindFirst() then begin
                 ConsumpItemLedgEntry.Get("Item Ledger Entry No.");
                 ItemApplicationEntry.GetVisitedEntries(ConsumpItemLedgEntry, TempItemLedgEntry, true);
 

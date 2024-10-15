@@ -157,7 +157,7 @@ report 16627 "Monthly Remittance Return  WHT"
                 WHTEntry1.Reset();
                 WHTEntry1.Copy("WHT Entry");
                 WHTEntry1.SetRange("WHT Revenue Type", "WHT Revenue Type");
-                if WHTEntry1.FindFirst then
+                if WHTEntry1.FindFirst() then
                     rcount := WHTEntry1.Count();
                 if rcount = 0 then
                     rcount := 1;

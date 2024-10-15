@@ -228,7 +228,7 @@ table 272 "Check Ledger Entry"
     var
         BankAcc: Record "Bank Account";
     begin
-        if not FindSet then
+        if not FindSet() then
             Error(NothingToExportErr);
 
         if not BankAcc.Get("Bank Account No.") then

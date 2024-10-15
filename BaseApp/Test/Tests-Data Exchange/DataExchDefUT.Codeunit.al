@@ -27,7 +27,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchCode: Code[20];
     begin
         // Setup
-        DataExchDefCard.OpenNew;
+        DataExchDefCard.OpenNew();
         DataExchCode := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
 
         // Exercise
@@ -52,7 +52,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchCode: Code[20];
     begin
         // Setup
-        DataExchDefCard.OpenNew;
+        DataExchDefCard.OpenNew();
         DataExchCode := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
 
         // Exercise
@@ -135,20 +135,20 @@ codeunit 132543 "Data Exch. Def UT"
     begin
         // Pre-Setup
         DataExchDef.Init();
-        DataExchDef.Code := LibraryUtility.GenerateGUID;
+        DataExchDef.Code := LibraryUtility.GenerateGUID();
         DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
         DataExchDef.Insert(true);
 
         // Setup
         DataExchLineDef1.Init();
         DataExchLineDef1."Data Exch. Def Code" := DataExchDef.Code;
-        DataExchLineDef1.Code := LibraryUtility.GenerateGUID;
+        DataExchLineDef1.Code := LibraryUtility.GenerateGUID();
         DataExchLineDef1.Insert(true);
 
         // Exercise
         DataExchLineDef2.Init();
         DataExchLineDef2."Data Exch. Def Code" := DataExchDef.Code;
-        DataExchLineDef2.Code := LibraryUtility.GenerateGUID;
+        DataExchLineDef2.Code := LibraryUtility.GenerateGUID();
         DataExchLineDef2.Insert(true);
 
         // Verify: no error was raised.
@@ -166,7 +166,7 @@ codeunit 132543 "Data Exch. Def UT"
     begin
         // Setup
         LibraryPaymentExport.CreateSimpleDataExchDefWithMapping(DataExchMapping, DATABASE::"Bank Acc. Reconciliation", 1);
-        DataExchDefCard.OpenNew;
+        DataExchDefCard.OpenNew();
         DataExchCode := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
 
         // Exercise
@@ -229,7 +229,7 @@ codeunit 132543 "Data Exch. Def UT"
         // Secnario 3: Import of Data Exchange Definition correctly recreates new Line Type field values
         // Pre-Setup
         DataExchDef.Init();
-        DataExchDef.Code := LibraryUtility.GenerateGUID;
+        DataExchDef.Code := LibraryUtility.GenerateGUID();
         DataExchCode := DataExchDef.Code;
         DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
         DataExchDef.Insert(true);
@@ -258,7 +258,7 @@ codeunit 132543 "Data Exch. Def UT"
         // Verify that there are 3 records in 1227 table with different Line Types.
         LineTypeCount := 1;
         DataExchLineDef1.SetRange("Data Exch. Def Code", DataExchCode);
-        if DataExchLineDef1.FindSet then begin
+        if DataExchLineDef1.FindSet() then begin
             repeat
                 case LineTypeCount of
                     1:
@@ -288,19 +288,19 @@ codeunit 132543 "Data Exch. Def UT"
 
         // [GIVEN] Data Exch. Def.
         DataExchDef.Init();
-        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID);
+        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID());
         DataExchDef.Validate(Type, DataExchDef.Type::"Bank Statement Import");
         DataExchDef.Insert(true);
 
         // [GIVEN] Data Exch. Def. Line ZZZ, which surely be last alphabetically
         InsertLineTypeRecords(DataExchDef.Code, DataExchLineType::Detail, 'Z');
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindLast;
+        DataExchLineDef.FindLast();
         ParentCode := DataExchLineDef.Code;
 
         // [GIVEN] Data Exch. Def. Line AAA, which surely be 1st alphabetically and has ZZZ as "Parent Code"
         InsertLineTypeRecords(DataExchDef.Code, DataExchLineType::Detail, 'A');
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchLineDef.Validate("Parent Code", ParentCode);
         DataExchLineDef.Modify(true);
 
@@ -334,7 +334,7 @@ codeunit 132543 "Data Exch. Def UT"
         // [GIVEN] Empty Data Exch. Definition inserted
         // [GIVEN] Validating "Type" as "Positive Pay Export" and "File Type" as "Fixed Text"
         DataExchDef.Init();
-        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID);
+        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID());
         DataExchDef.Insert(true);
         DataExchDef.Validate("File Type", DataExchDef."File Type"::"Fixed Text");
         DataExchDef.Validate(Type, DataExchDef.Type::"Positive Pay Export");
@@ -360,7 +360,7 @@ codeunit 132543 "Data Exch. Def UT"
         // [GIVEN] Empty Data Exch. Definition inserted
         // [GIVEN] Validating "Type" as "Positive Pay Export" and "File Type" as "Variable Text" and modify the record
         DataExchDef.Init();
-        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID);
+        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID());
         DataExchDef.Insert(true);
         DataExchDef.Validate("File Type", DataExchDef."File Type"::"Variable Text");
         DataExchDef.Validate(Type, DataExchDef.Type::"Positive Pay Export");
@@ -386,7 +386,7 @@ codeunit 132543 "Data Exch. Def UT"
         // [GIVEN] Empty Data Exch. Definition
         // [GIVEN] Validate "Type" as "Positive Pay Export" and "File Type" as "Fixed Text"
         DataExchDef.Init();
-        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID);
+        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID());
         DataExchDef.Validate(Type, DataExchDef.Type::"Positive Pay Export");
         DataExchDef.Validate("File Type", DataExchDef."File Type"::"Fixed Text");
 
@@ -411,7 +411,7 @@ codeunit 132543 "Data Exch. Def UT"
         // [GIVEN] Empty Data Exch. Definition
         // [GIVEN] Validate "Type" as "Positive Pay Export" and "File Type" as "Variable Text"
         DataExchDef.Init();
-        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID);
+        DataExchDef.Validate(Code, LibraryUtility.GenerateGUID());
         DataExchDef.Validate(Type, DataExchDef.Type::"Positive Pay Export");
         DataExchDef.Validate("File Type", DataExchDef."File Type"::"Variable Text");
 
@@ -668,7 +668,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchCode: Code[20];
     begin
         // Setup for Detail Line Type
-        DataExchDefCard.OpenNew;
+        DataExchDefCard.OpenNew();
         DataExchCode := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
 
         // Exercise
@@ -694,7 +694,7 @@ codeunit 132543 "Data Exch. Def UT"
     begin
         // Setup
         DataExchLineDef.Init();
-        DataExchLineDef.Code := LineCodePrefix + LibraryUtility.GenerateGUID;
+        DataExchLineDef.Code := LineCodePrefix + LibraryUtility.GenerateGUID();
         DataExchLineDef."Data Exch. Def Code" := DataExchCode;
         DataExchLineDef."Line Type" := DataExchLineType;
         DataExchLineDef."Column Count" := 1;

@@ -574,7 +574,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     local procedure TestNoSeries(): Boolean

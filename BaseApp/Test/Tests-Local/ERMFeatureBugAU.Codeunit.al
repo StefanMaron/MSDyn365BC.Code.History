@@ -436,7 +436,7 @@ codeunit 144004 "ERM Feature Bug AU"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
     end;
 

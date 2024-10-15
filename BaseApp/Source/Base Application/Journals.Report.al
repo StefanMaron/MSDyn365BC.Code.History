@@ -320,7 +320,7 @@ report 28161 Journals
                 StartDate := GetRangeMin("Period Start");
                 CopyFilter("Period Type", Period."Period Type");
                 Period.SetRange("Period Start", StartDate);
-                if not Period.FindFirst then
+                if not Period.FindFirst() then
                     Error(Text009, StartDate, GetFilter("Period Type"));
                 PreviousEndDate := ClosingDate(StartDate - 1);
                 FiltreDateCalc.CreateFiscalYearFilter(TextDate, TextDate, StartDate, 0);
@@ -337,7 +337,7 @@ report 28161 Journals
                 Clear(Period);
                 CopyFilter("Period Type", Period."Period Type");
                 Period.SetRange("Period End", ClosingDate(EndDate));
-                if not Period.FindFirst then
+                if not Period.FindFirst() then
                     Error(Text010, EndDate, GetFilter("Period Type"));
             end;
         }

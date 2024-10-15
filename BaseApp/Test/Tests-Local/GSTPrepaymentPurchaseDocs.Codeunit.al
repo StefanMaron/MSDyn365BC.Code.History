@@ -44,7 +44,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
         LibraryAULocalization.EnableGSTSetup(true, false);
 
         // Setup
@@ -353,7 +353,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreatePostingSetup(GenPostingSetup);
         CreateHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor(GenPostingSetup."Gen. Bus. Posting Group"));
@@ -384,7 +384,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -423,7 +423,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -461,7 +461,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         GenPostingSetup: Record "General Posting Setup";
         DocNo: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -491,7 +491,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         GenPostingSetup: Record "General Posting Setup";
         DocNo: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -525,7 +525,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -561,7 +561,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         GenPostingSetup: Record "General Posting Setup";
         DocNo: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -595,7 +595,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -631,7 +631,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -666,7 +666,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -701,7 +701,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         NewDate: Date;
         InvoicedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -742,7 +742,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         NewDate: Date;
         InvoicedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostingSetup(GenPostingSetup);
@@ -781,7 +781,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         DocNo: Code[10];
         DocNo2: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.SetUnrealizedVAT(true);
@@ -996,7 +996,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
             SetFilter("VAT Prod. Posting Group", '<>%1', PurchaseLine."VAT Prod. Posting Group");
             SetFilter("VAT %", '>%1', PurchaseLine."VAT %");
         end;
-        if not VATPostingSetup.FindFirst then begin
+        if not VATPostingSetup.FindFirst() then begin
             LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseLine."VAT Bus. Posting Group", VATProdPostingGroup.Code);
             VATPostingSetup.Validate("VAT %", PurchaseLine."VAT %" + LibraryRandom.RandInt(10));
@@ -1190,13 +1190,13 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
 
     local procedure UpdateVendorInvoiceNo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdateVendorCrMemoNo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -1241,7 +1241,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         if DoubleEntry then // There are 2 G/L Entries for the same account with the same Document No., so additional filter is needed
             GLEntry.SetFilter(
               Amount, '<=%1&>=%2', Amount + LibraryERM.GetAmountRoundingPrecision, Amount - LibraryERM.GetAmountRoundingPrecision);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         if Amount > 0 then
             DebitAmount := Amount
@@ -1272,7 +1272,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
                 GSTPurchaseEntry.SetFilter("GST Base", '<0')
             else
                 GSTPurchaseEntry.SetFilter("GST Base", '>=0');
-        GSTPurchaseEntry.FindFirst;
+        GSTPurchaseEntry.FindFirst();
 
         Assert.AreNearlyEqual(Base, GSTPurchaseEntry."GST Base", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(ValidationError, GSTPurchaseEntry.FieldCaption("GST Base"), Base, GSTPurchaseEntry.TableCaption));
@@ -1649,7 +1649,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
                 BaseRef.SetFilter('<0')
             else
                 BaseRef.SetFilter('>=0');
-        VATEntryRef.FindFirst;
+        VATEntryRef.FindFirst();
 
         Evaluate(ActualBase, Format(BaseRef.Value));
         Evaluate(ActualAmount, Format(AmountRef.Value));

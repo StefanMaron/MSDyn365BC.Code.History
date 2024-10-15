@@ -55,7 +55,7 @@ codeunit 139026 "Test Job Queue"
         JobQueueLogEntry: Record "Job Queue Log Entry";
         JobQueueEntryID: Guid;
     begin
-        Initialize;
+        Initialize();
 
         JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
@@ -82,7 +82,7 @@ codeunit 139026 "Test Job Queue"
         i: Integer;
         NoOfRemainingJobs: Integer;
     begin
-        Initialize;
+        Initialize();
 
         for i := 1 to 3 do begin
             JobQueueEntry.Init();
@@ -118,7 +118,7 @@ codeunit 139026 "Test Job Queue"
         CustomerLookup: TestPage "Customer Lookup";
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         JobQueueEntry.LookupRecordToProcess; // Does nothing, just returns.
         JobQueueEntry.ID := CreateGuid;
@@ -140,7 +140,7 @@ codeunit 139026 "Test Job Queue"
     var
         JobQueueCategoryList: TestPage "Job Queue Category List";
     begin
-        JobQueueCategoryList.OpenNew;
+        JobQueueCategoryList.OpenNew();
         asserterror JobQueueCategoryList.Code.Value := '';
     end;
 
@@ -153,7 +153,7 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntryID: Guid;
         ErrorMsg: Text;
     begin
-        Initialize;
+        Initialize();
 
         CreateJobQueueEntry(
           JobQueueEntry,
@@ -187,7 +187,7 @@ codeunit 139026 "Test Job Queue"
         EarliestStartingDateTime: DateTime;
         NextDay: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         Duration := 1;
         Baseline := RoundDateTime(CurrentDateTime, 1000, '>'); // Rounds to nearest second avoiding milisecond comparison failures.
@@ -234,7 +234,7 @@ codeunit 139026 "Test Job Queue"
     begin
         // [FEATURE] [UT] [Sales] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue with Prepmt. Auto Update Frequency = Daily in Sales Setup
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate(
           "Prepmt. Auto Update Frequency", SalesReceivablesSetup."Prepmt. Auto Update Frequency"::Daily);
@@ -251,7 +251,7 @@ codeunit 139026 "Test Job Queue"
     begin
         // [FEATURE] [UT] [Sales] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue with Prepmt. Auto Update Frequency = Weekly in Sales Setup
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate(
           "Prepmt. Auto Update Frequency", SalesReceivablesSetup."Prepmt. Auto Update Frequency"::Weekly);
@@ -268,7 +268,7 @@ codeunit 139026 "Test Job Queue"
     begin
         // [FEATURE] [UT] [Sales] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue when reset Prepmt. Auto Update Frequency to Never in Sales Setup
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate(
           "Prepmt. Auto Update Frequency", SalesReceivablesSetup."Prepmt. Auto Update Frequency"::Daily);
@@ -288,7 +288,7 @@ codeunit 139026 "Test Job Queue"
     begin
         // [FEATURE] [UT] [Purchase] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue with Prepmt. Auto Update Frequency = Daily in Purchase Setup
-        Initialize;
+        Initialize();
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate(
           "Prepmt. Auto Update Frequency", PurchasesPayablesSetup."Prepmt. Auto Update Frequency"::Daily);
@@ -305,7 +305,7 @@ codeunit 139026 "Test Job Queue"
     begin
         // [FEATURE] [UT] [Purchase] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue with Prepmt. Auto Update Frequency = Weekly in Purchase Setup
-        Initialize;
+        Initialize();
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate(
           "Prepmt. Auto Update Frequency", PurchasesPayablesSetup."Prepmt. Auto Update Frequency"::Weekly);
@@ -322,7 +322,7 @@ codeunit 139026 "Test Job Queue"
     begin
         // [FEATURE] [UT] [Purchase] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue when reset Prepmt. Auto Update Frequency to Never in Purchase Setup
-        Initialize;
+        Initialize();
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate(
           "Prepmt. Auto Update Frequency", PurchasesPayablesSetup."Prepmt. Auto Update Frequency"::Daily);
@@ -344,7 +344,7 @@ codeunit 139026 "Test Job Queue"
     begin
         // [FEATURE] [UT] [Confirm Dialog] [GUIALLOWED]
         // [SCENARIO 273067] Schedule Job Queue running codeunit with CONFIRM dialog which is not wrapped with GUIALLOWED
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Queue Entry running codeunit with CONFIRM dialog
         JobQueueEntry.Init();
@@ -373,7 +373,7 @@ codeunit 139026 "Test Job Queue"
     begin
         // [FEATURE] [UT] [Confirm Dialog] [GUIALLOWED]
         // [SCENARIO 273067] Schedule Job Queue running codeunit with CONFIRM dialog which is wrapped with GUIALLOWED
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Queue Entry running codeunit with CONFIRM dialog wrapped with GUIALLOWED
         JobQueueEntry.Init();
@@ -392,6 +392,7 @@ codeunit 139026 "Test Job Queue"
         Assert.AreEqual(UserId, JobQueueLogEntry."User ID", 'Unexpected userid in the log');
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure JobQueueRecoverEntry()
@@ -401,7 +402,7 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntryID: Guid;
     begin
         // [SCENARIO] Job fails with DB connection lost - status is left in 'In Progress'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Queue Entry exists with status='In Progress' but not running
         JobQueueEntry.ID := CreateGuid();
@@ -428,7 +429,7 @@ codeunit 139026 "Test Job Queue"
         Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Log Entry should have status Error');
         Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntry.Status, 'JQ Entry should have status Error');
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure NoOfMinutesValidationResetsRecurringProperly()
@@ -522,7 +523,7 @@ codeunit 139026 "Test Job Queue"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteAllJobQueueEntries;
     end;
 
@@ -593,7 +594,7 @@ codeunit 139026 "Test Job Queue"
             Sleep(1000);
 
             JobQueueLogEntry.SetRange(ID, JobEntryId);
-            if JobQueueLogEntry.FindLast then;
+            if JobQueueLogEntry.FindLast() then;
         until (i > 300) or ((JobQueueLogEntry."Entry No." <> 0) and (JobQueueLogEntry.Status <> JobQueueLogEntry.Status::"In Process"));
 
         if i > 300 then
@@ -608,7 +609,7 @@ codeunit 139026 "Test Job Queue"
         // We won't be able to delete entries with Status = In Process.
         Commit();
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
-        if JobQueueEntry.FindSet then begin
+        if JobQueueEntry.FindSet() then begin
             repeat
                 JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
             until JobQueueEntry.Next = 0;
@@ -627,7 +628,7 @@ codeunit 139026 "Test Job Queue"
         with JobQueueEntry do begin
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", CODEUNIT::"Document-Mailing");
-            FindFirst;
+            FindFirst();
             TestField("Record ID to Process", ExpectedRecID);
         end;
     end;
@@ -638,7 +639,7 @@ codeunit 139026 "Test Job Queue"
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CodeunitID);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
 
         JobQueueEntry.TestField("Recurring Job", Recurring);
         JobQueueEntry.TestField("No. of Minutes between Runs", NoOfMinutes);

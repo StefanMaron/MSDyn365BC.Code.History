@@ -45,7 +45,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
               IncomingDocumentsSetup."General Journal Template Name", IncomingDocumentsSetup."General Journal Batch Name");
             LastGenJournalLine.SetRange("Journal Template Name", IncomingDocumentsSetup."General Journal Template Name");
             LastGenJournalLine.SetRange("Journal Batch Name", IncomingDocumentsSetup."General Journal Batch Name");
-            if not LastGenJournalLine.FindLast then begin
+            if not LastGenJournalLine.FindLast() then begin
                 LastGenJournalLine.Validate("Journal Template Name", IncomingDocumentsSetup."General Journal Template Name");
                 LastGenJournalLine.Validate("Journal Batch Name", IncomingDocumentsSetup."General Journal Batch Name");
                 LastGenJournalLine."Line No." := LastGenJournalLine."Line No." + 10000;
@@ -68,7 +68,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
             GenJournalLine."Document Type" := GetAttachedDocumentType;
 
             TextToAccountMapping.SetFilter("Mapping Text", StrSubstNo('@%1', IncomingDocument."Vendor Name"));
-            TextToAccountMappingFound := TextToAccountMapping.FindFirst;
+            TextToAccountMappingFound := TextToAccountMapping.FindFirst();
 
             case GenJournalLine."Document Type" of
                 GenJournalLine."Document Type"::Invoice:
@@ -143,7 +143,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
         DocumentType: Enum "Purchase Document Type";
     begin
         DataExch.SetRange("Incoming Entry No.", IncomingDocument."Entry No.");
-        if not DataExch.FindLast then
+        if not DataExch.FindLast() then
             ErrorMessage.LogMessage(GenJournalLine, GenJournalLine.FieldNo("Document Type"),
               ErrorMessage."Message Type"::Error, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr);
         Value :=

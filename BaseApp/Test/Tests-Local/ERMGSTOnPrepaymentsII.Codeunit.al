@@ -33,7 +33,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Sales Entries after posting Sales Order with Prices Including VAT as False with Prepayment.
 
         // [GIVEN] Create Sales Order, post Sales Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports and Full GST On Prepayment.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random for Prepayment Pct, FALSE for Price Including VAT.
@@ -66,7 +66,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] VAT Amount Lines after creating Purchase Order with Prices Including VAT as True, Full GST on Prepayment on G/L Setup TRUE.
 
         // [GIVEN] Create Purchase Order with multiple Lines.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderAndUpdateGeneralPostingSetup(PurchaseLine, '', 100, true);  // Taking blank value for Currency Code, 100 for Prepayment Pct. as required for Test case, TRUE for Prices Including VAT.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Taking random for Quantity.
@@ -96,7 +96,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Purchase Entry after posting Purchase Order with Prices Including VAT as True, Full GST on Prepayment on G/L Setup TRUE.
 
         // [GIVEN] Create Purchase Order with multiple Lines and post Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports and Full GST On Prepayment.
         CreatePurchaseOrderAndUpdateGeneralPostingSetup(PurchaseLine, '', 100, true);  // Taking blank value for Currency Code, 100 for Prepayment Pct. as required for Test case, TRUE for Prices Including VAT.
@@ -134,7 +134,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Purchase Entry after posting Purchase Order with Prices Including VAT as FALSE, Full GST on Prepayment on G/L Setup TRUE.
 
         // [GIVEN] Create Purchase Order and post Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports and Full GST On Prepayment.
         CreatePurchaseOrderAndUpdateGeneralPostingSetup(PurchaseLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random for Prepayment Pct., FALSE for Prices Including VAT.
@@ -168,7 +168,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Sales Entries after posting Sales Order with Prices Including VAT as False without Prepayment.
 
         // [GIVEN] Create Sales Order.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports and Full GST On Prepayment.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', 0, false);  // Taking blank value for Currency Code, 0 for Prepayment Pct, FALSE for Price Including VAT.
@@ -201,7 +201,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] VAT Amount Line after posting Sales Order with Prices including VAT TRUE and full Prepayment.
 
         // [GIVEN] Create Sales order, post Prepayment Invoice.
-        Initialize;
+        Initialize();
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', 100, true);  // Taking blank value for Currency Code, 100 for Prepayment Pct, TRUE for Price Including VAT.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandDec(10, 2));  // Taking random for Quantity.
@@ -234,7 +234,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] G/L Entry after posting Sales Prepayment Invoice with two Items having different VAT Product Posting Group.
 
         // [GIVEN] Create Sales Order with multiple Lines.
-        Initialize;
+        Initialize();
         OldUnrealizedVAT := UpdateUnrealizedVATGeneralLedgerSetup(true);  // TRUE for Unrealized VAT.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', 100, true);  // Taking blank value for Currency Code, 100 for Prepayment Pct, TRUE for Price Including VAT.
         CreateVATPostingSetup(VATPostingSetup, SalesLine."VAT Bus. Posting Group");
@@ -271,7 +271,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Sales Entry after posting Sales Invoice with negative Lines, when GST on full payment is applicable.
 
         // [GIVEN] Create Sales Invoice with multiple lines.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports and Full GST ON Prepayment.
         LibrarySales.CreateCustomer(Customer);
@@ -316,7 +316,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] G/L Entries after posting Purchase Order with Negative Lines and Update VAT Amount on VAT Amount Lines.
 
         // [GIVEN] Update Purchases & Payable Setup, create Vendor.
-        Initialize;
+        Initialize();
         OldAllowVATDifference := UpdateAllowVATDifferencePurchasesPayablesSetup(true);  // TRUE for Allow VAT Difference.
         UpdateMaxVATDifferenceAllowedGeneralLedgerSetup;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -360,7 +360,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] G/L Entries after posting Sales Order with Negative Lines and Update VAT Amount on VAT Amount Lines.
 
         // [GIVEN] Update Sales & Receivable Setup, create Item, create Customer.
-        Initialize;
+        Initialize();
         OldAllowVATDifference := UpdateAllowVATDifferenceSalesReceivableSetup(true);  // TRUE for Allow VAT Difference.
         UpdateMaxVATDifferenceAllowedGeneralLedgerSetup;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -403,7 +403,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GL and GST Sales Entry after posting Prepayment Invoice and Payment is made to the final Invoice.
 
         // [GIVEN] Create Sales Order, Post Prepayment Invoice, Post Order and apply Payment to the two Invoices.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, true);  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         CreateSalesOrderAndPostPrepaymentInvoice(SalesLine, '');  // Taking blank value for Currency Code,
@@ -448,7 +448,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GL and GST Purchase Entry after posting Prepayment Invoice and Payment is made to the final Invoice.
 
         // [GIVEN] Create Purchase Order, Post Prepayment Invoice, Post Order and apply Payment to the two Invoices.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, true);  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         CreatePurchaseOrderAndPostPrepaymentInvoice(PurchaseLine, '');  // Using blank value for Currency Code.
@@ -490,7 +490,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GL and GST Purchase Entry after posting two Prepayment Invoices.
 
         // [GIVEN] Create Purchase Order and post two Prepayment Invoices.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, GeneralLedgerSetup."Unrealized VAT");  // TRUE for Enable GST, Full GST On Prepayment and GST Reports.
         CreatePurchaseOrderAndPostPrepaymentInvoice(PurchaseLine, '');  // Using blank value for Currency Code.
@@ -528,7 +528,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GL and GST Sales Entry after posting two Prepayment Invoices.
 
         // [GIVEN] Create Sales Order and post two Prepayment Invoices.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, GeneralLedgerSetup."Unrealized VAT");  // TRUE for Enable GST, Full GST On Prepayment and GST Reports.
         CreateSalesOrderAndPostPrepaymentInvoice(SalesLine, '');  // Taking blank value for Currency Code,
@@ -566,7 +566,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] invoicing of Purchase in case of Unrealized GST when Full GST on Prepayment is applicable.
 
         // [GIVEN] Create Purchase Order, post Prepayment Invoice and apply Payment to Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, true);  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         CreatePurchaseOrderAndPostPrepaymentInvoice(PurchaseLine, '');  // Using blank value for Currency Code.
@@ -605,7 +605,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] invoicing of Sales in case of Unrealized GST when Full GST on Prepayment is applicable.
 
         // [GIVEN] Create Sales Order, post Prepayment Invoice, post Order and apply Payment to two Invoices.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, true);  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         CreateSalesOrderAndPostPrepaymentInvoice(SalesLine, '');  // Taking blank value for Currency Code,
@@ -647,7 +647,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] Prepayment Amount and GST Amount are reversed after posting final Invoice.
 
         // [GIVEN] Create Sales Order and post Prepayment Invoice
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, GeneralLedgerSetup."Unrealized VAT");  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', 100, true);  // Taking blank value for Currency Code, 100 for Prepayment Pct. as required for Test case,TRUE for Price Including VAT.
@@ -686,7 +686,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GL and GST Entries when GST on full payment is applicable on Prepayment transaction and Purchase Order is created in FCY.
 
         // [GIVEN] Create Purchase Order with FCY, Post Prepayment Invoice and apply Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, GeneralLedgerSetup."Unrealized VAT");  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         OldInvoiceRounding := UpdateInvoiceRoundingOnPurchasesPayablesSetup(false);  // Using FALSE for Invoice Rounding.
@@ -733,7 +733,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GL and GST Entries when GST on full payment is applicable on Prepayment transaction and Sales Order is created in FCY.
 
         // [GIVEN] Create Sales Order with FCY, Post Prepayment Invoice and apply Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, GeneralLedgerSetup."Unrealized VAT");  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);
@@ -777,7 +777,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] Amount on G/L Entry is rounded off when Invoice rounding on Sales & Receivables Setup is set to TRUE.
 
         // [GIVEN] Create Sales Order and post Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, GeneralLedgerSetup."Unrealized VAT");  // TRUE for Enable GST, Full GST On Prepayment and GST Reports.
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(true);  // TRUE for Invoice Rounding.
@@ -814,7 +814,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] G/L and GST Purchase Entry after posting Purchase Prepayment Invoice and Purchase Invoice and updating Line Amount.
 
         // [GIVEN] Create Purchase Order, post Prepayment Invoice and payment for Prepayment Invoice, Update Direct Unit Cost on Purchase Line.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreatePurchaseOrderAndUpdateGeneralPostingSetup(PurchaseLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random value for Prepayment Pct. FALSE for Prices Including VAT.
@@ -847,7 +847,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] G/L and GST Sales Entry after posting Sales Prepayment Invoice and Sales Invoice and updating Line Amount.
 
         // [GIVEN] Create Sales Order, post Prepayment Invoice and payment for Prepayment Invoice, Update Unit Price on Sales Line.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random value for Prepayment Pct., FALSE for Prices Including VAT.
@@ -881,7 +881,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] G/L Entry after posting Payment for Sales Invoice and Sales Prepayment Invoice with Full GST On Prepayment TRUE.
 
         // [GIVEN] Create Sales Order, Post Sales Prepayment Invoice, and make Payment for the same.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', LibraryRandom.RandDec(10, 2), true);  // Taking blank value for Currency Code, random value for Prepayment Pct., TRUE for Prices Including VAT.
@@ -917,7 +917,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] G/L Entry after posting Payment for Purchase Invoice and Purchase Prepayment Invoice with Full GST On Prepayment TRUE.
 
         // [GIVEN] Create Purchase Order, Post Purchase Prepayment Invoice, and make Payment for the same.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreatePurchaseOrderAndUpdateGeneralPostingSetup(PurchaseLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random value for Prepayment Pct., FALSE for Prices Including VAT.
@@ -953,12 +953,12 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Purchase Entry and G/L entry after posting Purchase Invoice and Purchase Prepayment Credit Memo.
 
         // [GIVEN] Create Purchase Order, post Purchase Prepayment Invoice and make payment for the same.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreatePurchaseOrderAndUpdateGeneralPostingSetup(PurchaseLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random value for Prepayment Pct., FALSE for Prices Including VAT.
         PostPaymentForPurchPrepaymentInvoice(PurchaseHeader, PurchaseLine);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         // Post Purchase Prepayment Credit Memo and Prepayment Invoice.
@@ -994,7 +994,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Sales Entry and G/L entry after posting Sales Invoice and Sales Prepayment Credit Memo.
 
         // [GIVEN] Create Sales Order, post Sales Prepayment Invoice and make payment for the same.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random value for Prepayment Pct., FALSE for Prices Including VAT.
@@ -1033,7 +1033,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Purchase Entry and G/L Entry after posting partial Purchase Invoice with Full GST On Prepayment TRUE.
 
         // [GIVEN] Create and post Purchase Prepayment Invoice, Update Quantity To Invoice on Purchase Line.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreatePurchaseOrderAndUpdateGeneralPostingSetup(PurchaseLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random value for Prepayment Pct, FALSE for Prices Including VAT.
@@ -1065,7 +1065,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] GST Sales Entry and G/L Entry after posting partial Sales Invoice with Full GST On Prepayment TRUE.
 
         // [GIVEN] Create and post Sales Prepayment Invoice, Update Quantity To Invoice on Sales Line.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', LibraryRandom.RandDec(10, 2), false);  // Taking blank value for Currency Code, random value for Prepayment Pct., FALSE for Prices Including VAT.
@@ -1097,7 +1097,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] G/L Entry after posting Sales Order with Prices Including VAT as True, Full GST on Prepayment on G/L Setup TRUE.
 
         // [GIVEN] Create Sales Order and post Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
         CreateSalesOrderAndUpdateGeneralPostingSetup(SalesLine, '', 100, true);  // Taking blank value for Currency Code, 100 for Prepayment Pct, TRUE for Price Including VAT.
@@ -1129,7 +1129,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         // [SCENARIO] Amount on G/L Entry is rounded off when Invoice Rounding on Purchases & Payable Setup is set to TRUE.
 
         // [GIVEN] Create Purchase Order and post Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateInvRoundingPrecisionOnGeneralLedgerSetup(1);  // 1 for Invoice Rounding Precision, as required for test case.
         OldInvoiceRounding := UpdateInvoiceRoundingOnPurchasesPayablesSetup(true);  // TRUE for Invoice Rounding.
@@ -1211,7 +1211,7 @@ codeunit 141027 "ERM GST On Prepayments II"
     local procedure Initialize()
     begin
         Clear(NoSeriesManagement);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure ApplyPaymentToInvoiceOnPaymentJournalPage(CurrentJnlBatchName: Code[10])
@@ -1398,7 +1398,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
         GSTPurchaseEntry.SetRange("Document Line Type", DocumentLineType);
         GSTPurchaseEntry.SetRange("Document Line Description", DocumentLineDescription);
-        GSTPurchaseEntry.FindFirst;
+        GSTPurchaseEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GSTPurchaseEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
         Assert.AreNearlyEqual(GSTBase, GSTPurchaseEntry."GST Base", LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
     end;
@@ -1416,7 +1416,7 @@ codeunit 141027 "ERM GST On Prepayments II"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindGSTSalesEntry(var GSTSalesEntry: Record "GST Sales Entry"; DocumentNo: Code[20]; DocumentLineDescription: Text[50]; DocumentLineType: Option)
@@ -1424,20 +1424,20 @@ codeunit 141027 "ERM GST On Prepayments II"
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
         GSTSalesEntry.SetRange("Document Line Type", DocumentLineType);
         GSTSalesEntry.SetRange("Document Line Description", DocumentLineDescription);
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
     end;
 
     local procedure FindPrepaymentPurchaseInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header"; BuyFromVendorNo: Code[20])
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields("Amount Including VAT");
     end;
 
     local procedure FindPrepaymentSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; SellToCustomerNo: Code[20])
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
     end;
 
@@ -1456,7 +1456,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         exit(PurchInvLine.Amount);
     end;
 
@@ -1475,7 +1475,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         exit(SalesInvoiceLine.Amount);
     end;
 
@@ -1653,7 +1653,7 @@ codeunit 141027 "ERM GST On Prepayments II"
 
     local procedure UpdateVendorInvoiceNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 

@@ -283,7 +283,7 @@ report 28041 "Calc. and Post WHT Settlement"
             begin
                 LastFieldNo := FieldNo("WHT Business Posting Group");
                 WHTEntry.Reset();
-                WHTEntry.FindLast;
+                WHTEntry.FindLast();
                 EntryNo := WHTEntry."Entry No." + 1;
             end;
         }
@@ -422,7 +422,7 @@ report 28041 "Calc. and Post WHT Settlement"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show WHT Entries';
-                        ToolTip = 'Specifies whtat you want to prwhtt Whai amounts as entries.';
+                        ToolTip = 'Specifies if you want to view the withholding tax entries for the specified period.';
                     }
                     field(Post; PostSettlement)
                     {

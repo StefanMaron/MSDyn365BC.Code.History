@@ -37,7 +37,7 @@ codeunit 141075 "UT REP Aged Accounts"
         // [SCENARIO] validate Vendor - OnAfterGetRecord Trigger of Report - 17117 with Use Aging Date Posting Date and Use Currency Document Currency.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         Amount :=
           CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(
             CreateCurrency, true, Vendor.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0);  // Value 0 used for Date Expression and True for Print Entry Details.
@@ -58,7 +58,7 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] validate Vendor - OnAfterGetRecord Trigger of Report - 17117 with Use Aging Date Due Date and Use Currency LCY.
-        Initialize;
+        Initialize();
         OnAfterGetRecVendAgedAccPayBackDating(
           CreateCurrency, GetLCYCodeFromGeneralLedgerSetup, true, Vendor.Blocked::" ", UseAgingDate::"Due Date", UseCurrency::LCY, 0);  // True for Print Entry Details and 0 used for Date Expression.
     end;
@@ -76,7 +76,7 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] validate Vendor - OnAfterGetRecord Trigger of Report - 17117 with Currency Code.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         OnAfterGetRecVendAgedAccPayBackDating(
           CurrencyCode, CurrencyCode, false, Vendor.Blocked::Payment, UseAgingDate::"Document Date", UseCurrency::"Vendor Currency",
@@ -95,7 +95,7 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] validate Vendor Ledger Entry - OnAfterGetRecord Trigger of Report - 17117 without Currency Code.
-        Initialize;
+        Initialize();
         OnAfterGetRecVendAgedAccPayBackDating(
           '', GetLCYCodeFromGeneralLedgerSetup, false, Vendor.Blocked::Payment, UseAgingDate::"Document Date", UseCurrency::"Vendor Currency",
           LibraryRandom.RandInt(5));  // Blank used for Currency Code, False for Print Entry Details and Random value for Date Expression.
@@ -125,7 +125,7 @@ codeunit 141075 "UT REP Aged Accounts"
         // [SCENARIO] validate Customer - OnAfterGetRecord Trigger of Report - 17116 with Use Aging Date Posting Date and Use Currency Document Currency.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         Amount :=
           CreateCustLedgEntriesAndRunAgedAccRecBackDatingRpt(
             CreateCurrency, true, Customer.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0, 0);  // Value 0 used for Date Expression and Credit Limit LCY, True for Print Entry Details.
@@ -146,7 +146,7 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] validate Customer - OnAfterGetRecord Trigger of Report - 17116 with Use Aging Date Due Date and Use Currency LCY.
-        Initialize;
+        Initialize();
         OnAfterGetRecCustAgedAccRecBackDating(
           CreateCurrency, GetLCYCodeFromGeneralLedgerSetup, true, Customer.Blocked::" ", UseAgingDate::"Due Date", UseCurrency::LCY, 0);  // Value 0 used for Date Expression, True for Print Entry Details.
     end;
@@ -164,7 +164,7 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] validate Customer - OnAfterGetRecord Trigger of Report - 17116 with Currency Code.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         OnAfterGetRecCustAgedAccRecBackDating(
           CurrencyCode, CurrencyCode, false, Customer.Blocked::Ship, UseAgingDate::"Document Date", UseCurrency::"Customer Currency",
@@ -183,7 +183,7 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] validate Customer - OnAfterGetRecord Trigger of Report - 17116 without Currency Code.
-        Initialize;
+        Initialize();
         OnAfterGetRecCustAgedAccRecBackDating(
           '', GetLCYCodeFromGeneralLedgerSetup, false, Customer.Blocked::Invoice, UseAgingDate::"Document Date",
           UseCurrency::"Customer Currency", LibraryRandom.RandInt(5));  // Blank for Currency Code, Random value used for Date Expression, False for Print Entry Details.
@@ -211,7 +211,7 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 333888] Report "Aged Acc. Rec. (BackDating)" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
 
         // [WHEN] Report "Aged Acc. Rec. (BackDating)" is being printed to PDF
         CreateCustLedgEntriesAndRunAgedAccRecBackDatingRpt(
@@ -231,7 +231,7 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 333888] Report "Aged Acc. Pay. (BackDating)" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
 
         // [WHEN] Report "Aged Acc. Rec. (BackDating)" is being printed to PDF
         CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(
@@ -308,7 +308,7 @@ codeunit 141075 "UT REP Aged Accounts"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -364,7 +364,7 @@ codeunit 141075 "UT REP Aged Accounts"
     var
         CustomerLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustomerLedgerEntry2.FindLast;
+        CustomerLedgerEntry2.FindLast();
         CustomerLedgerEntry."Entry No." := CustomerLedgerEntry2."Entry No." + 1;
         CustomerLedgerEntry."Customer No." := CreateCustomer(CurrencyCode, Blocked, CreditLimitLCY);
         CustomerLedgerEntry."Posting Date" := WorkDate;
@@ -377,7 +377,7 @@ codeunit 141075 "UT REP Aged Accounts"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::Application;
         DetailedCustLedgEntry."Customer No." := CustomerLedgerEntry."Customer No.";
@@ -393,7 +393,7 @@ codeunit 141075 "UT REP Aged Accounts"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::Application;
         DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
@@ -433,7 +433,7 @@ codeunit 141075 "UT REP Aged Accounts"
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := CreateVendor(CurrencyCode, Blocked);
         VendorLedgerEntry."Posting Date" := WorkDate;

@@ -28,7 +28,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     procedure PmtDiscExclVATForSalesInvLCY()
     begin
         // Test Discount Amount with Pmt Disc Excl VAT field TRUE and no Currency Code.
-        Initialize;
+        Initialize();
         PmtDiscExclVATForSalesInvoice('');
     end;
 
@@ -37,7 +37,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     procedure PmtDiscExclVATForSalesInvFCY()
     begin
         // Test Discount Amount with Pmt Disc Excl VAT field TRUE and with Currency Code.
-        Initialize;
+        Initialize();
         PmtDiscExclVATForSalesInvoice(CreateCurrency);
     end;
 
@@ -68,7 +68,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         // Test Discount Amount with Pmt Disc Excl VAT field FALSE and no Currency Code.
 
         // Setup: Create and Post Sales Invoice and calculate Payment Amount.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(SalesHeader, false, '', SalesHeader."Document Type"::Invoice);
         PaymentAmount :=
           SalesHeader."Amount Including VAT" - (SalesHeader."Amount Including VAT" * SalesHeader."Payment Discount %" / 100);
@@ -90,7 +90,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         // Test Discount Amount with Pmt Disc Excl VAT field TRUE.
 
         // Setup: Create and Post Purchase Invoice and calculate Payment Amount.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseHeader, true, '', PurchaseHeader."Document Type"::Invoice);
         PaymentAmount := CalculatePmtAmtExclVATPurch(PurchaseHeader, AmountLCY, PurchaseHeader."Currency Code");
 
@@ -110,7 +110,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         // Test Discount Amount with Pmt Disc Excl VAT field FALSE.
 
         // Setup: Create and Post Purchase Invoice and calculate Payment Amount.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseHeader, false, '', PurchaseHeader."Document Type"::Invoice);
         PaymentAmount :=
           PurchaseHeader."Amount Including VAT" - (PurchaseHeader."Amount Including VAT" * PurchaseHeader."Payment Discount %" / 100);
@@ -128,7 +128,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         SalesHeader: Record "Sales Header";
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Sales Invoice without Currency.
-        Initialize;
+        Initialize();
         PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::Invoice, '', 1);
     end;
 
@@ -139,7 +139,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         SalesHeader: Record "Sales Header";
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Sales Invoice with Currency.
-        Initialize;
+        Initialize();
         PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::Invoice, CreateCurrency, 1);
     end;
 
@@ -150,7 +150,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         SalesHeader: Record "Sales Header";
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Sales Credit Memo without Currency.
-        Initialize;
+        Initialize();
         PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::"Credit Memo", '', -1);
     end;
 
@@ -161,7 +161,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         SalesHeader: Record "Sales Header";
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Sales Credit Memo with Currency.
-        Initialize;
+        Initialize();
         PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::"Credit Memo", CreateCurrency, -1);
     end;
 
@@ -188,7 +188,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Purchase Invoice without Currency.
-        Initialize;
+        Initialize();
         PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::Invoice, '', -1);
     end;
 
@@ -199,7 +199,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Purchase Invoice with Currency.
-        Initialize;
+        Initialize();
         PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::Invoice, CreateCurrency, -1);
     end;
 
@@ -210,7 +210,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Purchase Credit Memo without Currency.
-        Initialize;
+        Initialize();
         PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::"Credit Memo", '', 1);
     end;
 
@@ -221,7 +221,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Purchase Credit Memo with Currency.
-        Initialize;
+        Initialize();
         PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::"Credit Memo", CreateCurrency, 1);
     end;
 
@@ -246,7 +246,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     procedure PmtDiscExclVATTrueForCustomer()
     begin
         // Check Original Payment Discount Possible and Remaining Payment Discount Possible for Customer when Payment Discount Excluding VAT is TRUE.
-        Initialize;
+        Initialize();
         PmtDiscExclVATForCustomer(true);
     end;
 
@@ -255,7 +255,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     procedure PmtDiscExclVATFalseForCustomer()
     begin
         // Check Original Payment Discount Possible and Remaining Payment Discount Possible for Customer when Payment Discount Excluding VAT is FALSE.
-        Initialize;
+        Initialize();
         PmtDiscExclVATForCustomer(false);
     end;
 
@@ -289,7 +289,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     procedure PmtDiscExclVATTrueForVendor()
     begin
         // Check Original Payment Discount Possible and Remaining Payment Discount Possible for Vendor when Payment Discount Excluding VAT is TRUE.
-        Initialize;
+        Initialize();
         PmtDiscExclVATForVendor(true);
     end;
 
@@ -298,7 +298,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     procedure PmtDiscExclVATFalseForVendor()
     begin
         // Check Original Payment Discount Possible and Remaining Payment Discount Possible for Vendor when Payment Discount Excluding VAT is FALSE.
-        Initialize;
+        Initialize();
         PmtDiscExclVATForVendor(false);
     end;
 
@@ -332,16 +332,16 @@ codeunit 134031 "ERM VAT With Payment Discount"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT With Payment Discount");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT With Payment Discount");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -361,9 +361,9 @@ codeunit 134031 "ERM VAT With Payment Discount"
 
         // Set Applies-to ID.
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesInvDocNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         CustLedgerEntry2.SetRange("Document No.", SalesInvoiceHeader."No.");
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
 
         // Post Application Entries.
@@ -383,9 +383,9 @@ codeunit 134031 "ERM VAT With Payment Discount"
 
         // Set Applies-to ID.
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchInvDocNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VendorLedgerEntry2.SetRange("Document No.", PurchInvHeader."No.");
-        VendorLedgerEntry2.FindFirst;
+        VendorLedgerEntry2.FindFirst();
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
 
         // Post Application Entries.
@@ -593,7 +593,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Currency.InitRoundingPrecision;
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Payment Discount");
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           -Amount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
           StrSubstNo(
@@ -609,7 +609,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Currency.InitRoundingPrecision;
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Payment Discount");
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, DetailedVendorLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
           StrSubstNo(
@@ -626,7 +626,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("G/L Account No.", AccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(

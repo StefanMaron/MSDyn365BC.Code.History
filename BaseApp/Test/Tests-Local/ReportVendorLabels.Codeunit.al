@@ -28,7 +28,7 @@ codeunit 141045 "Report Vendor - Labels"
         // [SCENARIO] validate Vendor - OnAfterGetRecord Trigger of Report - 310 Vendor - Labels with Single Vendor.
 
         // [GIVEN] Create Vendor with Address ID and Enqueue values for VendorLevelRequestPageHandler.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithAddressID;
         LibraryVariableStorage.Enqueue(StrSubstNo(NoTxt, VendorNo, VendorNo));
         Commit();  // Commit is required as Commit is explicitly using on Vendor - OnAfterGetRecord Trigger of Report ID - 310 Vendor - Labels.
@@ -52,7 +52,7 @@ codeunit 141045 "Report Vendor - Labels"
         // [SCENARIO] validate Vendor - OnAfterGetRecord Trigger of Report - 310 Vendor - Labels with Multiple Vendor.
 
         // [GIVEN] Create Vendor with Address ID and Enqueue values for VendorLevelRequestPageHandler.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithAddressID;
         VendorNo2 := CreateVendorWithAddressID;
         LibraryVariableStorage.Enqueue(StrSubstNo(NoTxt, VendorNo, VendorNo2));
@@ -69,7 +69,7 @@ codeunit 141045 "Report Vendor - Labels"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAddressID(VendorNo: Code[20])

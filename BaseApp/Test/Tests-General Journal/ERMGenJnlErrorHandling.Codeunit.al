@@ -23,7 +23,8 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         DummyErr: Label 'Dummy error';
         TestFieldMustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field caption';
         TestFieldEmptyValueErr: Label '%1 must not be empty.', Comment = '%1 - field caption';
-        TestFieldValueErr: Label '%1 must be equal to %2.', Comment = '%1 - field caption, %2 - field value';
+        TestFieldValueErr: Label '%1 must be equal to %2', Comment = '%1 - field caption, %2 - field value';
+        TestFieldOptionValueErr: Label '%1 must be equal to ''%2''', Comment = '%1 - field caption, %2 - field value';
         DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance by %2', Comment = '%1 - document number, %2 = amount';
         FieldErrorErr: Label '%1 %2', Comment = '%1 - field name, %2 - error message';
         FieldMustNotBeErr: Label '%1 must not be %2', Comment = '%1 - field name, %2 - field value';
@@ -31,7 +32,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         OutOfBalanceFilterTxt: Label '*is out of balance by*';
         OtherIssuesTxt: Label '(+%1 other issues)', comment = '%1 - number of issues';
         ExtendingGenJnlCheckLineTxt: Label 'ExtendingGenJnlCheckLine', Locked = true;
+        ExtendingGenJnlCheckLineNewTxt: Label 'ExtendingGenJnlCheckLineWithCollectError', Locked = true;
         LogTestFieldOptionTxt: Label 'LogTestFieldOption', Locked = true;
+        LogTestFieldOptionNewTxt: Label 'LogTestFieldOptionWithCollectError', Locked = true;
         DimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for G/L Account %2.', Comment = '%1 - dimension code, %2 - account number';
         DisabledFeatureErr: Label 'Enabled must be equal to ''All Users''  in Feature Key: ID=JournalErrorBackgroundCheck';
         OnBeforeRunCheckTxt: Label 'OnBeforeRunCheck', Locked = true;
@@ -148,8 +151,8 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"General Journal", GenJournalLine);
 
         // [THEN] First error line is "Document No. must not be empty" 
-        GeneralJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
-        GeneralJournal.JournalErrorsFactBox.Error2.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption(Amount)));
+        VerifyErrorMessageText(GeneralJournal.JournalErrorsFactBox.Error1.Value, StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(GeneralJournal.JournalErrorsFactBox.Error2.Value, StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption(Amount)));
     end;
 
     [Test]
@@ -193,7 +196,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     begin
         // [SCENARIO 355641] DrillDown from Batch Errors field opens list of errors
         Initialize();
-        GLSetup.get;
+        GLSetup.Get();
 
         // [GIVEN] Create 5 line document "DOC" for new batch "XXX" with balance 100
         CreateMultiLineGenJnlDocOutOfBalance(GenJournalLine, TotalBalance);
@@ -266,7 +269,72 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         MockGenJnlCheckLineRun(GenJournalLine, TempErrorMessage);
 
         // [THEN] Error message has Description = "IC Direction must be Outgoing"
-        TempErrorMessage.TestField(Description, StrSubstNo(TestFieldValueErr, GenJournalLine.FieldCaption("IC Direction"), GenJournalLine."IC Direction"::Outgoing));
+        VerifyErrorMessageText(
+            TempErrorMessage.Description,
+            StrSubstNo(TestFieldValueErr, GenJournalLine.FieldCaption("IC Direction"), GenJournalLine."IC Direction"::Outgoing));
+
+        UnbindSubscription(ERMGenJnlErrorHandling);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExtendingGenJnlCheckLineWithErrorBehaviorCollectError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempErrorMessage: Record "Error Message" temporary;
+        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 411163] Journal errors log shows errors from extension of codeunit "Gen. Jnl.-Check Line" with Error(ErrorInfo.Create())
+        Initialize();
+
+        // [GIVEN] Subscribe to OnAfterCheckGenJnlLine event to raise "Dummy error"
+        BindSubscription(ERMGenJnlErrorHandling);
+
+        // [GIVEN] Create journal line
+        CreateGenJournalLine(GenJournalLine);
+        // [GIVEN] Set Description = 'ExtendingGenJnlCheckLineWithCollectError' for the subscriber 
+        GenJournalLine.Description := ExtendingGenJnlCheckLineNewTxt;
+        GenJournalLine.Modify();
+
+        // [WHEN] Mock run codeunit "Gen. Jnl.-Check Line" with ErrorBehavior::Collect
+        MockGenJnlCheckLineRunWithErrorBehaviorCollect(GenJournalLine, TempErrorMessage);
+
+        // [THEN] Error message has Description = "Dummy error"
+        TempErrorMessage.TestField(Description, DummyErr);
+        TempErrorMessage.TestField("Context Record ID", GenJournalLine.RecordId());
+
+        UnbindSubscription(ERMGenJnlErrorHandling);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LogTestFieldOptionWithErrorBehaviorCollectError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempErrorMessage: Record "Error Message" temporary;
+        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 411163] Journal errors log shows TestField error for option type field with option caption with TestField(Field, ErrorInfo.Create)
+        Initialize();
+
+        // [GIVEN] Subscribe to OnAfterCheckGenJnlLine event to raise option field error
+        BindSubscription(ERMGenJnlErrorHandling);
+
+        // [GIVEN] Create journal line
+        CreateGenJournalLine(GenJournalLine);
+        // [GIVEN] Set Description = 'LogTestFieldOptionWithCollectError' for the subscriber 
+        GenJournalLine.Description := LogTestFieldOptionNewTxt;
+        GenJournalLine.Modify();
+
+        // [WHEN] Mock run codeunit "Gen. Jnl.-Check Line" with with ErrorBehavior::Collect
+        MockGenJnlCheckLineRunWithErrorBehaviorCollect(GenJournalLine, TempErrorMessage);
+
+        // [THEN] Error message has Description = "IC Direction must be 'Outgoing'"
+        VerifyErrorMessageText(
+            TempErrorMessage.Description,
+            StrSubstNo(TestFieldOptionValueErr, GenJournalLine.FieldCaption("IC Direction"), GenJournalLine."IC Direction"::Outgoing));
 
         UnbindSubscription(ERMGenJnlErrorHandling);
     end;
@@ -291,7 +359,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"General Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Document No. must not be empty."
-        GeneralJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(GeneralJournal.JournalErrorsFactBox.Error1.Value, StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
     end;
 
     [Test]
@@ -314,7 +382,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"General Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Pmt. Discount Date must be equal to ''."
-        GeneralJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldValueErr, GenJournalLine.FieldCaption("Pmt. Discount Date"), ''''''));
+        VerifyErrorMessageText(GeneralJournal.JournalErrorsFactBox.Error1.Value, StrSubstNo(TestFieldValueErr, GenJournalLine.FieldCaption("Pmt. Discount Date"), ''''''));
     end;
 
     [Test]
@@ -340,9 +408,11 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"General Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Amount (LCY) must have the same sign as Amount"
-        GeneralJournal.JournalErrorsFactBox.Error1.AssertEquals(
-            StrSubstNo(
-                SameSignErr, GenJournalLine.FieldCaption("Amount (LCY)"), GenJournalLine.FieldCaption(Amount)));
+        // skip check due to platform bug 415131
+        // VerifyErrorMessageText(
+        //     GeneralJournal.JournalErrorsFactBox.Error1.Value,
+        //     StrSubstNo(
+        //         SameSignErr, GenJournalLine.FieldCaption("Amount (LCY)"), GenJournalLine.FieldCaption(Amount)));
     end;
 
     [Test]
@@ -368,7 +438,8 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"General Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Account Type must not be IC Partner."
-        GeneralJournal.JournalErrorsFactBox.Error1.AssertEquals(
+        VerifyErrorMessageText(
+            GeneralJournal.JournalErrorsFactBox.Error1.Value,
             StrSubstNo(
                 FieldMustNotBeErr, GenJournalLine.FieldCaption("Account Type"), "Gen. Journal Account Type"::"IC Partner"));
     end;
@@ -395,32 +466,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         // [THEN] Action items are visible
         Assert.IsTrue(GeneralJournal.ShowLinesWithErrors.Visible(), 'ShowLinesWithErrors must be visible');
         Assert.IsTrue(GeneralJournal.ShowAllLines.Visible(), 'ShowAllLines must be visible');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure JournalBatchBackgroundErrorCheckNo()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GeneralJournal: TestPage "General Journal";
-    begin
-        // [SCENARIO 355641] Background check related controls are invisible on the general journal page for batch with "Background Error "Check = No
-        Initialize();
-
-        // [GIVEN] Create journal line for new batch "XXX" with "Pmt. Discount Date" = 25.01.2020 
-        CreateGenJournalLine(GenJournalLine);
-        GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        GenJournalBatch.Validate("Background Error Check", false);
-        GenJournalBatch.Modify();
-
-        // [WHEN] Open general journal for batch "XXX"
-        GeneralJournal.Trap();
-        Page.Run(Page::"General Journal", GenJournalLine);
-
-        // [THEN] Action items are invisible
-        Assert.IsFalse(GeneralJournal.ShowLinesWithErrors.Visible(), 'ShowLinesWithErrors must be invisible');
-        Assert.IsFalse(GeneralJournal.ShowAllLines.Visible(), 'ShowAllLines must be invisible');
     end;
 
     [Test]
@@ -587,7 +632,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"Cash Receipt Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Document No. must not be empty."
-        CashReceiptJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(
+            CashReceiptJournal.JournalErrorsFactBox.Error1.Value,
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
     end;
 
     [Test]
@@ -608,7 +655,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"Sales Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Document No. must not be empty."
-        SalesJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(
+            SalesJournal.JournalErrorsFactBox.Error1.Value,
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
     end;
 
     [Test]
@@ -629,7 +678,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"Purchase Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Document No. must not be empty."
-        PurchaseJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(
+            PurchaseJournal.JournalErrorsFactBox.Error1.Value,
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
     end;
 
     [Test]
@@ -650,7 +701,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"Payment Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Document No. must not be empty."
-        PaymentJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(
+            PaymentJournal.JournalErrorsFactBox.Error1.Value,
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
     end;
 
     [Test]
@@ -671,7 +724,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"Fixed Asset G/L Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Document No. must not be empty."
-        FixedAssetGLJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(
+            FixedAssetGLJournal.JournalErrorsFactBox.Error1.Value,
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
     end;
 
     [Test]
@@ -692,7 +747,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"IC General Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Document No. must not be empty."
-        ICGeneralJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(ICGeneralJournal.JournalErrorsFactBox.Error1.Value, StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
     end;
 
     [Test]
@@ -713,7 +768,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Page.Run(Page::"Job G/L Journal", GenJournalLine);
 
         // [THEN] Journal Errors factbox shows message "Document No. must not be empty."
-        JobGLJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption("Document No.")));
+        VerifyErrorMessageText(
+            JobGLJournal.JournalErrorsFactBox.Error1.Value,
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption("Document No.")));
     end;
 
     [Test]
@@ -1353,11 +1410,13 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         BindSubscription(ERMGenJnlErrorHandling);
 
         // [WHEN] Mock run codeunit "Gen. Jnl.-Check Line" with LogErrorMode=True
-        MockGenJnlCheckLineRun(GenJournalLine, TempErrorMessage);
+        MockGenJnlCheckLineRunWithErrorBehaviorCollect(GenJournalLine, TempErrorMessage);
 
-        // [THEN] Error message "Amount must not be empty"
+        // [THEN] Error message "Amount must have a value"
         TempErrorMessage.TestField("Context Record ID", GenJournalLine.RecordId());
-        TempErrorMessage.TestField(Description, StrSubstNo(TestFieldEmptyValueErr, GenJournalLine.FieldCaption(Amount)));
+        VerifyErrorMessageText(
+            TempErrorMessage.Description,
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption(Amount)));
 
         UnBindSubscription(ERMGenJnlErrorHandling);
     end;
@@ -1446,8 +1505,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalTemplate.Validate("Force Doc. Balance", false);
         GenJournalTemplate.Modify();
         LibraryERM.CreateGenJournalBatch(GeneralJournalBatch, GenJournalTemplate.Name);
-        GeneralJournalBatch."Background Error Check" := true;
-        GeneralJournalBatch.Modify();
 
         // [GIVEN] General Journal Line GJL1: Document Type = "", Document No. := 01, Posting Date = WorkDate, Amount = 10
         // [GIVEN] General Journal Line GJL2: Document Type = "", Document No. := 02, Posting Date = WorkDate, Amount = -10
@@ -1939,6 +1996,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         if IsInitialized then
             exit;
 
+        SetEnableDataCheck(true);
         LibraryERMCountryData.UpdateLocalData();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -1946,6 +2004,15 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
+    end;
+
+    local procedure SetEnableDataCheck(Enabled: Boolean)
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        GLSetup.Validate("Enable Data Check", Enabled);
+        GLSetup.Modify();
     end;
 
     local procedure ClearAmountAndDocumentNo(var GenJournalLine: Record "Gen. Journal Line")
@@ -2107,8 +2174,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch."Background Error Check" := true;
-        GenJournalBatch.Modify();
     end;
 
     local procedure CreateGenJournalTemplateBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type"; PageID: Integer)
@@ -2119,9 +2184,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalTemplate.Get(GenJournalBatch."Journal Template Name");
         GenJournalTemplate.Validate("Page ID", PageID);
         GenJournalTemplate.Modify();
-
-        GenJournalBatch."Background Error Check" := true;
-        GenJournalBatch.Modify();
     end;
 
     local procedure CreateCustomerWithEmptyReceivableAccount(var Customer: Record Customer)
@@ -2203,6 +2265,16 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJnlCheckLine.GetErrors(TempErrorMessage);
     end;
 
+    [ErrorBehavior(ErrorBehavior::Collect)]
+    local procedure MockGenJnlCheckLineRunWithErrorBehaviorCollect(var GenJournalLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary)
+    var
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        GenJnlCheckLine.Run(GenJournalLine);
+        ErrorMessageMgt.CollectErrors(TempErrorMessage);
+    end;
+
     local procedure SetErrorHandlingParameters(var ErrorHandlingParameters: Record "Error Handling Parameters"; TemplateName: Code[10]; BatchName: Code[10]; DocumentNo: Code[20]; PostingDate: Date; xDocumentNo: Code[20]; xPostingDate: Date; FullBatchCheck: Boolean; LineModified: Boolean)
     begin
         ErrorHandlingParameters.Init();
@@ -2248,6 +2320,11 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Assert.ExpectedMessage(DummyCustomerPostingGroup.FieldCaption("Receivables Account"), Description);
     end;
 
+    local procedure VerifyErrorMessageText(ActualText: Text; ExpectedText: Text)
+    begin
+        Assert.IsSubstring(ActualText, ExpectedText);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
     local procedure OnAfterCheckGenJnlLineExtendingGenJnlCheckLine(var GenJournalLine: Record "Gen. Journal Line")
     var
@@ -2255,6 +2332,8 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     begin
         if GenJournalLine.Description = ExtendingGenJnlCheckLineTxt then
             ErrorMessageMgt.LogError(GenJournalLine, DummyErr, '');
+        if GenJournalLine.Description = ExtendingGenJnlCheckLineNewTxt then
+            Error(ErrorInfo.Create(DummyErr, true, GenJournalLine));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
@@ -2268,6 +2347,10 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
             RecRef.GetTable(GenJournalLine);
             ErrorMessageMgt.LogTestField(RecRef, GenJournalLine.FieldNo("IC Direction"), GenJournalLine."IC Direction"::Outgoing);
         end;
+        if GenJournalLine.Description = LogTestFieldOptionNewTxt then begin
+            GenJournalLine."IC Direction" := GenJournalLine."IC Direction"::Incoming;
+            GenJournalLine.TestField("IC Direction", GenJournalLine."IC Direction"::Outgoing, ErrorInfo.Create());
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnBeforeRunCheck', '', false, false)]
@@ -2277,11 +2360,13 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
             GenJournalLine.Validate(Amount, 0);
     end;
 
+#if not CLEAN20
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Journal Errors Mgt.", 'OnAfterIsEnabled', '', false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean);
     begin
         Result := BackgroundErrorCheckFeatureEnabled;
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]
@@ -2289,5 +2374,4 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     begin
         Reply := true;
     end;
-
 }

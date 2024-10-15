@@ -125,7 +125,7 @@ page 5879 "Phys. Inventory Recording"
                         PhysInvtRecordHeader.Copy(Rec);
 
                         ExportPhysInvtRecording.Set(PhysInvtRecordHeader);
-                        ExportPhysInvtRecording.Run;
+                        ExportPhysInvtRecording.Run();
                         Clear(ExportPhysInvtRecording);
                     end;
                 }
@@ -147,7 +147,7 @@ page 5879 "Phys. Inventory Recording"
                         PhysInvtRecordHeader.Copy(Rec);
 
                         ImportPhysInvtRecording.Set(PhysInvtRecordHeader);
-                        ImportPhysInvtRecording.Run;
+                        ImportPhysInvtRecording.Run();
                         Clear(ImportPhysInvtRecording);
                     end;
                 }

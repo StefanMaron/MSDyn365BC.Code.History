@@ -139,4 +139,3 @@ table 233 "Item Journal Batch"
     begin
     end;
 }
-

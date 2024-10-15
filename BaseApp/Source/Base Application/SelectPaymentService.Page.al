@@ -70,7 +70,7 @@ page 1061 "Select Payment Service"
 
         TempPaymentServiceSetup.Copy(Rec, true);
         TempPaymentServiceSetup.SetRange(Available, true);
-        if not TempPaymentServiceSetup.FindFirst then
+        if not TempPaymentServiceSetup.FindFirst() then
             exit(Confirm(NoPaymentServicesSelectedQst));
     end;
 

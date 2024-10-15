@@ -19,7 +19,7 @@ codeunit 74 "Purch.-Get Receipt"
         GetReceipts.SetTableView(PurchRcptLine);
         GetReceipts.LookupMode := true;
         GetReceipts.SetPurchHeader(PurchHeader);
-        GetReceipts.RunModal;
+        GetReceipts.RunModal();
     end;
 
     var
@@ -159,7 +159,7 @@ codeunit 74 "Purch.-Get Receipt"
         ItemChargeAssgntPurch.SetRange("Document Type", PurchOrderLine."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchOrderLine."Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", PurchOrderLine."Line No.");
-        if ItemChargeAssgntPurch.FindFirst then begin
+        if ItemChargeAssgntPurch.FindFirst() then begin
             ItemChargeAssgntPurch.CalcSums("Qty. to Assign");
             if ItemChargeAssgntPurch."Qty. to Assign" <> 0 then
                 CopyItemChargeAssgnt(
@@ -220,7 +220,7 @@ codeunit 74 "Purch.-Get Receipt"
                                     PurchRcptLine2.SetRange("Order Line No.", ItemChargeAssgntPurch."Applies-to Doc. Line No.");
                                     PurchRcptLine2.SetRange(Correction, false);
                                     PurchRcptLine2.SetFilter(Quantity, '<>0');
-                                    if PurchRcptLine2.FindFirst then begin
+                                    if PurchRcptLine2.FindFirst() then begin
                                         PurchLine2.SetCurrentKey("Document Type", "Receipt No.", "Receipt Line No.");
                                         PurchLine2.SetRange("Document Type", PurchLine2."Document Type"::Invoice);
                                         PurchLine2.SetRange("Receipt No.", PurchRcptLine2."Document No.");

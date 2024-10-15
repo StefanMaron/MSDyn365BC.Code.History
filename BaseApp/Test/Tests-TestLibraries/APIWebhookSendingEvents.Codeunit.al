@@ -230,7 +230,7 @@ codeunit 135090 "API Webhook Sending Events"
     [Scope('OnPrem')]
     procedure Reset()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UseCustomIsAPIEnabled := false;
         UseCustomAPISubscriptionsEnabled := false;
         UseCustomDelayTime := false;

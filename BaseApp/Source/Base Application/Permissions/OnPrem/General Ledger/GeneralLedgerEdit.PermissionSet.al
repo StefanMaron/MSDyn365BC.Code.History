@@ -52,6 +52,7 @@ permissionset 6720 "General Ledger - Edit"
                   tabledata "Employee Ledger Entry" = Rmd,
                   tabledata "Employee Posting Group" = R,
                   tabledata "Exch. Rate Adjmt. Reg." = RimD,
+                  tabledata "Exch. Rate Adjmt. Ledg. Entry" = RimD,
                   tabledata "G/L Account" = R,
                   tabledata "G/L Budget Entry" = RIMD,
                   tabledata "G/L Budget Name" = RIMD,
@@ -68,7 +69,9 @@ permissionset 6720 "General Ledger - Edit"
                   tabledata "General Posting Setup" = R,
                   tabledata "Intermediate Data Import" = Rimd,
                   tabledata "Ledger Entry Matching Buffer" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Outstanding Bank Transaction" = RIMD,
                   tabledata "Payment Application Proposal" = RIMD,
                   tabledata "Payment Export Data" = Rimd,

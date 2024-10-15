@@ -255,7 +255,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -276,7 +282,7 @@ codeunit 131305 "Library - ERM Country Data"
             VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
             VATPostingSetup.SetFilter("VAT %", '>0');
             if VATPostingSetup.Count > 1 then begin
-                VATPostingSetup.FindFirst;
+                VATPostingSetup.FindFirst();
                 VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
                 VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
                 VATPostingSetup.Modify(true);
@@ -305,7 +311,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         LibraryERM.FindGeneralPostingSetupInvtFull(NormalGeneralPostingSetup);
         with GeneralPostingSetup do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Sales Pmt. Disc. Credit Acc." = '' then
                         "Sales Pmt. Disc. Credit Acc." := NormalGeneralPostingSetup."Sales Pmt. Disc. Credit Acc.";  // Using assignment to avoid error.
@@ -346,7 +352,7 @@ codeunit 131305 "Library - ERM Country Data"
         ReasonCode: Record "Reason Code";
     begin
         SalesReceivableSetup.Get();
-        if not ReasonCode.FindFirst then
+        if not ReasonCode.FindFirst() then
             LibraryERM.CreateReasonCode(ReasonCode);
         SalesReceivableSetup.Validate("Payment Discount Reason Code", ReasonCode.Code);
         SalesReceivableSetup.Validate("Invoice Rounding", false);
@@ -366,7 +372,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         WHTPostingSetup: Record "WHT Posting Setup";
     begin
-        if WHTPostingSetup.FindSet then
+        if WHTPostingSetup.FindSet() then
             repeat
                 WHTPostingSetup.Validate("WHT %", 0);
                 WHTPostingSetup.Validate("WHT Minimum Invoice Amount", 0);

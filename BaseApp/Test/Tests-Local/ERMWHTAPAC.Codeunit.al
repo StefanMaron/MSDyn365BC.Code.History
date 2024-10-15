@@ -177,7 +177,7 @@
         BASCalculationSheetInvokeActionUpdate(A1);
 
         // [THEN] Verify Amounts Withheld with W4 flow field on BAS Calculation Sheet.
-        BASCalculationSheet.FindFirst;
+        BASCalculationSheet.FindFirst();
         BASCalculationSheet.TestField(W4, Round(WHTAmount, 1, '<'));  // Rounded down to nearest whole value.
     end;
 
@@ -370,7 +370,7 @@
         TransactionNo: Integer;
     begin
         // [SCENARIO 377799] WHT Payment should be posted in one transaction if we have different Payment lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase WHT Invoice = "Inv1"
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -407,11 +407,11 @@
         // [THEN] Transaction No. for "Payable WHT Account Code" is equal to the Transaction No. of WHT Payment for "Inv1"
         GLEntry.SetRange("Document No.", WHTPaymentNo);
         GLEntry.SetRange("G/L Account No.", WHTBalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         TransactionNo := GLEntry."Transaction No.";
 
         GLEntry.SetRange("G/L Account No.", WHTPostingSetup."Payable WHT Account Code");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Transaction No.", TransactionNo);
     end;
 
@@ -424,7 +424,7 @@
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 273872] Meaningful error trying posting purchase invoice with blanked Payable WHT Account Code
-        Initialize;
+        Initialize();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(false, true, false);
 
         // [GIVEN] WHT Setup with a blank payable accountCreateWHTPostingSetupWithBlankAccounts(WHTPostingSetup);
@@ -449,7 +449,7 @@
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 273872] Meaningful error trying posting sales invoice with blanked Prepaid WHT Account Code
-        Initialize;
+        Initialize();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(false, true, false);
         // [GIVEN] WHT Setup with a blank prepaid account
         CreateWHTPostingSetupWithBlankAccounts(WHTPostingSetup);
@@ -471,7 +471,7 @@
     begin
         // [FEATURE] [UT]
         // [SCENARIO 273872] WHT Posting Setup's functions GetPrepaidWHTAccount returns PrepaidWHTAccount or throws an error when empty
-        Initialize;
+        Initialize();
 
         WHTPostingSetup.Init();
         asserterror WHTPostingSetup.GetPrepaidWHTAccount;
@@ -480,8 +480,8 @@
             WHTPostingSetup.FieldCaption("Prepaid WHT Account Code"), '', WHTPostingSetup."WHT Product Posting Group"));
 
         WHTPostingSetup.Init();
-        WHTPostingSetup."Prepaid WHT Account Code" := LibraryUtility.GenerateGUID;
-        WHTPostingSetup."Payable WHT Account Code" := LibraryUtility.GenerateGUID;
+        WHTPostingSetup."Prepaid WHT Account Code" := LibraryUtility.GenerateGUID();
+        WHTPostingSetup."Payable WHT Account Code" := LibraryUtility.GenerateGUID();
         Assert.AreEqual(WHTPostingSetup."Prepaid WHT Account Code",
           WHTPostingSetup.GetPrepaidWHTAccount, 'WHTPostingSetup.GetPrepaidWHTAccount returned wrong data');
     end;
@@ -494,7 +494,7 @@
     begin
         // [FEATURE] [UT]
         // [SCENARIO 273872] WHT Posting Setup's functions GetPayableWHTAccount returns PayableWHTAccount or throws an error when empty
-        Initialize;
+        Initialize();
 
         WHTPostingSetup.Init();
         asserterror WHTPostingSetup.GetPayableWHTAccount;
@@ -503,8 +503,8 @@
             WHTPostingSetup.FieldCaption("Payable WHT Account Code"), '', WHTPostingSetup."WHT Product Posting Group"));
 
         WHTPostingSetup.Init();
-        WHTPostingSetup."Prepaid WHT Account Code" := LibraryUtility.GenerateGUID;
-        WHTPostingSetup."Payable WHT Account Code" := LibraryUtility.GenerateGUID;
+        WHTPostingSetup."Prepaid WHT Account Code" := LibraryUtility.GenerateGUID();
+        WHTPostingSetup."Payable WHT Account Code" := LibraryUtility.GenerateGUID();
         Assert.AreEqual(WHTPostingSetup."Payable WHT Account Code",
           WHTPostingSetup.GetPayableWHTAccount, 'WHTPostingSetup.GetPayableWHTAccount returned wrong data');
     end;
@@ -751,8 +751,8 @@
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         IF IsInitialized THEN
             exit;
@@ -775,7 +775,7 @@
         // Find Posted Vendor Ledger Entries.
         VendorLedgerEntry.SetRange("Vendor No.", ApplyingVendorLedgerEntry."Vendor No.");
         VendorLedgerEntry.SetRange("Applying Entry", false);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -1180,7 +1180,7 @@
         BASSetup: Record "BAS Setup";
     begin
         // Enable test cases in NZ, Create BAS Setup And BAS Calculation Sheet.
-        if not BASSetup.FindFirst then
+        if not BASSetup.FindFirst() then
             exit(CreateBASCalculationSheet(AccountTotaling));
         exit(UpdateBASSetupAndBASCalculationSheet(AccountTotaling));
     end;
@@ -1190,7 +1190,7 @@
         BASCalculationSheet: Record "BAS Calculation Sheet";
     begin
         BASSetup.SetRange("Field Label No.", BASCalculationSheet.FieldCaption(W4));
-        BASSetup.FindFirst;
+        BASSetup.FindFirst();
     end;
 
     local procedure FilterOnWHTEntry(var WHTEntry: Record "WHT Entry"; DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20])
@@ -1213,7 +1213,7 @@
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         exit(VendorLedgerEntry."Document No.");
     end;
 
@@ -1245,7 +1245,7 @@
     var
         WHTEntry: Record "WHT Entry";
     begin
-        if WHTEntry.FindFirst then  // Enable test cases in NZ.
+        if WHTEntry.FindFirst() then  // Enable test cases in NZ.
             RunReportCalcAndPostWHTSettlement(CreateGLAccount(''), CreateGLAccount(''));  // Blank VAT Product Posting Group, Calculate and Post WHT Settlement for already exists entries on WORKDATE.
     end;
 
@@ -1261,7 +1261,7 @@
         WHTPostingSetup.SetRange("WHT Product Posting Group", '');
         CalcAndPostWHTSettlement.SetTableView(WHTPostingSetup);
         Commit();  // Commit required.
-        CalcAndPostWHTSettlement.Run;  // Opens handler - CalcAndPostWHTSettlementRequestPageHandler.
+        CalcAndPostWHTSettlement.Run();  // Opens handler - CalcAndPostWHTSettlementRequestPageHandler.
     end;
 
     local procedure UpdateBASSetupAndBASCalculationSheet(AccountTotaling: Text[80]): Code[11]
@@ -1272,7 +1272,7 @@
         SelectBASSetup(BASSetup);
         BASSetup.Validate("Account Totaling", AccountTotaling);
         BASSetup.Modify(true);
-        BASCalculationSheet.FindFirst;
+        BASCalculationSheet.FindFirst();
         BASCalculationSheet.Validate(A3, WorkDate);
         BASCalculationSheet.Validate(A4, WorkDate);
         BASCalculationSheet.Validate(A5, WorkDate);
@@ -1351,7 +1351,7 @@
     local procedure VerifyGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; Amount: Decimal)
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
 
@@ -1361,7 +1361,7 @@
     begin
         WHTEntry.SetRange("Document Type", DocumentType);
         WHTEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        WHTEntry.FindFirst;
+        WHTEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
@@ -1386,7 +1386,7 @@
         PurchasesPayablesSetup.Get();
         GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
         GSTPurchaseEntry.SetRange("Document Line Type", GSTPurchaseEntry."Document Line Type"::"G/L Account");
-        GSTPurchaseEntry.FindFirst;
+        GSTPurchaseEntry.FindFirst();
         GSTPurchaseEntry.TestField("VAT Prod. Posting Group", PurchasesPayablesSetup."GST Prod. Posting Group");
         GSTPurchaseEntry.TestField(Amount, 0);
     end;
@@ -1408,11 +1408,11 @@
     begin
         WHTPostingSetup.Get('', '');  // Blank - WHT Product Posting Group, WHT Business Posting Group.
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Payment);
         WHTEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
         WHTEntry.SetRange("Original Document No.", OriginalDocumentNo);
-        WHTEntry.FindFirst;
+        WHTEntry.FindFirst();
         WHTAmount :=
           Round(
             (Amount * WHTPostingSetup."WHT %" / 100) /

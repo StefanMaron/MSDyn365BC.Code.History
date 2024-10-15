@@ -560,7 +560,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                 AccountNetChange := "Net Change (LCY)";
                 CustLedgerEntry.SetRange("Posting Date", 0D, PeriodStartDate[5]);
                 if AccountNetChange = 0 then
-                    if not CustLedgerEntry.FindFirst then
+                    if not CustLedgerEntry.FindFirst() then
                         CurrReport.Skip();
 
                 HasEntry := true;

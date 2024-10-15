@@ -46,7 +46,7 @@ page 28090 "Post Dated Checks"
 
                         UpdateCustomer;
                         SetFilter("Check Date", GetFilter("Date Filter"));
-                        if not FindFirst then
+                        if not FindFirst() then
                             UpdateBalance;
                     end;
 
@@ -350,7 +350,7 @@ page 28090 "Post Dated Checks"
                         PostDatedCheck.CopyFilters(Rec);
                         PostDatedCheck.SetRange("Account Type", "Account Type");
                         PostDatedCheck.SetRange("Account No.", "Account No.");
-                        if PostDatedCheck.FindFirst then
+                        if PostDatedCheck.FindFirst() then
                             REPORT.RunModal(REPORT::"PDC Acknowledgement Receipt", true, true, PostDatedCheck);
                     end;
                 }
@@ -444,7 +444,7 @@ page 28090 "Post Dated Checks"
         PostDatedCheck.SetRange("Account Type", PostDatedCheck."Account Type"::Customer);
         if CustomerNo <> '' then
             PostDatedCheck.SetRange("Account No.", CustomerNo);
-        if PostDatedCheck.FindSet then begin
+        if PostDatedCheck.FindSet() then begin
             repeat
                 LineAmount := LineAmount + PostDatedCheck."Amount (LCY)";
             until PostDatedCheck.Next() = 0;

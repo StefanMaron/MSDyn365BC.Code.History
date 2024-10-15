@@ -99,7 +99,7 @@ table 7506 "Filter Item Attributes Buffer"
 
         AttributeName := LowerCase(Attribute);
         ItemAttribute.SetRange(Name);
-        if ItemAttribute.FindSet then
+        if ItemAttribute.FindSet() then
             repeat
                 if LowerCase(ItemAttribute.Name) = AttributeName then
                     exit(true);
@@ -114,11 +114,11 @@ table 7506 "Filter Item Attributes Buffer"
     begin
         ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
         ItemAttributeValue.SetRange(Value, Value);
-        if ItemAttributeValue.FindFirst then
+        if ItemAttributeValue.FindFirst() then
             exit(true);
 
         ItemAttributeValue.SetRange(Value);
-        if ItemAttributeValue.FindSet then begin
+        if ItemAttributeValue.FindSet() then begin
             AttributeValue := LowerCase(Value);
             repeat
                 if LowerCase(ItemAttributeValue.Value) = AttributeValue then
@@ -137,7 +137,7 @@ table 7506 "Filter Item Attributes Buffer"
             exit;
         AttributeName := LowerCase(Attribute);
         TempFilterItemAttributesBuffer.Copy(Rec, true);
-        if TempFilterItemAttributesBuffer.FindSet then
+        if TempFilterItemAttributesBuffer.FindSet() then
             repeat
                 if TempFilterItemAttributesBuffer.ID <> ID then
                     if LowerCase(TempFilterItemAttributesBuffer.Attribute) = AttributeName then

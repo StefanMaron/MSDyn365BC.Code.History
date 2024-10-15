@@ -62,7 +62,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A job Queue Entry is created.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreatePmtLineAsyncRespWorkflowStepInstance,
           WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode);
@@ -71,7 +71,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         // Excercise
         WorkflowMgt.ExecuteResponses(PurchInvHeader, PurchInvHeader, FirstWorkflowStepInstance);
@@ -105,7 +105,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A general journal line is created.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreatePmtLineRespWorkflowStepInstance,
           WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode);
@@ -113,7 +113,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         // Excercise
         WorkflowMgt.ExecuteResponses(PurchInvHeader, PurchInvHeader, FirstWorkflowStepInstance);
@@ -140,7 +140,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A job Queue Entry is created.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocumentAsyncRespWorkflowStepInstance,
           WorkflowResponseHandling.PostDocumentAsyncCode);
@@ -171,7 +171,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A job Queue Entry is created.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocumentAsyncRespWorkflowStepInstance,
           WorkflowResponseHandling.PostDocumentAsyncCode);
@@ -201,7 +201,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Unsupported record type error is thrown .
 
         // Setup
-        Initialize;
+        Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocumentAsyncRespWorkflowStepInstance,
           WorkflowResponseHandling.PostDocumentAsyncCode);
 
@@ -232,10 +232,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The purchase document is posted.
 
         // Setup - Initialize
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Invoce and Release it.
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
@@ -282,10 +282,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The sales document is posted.
 
         // Setup - Initialize
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Invoce and Release it.
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item,
@@ -328,7 +328,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Unsupported record type error is thrown .
 
         // Setup
-        Initialize;
+        Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocRespWorkflowStepInstance,
           WorkflowResponseHandling.PostDocumentCode);
 
@@ -355,7 +355,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The purchase document is released.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
           WorkflowResponseHandling.ReleaseDocumentCode);
@@ -389,7 +389,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The execution throws an error.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateOrFindUserSetup(UserSetup, UserId);
         SetUnlimitedPurchaseApprovalLimit(UserSetup);
         CreateMockPurchaseApprovalWorkflow;
@@ -424,7 +424,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The sales document is released.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
           WorkflowResponseHandling.ReleaseDocumentCode);
@@ -458,7 +458,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The execution throws an error.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateOrFindUserSetup(UserSetup, UserId);
         SetUnlimitedSalesApprovalLimit(UserSetup);
         CreateMockSalesApprovalWorkflow;
@@ -495,7 +495,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The purchase document is released.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateApprovalEntryForPurchaseDoc(ApprovalEntry, PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
@@ -526,7 +526,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The sales document is released.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         CreateApprovalEntryForSalesDoc(ApprovalEntry, SalesHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
@@ -555,7 +555,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Unsupported record type error is thrown .
 
         // Setup
-        Initialize;
+        Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
           WorkflowResponseHandling.ReleaseDocumentCode);
 
@@ -582,7 +582,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The purchase document is reopened.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
         PurchaseHeader.Modify();
@@ -613,7 +613,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The sales document is reopened.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         SalesHeader.Status := SalesHeader.Status::Released;
         SalesHeader.Modify();
@@ -646,7 +646,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The purchase document is reopened.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
         PurchaseHeader.Modify();
@@ -680,7 +680,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The sales document is reopened.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         SalesHeader.Status := SalesHeader.Status::Released;
         SalesHeader.Modify();
@@ -712,7 +712,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Unsupported record type error is thrown .
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
           WorkflowResponseHandling.OpenDocumentCode);
@@ -744,7 +744,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The Get Comment page opens up and stores the comments for related document.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
 
         CommentTxt := CopyStr(LibraryUtility.GenerateRandomText(20), 1, 20);
@@ -782,7 +782,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The Get Comment page opens up and stores the comments for related document.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         CommentTxt := CopyStr(LibraryUtility.GenerateRandomText(20), 1, 20);
 
@@ -820,7 +820,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The Get Comment page opens up and stores the comments for related document.
 
         // Setup
-        Initialize;
+        Initialize();
         CommentTxt := CopyStr(LibraryUtility.GenerateRandomText(20), 1, 20);
         CreatePurchaseInvoice(PurchaseHeader);
         CreateApprovalEntryForPurchaseDoc(ApprovalEntry, PurchaseHeader);
@@ -856,7 +856,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Comment page is opened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, GetCommentRespWorkflowStepInstance,
           WorkflowResponseHandling.GetApprovalCommentCode);
@@ -889,7 +889,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Document status is changed to Pending Approval.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, SetDocStatusRespWorkflowStepInstance,
           WorkflowResponseHandling.SetStatusToPendingApprovalCode);
@@ -920,7 +920,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Document status is changed to Pending Approval.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, SetDocStatusRespWorkflowStepInstance,
           WorkflowResponseHandling.SetStatusToPendingApprovalCode);
@@ -959,7 +959,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1025,7 +1025,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1080,7 +1080,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Two approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1139,7 +1139,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] One approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         LibraryDocumentApprovals.CreateMockupUserSetup(ApproverUserSetup);
@@ -1196,7 +1196,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Two approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1257,7 +1257,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1310,7 +1310,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [GIVEN] An active workflow step instance for CreateApprovalRequsts.
         // [GIVEN] A user setup with 3 users and in approval chain.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "User A" with approval limit 100 and "Approver ID" = "User B" and "Purchaser Code" = "X"
         // [GIVEN] "User B" with approval limit 1000
@@ -1337,7 +1337,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.RecordCount(ApprovalEntry, 1);
 
         // [THEN] Approval entry is created for "User B" with status "Created"
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         ApprovalEntry.TestField(Status, ApprovalEntry.Status::Created);
 
         // [THEN] Approval entry is not created for "User C" and "User A"
@@ -1371,7 +1371,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1437,7 +1437,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1492,7 +1492,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Two approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1553,7 +1553,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Two approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1614,7 +1614,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -1667,7 +1667,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [GIVEN] An active workflow step instance for CreateApprovalRequsts.
         // [GIVEN] A user setup with 3 users and in approval chain.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "User A" with approval limit 100 and "Approver ID" = "User B" and "Salesperson Code" = "X"
         // [GIVEN] "User B" with approval limit 1000
@@ -1694,7 +1694,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.RecordCount(ApprovalEntry, 1);
 
         // [THEN] Approval entry is created for "User B" with status "Open"
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         ApprovalEntry.TestField(Status, ApprovalEntry.Status::Created);
 
         // [THEN] Approval entry is not created for "User A" and "User C"
@@ -1727,7 +1727,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Two approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create approvers
         LibraryDocumentApprovals.CreateMockupUserSetup(Approver1UserSetup);
@@ -1790,7 +1790,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] An error is thrown.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create approvers
         LibraryDocumentApprovals.CreateMockupUserSetup(Approver1UserSetup);
@@ -1834,7 +1834,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] It returns a description where the approver type and approver limit type is listed out.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response,
           '', '', '', WorkflowStepArgument."Approver Type"::Approver, true);
@@ -1866,7 +1866,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] It returns a description where the approver type and approver limit type is listed out.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         CreateWorkflowUserGroup(WorkflowUserGroup);
 
@@ -1896,7 +1896,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [SCENARIO] Description for 'Create notification entry' response when "Notify Sender" is 'Yes'.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create CreateNotificationEntry response.
         LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response,
@@ -1934,7 +1934,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The message informing that the record has been approved is shown.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create UserSetup with unlimited approval limit
         CreateOrFindUserSetup(UserSetup, UserId);
@@ -1982,7 +1982,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The message informing that an approval request has been sent for approval is shown.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2029,7 +2029,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The message informing that an approval request has been sent for approval is shown.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2077,7 +2077,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A notification gets created for the approver.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2125,7 +2125,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The approval entries change status.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         CreateOrFindCurrentUserSetup;
 
@@ -2175,7 +2175,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The approval entries change status.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         CreateOrFindCurrentUserSetup;
 
@@ -2227,7 +2227,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A notification gets created for the first canceled approval entry.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2276,7 +2276,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A notification gets created for the first rejected approval entry.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2323,7 +2323,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A notification gets created for the approver.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2373,7 +2373,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A notification gets created for the first canceled approval entry.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2422,7 +2422,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] A notification gets created for the first rejected approval entry.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2472,7 +2472,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] Notifications get created for all approvers.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         // Setup - Create chain of approvers
         CreateThreeUserSetupWithApproverChain(UserSetup, Approver1UserSetup, Approver2UserSetup);
@@ -2525,7 +2525,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         CreateOrFindCurrentUserSetup;
 
@@ -2592,7 +2592,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         CreateOrFindCurrentUserSetup;
 
@@ -2658,7 +2658,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The three approval requests are created.
 
         // Setup - Cleanup
-        Initialize;
+        Initialize();
 
         CreateOrFindCurrentUserSetup;
 
@@ -2716,7 +2716,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [WHEN] CheckCreditLimit response is executed on the given workflow step instance.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CheckCreditLimitWorkflowStepInstance,
           WorkflowResponseHandling.CheckCustomerCreditLimitCode);
@@ -2748,7 +2748,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [WHEN] ShowMessage response is executed on the given workflow step instance.
 
         // Setup
-        Initialize;
+        Initialize();
         GenJnlBatch.Init();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ShowMessageWorkflowStepInstance,
           WorkflowResponseHandling.ShowMessageCode);
@@ -2790,7 +2790,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer cannot be used for posting documents.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
           WorkflowResponseHandling.RestrictRecordUsageCode);
         LibrarySales.CreateCustomer(Customer);
@@ -2830,7 +2830,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer can be used again for posting documents.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
           WorkflowResponseHandling.RestrictRecordUsageCode);
@@ -2874,7 +2874,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer cannot be used for posting journal lines.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
           WorkflowResponseHandling.RestrictRecordUsageCode);
         LibrarySales.CreateCustomer(Customer);
@@ -2913,7 +2913,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer can be used again for posting journal lines.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
           WorkflowResponseHandling.RestrictRecordUsageCode);
@@ -2958,7 +2958,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The general journal line cannot be used for posting.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
           WorkflowResponseHandling.RestrictRecordUsageCode);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate);
@@ -2999,7 +2999,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The general journal line can be posted.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
           WorkflowResponseHandling.RestrictRecordUsageCode);
@@ -3048,7 +3048,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer record holds the initial values and there is a change record.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RevertFieldValueWorkflowStepInstance,
           WorkflowResponseHandling.RevertValueForFieldCode);
@@ -3096,7 +3096,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The response does nothing because the records are identical.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RevertFieldValueWorkflowStepInstance,
           WorkflowResponseHandling.RevertValueForFieldCode);
@@ -3131,7 +3131,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The engine fails because of the wrong field number.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RevertFieldValueWorkflowStepInstance,
           WorkflowResponseHandling.RevertValueForFieldCode);
@@ -3174,7 +3174,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer record is changed.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
           WorkflowResponseHandling.ApplyNewValuesCode);
@@ -3221,7 +3221,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The changes are applied.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
           WorkflowResponseHandling.ApplyNewValuesCode);
@@ -3265,7 +3265,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The workflow engine applies the new values.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
           WorkflowResponseHandling.ApplyNewValuesCode);
@@ -3316,7 +3316,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The workflow engine will not apply the change and will inform the user.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
           WorkflowResponseHandling.ApplyNewValuesCode);
@@ -3365,7 +3365,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The workflow engine will not apply the change and will inform the user.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
           WorkflowResponseHandling.ApplyNewValuesCode);
@@ -3412,7 +3412,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer record is changed.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
           WorkflowResponseHandling.ApplyNewValuesCode);
@@ -3460,7 +3460,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer record is changed.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
           WorkflowResponseHandling.ApplyNewValuesCode);
@@ -3508,7 +3508,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer record is changed.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
           WorkflowResponseHandling.ApplyNewValuesCode);
@@ -3557,7 +3557,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The customer record is changed.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RevertFieldValueWorkflowStepInstance,
           WorkflowResponseHandling.RevertValueForFieldCode);
@@ -3599,7 +3599,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The record changes are deleted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         WorkflowRecordChange.DeleteAll(true);
 
@@ -3627,14 +3627,14 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The record changes are deleted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         WorkflowRecordChange.DeleteAll(true);
 
         CreateWFStepInstanceWithCustomerAndRecordChange(FirstWorkflowStepInstance, Customer);
 
         // Exercise.
-        WorkflowRecordChange.FindFirst;
+        WorkflowRecordChange.FindFirst();
         WorkflowMgt.ExecuteResponses(WorkflowRecordChange, WorkflowRecordChange, FirstWorkflowStepInstance);
 
         // Verify.
@@ -3659,7 +3659,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // [THEN] The record changes are deleted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         WorkflowRecordChange.DeleteAll(true);
 
@@ -3698,7 +3698,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowUserGroup: Record "Workflow User Group";
     begin
         // [SCENARIO 284222] User is not able to send approval request if he/she is not defined in user setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] No user setup for current user
         if UserSetup1.Get(UserId) then
@@ -3728,9 +3728,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Respo. Lib. Tests");
         LibraryWorkflow.DeleteAllExistingWorkflows;
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         WorkflowResponseHandling.CreateResponsesLibrary;
         if IsInitialized then
@@ -3881,13 +3881,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.SetRecFilter;
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.SetRecFilter;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure CreateOrFindUserSetup(var UserSetup: Record "User Setup"; UserName: Text[208])
@@ -4141,7 +4141,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     begin
         ApprovalCommentLine.SetRange("Table ID", DATABASE::"Purchase Header");
         ApprovalCommentLine.SetRange("Record ID to Approve", PurchaseHeader.RecordId);
-        ApprovalCommentLine.FindFirst;
+        ApprovalCommentLine.FindFirst();
         ApprovalCommentLine.TestField(Comment, ExpectedCommentTxt);
     end;
 
@@ -4151,7 +4151,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     begin
         ApprovalCommentLine.SetRange("Table ID", DATABASE::"Sales Header");
         ApprovalCommentLine.SetRange("Record ID to Approve", SalesHeader.RecordId);
-        ApprovalCommentLine.FindFirst;
+        ApprovalCommentLine.FindFirst();
         ApprovalCommentLine.TestField(Comment, ExpectedCommentTxt);
     end;
 
@@ -4161,7 +4161,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     begin
         ApprovalCommentLine.SetRange("Table ID", DATABASE::Item);
         ApprovalCommentLine.SetRange("Record ID to Approve", Item.RecordId);
-        ApprovalCommentLine.FindFirst;
+        ApprovalCommentLine.FindFirst();
         ApprovalCommentLine.TestField(Comment, ExpectedCommentTxt);
     end;
 
@@ -4230,11 +4230,11 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     local procedure VerifyNotificationsForApprovers(var ApprovalEntry: Record "Approval Entry"; Approver1UserSetup: Record "User Setup"; Approver2UserSetup: Record "User Setup"; ExpectedNotifQtyApprover1: Integer; ExpectedNotifQtyApprover2: Integer)
     begin
         ApprovalEntry.SetRange("Approver ID", Approver1UserSetup."User ID");
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         VerifyNotificationEntry(ApprovalEntry."Approver ID", ExpectedNotifQtyApprover1);
 
         ApprovalEntry.SetRange("Approver ID", Approver2UserSetup."User ID");
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         case ExpectedNotifQtyApprover2 of
             0:
                 VerifyNotificationEntryIsEmptyForRecipient(ApprovalEntry."Approver ID");

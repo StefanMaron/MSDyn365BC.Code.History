@@ -60,7 +60,7 @@ page 11611 "BAS - XML Field IDs"
                     trigger OnAction()
                     begin
                         BASImportExport.SetDirection(2);
-                        BASImportExport.RunModal;
+                        BASImportExport.RunModal();
                         Clear(BASImportExport);
                     end;
                 }

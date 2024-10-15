@@ -24,10 +24,10 @@ codeunit 139099 "Test ApplicationArea Country"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         // [SCENARIO 290518] Applicatiomn Area Setup is set per country
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable Basic user experience
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Get application area setup
         ApplicationAreaMgmtFacade.GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName);
@@ -44,7 +44,7 @@ codeunit 139099 "Test ApplicationArea Country"
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup;
         ExperienceTierSetup.DeleteAll(true);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryVariableStorage.AssertEmpty;
 
         if IsInitialized then

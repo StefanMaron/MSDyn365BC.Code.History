@@ -101,7 +101,7 @@ page 11603 "BAS Calc. Schedule List"
                     begin
                         BASImportExport.SetBASCalcSheetRecord(Rec);
                         BASImportExport.SetDirection(0);
-                        BASImportExport.RunModal;
+                        BASImportExport.RunModal();
                         BASImportExport.ReturnRecord(Rec);
                         Clear(BASImportExport);
                     end;
@@ -136,7 +136,7 @@ page 11603 "BAS Calc. Schedule List"
                     begin
                         BASImportExport.SetBASCalcSheetRecord(Rec);
                         BASImportExport.SetDirection(1);
-                        BASImportExport.RunModal;
+                        BASImportExport.RunModal();
                         BASImportExport.ReturnRecord(Rec);
                         Clear(BASImportExport);
                     end;

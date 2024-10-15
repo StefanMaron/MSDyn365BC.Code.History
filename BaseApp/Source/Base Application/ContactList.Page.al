@@ -595,6 +595,7 @@ page 5052 "Contact List"
             }
             group(Prices)
             {
+                Caption = 'Prices';
                 action(PriceLists)
                 {
                     ApplicationArea = Basic, Suite;
@@ -784,7 +785,6 @@ page 5052 "Contact List"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this contact.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1121,9 +1121,7 @@ page 5052 "Contact List"
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
@@ -1167,7 +1165,6 @@ page 5052 "Contact List"
         RelatedBankEnabled: Boolean;
         RelatedEmployeeEnabled: Boolean;
         ExportContactEnabled: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure EnableFields()
     begin

@@ -328,7 +328,7 @@ table 5744 "Transfer Shipment Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)

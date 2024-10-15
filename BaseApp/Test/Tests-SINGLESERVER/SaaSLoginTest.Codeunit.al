@@ -42,7 +42,7 @@ codeunit 139470 "SaaS Login Test"
         // [SCENARIO 174427] When the user opens an evaluation company in SaaS, no dialog is shown
 
         // [GIVEN] A newly created evaluation company in SaaS
-        Initialize;
+        Initialize();
         SetCompanyToEvaluation(true);
 
         // [WHEN] The user logs in
@@ -63,7 +63,7 @@ codeunit 139470 "SaaS Login Test"
         // [SCENARIO] a dialog is shown informing him/her that a trial period will start
 
         // [GIVEN] A newly created company in SaaS
-        Initialize;
+        Initialize();
         SetCompanyToEvaluation(false);
 
         // [WHEN] The user logs in
@@ -85,7 +85,7 @@ codeunit 139470 "SaaS Login Test"
         // [SCENARIO] on a PHONE an error is shown and the user is moved back to a eval comp
 
         // [GIVEN] A newly created company in SaaS
-        Initialize;
+        Initialize();
         SetCompanyToEvaluation(false);
 
         // [GIVEN] a phone client
@@ -114,7 +114,7 @@ codeunit 139470 "SaaS Login Test"
         // [SCENARIO] on a TABLET an error is shown and the user is moved back to a eval comp
 
         // [GIVEN] A newly created company in SaaS
-        Initialize;
+        Initialize();
         SetCompanyToEvaluation(false);
 
         // [GIVEN] a tablet client

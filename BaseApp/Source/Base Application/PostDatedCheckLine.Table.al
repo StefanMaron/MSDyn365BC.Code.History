@@ -286,29 +286,29 @@ table 28090 "Post Dated Check Line"
                             if "Applies-to Doc. No." <> '' then begin
                                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                                if not CustLedgEntry.FindFirst then begin
+                                if not CustLedgEntry.FindFirst() then begin
                                     CustLedgEntry.SetRange("Document Type");
                                     CustLedgEntry.SetRange("Document No.");
                                 end;
                             end;
                             if "Applies-to ID" <> '' then begin
                                 CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                                if not CustLedgEntry.FindFirst then
+                                if not CustLedgEntry.FindFirst() then
                                     CustLedgEntry.SetRange("Applies-to ID");
                             end;
                             if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                                if not CustLedgEntry.FindFirst then
+                                if not CustLedgEntry.FindFirst() then
                                     CustLedgEntry.SetRange("Document Type");
                             end;
                             if "Applies-to Doc. No." <> '' then begin
                                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                                if not CustLedgEntry.FindFirst then
+                                if not CustLedgEntry.FindFirst() then
                                     CustLedgEntry.SetRange("Document No.");
                             end;
                             if Amount <> 0 then begin
                                 CustLedgEntry.SetRange(Positive, Amount < 0);
-                                if CustLedgEntry.FindFirst then;
+                                if CustLedgEntry.FindFirst() then;
                                 CustLedgEntry.SetRange(Positive);
                             end;
                             SetGenJnlLine(Rec);
@@ -362,29 +362,29 @@ table 28090 "Post Dated Check Line"
                             if "Applies-to Doc. No." <> '' then begin
                                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                                if not VendLedgEntry.FindFirst then begin
+                                if not VendLedgEntry.FindFirst() then begin
                                     VendLedgEntry.SetRange("Document Type");
                                     VendLedgEntry.SetRange("Document No.");
                                 end;
                             end;
                             if "Applies-to ID" <> '' then begin
                                 VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                                if not VendLedgEntry.FindFirst then
+                                if not VendLedgEntry.FindFirst() then
                                     VendLedgEntry.SetRange("Applies-to ID");
                             end;
                             if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                                if not VendLedgEntry.FindFirst then
+                                if not VendLedgEntry.FindFirst() then
                                     VendLedgEntry.SetRange("Document Type");
                             end;
                             if "Applies-to Doc. No." <> '' then begin
                                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                                if not VendLedgEntry.FindFirst then
+                                if not VendLedgEntry.FindFirst() then
                                     VendLedgEntry.SetRange("Document No.");
                             end;
                             if Amount <> 0 then begin
                                 VendLedgEntry.SetRange(Positive, Amount < 0);
-                                if VendLedgEntry.FindFirst then;
+                                if VendLedgEntry.FindFirst() then;
                                 VendLedgEntry.SetRange(Positive);
                             end;
                             SetGenJnlLine(Rec);
@@ -634,7 +634,7 @@ table 28090 "Post Dated Check Line"
                     CustLedgEntry.SetRange("Customer No.", AccNo);
                     CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
                     CustLedgEntry.SetRange(Open, true);
-                    if CustLedgEntry.FindFirst then begin
+                    if CustLedgEntry.FindFirst() then begin
                         CustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                         CustLedgEntry."Accepted Payment Tolerance" := 0;
                         CustLedgEntry."Amount to Apply" := 0;
@@ -647,7 +647,7 @@ table 28090 "Post Dated Check Line"
                         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                         CustLedgEntry.SetRange("Customer No.", AccNo);
                         CustLedgEntry.SetRange(Open, true);
-                        if CustLedgEntry.FindFirst then begin
+                        if CustLedgEntry.FindFirst() then begin
                             CustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                             CustLedgEntry."Accepted Payment Tolerance" := 0;
                             CustLedgEntry."Amount to Apply" := 0;
@@ -660,7 +660,7 @@ table 28090 "Post Dated Check Line"
                     VendLedgEntry.SetRange("Vendor No.", AccNo);
                     VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
                     VendLedgEntry.SetRange(Open, true);
-                    if VendLedgEntry.FindFirst then begin
+                    if VendLedgEntry.FindFirst() then begin
                         VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                         VendLedgEntry."Accepted Payment Tolerance" := 0;
                         VendLedgEntry."Amount to Apply" := 0;
@@ -673,7 +673,7 @@ table 28090 "Post Dated Check Line"
                         VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                         VendLedgEntry.SetRange("Vendor No.", AccNo);
                         VendLedgEntry.SetRange(Open, true);
-                        if VendLedgEntry.FindFirst then begin
+                        if VendLedgEntry.FindFirst() then begin
                             VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                             VendLedgEntry."Accepted Payment Tolerance" := 0;
                             VendLedgEntry."Amount to Apply" := 0;

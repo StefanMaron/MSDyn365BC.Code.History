@@ -70,7 +70,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         BOMComponent: Record "BOM Component";
         childItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         asmTopItem.Get(CreateItem('ASM TOP', 0, 0));
         childItem.Get(CreateItem(TEXT_PART1, 1, 2));
         LibraryKitting.CreateBOMComponentLine(
@@ -109,7 +109,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         childItem: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         prodTopItem.Get(CreateItem('PROD TOP', 0, 0));
         childItem.Get(CreateItem(TEXT_PART1, 1, 2));
         LibraryKitting.AddProdBOMItem(prodTopItem, childItem."No.", 1);
@@ -134,7 +134,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         Item.Get(CreateItem('NonBOM', 500, 700));
         asserterror TestCost('Cost', Item, 0, 0, 0, 0, 0, 0, 0, 0);
         asserterror TestPrice('Price', Item, 0, 0);
@@ -149,7 +149,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         childItem: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(CreateItem('Parent', 0, 0));
         childItem.Get(CreateItem(TEXT_PART1, 300, 400));
         LibraryKitting.CreateBOMComponentLine(
@@ -182,7 +182,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         BOMComponentItem: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(CreateItem('Parent', 0, 0));
         childItem.Get(CreateItem(TEXT_PART1, 300, 400));
         LibraryKitting.CreateBOMComponentLine(ParentItem, BOMComponent.Type::Item, childItem."No.", 1,
@@ -248,7 +248,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         Item.Get(CreateItem('NonAssemblyForCost', 500, 700));
         asserterror TestCost('', Item, 0, 0, 0, 0, 0, 0, 0, 0);
         AssertContains(GetLastErrorText, 'does not use replenishment system Assembly');
@@ -290,7 +290,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         ComponentItem: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(CreateItem('Parent', 0, 0));
         ComponentItem.Get(CreateItem('Component', 300, 400));
         LibraryKitting.CreateBOMComponentLine(ParentItem, BOMComponent.Type::Item, ComponentItem."No.", 3,
@@ -330,7 +330,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         childItem: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(CreateItem('Parent', 0, 0));
         ComponentItem.Get(CreateItem('Component1', 300, 400));
         LibraryKitting.CreateBOMComponentLine(ParentItem, BOMComponent.Type::Item, ComponentItem."No.", 3,
@@ -376,7 +376,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         ComponentItem: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(CreateItem('Parent', 0, 0));
         ComponentItem.Get(CreateItem('Component1', 300, 400));
         LibraryKitting.CreateBOMComponentLine(ParentItem, BOMComponent.Type::Item, ComponentItem."No.", 3,
@@ -405,7 +405,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         ItemC: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         ItemA.Get(CreateItem('ItemA', 0, 0));
         LibraryResource.CreateResourceNew(ResourceA);
         ResourceA."Unit Cost" := 11;
@@ -442,7 +442,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         BOMComponent: Record "BOM Component";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
-        Initialize;
+        Initialize();
         ItemA.Get(CreateItem('ITEM A', 0, 0));
         ItemA."Indirect Cost %" := 10;
         ItemA.Modify(true);
@@ -504,7 +504,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         Res: Record Resource;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(CreateItem(TEXT_PART1, 0, 0));
         ChildItem.Get(CreateItem(TEXT_PART2, 10, 15));
         grandChildItem.Get(CreateItem(TEXT_SUB1, 2, 3));

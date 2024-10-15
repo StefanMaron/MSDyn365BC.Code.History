@@ -25,7 +25,7 @@ codeunit 136313 "Job Creation Wizard Tests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Creation Wizard Tests");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -48,7 +48,7 @@ codeunit 136313 "Job Creation Wizard Tests"
         JobCard: TestPage "Job Card";
     begin
         // [GIVEN] A newly setup company, with a new job created
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
 
         // [WHEN] The user runs the job creation wizard.
@@ -77,7 +77,7 @@ codeunit 136313 "Job Creation Wizard Tests"
         JobCreationWizard: TestPage "Job Creation Wizard";
     begin
         // [GIVEN] A newly setup company, with a new job created
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
 
         // [WHEN] The user runs the job creation wizard.
@@ -92,7 +92,7 @@ codeunit 136313 "Job Creation Wizard Tests"
             Assert.AreEqual(Format("No."), Format(Job."No."), 'Default job number does not match created job.');
 
             // [WHEN] The customer number for the new job is empty.
-            "Bill-to Customer No.".SetValue('');
+            "Sell-to Customer No.".SetValue('');
 
             // [THEN] An error occurs when you click the next button.
             asserterror ActionNext.Invoke;
@@ -110,7 +110,7 @@ codeunit 136313 "Job Creation Wizard Tests"
         CopyJobTasks: TestPage "Copy Job Tasks";
     begin
         // [GIVEN] A newly setup company, with a new job and new customer created (via the CreateJob() method)
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
 
         // [WHEN] The user runs the job creation wizard.
@@ -121,7 +121,7 @@ codeunit 136313 "Job Creation Wizard Tests"
 
             // [WHEN] The user has entered a descripton and a customer number for the new job, then clicks next.
             Description.SetValue('Job description.');
-            "Bill-to Customer No.".SetValue(Job."Bill-to Customer No.");
+            "Sell-to Customer No.".SetValue(Job."Bill-to Customer No.");
 
             CopyJobTasks.Trap;
             ActionNext.Invoke;
@@ -145,7 +145,7 @@ codeunit 136313 "Job Creation Wizard Tests"
         JobCreationWizard: TestPage "Job Creation Wizard";
     begin
         // [GIVEN] A newly setup company, with a new job and new customer created (via the CreateJob() method)
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
 
         // [WHEN] The user runs the job creation wizard.
@@ -170,11 +170,11 @@ codeunit 136313 "Job Creation Wizard Tests"
         LibraryJob: Codeunit "Library - Job";
     begin
         // [GIVEN] A newly setup company, with a new job and new customer created (via the CreateJob() method)
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
 
         // [WHEN] Jobs Setup table is accessed
-        if JobsSetup.FindFirst then begin
+        if JobsSetup.FindFirst() then begin
             // [THEN] Defaults for "Apply Usage Link by Default" and "Allow Sched/Contract Lines Def" are true
             Assert.IsTrue(JobsSetup."Apply Usage Link by Default", '"Apply Usage Link by Default" should be true.');
             Assert.IsTrue(JobsSetup."Allow Sched/Contract Lines Def", '"Allow Sched/Contract Lines Def" should be true.');

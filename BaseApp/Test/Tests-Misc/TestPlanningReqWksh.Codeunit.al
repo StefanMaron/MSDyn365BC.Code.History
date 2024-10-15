@@ -585,7 +585,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
     var
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         ItemNo := CreateTestItem;
         CleanUpSupplyAndDemand;
@@ -610,7 +610,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Planning/Req.Wksh");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();
@@ -631,7 +631,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
     begin
         Clear(RequisitionWkshName);
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::Planning);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         exit(RequisitionWkshName."Worksheet Template Name");
     end;
 
@@ -641,7 +641,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
     begin
         Clear(RequisitionWkshName);
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::Planning);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         exit(RequisitionWkshName.Name);
     end;
 
@@ -665,7 +665,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         ItemUnitOfMeasure.Init();
         ItemUnitOfMeasure.Validate("Item No.", ItemNo);
         ItemUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
@@ -706,7 +706,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         CalculatePlanPlanWksh.SetTableView(ItemRec);
         CalculatePlanPlanWksh.InitializeRequest(StartDate, EndDate, false);
         CalculatePlanPlanWksh.UseRequestPage := false;
-        CalculatePlanPlanWksh.RunModal;
+        CalculatePlanPlanWksh.RunModal();
     end;
 
     local procedure CalculatePlanRequisitionWorksh(ItemNo: Code[20]; StartDate: Date; EndDate: Date)
@@ -735,7 +735,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         RequisitionLine: Record "Requisition Line";
     begin
         SetRequisitionLineFilter(RequisitionLine, ItemNo);
-        if RequisitionLine.FindFirst then
+        if RequisitionLine.FindFirst() then
             repeat
                 Assert.AreEqual(CheckDate, RequisitionLine."Due Date", 'Requisition Line Due Date');
             until RequisitionLine.Next = 0;
@@ -749,7 +749,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         SetRequisitionLineFilter(RequisitionLine, ItemNo);
         Assert.AreEqual(NoOflinesExpected, RequisitionLine.Count, StrSubstNo('Requisition Worksheet Lines %1', Descr));
         Sum := 0;
-        if RequisitionLine.FindFirst then
+        if RequisitionLine.FindFirst() then
             repeat
                 Sum += RequisitionLine.Quantity;
             until RequisitionLine.Next = 0;
@@ -763,7 +763,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         if Item.Get(ItemDescription) then
             exit(ItemDescription);
 
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
 
         Item.Init();
         Item.Validate("No.", ItemDescription);
@@ -948,7 +948,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         Item: Record Item;
         Customer: Record Customer;
     begin
-        ServiceItem.FindFirst;
+        ServiceItem.FindFirst();
         repeat
             Customer.Get(ServiceItem."Customer No.");
             Item.Get(ServiceItem."Item No.");

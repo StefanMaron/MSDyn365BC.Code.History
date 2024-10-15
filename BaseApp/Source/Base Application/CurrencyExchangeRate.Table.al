@@ -345,7 +345,7 @@ table 330 "Currency Exchange Rate"
             CurrencyExchRate2[CacheNo].SetRange("Currency Code", CurrencyCode);
             CurrencyExchRate2[CacheNo].SetRange("Starting Date", 0D, Date);
             OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(CurrencyExchRate2[CacheNo], CurrencyCode, Date);
-            CurrencyExchRate2[CacheNo].FindLast;
+            CurrencyExchRate2[CacheNo].FindLast();
             Rec := CurrencyExchRate2[CacheNo];
             CurrencyCode2[CacheNo] := CurrencyCode;
             Date2[CacheNo] := Date;
@@ -442,7 +442,7 @@ table 330 "Currency Exchange Rate"
             Date := WorkDate;
         CurrencyExchRate3[Number].SetRange("Currency Code", CurrencyCode);
         CurrencyExchRate3[Number].SetRange("Starting Date", 0D, Date);
-        CurrencyExchRate3[Number].FindLast;
+        CurrencyExchRate3[Number].FindLast();
         CurrencyExchRate3[Number].TestField("Exchange Rate Amount");
         CurrencyExchRate3[Number].TestField("Relational Exch. Rate Amount");
     end;
@@ -558,7 +558,7 @@ table 330 "Currency Exchange Rate"
     begin
         CurrencyExchRate3[Number].SetRange("Currency Code", CurrencyCode);
         CurrencyExchRate3[Number].SetRange("Starting Date", 0D, Date);
-        if not CurrencyExchRate3[Number].FindLast then
+        if not CurrencyExchRate3[Number].FindLast() then
             exit(false);
 
         CurrencyExchRate3[Number].TestField("Exchange Rate Amount");
@@ -569,7 +569,7 @@ table 330 "Currency Exchange Rate"
     procedure GetCurrentCurrencyFactor(CurrencyCode: Code[10]): Decimal
     begin
         SetRange("Currency Code", CurrencyCode);
-        if FindLast then
+        if FindLast() then
             if "Relational Exch. Rate Amount" <> 0 then
                 exit("Exchange Rate Amount" / "Relational Exch. Rate Amount");
     end;
@@ -579,7 +579,7 @@ table 330 "Currency Exchange Rate"
         Date := 0D;
         Amt := 0;
         SetRange("Currency Code", CurrencyCode);
-        if FindLast then begin
+        if FindLast() then begin
             Date := "Starting Date";
             if "Exchange Rate Amount" <> 0 then
                 Amt := "Relational Exch. Rate Amount" / "Exchange Rate Amount";

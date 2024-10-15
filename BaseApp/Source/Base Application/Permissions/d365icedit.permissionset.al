@@ -31,5 +31,6 @@ permissionset 1562 "D365 IC, EDIT"
                   tabledata "IC Outbox Purchase Line" = IMD,
                   tabledata "IC Outbox Sales Header" = IMD,
                   tabledata "IC Outbox Sales Line" = IMD,
-                  tabledata "IC Outbox Transaction" = RIMD;
+                  tabledata "IC Outbox Transaction" = RIMD,
+                  tabledata "IC Setup" = RIMD;
 }

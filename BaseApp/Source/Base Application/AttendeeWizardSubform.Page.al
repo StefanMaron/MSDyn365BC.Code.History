@@ -137,7 +137,7 @@ page 5198 "Attendee Wizard Subform"
     begin
         DeleteAll();
 
-        if Attendee.FindSet then
+        if Attendee.FindSet() then
             repeat
                 Rec := Attendee;
                 Insert;
@@ -148,7 +148,7 @@ page 5198 "Attendee Wizard Subform"
     begin
         Attendee.DeleteAll();
 
-        if FindSet then
+        if FindSet() then
             repeat
                 Attendee := Rec;
                 Attendee.Insert();

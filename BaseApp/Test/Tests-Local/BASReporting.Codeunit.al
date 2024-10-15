@@ -30,7 +30,7 @@ codeunit 145302 "BAS Reporting"
         VATStatementName: Record "VAT Statement Name";
     begin
         // [SCENARIO 263986] Field "BAS Adjustment" of VAT Statement Line can be filled
-        Initialize;
+        Initialize();
         LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
         VATStatementLine.TestField("BAS Adjustment", false);
@@ -48,7 +48,7 @@ codeunit 145302 "BAS Reporting"
         LibraryAPACLocalization: Codeunit "Library - APAC Localization";
     begin
         // [SCENARIO 263986] Fields BAS ID No. and BAS Version No. of VAT Report Header can be filled
-        Initialize;
+        Initialize();
         CreateBASReport(VATReportHeader);
         VATReportHeader.TestField("BAS ID No.", '');
         VATReportHeader.TestField("BAS Version No.", 0);
@@ -71,7 +71,7 @@ codeunit 145302 "BAS Reporting"
         LibraryAPACLocalization: Codeunit "Library - APAC Localization";
     begin
         // [SCENARIO 263986] Fields BAS ID No. and BAS Version No. of VAT Report Header cannot be filled for VAT Report Config Code <> BAS Report
-        Initialize;
+        Initialize();
         VATReportHeader.Init();
         VATReportHeader.Validate("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code"::"VAT Return");
         VATReportHeader.Insert(true);
@@ -97,7 +97,7 @@ codeunit 145302 "BAS Reporting"
         NextNo: Code[20];
     begin
         // [SCENARIO 263986] BAS Report "No." is generated using VAT Report Setup "BAS Report No. Series"
-        Initialize;
+        Initialize();
 
         // [GIVEN] No Series "NS"
         NoSeriesCode := LibraryERM.CreateNoSeriesCode;
@@ -129,13 +129,13 @@ codeunit 145302 "BAS Reporting"
         VATReportsConfigurationPage: TestPage "VAT Reports Configuration";
     begin
         // [SCENARIO 263986] BAS Report Statement Name and Statement Template Name are taken from VAT Reports Configuration record
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Reports Configuration "VRC" with VAT Statement Name = "VSN", VAT Statement Template Name = "VSTN"
         LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
 
         VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"BAS Report");
-        VATReportsConfiguration.FindFirst;
+        VATReportsConfiguration.FindFirst();
         VATReportsConfiguration.Validate("VAT Statement Name", VATStatementName.Name);
         VATReportsConfiguration.Validate("VAT Statement Template", VATStatementName."Statement Template Name");
         VATReportsConfiguration.Modify();
@@ -165,7 +165,7 @@ codeunit 145302 "BAS Reporting"
         VATStatement: TestPage "VAT Statement";
     begin
         // [SCENARIO 263986] Field "BAS Adjustment" is visible and can show value on VAT Statement page
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement with line L1 that has BAS Adjustment = true, line L2 with BAS Adjustment = false
         LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
@@ -199,7 +199,7 @@ codeunit 145302 "BAS Reporting"
         VATEntries: TestPage "VAT Entries";
     begin
         // [SCENARIO 263986] VAT Entries are filtered by BAS Adjustment field value when open from VAT Statement Preview
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement with line L1 that has BAS Adjustment = true, line L2 with BAS Adjustment = false
         LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
@@ -251,7 +251,7 @@ codeunit 145302 "BAS Reporting"
         BASReport: TestPage "VAT Report";
     begin
         // [SCENARIO 263986] Amount value is editable for lines of "Description" type
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement with line L1 that has Type = Row Totaling, line L2 with Type = Description
         LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
@@ -304,7 +304,7 @@ codeunit 145302 "BAS Reporting"
         GSTSalesEntries: TestPage "GST Sales Entries";
     begin
         // [SCENARIO 263986] Pages GST Sales Entries and GST Purchase Entries can be opened from BAS Report
-        Initialize;
+        Initialize();
 
         // [GIVEN] BAS Report page
         CreateBASReport(VATReportHeader);
@@ -344,7 +344,7 @@ codeunit 145302 "BAS Reporting"
         VATEntries: TestPage "VAT Entries";
     begin
         // [SCENARIO 263986] DrillDown on Amount of line with Row Totaling type
-        Initialize;
+        Initialize();
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup[1]);
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup[2]);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[1]);
@@ -426,7 +426,7 @@ codeunit 145302 "BAS Reporting"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 263986] DrillDown on Amount of line with Account Totaling
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] VAT Statement Line "VSL1"
         LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
@@ -475,23 +475,23 @@ codeunit 145302 "BAS Reporting"
     begin
         // [GST Settlement]
         // [SCENARIO 263986] GST Settlement G/L Entries Sales and Purchase entries posted separately
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup "VPS1" with VAT Prod. Posting Group "VPPG1" and Bus. Posting Group "VBPG1", Sales VAT Account = "SVA1"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[1]);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup[1], VATBusinessPostingGroup.Code, VATProductPostingGroup[1].Code);
-        VATPostingSetup[1]."Sales VAT Account" := LibraryERM.CreateGLAccountNo;
+        VATPostingSetup[1]."Sales VAT Account" := LibraryERM.CreateGLAccountNo();
         VATPostingSetup[1].Modify();
 
         // [GIVEN] VAT Posting Setup "VPS2" with VAT Prod. Posting Group "VPPG2" and Bus. Posting Group "VBPG1", Purchase VAT Account = "PVA1"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[2]);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup[2], VATBusinessPostingGroup.Code, VATProductPostingGroup[2].Code);
-        VATPostingSetup[2]."Purchase VAT Account" := LibraryERM.CreateGLAccountNo;
+        VATPostingSetup[2]."Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
         VATPostingSetup[2].Modify();
 
         // [GIVEN] G/L Account "SettlementGLACC"
-        SettlementAccountNo := LibraryERM.CreateGLAccountNo;
+        SettlementAccountNo := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] VAT Entry "VE1" with Type Sale with Amount = "A1"
         MockVATEntry(
@@ -509,7 +509,7 @@ codeunit 145302 "BAS Reporting"
         VATPostingSetup[1].Reset();
         VATPostingSetup[1].SetRange("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup[1]);
-        CalcAndPostVATSettlement.Run;
+        CalcAndPostVATSettlement.Run();
 
         // [THEN] G/L Entry with amount "A1" is posted to "SettlementGLACC" G/L Account
         VerifyGLEntryAccountAmount(SettlementAccountNo, VATEntry[1].Amount);
@@ -530,7 +530,7 @@ codeunit 145302 "BAS Reporting"
         // [FEATURE] [UI]
         // [SCENARIO 328378] Stan can run action "BAS Reports" from the "Accounting Manager Role Center" page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         AccountingManagerRoleCenter.OpenView;
         Assert.IsTrue(AccountingManagerRoleCenter.BASReports.Visible, 'BAS Reports action is not visible');
@@ -548,7 +548,7 @@ codeunit 145302 "BAS Reporting"
         // [FEATURE] [UI]
         // [SCENARIO 328378] Stan can choose the local VAT Reports Configuration's options from the "VAT Reports Configurations" page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
 
         VATReportsConfiguration.OpenView;
@@ -569,7 +569,7 @@ codeunit 145302 "BAS Reporting"
         // [FEATURE] [UI]
         // [SCENARIO 328378] Stan can see the local VAT Report's fields on the "VAT Report" page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
 
         VATReport.OpenView;
@@ -592,7 +592,7 @@ codeunit 145302 "BAS Reporting"
         // [FEATURE] [UI]
         // [SCENARIO 328378] Stan do not see "Submit" action if "Disable Submit Action" was set in VAT Reports Configuration
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         UpdateVATReportsConfigurationWithLocalOptions(true, false, false);
         MockBASReport(VATReportHeader, VATReportHeader.Status::Accepted, false, false);
@@ -615,7 +615,7 @@ codeunit 145302 "BAS Reporting"
         // [FEATURE] [UI]
         // [SCENARIO 328378] Stan can run "Post VAT Settlement" action if "Post Settlement When Submitted" was set in VAT Reports Configuration, status of report is Submitted and settlement was not posted yet
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         UpdateVATReportsConfigurationWithLocalOptions(false, true, false);
         MockBASReport(VATReportHeader, VATReportHeader.Status::Submitted, false, false);
@@ -637,7 +637,7 @@ codeunit 145302 "BAS Reporting"
     begin
         // [SCENARIO 328378] Stan cannot run "Post VAT Settlement" action if "Post Settlement When Submitted" was set in VAT Reports Configuration, status of report is Submitted but settlement was already posted
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         UpdateVATReportsConfigurationWithLocalOptions(false, true, false);
         MockBASReport(VATReportHeader, VATReportHeader.Status::Submitted, true, false);
@@ -660,7 +660,7 @@ codeunit 145302 "BAS Reporting"
     begin
         // [SCENARIO 328378] The fields of "Calc. and Post VAT Settlement" are enabled when "Disable Post Settlement Fields" is off
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         UpdateVATReportsConfigurationWithLocalOptions(false, false, false);
         MockBASReport(VATReportHeader, VATReportHeader.Status::Accepted, false, false);
@@ -688,7 +688,7 @@ codeunit 145302 "BAS Reporting"
     begin
         // [SCENARIO 328378] The fields of "Calc. and Post VAT Settlement" are disabled when "Disable Post Settlement Fields" is on
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         UpdateVATReportsConfigurationWithLocalOptions(false, false, true);
         MockBASReport(VATReportHeader, VATReportHeader.Status::Accepted, false, false);
@@ -718,7 +718,7 @@ codeunit 145302 "BAS Reporting"
     begin
         // [SCENARIO 328378] "Include Prev. Open Entries" option saves when Stan chose "Before and Withing Period" while suggesting lines from the VAT Report page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
 
         LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
@@ -753,7 +753,7 @@ codeunit 145302 "BAS Reporting"
     begin
         // [SCENARIO 328378] Stan can run "Calc. and Post VAT Settlement" report for VAT Entries with the additional reporting currency.
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         PostingDate := FindNextPostingDate;
 
@@ -769,7 +769,7 @@ codeunit 145302 "BAS Reporting"
         VATReportHeader."Start Date" := PostingDate;
         VATReportHeader."End Date" := PostingDate;
         VATReportHeader.Modify;
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        GLAccNo := LibraryERM.CreateGLAccountNo();
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(GLAccNo);
         Commit;
@@ -802,8 +802,8 @@ codeunit 145302 "BAS Reporting"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -842,7 +842,7 @@ codeunit 145302 "BAS Reporting"
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
         VATStatementReportLine.SetRange("Box No.", BoxNo);
-        VATStatementReportLine.FindFirst;
+        VATStatementReportLine.FindFirst();
     end;
 
     local procedure MockGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; PostingDate: Date)
@@ -864,7 +864,7 @@ codeunit 145302 "BAS Reporting"
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := Type;
             "Posting Date" := PostingDate;
-            "Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo;
+            "Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo();
             "VAT Bus. Posting Group" := VATBusPostingGroup;
             "VAT Prod. Posting Group" := VATProdPostingGroup;
             Base := LibraryRandom.RandDecInRange(10, 20, 2);
@@ -881,7 +881,7 @@ codeunit 145302 "BAS Reporting"
         VATReportsConfiguration: Record "VAT Reports Configuration";
     begin
         VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"BAS Report");
-        VATReportsConfiguration.FindFirst;
+        VATReportsConfiguration.FindFirst();
         VATReportsConfiguration.Validate("VAT Statement Name", VATStatementName);
         VATReportsConfiguration.Validate("VAT Statement Template", VATStatementTemplateName);
         VATReportsConfiguration.Modify();
@@ -892,7 +892,7 @@ codeunit 145302 "BAS Reporting"
         VATReportsConfiguration: Record "VAT Reports Configuration";
     begin
         VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"BAS Report");
-        VATReportsConfiguration.FindFirst;
+        VATReportsConfiguration.FindFirst();
         VATReportsConfiguration.Validate("Disable Submit Action", DisableSubmitAction);
         VATReportsConfiguration.Validate("Post Settlement When Submitted", PostSettlementWhenSubmitted);
         VATReportsConfiguration.Validate("Disable Post Settlement Fields", DisablePostSettlementFields);
@@ -915,7 +915,7 @@ codeunit 145302 "BAS Reporting"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetCurrentKey("Posting Date");
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         exit(VATEntry."Posting Date" + 1);
     end;
 

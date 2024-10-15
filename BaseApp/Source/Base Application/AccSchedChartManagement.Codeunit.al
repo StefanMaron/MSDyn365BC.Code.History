@@ -25,7 +25,7 @@ codeunit 762 "Acc. Sched. Chart Management"
             if Move < 0 then
                 AccountSchedulesChartSetup.FindLast
             else
-                AccountSchedulesChartSetup.FindFirst;
+                AccountSchedulesChartSetup.FindFirst();
 
         AccountSchedulesChartSetup.SetLastViewed;
     end;
@@ -43,12 +43,12 @@ codeunit 762 "Acc. Sched. Chart Management"
             end;
 
             SetRange("Last Viewed", true);
-            Found := FindLast;
+            Found := FindLast();
             SetRange("Last Viewed");
             if Found then
                 exit;
 
-            if FindFirst then begin
+            if FindFirst() then begin
                 SetLastViewed;
                 exit;
             end;
@@ -84,7 +84,7 @@ codeunit 762 "Acc. Sched. Chart Management"
             AccScheduleOverview.SetTableView(AccScheduleLine);
             AccScheduleOverview.SetRecord(AccScheduleLine);
             AccScheduleOverview.SetPeriodType(BusChartBuf."Period Length");
-            AccScheduleOverview.Run;
+            AccScheduleOverview.Run();
             exit;
         end;
 
@@ -143,7 +143,7 @@ codeunit 762 "Acc. Sched. Chart Management"
                     end;
             end;
 
-            Initialize;
+            Initialize();
             case AccountSchedulesChartSetup."Base X-Axis on" of
                 AccountSchedulesChartSetup."Base X-Axis on"::Period:
                     begin
@@ -166,7 +166,7 @@ codeunit 762 "Acc. Sched. Chart Management"
                         for PeriodCounter := 1 to NoOfPeriods do begin
                             AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
                             AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
-                            if AccSchedChartSetupLine.FindSet then
+                            if AccSchedChartSetupLine.FindSet() then
                                 repeat
                                     GetPeriodFromMapColumn(PeriodCounter - 1, FromDate, ToDate);
                                     AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
@@ -190,14 +190,14 @@ codeunit 762 "Acc. Sched. Chart Management"
                         AccSchedChartSetupLine2.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine2."Chart Type"::" ");
                         XCounter := 0;
                         AccScheduleLine.SetRange("Date Filter", "Period Filter Start Date", "Period Filter End Date");
-                        if AccSchedChartSetupLine.FindSet then
+                        if AccSchedChartSetupLine.FindSet() then
                             repeat
                                 AddColumn(AccSchedChartSetupLine."Measure Name");
                                 if not AccScheduleLine.Get(
                                      AccSchedChartSetupLine."Account Schedule Name", AccSchedChartSetupLine."Account Schedule Line No.")
                                 then
                                     Error(Text006);
-                                if AccSchedChartSetupLine2.FindSet then
+                                if AccSchedChartSetupLine2.FindSet() then
                                     repeat
                                         if not ColumnLayout.Get(
                                              AccSchedChartSetupLine2."Column Layout Name", AccSchedChartSetupLine2."Column Layout Line No.")
@@ -218,12 +218,12 @@ codeunit 762 "Acc. Sched. Chart Management"
                         AccSchedChartSetupLine2.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine2."Chart Type"::" ");
                         AccScheduleLine.SetRange("Date Filter", "Period Filter Start Date", "Period Filter End Date");
                         XCounter := 0;
-                        if AccSchedChartSetupLine.FindSet then
+                        if AccSchedChartSetupLine.FindSet() then
                             repeat
                                 AddColumn(AccSchedChartSetupLine."Measure Name");
                                 if not ColumnLayout.Get(AccSchedChartSetupLine."Column Layout Name", AccSchedChartSetupLine."Column Layout Line No.") then
                                     Error(Text006);
-                                if AccSchedChartSetupLine2.FindSet then
+                                if AccSchedChartSetupLine2.FindSet() then
                                     repeat
                                         if not AccScheduleLine.Get(
                                              AccSchedChartSetupLine2."Account Schedule Name", AccSchedChartSetupLine2."Account Schedule Line No.")
@@ -248,7 +248,7 @@ codeunit 762 "Acc. Sched. Chart Management"
         with AccSchedChartSetupLine do begin
             AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
             SetFilter("Chart Type", '<>%1', "Chart Type"::" ");
-            if FindSet then
+            if FindSet() then
                 repeat
                     case "Chart Type" of
                         "Chart Type"::Line:
@@ -314,7 +314,7 @@ codeunit 762 "Acc. Sched. Chart Management"
                     AccountSchedulesChartSetup.FilterAccSchedLines(AccScheduleLine);
                     BusChartBuf.GetXValue(BusChartBuf."Drill-Down X Index", XName);
                     AccScheduleLine.SetRange(Description, Format(XName));
-                    AccScheduleLine.FindFirst;
+                    AccScheduleLine.FindFirst();
                     MeasureValueString := BusChartBuf.GetMeasureValueString(BusChartBuf."Drill-Down Measure Index");
                     Evaluate(ColumnLayoutLineNo, MeasureValueString);
                     ColumnLayout.Get(AccountSchedulesChartSetup."Column Layout Name", ColumnLayoutLineNo);
@@ -326,7 +326,7 @@ codeunit 762 "Acc. Sched. Chart Management"
                     AccountSchedulesChartSetup.FilterColumnLayout(ColumnLayout);
                     BusChartBuf.GetXValue(BusChartBuf."Drill-Down X Index", XName);
                     ColumnLayout.SetRange("Column Header", Format(XName));
-                    ColumnLayout.FindFirst;
+                    ColumnLayout.FindFirst();
                     MeasureValueString := BusChartBuf.GetMeasureValueString(BusChartBuf."Drill-Down Measure Index");
                     Evaluate(AccScheduleLineLineNo, MeasureValueString);
                     AccScheduleLine.Get(AccountSchedulesChartSetup."Account Schedule Name", AccScheduleLineLineNo);
@@ -402,7 +402,7 @@ codeunit 762 "Acc. Sched. Chart Management"
             Clear(ChartOfAccsAnalysisView);
             ChartOfAccsAnalysisView.InsertTempCFAccountAnalysisVie(CFAccount);
             ChartOfAccsAnalysisView.SetTableView(GLAccAnalysisView);
-            ChartOfAccsAnalysisView.Run;
+            ChartOfAccsAnalysisView.Run();
         end;
     end;
 
@@ -463,7 +463,7 @@ codeunit 762 "Acc. Sched. Chart Management"
             Clear(ChartOfAccsAnalysisView);
             ChartOfAccsAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
             ChartOfAccsAnalysisView.SetTableView(GLAccAnalysisView);
-            ChartOfAccsAnalysisView.Run;
+            ChartOfAccsAnalysisView.Run();
         end;
     end;
 

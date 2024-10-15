@@ -636,7 +636,7 @@ codeunit 1294 "OCR Service Mgt."
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         IncomingDocumentAttachment.SetRange("Generated from OCR", true);
         IncomingDocumentAttachment.SetRange(Default, true);
-        if not IncomingDocumentAttachment.FindFirst then
+        if not IncomingDocumentAttachment.FindFirst() then
             exit;
 
         TempBlob.FromRecord(IncomingDocumentAttachment, IncomingDocumentAttachment.FieldNo(Content));
@@ -650,7 +650,7 @@ codeunit 1294 "OCR Service Mgt."
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         IncomingDocumentAttachment.SetRange("Generated from OCR", true);
-        if not IncomingDocumentAttachment.FindFirst then
+        if not IncomingDocumentAttachment.FindFirst() then
             exit('');
         exit(IncomingDocumentAttachment."OCR Service Document Reference");
     end;
@@ -734,13 +734,13 @@ codeunit 1294 "OCR Service Mgt."
         GetOcrServiceSetup(true);
 
         IncomingDocument.SetRange("OCR Status", IncomingDocument."OCR Status"::Sent);
-        if not IncomingDocument.FindSet then
+        if not IncomingDocument.FindSet() then
             exit;
 
         repeat
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
             IncomingDocumentAttachment.SetRange(Default, true);
-            IncomingDocumentAttachment.FindFirst;
+            IncomingDocumentAttachment.FindFirst();
             TempIncomingDocumentAttachment := IncomingDocumentAttachment;
             TempIncomingDocumentAttachment.Insert();
         until IncomingDocument.Next() = 0;
@@ -759,7 +759,7 @@ codeunit 1294 "OCR Service Mgt."
 
         IncomingDocumentAttachment.SetRange("External Document Reference", ExternalBatchFilter);
         IncomingDocumentAttachment.SetRange(Default, true);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
 
         IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
         if IncomingDocument."OCR Status" <> IncomingDocument."OCR Status"::Sent then
@@ -878,7 +878,7 @@ codeunit 1294 "OCR Service Mgt."
             CurrentPage += 1;
         until (TempIncomingDocumentAttachment.Count = 0) or (CurrentPage > TotalPages);
 
-        if TempIncomingDocumentAttachment.FindSet then
+        if TempIncomingDocumentAttachment.FindSet() then
             repeat
                 IncomingDocument.Get(TempIncomingDocumentAttachment."Incoming Document Entry No.");
                 SendIncomingDocumentToOCR.SetStatusToFailed(IncomingDocument);
@@ -938,7 +938,7 @@ codeunit 1294 "OCR Service Mgt."
 
         if ExternalBatchId <> '' then
             IncomingDocumentAttachment.SetRange("External Document Reference", ExternalBatchId);
-        if (ExternalBatchId <> '') and IncomingDocumentAttachment.FindFirst then begin
+        if (ExternalBatchId <> '') and IncomingDocumentAttachment.FindFirst() then begin
             Session.LogMessage('00008KQ', UpdatingIncomingDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
             AttachmentName := IncomingDocumentAttachment.Name;
@@ -1005,7 +1005,7 @@ codeunit 1294 "OCR Service Mgt."
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
             IncomingDocumentAttachment.SetRange("Generated from OCR", true);
             IncomingDocumentAttachment.SetRange(Default, true);
-            if not IncomingDocumentAttachment.FindFirst then begin
+            if not IncomingDocumentAttachment.FindFirst() then begin
                 Session.LogMessage('00008KT', CannotFindAttachmentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                 exit;
             end;
@@ -1182,7 +1182,7 @@ codeunit 1294 "OCR Service Mgt."
 
             DocId := XMLDOMManagement.FindNodeText(XMLNode, './ExternalId');
             TempIncomingDocumentAttachment.SetRange("External Document Reference", DocId);
-            if TempIncomingDocumentAttachment.FindSet then
+            if TempIncomingDocumentAttachment.FindSet() then
                 repeat
                     Evaluate(StatusAsInt, XMLDOMManagement.FindNodeText(XMLNode, './StatusAsInt'));
                     DocStatus := GetDocumentSimplifiedStatus(StatusAsInt);
@@ -1199,7 +1199,7 @@ codeunit 1294 "OCR Service Mgt."
 
             // Remove filter
             TempIncomingDocumentAttachment.SetRange("External Document Reference");
-            if TempIncomingDocumentAttachment.FindSet then;
+            if TempIncomingDocumentAttachment.FindSet() then;
         end;
     end;
 

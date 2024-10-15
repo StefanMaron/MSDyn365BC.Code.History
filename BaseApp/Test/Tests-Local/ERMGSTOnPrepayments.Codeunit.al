@@ -41,7 +41,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L Entries after posting General Journal Line applied to Sales Prepmt. Invoice when Prepayment% is defined on Customer.
 
         // [GIVEN] Create Sales Order, post Prepayment Invoice and apply Payment. Post Sales Order and create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         PostSalesPrepaymentInvoiceAndApplyPayment(
@@ -67,7 +67,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L Entries after posting General Journal Line applied to Sales Prepmt. Invoice when Prepayment% is defined on Item with Sales Type as Customer.
 
         // [GIVEN] Create Sales Prepayment Percentage. Post Prepayment Invoice and apply Payment. Post Sales Order and create Payment.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CustomerNo := CreateCustomer('', GeneralPostingSetup."Gen. Bus. Posting Group", 0);  // Using blank value for Customer Price Group and 0 for Prepayment%.
         SalesPrepaymentInvoiceWithSalesType(
@@ -84,7 +84,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L Entries after posting General Journal Line applied to Sales Prepmt. Invoice when Prepayment% is defined on Item with Sales Type as All Customers.
 
         // [GIVEN] Create Sales Prepayment Percentage. Post Prepayment Invoice and apply Payment. Post Sales Order and create Payment.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         SalesPrepaymentInvoiceWithSalesType(
           CreateCustomer('', GeneralPostingSetup."Gen. Bus. Posting Group", 0), '',
@@ -102,7 +102,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L Entries after posting General Journal Line applied to Sales Prepmt. Invoice when Prepayment% is defined on Item with Sales Type as Customer Price Group.
 
         // [GIVEN] Create Sales Prepayment Percentage. Post Prepayment Invoice and apply Payment. Post Sales Order and create Payment.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CustomerPriceGroupCode := CreateCustomerPriceGroup;
         SalesPrepaymentInvoiceWithSalesType(
@@ -122,7 +122,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Prepayment % is defined on the Purchase menu button on the Item.
 
         // [GIVEN] Create General Posting Setup, Prepayment percent as Random and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         PrePaymentPct := LibraryRandom.RandDec(10, 2);
         VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", 0);  // Using 0 for Prepayment Percent.
@@ -143,7 +143,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Prepayment % is defined on the Vendor.
 
         // [GIVEN] Create General Posting Setup, Prepayment percent as Random and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         PrePaymentPct := LibraryRandom.RandDec(10, 2);
         VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", PrePaymentPct);
@@ -163,7 +163,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Prepayment % is defined on the Purchase Header.
 
         // [GIVEN] Create General Posting Setup and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", 0);  // Using 0 for Prepayment Percent.
         PrepaymentInvoiceWithDiffSourceOfPrepaymentPct(
@@ -182,7 +182,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Prepayment % is defined with Type GL Account on the Purchase Line.
 
         // [GIVEN] Create General Posting Setup and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", 0);  // Using 0 for Prepayment Percent.
         PrepaymentInvoiceWithDiffSourceOfPrepaymentPct(
@@ -201,7 +201,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Prepayment % is defined with Type Fixed Asset on the Purchase Line.
 
         // [GIVEN] Create General Posting Setup and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", 0);  // Using 0 for Prepayment Percent.
         PrepaymentInvoiceWithDiffSourceOfPrepaymentPct(
@@ -222,7 +222,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] Purchase Prepayment Doc. Test Report.
 
         // [GIVEN] Create Purchase Document, post Prepayment Invoice, Post Payment General with Prepayment Amount and Application with Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreatePurchaseOrder(
@@ -262,7 +262,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L entries after posting General Journal line applied to Sales Prepayment Invoice with Payment Discount.
 
         // [GIVEN] Create and Post Sales Prepayment Invoice with Payment Discount and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesOrder(
@@ -289,7 +289,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L entries after posting General Journal line applied to Sales Prepayment Invoice with G/L Account.
 
         // [GIVEN] Post Sales Prepayment Invoice and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         PostPaymentAppliedToPrepaymentSalesInvoice(
           GeneralPostingSetup, SalesLine.Type::"G/L Account", CreateGLAccount(GeneralPostingSetup."Gen. Prod. Posting Group"));
@@ -305,7 +305,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L entries after posting General Journal line applied to Sales Prepayment Invoice with Item.
 
         // [GIVEN] Post Sales Prepayment Invoice and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         PostPaymentAppliedToPrepaymentSalesInvoice(
           GeneralPostingSetup, SalesLine.Type::Item, CreateItem(GeneralPostingSetup."Gen. Prod. Posting Group"));
@@ -324,7 +324,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L entries after posting General Journal line applied to Sales Prepayment Invoice with Fixed Asset.
 
         // [GIVEN] Create and post Purchase Order for Fixed Asset. Post Sales Prepayment Invoice and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         FixedAssetNo := CreateFixedAsset(GeneralPostingSetup."Gen. Prod. Posting Group");
         CreatePurchaseOrder(
@@ -347,7 +347,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L entries after posting General Journal line applied to Sales Prepayment Invoice with multiple lines and different Prepayment %.
 
         // [GIVEN] Create and Post multiple line Sales Prepayment Invoice and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesOrder(
@@ -382,7 +382,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L entries after posting General Journal line applied to Sales Prepayment Invoice with Updated Quantity on Sales Line.
 
         // [GIVEN] Create and Post Sales Prepayment Invoice. Reopen Sales Order to update Quantity on Sales Line and post Prepayment Invoice. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesOrder(
@@ -413,7 +413,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify error on posting Prepayment Sales Invoice without Prepayment %.
 
         // [GIVEN] Create General Posting Setup and Sales Order.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesOrder(
           SalesLine, CreateCustomer('', GeneralPostingSetup."Gen. Bus. Posting Group", 0), SalesLine.Type::Item,
@@ -440,7 +440,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L entries after posting General Journal line applied to Sales Invoice with Security Deposit.
 
         // [GIVEN] Create and Post General Journal line. Create and post Sales Order and create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         LibraryERM.CreateGLAccount(GLAccount);
@@ -472,7 +472,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L entries after posting General Journal line applied to Sales Invoice with updated Sales Line after posting Shipment.
 
         // [GIVEN] Create and post Sales Order Shipment. Reopen Sales Order and create new line on Sales Order. Post Sales Order and create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesOrder(
@@ -505,7 +505,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify VAT Amount line after posting General Journal line applied to Sales Prepayment Invoice.
 
         // [GIVEN] Post Sales Prepayment Invoice and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         PostSalesPrepaymentInvoiceAndApplyPayment(
@@ -545,7 +545,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L Entries after posting General Journal Line applied to Sales Prepayment Invoice with Invoice Discount.
 
         // [GIVEN] Create and Post Sales Prepayment Invoice with Invoice Discount and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateCalcInvDiscountOnSalesReceivablesSetup(true);  // Using TRUE for Calc.Inv.Discount
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -576,7 +576,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] verify G/L Entries after posting General Journal Line applied to Sales Prepayment Invoice with Line Discount.
 
         // [GIVEN] Create and Post Sales Prepayment Invoice with Line Discount and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesOrder(
@@ -605,7 +605,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Prepayment % is defined with Vendor Invoice Discount.
 
         // [GIVEN] Create General Posting Setup and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         VendorNo := CreateVendorWithPaymentTerms(GeneralPostingSetup."Gen. Bus. Posting Group", 0, LibraryRandom.RandDec(10, 2));  // Using 0 for Payment Disc. % and Random for Inv. Disc %.
         PrepaymentInvoiceWithDiffSourceOfPrepaymentPct(
@@ -624,7 +624,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Prepayment % is defined with Vendor Payment Discount.
 
         // [GIVEN] Create General Posting Setup and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         VendorNo := CreateVendorWithPaymentTerms(GeneralPostingSetup."Gen. Bus. Posting Group", LibraryRandom.RandDec(10, 2), 0);  // Using 0 for Inv. Disc % and Random for Payment Disc. %.
         PrepaymentInvoiceWithDiffSourceOfPrepaymentPct(
@@ -643,7 +643,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Prepayment % is defined with Purchase Line Discount.
 
         // [GIVEN] Create General Posting Setup and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", 0);  // Using 0 for Prepayment Percent.
         PrepaymentInvoiceWithDiffSourceOfPrepaymentPct(
@@ -666,7 +666,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of different Prepayment % with different Type on Purchase Line.
 
         // [GIVEN] Create Purchase Order with multiple line, post Prepayment Invoice, Post Payment General with Prepayment Amount and Application with Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreatePurchaseOrder(
@@ -707,7 +707,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] GL Entries in case of Purchase order updated after post Prepayment Invoice with another Purchase Line.
 
         // [GIVEN] Create Purchase Order, Post Prepayment Invoice, add Purchase Line, Post Payment General with Prepayment Amount and Application with Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreatePurchaseOrder(
@@ -749,7 +749,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] Purchase Invoice Statistics values after post Purchase Prepayment Invoice.
 
         // [GIVEN] Create Purchase Document, post Prepayment Invoice, Post Payment General with Prepayment Amount and Application with Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreatePurchaseOrder(
@@ -788,7 +788,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO] Purchase Invoice Statistics values with Price Inc. VAT and without Full GST On Prepayment after post Purchase Prepayment Invoice.
 
         // [GIVEN] Create Purchase Document, post Prepayment Invoice, Post Payment General with Prepayment Amount and Application with Prepayment Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         UpdateGeneralLedgerSetup(false, true);  // Using False for Full GST On Prepayment and Adjust for Payment Disc.
@@ -819,7 +819,7 @@ codeunit 141026 "ERM GST On Prepayments"
     procedure PurchaseInvoiceStatisticsWithFullPrepayment()
     begin
         // [SCENARIO] Purchase Invoice Statistics values after post Purchase Prepayment Invoice with full Prepayment.
-        Initialize;
+        Initialize();
         PurchaseInvoiceStatisticsWithPrepayment(100);  // Using 100 for Prepayment percent as full Prepayment as in test case.
     end;
 
@@ -828,7 +828,7 @@ codeunit 141026 "ERM GST On Prepayments"
     procedure PurchaseInvoiceStatisticsWithPartialPrepayment()
     begin
         // [SCENARIO] Purchase Invoice Statistics values after post Purchase Prepayment Invoice with partial Prepayment.
-        Initialize;
+        Initialize();
         PurchaseInvoiceStatisticsWithPrepayment(LibraryRandom.RandDecInRange(25, 75, 2));  // Using Random for Prepayment percent as partial Prepayment.
     end;
 
@@ -891,7 +891,7 @@ codeunit 141026 "ERM GST On Prepayments"
         VATAmountLine: Record "VAT Amount Line";
     begin
         // [GIVEN] Post Sales Prepayment Invoice and apply Payment. Post Sales Order and Create Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateGeneralPostingSetup(GeneralPostingSetup);
         PostSalesPrepaymentInvoiceAndApplyPayment(
@@ -929,7 +929,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO 376429] "Prepayment Line Amount" does not include Invoice Discount in Sales Invoice with "Full GST On Prepayments"
 
         // [GIVEN] Sales Order with "Full GST On Prepayments" Amount = 100, Prepayment = 10% and Customer with "Invoice Discount" = 5%
-        Initialize;
+        Initialize();
         UpdateCalcInvDiscountOnSalesReceivablesSetup(true);
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreateSalesOrder(
@@ -957,7 +957,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [SCENARIO 376429] "Prepayment Line Amount" does not include Invoice Discount in Purchase Invoice with "Full GST On Prepayments"
 
         // [GIVEN] Purchase Order with "Full GST On Prepayments" Amount = 100, Prepayment = 10% and Customer with "Invoice Discount" = 5%
-        Initialize;
+        Initialize();
         UpdateCalcInvDiscountOnPurchSetup(true);
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreatePurchaseOrder(
@@ -975,8 +975,8 @@ codeunit 141026 "ERM GST On Prepayments"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -1250,7 +1250,7 @@ codeunit 141026 "ERM GST On Prepayments"
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GetPrepaymentPurchaseInvoiceNo(VendorNo: Code[20]): Code[20]
@@ -1258,7 +1258,7 @@ codeunit 141026 "ERM GST On Prepayments"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         exit(VendorLedgerEntry."Document No.");
     end;
 
@@ -1287,7 +1287,7 @@ codeunit 141026 "ERM GST On Prepayments"
     begin
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         CreateGeneralJournalLine(
           GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), GenJournalLine."Account Type"::Customer
@@ -1397,7 +1397,7 @@ codeunit 141026 "ERM GST On Prepayments"
         CreateSalesPrepaymentPercentage(ItemNo, SalesCode, SalesType);
         PostSalesPrepaymentInvoiceAndApplyPayment(SalesLine, SalesLine.Type::Item, CustomerNo, ItemNo, LibraryRandom.RandDec(10, 2));  // Random value used for Prepayment%.
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         AppliesToDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
         CreateGeneralJournalLine(
@@ -1485,7 +1485,7 @@ codeunit 141026 "ERM GST On Prepayments"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));

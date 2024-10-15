@@ -27,7 +27,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     procedure PostSalesPrepaymentOrderWithDifferentPrepaymentPct()
     begin
         // [SCENARIO] Program allow to posting the Sales order and creates correct prepayment invoice amount after posting the prepayment invoice with different prepayment %.
-        Initialize;
+        Initialize();
         PostSalesPrepaymentOrder('');  // Blank Currency Code.
     end;
 
@@ -36,7 +36,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     procedure PostSalesPrepaymentOrderInFCYWithDifferentPrepaymentPct()
     begin
         // [SCENARIO] Program does not create any Realized FX Gains/Loss account on G\L Entry after posting the Sales order with Prepayment & foreign currency.
-        Initialize;
+        Initialize();
         PostSalesPrepaymentOrder(CreateCurrencyWithExchangeRate);
     end;
 
@@ -45,7 +45,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     procedure PostSalesPrepaymentOrderWithHundredPrepaymentPct()
     begin
         // [SCENARIO] G/L Entries while posting of Sales Order as Ship and then Invoice after Posting the Prepayment invoice with full Prepayment.
-        Initialize;
+        Initialize();
         PostSalesPrepaymentOrderWithFullPrepayment(false);  // Using False for Prices Including VAT.
     end;
 
@@ -54,7 +54,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     procedure PostSalesPrepaymentOrderWithPricesIncludingVAT()
     begin
         // [SCENARIO] the correct G/L entries are created in case of Prepayment Invoice where prices Including VAT True & full Prepayment.
-        Initialize;
+        Initialize();
         PostSalesPrepaymentOrderWithFullPrepayment(true);  // Using True for Prices Including VAT.
     end;
 
@@ -63,7 +63,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     procedure PostPurchPrepaymentOrderWithDifferentPrepaymentPct()
     begin
         // [SCENARIO] Program allow posting the purchase order and creates correct prepayment invoice amount after posting the prepayment invoice with different prepayment %.
-        Initialize;
+        Initialize();
         PostPurchPrepaymentOrder('');  // Blank Currency Code.
     end;
 
@@ -72,7 +72,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     procedure PostPurchPrepaymentOrderInFCYWithDifferentPrepaymentPct()
     begin
         // [SCENARIO] Program does not create any Realized FX Gains/Loss account on G\L Entry after Posting the Purchase Order with Prepayment & Foreign currency.
-        Initialize;
+        Initialize();
         PostPurchPrepaymentOrder(CreateCurrencyWithExchangeRate);
     end;
 
@@ -81,7 +81,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     procedure PostPurchPrepaymentOrderWithHundredPrepaymentPct()
     begin
         // [SCENARIO] G/L Entries while posting of Purchase Order as Receive and then Invoice after Posting the Prepayment invoice with full Prepayment.
-        Initialize;
+        Initialize();
         PostPurchOrderWithPrepaymentPct(true);  // Using True for Compress Statement.
     end;
 
@@ -90,7 +90,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     procedure PostPurchPrepaymentOrderWithoutCompressPrepayment()
     begin
         // [SCENARIO] Program allow to posting the Sales order with Partial prepayment % when Compress Prepayment field in Uncheck on the Prepayment tab of Purchase order.
-        Initialize;
+        Initialize();
         PostPurchOrderWithPrepaymentPct(false);  // Using False for Compress Statement.
     end;
 
@@ -104,7 +104,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     begin
         // [SCENARIO] program does not create any Realized Loss/Gain Account after posting the Prepayment Credit memos on the Purchase order with partial prepayment & foreign currency.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostPurchasePrepayment(PurchaseLine, '', LibraryRandom.RandDec(10, 2), true);  // Using Random for Prepayment %, TRUE for Compress Statement and blank Currency Code.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
@@ -130,7 +130,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     begin
         // [SCENARIO 376381] Posted Final Shipment and Invoice after 100% prepayment and partial shipment produces Customer Ledger Entry with Amount = 0
         // [FEATURE] [Sales]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled Full GST on Prepayment
         // [GIVEN] Sales Header with 100% prepayment settings and 3 Sales Lines
@@ -168,7 +168,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     begin
         // [SCENARIO 376381] Posted Final Receipt and Invoice after 100% prepayment and partial receipt produces Vendor Ledger Entry with Amount = 0
         // [FEATURE] [Purchase]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled Full GST on Prepayment
         // [GIVEN] Purchase Header with 100% prepayment settings and 3 Purchase Lines
@@ -199,14 +199,14 @@ codeunit 141082 "ERM Payment - Prepayment"
     local procedure Initialize()
     begin
         UpdateFullGSTOnPrepaymentGeneralLedgerSetup(true);  // Using True For Full GST on Prepayment in all tests
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
 
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
     local procedure CreateAndPostPurchasePrepayment(var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; PrepaymentPct: Decimal; CompressPrepayment: Boolean)
@@ -420,8 +420,8 @@ codeunit 141082 "ERM Payment - Prepayment"
 
     local procedure UpdateVendorInvoiceNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -467,7 +467,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         CustLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
@@ -478,7 +478,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
         VendorLedgerEntry.TestField(Amount, ExpectedAmount);
     end;

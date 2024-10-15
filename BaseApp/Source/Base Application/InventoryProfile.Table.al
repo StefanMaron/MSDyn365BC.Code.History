@@ -848,7 +848,8 @@ table 99000853 "Inventory Profile"
     begin
         JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
         SetSource(
-          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", '', 0);
+            DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.",
+            JobPlanningLine."Job Contract Entry No.", '', 0);
         "Item No." := JobPlanningLine."No.";
         "Variant Code" := JobPlanningLine."Variant Code";
         "Location Code" := JobPlanningLine."Location Code";
@@ -880,7 +881,7 @@ table 99000853 "Inventory Profile"
         ReservEntry.SetCurrentKey(
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line",
           "Reservation Status");
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 InsertTracking := not
                   ((ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Reservation) and

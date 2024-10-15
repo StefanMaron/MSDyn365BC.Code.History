@@ -221,7 +221,7 @@ codeunit 131310 "Library - ERM Customer Watch"
         with WatchCustLedgerEntry do begin
             Reset;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Line Level" = "Line Level"::"Ledger Entry" then begin
                         TotalLEDelta += "Delta Count";
@@ -235,7 +235,7 @@ codeunit 131310 "Library - ERM Customer Watch"
 
         with WatchCustomer do begin
             Reset;
-            if FindFirst then begin
+            if FindFirst() then begin
                 // Check that all ledger entries are accounted for
                 if "Watch LE" then
                     DeltaCompareCount("Original LE Count", TotalLEDelta, LedgerEntryTotal("Customer No."), "LE Comparison Method",
@@ -282,7 +282,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     begin
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        if CustLedgerEntry.FindFirst then
+        if CustLedgerEntry.FindFirst() then
             exit(CustLedgerEntry.Count);
         exit(0);
     end;
@@ -293,7 +293,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     begin
         DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetRange("Customer No.", CustomerNo);
-        if DtldCustLedgEntry.FindFirst then
+        if DtldCustLedgEntry.FindFirst() then
             exit(DtldCustLedgEntry.Count);
         exit(0);
     end;
@@ -304,7 +304,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", LineType);
-        if CustLedgerEntry.FindFirst then
+        if CustLedgerEntry.FindFirst() then
             exit(CustLedgerEntry.Count);
         exit(0);
     end;
@@ -315,7 +315,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", LineType);
-        if CustLedgerEntry.FindSet then
+        if CustLedgerEntry.FindSet() then
             repeat
                 CustLedgerEntry.CalcFields(Amount);
                 Sum += CustLedgerEntry.Amount;
@@ -331,7 +331,7 @@ codeunit 131310 "Library - ERM Customer Watch"
         DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DtldCustLedgEntry.SetRange("Entry Type", LineType);
-        if DtldCustLedgEntry.FindFirst then
+        if DtldCustLedgEntry.FindFirst() then
             exit(DtldCustLedgEntry.Count);
         exit(0);
     end;
@@ -343,7 +343,7 @@ codeunit 131310 "Library - ERM Customer Watch"
         DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DtldCustLedgEntry.SetRange("Entry Type", LineType);
-        if DtldCustLedgEntry.FindSet then
+        if DtldCustLedgEntry.FindSet() then
             repeat
                 Sum += DtldCustLedgEntry.Amount;
             until DtldCustLedgEntry.Next = 0;
@@ -355,7 +355,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     var
         WatchCustomer2: Record "Watch Customer";
     begin
-        if WatchCustomer2.FindLast then
+        if WatchCustomer2.FindLast() then
             exit(WatchCustomer2."Line No." + 1);
         exit(1);
     end;
@@ -364,7 +364,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     var
         WatchCustLedgerEntry2: Record "Watch Customer Ledger Entry";
     begin
-        if WatchCustLedgerEntry2.FindLast then
+        if WatchCustLedgerEntry2.FindLast() then
             exit(WatchCustLedgerEntry2."Line No." + 1);
         exit(1);
     end;

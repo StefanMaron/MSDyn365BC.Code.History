@@ -35,10 +35,10 @@ codeunit 11603 "EFT Management"
         EFTRegister.Reset();
         VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("EFT Register No.");
-        if EFTRegister.FindSet then
+        if EFTRegister.FindSet() then
             repeat
                 VendLedgEntry.SetRange("EFT Register No.", EFTRegister."No.");
-                if not VendLedgEntry.FindFirst then
+                if not VendLedgEntry.FindFirst() then
                     EFTRegister.Delete();
             until EFTRegister.Next() = 0;
     end;
@@ -322,7 +322,7 @@ codeunit 11603 "EFT Management"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("EFT Register No.", EFTRegister."No.");
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 if (GenJournalLine."Applies-to Doc. Type" = GenJournalLine."Applies-to Doc. Type"::Invoice) and
                    (GenJournalLine."Applies-to Doc. No." <> '')
@@ -342,10 +342,10 @@ codeunit 11603 "EFT Management"
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
     begin
         VendorLedgerEntry.SetRange("EFT Register No.", EFTRegister."No.");
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 FindAppliedEntries(VendorLedgerEntry, TempVendorLedgerEntry);
-                if TempVendorLedgerEntry.FindSet then begin
+                if TempVendorLedgerEntry.FindSet() then begin
                     VendorLedgerEntry.CalcFields(Amount);
                     InitPaymentBuffer(
                         PaymentBufferGenJournalLine,
@@ -369,7 +369,7 @@ codeunit 11603 "EFT Management"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         InitPaymentBuffer(
             PaymentBufferGenJournalLine,
             VendorLedgerEntry."Vendor No.",
@@ -391,7 +391,7 @@ codeunit 11603 "EFT Management"
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.SetFilter("Document Type", '<>%1&<>%2',
           VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Document Type"::Refund);
-        if VendorLedgerEntry.FindSet then begin
+        if VendorLedgerEntry.FindSet() then begin
             InitPaymentBuffer(
                 PaymentBufferGenJournalLine,
                 VendorLedgerEntry."Vendor No.",
@@ -448,7 +448,7 @@ codeunit 11603 "EFT Management"
         DtldVendLedgEntry1.SetRange("Vendor Ledger Entry No.", PaymentVendorLedgerEntry."Entry No.");
         DtldVendLedgEntry1.SetRange("Entry Type", DtldVendLedgEntry1."Entry Type"::Application);
         DtldVendLedgEntry1.SetRange(Unapplied, false);
-        if DtldVendLedgEntry1.FindSet then
+        if DtldVendLedgEntry1.FindSet() then
             repeat
                 if DtldVendLedgEntry1."Vendor Ledger Entry No." =
                    DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
@@ -459,7 +459,7 @@ codeunit 11603 "EFT Management"
                       "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
                     DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::Application);
                     DtldVendLedgEntry2.SetRange(Unapplied, false);
-                    if DtldVendLedgEntry2.FindSet then
+                    if DtldVendLedgEntry2.FindSet() then
                         repeat
                             if DtldVendLedgEntry2."Vendor Ledger Entry No." <>
                                DtldVendLedgEntry2."Applied Vend. Ledger Entry No."

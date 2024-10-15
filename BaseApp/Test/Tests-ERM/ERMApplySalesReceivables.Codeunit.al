@@ -45,7 +45,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // Payment Discount(Amount and "Amount LCY") field.
 
         // Calculate Due Date and Payment Discount Percent then Post and Apply General Lines.
-        Initialize;
+        Initialize();
         CalcDueDateAndPaymentDiscount(DueDate, PaymentDiscountPercent);
         PostAndApplyGenLines(GenJournalLine, DueDate);
         DiscountAmount := Round(GenJournalLine.Amount * PaymentDiscountPercent / 100);
@@ -66,7 +66,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // Customer Ledger Entry.
 
         // Calculate Due Date and Payment Discount Percent then Post and Apply General Lines.
-        Initialize;
+        Initialize();
         CalcDueDateAndPaymentDiscount(DueDate, PaymentDiscountPercent);
         PostAndApplyGenLines(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', DueDate));
 
@@ -87,7 +87,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // Customer Ledger Entry.
 
         // Calculate Due Date and Payment Discount Percent then Post and Apply General Lines.
-        Initialize;
+        Initialize();
         CalcDueDateAndPaymentDiscount(DueDate, PaymentDiscountPercent);
         DocumentNo := PostAndApplyGenLines(GenJournalLine, DueDate);
 
@@ -106,7 +106,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Check Application Rounding Entry in Detailed Customer Ledger Entry with Apply and Unapply Invoice and Payment with Random Values.
         // Using 0 for Application Rounding Precision for Currency.
-        Initialize;
+        Initialize();
         ApplyUnapplyCustRounding(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, CreateCurrency(0),
           10 * LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(5, 2));
@@ -120,7 +120,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Check Application Rounding Entry in Detailed Customer Ledger Entry with Apply and Unapply Credit Memo and Refund
         // with Random Values and using 0 for Application Rounding Precision for Currency..
-        Initialize;
+        Initialize();
         ApplyUnapplyCustRounding(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, CreateCurrency(0),
           -10 * LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(5, 2));
@@ -152,7 +152,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Check Application Rounding Entry in Detailed Customer Ledger Entry and Additional Currency Amount in G/L Entry
         // with Apply and Unapply Invoice and Payment with Random Values and using 0 for Application Rounding Precision for Currency..
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency(0);
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         AppRounding := LibraryRandom.RandDec(5, 2);
@@ -176,7 +176,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Check Application Rounding Entry in Detailed Customer Ledger Entry and Additional Currency Amount in G/L Entry
         // with Apply and Unapply Credit Memo and Refund with Random Values and using 0 for Application Rounding Precision for Currency..
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency(0);
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         AppRounding := LibraryRandom.RandDec(5, 2);
@@ -197,7 +197,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Check Application Rounding Entry in Detailed Customer Ledger Entry and Additional Currency Amount in G/L Entry
         // with Apply already Unapplied Invoice and Payment with Random Values.
-        Initialize;
+        Initialize();
         UnapplyApplyAdditionalCurr(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, 10 * LibraryRandom.RandDec(100, 2));
     end;
@@ -210,7 +210,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Check Application Rounding Entry in Detailed Customer Ledger Entry and Additional Currency Amount in G/L Entry
         // with Apply already Unapplied Credit Memo and Refund with Random Values.
-        Initialize;
+        Initialize();
         UnapplyApplyAdditionalCurr(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund,
           -10 * LibraryRandom.RandDec(100, 2));
@@ -279,7 +279,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         // [SCENARIO 118226] Applies-to ID is cleared from Customer Ledger Entry when change value of General Journal Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Ledger Entry and General Journal Line with the same Applies-to ID
         FindOpenInvCustLedgEntry(CustLedgEntry);
@@ -288,7 +288,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           GenJnlLine, GenJnlLine."Account Type"::Customer, CustLedgEntry."Customer No.", CustLedgEntry."Applies-to ID");
 
         // [WHEN] Change "Applies-to ID" in General Journal Line
-        GenJnlLine.Validate("Applies-to ID", LibraryUtility.GenerateGUID);
+        GenJnlLine.Validate("Applies-to ID", LibraryUtility.GenerateGUID());
         GenJnlLine.Modify(true);
 
         // [THEN] "Applies-to ID" in Customer Ledger Entry is empty
@@ -305,7 +305,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         // [SCENARIO 118226] Applies-to ID is cleared from Customer Ledger Entry when delete General Journal Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Ledger Entry and General Journal Line with the same Applies-to ID
         FindOpenInvCustLedgEntry(CustLedgEntry);
@@ -330,7 +330,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 120733] Customer Ledger Entry "Amount-to Apply" = 0 when blank "Applies-to Doc. No." field in General Journal Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Ledger Entry and General Journal Line with "Applies-to Doc. No"
         FindOpenInvCustLedgEntry(CustLedgEntry);
@@ -354,7 +354,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 120733] Customer Ledger Entry "Amount-to Apply" = 0 when delete General Journal Line with "Applies-to Doc. No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Ledger Entry and General Journal Line with "Applies-to Doc. No."
         FindOpenInvCustLedgEntry(CustLedgEntry);
@@ -383,7 +383,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [SCENARIO 363069] Verify that External Doc No transferred when setting 'Applies-to Doc. No.' value in Cash Receipt Journal.
 
         // [GIVEN] Invoice customer ('External Document No.' non-empty).
-        Initialize;
+        Initialize();
         PostInvoice(GenJournalLine);
         ExpectedExtDocNo := GenJournalLine."External Document No.";
         PostedDocNo := GenJournalLine."Document No.";
@@ -418,7 +418,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [SCENARIO 363069] Verify that Amount and External Doc No transferred when looking up 'Applies-to Doc. No.' value in Cash Receipt Journal.
 
         // [GIVEN] Invoice customer ('External Document No.' non-empty).
-        Initialize;
+        Initialize();
         PostInvoice(GenJournalLine);
         ExpectedAmount := -GenJournalLine.Amount;
         ExpectedExtDocNo := GenJournalLine."External Document No.";
@@ -450,7 +450,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // [FEATURE] [Dimension] [Payment Discount]
         // [SCENARIO 376797] Error try posting sales payment journal without dimension applied to posted Invoice in case of Discount, "Payment Disc. Debit Acc." with default dimension with "Value Posting" = "Same Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Payment Disc. Debit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
@@ -488,7 +488,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // [FEATURE] [Dimension] [Payment Discount]
         // [SCENARIO 376797] Sales payment journal with dimension applied to posted Invoice can be posted in case of Discount, "Payment Disc. Debit Acc." with default dimension with "Value Posting" = "Same Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Payment Disc. Debit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
@@ -530,7 +530,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // [FEATURE] [Dimension] [Payment Discount]
         // [SCENARIO 376797] Posted sales payment without dimension can be applied to posted Invoice in case of Discount, "Payment Disc. Debit Acc." with default dimension with "Value Posting" = "Same Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Payment Disc. Debit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
@@ -570,7 +570,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [SCENARIO 230936] When deleting the value in "Applies-to-ID" field on the "Apply Customer Entries" page manually, "Amount to Apply" must be reset to zero
 
         // [GIVEN] Posted Sales Invoice
-        Initialize;
+        Initialize();
 
         PostInvoice(GenJournalLine);
         ExpectedAmount := GenJournalLine.Amount;
@@ -610,7 +610,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [FEATURE] [Application] [Cash Receipt]
         // [SCENARIO 230936] When deleting the value in "Applies-to-ID" field on the "Apply Customer Entries" page manually, "Applies-to-ID" should not be deleted in other lines having the same "Applies-to-ID"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posted Sales Invoices
         CreateAndPostTwoGenJournalLinesForSameCustomer(GenJournalLine);
@@ -649,7 +649,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [FEATURE] [Application] [Cash Receipt]
         // [SCENARIO 230936] When manually set the value in "Applies-to-ID" field on the "Apply Customer Entries" page, "Applies-to-ID" of the other lines with the same value is not changed
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posted Sales Invoices
         CreateAndPostTwoGenJournalLinesForSameCustomer(GenJournalLine);
@@ -688,7 +688,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [FEATURE] [Application] [Cash Receipt]
         // [SCENARIO 230936] When manually set the value in "Applies-to-ID" field on the "Apply Customer Entries" page, "Applies-to-ID" of the other lines with different value is not changed
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posted Sales Invoices
         CreateAndPostTwoGenJournalLinesForSameCustomer(GenJournalLine);
@@ -729,7 +729,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // [FEATURE] [Application] [Cash Receipt]
         // [SCENARIO 278790] Verify that External Doc No is not filled when looking up 'Applies-to Doc. No.' value and "Applies-to Ext. Doc. No" is
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoice customer ('External Document No.' non-empty).
         PostInvoice(GenJournalLine);
@@ -1042,15 +1042,15 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply Sales/Receivables");
 
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Sales/Receivables");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ModifyGenJnlBatchNoSeries;
         isInitialized := true;
         Commit();
@@ -1160,7 +1160,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     var
         CustomerNo: Code[20];
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
           CustomerNo, LibraryRandom.RandIntInRange(1000, 2000));
@@ -1268,7 +1268,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
             CreateGenJnlLine(
               GenJournalLine, WorkDate, "Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000),
               LibrarySales.CreateCustomerNo, '');
-            Validate("External Document No.", LibraryUtility.GenerateGUID);
+            Validate("External Document No.", LibraryUtility.GenerateGUID());
             Modify(true);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
         end;
@@ -1278,7 +1278,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
     end;
 
     local procedure FindOpenInvCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
@@ -1287,7 +1287,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Applying Entry", false);
             SetRange(Open, true);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1296,13 +1296,13 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
     local procedure SetAppliesToIDOnCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        CustLedgEntry."Applies-to ID" := LibraryUtility.GenerateGUID;
+        CustLedgEntry."Applies-to ID" := LibraryUtility.GenerateGUID();
         CustLedgEntry.Modify();
     end;
 
@@ -1450,7 +1450,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         Currency.Get(CurrencyCode);
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount / 2, LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate), Currency."Amount Rounding Precision",
           'Amount must be equal');
@@ -1561,7 +1561,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
 
         ApplyCustomerEntries.Next;
-        AlternativeAppliesToID := LibraryUtility.GenerateGUID;
+        AlternativeAppliesToID := LibraryUtility.GenerateGUID();
         ApplyCustomerEntries.AppliesToID.SetValue(AlternativeAppliesToID);
         ApplyCustomerEntries.AppliesToID.AssertEquals(AlternativeAppliesToID);
 

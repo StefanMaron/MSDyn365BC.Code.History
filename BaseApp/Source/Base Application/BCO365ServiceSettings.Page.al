@@ -48,7 +48,7 @@ page 2347 "BC O365 Service Settings"
 
     trigger OnOpenPage()
     begin
-        if not VATRegNoSrvConfig.FindFirst then
+        if not VATRegNoSrvConfig.FindFirst() then
             InitVATRegNrValidationSetup;
     end;
 
@@ -60,7 +60,7 @@ page 2347 "BC O365 Service Settings"
     var
         VATLookupExtDataHndl: Codeunit "VAT Lookup Ext. Data Hndl";
     begin
-        if VATRegNoSrvConfig.FindFirst then
+        if VATRegNoSrvConfig.FindFirst() then
             exit;
 
         VATRegNoSrvConfig.Init();

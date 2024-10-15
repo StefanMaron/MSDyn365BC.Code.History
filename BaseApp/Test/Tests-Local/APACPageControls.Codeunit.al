@@ -22,7 +22,7 @@ codeunit 141044 "APAC - Page & Controls"
         // [FEATURE] [UT] [Tax] [Sales] [Invoice]
         // [SCENARIO 325922] Stan can view "Posted Sales Tax Invoices" list page and can open card page "Posted Sales Tax Invoice" from it
         SalesTaxInvoiceHeader.Init();
-        SalesTaxInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesTaxInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesTaxInvoiceHeader.Insert();
 
         PostedSalesTaxInvoices.OpenView;
@@ -48,7 +48,7 @@ codeunit 141044 "APAC - Page & Controls"
         // [FEATURE] [UT] [Tax] [Sales] [Credit Memo]
         // [SCENARIO 325922] Stan can view "Posted Sales Tax Cr. Memos" list page and can open "Posted Sales Tax Credit Memo" card page from it
         SalesTaxCrMemoHeader.Init();
-        SalesTaxCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        SalesTaxCrMemoHeader."No." := LibraryUtility.GenerateGUID();
         SalesTaxCrMemoHeader.Insert();
 
         PostedSalesTaxCrMemos.OpenView;
@@ -74,7 +74,7 @@ codeunit 141044 "APAC - Page & Controls"
         // [FEATURE] [UT] [Tax] [Purchases] [Invoice]
         // [SCENARIO 325922] Stan can view "Posted Purch. Tax Invoices" list page and can open "Posted Purchase Tax Invoice" card page from it
         PurchTaxInvHeader.Init();
-        PurchTaxInvHeader."No." := LibraryUtility.GenerateGUID;
+        PurchTaxInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchTaxInvHeader.Insert();
 
         PostedPurchTaxInvoices.OpenView;
@@ -100,7 +100,7 @@ codeunit 141044 "APAC - Page & Controls"
         // [FEATURE] [UT] [Tax] [Purchases] [Credit Memo]
         // [SCENARIO 325922] Stan can view "Posted Purch. Tax Cr. Memos" list page and can open "Posted Purch. Tax. Credit Memo" card page from it
         PurchTaxCrMemoHdr.Init();
-        PurchTaxCrMemoHdr."No." := LibraryUtility.GenerateGUID;
+        PurchTaxCrMemoHdr."No." := LibraryUtility.GenerateGUID();
         PurchTaxCrMemoHdr.Insert();
 
         PostedPurchTaxCrMemos.OpenView;

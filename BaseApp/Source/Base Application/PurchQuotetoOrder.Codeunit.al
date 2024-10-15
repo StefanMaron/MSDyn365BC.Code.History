@@ -109,9 +109,6 @@ codeunit 96 "Purch.-Quote to Order"
             PurchOrderHeader."Prepayment %" := PrepmtPercent;
             if PurchOrderHeader."Posting Date" = 0D then
                 PurchOrderHeader."Posting Date" := WorkDate;
-#if not CLEAN17
-            OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
-#endif
             OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Modify();
         end;
@@ -153,7 +150,7 @@ codeunit 96 "Purch.-Quote to Order"
     begin
         PurchQuoteLine.SetRange("Document Type", PurchQuoteHeader."Document Type");
         PurchQuoteLine.SetRange("Document No.", PurchQuoteHeader."No.");
-        if PurchQuoteLine.FindSet then
+        if PurchQuoteLine.FindSet() then
             repeat
                 IsHandled := false;
                 OnBeforeTransferQuoteLineToOrderLineLoop(PurchQuoteLine, PurchQuoteHeader, PurchOrderHeader, IsHandled);
@@ -211,14 +208,6 @@ codeunit 96 "Purch.-Quote to Order"
     local procedure OnBeforeDeletePurchQuote(var QuotePurchHeader: Record "Purchase Header"; var OrderPurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by OnCreatePurchHeaderOnBeforePurchOrderHeaderModify()', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPurchOrderHeader(var PurchOrderHeader: Record "Purchase Header"; PurchQuoteHeader: Record "Purchase Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; PurchQuoteLine: Record "Purchase Line"; PurchQuoteHeader: Record "Purchase Header")

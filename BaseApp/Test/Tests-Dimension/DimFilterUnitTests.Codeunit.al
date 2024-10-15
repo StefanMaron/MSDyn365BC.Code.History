@@ -137,7 +137,7 @@ codeunit 134822 "DimFilter Unit Tests"
 
         Assert.AreEqual(2, TempDimSetEntry.Count, StrSubstNo(Text004, TempDimSetEntry.TableCaption));
 
-        TempDimSetEntry.FindFirst;
+        TempDimSetEntry.FindFirst();
         repeat
             LibraryDim.FindDimensionSetEntry(DimSetEntry, TempDimSetEntry."Dimension Set ID");
             case DimSetEntry."Dimension Code" of
@@ -168,14 +168,14 @@ codeunit 134822 "DimFilter Unit Tests"
         // Empty filter includes all DimSetIDs in Table
         // Compare first and last DimSetIDs from expected and actualcreated by function
         SetupTestData;
-        ExpectedDimSetEntry.FindLast;
+        ExpectedDimSetEntry.FindLast();
         ExpectedLastDimSetID := ExpectedDimSetEntry."Dimension Set ID";
 
         CreateTempActualTable(TempActualDimSetEntry, '', '');
 
-        TempActualDimSetEntry.FindFirst;
+        TempActualDimSetEntry.FindFirst();
         ActualFirstDimSetID := TempActualDimSetEntry."Dimension Set ID";
-        TempActualDimSetEntry.FindLast;
+        TempActualDimSetEntry.FindLast();
         ActualLastDimSetID := TempActualDimSetEntry."Dimension Set ID";
 
         Assert.AreEqual(0, ActualFirstDimSetID, StrSubstNo(Text002, ExpectedDimSetEntry.FieldCaption("Dimension Set ID")));
@@ -410,7 +410,7 @@ codeunit 134822 "DimFilter Unit Tests"
 
         // Exercise and Verify : Open Page and verify the Value of Field.
         MyDimValueCombinations.Load(FirstDimCode, SecondDimCode, false);
-        MyDimValueCombinations.RunModal;
+        MyDimValueCombinations.RunModal();
     end;
 
     [Test]
@@ -503,7 +503,7 @@ codeunit 134822 "DimFilter Unit Tests"
         DimensionValue: Record "Dimension Value";
     begin
         DimensionValue.SetFilter("Dimension Code", '%1', DimCode);
-        if DimensionValue.FindSet then
+        if DimensionValue.FindSet() then
             repeat
                 LibraryDim.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code)
             until DimensionValue.Next = 0;
@@ -515,15 +515,15 @@ codeunit 134822 "DimFilter Unit Tests"
         DimensionSetEntry: Record "Dimension Set Entry";
         LastDimSetID: Integer;
     begin
-        DimensionSetEntry.FindLast;
+        DimensionSetEntry.FindLast();
         LastDimSetID := DimensionSetEntry."Dimension Set ID";
 
         DimensionValue.SetFilter("Dimension Code", '%1', AddDimCode);
-        if DimensionValue.FindSet then
+        if DimensionValue.FindSet() then
             repeat
                 DimensionSetEntry.SetFilter("Dimension Code", '%1', BaseDimCode);
                 DimensionSetEntry.SetRange("Dimension Set ID", 0, LastDimSetID);
-                if DimensionSetEntry.FindSet then
+                if DimensionSetEntry.FindSet() then
                     repeat
                         LibraryDim.CreateDimSet(DimensionSetEntry."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
                     until DimensionSetEntry.Next = 0;
@@ -583,13 +583,13 @@ codeunit 134822 "DimFilter Unit Tests"
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
-        if ExpectedDimSetEntry.FindSet then
+        if ExpectedDimSetEntry.FindSet() then
             repeat
                 DimSetEntry.SetRange("Dimension Set ID", ExpectedDimSetEntry."Dimension Set ID");
                 DimSetEntry.SetRange("Dimension Code", DimCode);
                 if not DimSetEntry.IsEmpty() then
                     DimSetEntry.SetRange("Dimension Value Code", DimValueFilter);
-                if DimSetEntry.FindFirst then
+                if DimSetEntry.FindFirst() then
                     exit(true);
             until ExpectedDimSetEntry.Next = 0;
         exit(false);

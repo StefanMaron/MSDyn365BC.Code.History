@@ -314,7 +314,6 @@ report 108 "Customer - Order Detail"
         CurrExchRate: Record "Currency Exchange Rate";
         CurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
         CurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
-        SalesHeader: Record "Sales Header";
         Currency: Record Currency;
         CustFilter: Text;
         SalesLineFilter: Text;
@@ -336,6 +335,9 @@ report 108 "Customer - Order Detail"
         QtyOnBackOrderCaptionLbl: Label 'Quantity on Back Order';
         OutstandingOrdersCaptionLbl: Label 'Outstanding Orders';
         TotalCaptionLbl: Label 'Total';
+
+    protected var
+        SalesHeader: Record "Sales Header";
 
     procedure InitializeRequest(ShowAmountInLCY: Boolean; NewPagePerCustomer: Boolean)
     begin

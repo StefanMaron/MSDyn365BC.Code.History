@@ -20,6 +20,14 @@ table 62 "Record Export Buffer"
         {
             Caption = 'ServerFilePath';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'Replaced by usage of the File Content field.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(4; ClientFileName; Text[250])
         {
@@ -43,6 +51,11 @@ table 62 "Record Export Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Document Sending Profile";
         }
+        field(8; "File Content"; BLOB)
+        {
+            Caption = 'File Content';
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
@@ -56,5 +69,20 @@ table 62 "Record Export Buffer"
     fieldgroups
     {
     }
+
+    procedure GetFileContent(var TempBlob: Codeunit "Temp Blob"): Boolean
+    begin
+        TempBlob.FromRecord(Rec, FieldNo("File Content"));
+        exit(TempBlob.HasValue());
+    end;
+
+    procedure SetFileContent(TempBlob: Codeunit "Temp Blob")
+    var
+        RecordRef: RecordRef;
+    begin
+        RecordRef.GetTable(Rec);
+        TempBlob.ToRecordRef(RecordRef, FieldNo("File Content"));
+        RecordRef.SetTable(Rec);
+    end;
 }
 

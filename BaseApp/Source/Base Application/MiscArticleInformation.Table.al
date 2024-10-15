@@ -87,7 +87,7 @@ table 5214 "Misc. Article Information"
         MiscArticleInfo: Record "Misc. Article Information";
     begin
         MiscArticleInfo.SetCurrentKey("Line No.");
-        if MiscArticleInfo.FindLast then
+        if MiscArticleInfo.FindLast() then
             "Line No." := MiscArticleInfo."Line No." + 1
         else
             "Line No." := 1;

@@ -49,9 +49,9 @@ codeunit 5513 "Graph Mgt - Time Registration"
         TimeSheetHeader.Reset();
         TimeSheetHeader.SetRange("Starting Date", StartingDate);
         TimeSheetHeader.SetRange("Resource No.", ResouceNo);
-        if not TimeSheetHeader.FindFirst then begin
+        if not TimeSheetHeader.FindFirst() then begin
             CreateTimeSheetHeader(StartingDate, ResouceNo);
-            TimeSheetHeader.FindFirst;
+            TimeSheetHeader.FindFirst();
         end;
 
         exit(TimeSheetHeader."No.");
@@ -67,7 +67,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
         TimeSheetLine.SetRange(Type, TimeSheetDetail.Type::Resource);
         TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Open);
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeaderNo);
-        if TimeSheetLine.FindSet then
+        if TimeSheetLine.FindSet() then
             repeat
                 if not TimeSheetDetail.Get(TimeSheetHeaderNo, TimeSheetLine."Line No.", TimeSheetDetailDate) then
                     exit;
@@ -75,7 +75,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
 
         TimeSheetLine.Reset();
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeaderNo);
-        if TimeSheetLine.FindLast then
+        if TimeSheetLine.FindLast() then
             TimeSheetLineNo := TimeSheetLine."Line No." + 10000
         else
             TimeSheetLineNo := 10000;
@@ -156,7 +156,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
     begin
         CreateTimeSheets.InitParameters(StartingDate, 1, ResourceNumber, false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
     end;
 
     local procedure CreateTimeSheetLine(TimeSheetHeaderNo: Code[20]; TimeSheetLineNo: Integer)

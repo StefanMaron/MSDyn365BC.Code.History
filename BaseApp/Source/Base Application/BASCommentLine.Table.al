@@ -47,7 +47,7 @@ table 11605 "BAS Comment Line"
     begin
         BASCommentLine.SetRange("No.", "No.");
         BASCommentLine.SetRange("Version No.", "Version No.");
-        if not BASCommentLine.FindFirst then
+        if not BASCommentLine.FindFirst() then
             Date := WorkDate;
     end;
 }

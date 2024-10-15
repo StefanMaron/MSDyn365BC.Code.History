@@ -343,7 +343,8 @@ page 1132 "Cost Bdgt. per Center Matrix"
         NameIndent: Integer;
         Text000: Label 'Set View As to Net Change before you edit entries.';
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by procedure LoadMatrix()', '20.0')]
     procedure Load(MatrixColumns1: array[12] of Text[80]; var CostCenterMatrixRecords1: array[12] of Record "Cost Center"; CurrentNoOfMatrixColumns: Integer; DateFilter1: Text; BudgetFilter1: Text; RoundingFactor1: Option)
     begin
         LoadMatrix(

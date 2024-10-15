@@ -27,7 +27,7 @@ codeunit 2161 "Calendar Event Execution"
         CalendarEvent.SetRange(Archived, false);
         CalendarEvent.SetRange(User, UserId);
 
-        if not CalendarEvent.FindSet then begin
+        if not CalendarEvent.FindSet() then begin
             // This may happen the first time we run (i.e. after the job queue has been created)
             // UpdateJobQueue will now set the next run date to a good one.
             if CalendarEventMangement.FindJobQueue(JobQueueEntry) then // should always be called from a job queue so we should not create a new one

@@ -48,7 +48,6 @@ codeunit 5815 "Undo Sales Shipment Line"
         Text004: Label 'Some shipment lines may have unused service items. Do you want to delete them?';
         NextLineNo: Integer;
         Text005: Label 'This shipment has already been invoiced. Undo Shipment can be applied only to posted, but not invoiced shipments.';
-        Text006: Label 'Undo Shipment can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         Text055: Label '#1#################################\\Checking Undo Assembly #2###########.';
         Text056: Label '#1#################################\\Posting Undo Assembly #2###########.';
         Text057: Label '#1#################################\\Finalizing Undo Assembly #2###########.';
@@ -89,7 +88,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
             ServItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
-            if ServItem.FindFirst then
+            if ServItem.FindFirst() then
                 if not HideDialog then
                     DeleteServItems := Confirm(Text004, true)
                 else

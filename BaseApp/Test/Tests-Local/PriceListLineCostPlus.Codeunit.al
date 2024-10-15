@@ -354,7 +354,7 @@ codeunit 141052 "Price List Line Cost Plus"
         // Verify: Verify Unit Price on Sales Invoice Line based on Sales Price - Unit Price.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange("No.", PriceListLine."Asset No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         Assert.AreNearlyEqual(
           PriceListLine."Unit Price", SalesInvoiceLine."Unit Price", LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
 
@@ -681,7 +681,7 @@ codeunit 141052 "Price List Line Cost Plus"
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
         CustomerTemplate.SetRange("Currency Code", '');
-        CustomerTemplate.FindFirst;
+        CustomerTemplate.FindFirst();
         Contact.CreateCustomer(CustomerTemplate.Code);
         exit(Contact."No.")
     end;
@@ -770,7 +770,7 @@ codeunit 141052 "Price List Line Cost Plus"
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         CustomerNo := ContactBusinessRelation."No.";
     end;
 

@@ -149,7 +149,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
 
         Codeunit.Run(Codeunit::"CRM Integration Management");
 
-        if SalesHeaderOrder.FindSet then
+        if SalesHeaderOrder.FindSet() then
             repeat
                 if IsSalesOrderFullyInvoiced(SalesHeaderOrder) then
                     if CRMIntegrationRecord.FindIDFromRecordID(SalesHeaderOrder.RecordId, CRMSalesOrderId) then
@@ -164,7 +164,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Quantity Invoiced", '<>0');
-        if SalesLine.FindFirst then begin
+        if SalesLine.FindFirst() then begin
             SalesLine.SetRange("Quantity Invoiced");
             SalesLine.SetFilter("Outstanding Quantity", '<>0');
             if SalesLine.IsEmpty() then begin

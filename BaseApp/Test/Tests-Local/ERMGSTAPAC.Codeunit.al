@@ -42,7 +42,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] GST Sales Report for Sales Order with different VAT Prod. Posting Group.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Credit Memo with multiple line and differnt VAT Prod. Posting Group.
         // [GIVEN] Unrealized VAT - False, GST Report - True.
@@ -55,12 +55,12 @@ codeunit 141007 "ERM GST APAC"
         // [THEN] Verify GST Sales Entry amounts by document line
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
         GSTSalesEntry.SetRange("Document Line No.", SalesLine."Line No.");
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
         VerifyGSTEntry(
           GSTSalesEntry."GST Base", -SalesLine.Amount, GSTSalesEntry.Amount, -GetVATAmount(SalesLine));
         // [THEN] Verify GST Sales Entry amounts by document line
         GSTSalesEntry.SetRange("Document Line No.", SalesLine2."Line No.");
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
         VerifyGSTEntry(
           GSTSalesEntry."GST Base", -SalesLine2.Amount, GSTSalesEntry.Amount, -GetVATAmount(SalesLine2));
     end;
@@ -77,7 +77,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] GST Sales Report for Sales Credit Memo with different VAT Prod. Posting Group.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Credit Memo with multiple line and differnt VAT Prod. Posting Group.
         // [GIVEN] Unrealized VAT - False, GST Report - True.
@@ -90,12 +90,12 @@ codeunit 141007 "ERM GST APAC"
         // [THEN] Verify GST Sales Entry amounts by document line
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
         GSTSalesEntry.SetRange("Document Line No.", SalesLine."Line No.");
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
         VerifyGSTEntry(
           GSTSalesEntry."GST Base", SalesLine.Amount, GSTSalesEntry.Amount, GetVATAmount(SalesLine));
         // [THEN] Verify GST Sales Entry amounts by document line
         GSTSalesEntry.SetRange("Document Line No.", SalesLine2."Line No.");
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
         VerifyGSTEntry(
           GSTSalesEntry."GST Base", SalesLine2.Amount, GSTSalesEntry.Amount, GetVATAmount(SalesLine2));
     end;
@@ -110,7 +110,7 @@ codeunit 141007 "ERM GST APAC"
         OldRealizedWHTType: Integer;
     begin
         // [SCENARIO] GST Purchase Payment Entry with FCY.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase payment Gen. Journal with FCY.
         UpdateGeneralLedgerSetup(false, true);  // Unrealized VAT - False, GST Report - True.
@@ -123,7 +123,7 @@ codeunit 141007 "ERM GST APAC"
 
         // [THEN] Verify GST Purchase Entry.
         GSTPurchaseEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GSTPurchaseEntry.FindFirst;
+        GSTPurchaseEntry.FindFirst();
         VerifyGSTEntry(
           GSTPurchaseEntry."GST Base", GenJournalLine."Amount (LCY)" - GenJournalLine."VAT Amount (LCY)",
           GSTPurchaseEntry.Amount, GenJournalLine."VAT Amount (LCY)");
@@ -142,7 +142,7 @@ codeunit 141007 "ERM GST APAC"
         OldRealizedWHTType: Integer;
     begin
         // [SCENARIO] GST Sales Payment Entry with FCY.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales payment Gen. Journal with FCY.
         UpdateGeneralLedgerSetup(false, true);  // Unrealized VAT - False, GST Report - True.
@@ -155,7 +155,7 @@ codeunit 141007 "ERM GST APAC"
 
         // [THEN] Verify GST Sales Entry.
         GSTSalesEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
         VerifyGSTEntry(
           GSTSalesEntry."GST Base", GenJournalLine."Amount (LCY)" - GenJournalLine."VAT Amount (LCY)",
           GSTSalesEntry.Amount, GenJournalLine."VAT Amount (LCY)");
@@ -180,7 +180,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Unrealized VAT] [Sales]
         // [SCENARIO] Unrealized GST GL/VAT Entry after post sales credit memo applied to invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized GST posting setup with "GST %" = 20
         // [GIVEN] Posted sales invoice with Amount = 10000
@@ -235,7 +235,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Unrealized VAT] [Sales]
         // [SCENARIO 218599] Unrealized GST GL/VAT Entry after post partial sales credit memo applied to invoice after partial cash receipt
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized GST posting setup with "GST %" = 20
         // [GIVEN] Posted sales invoice with Amount = 10000 (VAT Base = 10000, VAT Amont = 2000)
@@ -304,7 +304,7 @@ codeunit 141007 "ERM GST APAC"
         DocumentNo: Code[20];
     begin
         // [SCENARIO] Verify GST Entries after posting Sales Invoice with two lines having different dimension values.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines, different dimension sets
         UpdateGeneralLedgerSetup(false, true);  // Unrealized VAT - False, GST Report - True.
@@ -329,7 +329,7 @@ codeunit 141007 "ERM GST APAC"
         DocumentNo: Code[20];
     begin
         // [SCENARIO] Verify GST Entries after posting Purchase Invoice with two lines having different dimension values.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with two lines, different dimension sets
         UpdateGeneralLedgerSetup(false, true);  // Unrealized VAT - False, GST Report - True.
@@ -361,7 +361,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Prepayment] [Sales]
         // [SCENARIO] GST Base is correct after Prepayment Invoice and Order posted
-        Initialize;
+        Initialize();
 
         UpdateGSTGLSetup(
           true, true, true, true, false, false,
@@ -387,7 +387,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [BAS Adjustment]
         // [SCENARIO 380740] GST BAS Adjustment set to TRUE when post Gen Journal Line with BAS Adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Jnl Line with "BAS Adjustment" = TRUE
         CreateGenJournalLineWithoutBASCalcSheet(GenJournalLine, true);
@@ -407,7 +407,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [BAS Adjustment]
         // [SCENARIO 380740] GST BAS Adjustment set to FALSE when post Gen Journal Line without BAS Adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Jnl Line with "BAS Adjustment" = FALSE
         CreateGenJournalLineWithoutBASCalcSheet(GenJournalLine, false);
@@ -427,7 +427,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [BAS Adjustment]
         // [SCENARIO 380740] GST BAS Adjustment set to FALSE when BAS Calc. Sheet Updated
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Jnl Line with Updated BAS Calculation Sheet
         CreateGenJournalLineWithUpdateBASCalcSheet(GenJournalLine);
@@ -453,8 +453,8 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [BAS Adjustment] [Sales]
         // [SCENARIO 381036] Sales VAT Account GLEntry."BAS Adjustment" = FALSE after reverse Credit Memo
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted Sales Invoice "SI" with GLAccount "GL"
         PostedInvoiceNo := CreatePostGLSalesInvoice(CustomerNo, LibraryERM.CreateGLAccountWithSalesSetup);
@@ -497,8 +497,8 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [BAS Adjustment] [Purchase]
         // [SCENARIO 381036] Purchase VAT Account GLEntry."BAS Adjustment" = FALSE after reverse Credit Memo
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted Purchase Invoice "PI" with GLAccount "GL"
         PostedInvoiceNo := CreatePostGLPurchaseInvoice(VendorNo, LibraryERM.CreateGLAccountWithPurchSetup);
@@ -543,7 +543,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Unrealized VAT] [Purchase]
         // [SCENARIO 218599] Unrealized GST GL/VAT Entry after post purchase credit memo applied to invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized GST posting setup with "GST %" = 20
         // [GIVEN] Posted purchase invoice with Amount = 10000
@@ -598,7 +598,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Unrealized VAT] [Purchase]
         // [SCENARIO 218599] Unrealized GST GL/VAT Entry after post partial purchase credit memo applied to invoice after partial payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized GST posting setup with "GST %" = 20
         // [GIVEN] Posted purchase invoice with Amount = 10000 (VAT Base = 10000, VAT Amont = 2000)
@@ -667,7 +667,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Sales] [Fixed Asset]
         // [SCENARIO 259961] GST Sales Entry is created for posted Sales Invoice with Fixed Asset when "GST Report" is enabled in G/L Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] "GST Report" = Yes in G/L Setup
         UpdateGeneralLedgerSetup(false, true);
@@ -694,7 +694,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Purchase] [Fixed Asset]
         // [SCENARIO 259961] GST Purchase Entry is created for posted Purchase Invoice with Fixed Asset when "GST Report" is enabled in G/L Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] "GST Report" = Yes in G/L Setup
         UpdateGeneralLedgerSetup(false, true);
@@ -720,7 +720,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Sales] [Fixed Asset]
         // [SCENARIO 259961] GST Sales Entry is not created for posted Sales Invoice with Fixed Asset when "GST Report" is disabled in G/L Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] "GST Report" = No in G/L Setup
         UpdateGeneralLedgerSetup(false, false);
@@ -744,7 +744,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Purchase] [Fixed Asset]
         // [SCENARIO 259961] GST Purchase Entry is not created for posted Purchase Invoice with Fixed Asset when "GST Report" is disabled in G/L Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] "GST Report" = No in G/L Setup
         UpdateGeneralLedgerSetup(false, false);
@@ -770,7 +770,7 @@ codeunit 141007 "ERM GST APAC"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Permissions] [Customer Ledger Entry]
         // [SCENARIO 300754] "Adjustment Applies-to" can be assigned
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Cust. Ledger Entry
         CreateCustomerLedgerEntry(CustLedgerEntry);
@@ -794,7 +794,7 @@ codeunit 141007 "ERM GST APAC"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1151,7 +1151,7 @@ codeunit 141007 "ERM GST APAC"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::"G/L Account");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1161,7 +1161,7 @@ codeunit 141007 "ERM GST APAC"
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
             SetRange(Type, Type::"G/L Account");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1171,7 +1171,7 @@ codeunit 141007 "ERM GST APAC"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1182,7 +1182,7 @@ codeunit 141007 "ERM GST APAC"
             SetRange("Bill-to/Pay-to No.", CVNo);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1385,7 +1385,7 @@ codeunit 141007 "ERM GST APAC"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("BAS Adjustment", ExpectedBASAdjusnment);
     end;
 
@@ -1416,7 +1416,7 @@ codeunit 141007 "ERM GST APAC"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Entry No.", LibraryVariableStorage.DequeueInteger);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         ApplyCustomerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
         ApplyCustomerEntries.OK.Invoke;
     end;

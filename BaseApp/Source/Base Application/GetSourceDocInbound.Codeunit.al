@@ -32,7 +32,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.SetTableView(WarehouseRequest);
         GetSourceDocuments.SetHideDialog(true);
         OnBeforeGetSourceDocumentsRun(GetSourceDocuments, WarehouseRequest, ServVendDocNo);
-        GetSourceDocuments.RunModal;
+        GetSourceDocuments.RunModal();
 
         GetSourceDocuments.GetLastReceiptHeader(WhseReceiptHeader);
         OnAfterCreateWhseReceiptHeaderFromWhseRequest(WhseReceiptHeader);
@@ -50,7 +50,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         WhseGetSourceFilterRec.SetRange(Type, WhseGetSourceFilterRec.Type::Inbound);
         WhseGetSourceFilterRec.FilterGroup(0);
         WhseSourceFilterSelection.SetTableView(WhseGetSourceFilterRec);
-        WhseSourceFilterSelection.RunModal;
+        WhseSourceFilterSelection.RunModal();
 
         UpdateReceiptHeaderStatus(WhseReceiptHeader);
 
@@ -97,7 +97,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.SetOneCreatedReceiptHeader(WarehouseReceiptHeader);
         GetSourceDocuments.UseRequestPage(false);
         GetSourceDocuments.SetTableView(WarehouseRequest);
-        GetSourceDocuments.RunModal;
+        GetSourceDocuments.RunModal();
     end;
 
     local procedure SetWarehouseRequestFilters(var WhseRqst: Record "Warehouse Request"; WhseReceiptHeader: Record "Warehouse Receipt Header")
@@ -195,7 +195,7 @@ codeunit 5751 "Get Source Doc. Inbound"
 
         GetWhseSourceDocuments.UseRequestPage(false);
         GetWhseSourceDocuments.SetTableView(WhsePutAwayRqst);
-        GetWhseSourceDocuments.RunModal;
+        GetWhseSourceDocuments.RunModal();
     end;
 
     procedure GetRequireReceiveRqst(var WhseRqst: Record "Warehouse Request")
@@ -209,7 +209,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         if IsHandled then
             exit;
 
-        if WhseRqst.FindSet then begin
+        if WhseRqst.FindSet() then begin
             repeat
                 if Location.RequireReceive(WhseRqst."Location Code") then
                     LocationCode += WhseRqst."Location Code" + '|';

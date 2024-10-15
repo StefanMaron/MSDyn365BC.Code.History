@@ -199,7 +199,7 @@ page 1208 "Direct Debit Collect. Entries"
                     DirectDebitCollection.TestField(Status, DirectDebitCollection.Status::"File Created");
                     PostDirectDebitCollection.SetCollectionEntry("Direct Debit Collection No.");
                     PostDirectDebitCollection.SetTableView(Rec);
-                    PostDirectDebitCollection.Run;
+                    PostDirectDebitCollection.Run();
                 end;
             }
             action(ResetTransferDate)

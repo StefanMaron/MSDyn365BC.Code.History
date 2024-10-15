@@ -102,9 +102,9 @@ codeunit 145400 "ERM Fixed Assets Prepayment"
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchInvHeader.SetRange("Vendor Invoice No.", PurchaseHeader."Vendor Invoice No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         GLEntry.SetRange("Document No.", PurchInvHeader."No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(
             AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption))

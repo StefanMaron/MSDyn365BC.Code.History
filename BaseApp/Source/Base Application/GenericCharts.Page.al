@@ -129,7 +129,7 @@ page 9182 "Generic Charts"
                         if BLOB.HasValue then
                             CalcFields(BLOB);
                         CopyGenericChart.SetSourceChart(Rec);
-                        CopyGenericChart.RunModal;
+                        CopyGenericChart.RunModal();
                     end;
                 }
                 action("Delete Chart")

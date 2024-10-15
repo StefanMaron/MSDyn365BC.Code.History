@@ -1112,7 +1112,7 @@ table 5110 "Purchase Line Archive"
         PurchCommentLineArch.SetRange("Version No.", "Version No.");
         Clear(PurchArchCommentSheet);
         PurchArchCommentSheet.SetTableView(PurchCommentLineArch);
-        PurchArchCommentSheet.RunModal;
+        PurchArchCommentSheet.RunModal();
     end;
 
     procedure ShowDeferrals()

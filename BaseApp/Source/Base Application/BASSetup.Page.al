@@ -185,7 +185,7 @@ page 11600 "BAS Setup"
                     BASCalcSheet.Get(BASIdNo, BASVersionNo);
                     BASSetupName.Get("Setup Name");
                     BASSetupPreview.SetBASCalcSheet(BASCalcSheet, BASSetupName);
-                    BASSetupPreview.RunModal;
+                    BASSetupPreview.RunModal();
                 end;
             }
         }

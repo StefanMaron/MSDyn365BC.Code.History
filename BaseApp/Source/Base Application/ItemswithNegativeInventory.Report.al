@@ -254,7 +254,7 @@ report 5757 "Items with Negative Inventory"
         ErrorCounter := 0;
         WhseRcptHeader.SetCurrentKey("Location Code");
         WhseRcptHeader.SetRange("Location Code", LocCode);
-        if WhseRcptHeader.FindFirst then
+        if WhseRcptHeader.FindFirst() then
             AddError(
               StrSubstNo(
                 Text005,
@@ -264,7 +264,7 @@ report 5757 "Items with Negative Inventory"
 
         WhseShipHeader.SetCurrentKey("Location Code");
         WhseShipHeader.SetRange("Location Code", LocCode);
-        if WhseShipHeader.FindFirst then
+        if WhseShipHeader.FindFirst() then
             AddError(
               StrSubstNo(
                 Text005,
@@ -276,7 +276,7 @@ report 5757 "Items with Negative Inventory"
             WhseActHeader.SetCurrentKey("Location Code");
             WhseActHeader.SetRange("Location Code", LocCode);
             WhseActHeader.SetRange(Type, i);
-            if WhseActHeader.FindFirst then
+            if WhseActHeader.FindFirst() then
                 AddError(
                   StrSubstNo(
                     Text006,
@@ -287,7 +287,7 @@ report 5757 "Items with Negative Inventory"
 
         WhseWkshLine.SetCurrentKey("Item No.", "Location Code");
         WhseWkshLine.SetRange("Location Code", LocCode);
-        if WhseWkshLine.FindFirst then
+        if WhseWkshLine.FindFirst() then
             AddError(
               StrSubstNo(
                 Text007,

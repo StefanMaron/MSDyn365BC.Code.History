@@ -308,7 +308,7 @@ table 7002 "Sales Price"
                 ItemUnitOfMeasure.Reset();
                 ItemUnitOfMeasure.SetRange("Item No.", "Item No.");
                 ItemUnitOfMeasure.SetRange(Code, "Unit of Measure Code");
-                if ItemUnitOfMeasure.FindFirst then
+                if ItemUnitOfMeasure.FindFirst() then
                     "Unit Price" := ItemUnitOfMeasure."Qty. per Unit of Measure" * (Cost * (1 + "Cost-plus %" / 100))
             end;
         end else begin
@@ -320,7 +320,7 @@ table 7002 "Sales Price"
                 ItemUnitOfMeasure.Reset();
                 ItemUnitOfMeasure.SetRange("Item No.", "Item No.");
                 ItemUnitOfMeasure.SetRange(Code, "Unit of Measure Code");
-                if ItemUnitOfMeasure.FindFirst then
+                if ItemUnitOfMeasure.FindFirst() then
                     "Unit Price" := (ItemUnitOfMeasure."Qty. per Unit of Measure" * "Published Price") - "Discount Amount";
             end;
         end;
@@ -341,7 +341,7 @@ table 7002 "Sales Price"
     var
         NewSalesPrice: Record "Sales Price";
     begin
-        if SalesPrice.FindSet then
+        if SalesPrice.FindSet() then
             repeat
                 NewSalesPrice := SalesPrice;
                 NewSalesPrice."Sales Type" := NewSalesPrice."Sales Type"::Customer;

@@ -16,7 +16,7 @@ report 28091 "Create Check Installments"
                 if StartDocNo = '' then
                     Error(text001);
                 PostDatedCheck.Reset();
-                if PostDatedCheck.FindLast then
+                if PostDatedCheck.FindLast() then
                     LineNo := PostDatedCheck."Line Number";
                 CheckDate := "Check Date";
                 NextDocNo := StartDocNo;
@@ -24,7 +24,7 @@ report 28091 "Create Check Installments"
                 GLSetup.Get();
                 TempPostDatedCheck.Reset();
                 TempPostDatedCheck.SetRange("Document No.", "Document No.");
-                if TempPostDatedCheck.FindFirst then begin
+                if TempPostDatedCheck.FindFirst() then begin
                     if NoInstallments > 1 then
                         for i := 1 to (NoInstallments - 1) do begin
                             PostDatedCheck.Init();
@@ -149,7 +149,7 @@ report 28091 "Create Check Installments"
                 VendorLedgerEntry.SetRange(Open, true);
                 VendorLedgerEntry.SetRange("Document Type", TempPostDatedCheck."Applies-to Doc. Type");
                 VendorLedgerEntry.SetRange("Document No.", TempPostDatedCheck."Applies-to Doc. No.");
-                if VendorLedgerEntry.FindSet then
+                if VendorLedgerEntry.FindSet() then
                     repeat
                         VendorLedgerEntry.CalcFields(Amount);
                         PurchInvLine.Reset();

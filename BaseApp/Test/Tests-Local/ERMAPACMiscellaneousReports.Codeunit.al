@@ -43,7 +43,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         // [SCENARIO] values on Items Received and Not Invoiced report after posting multiple Purchase Order as Receive and Invoice.
 
         // Setup: Create and post two Purchase Orders for different Vendors.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateAndPostPurchaseOrder(PurchaseLine, true, LibraryRandom.RandDecInRange(10, 50, 2), LibraryRandom.RandDec(10, 2));  // True for Invoice. Random value used for Quantity and Qty. to Invoice.
         CreateAndPostPurchaseOrder(PurchaseLine2, true, Quantity, Quantity);  // True for Invoice. Random value used for Quantity and Qty. to Invoice.
@@ -80,7 +80,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create and post Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrder(
           PurchaseLine, Invoice, LibraryRandom.RandDecInRange(10, 50, 2), LibraryRandom.RandDec(10, 2));  // Random value for Quantity and Qty. To Invoice.
         EnqueueValuesForItemsRcdAndNotInvdRqstPageHandler(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Buy-from Vendor No.");
@@ -100,7 +100,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         // [SCENARIO] values on Report - Stock Card after posting Purchase Order.
 
         // Setup: Create and Post Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrder(
           PurchaseLine, true, LibraryRandom.RandDecInRange(50, 100, 2), LibraryRandom.RandDecInRange(10, 50, 2));  // True for Invoice. Random value used for Quantity and Qty. to Invoice.
         LibraryVariableStorage.Enqueue(PurchaseLine."No.");
@@ -123,7 +123,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 362109] Print VAT Amount in "Purchase - Invoice" report
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purchase Invoice with tax amount = "X"
         CreateAndPostPurchaseDocument(DocumentNo, VATAmount, PurchaseHeader."Document Type"::Invoice);
         // [WHEN] Preview "Purchase - Invoice" report
@@ -143,7 +143,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 362109] Print VAT Amount in "Purchase - Credit Memo" report
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purchase Credit Memo with tax amount = "X"
         CreateAndPostPurchaseDocument(DocumentNo, VATAmount, PurchaseHeader."Document Type"::"Credit Memo");
         // [WHEN] Preview "Purchase - Credit Memo" report
@@ -163,10 +163,10 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Reverse] [Bank Account Reconciliation]
         // [SCENARIO 231426] Reversed Bank Account Ledger Entries are not shown when report "Bank Account Reconciliation" is printed.
-        Initialize;
+        Initialize();
 
-        ExpectedDocumentNo[1] := LibraryUtility.GenerateGUID;
-        ExpectedDocumentNo[2] := LibraryUtility.GenerateGUID;
+        ExpectedDocumentNo[1] := LibraryUtility.GenerateGUID();
+        ExpectedDocumentNo[2] := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Bank Account "B"
         LibraryERM.CreateBankAccount(BankAccount);
@@ -510,7 +510,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure MockBankAccountLedgerEntry(DocumentNo: Code[20]; BankAccountNo: Code[20]; Reversed: Boolean; Amount: Decimal)
@@ -608,7 +608,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         StockCard.SetTableView(ItemLedgerEntry);
-        StockCard.Run;  // Opens StockCardRequestPageHandler.
+        StockCard.Run();  // Opens StockCardRequestPageHandler.
     end;
 
     local procedure RunPurchaseInvoiceReport(DocumentNo: Code[20])
@@ -619,7 +619,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         PurchInvHeader.SetRange("No.", DocumentNo);
         PurchaseInvoice.SetTableView(PurchInvHeader);
         PurchaseInvoice.InitializeRequest(0, false, false);
-        PurchaseInvoice.Run;
+        PurchaseInvoice.Run();
     end;
 
     local procedure RunPurchaseCrMemoReport(DocumentNo: Code[20])
@@ -630,7 +630,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         PurchCrMemoHdr.SetRange("No.", DocumentNo);
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
         PurchaseCreditMemo.InitializeRequest(0, false, false);
-        PurchaseCreditMemo.Run;
+        PurchaseCreditMemo.Run();
     end;
 
     local procedure VerifyReceivedQuantityCostAndAmountOnStockCardReport(PurchaseLine: Record "Purchase Line")

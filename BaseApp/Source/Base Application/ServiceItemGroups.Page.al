@@ -91,7 +91,7 @@ page 5909 "Service Item Groups"
                     begin
                         Clear(SkilledResourceList);
                         SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item Group", Code, Description);
-                        SkilledResourceList.RunModal;
+                        SkilledResourceList.RunModal();
                     end;
                 }
                 group(Dimensions)
@@ -124,7 +124,7 @@ page 5909 "Service Item Groups"
                         begin
                             CurrPage.SetSelectionFilter(ServiceItemGroup);
                             DefaultDimMultiple.SetMultiRecord(ServiceItemGroup, FieldNo(Code));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

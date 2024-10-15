@@ -143,7 +143,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
         Clear(CellValue);
 
         TempExcelBuffer.SetRange("Row No.", Number);
-        if TempExcelBuffer.FindSet then
+        if TempExcelBuffer.FindSet() then
             repeat
                 i += 1;
                 CellValue[i] := TempExcelBuffer."Cell Value as Text";
@@ -183,7 +183,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
     procedure SetExcelBuffer(var NewExcelBuffer: Record "Excel Buffer")
     begin
         ClearExcelBuffer;
-        if NewExcelBuffer.FindSet then
+        if NewExcelBuffer.FindSet() then
             repeat
                 TempExcelBuffer := NewExcelBuffer;
                 TempExcelBuffer.Insert();
@@ -210,12 +210,12 @@ page 2181 "O365 Excel Sheet Data SubPage"
         Reset;
         DeleteAll();
         TempExcelBuffer.Reset();
-        if TempExcelBuffer.FindLast then;
+        if TempExcelBuffer.FindLast() then;
         for i := 1 to TempExcelBuffer."Row No." do begin
             Number := i;
             Insert;
         end;
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     procedure SetStartRowNo(NewStartRowNo: Integer)
@@ -226,7 +226,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
     procedure SetColumnMapping(var NewO365FieldExcelMapping: Record "O365 Field Excel Mapping")
     begin
         ClearColumnMappingBuffer;
-        if NewO365FieldExcelMapping.FindSet then
+        if NewO365FieldExcelMapping.FindSet() then
             repeat
                 TempO365FieldExcelMapping := NewO365FieldExcelMapping;
                 TempO365FieldExcelMapping.Insert();
@@ -252,7 +252,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
 
         for i := 1 to ArrayLen(ColumnCaptions) do begin
             TempO365FieldExcelMapping.SetRange("Excel Column No.", i);
-            if TempO365FieldExcelMapping.FindFirst then begin
+            if TempO365FieldExcelMapping.FindFirst() then begin
                 TempO365FieldExcelMapping.CalcFields("Field Name");
                 ColumnCaptions[i] := TempO365FieldExcelMapping."Field Name";
             end;

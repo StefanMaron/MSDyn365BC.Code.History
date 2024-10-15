@@ -25,7 +25,7 @@ codeunit 28000 "Post Code Check"
                     PostCodeRec.Reset();
                     PostCodeRec.SetCurrentKey("Search City");
                     PostCodeRec.SetFilter("Search City", UpperCase(City));
-                    PostCodeRec.FindFirst;
+                    PostCodeRec.FindFirst();
                     RecCount := PostCodeRec.Count();
                     case true of
                         RecCount = 1:
@@ -70,7 +70,7 @@ codeunit 28000 "Post Code Check"
                 begin
                     PostCodeRec.Reset();
                     PostCodeRec.SetFilter(Code, PostCode);
-                    PostCodeRec.FindFirst;
+                    PostCodeRec.FindFirst();
                     RecCount := PostCodeRec.Count();
                     case true of
                         RecCount = 1:
@@ -379,7 +379,7 @@ codeunit 28000 "Post Code Check"
     local procedure GetAddressValidationSetup(CountryCode: Code[10])
     begin
         if CountryCode = '' then begin
-            GetGLSetup;
+            GetGLSetup();
             Clear(Country);
             Country."Address Validation" := GLSetup."Address Validation";
             Country."AMAS Software" := GLSetup."AMAS Software";
@@ -398,7 +398,7 @@ codeunit 28000 "Post Code Check"
     [Scope('OnPrem')]
     procedure AddressValIsPostCodeCity()
     begin
-        GetGLSetup;
+        GetGLSetup();
         if GLSetup."Address Validation" <> GLSetup."Address Validation"::"Post Code & City" then
             Error(
               Text001,

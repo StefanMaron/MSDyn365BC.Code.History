@@ -138,7 +138,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -173,7 +173,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -443,7 +443,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
         InvoiceCheckCurrencyOnTotals(SalesInvoice, Customer."Currency Code");
@@ -616,7 +616,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesOrder."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -651,7 +651,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesOrder."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -912,7 +912,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         SalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
         OrderCheckCurrencyOnTotals(SalesOrder, Customer."Currency Code");
@@ -1084,7 +1084,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
         SalesLine.SetRange("Document No.", SalesQuote."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -1246,7 +1246,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         ValidateQuoteInvoiceDiscountAmountIsReadOnly(SalesQuote);
         CheckQuoteStatistics(SalesQuote);
@@ -1278,7 +1278,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         CheckQuoteStatistics(SalesQuote);
     end;
@@ -1323,7 +1323,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         QuoteCheckCurrencyOnTotals(SalesQuote, Customer."Currency Code");
@@ -1495,7 +1495,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Blanket Order");
         SalesLine.SetRange("Document No.", BlanketSalesOrder."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -1657,7 +1657,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketSalesOrder);
         CheckBlanketOrderStatistics(BlanketSalesOrder);
@@ -1689,7 +1689,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         CheckBlanketOrderStatistics(BlanketSalesOrder);
     end;
@@ -1719,7 +1719,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesHeader.Reset();
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
@@ -1740,7 +1740,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        BlanketSalesOrder.OpenNew;
+        BlanketSalesOrder.OpenNew();
 
         BlanketSalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
         BlanketOrderCheckCurrencyOnTotals(BlanketSalesOrder, Customer."Currency Code");
@@ -1870,7 +1870,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
         SalesLine.SetRange("Document No.", SalesReturnOrder."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -1905,7 +1905,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
         SalesLine.SetRange("Document No.", SalesReturnOrder."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -2068,7 +2068,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(SalesReturnOrder);
         CheckReturnOrderStatistics(SalesReturnOrder);
@@ -2100,7 +2100,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         CheckReturnOrderStatistics(SalesReturnOrder);
     end;
@@ -2175,7 +2175,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
 
         SalesReturnOrder."Sell-to Customer Name".SetValue(Customer."No.");
         ReturnOrderCheckCurrencyOnTotals(SalesReturnOrder, Customer."Currency Code");
@@ -2324,7 +2324,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesCreditMemo."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -2488,7 +2488,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(SalesCreditMemo);
         CheckCreditMemoStatistics(SalesCreditMemo);
@@ -2520,7 +2520,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
@@ -2550,7 +2550,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesCreditMemo.Post.Invoke;
 
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        SalesCrMemoHeader.FindLast;
+        SalesCrMemoHeader.FindLast();
 
         PostedSalesCreditMemo.OpenEdit;
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
@@ -2598,7 +2598,7 @@ codeunit 134393 "ERM Sales Subform"
         CreateCustomer(Customer);
         Customer."Currency Code" := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1);
         Customer.Modify(true);
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
 
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer."No.");
         CreditMemoCheckCurrencyOnTotals(SalesCreditMemo, Customer."Currency Code");
@@ -2688,7 +2688,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         BlanketSalesOrder.Trap;
-        BlanketSalesOrder.OpenNew;
+        BlanketSalesOrder.OpenNew();
 
         Assert.IsTrue(BlanketSalesOrder."External Document No.".Enabled, ExternalDocNoErr);
     end;
@@ -2718,7 +2718,7 @@ codeunit 134393 "ERM Sales Subform"
 
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Create Default Dimension "D" on invoice rounding G/L Account
@@ -3146,7 +3146,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales quote page and pick new customer
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item and blank "No."
@@ -3184,7 +3184,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales quote page and pick new customer
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item
@@ -3222,7 +3222,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales invoice page and pick new customer
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item and blank "No."
@@ -3260,7 +3260,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales invoice page and pick new customer
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item
@@ -3298,7 +3298,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales order page and pick new customer
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item and blank "No."
@@ -3337,7 +3337,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales order page and pick new customer
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item
@@ -3375,7 +3375,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales credit memo page and pick new customer
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item and blank "No."
@@ -3413,7 +3413,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales credit memo page and pick new customer
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item
@@ -3451,7 +3451,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales return order page and pick new customer
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         SalesReturnOrder."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item and blank "No."
@@ -3489,7 +3489,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         // [GIVEN] Open New Sales return order page and pick new customer
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         SalesReturnOrder."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] Create new line with Type = Item
@@ -4418,11 +4418,11 @@ codeunit 134393 "ERM Sales Subform"
         SalesHeader: Record "Sales Header";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Subform");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // Lazy Setup.
@@ -4430,9 +4430,9 @@ codeunit 134393 "ERM Sales Subform"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Subform");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.SetCalcInvDiscount(true);
@@ -4525,14 +4525,14 @@ codeunit 134393 "ERM Sales Subform"
         with ItemUnitOfMeasure do begin
             SetRange("Item No.", ItemNo);
             SetFilter(Code, '<>%1', BaseUOMCode);
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
 
     local procedure CheckInvoiceStatistics(SalesInvoice: TestPage "Sales Invoice")
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal);
         LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal);
         LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal);
@@ -4541,7 +4541,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CheckOrderStatistics(SalesOrder: TestPage "Sales Order")
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal);
         LibraryVariableStorage.Enqueue(
           DoInvoiceRounding(SalesOrder."Currency Code".Value, SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal));
@@ -4551,7 +4551,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CheckQuoteStatistics(SalesQuote: TestPage "Sales Quote")
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal);
         LibraryVariableStorage.Enqueue(SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal);
         LibraryVariableStorage.Enqueue(SalesQuote.SalesLines."Total VAT Amount".AsDEcimal);
@@ -4560,7 +4560,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CheckBlanketOrderStatistics(BlanketSalesOrder: TestPage "Blanket Sales Order")
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal);
         LibraryVariableStorage.Enqueue(
           DoInvoiceRounding(BlanketSalesOrder."Currency Code".Value, BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal));
@@ -4570,7 +4570,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CheckReturnOrderStatistics(SalesReturnOrder: TestPage "Sales Return Order")
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal);
         LibraryVariableStorage.Enqueue(
           DoInvoiceRounding(SalesReturnOrder."Currency Code".Value, SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal));
@@ -4580,7 +4580,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CheckCreditMemoStatistics(SalesCreditMemo: TestPage "Sales Credit Memo")
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDEcimal);
         LibraryVariableStorage.Enqueue(SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal);
         LibraryVariableStorage.Enqueue(SalesCreditMemo.SalesLines."Total VAT Amount".AsDEcimal);
@@ -4776,7 +4776,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CreateInvoiceWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesInvoice: TestPage "Sales Invoice")
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
 
         SalesInvoice.SalesLines.First;
@@ -4791,7 +4791,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CreateOrderWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesOrder: TestPage "Sales Order")
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesOrder.SalesLines.First;
@@ -4812,7 +4812,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CreateQuoteWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesQuote: TestPage "Sales Quote")
     begin
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesQuote.SalesLines.First;
@@ -4833,7 +4833,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CreateBlanketOrderWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var BlanketSalesOrder: TestPage "Blanket Sales Order")
     begin
-        BlanketSalesOrder.OpenNew;
+        BlanketSalesOrder.OpenNew();
         BlanketSalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
 
         BlanketSalesOrder.SalesLines.First;
@@ -4854,7 +4854,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CreateReturnOrderWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesReturnOrder: TestPage "Sales Return Order")
     begin
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         SalesReturnOrder."Sell-to Customer Name".SetValue(Customer."No.");
 
         SalesReturnOrder.SalesLines.First;
@@ -4875,7 +4875,7 @@ codeunit 134393 "ERM Sales Subform"
 
     local procedure CreateCreditMemoWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesCreditMemo: TestPage "Sales Credit Memo")
     begin
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer."No.");
 
         SalesCreditMemo.SalesLines.First;

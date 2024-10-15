@@ -1,4 +1,4 @@
-report 6032 "Post Prepaid Contract Entries"
+﻿report 6032 "Post Prepaid Contract Entries"
 {
     ApplicationArea = Service;
     Caption = 'Post Prepaid Service Contract Entries';
@@ -23,7 +23,7 @@ report 6032 "Post Prepaid Contract Entries"
                 ServLedgEntry."Moved from Prepaid Acc." := true;
                 ServLedgEntry.Modify();
 
-                if not (LastContract in ['', "Service Contract No."]) then begin
+                if (LastContract <> '') and (LastContract <> "Service Contract No.") then begin
                     TempServLedgEntry.Reset();
                     TempServLedgEntry.SetRange("Service Contract No.", LastContract);
                     TempServLedgEntry.CalcSums("Amount (LCY)");
@@ -44,7 +44,7 @@ report 6032 "Post Prepaid Contract Entries"
                     AmtInclDisc := "Amount (LCY)";
 
                 TempServLedgEntry.SetRange("Dimension Set ID", "Dimension Set ID");
-                if TempServLedgEntry.FindFirst then begin
+                if TempServLedgEntry.FindFirst() then begin
                     TempServLedgEntry."Amount (LCY)" += AmtInclDisc;
                     TempServLedgEntry.Modify();
                 end else begin
@@ -74,7 +74,7 @@ report 6032 "Post Prepaid Contract Entries"
                     Clear(PrepaidContractEntriesTest);
                     PrepaidContractEntriesTest.InitVariables(UntilDate, PostingDate);
                     PrepaidContractEntriesTest.SetTableView("Service Ledger Entry");
-                    PrepaidContractEntriesTest.RunModal;
+                    PrepaidContractEntriesTest.RunModal();
                     CurrReport.Break();
                 end;
 
@@ -84,28 +84,30 @@ report 6032 "Post Prepaid Contract Entries"
                         repeat
                             ServContractHdr.CalcFields("No. of Unposted Credit Memos");
                             if ServContractHdr."No. of Unposted Credit Memos" <> 0 then
-                                Error(Text005, Text007, Text008, ServContractHdr."Contract No.", Text006);
+                                Error(Text005Err, Text007Txt, Text008Txt, ServContractHdr."Contract No.", Text006Txt);
                         until ServContractHdr.Next() = 0;
                     end;
                 end;
 
                 LastContract := '';
                 if UntilDate = 0D then
-                    Error(Text000);
+                    Error(Text000Err);
                 if PostingDate = 0D then
-                    Error(Text001);
+                    Error(Text001Err);
 
                 SetRange("Posting Date", 0D, UntilDate);
 
                 NoOfContracts := Count;
 
                 Window.Open(
-                  Text002 +
-                  Text003 +
+                  Text002Txt +
+                  Text003Txt +
                   '@2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
-                ServMgtSetup.Get();
-                ServMgtSetup.TestField("Prepaid Posting Document Nos.");
+                if not GLSetup."Journal Templ. Name Mandatory" then begin
+                    ServMgtSetup.Get();
+                    ServMgtSetup.TestField("Prepaid Posting Document Nos.");
+                end;
                 SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Service Management");
                 SalesSetup.Get();
@@ -136,6 +138,42 @@ report 6032 "Post Prepaid Contract Entries"
                         Caption = 'Posting Date';
                         MultiLine = true;
                         ToolTip = 'Specifies the date that you want to use as the posting date on the service ledger entries.';
+                    }
+                    field(JournalTemplateName; GenJnlLineReq."Journal Template Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Template Name';
+                        TableRelation = "Gen. Journal Template";
+                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnValidate()
+                        begin
+                            GenJnlLineReq."Journal Batch Name" := '';
+                        end;
+                    }
+                    field(JournalBatchName; GenJnlLineReq."Journal Batch Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Batch Name';
+                        Lookup = true;
+                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
+                        begin
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            end;
+                        end;
                     }
                     field(PostPrepaidContracts; PostPrepaidContracts)
                     {
@@ -169,12 +207,31 @@ report 6032 "Post Prepaid Contract Entries"
             Window.Close;
     end;
 
+    trigger OnPreReport()
+    begin
+        if not GLSetup."Journal Templ. Name Mandatory" then
+            exit;
+
+        if PostPrepaidContracts = PostPrepaidContracts::"Post Prepaid Transactions" then begin
+            if GenJnlLineReq."Journal Template Name" = '' then
+                Error(Text11300Err);
+            if GenJnlLineReq."Journal Batch Name" = '' then
+                Error(Text11301Err);
+            Clear(NoSeriesMgt);
+            Clear(DocNo);
+            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+            GenJnlBatch.TestField("No. Series");
+            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate, true);
+        end;
+    end;
+
     var
-        Text000: Label 'You must fill in the Post Until Date field.';
-        Text001: Label 'You must fill in the Posting Date field.';
-        Text002: Label 'Posting prepaid contract entries...\';
-        Text003: Label 'Service Contract: #1###############\\';
-        Text004: Label 'Service Contract';
+        Text000Err: Label 'You must fill in the Post Until Date field.';
+        Text001Err: Label 'You must fill in the Posting Date field.';
+        Text002Txt: Label 'Posting prepaid contract entries...\';
+        Text003Txt: Label 'Service Contract: #1###############\\';
+        Text004Txt: Label 'Service Contract';
+        GLSetup: Record "General Ledger Setup";
         GenJnlLine: Record "Gen. Journal Line";
         ServLedgEntry: Record "Service Ledger Entry";
         TempServLedgEntry: Record "Service Ledger Entry" temporary;
@@ -183,6 +240,8 @@ report 6032 "Post Prepaid Contract Entries"
         SourceCodeSetup: Record "Source Code Setup";
         ServContractHdr: Record "Service Contract Header";
         SalesSetup: Record "Sales & Receivables Setup";
+        GenJnlLineReq: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
         PrepaidContractEntriesTest: Report "Prepaid Contr. Entries - Test";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
@@ -195,10 +254,13 @@ report 6032 "Post Prepaid Contract Entries"
         Counter: Integer;
         AmtInclDisc: Decimal;
         LastContract: Code[20];
-        Text005: Label 'You cannot post %1 because %2 %3 has at least one %4 linked to it.';
-        Text006: Label 'Unposted Credit Memo';
-        Text007: Label 'Prepaid Contract Entries';
-        Text008: Label 'Service Contract';
+        IsJournalTemplNameVisible: Boolean;
+        Text005Err: Label 'You cannot post %1 because %2 %3 has at least one %4 linked to it.';
+        Text006Txt: Label 'Unposted Credit Memo';
+        Text007Txt: Label 'Prepaid Contract Entries';
+        Text008txt: Label 'Service Contract';
+        Text11300Err: Label 'Please enter a Journal Template Name.';
+        Text11301Err: Label 'Please enter a Journal Batch Name.';
 
     local procedure PostGenJnlLine()
     var
@@ -206,10 +268,11 @@ report 6032 "Post Prepaid Contract Entries"
         IsNonPrepaidAccountPostingHandled: Boolean;
     begin
         TempServLedgEntry.Reset();
-        if not TempServLedgEntry.FindSet then
+        if not TempServLedgEntry.FindSet() then
             exit;
 
-        DocNo := NoSeriesMgt.GetNextNo(ServMgtSetup."Prepaid Posting Document Nos.", WorkDate, true);
+        if not GLSetup."Journal Templ. Name Mandatory" then
+            DocNo := NoSeriesMgt.GetNextNo(ServMgtSetup."Prepaid Posting Document Nos.", WorkDate(), true);
 
         repeat
             IsNonPrepaidAccountPostingHandled := false;
@@ -218,13 +281,15 @@ report 6032 "Post Prepaid Contract Entries"
                 GenJnlLine.Reset();
                 GenJnlLine.Init();
                 GenJnlLine."Document No." := DocNo;
+                GenJnlLine."Journal Template Name" := GenJnlLineReq."Journal Template Name";
+                GenJnlLine."Journal Batch Name" := GenJnlLineReq."Journal Batch Name";
                 GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
                 GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
                 ServContractAccGr.Get(TempServLedgEntry."Serv. Contract Acc. Gr. Code");
                 ServContractAccGr.TestField("Non-Prepaid Contract Acc.");
                 GenJnlLine.Validate("Account No.", ServContractAccGr."Non-Prepaid Contract Acc.");
                 GenJnlLine."Posting Date" := PostingDate;
-                GenJnlLine.Description := Text004;
+                GenJnlLine.Description := Text004Txt;
                 GenJnlLine."External Document No." := TempServLedgEntry."Service Contract No.";
                 GenJnlLine.Validate(Amount, TempServLedgEntry."Amount (LCY)");
                 GenJnlLine."Shortcut Dimension 1 Code" := TempServLedgEntry."Global Dimension 1 Code";
@@ -280,6 +345,11 @@ report 6032 "Post Prepaid Contract Entries"
         UntilDate := UntilDateFrom;
         PostingDate := PostingDateFrom;
         PostPrepaidContracts := PostPrepaidContractsFrom;
+    end;
+
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch");
+    begin
+        GenJnlBatch := NewGenJnlBatch;
     end;
 
     [IntegrationEvent(false, false)]

@@ -27,7 +27,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
         // [SCENARIO] validate BankAccount - OnAfterGetRecord Trigger of Report - 28020 Bank Detail Cashflow Compare with blank Date Filter.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         CreateBankAccLedgAndRunBankDetailCFCompareReport(0D, 0D, 0D);  // Using 0D as CompareStartDate, CompareEndDate and Date Filter.
 
         // Verify.
@@ -59,7 +59,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
         Amount: Decimal;
     begin
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         Amount := CreateBankAccLedgAndRunBankDetailCFCompareReport(CompareStartDate, CompareEndDate, DateFilter);
 
         // Verify.
@@ -68,7 +68,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]

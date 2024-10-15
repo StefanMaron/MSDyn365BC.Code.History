@@ -227,7 +227,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PaymentNo: Code[20];
     begin
         // Bug 246185
-        Initialize;
+        Initialize();
         CreateVendorWithPmtDisc(Vendor);
 
         PostTwoDocsWithPmtJnlLine(DocumentType, Vendor."No.", DocumentNo, PaymentNo);
@@ -244,7 +244,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PaymentNo: Code[20];
     begin
         // Bug 265114
-        Initialize;
+        Initialize();
         CreateVendorWithPmtDisc(Vendor);
         PostDocWithPmtJnlLine(DocumentType, Vendor."No.", ApplyToPostedDoc, DocumentNo, PaymentNo);
 
@@ -258,7 +258,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PostedDocumentNo: Code[20];
         PostedPmtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithPmtDisc(Vendor);
         PostedDocumentNo := PostDocumentWithoutWHT(DocumentType, Vendor."No.");
@@ -275,7 +275,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PostedDocumentNo: Code[20];
         PostedPmtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithPmtDisc(Vendor);
         PostedDocumentNo := PostDocumentWithWHT(DocumentType, Vendor."No.");
@@ -291,7 +291,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PostedPmtDocNo: Code[20];
     begin
         // Bug 267064
-        Initialize;
+        Initialize();
 
         ApplyFCYDocToPmt(DocumentType, PostedDocumentNo, PostedPmtDocNo);
 
@@ -304,7 +304,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     begin
         with VendLedgEntry do begin
             SetRange("Document No.", PaymentDocNo);
-            FindFirst;
+            FindFirst();
             TestField(Open, false);
 
             LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
@@ -319,7 +319,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PostedDocumentNo: Code[20];
         PostedPmtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         ApplyFCYDocToPmt(DocumentType, PostedDocumentNo, PostedPmtDocNo);
 
@@ -345,7 +345,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         DocumentAmount: Decimal;
         FirstPmtAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithPmtDisc(Vendor);
         PostedDocumentNo := PostDocumentWithWHT(DocumentType, Vendor."No.");
@@ -368,7 +368,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         DocumentAmount: Decimal;
         FirstPmtAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithPmtDisc(Vendor);
         PostedDocumentNo := PostDocumentWithWHT(DocumentType, Vendor."No.");
@@ -390,7 +390,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PostedDocumentNo: Code[20];
         PostedPmtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithPmtDisc(Vendor);
         PostedDocumentNo := PostDocumentWithWHT(DocumentType, Vendor."No.");
@@ -406,7 +406,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PostedDocumentNo: Code[20];
         PostedPmtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithPmtDisc(Vendor);
         PostedDocumentNo := PostDocumentWithWHT(DocumentType, Vendor."No.");
@@ -425,7 +425,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         DocumentAmount: Decimal;
         FirstPmtAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithPmtDisc(Vendor);
         PostedDocumentNo := PostDocumentWithWHT(DocumentType, Vendor."No.");
@@ -446,7 +446,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PostedDocumentNo: Code[20];
         PostedPmtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithPmtDisc(Vendor);
         PostedDocumentNo := PostDocumentWithWHT(DocumentType, Vendor."No.");
@@ -578,7 +578,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
             SetRange("Vendor No.", VendorNo);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
 
             LibraryERM.SetAppliestoIdVendor(VendLedgEntry);
         end;
@@ -660,7 +660,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     begin
         with VendLedgEntry do begin
             SetRange("Document No.", PostedDocumentNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Remaining Amount");
             exit("Remaining Amount" - "Remaining Pmt. Disc. Possible");
         end;
@@ -715,7 +715,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
             Reset;
             SetRange("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             SetFilter("Bal. Account No.", '<>%1', '');
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -725,7 +725,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         WHTMinDocumentAmount: Decimal;
     begin
         WHTEntry.SetRange("Document No.", DocumentNo);
-        WHTEntry.FindFirst;
+        WHTEntry.FindFirst();
         WHTMinDocumentAmount := GetWHTMinDocumentAmount(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
         if WHTEntry."Document Type" = WHTEntry."Document Type"::"Credit Memo" then
             WHTMinDocumentAmount := -WHTMinDocumentAmount;
@@ -770,7 +770,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         with WHTEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", PostedDocNo);
-            FindFirst;
+            FindFirst();
 
             TestField("Remaining Unrealized Amount", 0);
             TestField("Remaining Unrealized Base", 0);
@@ -811,7 +811,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgEntry.SetRange("Document No.", DocumentNo);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
         exit(VendLedgEntry."Document Type");
     end;
 

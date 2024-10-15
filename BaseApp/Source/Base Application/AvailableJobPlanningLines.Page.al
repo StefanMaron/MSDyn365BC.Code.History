@@ -227,7 +227,7 @@ page 1032 "Available - Job Planning Lines"
         Rec.TestField("Location Code", ReservEntry."Location Code");
 
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Job Planning Line", Rec.Status, Rec."Job No.", '', 0, Rec."Job Contract Entry No.",
+          DATABASE::"Job Planning Line", Rec.Status.AsInteger(), Rec."Job No.", '', 0, Rec."Job Contract Entry No.",
           Rec."Variant Code", "Location Code", Rec."Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
           ReservEntry.Description, Rec."Planning Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);

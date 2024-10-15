@@ -32,7 +32,7 @@ codeunit 5058 "BankCont-Update"
             SetCurrentKey("Link to Table", "No.");
             SetRange("Link to Table", "Link to Table"::"Bank Account");
             SetRange("No.", BankAcc."No.");
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
             if not Cont.Get("Contact No.") then begin
                 Delete();
@@ -136,7 +136,7 @@ codeunit 5058 "BankCont-Update"
             SetCurrentKey("Link to Table", "No.");
             SetRange("Link to Table", "Link to Table"::"Bank Account");
             SetRange("No.", BankAccountNo);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             if not Contact.Get("Contact No.") then
                 exit(true);

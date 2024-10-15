@@ -225,14 +225,6 @@
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('EntryType parameter converted to Enum', '17.0')]
-    procedure PostJobOnSalesLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Option Usage,Sale)
-    begin
-        PostJobOnSalesLine(JobPlanningLine, SalesHeader, SalesLine, "Job Journal Line Entry Type".FromInteger(EntryType));
-    end;
-#endif
-
     procedure PostJobOnSalesLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Enum "Job Journal Line Entry Type")
     var
         JobJnlLine: Record "Job Journal Line";
@@ -418,7 +410,7 @@
               PurchaseLine.FieldCaption("Line No."), PurchaseLine."Line No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by PostJobPurchaseLines().', '19.0')]
     procedure PostPurchaseGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
     var
@@ -475,7 +467,7 @@
         TempPurchaseLineJob.DeleteAll();
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by PostJobSalesLines().', '19.0')]
     procedure PostSalesGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
     begin
@@ -591,11 +583,13 @@
     begin
     end;
 
+#if not CLEAN20
     [IntegrationEvent(true, false)]
+    [Obsolete('Replaced by new implementation in codeunit Purch. Post Invoice', '20.0')]
     local procedure OnAfterPostPurchaseGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line"; GLEntryNo: Integer)
     begin
     end;
-
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnAfterPostJobPurchaseLines(var TempPurchaseLineJob: Record "Purchase Line" temporary; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line"; GLEntryNo: Integer)
     begin
@@ -661,12 +655,13 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by PostJobPurchaseLines().', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(var TempPurchaseLineJob: Record "Purchase Line" temporary; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
     begin
     end;
 
-#if not CLEAN19
     [Obsolete('Replaced by OnPostJobPurchaseLinesOnBeforeJobJnlPostLine().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostPurchaseGLAccountsOnBeforeJobJnlPostLine(var JobJournalLine: Record "Job Journal Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
@@ -679,7 +674,7 @@
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by OnPostJobSalesLinesOnBeforeJobJnlPostLine().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostSalesGLAccountsOnBeforeJobJnlPostLine(var JobJournalLine: Record "Job Journal Line"; SalesLine: Record "Sales Line")

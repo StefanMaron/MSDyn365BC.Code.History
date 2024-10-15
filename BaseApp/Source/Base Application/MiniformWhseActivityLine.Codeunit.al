@@ -292,7 +292,7 @@ codeunit 7711 "Miniform Whse. Activity Line"
             RecRef.SetTable(WhseActivityHeader);
             WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
             WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
-            if not WhseActivityLine.FindFirst then begin
+            if not WhseActivityLine.FindFirst() then begin
                 ADCSMgt.SendError(Text012);
                 exit;
             end;

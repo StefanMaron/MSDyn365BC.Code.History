@@ -1,4 +1,4 @@
-﻿codeunit 103 "Cust. Entry-Edit"
+codeunit 103 "Cust. Entry-Edit"
 {
     Permissions = TableData "Cust. Ledger Entry" = m,
                   TableData "Detailed Cust. Ledg. Entry" = m;
@@ -69,18 +69,18 @@
             if "Applies-to Doc. No." <> '' then begin
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                if CustLedgEntry.FindFirst then;
+                if CustLedgEntry.FindFirst() then;
                 CustLedgEntry.SetRange("Document Type");
                 CustLedgEntry.SetRange("Document No.");
             end else
                 if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                     CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                    if CustLedgEntry.FindFirst then;
+                    if CustLedgEntry.FindFirst() then;
                     CustLedgEntry.SetRange("Document Type");
                 end else
                     if Amount <> 0 then begin
                         CustLedgEntry.SetRange(Positive, Amount < 0);
-                        if CustLedgEntry.FindFirst then;
+                        if CustLedgEntry.FindFirst() then;
                         CustLedgEntry.SetRange(Positive);
                         CustLedgEntry.SetFilter("Document Type", '<>%1', CustLedgEntry."Document Type"::Payment);
                     end;

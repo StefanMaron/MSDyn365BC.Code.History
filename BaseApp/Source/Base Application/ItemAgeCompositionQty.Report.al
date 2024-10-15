@@ -108,7 +108,7 @@ report 5807 "Item Age Composition - Qty."
                     InvtQty[i] := 0;
 
                 ItemLedgEntry.FilterLinesWithItemToPlan(Item, false);
-                if ItemLedgEntry.FindSet then
+                if ItemLedgEntry.FindSet() then
                     repeat
                         PrintLine := true;
                         TotalInvtQty := TotalInvtQty + ItemLedgEntry."Remaining Quantity";

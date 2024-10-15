@@ -89,7 +89,7 @@ codeunit 145300 "Post Dated Check Line"
             SetRange("Page ID", PageID);
             SetRange(Recurring, false);
             SetRange(Type, PageTemplate);
-            FindFirst;
+            FindFirst();
 
             exit(Name);
         end;

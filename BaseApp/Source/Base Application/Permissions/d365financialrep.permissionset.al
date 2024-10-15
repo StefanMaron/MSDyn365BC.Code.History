@@ -85,7 +85,7 @@ permissionset 7576 "D365 FINANCIAL REP."
                   tabledata "VAT Statement Line" = RIMD,
                   tabledata "VAT Statement Name" = RIMD,
                   tabledata "VAT Statement Template" = RIMD,
-                  tabledata "Vendor Ledger Entry" = Rimd,
+#if not CLEAN20
                   tabledata "XBRL Comment Line" = RIMD,
                   tabledata "XBRL G/L Map Line" = RIMD,
                   tabledata "XBRL Line Constant" = RIMD,
@@ -94,5 +94,7 @@ permissionset 7576 "D365 FINANCIAL REP."
                   tabledata "XBRL Schema" = RIMD,
                   tabledata "XBRL Taxonomy" = RIMD,
                   tabledata "XBRL Taxonomy Label" = RIMD,
-                  tabledata "XBRL Taxonomy Line" = RIMD;
+                  tabledata "XBRL Taxonomy Line" = RIMD,
+#endif
+                  tabledata "Vendor Ledger Entry" = Rimd;
 }

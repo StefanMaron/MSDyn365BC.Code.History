@@ -54,7 +54,7 @@ page 1615 "Office Job Journal"
                             Error(NoBatchesErr);
                         1:
                             begin
-                                JobJournalBatch.FindFirst;
+                                JobJournalBatch.FindFirst();
                                 "Job Journal Batch Name" := JobJournalBatch.Name;
                             end;
                         else
@@ -139,11 +139,11 @@ page 1615 "Office Job Journal"
 
             if JobJournalTemplate.Count = 1 then begin
                 TemplateEditable := false;
-                JobJournalTemplate.FindFirst;
+                JobJournalTemplate.FindFirst();
                 "Job Journal Template Name" := JobJournalTemplate.Name;
                 FindJobJournalBatch(JobJournalBatch);
                 if JobJournalBatch.Count = 1 then begin
-                    JobJournalBatch.FindFirst;
+                    JobJournalBatch.FindFirst();
                     "Job Journal Batch Name" := JobJournalBatch.Name;
                 end else
                     BatchEditable := true;
@@ -153,7 +153,7 @@ page 1615 "Office Job Journal"
             if not JobUsageLink.IsEmpty() then
                 DisplayQuantity := JobPlanningLine."Qty. Posted"
             else begin
-                JobJournalLine.FindFirst;
+                JobJournalLine.FindFirst();
                 DisplayQuantity := JobJournalLine.Quantity;
                 "Job Journal Template Name" := JobJournalLine."Journal Template Name";
                 "Job Journal Batch Name" := JobJournalLine."Journal Batch Name";

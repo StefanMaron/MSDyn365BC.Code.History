@@ -36,7 +36,7 @@ codeunit 144003 "BAS Calculation"
         CreditGLAcc: Record "G/L Account";
         BASCalculationSheet: Record "BAS Calculation Sheet";
     begin
-        Initialize;
+        Initialize();
 
         CreateBASCalcSheetWith7CAnd7DSetup(DebitGLAcc, CreditGLAcc, BASCalculationSheet, false);
         Commit();
@@ -57,7 +57,7 @@ codeunit 144003 "BAS Calculation"
         BASCalculationSheet: Record "BAS Calculation Sheet";
         BasSetupName: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         CreateMockVATEntry(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -85,7 +85,7 @@ codeunit 144003 "BAS Calculation"
         BASCalculationSheet: Record "BAS Calculation Sheet";
         PostedBalance: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateBASCalcSheetWith7CAnd7DSetup(DebitGLAcc, CreditGLAcc, BASCalculationSheet, true);
 
@@ -111,7 +111,7 @@ codeunit 144003 "BAS Calculation"
         CreditGLAcc: Record "G/L Account";
         BASCalculationSheet: Record "BAS Calculation Sheet";
     begin
-        Initialize;
+        Initialize();
 
         CreateBASCalcSheetWith7CAnd7DSetup(DebitGLAcc, CreditGLAcc, BASCalculationSheet, true);
 
@@ -133,7 +133,7 @@ codeunit 144003 "BAS Calculation"
         BASCalculationSheet: Record "BAS Calculation Sheet";
         PostedBalance: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateBASCalcSheetWithGSTSetup(VATPostingSetup, BASCalculationSheet, true);
         CreateMockVATEntry(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -195,7 +195,7 @@ codeunit 144003 "BAS Calculation"
         BASSetupNameCode: Code[20];
     begin
         // [SCENARIO 375568] BAS Setup Preview should be opened for Consolidated BAS Calculation Sheet and BAS Group Company = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."BAS Group Company" is set to TRUE
         UpdateBASGroupCompanyOnGLSetup(true);
@@ -223,7 +223,7 @@ codeunit 144003 "BAS Calculation"
         BASSetupNameCode: Code[20];
     begin
         // [SCENARIO 375568] BAS Setup Preview should generate an error when it is opened for Consolidated BAS Calculation Sheet and BAS Group Company = No
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."BAS Group Company" is set to FALSE
         UpdateBASGroupCompanyOnGLSetup(false);
@@ -252,7 +252,7 @@ codeunit 144003 "BAS Calculation"
         BASSetupNameCode: Code[20];
     begin
         // [SCENARIO 375568] BAS Setup Preview should be opened for not Consolidated BAS Calculation Sheet and BAS Group Company = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."BAS Group Company" is set to TRUE
         UpdateBASGroupCompanyOnGLSetup(true);
@@ -281,7 +281,7 @@ codeunit 144003 "BAS Calculation"
         BASSetupNameCode: Code[20];
     begin
         // [SCENARIO 375568] BAS Setup Preview should be opened for not Consolidated BAS Calculation Sheet and BAS Group Company = No
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."BAS Group Company" is set to FALSE
         UpdateBASGroupCompanyOnGLSetup(false);
@@ -311,7 +311,7 @@ codeunit 144003 "BAS Calculation"
     begin
         // [FEATURE] [GST] [Post] [Report]  [Intercompany]
         // [SCENARIO 268962] Stan can run "Calculate GST Settlement" with posting and intercompany
-        Initialize;
+        Initialize();
 
         // [GIVEN] Australian GST is enabled in General Ledger Setup
         CreateBASCalcSheetWithGSTSetup(VATPostingSetup, BASCalculationSheet, true);
@@ -339,8 +339,8 @@ codeunit 144003 "BAS Calculation"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -506,7 +506,7 @@ codeunit 144003 "BAS Calculation"
         FieldRef := RecRef.Field(BASCalcSheetFieldNo);
 
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 InsertBASCalcSheetEntry(
                   BASCalcSheetEntry, BASCalculationSheet, FieldRef, GLEntry."Entry No.", GLEntry.Amount, BASCalcSheetEntry.Type::"G/L Entry");
@@ -532,7 +532,7 @@ codeunit 144003 "BAS Calculation"
 
         VATEntry.SetRange("VAT Bus. Posting Group", VATBusPostingGroupCode);
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode);
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 InsertBASCalcSheetEntry(
                   BASCalcSheetEntry, BASCalculationSheet, FieldRef, VATEntry."Entry No.", VATEntry.Amount, BASCalcSheetEntry.Type::"GST Entry");
@@ -573,7 +573,7 @@ codeunit 144003 "BAS Calculation"
     var
         GLEntry: Record "G/L Entry";
     begin
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             exit(GLEntry."Entry No." + 1);
 
         exit(1);
@@ -583,7 +583,7 @@ codeunit 144003 "BAS Calculation"
     var
         VATEntry: Record "VAT Entry";
     begin
-        if VATEntry.FindLast then
+        if VATEntry.FindLast() then
             exit(VATEntry."Entry No." + 1);
 
         exit(1);
@@ -715,7 +715,7 @@ codeunit 144003 "BAS Calculation"
         with Field do begin
             SetRange(TableNo, DATABASE::"BAS Calculation Sheet");
             SetRange("No.", SetupFieldNo);
-            FindFirst;
+            FindFirst();
 
             exit(FieldName);
         end;
@@ -755,7 +755,7 @@ codeunit 144003 "BAS Calculation"
         with LibraryVariableStorage do begin
             Enqueue(GLAccountSettlement."No.");
             Enqueue(GLAccountRounding."No.");
-            Enqueue(LibraryUtility.GenerateGUID);
+            Enqueue(LibraryUtility.GenerateGUID());
             Enqueue(BASCalculationSheet."BAS Setup Name");
             Enqueue(DoPost);
             Enqueue(InterCompany);
@@ -770,7 +770,7 @@ codeunit 144003 "BAS Calculation"
         Commit();
 
         CalcGSTSettlement.SetTableView(BASCalculationSheet);
-        CalcGSTSettlement.RunModal;
+        CalcGSTSettlement.RunModal();
 
         GLAccountSettlement.CalcFields(Balance);
         GLAccountRounding.CalcFields(Balance);
@@ -804,7 +804,7 @@ codeunit 144003 "BAS Calculation"
         BASXMLFieldSetupName: Record "BAS XML Field Setup Name";
     begin
         BASXMLFieldSetupName.Init();
-        BASXMLFieldSetupName.Validate(Name, LibraryUtility.GenerateGUID);
+        BASXMLFieldSetupName.Validate(Name, LibraryUtility.GenerateGUID());
         BASXMLFieldSetupName.Insert(true);
         exit(BASXMLFieldSetupName.Name);
     end;
@@ -837,7 +837,7 @@ codeunit 144003 "BAS Calculation"
         BASXMLFieldID: Record "BAS XML Field ID";
     begin
         BASXMLFieldID.DeleteAll();
-        XmlFieldId := LibraryUtility.GenerateGUID;
+        XmlFieldId := LibraryUtility.GenerateGUID();
         BasFieldNo := GetRandomFieldNo(DATABASE::"BAS Calculation Sheet");
     end;
 

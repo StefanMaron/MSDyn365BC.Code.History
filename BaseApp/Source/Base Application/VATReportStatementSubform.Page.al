@@ -58,7 +58,7 @@ page 742 "VAT Report Statement Subform"
                         VATStatementLine.SetRange("Statement Template Name", VATReportHeader."Statement Template Name");
                         VATStatementLine.SetRange("Statement Name", VATReportHeader."Statement Name");
                         VATStatementLine.SetRange("Box No.", "Box No.");
-                        VATStatementLine.FindFirst;
+                        VATStatementLine.FindFirst();
                         VATStatementLine.TestField(Type, VATStatementLine.Type::Description);
                     end;
                 }
@@ -84,7 +84,7 @@ page 742 "VAT Report Statement Subform"
     procedure SelectFirst()
     begin
         if Count > 0 then
-            FindFirst;
+            FindFirst();
     end;
 
     local procedure BASEntryDrillDown()
@@ -101,14 +101,14 @@ page 742 "VAT Report Statement Subform"
         VATStatementLine1.SetRange("Statement Name", VATReportHeader."Statement Name");
         VATStatementLine1.SetRange("Box No.", "Box No.");
         VATStatementLine1.SetRange("Row No.", "Row No.");
-        VATStatementLine1.FindFirst;
+        VATStatementLine1.FindFirst();
         case VATStatementLine1.Type of
             VATStatementLine1.Type::"Row Totaling":
                 begin
                     VATStatementLine2.SetRange("Statement Template Name", VATReportHeader."Statement Template Name");
                     VATStatementLine2.SetRange("Statement Name", VATReportHeader."Statement Name");
                     VATStatementLine2.SetRange("Row No.", VATStatementLine1."Row Totaling");
-                    if VATStatementLine2.FindSet then
+                    if VATStatementLine2.FindSet() then
                         repeat
                             VATEntry.Reset();
                             VATEntry.SetRange(Type, VATStatementLine2."Gen. Posting Type");
@@ -122,7 +122,7 @@ page 742 "VAT Report Statement Subform"
                             else
                                 VATEntry.SetRange("Posting Date", VATReportHeader."Start Date", VATReportHeader."End Date");
                             VATEntry.SetRange(Closed, false);
-                            if VATEntry.FindSet then
+                            if VATEntry.FindSet() then
                                 repeat
                                     if not TempVATEntry.Get(VATEntry."Entry No.") then begin
                                         TempVATEntry.Copy(VATEntry);

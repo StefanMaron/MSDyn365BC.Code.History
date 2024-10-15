@@ -75,7 +75,7 @@ page 9658 "Vendor Report Selections"
                         end else begin
                             CustomReportLayout.SetRange("Report ID", "Report ID");
                             CustomReportLayout.SetFilter(Description, StrSubstNo('@*%1*', "Custom Report Description"));
-                            if not CustomReportLayout.FindFirst then
+                            if not CustomReportLayout.FindFirst() then
                                 Error(CouldNotFindCustomReportLayoutErr, "Custom Report Description");
 
                             Validate("Custom Report Layout Code", CustomReportLayout.Code);
@@ -192,8 +192,10 @@ page 9658 "Vendor Report Selections"
     end;
 
     var
-        Usage2: Enum "Report Selection Usage Vendor";
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
+
+    protected var
+        Usage2: Enum "Report Selection Usage Vendor";
 
     local procedure MapTableUsageValueToPageValue()
     var
@@ -221,6 +223,13 @@ page 9658 "Vendor Report Selections"
             CustomReportSelection.Usage::"V.Remittance",
             CustomReportSelection.Usage::"P.V.Remit.",
             CustomReportSelection.Usage::"P.Ret.Shpt.");
+
+        OnAfterFilterVendorUsageReportSelections(ReportSelections);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterVendorUsageReportSelections(var ReportSelections: Record "Report Selections")
+    begin
     end;
 }
 

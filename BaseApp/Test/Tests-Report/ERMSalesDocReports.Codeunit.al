@@ -31,14 +31,14 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Doc. Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Doc. Reports");
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Doc. Reports");
@@ -57,7 +57,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // must match in Corresponding Sales Invoice Header Table values.
 
         // 1. Setup: Create and Post Sales Invoice and find Posted Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
         PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -83,7 +83,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Test Warning Message of Sales Invoice Nos. Report.
 
         // 1. Setup: Create two Sales Invoices with different Posting Dates.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
         PostingDate := SalesHeader."Posting Date";
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -113,7 +113,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // must match in Corresponding Sales Credit Memo Header Table values.
 
         // 1. Setup: Create and Post Sales Credit Memo and find Posted Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
         PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -139,7 +139,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Test Warning Message of Sales Credit Memo Nos Report.
 
         // 1. Setup: Create two Sales Credit Memos with different Posting Dates.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
         PostingDate := SalesHeader."Posting Date";
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -167,7 +167,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Verify Blanket Sales Order Report when no option is set.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order");
 
         // Exercise: Save Blanket Sales Order Report
@@ -189,7 +189,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Verify VAT Amount on Blanket Sales Order Report when no option is set.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order");
 
         // Exercise: Save Blanket Sales Order Report.
@@ -214,7 +214,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Verify Dimension on Blanket Sales Order Report when Show Internal Information option is True.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateCustomerWithDimension(DefaultDimension, VATPostingSetup."VAT Bus. Posting Group");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", DefaultDimension."No.");
@@ -247,7 +247,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Test Sales Line and VAT Amount Line Values on Return Order Confirmation Report.
 
         // 1. Setup: Create Sales Header with Document Type as Return Order, Sales Line and calculate VAT Amount Lines.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
@@ -278,7 +278,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Test Dimension on Return Order Confirmation Report when Show Internal Information option as True.
 
         // 1. Setup: Create Sales Header with Document Type as Return Order and Sales Line.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateCustomerWithDimension(DefaultDimension, VATPostingSetup."VAT Bus. Posting Group");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", DefaultDimension."No.");
@@ -308,7 +308,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Test Interaction Log Entry after running Return Order Confirmation Report with Log Interaction as True.
 
         // 1. Setup: Create Sales Header with Document Type as Return Order and Sales Line.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
@@ -321,7 +321,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // 3. Verify: Verify Interaction Log Entry.
         InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Return Order");
         InteractionLogEntry.SetRange("Document No.", SalesHeader."No.");
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
         InteractionLogEntry.TestField("Information Flow", InteractionLogEntry."Information Flow"::Outbound);
     end;
 
@@ -347,7 +347,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Check Customer Summary Aging Report with Multiple Posted Sales Order and with partially Payment.
 
         // Setup: Create and Post Three Sales Order with Due Date. Take difference with 1 Month on Due Date.
-        Initialize;
+        Initialize();
         PostingDate := CalculatePostingDate(WorkDate);
         PostingDate2 := CalculatePostingDate(PostingDate);
         Amount := CreateAndPostSalesOrder(SalesLine, WorkDate);
@@ -368,7 +368,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         Customer.SetFilter("No.", '%1|%2|%3', CustomerNo, CustomerNo2, SalesLine."Sell-to Customer No.");
         CustomerSummaryAging.SetTableView(Customer);
         CustomerSummaryAging.InitializeRequest(GenJournalLine."Due Date", '<1M>', false);
-        CustomerSummaryAging.Run;
+        CustomerSummaryAging.Run();
 
         // Verify: Verify Saved Report Data.
         LibraryReportDataset.LoadDataSetFile;
@@ -395,7 +395,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         VATAmount: Decimal;
     begin
         // 1. Setup: Create Sales Order with Multiple Lines.
-        Initialize;
+        Initialize();
         VATAmount := CreateSalesDocumentWithMultipleLines(SalesHeader);
 
         // 2. Exercise: Archive the Sales Document and Run Report Archived Sales Order.
@@ -424,8 +424,8 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // should be shown when VAT Amount = 0.
 
         // Setup: Create and post Purchase Return Order and find Posted Purchase Return Order.
-        Initialize;
-        VendorCrMemoNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        VendorCrMemoNo := LibraryUtility.GenerateGUID();
         VATIdentifier := CreateAndPostPurchDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order",
             VATPostingSetup."VAT Calculation Type"::"Normal VAT", VendorCrMemoNo);
         OldPrintVATSpecInLCY := UpdateGeneralLedgerSetup(true); // Check "Print VAT specification in LCY" option in General Ledger Setup.
@@ -451,7 +451,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     begin
         // [FEATURE] [Return Order Confirmation]
         // [SCENARIO 223056] Report "Return Order Confirmation" must show caption of "Sales Header"."Sell-to Customer No." in section Ship-to Address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales return order with "Sell-to Customer No." = "Cust1" and "Bill-to Customer No." = "Cust2"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo);
@@ -459,7 +459,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 100));
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "Return Order Confirmation"
         RunReturnOrderConfirmation(SalesHeader, false, false);
@@ -658,7 +658,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     begin
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Payment);
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         exit(DetailedCustLedgEntry.Amount);
     end;
 
@@ -675,7 +675,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
         // 0 is using for No. of Copies.
         BlanketSalesOrder.InitializeRequest(0, ShowInternalInformation, false, false);
-        BlanketSalesOrder.Run;
+        BlanketSalesOrder.Run();
     end;
 
     local procedure CreateAndPostSalesOrder(var SalesLine: Record "Sales Line"; DueDate: Date) Amount: Decimal
@@ -878,13 +878,13 @@ codeunit 134390 "ERM Sales Doc. Reports"
     local procedure FindSalesCrMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PreAssignedDocNo: Code[20])
     begin
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedDocNo);
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
     end;
 
     local procedure FindSalesInvHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; PreAssignedDocNo: Code[20])
     begin
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedDocNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure PostingDateLessThanPrevious(var SalesHeader: Record "Sales Header"; PostingDate: Date)
@@ -927,7 +927,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         Clear(SalesCreditMemoNos);
         SalesCrMemoHeader.Get(PostedCrMemoNo);
         SalesCreditMemoNos.SetTableView(SalesCrMemoHeader);
-        SalesCreditMemoNos.Run;
+        SalesCreditMemoNos.Run();
     end;
 
     local procedure RunSalesInvoiceNos(PostedInvoiceNo: Code[20])
@@ -939,7 +939,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         Clear(SalesInvoiceNos);
         SalesInvoiceHeader.Get(PostedInvoiceNo);
         SalesInvoiceNos.SetTableView(SalesInvoiceHeader);
-        SalesInvoiceNos.Run;
+        SalesInvoiceNos.Run();
     end;
 
     local procedure RunReturnOrderConfirmation(SalesHeader: Record "Sales Header"; ShowInternalInformation: Boolean; LogInteraction: Boolean)
@@ -952,7 +952,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesHeader.SetRange("No.", SalesHeader."No.");
         ReturnOrderConfirmation.SetTableView(SalesHeader);
         ReturnOrderConfirmation.InitializeRequest(ShowInternalInformation, LogInteraction);
-        ReturnOrderConfirmation.Run;
+        ReturnOrderConfirmation.Run();
     end;
 
     local procedure RunPurchCreditMemo(VendorCrMemoNo: Code[35])
@@ -963,9 +963,9 @@ codeunit 134390 "ERM Sales Doc. Reports"
         Commit();
         Clear(PurchaseCreditMemo);
         PurchCrMemoHdr.SetRange("Vendor Cr. Memo No.", VendorCrMemoNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
-        PurchaseCreditMemo.Run;
+        PurchaseCreditMemo.Run();
     end;
 
     local procedure SaveCustomerBalanceToDate(SalesHeader: Record "Sales Header"; AmountLCY: Boolean; Unapplied: Boolean; ShowEntriesWithZeroBalance: Boolean)

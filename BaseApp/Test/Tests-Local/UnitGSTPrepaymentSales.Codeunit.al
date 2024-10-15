@@ -47,7 +47,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO] Prepayment Amount on Sales Line and Statistics with Line Discount and Price Excl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -72,7 +72,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO] Prepayment Amount on Sales Line and Statistics with Line Discount and Price Incl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -99,7 +99,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
     begin
         // [SCENARIO] Prepayment Amount on Sales Line and Statistics with Invoice Discount and Price Excl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -129,7 +129,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
     begin
         // [SCENARIO] Prepayment Amount on Sales Line and Statistics with Invoice Discount and Price Incl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -157,7 +157,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO] Prepayment Amount on Sales Line and Statistics with 100% prepayment and Price Excl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -181,7 +181,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO] Prepayment Amount on Sales Line with 100% prepayment and Price Incl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -205,7 +205,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO] Prepayment Amount on Purchase Line and Statistics with Line Discount Price Excl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -230,7 +230,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO] Prepayment Amount on Purchase Line and Statistics with Line Discount Price Incl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -257,7 +257,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
     begin
         // [SCENARIO] Prepayment Amount on Purchase Line and Statistics with Invocie Discount Price Excl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -287,7 +287,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
     begin
         // [SCENARIO] Prepayment Amount on Purchase Line and Statistics with Invocie Discount Price Incl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -315,7 +315,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO] Prepayment Amount on Purchase Line with 100% prepayment Price Excl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -339,7 +339,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         // [SCENARIO] Prepayment Amount on Purchase Line with 100% prepayment Price Incl. VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header with Random Prepayment %.
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -362,7 +362,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // [SCENARIO] error comes when Purchase Prepayment Account has VAT Posting setup with zero percent VAT and VAT Setup on an purchase order line has VAT percentage greater than zero.
 
-        Initialize;
+        Initialize();
         FindVATPostingGroupsWithDiffVATRate(NonZeroVATPostingSetup, ZeroVATPostingSetup);
         PurchaseLineVATPctDifferentFromPrepmtAccVATPct(NonZeroVATPostingSetup, ZeroVATPostingSetup);
     end;
@@ -376,7 +376,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // [SCENARIO] error comes when Purchase Prepayment Account has VAT Posting setup with VAT percent greater than zero and VAT Setup on an purchase order line has zero VAT percentage.
 
-        Initialize;
+        Initialize();
         FindVATPostingGroupsWithDiffVATRate(NonZeroVATPostingSetup, ZeroVATPostingSetup);
         PurchaseLineVATPctDifferentFromPrepmtAccVATPct(ZeroVATPostingSetup, NonZeroVATPostingSetup);
     end;
@@ -390,7 +390,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // [SCENARIO] error comes when Sales Prepayment Account has VAT Posting setup with zero percent VAT and VAT Setup on an sales order line has VAT percentage greater than zero.
 
-        Initialize;
+        Initialize();
         FindVATPostingGroupsWithDiffVATRate(NonZeroVATPostingSetup, ZeroVATPostingSetup);
         SalesLineVATPctDifferentFromPrepmtAccVATPct(NonZeroVATPostingSetup, ZeroVATPostingSetup);
     end;
@@ -404,7 +404,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // [SCENARIO] error comes when Sales Prepayment Account has VAT Posting setup with VAT percent greater than zero and VAT Setup on an sales order line has zero VAT percentage.
 
-        Initialize;
+        Initialize();
         FindVATPostingGroupsWithDiffVATRate(NonZeroVATPostingSetup, ZeroVATPostingSetup);
         SalesLineVATPctDifferentFromPrepmtAccVATPct(ZeroVATPostingSetup, NonZeroVATPostingSetup);
     end;
@@ -418,7 +418,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // [SCENARIO] error comes while posting prepayment when Purchase Prepayment Account and purchase line has VAT Posting setup with zero percent VAT and then change Purchase line VAT Product Posting Group having VAT Percentage greater than zero.
 
-        Initialize;
+        Initialize();
         FindVATPostingGroupsWithDiffVATRate(NonZeroVATPostingSetup, ZeroVATPostingSetup);
         PostPurchPrepmtWhenVATPctDifferentFromPrepmtVATPct(NonZeroVATPostingSetup, ZeroVATPostingSetup);
     end;
@@ -432,7 +432,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // [SCENARIO] error comes while posting prepayment when Purchase Prepayment Account and purchase line has VAT Posting setup with zero percent VAT and then change Purchase line VAT Product Posting Group having VAT Percentage greater than zero.
 
-        Initialize;
+        Initialize();
         FindVATPostingGroupsWithDiffVATRate(NonZeroVATPostingSetup, ZeroVATPostingSetup);
         PostPurchPrepmtWhenVATPctDifferentFromPrepmtVATPct(ZeroVATPostingSetup, NonZeroVATPostingSetup);
     end;
@@ -446,7 +446,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // [SCENARIO] error comes while posting prepayment when Sales Prepayment Account and sales line has VAT Posting setup with zero percent VAT and then change Sales line VAT Product Posting Group having VAT Percentage greater than zero.
 
-        Initialize;
+        Initialize();
         FindVATPostingGroupsWithDiffVATRate(NonZeroVATPostingSetup, ZeroVATPostingSetup);
         PostSalesPrepmtWhenVATPctDifferentFromPrepmtVATPct(NonZeroVATPostingSetup, ZeroVATPostingSetup);
     end;
@@ -460,7 +460,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // [SCENARIO] error comes while posting prepayment when Sales Prepayment Account and Sales line has VAT Posting setup with zero percent VAT and then change Sales line VAT Product Posting Group having VAT Percentage greater than zero.
 
-        Initialize;
+        Initialize();
         FindVATPostingGroupsWithDiffVATRate(NonZeroVATPostingSetup, ZeroVATPostingSetup);
         PostSalesPrepmtWhenVATPctDifferentFromPrepmtVATPct(ZeroVATPostingSetup, NonZeroVATPostingSetup);
     end;
@@ -729,7 +729,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         VATPostingSetup2.SetFilter("VAT Prod. Posting Group", '<>''''');
         VATPostingSetup2.SetRange("VAT Calculation Type", VATPostingSetup2."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup2.SetFilter("VAT %", '0');
-        VATPostingSetup2.FindFirst;
+        VATPostingSetup2.FindFirst();
     end;
 
     local procedure SetRandomPrepmtPctOnPurchHeader(var PurchaseHeader: Record "Purchase Header")

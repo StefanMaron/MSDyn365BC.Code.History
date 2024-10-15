@@ -321,11 +321,11 @@ report 28025 "Income Statement"
         AccPeriod.Reset();
         AccPeriod.SetRange("New Fiscal Year", true, true);
         AccPeriod.SetFilter("Starting Date", '..%1', CurrentPeriodEnd);
-        AccPeriod.FindLast;
+        AccPeriod.FindLast();
         CurrentYearStart := AccPeriod."Starting Date";
 
         AccPeriod.SetFilter("Starting Date", '..%1', LastYearCurrentPeriodEnd);
-        if AccPeriod.FindLast then
+        if AccPeriod.FindLast() then
             LastYearStart := AccPeriod."Starting Date";
     end;
 

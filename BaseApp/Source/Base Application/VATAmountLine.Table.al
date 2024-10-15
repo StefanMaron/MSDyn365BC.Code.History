@@ -320,13 +320,13 @@ table 290 "VAT Amount Line"
         VATPercentage := 0;
         FullCount := Count;
         if FullCount = 1 then begin
-            FindFirst;
+            FindFirst();
             if "VAT %" <> 0 then
                 VATPercentage := "VAT %";
         end else
             if FullCount > 1 then begin
                 CopyFromRec(TempVATAmountLine);
-                TempVATAmountLine.FindFirst;
+                TempVATAmountLine.FindFirst();
                 if TempVATAmountLine."VAT %" <> 0 then begin
                     TempVATAmountLine.SetRange("VAT %", TempVATAmountLine."VAT %");
                     if TempVATAmountLine.Count = FullCount then
@@ -630,7 +630,7 @@ table 290 "VAT Amount Line"
 
     procedure DeductVATAmountLine(var VATAmountLineDeduct: Record "VAT Amount Line")
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 VATAmountLineDeduct := Rec;
                 if VATAmountLineDeduct.Find then begin
@@ -664,7 +664,7 @@ table 290 "VAT Amount Line"
         PrevVATAmountLine: Record "VAT Amount Line";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 if (PrevVATAmountLine."VAT Identifier" <> "VAT Identifier") or
                    (PrevVATAmountLine."VAT Calculation Type" <> "VAT Calculation Type") or

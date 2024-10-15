@@ -29,8 +29,8 @@ codeunit 134333 "ERM Purchase Prepayments"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Prepayments");
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LCYCode := '';
         IsInitialized := true;
         Commit();
@@ -45,7 +45,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         PurchaseHeader: Record "Purchase Header";
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // Create a vendor with prepayment discount
         LibraryPurchase.CreateVendor(Vendor);
@@ -71,7 +71,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         ExpectedPrepaymentAmount: Decimal;
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         PreparePrepaymentsPostingSetup(GLAccount);
         PrepareItemAccordingToSetup(Item, GLAccount);
@@ -90,7 +90,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         // And check the prepayment amount is right.
         ExpectedPrepaymentAmount := -CalculatePrepaymentAmount(PurchaseHeader, CurrencyCode);
 
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         ValidateVendorLedgerEntries(VendorLedgerEntry, ExpectedPrepaymentAmount, CurrencyCode);
 
         // 4. Clean-up
@@ -123,7 +123,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         ExpectedCreditMemoAmount: Decimal;
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         PreparePrepaymentsPostingSetup(GLAccount);
         PrepareItemAccordingToSetup(Item, GLAccount);
@@ -152,7 +152,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         // And check the prepayment amount is right.
         ExpectedCreditMemoAmount := CalculatePrepaymentAmount(PurchaseHeader, CurrencyCode);
 
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         ValidateVendorLedgerEntries(VendorLedgerEntry, ExpectedCreditMemoAmount, CurrencyCode);
         // 4. Clean-up
     end;
@@ -190,7 +190,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         MinimumPrepaymentPercentage: Integer;
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         MaximumPrepaymentPercentage := 100;
 
@@ -232,7 +232,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         ExpectedPrepaymentAmount := Round(-SecondPrepaymentPercentage * PurchaseHeader."Amount Including VAT" / 100);
         ExpectedPrepaymentAmount -= Round(-FirstPrepaymentPercentage * PurchaseHeader."Amount Including VAT" / 100);
 
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         ValidateVendorLedgerEntries(VendorLedgerEntry, ExpectedPrepaymentAmount, LCYCode);
 
         // 4. Clean-up
@@ -250,12 +250,12 @@ codeunit 134333 "ERM Purchase Prepayments"
         // [FEATURE] [UT]
         // [SCENARIO 379850] Prepayment Invoice should be posted if one line of Purchase Invoice has amount to be posted and the last line has not
 
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         VATPostingSetup.SetRange("VAT Bus. Posting Group", PurchaseHeader."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseHeader."VAT Bus. Posting Group", '');
         TempDecToHaveItEqual := LibraryRandom.RandDec(100, 2);
         CreatePurchLineWithPrepmtAmts(PurchaseHeader, TempDecToHaveItEqual, TempDecToHaveItEqual);
@@ -280,7 +280,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         // Create an Item that uses this setup (finding was not possible in all cases).
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
 
         Item.Init();
         Item.Insert(true);

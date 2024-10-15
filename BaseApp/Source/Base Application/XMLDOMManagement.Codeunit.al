@@ -663,6 +663,8 @@ codeunit 6224 "XML DOM Management"
         XmlWriter: DotNet XmlWriter;
         XmlReader: DotNet XmlReader;
         XmlIn: DotNet XmlDocument;
+        XMLTextReader: DotNet XmlTextReader;
+        StringReader: DotNet StringReader;
     begin
         XmlIn := XmlIn.XmlDocument;
         XmlIn.PreserveWhitespace(false);
@@ -675,7 +677,8 @@ codeunit 6224 "XML DOM Management"
         XslCompiledTransform.Load(XslReader);
 
         XmlWriter := XmlWriter.Create(XmlOutStream);
-        XslCompiledTransform.Transform(XmlIn.CreateNavigator, XmlWriter);
+        XMLTextReader := XMLTextReader.XmlTextReader(StringReader.StringReader(XmlIn.DocumentElement.OuterXml));
+        XslCompiledTransform.Transform(XMLTextReader, XmlWriter);
         XmlWriter.Flush;
 
         XmlReader.Close;

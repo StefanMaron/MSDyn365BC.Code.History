@@ -41,7 +41,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount on GL Entry after Posting Partial Shipment from Sales Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, GLAccountNo);
         Amount := Round((SalesLine."Qty. to Ship" * SalesLine."Unit Price") * SalesLine."Prepayment %" / 100);
@@ -70,7 +70,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount on GL Entry after Posting Partial Shipment from Sales Order., change Qty. to Ship before posting Prepayment.
 
         // Setup.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         SalesPrepmtAccount := CreateSalesOrder(SalesHeader, SalesLine, GLAccountNo);
         ModifyQtyToShipOnSalesLine(SalesLine);
@@ -101,7 +101,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount on GL Entry after Posting second, final Partial Shipment from Sales Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, GLAccountNo);
         Amount := Round(((SalesLine.Quantity - SalesLine."Qty. to Ship") * SalesLine."Unit Price") * SalesLine."Prepayment %" / 100);
@@ -134,7 +134,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount on GL Entry after Posting Partial Shipment and Modify Prepayment % on Sales Header.
 
         // Setup: Create Sales Order and Post it.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, GLAccountNo);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -174,7 +174,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount on GL Entry after Posting Partial Shipment Purchase Order.
 
         // Setup: Create Purchase Order and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         PurchasePrepmtAccount := CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, GLAccountNo);
 
@@ -204,7 +204,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount on GL Entry after Posting Partial Shipment Purchase Order, change Qty. to Receive before posting Prepayment.
 
         // Setup: Create Purchase Order and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, GLAccountNo);
         ModifyQtyToReceiveOnPurchaseLine(PurchaseLine);
@@ -236,7 +236,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount on GL Entry after Posting second, final Partial Shipment Purchase Order.
 
         // Setup: Create Purchase Order and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         PurchasePrepmtAccount := CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, GLAccountNo);
 
@@ -274,7 +274,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount on GL Entry after Posting Partial Receive and Modify Prepayment % on Purchase Header.
 
         // Setup: Create Purchase Order, Post Prepayment Invoice and Modify Purchase Line for Partial Shipment.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         PurchasePrepmtAccount := CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, GLAccountNo);
 
@@ -322,7 +322,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount and Source Type on GL Entry after Posting Purchase Order with Currency.
 
         // Setup: Create Purchase Order, Post Prepayment Invoice and Modify Purchase Line for Partial Shipment.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         CreateExchangeRate(CurrencyCode, WorkDate);
@@ -367,7 +367,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment Amount and Source Type on GL Entry after Posting Purchase Order with multiple Currency Exchange Rate.
 
         // Setup: Create Purchase Order and Currency with New Starting Date. Take Random Date for New Starting Date.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         CurrencyCode := CreateCurrency;
@@ -412,7 +412,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Item Ledger Entry after Posting Partial Shipment of Sales Order with Posting Prepayment Invoice.
 
         // Setup. Create Sales Order and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup);
 
         // Exercise: Post Sales Order as Ship.
@@ -436,7 +436,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Sales Line after Posting Ship, Prepayment Invoice and Modify Quantity with More values.
 
         // Setup. Create Sales Order and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
@@ -466,7 +466,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Values after Posting Sales Order with Partial Ship and Modify Quantity.
 
         // Setup. Create Sales Order and Post Prepayment Invoice and Post as Ship.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, GLAccountNo);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -499,7 +499,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Item Ledger Entry after Posting Partial Receive of Purchase Order with Posting Prepayment Invoice.
 
         // Setup. Create Purchase Order and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         PurchasePrepmtAccount :=
           CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup);
 
@@ -524,7 +524,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Purchase Line after Posting Receive, Prepayment Invoice and Modify Quantity with More values.
 
         // Setup. Create Purchase Order and Post with Receive.
-        Initialize;
+        Initialize();
         PurchasePrepmtAccount :=
           CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -555,7 +555,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Values after Posting Purchase Order with Partial Receive and Modify Quantity.
 
         // Setup. Create Purchase Order and Post Prepayment Invoice and Post as Receive.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         PurchasePrepmtAccount := CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, GLAccountNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -586,7 +586,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment % field on Purchase Line as same as Purchase Header.
 
         // Create Purchase Order with Prepayment %.
-        Initialize;
+        Initialize();
         CreateAndUpdatePrepaymentPctOnPurchaseOrder(PurchaseHeader);
 
         // Verify: Verify Purchase Line for Prepayment % field has correct Prepayment % value as Purchase Header.
@@ -602,7 +602,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment % field on Purchase Line after Modifying on Purchase Header.
 
         // Create And Update Purchase Order with Prepayment % Random Values.
-        Initialize;
+        Initialize();
         CreateAndUpdatePrepaymentPctOnPurchaseOrder(PurchaseHeader);
 
         // Exercise.
@@ -621,7 +621,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment % field should be Zero on Purchase Header and Purchase Line after modify Same Vendor No. on Purchase Header.
 
         // Setup. Create and Update Purchase Header with Prepayment %.
-        Initialize;
+        Initialize();
         CreateAndUpdatePrepaymentPctOnPurchaseOrder(PurchaseHeader);
 
         // Exericse: Modify Same Vendor No. on Purchase Header to update of Prepayment %.
@@ -641,7 +641,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment % field on Sales Line as same as Sales Header.
 
         // Create and Update Sales Header with Prepayment % Random Values.
-        Initialize;
+        Initialize();
         CreateAndUpdatePrepaymentPctOnSalesOrder(SalesHeader);
 
         // Verify: Verify Sales Line for Prepayment % field has correct Prepayment % value as Sales Header.
@@ -657,7 +657,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment % field on Purchase Line after Modifying on Purchase Header.
 
         // Create And Update Sales Order with Prepayment % Random values.
-        Initialize;
+        Initialize();
         CreateAndUpdatePrepaymentPctOnSalesOrder(SalesHeader);
 
         // Exercise: Modify Sales Header for Prepayment % with Random Values.
@@ -676,7 +676,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Prepayment % field should be Zero on Sales Header and Line after modify Same Customer No. on Sales Header.
 
         // Create and Update Sales Header with Prepayment % Random Values.
-        Initialize;
+        Initialize();
         CreateAndUpdatePrepaymentPctOnSalesOrder(SalesHeader);
 
         // Exericse: Modify Same Customer No. on Sales Header to update of Prepayment %.
@@ -707,7 +707,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Prepayment Invoice after Copy document from Purchase Order.
 
         // Setup: Create Currency with Multiple Exchange rate. 1M is required for difference only 1 Month in each exchange Rate.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         CurrencyCode := CreateCurrency;
         StartingDate := CalcDate('<1M>', WorkDate);
@@ -771,7 +771,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Prepayment Invoice after Copy document from Sales Order.
 
         // Setup: Create Currency with Multiple Exchange rate. 1M is required for difference only 1 Month in each exchange Rate.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
@@ -829,7 +829,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check lines in Posted Prepayment Invoice are in the same order as they were in Sales Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
 
         // Create Sales Order with two lines.
@@ -866,7 +866,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Posted Prepayment Credit Memo exist on Sales Order Page after Posting Prepayment Invoice and Credit Memo from Sales order.
 
         // Setup: Create Sales Order and Update Sales Prepayment Account.
-        Initialize;
+        Initialize();
         SalesPrepmtAccount := CreateSalesOrder(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup);
 
         // Exercise: Post Prepayment Invoice and Prepayment Credit Memo from Sales Order page.
@@ -899,7 +899,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check Posted Prepayment Credit Memo exist on Purchase Order Page after Posting Prepayment Invoice and Credit Memo from Purchase order.
 
         // Setup: Create Purchase Order and Update Purchase Prepayment Account.
-        Initialize;
+        Initialize();
         PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup);
         ModifyVendorCreditMemoNoOnPurchaseHeader(PurchaseHeader);
 
@@ -937,7 +937,7 @@ codeunit 134103 "ERM Prepayment IV"
         // where the currency exchange rate changes before posting the final invoice
 
         // Setup
-        Initialize;
+        Initialize();
         OldSalesPrepaymentsAccount := CreateSOWithTwoPrepmtLinesAndUpdateGenPostingSetup(SalesHeader, GeneralPostingSetup);
         ExchangeRateChangeDate := CreateExchangeRateOnRndDate(SalesHeader."Currency Code");
 
@@ -969,7 +969,7 @@ codeunit 134103 "ERM Prepayment IV"
         // followed by the final sales invoice in FCY
 
         // Setup
-        Initialize;
+        Initialize();
         OldSalesPrepaymentsAccount := CreateSOWithTwoPrepmtLinesAndUpdateGenPostingSetup(SalesHeader, GeneralPostingSetup);
 
         // Exercise
@@ -1001,7 +1001,7 @@ codeunit 134103 "ERM Prepayment IV"
         // and a final prepayment credit memo where the currency exchange rate changes before posting the credit memo
 
         // Setup
-        Initialize;
+        Initialize();
         OldSalesPrepaymentsAccount := CreateSOWithTwoPrepmtLinesAndUpdateGenPostingSetup(SalesHeader, GeneralPostingSetup);
         ExchangeRateChangeDate := CreateExchangeRateOnRndDate(SalesHeader."Currency Code");
 
@@ -1036,7 +1036,7 @@ codeunit 134103 "ERM Prepayment IV"
         // where the currency exchange rate changes before posting the final invoice
 
         // Setup
-        Initialize;
+        Initialize();
         OldPurchPrepaymentsAccount := CreatePOWithTwoPrepmtLinesAndUpdateGenPostingSetup(PurchaseHeader, GeneralPostingSetup);
         ExchangeRateChangeDate := CreateExchangeRateOnRndDate(PurchaseHeader."Currency Code");
 
@@ -1068,7 +1068,7 @@ codeunit 134103 "ERM Prepayment IV"
         // followed by the final sales invoice in FCY
 
         // Setup
-        Initialize;
+        Initialize();
         OldPurchPrepaymentsAccount := CreatePOWithTwoPrepmtLinesAndUpdateGenPostingSetup(PurchaseHeader, GeneralPostingSetup);
 
         // Exercise
@@ -1100,7 +1100,7 @@ codeunit 134103 "ERM Prepayment IV"
         // and a final prepayment credit memo where the currency exchange rate changes before posting the credit memo
 
         // Setup
-        Initialize;
+        Initialize();
         OldPurchPrepaymentsAccount := CreatePOWithTwoPrepmtLinesAndUpdateGenPostingSetup(PurchaseHeader, GeneralPostingSetup);
         ExchangeRateChangeDate := CreateExchangeRateOnRndDate(PurchaseHeader."Currency Code");
 
@@ -1131,7 +1131,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Purchase Prepayment Invoice with Currency.
 
         // 1. Setup: Create Prepayment Account on General Posting Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAdditionalReportingCurrency;
 
         // 2. Exercise: Create and Post Purchase Prepayment Invoice with CurrencyExchangeRate.
@@ -1155,7 +1155,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Invoice is Posted with Currency after Prepayment Invoice.
 
         // 1. Setup: Create Prepayment Account and Post Purchase Order.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAdditionalReportingCurrency;
         PrepaymentAmountInLCY := CreateAndPostPurchasePrepaymentInvoiceWithCurrency(GLAccount, PurchaseHeader, CurrencyCode);
 
@@ -1179,7 +1179,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Sales Prepayment Invoice with Currency.
 
         // 1. Setup: Create Prepayment Account on General Posting Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAdditionalReportingCurrency;
 
         // 2. Exercise: Create and Post Sales Prepayment Invoice with CurrencyExchangeRate.
@@ -1203,7 +1203,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Sales Invoice with Currency after Prepayment Invoice.
 
         // 1. Setup: Create Prepayment Account and Post Purchase Prepayment Invoice.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAdditionalReportingCurrency;
         PrepaymentAmountInLCY := CreateAndPostSalesPrepaymentInvoiceWithCurrency(GLAccount, SalesHeader, CurrencyCode);
 
@@ -1228,7 +1228,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Purchase Prepayment Invoice with Currency.
 
         // 1. Setup: Create Prepayment Account on General Posting Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAdditionalReportingCurrency;
 
         // 2. Exercise: Create and Post Purchase Prepayment Invoice with CurrencyExchangeRate.
@@ -1260,7 +1260,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Check GL Entry for Posted Purchase Prepayment Invoice with Currency.
 
         // 1. Setup: Create Prepayment Account on General Posting Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAdditionalReportingCurrency;
 
         // 2. Exercise: Create and Post Purchase Prepayment Invoice with CurrencyExchangeRate.
@@ -1289,7 +1289,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Purchase]
         // [SCENARIO 361548] Purch. Prepayment Account should have "Full VAT" setup to set "Prepayment %" for "Full VAT" Purchase line
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Normal VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1315,7 +1315,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Purchase]
         // [SCENARIO 361548] Purch. Prepayment Account should have "Normal VAT" setup to set "Prepayment %" for "Normal VAT" Purchase line
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Normal VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1341,7 +1341,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Purchase]
         // [SCENARIO 361548] Purchase Prepayment Credit Memo reverts 100 % Prepayment Invoice for "Full VAT" line
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1380,7 +1380,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Purchase]
         // [SCENARIO 361548] Fully invoiced Purchase Order reverts 100 % Prepayment Invoice for "Full VAT" line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1412,7 +1412,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Purchase]
         // [SCENARIO 361548] Purchase Prepayment Invoice for "Full VAT" line should post "Full VAT" VAT Entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1449,7 +1449,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Purchase]
         // [SCENARIO 361548] Purchase Prepayment Invoice with "Full VAT" and "Normal VAT" lines should post "Full VAT" and "Normal VAT" VAT entries respectively.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "FA" has "Full VAT" setup, G/L Account "FPA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1499,7 +1499,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 361548] Sales Prepayment Account should have "Full VAT" setup to set "Prepayment %" for "Full VAT" Sales line
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Normal VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1525,7 +1525,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 361548] Sales Prepayment Account should have "Normal VAT" setup to set "Prepayment %" for "Normal VAT" Sales line
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Normal VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1551,7 +1551,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 361548] Sales Prepayment Credit Memo reverts 100 % Prepayment Invoice for "Full VAT" line
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1589,7 +1589,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 361548] Fully invoiced Sales Order reverts 100 % Prepayment Invoice for "Full VAT" line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1621,7 +1621,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 361548] Sales Prepayment Invoice for "Full VAT" line should post "Full VAT" VAT Entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1658,7 +1658,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 361548] Sales Prepayment Invoice with "Full VAT" and "Normal VAT" lines should post "Full VAT" and "Normal VAT" VAT entries respectively.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "FA" has "Full VAT" setup, G/L Account "FPA" is used as Prepayment Account and has "Full VAT" setup
         LibraryERM.CreatePrepaymentVATSetup(
@@ -1709,7 +1709,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales] [Currency] [Prices. Incl. VAT] [Rounding]
         // [SCENARIO 361868] Sales Order's partial post produces GLEntry with 0.01 on Receivables Account No.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 25);
@@ -1747,7 +1747,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Purchase] [Currency] [Prices. Incl. VAT] [Rounding]
         // [SCENARIO 361868] Purchase Order's partial post produces GLEntry with -0.01 on Payables Account No.
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 25);
@@ -1784,7 +1784,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales] [Discount] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 363330] Sales Order's partial and final posts produce zero GLEntry "Sales VAT Account" balance in case of 100% Prepayment, Prices Incl. VAT, Discount
-        Initialize;
+        Initialize();
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 19);
 
@@ -1828,7 +1828,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Purchase] [Discount] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 363330] Purchase Order's partial and final posts produce zero GLEntry "Purchase VAT Account" balance in case of 100% Prepayment, Prices Incl. VAT, Discount
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 19);
 
@@ -1875,7 +1875,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales] [Currency] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 363330] Sales Order's post after Exch. Rate changing produces zero GLEntry "Sales VAT Account" balance in case of 100% Prepayment, Prices Incl. VAT
-        Initialize;
+        Initialize();
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 8);
 
@@ -1928,7 +1928,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Purchase] [Currency] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 363330] Purchase Order's post after Exch. Rate changing produces zero GLEntry "Purchase VAT Account" balance in case of 100% Prepayment, Prices Incl. VAT
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 8);
 
@@ -1981,7 +1981,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales] [Currency] [Prices Incl. VAT] [Discount] [Rounding]
         // [SCENARIO 364573] Final Invoice of Sales Order in FCY with 100% prepayment, where is line discount, a negative line, and changed exch. rate should post zero G/L Entry to "Sales VAT Account"
-        Initialize;
+        Initialize();
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 8);
 
@@ -2034,7 +2034,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Purchase] [Currency] [Prices Incl. VAT] [Discount] [Rounding]
         // [SCENARIO 364573] Final Invoice of Purchase Order in FCY with 100% prepayment, where is line discount, a negative line, and changed exch. rate should post zero G/L Entry to "Purchase VAT Account"
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 8);
 
@@ -2083,7 +2083,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 371514] SalesLine."Prepayment Amount" = 0 after posting 100% Prepayment Invoice and Credit Memo
-        Initialize;
+        Initialize();
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, LibraryRandom.RandIntInRange(10, 20));
 
@@ -2115,7 +2115,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 371514] PurchaseLine."Prepayment Amount" = 0 after posting prepayment 100% Invoice and Credit Memo
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, LibraryRandom.RandIntInRange(10, 20));
 
@@ -2149,7 +2149,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 371514] Prepayment 100% Invoice and Credit Memo have the same amounts as source Sales Order after posting Invoice -> Credit Memo -> Invoice -> Credit Memo
-        Initialize;
+        Initialize();
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, LibraryRandom.RandIntInRange(10, 20));
 
@@ -2187,7 +2187,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 371514] Prepayment 100% Invoice and Credit Memo have the same amounts as source Purchase Order after posting Invoice -> Credit Memo -> Invoice -> Credit Memo
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, LibraryRandom.RandIntInRange(10, 20));
 
@@ -2224,7 +2224,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales] [Release Document]
         // [SCENARIO 371945] Status of Sales Order should remain "Pending Prepayment" after document posting error when prepayment is posted and "External Document No." is empty.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivable Setup has option "Ext. Doc. No. Mandatory" set to TRUE.
         LibrarySales.SetExtDocNo(true);
@@ -2257,7 +2257,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376112] Sales Order's partial and final posts produce zero GLEntry "Sales VAT Account" balance in case of 100% Prepayment, Prices Incl. VAT
-        Initialize;
+        Initialize();
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 22);
 
@@ -2298,7 +2298,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Purchase] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376112] Purchase Order's partial and final posts produce zero GLEntry "Purchase VAT Account" balance in case of 100% Prepayment, Prices Incl. VAT
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 22);
 
@@ -2342,7 +2342,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [SCENARIO 378671] There is no "Currency Exchange Difference" when post Sales Order with prepayment and exchanged LCY difference more than "Amount Rounding Precision"
 
         // [GIVEN] Currency Exchange Rate is 1 / 14650.00
-        Initialize;
+        Initialize();
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 10);
         Currency.Get(CreateCurrency);
@@ -2379,7 +2379,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [SCENARIO 378671] There is no "Currency Exchange Difference" when post Purchase Order with prepayment and exchanged LCY difference more than "Amount Rounding Precision"
 
         // [GIVEN] Currency Exchange Rate is 1 / 14650.00
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 10);
         Currency.Get(CreateCurrency);
@@ -2413,7 +2413,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [FEATURE] [Sales] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 205117] Sales Order's partial and final post produce zero GLEntry "Sales VAT Account" balance in case of
         // [SCENARIO 205117] custom several lines, 100% Prepayment, Prices Incl. VAT, two VAT Setups having the same VAT %
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two VAT Posting Setup both having the same "VAT %"
         CreateSalesPrepaymentVATSetup(GLAccount[1], 19);
@@ -2450,7 +2450,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [FEATURE] [Purchase] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 205117] Purchase Order's partial and final post produce zero GLEntry "Purchase VAT Account" balance in case of
         // [SCENARIO 205117] custom several lines, 100% Prepayment, Prices Incl. VAT, two VAT Setups having the same VAT %
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two VAT Posting Setup both having the same "VAT %"
         CreatePurchasePrepaymentVATSetup(GLAccount[1], 19);
@@ -2488,7 +2488,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [FEATURE] [Sales] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 205117] Sales Order can be partially and finally posted in case of
         // [SCENARIO 205117] custom several lines, 100% Prepayment, Prices Incl. VAT, two VAT Setups having different VAT %
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two VAT Posting Setup having different "VAT %"
         CreateSalesPrepaymentVATSetup(GLAccount[1], 19);
@@ -2529,7 +2529,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [FEATURE] [Purchase] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 205117] Purchase Order can be partially and finally posted in case of
         // [SCENARIO 205117] custom several lines, 100% Prepayment, Prices Incl. VAT, two VAT Setups having different VAT %
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two VAT Posting Setup having different "VAT %"
         CreatePurchasePrepaymentVATSetup(GLAccount[1], 19);
@@ -2569,7 +2569,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [FEATURE] [Sales] [Prices Incl. VAT] [Discount] [Rounding]
         // [SCENARIO 209019] Sales Order can be partially and finally posted in case of
         // [SCENARIO 209019] custom several lines, 100% Prepayment, Prices Incl. VAT, line discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with "Prepayment %" = 100, "Prices Including VAT" = TRUE, several lines with line discount and custom amounts
         CreateSalesPrepaymentVATSetup(GLAccount, 19);
@@ -2602,7 +2602,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [FEATURE] [Purchase] [Prices Incl. VAT] [Discount] [Rounding]
         // [SCENARIO 209019] Purchase Order can be partially and finally posted in case of
         // [SCENARIO 209019] custom several lines, 100% Prepayment, Prices Incl. VAT, line discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with "Prepayment %" = 100, "Prices Including VAT" = TRUE, several lines with line discount and custom amounts
         CreatePurchasePrepaymentVATSetup(GLAccount, 19);
@@ -2635,7 +2635,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [FEATURE] [Sales] [Prices Excl. VAT] [Discount] [Rounding]
         // [SCENARIO 222044] Sales Order can be partially and finally posted in case of
         // [SCENARIO 222044] custom several lines, 100% Prepayment, Prices Excl. VAT, line discount (Amount rounding = 0, VAT rounding = 0.02)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with "Prepayment %" = 100, "Prices Including VAT" = TRUE, several lines with line discount and custom amounts
         CreateSalesPrepaymentVATSetup(GLAccount, 19);
@@ -2667,7 +2667,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [FEATURE] [Purchase] [Prices Excl. VAT] [Discount] [Rounding]
         // [SCENARIO 222044] Purchase Order can be partially and finally posted in case of
         // [SCENARIO 222044] custom several lines, 100% Prepayment, Prices Excl. VAT, line discount (Amount rounding = 0, VAT rounding = 0.02)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with "Prepayment %" = 100, "Prices Including VAT" = FALSE, several lines with line discount and custom amounts
         CreatePurchasePrepaymentVATSetup(GLAccount, 19);
@@ -2701,7 +2701,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 316171] Partially posted sales order with 100% prepayment and line discount has 0 remaining amount in posted sales invoices
-        Initialize;
+        Initialize();
 
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 25);
@@ -2748,7 +2748,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 316171] Partially posted purchase order with 100% prepayment and line discount has 0 remaining amount in posted purchase invoices
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 25);
@@ -2878,7 +2878,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Resource]
         // [SCENARIO 289386] Verify prepayment % for resource purchase line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with prepayment %
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
@@ -2906,7 +2906,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         // [FEATURE] [Resource]
         // [SCENARIO 289386] Post purchase order and prepayment invoice for resource purchase line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with resource line and posted preapyment invoice
         CreatePurchaseOrderWithResourceLineAndPrepayment(PurchaseHeader, PurchaseLine, GLAccountNo);
@@ -2925,16 +2925,16 @@ codeunit 134103 "ERM Prepayment IV"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Prepayment IV");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Prepayment IV");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         DisableGST(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -4007,7 +4007,7 @@ codeunit 134103 "ERM Prepayment IV"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Prepmt. Amt. Inv.", 0); // consider only unposted lines
-        if not SalesLine.FindSet then
+        if not SalesLine.FindSet() then
             exit; // no more unposted prepayment lines available
 
         // Enable only one line to be posted with prepayment. Looping strategy should be fine since the expected amount of lines is < 5
@@ -4039,7 +4039,7 @@ codeunit 134103 "ERM Prepayment IV"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Prepmt. Amt. Inv.", 0); // consider only unposted lines
-        if not PurchaseLine.FindSet then
+        if not PurchaseLine.FindSet() then
             exit; // no more unposted prepayment lines available
 
         // Enable only one line to be posted with prepayment. Looping strategy should be fine since the expected amount of lines is < 5
@@ -4060,7 +4060,7 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; Receive: Boolean; Invoice: Boolean): Code[20]
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice));
     end;
@@ -4070,7 +4070,7 @@ codeunit 134103 "ERM Prepayment IV"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindPurchaseInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header"; BuyFromVendorNo: Code[20]; VendorInvoiceNo: Code[35])
@@ -4078,7 +4078,7 @@ codeunit 134103 "ERM Prepayment IV"
         PurchInvHeader.SetCurrentKey("Buy-from Vendor No.");
         PurchInvHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
         PurchInvHeader.SetRange("Vendor Invoice No.", VendorInvoiceNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
     end;
 
     local procedure FindSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; ExternalDocumentNo: Code[35]; SellToCustomerNo: Code[20])
@@ -4086,7 +4086,7 @@ codeunit 134103 "ERM Prepayment IV"
         SalesInvoiceHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         SalesInvoiceHeader.SetRange("External Document No.", ExternalDocumentNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -4094,7 +4094,7 @@ codeunit 134103 "ERM Prepayment IV"
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4103,7 +4103,7 @@ codeunit 134103 "ERM Prepayment IV"
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4250,7 +4250,7 @@ codeunit 134103 "ERM Prepayment IV"
         PrepmtInvoiceNo: Code[20];
     begin
         PrepmtInvoiceNo := GetPostedDocumentNo(PurchaseHeader."Prepayment No. Series");
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify();
         PurchasePostPrepayments.Invoice(PurchaseHeader);
         exit(PrepmtInvoiceNo);
@@ -4288,7 +4288,7 @@ codeunit 134103 "ERM Prepayment IV"
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
         CopyPurchaseDocument.SetParameters(DocumentType, DocumentNo, true, false);
         CopyPurchaseDocument.UseRequestPage(false);
-        CopyPurchaseDocument.Run;
+        CopyPurchaseDocument.Run();
     end;
 
     local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type From")
@@ -4298,7 +4298,7 @@ codeunit 134103 "ERM Prepayment IV"
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.SetParameters(DocumentType, DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
-        CopySalesDocument.Run;
+        CopySalesDocument.Run();
     end;
 
     local procedure SetVATPostingSetupCustomPct(LineGLAccount: Record "G/L Account"; Pct: Decimal)
@@ -4319,7 +4319,7 @@ codeunit 134103 "ERM Prepayment IV"
         with PurchaseLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             if PrepaymentAmountInLCY = "Prepmt. Amount Inv. (LCY)" then
                 "Prepmt. Amount Inv. (LCY)" -= 0.01;
             Modify;
@@ -4333,7 +4333,7 @@ codeunit 134103 "ERM Prepayment IV"
         with SalesLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             if PrepaymentAmountInLCY = "Prepmt. Amount Inv. (LCY)" then
                 "Prepmt. Amount Inv. (LCY)" -= 0.01;
             Modify;
@@ -4367,7 +4367,7 @@ codeunit 134103 "ERM Prepayment IV"
         VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
         VATEntry.SetRange(Type, Type);
         VATEntry.SetRange("VAT Calculation Type", VATCalcType);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.CalcSums(Base, Amount);
         Assert.AreEqual(VATAmount, VATEntry.Amount, VATEntry.FieldName(Amount));
         Assert.AreEqual(VATBase, VATEntry.Base, VATEntry.FieldName(Base));
@@ -4378,7 +4378,7 @@ codeunit 134103 "ERM Prepayment IV"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Remaining Quantity", RemainingQuantity);
     end;
 
@@ -4448,7 +4448,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Prepayment %", PurchaseHeader."Prepayment %");
     end;
 
@@ -4458,7 +4458,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Prepayment %", SalesHeader."Prepayment %");
     end;
 

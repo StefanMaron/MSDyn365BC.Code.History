@@ -39,7 +39,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ReqWorksheetName2: Code[10];
     begin
         // Setup: Create two Sales Orders with different Item lines.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
@@ -78,7 +78,7 @@ codeunit 137036 "SCM PS Bugs - II"
         BlanketOrderNo: Code[20];
     begin
         // Setup: Create Sales Blanket Order and Make Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
@@ -89,7 +89,7 @@ codeunit 137036 "SCM PS Bugs - II"
 
         // Update Sales Lines with Drop Shipment.
         SalesLine.SetRange("Blanket Order No.", BlanketOrderNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryInventory.UpdateSalesLine(SalesLine, SalesLine.FieldNo("Drop Shipment"), true);
 
         // Create Purchase Order from Drop Shipment - Get Sales Order.
@@ -112,7 +112,7 @@ codeunit 137036 "SCM PS Bugs - II"
         SalesHeader: Record "Sales Header";
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         ItemNo := DropShipmentPrepare(PurchaseHeader, SalesHeader);
@@ -135,7 +135,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ChildItemNo2: Code[20];
         NewDimSetId: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Create Child Items with Default Dimensions. Create Production BOM.
         ChildItemNo := CreateItemWithDimension;
@@ -167,7 +167,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ChildItemNo2: Code[20];
         ParentItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup Items with dimensions for production order
         ChildItemNo := CreateItemWithDimension;
@@ -186,7 +186,7 @@ codeunit 137036 "SCM PS Bugs - II"
         // Verification
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         Assert.AreEqual(ProductionOrder."Dimension Set ID", ProdOrderLine."Dimension Set ID", 'Wrong dimension in Prod. Order Line');
 
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
@@ -212,7 +212,7 @@ codeunit 137036 "SCM PS Bugs - II"
         // Verify Production Line and Component Dimesions after refreshing Production Order.
 
         // Setup: Setup Items with dimensions for production order
-        Initialize;
+        Initialize();
         ChildItemNo := CreateItemWithDimension;
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItemNo, LibraryRandom.RandInt(5));
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
@@ -240,7 +240,7 @@ codeunit 137036 "SCM PS Bugs - II"
         // Verify Production Line and Component Dimesions when New Dimension created on Production Order.
 
         // Setup: Setup Items with dimensions for production order
-        Initialize;
+        Initialize();
         ChildItemNo := CreateItemWithDimension;
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo, 1);
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
@@ -272,7 +272,7 @@ codeunit 137036 "SCM PS Bugs - II"
         // Verify Production Order Component Dimesions when Dimension on Production Order is Deleted.
 
         // Setup: Setup Items with dimensions for production order
-        Initialize;
+        Initialize();
         ChildItemNo := CreateItemWithDimension;
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItemNo, LibraryRandom.RandInt(5));
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
@@ -303,7 +303,7 @@ codeunit 137036 "SCM PS Bugs - II"
         // Verify Production Order Component Dimesions when Production Order Line Dimension is Deleted.
 
         // Setup: Setup Items with dimensions for production order.
-        Initialize;
+        Initialize();
         ChildItemNo := CreateItemWithDimension;
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo, 1);
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
@@ -328,7 +328,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ItemNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ItemNo := DropShipmentPrepare(PurchaseHeader, SalesHeader);
 
         ModifyForPartialInvoice(SalesHeader);
@@ -337,7 +337,7 @@ codeunit 137036 "SCM PS Bugs - II"
 
         with PurchaseHeader do begin
             Get("Document Type", "No.");
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
             Modify;
         end;
 
@@ -358,7 +358,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         // [FEATURE] [Manufacturing] [Refresh Production Order] [Pick]
         // [SCENARIO 364487] User receives a confirmation request when refreshing a production order with picked components. On 'Yes' answer prod. order is refreshed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and refresh a production order
         CreateAndRefreshProdOrderWithTwoComponents(ProductionOrder, 1, 1);
@@ -395,7 +395,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         // [FEATURE] [Manufacturing] [Refresh Production Order] [Pick]
         // [SCENARIO 364487] User receives a confirmation request when refreshing a production order with picked components. On 'No' answer "Qty. Picked" is not changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and refresh a production order
         CreateAndRefreshProdOrderWithTwoComponents(ProductionOrder, 1, 1);
@@ -425,7 +425,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         // [FEATURE] [Manufacturing] [Refresh Production Order] [Pick]
         // [SCENARIO 364487] Confirmation request should not be shown when refreshing a production order with picked component if "Calculate Lines" option is not selected
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and refresh a production order
         CreateAndRefreshProdOrderWithTwoComponents(ProductionOrder, 1, 1);
@@ -454,7 +454,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         // [FEATURE] [Replenishment Prod. Order] [Drop Shipment] [Requisition Worksheet]
         // [SCENARIO] Requisition Worksheet can process drop shipment Sales Order even if Item Replenishment System = "Prod. Order".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Drop Shipment Sales Order with Item "I" ("Replenishment System" = "Prod. Order") of Quantity = "Q".
         SalesOrderNo :=
@@ -484,11 +484,11 @@ codeunit 137036 "SCM PS Bugs - II"
         // [FEATURE] [Production Order] [Make-to-Order] [Production BOM]
         // [SCENARIO 201734] When deleting a production order line that includes the same component in different positions, lines on lower planning levels should also be deleted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] All items are created with "Make-to-Order" manufacturing policy
         // [GIVEN] Item "I1" is a component of a production BOM for item "I2", "I2" - component of "I3"
-        ItemNo[1] := LibraryInventory.CreateItemNo;
+        ItemNo[1] := LibraryInventory.CreateItemNo();
         ItemNo[2] := CreateItemWithCertifiedProdBOM(ItemNo[1], 1);
         ItemNo[3] := CreateItemWithCertifiedProdBOM(ItemNo[2], 1);
 
@@ -531,11 +531,11 @@ codeunit 137036 "SCM PS Bugs - II"
         // [FEATURE] [Production Order] [Make-to-Order] [Production BOM]
         // [SCENARIO 201734] When deleting a production order line that includes the same component in different positions, line for the lower-level component is not deleted is the component is included in other BOM's
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] All items are created with "Make-to-Order" manufacturing policy
         // [GIVEN] Item "I1" is a component of a production BOM for item "I2", "I2" - component of "I3"
-        ItemNo[1] := LibraryInventory.CreateItemNo;
+        ItemNo[1] := LibraryInventory.CreateItemNo();
         ItemNo[2] := CreateItemWithCertifiedProdBOM(ItemNo[1], 1);
         ItemNo[3] := CreateItemWithCertifiedProdBOM(ItemNo[2], 1);
 
@@ -557,7 +557,7 @@ codeunit 137036 "SCM PS Bugs - II"
         // [THEN] Order line for items "I3" is not deleted, since "I3" is also a component of "I5".
         // [THEN] Quantity in the prod. order line for the item "I3" is updated. New quantity is 1.
         ProdOrderLine.SetRange("Item No.", ItemNo[3]);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.TestField(Quantity, 1);
     end;
 
@@ -566,15 +566,15 @@ codeunit 137036 "SCM PS Bugs - II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM PS Bugs - II");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM PS Bugs - II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
@@ -621,7 +621,7 @@ codeunit 137036 "SCM PS Bugs - II"
         with ProdOrderLine do begin
             SetRange("Prod. Order No.", ProdOrderNo);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Delete(true);
         end;
     end;
@@ -632,7 +632,7 @@ codeunit 137036 "SCM PS Bugs - II"
         Purchasing: Record Purchasing;
     begin
         // Setup: Create Item with New Category Code and create Sales Order with Drop Shipment.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
@@ -641,7 +641,7 @@ codeunit 137036 "SCM PS Bugs - II"
 
         // Update Sales Lines with Purchasing Code for Drop Shipment.
         Purchasing.SetRange("Drop Shipment", true);
-        Purchasing.FindFirst;
+        Purchasing.FindFirst();
         LibraryInventory.UpdateSalesLine(SalesLine, SalesLine.FieldNo("Purchasing Code"), Purchasing.Code);
 
         // Create Purchase Order from Drop Shipment - Get Sales Order.
@@ -660,7 +660,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
@@ -686,14 +686,14 @@ codeunit 137036 "SCM PS Bugs - II"
         GetSalesOrders.SetTableView(SalesLine);
         GetSalesOrders.InitializeRequest(NewRetrieveDimensionsFrom::Item);
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.Run;
+        GetSalesOrders.Run();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure CreateSalesOrderFromBlanket(No: Code[20])
@@ -702,7 +702,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Blanket Order");
         SalesHeader.SetRange("No.", No);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Blnkt Sales Ord. to Ord. (Y/N)", SalesHeader);
     end;
 
@@ -720,9 +720,9 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UoMCode);
         CreateProductionBOMLineInSpecifiedPosition(
-          ProductionBOMHeader, ProductionBOMLine, ComponentItemNo, QtyPer, LibraryUtility.GenerateGUID);
+          ProductionBOMHeader, ProductionBOMLine, ComponentItemNo, QtyPer, LibraryUtility.GenerateGUID());
         CreateProductionBOMLineInSpecifiedPosition(
-          ProductionBOMHeader, ProductionBOMLine, ComponentItemNo, QtyPer, LibraryUtility.GenerateGUID);
+          ProductionBOMHeader, ProductionBOMLine, ComponentItemNo, QtyPer, LibraryUtility.GenerateGUID());
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
     end;
 
@@ -859,7 +859,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure CreateNewDimSetID(OldDimSetID: Integer): Integer
@@ -903,7 +903,7 @@ codeunit 137036 "SCM PS Bugs - II"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Invoice", Quantity / 2);
             Modify;
         end;
@@ -916,10 +916,10 @@ codeunit 137036 "SCM PS Bugs - II"
         SalesLine: Record "Sales Line";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         RequisitionLine.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
         RequisitionLine.SetRange("Journal Batch Name", JournalBatchName);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         FindSalesLine(SalesLine, SalesLine."Document Type"::Order, DocumentNo);
         RequisitionLine.TestField(Type, SalesLine.Type);
         RequisitionLine.TestField("No.", SalesLine."No.");
@@ -935,7 +935,7 @@ codeunit 137036 "SCM PS Bugs - II"
         FindSalesLine(SalesLine, SalesLine."Document Type"::"Blanket Order", SalesOrderNo);
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         SalesLine.TestField("Quantity Shipped", PurchaseLine."Quantity Received");
     end;
 
@@ -949,12 +949,12 @@ codeunit 137036 "SCM PS Bugs - II"
 
         // Check for Entry Type - Purchase.
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Item Category Code", Item."Item Category Code");
 
         // Check for Entry Type - Sale.
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Item Category Code", Item."Item Category Code");
     end;
 
@@ -969,7 +969,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         DimensionSetEntry.SetRange("Dimension Set ID", ProductionOrder."Dimension Set ID");
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionCode := DimensionSetEntry."Dimension Code";
         ExpectedDimValueCode := DimensionSetEntry."Dimension Value Code";
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
@@ -977,7 +977,7 @@ codeunit 137036 "SCM PS Bugs - II"
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", ProdOrderLine."Dimension Set ID");
             DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
-            DimensionSetEntry.FindFirst;
+            DimensionSetEntry.FindFirst();
             Assert.AreEqual(ExpectedDimValueCode, DimensionSetEntry."Dimension Value Code", ErrMsgDimension);
         until ProdOrderLine.Next = 0;
     end;
@@ -989,7 +989,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLineNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.TestField("Dimension Set ID", DimensionSetId);
     end;
 
