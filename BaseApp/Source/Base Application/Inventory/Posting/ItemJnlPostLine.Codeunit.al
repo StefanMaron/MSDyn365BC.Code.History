@@ -538,8 +538,8 @@ codeunit 22 "Item Jnl.-Post Line"
         CalcDirAndIndirCostAmts(DirCostAmt, IndirCostAmt, ValuedQty, ItemJnlLine);
 
         OnPostOutputOnBeforeInsertCostValueEntries(ItemJnlLine, CapLedgEntry, ValuedQty, DirCostAmt, IndirCostAmt);
-        InsertCapValueEntry(CapLedgEntry, ItemJnlLine."Value Entry Type"::"Direct Cost", ValuedQty, ValuedQty, DirCostAmt);
-        InsertCapValueEntry(CapLedgEntry, ItemJnlLine."Value Entry Type"::"Indirect Cost", ValuedQty, 0, IndirCostAmt);
+        InsertCapValueEntry(ItemJnlLine, CapLedgEntry, ItemJnlLine."Value Entry Type"::"Direct Cost", ValuedQty, ValuedQty, DirCostAmt);
+        InsertCapValueEntry(ItemJnlLine, CapLedgEntry, ItemJnlLine."Value Entry Type"::"Indirect Cost", ValuedQty, 0, IndirCostAmt);
 
         OnPostOutputOnAfterInsertCostValueEntries(ItemJnlLine, CapLedgEntry, CalledFromAdjustment, PostToGL);
 
@@ -1074,12 +1074,12 @@ codeunit 22 "Item Jnl.-Post Line"
         InsertItemReg(0, 0, 0, CapLedgEntry."Entry No.");
     end;
 
-    local procedure InsertCapValueEntry(var CapLedgEntry: Record "Capacity Ledger Entry"; ValueEntryType: Enum "Cost Entry Type"; ValuedQty: Decimal; InvdQty: Decimal; AdjdCost: Decimal)
+    procedure InsertCapValueEntry(var ItemJournalLine: Record "Item Journal Line"; var CapLedgEntry: Record "Capacity Ledger Entry"; ValueEntryType: Enum "Cost Entry Type"; ValuedQty: Decimal; InvdQty: Decimal; AdjdCost: Decimal)
     var
         ValueEntry: Record "Value Entry";
         IsHandled: Boolean;
     begin
-        OnBeforeInsertCapValueEntryProcedure(ItemJnlLine, ValueEntryType, ValuedQty, InvdQty, AdjdCost);
+        OnBeforeInsertCapValueEntryProcedure(ItemJournalLine, ValueEntryType, ValuedQty, InvdQty, AdjdCost);
 
         if (InvdQty = 0) and (AdjdCost = 0) then
             exit;
@@ -1092,20 +1092,20 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry."Entry Type" := ValueEntryType;
         ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::" ";
 
-        ValueEntry.Type := ItemJnlLine.Type;
-        ValueEntry."No." := ItemJnlLine."No.";
-        ValueEntry.Description := ItemJnlLine.Description;
-        ValueEntry."Order Type" := ItemJnlLine."Order Type";
-        ValueEntry."Order No." := ItemJnlLine."Order No.";
-        ValueEntry."Order Line No." := ItemJnlLine."Order Line No.";
-        ValueEntry."Source Type" := ItemJnlLine."Source Type";
-        ValueEntry."Source No." := GetSourceNo(ItemJnlLine);
+        ValueEntry.Type := ItemJournalLine.Type;
+        ValueEntry."No." := ItemJournalLine."No.";
+        ValueEntry.Description := ItemJournalLine.Description;
+        ValueEntry."Order Type" := ItemJournalLine."Order Type";
+        ValueEntry."Order No." := ItemJournalLine."Order No.";
+        ValueEntry."Order Line No." := ItemJournalLine."Order Line No.";
+        ValueEntry."Source Type" := ItemJournalLine."Source Type";
+        ValueEntry."Source No." := GetSourceNo(ItemJournalLine);
         ValueEntry."Invoiced Quantity" := InvdQty;
         ValueEntry."Valued Quantity" := ValuedQty;
 
         ValueEntry."Cost Amount (Actual)" := AdjdCost;
-        ValueEntry."Cost Amount (Actual) (ACY)" := ACYMgt.CalcACYAmt(AdjdCost, ItemJnlLine."Posting Date", false);
-        OnInsertCapValueEntryOnAfterUpdateCostAmounts(ValueEntry, ItemJnlLine);
+        ValueEntry."Cost Amount (Actual) (ACY)" := ACYMgt.CalcACYAmt(AdjdCost, ItemJournalLine."Posting Date", false);
+        OnInsertCapValueEntryOnAfterUpdateCostAmounts(ValueEntry, ItemJournalLine);
 
         ValueEntry."Cost per Unit" :=
           CalcCostPerUnit(ValueEntry."Cost Amount (Actual)", ValueEntry."Valued Quantity", false);
@@ -1113,42 +1113,42 @@ codeunit 22 "Item Jnl.-Post Line"
           CalcCostPerUnit(ValueEntry."Cost Amount (Actual) (ACY)", ValueEntry."Valued Quantity", true);
         ValueEntry.Inventoriable := true;
 
-        if ItemJnlLine.Type = ItemJnlLine.Type::Resource then
-            ItemJnlLine.TestField("Inventory Posting Group", '')
+        if ItemJournalLine.Type = ItemJournalLine.Type::Resource then
+            ItemJournalLine.TestField("Inventory Posting Group", '')
         else
-            ItemJnlLine.TestField("Inventory Posting Group");
-        ValueEntry."Inventory Posting Group" := ItemJnlLine."Inventory Posting Group";
-        ValueEntry."Gen. Bus. Posting Group" := ItemJnlLine."Gen. Bus. Posting Group";
-        ValueEntry."Gen. Prod. Posting Group" := ItemJnlLine."Gen. Prod. Posting Group";
+            ItemJournalLine.TestField("Inventory Posting Group");
+        ValueEntry."Inventory Posting Group" := ItemJournalLine."Inventory Posting Group";
+        ValueEntry."Gen. Bus. Posting Group" := ItemJournalLine."Gen. Bus. Posting Group";
+        ValueEntry."Gen. Prod. Posting Group" := ItemJournalLine."Gen. Prod. Posting Group";
 
-        ValueEntry."Posting Date" := ItemJnlLine."Posting Date";
-        ValueEntry."Valuation Date" := ItemJnlLine."Posting Date";
-        ValueEntry."Source No." := GetSourceNo(ItemJnlLine);
-        ValueEntry."Document Type" := ItemJnlLine."Document Type";
-        if ValueEntry."Expected Cost" or (ItemJnlLine."Invoice No." = '') then
-            ValueEntry."Document No." := ItemJnlLine."Document No."
+        ValueEntry."Posting Date" := ItemJournalLine."Posting Date";
+        ValueEntry."Valuation Date" := ItemJournalLine."Posting Date";
+        ValueEntry."Source No." := GetSourceNo(ItemJournalLine);
+        ValueEntry."Document Type" := ItemJournalLine."Document Type";
+        if ValueEntry."Expected Cost" or (ItemJournalLine."Invoice No." = '') then
+            ValueEntry."Document No." := ItemJournalLine."Document No."
         else begin
-            ValueEntry."Document No." := ItemJnlLine."Invoice No.";
-            if ItemJnlLine."Document Type" in
-               [ItemJnlLine."Document Type"::"Purchase Receipt", ItemJnlLine."Document Type"::"Purchase Return Shipment",
-                ItemJnlLine."Document Type"::"Sales Shipment", ItemJnlLine."Document Type"::"Sales Return Receipt",
-                ItemJnlLine."Document Type"::"Service Shipment"]
+            ValueEntry."Document No." := ItemJournalLine."Invoice No.";
+            if ItemJournalLine."Document Type" in
+               [ItemJournalLine."Document Type"::"Purchase Receipt", ItemJournalLine."Document Type"::"Purchase Return Shipment",
+                ItemJournalLine."Document Type"::"Sales Shipment", ItemJournalLine."Document Type"::"Sales Return Receipt",
+                ItemJournalLine."Document Type"::"Service Shipment"]
             then
-                ValueEntry."Document Type" := Enum::"Item Ledger Document Type".FromInteger(ItemJnlLine."Document Type".AsInteger() + 1);
+                ValueEntry."Document Type" := Enum::"Item Ledger Document Type".FromInteger(ItemJournalLine."Document Type".AsInteger() + 1);
         end;
-        ValueEntry."Document Line No." := ItemJnlLine."Document Line No.";
-        ValueEntry."Document Date" := ItemJnlLine."Document Date";
-        ValueEntry."External Document No." := ItemJnlLine."External Document No.";
+        ValueEntry."Document Line No." := ItemJournalLine."Document Line No.";
+        ValueEntry."Document Date" := ItemJournalLine."Document Date";
+        ValueEntry."External Document No." := ItemJournalLine."External Document No.";
         ValueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(ValueEntry."User ID"));
-        ValueEntry."Source Code" := ItemJnlLine."Source Code";
-        ValueEntry."Reason Code" := ItemJnlLine."Reason Code";
-        ValueEntry."Journal Batch Name" := ItemJnlLine."Journal Batch Name";
+        ValueEntry."Source Code" := ItemJournalLine."Source Code";
+        ValueEntry."Reason Code" := ItemJournalLine."Reason Code";
+        ValueEntry."Journal Batch Name" := ItemJournalLine."Journal Batch Name";
 
-        ValueEntry."Global Dimension 1 Code" := ItemJnlLine."Shortcut Dimension 1 Code";
-        ValueEntry."Global Dimension 2 Code" := ItemJnlLine."Shortcut Dimension 2 Code";
-        ValueEntry."Dimension Set ID" := ItemJnlLine."Dimension Set ID";
+        ValueEntry."Global Dimension 1 Code" := ItemJournalLine."Shortcut Dimension 1 Code";
+        ValueEntry."Global Dimension 2 Code" := ItemJournalLine."Shortcut Dimension 2 Code";
+        ValueEntry."Dimension Set ID" := ItemJournalLine."Dimension Set ID";
 
-        OnBeforeInsertCapValueEntry(ValueEntry, ItemJnlLine);
+        OnBeforeInsertCapValueEntry(ValueEntry, ItemJournalLine);
 
         IsHandled := false;
         OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry, IsHandled, PostToGL);
@@ -1158,7 +1158,7 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
 
         ValueEntry.Insert(true);
-        OnAfterInsertCapValueEntry(ValueEntry, ItemJnlLine);
+        OnAfterInsertCapValueEntry(ValueEntry, ItemJournalLine);
 
         UpdateAdjmtProperties(ValueEntry, CapLedgEntry."Posting Date");
 
@@ -1169,20 +1169,20 @@ codeunit 22 "Item Jnl.-Post Line"
             TempValueEntryRelation."Value Entry No." := ValueEntry."Entry No.";
             TempValueEntryRelation.Insert();
         end;
-        OnInsertCapValueEntryOnAfterInsertValueEntryRelation(ValueEntry, ItemJnlLine, TempValueEntryRelation);
+        OnInsertCapValueEntryOnAfterInsertValueEntryRelation(ValueEntry, ItemJournalLine, TempValueEntryRelation);
 
-        if (ItemJnlLine."Item Shpt. Entry No." <> 0) and
-           (ValueEntryType = ItemJnlLine."Value Entry Type"::"Direct Cost")
+        if (ItemJournalLine."Item Shpt. Entry No." <> 0) and
+           (ValueEntryType = ItemJournalLine."Value Entry Type"::"Direct Cost")
         then begin
-            CapLedgEntry."Invoiced Quantity" := CapLedgEntry."Invoiced Quantity" + ItemJnlLine."Invoiced Quantity";
-            if ItemJnlLine.Subcontracting then
+            CapLedgEntry."Invoiced Quantity" := CapLedgEntry."Invoiced Quantity" + ItemJournalLine."Invoiced Quantity";
+            if ItemJournalLine.Subcontracting then
                 CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry."Output Quantity"
             else
                 CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry.Quantity;
             CapLedgEntry.Modify();
         end;
 
-        OnInsertCapValueEntryOnAfterUpdateCapLedgEntry(ValueEntry, ItemJnlLine);
+        OnInsertCapValueEntryOnAfterUpdateCapLedgEntry(ValueEntry, ItemJournalLine);
     end;
 
     procedure ItemQtyPosting()
@@ -2981,7 +2981,7 @@ codeunit 22 "Item Jnl.-Post Line"
                         ValueEntry, ItemJnlLine, OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
                 end;
             end;
-            OnInitValueEntryOnAfterCalcDirestCost(CostAmt, VarianceAmount, Item, ItemJnlLine, ValueEntry);
+            OnInitValueEntryOnAfterCalcDirestCost(CostAmt, VarianceAmount, Item, ItemJnlLine, ValueEntry, CostAmtACY, VarianceAmountACY);
         end else begin
             CostAmt := ItemJnlLine."Unit Cost";
             CostAmtACY := ItemJnlLine."Unit Cost (ACY)";
@@ -5706,8 +5706,8 @@ codeunit 22 "Item Jnl.-Post Line"
         InsertCapLedgEntry(CapLedgEntry, ItemJnlLine.Quantity, ItemJnlLine.Quantity);
         CalcDirAndIndirCostAmts(DirCostAmt, IndirCostAmt, ItemJnlLine.Quantity, ItemJnlLine);
 
-        InsertCapValueEntry(CapLedgEntry, ItemJnlLine."Value Entry Type"::"Direct Cost", ItemJnlLine.Quantity, ItemJnlLine.Quantity, DirCostAmt);
-        InsertCapValueEntry(CapLedgEntry, ItemJnlLine."Value Entry Type"::"Indirect Cost", ItemJnlLine.Quantity, 0, IndirCostAmt);
+        InsertCapValueEntry(ItemJnlLine, CapLedgEntry, ItemJnlLine."Value Entry Type"::"Direct Cost", ItemJnlLine.Quantity, ItemJnlLine.Quantity, DirCostAmt);
+        InsertCapValueEntry(ItemJnlLine, CapLedgEntry, ItemJnlLine."Value Entry Type"::"Indirect Cost", ItemJnlLine.Quantity, 0, IndirCostAmt);
     end;
 
     local procedure InsertAsmItemEntryRelation(ItemLedgerEntry: Record "Item Ledger Entry")
@@ -6673,7 +6673,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitValueEntryOnAfterCalcDirestCost(var CostAmt: Decimal; var VarianceAmount: Decimal; Item: Record Item; ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry")
+    local procedure OnInitValueEntryOnAfterCalcDirestCost(var CostAmt: Decimal; var VarianceAmount: Decimal; Item: Record Item; ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; var CostAmtACY: Decimal; var VarianceAmountACY: Decimal)
     begin
     end;
 

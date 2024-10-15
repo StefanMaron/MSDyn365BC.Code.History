@@ -13,6 +13,8 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryMarketing: codeunit "Library - Marketing";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         VendorNoForEventSubscriber: Code[20];
@@ -265,6 +267,46 @@ codeunit 134770 "New Document from Vendor Card"
         UpdateManualNosOnPurchaseOrderNoSeries(false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ContactListRunModal,VendorLinkPageHandler')]
+    procedure ContactHasCompanyNoFilledWhenCreatedFromPrimaryContactNoOfVendor()
+    var
+        BusinessRelation: Record "Business Relation";
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [SCENARIO 525453] When Contact is created from Primary Contact No. field of a Vendor, it will already have a value in Company No. field.
+        Initialize();
+
+        // [GIVEN] Create Business Relation.
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+
+        // [GIVEN] Change Business Relation Code to blank for Vendors.
+        ChangeBusinessRelationCodeForVendors('');
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Changes Business Relation Code for Vendors.
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        ChangeBusinessRelationCodeForVendors(BusinessRelation.Code);
+
+        // [GIVEN] Create a Company Contact.
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Create Vendor Link.
+        Contact.CreateVendorLink();
+
+        // [WHEN] Open Vendor Card page and run Lookup of Primary Contact No.
+        VendorCard.OpenEdit();
+        VendorCard.GoToRecord(Vendor);
+        VendorCard."Primary Contact No.".Lookup();
+
+        // [THEN] Company No. in Contact Card has a value Verified in ContactListRunModal.
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"New Document from Vendor Card");
@@ -291,9 +333,44 @@ codeunit 134770 "New Document from Vendor Card"
         NoSeries.Modify(true);
     end;
 
+    local procedure ChangeBusinessRelationCodeForVendors(BusRelCodeForVendors: Code[10]) OriginalBusRelCodeForVendors: Code[10]
+    var
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        MarketingSetup.Get();
+        OriginalBusRelCodeForVendors := MarketingSetup."Bus. Rel. Code for Vendors";
+        MarketingSetup.Validate("Bus. Rel. Code for Vendors", BusRelCodeForVendors);
+        MarketingSetup.Modify(true);
+    end;
+
     internal procedure SetVendorNoForEventSubscriber(Vendor: Record Vendor)
     begin
         VendorNoForEventSubscriber := Vendor."No.";
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorLinkPageHandler(var VendorLink: TestPage "Vendor Link")
+    var
+        CurrMasterFields: Option Contact,Vendor;
+    begin
+        VendorLink."No.".SetValue(LibraryVariableStorage.DequeueText());
+        VendorLink.CurrMasterFields.SetValue(CurrMasterFields::Vendor);
+        VendorLink.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContactListRunModal(var ContactList: TestPage "Contact List")
+    var
+        ContactCard: TestPage "Contact Card";
+    begin
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("Company No.", ContactList."No.".Value);
+        ContactCard.New();
+        LibraryVariableStorage.Enqueue(ContactList."No.");
+        LibraryVariableStorage.Enqueue(ContactCard."Company No.");
+        ContactCard."Company No.".AssertEquals(ContactList."No.");
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Purchase Order", 'OnOpenPageEvent', '', false, false)]

@@ -297,7 +297,7 @@ codeunit 5870 "Calculate BOM Tree"
         ProdBOMLine.SetFilter("Starting Date", '%1|..%2', 0D, ParentBOMBuffer."Needed by Date");
         ProdBOMLine.SetFilter("Ending Date", '%1|%2..', 0D, ParentBOMBuffer."Needed by Date");
         IsHandled := false;
-        OnBeforeFilterByQuantityPer(ProdBOMLine, IsHandled);
+        OnBeforeFilterByQuantityPer(ProdBOMLine, IsHandled, ParentBOMBuffer);
         if not IsHandled then
             if TreeType = TreeType::Availability then
                 ProdBOMLine.SetFilter("Quantity per", '>%1', 0);
@@ -1080,7 +1080,7 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFilterByQuantityPer(var ProductionBOMLine: Record "Production BOM Line"; var IsHandled: Boolean)
+    local procedure OnBeforeFilterByQuantityPer(var ProductionBOMLine: Record "Production BOM Line"; var IsHandled: Boolean; BOMBuffer: Record "BOM Buffer")
     begin
     end;
 

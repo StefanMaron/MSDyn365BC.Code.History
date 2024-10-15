@@ -39,6 +39,7 @@ codeunit 144127 "ERM  Miscellaneous"
         BankAccErr: Label 'Wrong Bank Account.';
         WrongResultErr: Label 'Wrong result of GetTaxCode';
         PostingNoExistsQst: Label 'If you create an invoice based on order %1 with an existing posting number, it will cause a gap in the number series. \\Do you want to continue?', Comment = '%1=Document number';
+        DocumentDateErr: Label 'Document Date must be equal to Posting Date';
 
     [Test]
     [HandlerFunctions('IssuingCustomerBillRequestPageHandler,MessageHandler')]
@@ -479,6 +480,40 @@ codeunit 144127 "ERM  Miscellaneous"
         JobLedgerEntry.SetRange("Document No.", PostedCrMemoNo);
         JobLedgerEntry.FindFirst();
         JobLedgerEntry.TestField("Total Cost", -PurchaseLine."Amount Including VAT");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DocumentDateAsPostingdateWhenLinkDocDateToPostingDateSetSalesSetup()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        FutureDate: Date;
+    begin
+        // [SCENARIO 536103] Link Doc. Date to Posting Date in Sales & Receivables Setup is working as expected.
+        Initialize();
+
+        // [GIVEN] Update Sales Setup
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Sales Invice 
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create Future date other then WorkDate
+        FutureDate := CalcDate('<2D>', WorkDate());
+
+        // [WHEN] Update Posting Date greater than Workdate
+        SalesHeader.Validate("Posting Date", FutureDate);
+        SalesHeader.Modify();
+
+        // [THEN] Verify Document Date updated successfully
+        Assert.AreEqual(FutureDate, SalesHeader."Document Date", DocumentDateErr);
     end;
 
     local procedure Initialize()

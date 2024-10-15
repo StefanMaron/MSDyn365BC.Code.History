@@ -103,6 +103,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     begin
         if FAJournalLine."FA No." = '' then
             exit;
+        OnBeforeCheckFAJnlLine(FAJournalLine);
         FAJournalLine.TestField("FA Posting Date");
         FAJournalLine.TestField("Depreciation Book Code");
         FAJournalLine.TestField("Document No.");
@@ -233,6 +234,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         FASetup.Get();
         DeprBook.Get(DeprBookCode);
         FADeprBook.Get(FANo, DeprBookCode);
+        OnCheckJnlLineOnAfterGetGlobals(FA, FASetup, DeprBook, FADeprBook);
         CheckFAPostingDate();
         CheckFAIntegration();
         CheckConsistency();
@@ -374,6 +376,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                   "Depr. Acquisition Cost", StrSubstNo(Text009,
                     DeprBook.FieldCaption("G/L Integration - Depreciation"), true, DeprBook.TableCaption()));
         end;
+        OnAfterCheckFAIntegration(FAPostingType, GenJnlPosting, FAJnlLine, GenJnlLine);
     end;
 
     local procedure CheckErrorNo()
@@ -426,14 +429,24 @@ codeunit 5631 "FA Jnl.-Check Line"
         end;
     end;
 
+    local procedure SetGenJournalLineValuesBeforeConsistencyCheck(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeSetGenJournalLineValuesBeforeConsistencyCheck(IsHandled, GenJnlPosting, GenJournalLine);
+        if IsHandled then
+            exit;
+        if GenJournalLine."Journal Template Name" = '' then
+            GenJournalLine.Quantity := 0;
+    end;
+
     local procedure CheckConsistency()
     var
         IsHandled: Boolean;
         ShouldCheckNoOfDepreciationDays: Boolean;
     begin
         if GenJnlPosting then begin
-            if GenJnlLine."Journal Template Name" = '' then
-                GenJnlLine.Quantity := 0;
+            SetGenJournalLineValuesBeforeConsistencyCheck(GenJnlLine);
             FieldErrorText :=
               StrSubstNo(Text011,
                 GenJnlLine.FieldCaption("FA Posting Type"), GenJnlLine."FA Posting Type");
@@ -665,5 +678,26 @@ codeunit 5631 "FA Jnl.-Check Line"
     local procedure OnBeforeCheckMainAsset(GenJournalLine: Record "Gen. Journal Line"; FAJournalLine: Record "FA Journal Line"; DepreciationBook: Record "Depreciation Book"; FixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFAJnlLine(FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckFAIntegration(FAJournalLineFAPostingType: Enum "FA Journal Line FA Posting Type"; var GnlJnlPosting: Boolean; var FAJournalLine: Record "FA Journal Line"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckJnlLineOnAfterGetGlobals(var FixedAsset: Record "Fixed Asset"; var FASetup: Record "FA Setup"; var DepreciationBook: Record "Depreciation Book"; var FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetGenJournalLineValuesBeforeConsistencyCheck(var IsHandled: Boolean; GenJnlPosting: Boolean; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
 }
 

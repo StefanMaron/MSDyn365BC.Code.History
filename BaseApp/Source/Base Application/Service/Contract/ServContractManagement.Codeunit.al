@@ -563,6 +563,7 @@ codeunit 5940 ServContractManagement
         TotalServLineLCY: Record "Service Line";
         ServContractAccGr: Record "Service Contract Account Group";
         IsHandled: Boolean;
+        LatestInvToDate: Date;
     begin
         IsHandled := false;
         OnBeforeCreateServiceLine(ServHeader, ContractType, ContractNo, InvFromDate, InvToDate, ServiceApplyEntry, SignningContract, IsHandled);
@@ -594,6 +595,7 @@ codeunit 5940 ServContractManagement
         end;
         AppliedGLAccount := GLAcc."No.";
 
+        LatestInvToDate := InvToDate;
         if ServiceLedgerEntry.Get(ServiceApplyEntry) then begin
             ServiceLedgerEntry.SetRange("Entry No.", ServiceApplyEntry, ServiceLedgerEntry."Apply Until Entry No.");
             if ServiceLedgerEntry.FindSet() then
@@ -601,6 +603,8 @@ codeunit 5940 ServContractManagement
                     if ServiceLedgerEntry.Prepaid then begin
                         InvFromDate := ServiceLedgerEntry."Posting Date";
                         InvToDate := CalcDate('<CM>', InvFromDate);
+                        if InvToDate > LatestInvToDate then
+                            InvToDate := LatestInvToDate;
                     end;
                     ServLedgEntryToServiceLine(
                       TotalServLine,
@@ -2508,7 +2512,7 @@ codeunit 5940 ServContractManagement
     var
         TypeHelper: Codeunit "Type Helper";
     begin
-        if TypeHelper.IsLeapYear(Day1) then
+        if (Date2DMY(Day1, 2) = 2) and TypeHelper.IsLeapYear(Day1) then
             exit('<CM-1D>');
 
         exit('<CM>');

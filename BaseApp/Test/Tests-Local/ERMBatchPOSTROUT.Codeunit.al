@@ -1217,7 +1217,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("Posting Date", PostingDate);
-        SalesInvoiceHeader.TestField("Document Date", WorkDate());
+        SalesInvoiceHeader.TestField("Document Date", PostingDate);
         SalesInvoiceHeader.TestField("Operation Occurred Date", PostingDate);
     end;
 

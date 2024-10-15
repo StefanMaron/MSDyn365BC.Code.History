@@ -351,6 +351,7 @@ codeunit 86 "Sales-Quote to Order"
                     SalesLineReserve.VerifyQuantity(SalesOrderLine, SalesQuoteLine);
                     if SalesOrderLine.Reserve = SalesOrderLine.Reserve::Always then
                         SalesOrderLine.AutoReserve();
+                    OnTransferQuoteToOrderLinesOnAfterSalesOrderLineReserve(SalesOrderLine, SalesQuoteLine);
                 end;
             until SalesQuoteLine.Next() = 0;
         OnAfterTransferQuoteToOrderLines(SalesQuoteLine, SalesQuoteHeader);
@@ -505,6 +506,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMoveWonLostOpportunites(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferQuoteToOrderLinesOnAfterSalesOrderLineReserve(var SalesLineOrder: Record "Sales Line"; SalesLineQuote: Record "Sales Line")
     begin
     end;
 }

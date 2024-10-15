@@ -605,7 +605,6 @@ codeunit 5980 "Service-Post"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SendPostedDocumentRecord(ServiceHeader: Record "Service Header"; var DocumentSendingProfile: Record "Document Sending Profile")
     var
         ServiceInvHeader: Record "Service Invoice Header";

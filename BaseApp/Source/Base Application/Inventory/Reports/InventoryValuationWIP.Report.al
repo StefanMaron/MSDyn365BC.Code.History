@@ -119,6 +119,8 @@ report 5802 "Inventory Valuation - WIP"
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    IsHandled: Boolean;
                 begin
                     CountRecord := CountRecord + 1;
                     LastOutput := 0;
@@ -228,6 +230,11 @@ report 5802 "Inventory Valuation - WIP"
                             NcValueOfCostPstdToGL := 0;
                         end;
                     end;
+
+                    IsHandled := false;
+                    OnValueEntryOnAfterGetRecordOnBeforeIncrementTotals(ValueOfCostPstdToGL, AtLastDate, IsHandled);
+                    if IsHandled then
+                        CurrReport.Skip();
 
                     TotalValueOfCostPstdToGL := TotalValueOfCostPstdToGL + ValueOfCostPstdToGL;
                     TotalValueOfOutput := TotalValueOfOutput + ValueOfOutput;
@@ -451,6 +458,11 @@ report 5802 "Inventory Valuation - WIP"
         ValueEntry.SetRange("Order No.", ProductionOrder."No.");
         ValueEntry.SetRange("Posting Date", StartDate, EndDate);
         exit(not ValueEntry.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValueEntryOnAfterGetRecordOnBeforeIncrementTotals(ValueOfCostPstdToGL: Decimal; AtLastDate: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -23,6 +23,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM  Miscellaneous - NamedType CustomerBillMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1627676660 - NamedType 1196130186" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document Date must be equal to Posting Date]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM  Miscellaneous - NamedType DocumentDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1627676660 - NamedType 2932411483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Posting Date is not within your range of allowed posting dates in Gen. Journal Line Journal Template Name='',Journal Batch Name='']]></Val>

@@ -1050,7 +1050,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         SEPADDExportToTempBlob(TempBlob, DirectDebitCollectionEntry);
 
         // [THEN] Exported XML has node "../InitgPty/Id/OrgId/Othr/Id" with value '12345678'.
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08');
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
         LibraryXPathXMLReader.VerifyNodeValueByXPath(
             '/Document/CstmrDrctDbtInitn/GrpHdr/InitgPty/Id/OrgId/Othr/Id', BankAccount.CUC);
     end;

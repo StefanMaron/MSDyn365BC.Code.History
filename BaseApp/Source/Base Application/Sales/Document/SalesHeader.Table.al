@@ -614,9 +614,7 @@ table 36 "Sales Header"
                   "Prepmt. Cr. Memo No.", "Prepmt. Cr. Memo No. Series",
                   FieldCaption("Prepmt. Cr. Memo No."), FieldCaption("Prepmt. Cr. Memo No. Series"));
 
-                GLSetup.Get();
-                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
-                Validate("VAT Reporting Date");
+                UpdateVATReportingDate(FieldNo("Posting Date"));
 
                 if "Posting No." <> '' then
                     if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
@@ -642,6 +640,15 @@ table 36 "Sales Header"
                                 Error(Text1130017, FieldCaption("Posting Date"), FieldCaption("Document Date"));
                         end;
                     end;
+
+                    if ("Document Date" < "Posting Date") and
+                       ("Incoming Document Entry No." = 0) and
+                       (Rec."Posting Date" <> xRec."Posting Date") and
+                       SalesReceivablesSetup."Link Doc. Date To Posting Date" and
+                       not GetCalledFromWhseDoc()
+                    then
+                        Validate("Document Date", "Posting Date");
+
                     RecordRef.GetTable(Rec);
                     LocalApplicationManagement.ValidateOperationOccurredDate(RecordRef, GetHideValidationDialog());
                     RecordRef.SetTable(Rec);
@@ -1663,9 +1670,7 @@ table 36 "Sales Header"
                 if IsHandled then
                     exit;
 
-                GLSetup.Get();
-                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
-                Validate("VAT Reporting Date");
+                UpdateVATReportingDate(FieldNo("Document Date"));
 
                 if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) then
                     if "Document Date" > "Posting Date" then
@@ -6202,7 +6207,13 @@ table 36 "Sales Header"
     var
         SalesHeader: Record "Sales Header";
         Opportunity: Record Opportunity;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLinkSalesDocWithOpportunity(Rec, OldOpportunityNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Opportunity No." <> OldOpportunityNo then begin
             if "Opportunity No." <> '' then
                 if Opportunity.Get("Opportunity No.") then begin
@@ -6480,8 +6491,13 @@ table 36 "Sales Header"
     end;
 
     procedure PrepareOpeningDocumentStatistics()
+    var
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        SalesHeader2: Record "Sales Header";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        SalesLine2: Record "Sales Line";
     begin
-        if not WritePermission() or not SalesLine.WritePermission() then
+        if not SalesHeader2.WritePermission() or not SalesLine2.WritePermission() then
             Error(StatisticsInsuffucientPermissionsErr);
 
         CalcInvDiscForHeader();
@@ -8815,6 +8831,7 @@ table 36 "Sales Header"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        IsHandled: Boolean;
     begin
         SalesInvoiceHeader.SetLoadFields("No.");
         if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
@@ -8825,6 +8842,12 @@ table 36 "Sales Header"
             exit;
         if IsNotFullyCancelled(SalesCreditMemoHeader) then
             exit;
+
+        IsHandled := false;
+        OnBeforeUpdateSalesOrderLineIfExist(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
     end;
 
@@ -8866,6 +8889,28 @@ table 36 "Sales Header"
             else
                 exit(Result::Partial);
         end;
+    end;
+
+    local procedure UpdateVATReportingDate(CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateVATReportingDate(Rec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not (CalledByFieldNo in [FieldNo("Posting Date"), FieldNo("Document Date")]) then
+            exit;
+
+        GLSetup.GetRecordOnce();
+        case CalledByFieldNo of
+            FieldNo("Posting Date"):
+                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
+            FieldNo("Document Date"):
+                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
+        end;
+        Validate("VAT Reporting Date");
     end;
 
     [IntegrationEvent(false, false)]
@@ -10723,6 +10768,21 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePaymentDiscount(var SalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesOrderLineIfExist(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLinkSalesDocWithOpportunity(var SalesHeader: Record "Sales Header"; OldOpportunityNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVATReportingDate(var SalesHeader: Record "Sales Header"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

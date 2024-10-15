@@ -1198,8 +1198,15 @@ table 5409 "Prod. Order Routing Line"
         OnAfterSetRecalcStatus(Rec, ProdOrderLine);
     end;
 
-    procedure RunTimePer(): Decimal
+    procedure RunTimePer() Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunTimePer(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if "Lot Size" = 0 then
             "Lot Size" := 1;
 
@@ -1823,6 +1830,11 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingForwardOnAfterCalculateProdOrderDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunTimePer(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean; var Result: Decimal)
     begin
     end;
 }

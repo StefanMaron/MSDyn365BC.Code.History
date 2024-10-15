@@ -33,7 +33,6 @@ codeunit 12171 "Vend. Bill List-Change Status"
         VendorBillLine: Record "Vendor Bill Line";
         NextVendBillNo: Code[20];
 
-    [Scope('OnPrem')]
     procedure FromOpenToSent(var VendorBillHeader: Record "Vendor Bill Header")
     var
         NoSeries: Codeunit "No. Series";
@@ -85,7 +84,6 @@ codeunit 12171 "Vend. Bill List-Change Status"
         OnAfterFromOpenToSent(VendorBillHeader);
     end;
 
-    [Scope('OnPrem')]
     procedure FromSentToOpen(var VendorBillHeader: Record "Vendor Bill Header")
     begin
         OnBeforeFromSentToOpen(VendorBillHeader);
