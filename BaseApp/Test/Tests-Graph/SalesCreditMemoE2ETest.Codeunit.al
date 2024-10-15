@@ -352,7 +352,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         ResponseText: Text;
         TargetURL: Text;
         DiscountPct: Decimal;
-        DiscountAmt: Decimal;
+        DiscountAmt, InvDiscAmount : Decimal;
     begin
         // [SCENARIO] When an credit memo is created, the GET Method should update the credit memo and assign a total
         // [GIVEN] 2 credit memos, one posted and one unposted with discount amount that should be redistributed
@@ -363,6 +363,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         DiscountAmt := LibraryRandom.RandDecInRange(1, Round(SalesHeader.Amount / 2, 1), 1);
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(DiscountAmt, SalesHeader);
         GetFirstSalesCreditMemoLine(SalesHeader, SalesLine);
+        InvDiscAmount := SalesLine."Inv. Discount Amount";
         SalesLine.Validate(Quantity, SalesLine.Quantity + 1);
         SalesLine.Modify(true);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
@@ -377,7 +378,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         VerifyGettingAgainKeepsETag(ResponseText, TargetURL);
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
         LibraryGraphDocumentTools.VerifySalesTotals(
-          SalesHeader, ResponseText, DiscountAmt, SalesHeader."Invoice Discount Calculation"::Amount);
+          SalesHeader, ResponseText, DiscountAmt - InvDiscAmount, SalesHeader."Invoice Discount Calculation"::Amount);
     end;
 
     [Test]

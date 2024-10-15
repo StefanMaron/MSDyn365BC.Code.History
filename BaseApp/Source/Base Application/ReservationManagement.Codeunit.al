@@ -415,7 +415,7 @@
                         else
                             QtyOnOutBound := 0;
 
-                    if Location."Bin Mandatory" or Location."Require Pick" then begin
+                    if Location."Bin Mandatory" and Location."Require Pick" then begin
                         if TotalAvailQty + QtyOnOutBound < TempEntrySummary."Total Available Quantity" then
                             TempEntrySummary."Total Available Quantity" := TotalAvailQty + QtyOnOutBound;
                         TempEntrySummary."Qty. Alloc. in Warehouse" := QtyAllocInWhse;

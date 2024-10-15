@@ -3616,7 +3616,7 @@
   </Item>
   <Item ItemId=";Codeunit 917041221 - NamedType 3041014380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unit Code are not equal]]></Val>
+      <Val><![CDATA[Unit Cost are not equal]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
