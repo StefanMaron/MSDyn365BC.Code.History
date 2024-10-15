@@ -200,6 +200,8 @@ codeunit 135301 "O365 Sales Item Charge Tests"
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; UseRandomCurrency: Boolean)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("VAT Bus. Posting Group", '');
+        SalesHeader.Modify(true);
 
         if UseRandomCurrency then
             CreateCurrencyWithCurrencyFactor(SalesHeader);
@@ -207,7 +209,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
 
     local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineType: Option)
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, '', 1);
+        LibrarySales.CreateSalesLineWithoutVAT(SalesLine, SalesHeader, SalesLineType, '', 1);
         SalesLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
         SalesLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive;
         SalesLine."Unit Price" := GenerateRandDecimalBetweenOneAndFive;

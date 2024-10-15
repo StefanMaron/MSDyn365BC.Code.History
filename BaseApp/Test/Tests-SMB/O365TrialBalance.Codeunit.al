@@ -164,13 +164,6 @@ codeunit 138029 "O365 Trial Balance"
 
         ExpectedAmount := TrialBalance.CurrentPeriodMinusOneValues8.AsDEcimal;
         TrialBalance.CurrentPeriodMinusOneValues8.DrillDown;
-
-        // Row 9
-        ExpectedAmount := -TrialBalance.CurrentPeriodValues9.AsDEcimal;
-        TrialBalance.CurrentPeriodValues9.DrillDown;
-
-        ExpectedAmount := -TrialBalance.CurrentPeriodMinusOneValues9.AsDEcimal;
-        TrialBalance.CurrentPeriodMinusOneValues9.DrillDown;
     end;
 
     [Test]

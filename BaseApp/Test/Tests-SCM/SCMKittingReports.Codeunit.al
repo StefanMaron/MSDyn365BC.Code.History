@@ -429,146 +429,91 @@ codeunit 137390 "SCM Kitting -  Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationFullPostingSTD()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Standard, 100, 0, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationFullPostingAVG()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Average, 100, 0, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationPartialPostingSTD()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Standard, 59, 0, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationPartialPostingAVG()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Average, 59, 0, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationRevalSTD()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Standard, 100, 0, AdjSource::Revaluation, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationRevalAVG()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Average, 100, 0, AdjSource::Revaluation, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationFullPostingATOSTD()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Standard, 100, 0, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Order",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationIndCostAVG()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Average, 100, 12, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationIndCostSTD()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Standard, 100, 15, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::None);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationTopItemProduced()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Standard, 100, 0, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::"Prod. Order");
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,InvtValuationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InvtValuationTopItemAssembly()
-    var
-        AssemblyHeader: Record "Assembly Header";
     begin
-        NormalPosting(
-          AssemblyHeader, Item."Costing Method"::Average, 100, 0, AdjSource::None, Item."Assembly Policy"::"Assemble-to-Stock",
-          TopItemRepl::Assembly);
-        VerifyInvtValuationForOrder(AssemblyHeader);
+        // The Inventory Valuation Report was rewritten in NA, so the W1 test cannot be run.
+        // Adding an empty test case because we cannot disable individual TCs in a codeunit for the country runs.
     end;
 
     [Test]
@@ -2216,30 +2161,6 @@ codeunit 137390 "SCM Kitting -  Reports"
     end;
 
     [Normal]
-    local procedure VerifyInvtValuationForOrder(AssemblyHeader: Record "Assembly Header")
-    var
-        PostedAssemblyHeader: Record "Posted Assembly Header";
-        PostedAssemblyLine: Record "Posted Assembly Line";
-    begin
-        // Verify report for item component entries.
-        PostedAssemblyHeader.Reset();
-        PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
-        PostedAssemblyHeader.SetRange("Item No.", AssemblyHeader."Item No.");
-        if PostedAssemblyHeader.FindFirst then begin
-            PostedAssemblyLine.Reset();
-            PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
-            PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item);
-            if PostedAssemblyLine.FindSet then
-                repeat
-                    VerifyInventoryValuation(PostedAssemblyLine."No.", PostedAssemblyHeader."Posting Date", PostedAssemblyHeader."Posting Date");
-                until PostedAssemblyLine.Next = 0;
-        end;
-
-        // Verify reports for assembly item.
-        VerifyInventoryValuation(PostedAssemblyHeader."Item No.", PostedAssemblyHeader."Due Date", PostedAssemblyHeader."Posting Date");
-    end;
-
-    [Normal]
     local procedure VerifyItemRegisterValue(var ValueEntry: Record "Value Entry")
     begin
         LibraryReportDataset.LoadDataSetFile;
@@ -2430,78 +2351,6 @@ codeunit 137390 "SCM Kitting -  Reports"
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
         InventorySetup.Modify();
-    end;
-
-    [Normal]
-    local procedure VerifyInventoryValuation(ItemNo: Code[20]; StartDate: Date; EndDate: Date)
-    var
-        ValueEntryBOP: Record "Value Entry";
-        ValueEntryIncr: Record "Value Entry";
-        ValueEntryDecr: Record "Value Entry";
-        Item: Record Item;
-        ValueEOP: Decimal;
-        QtyEOP: Decimal;
-    begin
-        Item.SetRange("No.", ItemNo);
-        Item.FindFirst;
-        Item.CalcFields(Inventory);
-        Commit();
-        LibraryVariableStorage.Enqueue(StartDate);
-        LibraryVariableStorage.Enqueue(EndDate);
-        LibraryVariableStorage.Enqueue(true);
-        REPORT.Run(REPORT::"Inventory Valuation", true, false, Item);
-
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('ItemNo', ItemNo);
-
-        // Beginning of period.
-        VerifyInvtValTimeFrame(ValueEntryBOP, ItemNo, 0D, StartDate - 1, 'StartingInvoicedQty', 'StartingInvoicedValue');
-
-        // Increases in period.
-        ValueEntryIncr.SetFilter("Item Ledger Entry Type", '%1|%2',
-          ValueEntryIncr."Item Ledger Entry Type"::"Positive Adjmt.",
-          ValueEntryIncr."Item Ledger Entry Type"::"Assembly Output");
-        VerifyInvtValTimeFrame(ValueEntryIncr, ItemNo, StartDate, EndDate, 'IncreaseInvoicedQty', 'IncreaseInvoicedValue');
-
-        // Decreases in period.
-        ValueEntryDecr.SetFilter("Item Ledger Entry Type", '%1|%2|%3|%4',
-          ValueEntryDecr."Item Ledger Entry Type"::"Negative Adjmt.",
-          ValueEntryDecr."Item Ledger Entry Type"::"Assembly Consumption",
-          ValueEntryDecr."Item Ledger Entry Type"::Sale,
-          ValueEntryDecr."Item Ledger Entry Type"::Consumption);
-        VerifyInvtValTimeFrame(ValueEntryDecr, ItemNo, StartDate, EndDate, 'DecreaseInvoicedQty', 'DecreaseInvoicedValue');
-
-        // End of period.
-        QtyEOP := LibraryReportDataset.Sum('EndingInvoicedQty');
-        LibraryReportDataset.Reset();
-        ValueEOP := LibraryReportDataset.Sum('EndingInvoicedValue');
-        LibraryReportDataset.Reset();
-
-        Assert.AreNearlyEqual(ValueEntryBOP."Invoiced Quantity" + ValueEntryIncr."Invoiced Quantity" +
-          ValueEntryDecr."Invoiced Quantity",
-          QtyEOP, LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong end of period qty for item ' + ItemNo);
-        Assert.AreNearlyEqual(ValueEntryBOP."Cost Amount (Actual)" + ValueEntryIncr."Cost Amount (Actual)" +
-          ValueEntryDecr."Cost Amount (Actual)",
-          ValueEOP, LibraryERM.GetAmountRoundingPrecision, 'Wrong end of period value for item ' + ItemNo);
-    end;
-
-    [Normal]
-    local procedure VerifyInvtValTimeFrame(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; FromDate: Date; ToDate: Date; QtyElement: Text; ValueElement: Text)
-    var
-        Qty: Decimal;
-        Value: Decimal;
-    begin
-        ValueEntry.SetRange("Item No.", ItemNo);
-        ValueEntry.SetRange("Posting Date", FromDate, ToDate);
-        ValueEntry.CalcSums("Cost Amount (Actual)", "Invoiced Quantity");
-        Qty := LibraryReportDataset.Sum(QtyElement);
-        LibraryReportDataset.Reset();
-        Value := LibraryReportDataset.Sum(ValueElement);
-        LibraryReportDataset.Reset();
-        Assert.AreNearlyEqual(Abs(ValueEntry."Invoiced Quantity"), Qty, LibraryERM.GetUnitAmountRoundingPrecision,
-          'Wrong ' + QtyElement + ' for item ' + ItemNo);
-        Assert.AreNearlyEqual(Abs(ValueEntry."Cost Amount (Actual)"), Value, LibraryERM.GetAmountRoundingPrecision,
-          'Wrong ' + ValueElement + ' for item ' + ItemNo);
     end;
 
     [Normal]
@@ -2910,24 +2759,6 @@ codeunit 137390 "SCM Kitting -  Reports"
         LibraryVariableStorage.Dequeue(ReportDate);
         InvtValuationCostSpec.ValuationDate.SetValue(ReportDate);
         InvtValuationCostSpec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure InvtValuationRequestPageHandler(var InventoryValuation: TestRequestPage "Inventory Valuation")
-    var
-        StartDate: Variant;
-        EndingDate: Variant;
-        IncludeExpectedCost: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(StartDate);
-        LibraryVariableStorage.Dequeue(EndingDate);
-        LibraryVariableStorage.Dequeue(IncludeExpectedCost);
-
-        InventoryValuation.StartingDate.SetValue(StartDate);
-        InventoryValuation.EndingDate.SetValue(EndingDate);
-        InventoryValuation.IncludeExpectedCost.SetValue(IncludeExpectedCost);
-        InventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

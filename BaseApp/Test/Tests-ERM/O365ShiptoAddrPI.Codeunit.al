@@ -15,6 +15,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -61,7 +62,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ShipToAddressIsUpdatedWhenLocationIsSelected()
     var
@@ -123,7 +124,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ShipToAddressFieldsAreNotEditableWhenLocationIsSelected()
     var
@@ -454,11 +455,13 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Ship-to Addr. P.I");
         LibrarySetupStorage.Restore;
 
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.I");
         LibraryERMCountryData.CreateVATData;
 
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -466,6 +469,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.I");
     end;
 
     local procedure PrepareVendor(var Vendor: Record Vendor; LocationCode: Code[10]; ManualNosSeries: Boolean)
@@ -555,6 +559,13 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

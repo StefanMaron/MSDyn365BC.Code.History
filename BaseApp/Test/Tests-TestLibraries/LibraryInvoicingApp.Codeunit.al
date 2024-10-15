@@ -29,8 +29,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesInvoice."Sell-to Customer Name".Value(CreateCustomerWithEmail);
 
         BCO365SalesInvoice.Lines.Description.Value(CreateItem);
-        BCO365SalesInvoice.Lines."Unit Price".SetValue(
-          ItemPrice + ItemPrice * FindVATPercentage(BCO365SalesInvoice.Lines.VATProductPostingGroupDescription.Value));
+        BCO365SalesInvoice.Lines."Unit Price".SetValue(ItemPrice);
 
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
         SalesHeader.FindFirst;
@@ -528,19 +527,6 @@ codeunit 132220 "Library - Invoicing App"
         O365SalesQuote.Post.Invoke;
         if SalesInvoiceHeader.FindLast then
             exit(SalesInvoiceHeader."No.");
-    end;
-
-    [Scope('OnPrem')]
-    procedure FindVATPercentage(VATProductPostingGroupDescription: Text[50]): Decimal
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
-    begin
-        VATProductPostingGroup.SetRange(Description, VATProductPostingGroupDescription);
-        VATProductPostingGroup.FindFirst;
-        VATPostingSetup.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-        VATPostingSetup.FindFirst;
-        exit(VATPostingSetup."VAT %" / 100);
     end;
 }
 

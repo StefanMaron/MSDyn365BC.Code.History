@@ -19,9 +19,9 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        AmountError: Label '%1 must be %2 in %3.';
-        InvDiscErr: Label 'The maximum %1 that you can apply is %2.';
-        InvBaseDiscErrorErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12', Comment = '%1: FieldCaption1;%2:TableCaption;%3:FieldCaption2;%4:FieldValue;%5:FieldCaption3;%6:FieldValue2;%7:FieldCaption4;%8:FieldValue3;%9:FieldCaption5;%10:FieldValue4;%11:FieldCaption6;%12:FieldValue5';
+        AmountErr: Label '%1 must be %2 in %3.', Comment = '%1=FieldCaption, %2=FieldValue, %3=TableCaption';
+        InvDiscErr: Label 'The maximum %1 that you can apply is %2.', Comment = '%1=FieldCaption, %2=FieldValue';
+        InvBaseDiscErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12, %13=%14', Comment = '%1: FieldCaption1;%2:TableCaption;%3:FieldCaption2;%4:FieldValue;%5:FieldCaption3;%6:FieldValue2;%7:FieldCaption4;%8:FieldValue3;%9:FieldCaption5;%10:FieldValue4;%11:FieldCaption6;%12:FieldValue5;%13:FieldCaption7;%14:FieldValue6';
 
     [Test]
     [Scope('OnPrem')]
@@ -29,6 +29,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         SalesHeader: Record "Sales Header";
     begin
+        // [FEATURE] [Sales] [Rounding]
         // Verify VAT Amount on Sales Order Statistics for different VAT Posting Groups with GL VAT Rounding type Up.
         Initialize;
         CreateAndVerifySalesDoc('>', SalesHeader."Document Type"::Order, '>', '');
@@ -41,6 +42,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         Currency: Record Currency;
         SalesHeader: Record "Sales Header";
     begin
+        // [FEATURE] [Sales] [Rounding]
         // Verify VAT Amount on Sales Invoice Statistics for different VAT Posting Groups with GL VAT Rounding type Nearest and FCY
         // with Currency VAT Rounding Down.
         Initialize;
@@ -76,6 +78,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         SalesHeader: Record "Sales Header";
     begin
+        // [FEATURE] [Sales] [Rounding]
         // Verify VAT Amount on Posted Sales Order different VAT Posting Groups with GL VAT Rounding type Up.
         Initialize;
         CreatePostAndVerifySalesDoc('>', SalesHeader."Document Type"::Order, '>', '');
@@ -88,6 +91,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         Currency: Record Currency;
         SalesHeader: Record "Sales Header";
     begin
+        // [FEATURE] [Sales] [Rounding]
         // Verify VAT Amount on General Ledger for different VAT Posting Groups with GL VAT Rounding type Nearest and FCY
         // with Currency VAT Rounding Down for Sales Invoice.
         Initialize;
@@ -123,6 +127,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        // [FEATURE] [Purchase] [Rounding]
         // Verify VAT Amount on Purchase Invoice Statistics for different VAT Posting Groups with GL VAT Rounding type Down.
         Initialize;
         CreateAndVerifyPurchaseDoc('>', PurchaseHeader."Document Type"::Invoice, '>', '');
@@ -134,6 +139,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        // [FEATURE] [Purchase] [Rounding]
         // Verify VAT Amount on Purchase Order Statistics for different VAT Posting Groups with GL VAT Rounding type Nearest.
         Initialize;
         CreateAndVerifyPurchaseDoc('=', PurchaseHeader."Document Type"::Order, '=', '');
@@ -146,6 +152,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         Currency: Record Currency;
         PurchaseHeader: Record "Purchase Header";
     begin
+        // [FEATURE] [Purchase] [Rounding]
         // Verify VAT Amount on Purchase Credit Memo Statistics for different VAT Posting Groups with GL VAT Rounding type Nearest and FCY
         // with Currency VAT Rounding Up.
         Initialize;
@@ -161,6 +168,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         VATAmountLine: Record "VAT Amount Line";
         QtyType: Option General,Invoicing,Shipping;
     begin
+        // [FEATURE] [Purchase]
         // Setup.
         LibraryERM.SetVATRoundingType(VATRoundingDirection);
 
@@ -182,6 +190,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        // [FEATURE] [Purchase] [Rounding]
         // Verify VAT Amount on Posted Purchase Invoice different VAT Posting Groups with GL VAT Rounding type Down.
         Initialize;
         CreatePostAndVerifyPurchaseDoc('>', PurchaseHeader."Document Type"::Invoice, '>', '', -1);
@@ -193,6 +202,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        // [FEATURE] [Purchase] [Rounding]
         // Verify VAT Amount on Posted Purchase Order different VAT Posting Groups with GL VAT Rounding type Nearest.
         Initialize;
         CreatePostAndVerifyPurchaseDoc('=', PurchaseHeader."Document Type"::Order, '=', '', -1)
@@ -205,6 +215,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         Currency: Record Currency;
         PurchaseHeader: Record "Purchase Header";
     begin
+        // [FEATURE] [Purchase] [Rounding]
         // Verify VAT Amount on Purchase Credit Memo Statistics for different VAT Posting Groups with GL VAT Rounding type Nearest and FCY
         // with Currency VAT Rounding Up.
         Initialize;
@@ -245,6 +256,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         InvoiceDiscountAmount: Decimal;
         QtyType: Option General,Invoicing,Shipping;
     begin
+        // [FEATURE] [Sales]
         // Verify that Negative Invoice Discount can be entered on Sales Order Statistics.
 
         // Setup: Create Sales Order, Calculate Invoice Discount and VAT Amount on Sales Line.
@@ -261,7 +273,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         // Verify: Verify Negative Invoice Discount Amount on VAT Amount Line.
         Assert.AreEqual(
           InvoiceDiscountAmount, VATAmountLine."Invoice Discount Amount", StrSubstNo(
-            AmountError, VATAmountLine.FieldCaption("Invoice Discount Amount"), InvoiceDiscountAmount, VATAmountLine.TableCaption));
+            AmountErr, VATAmountLine.FieldCaption("Invoice Discount Amount"), InvoiceDiscountAmount, VATAmountLine.TableCaption));
 
         // Tear Down: Delete Sales Order created.
         SalesHeader.Delete(true);
@@ -277,6 +289,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
         QtyType: Option General,Invoicing,Shipping;
     begin
+        // [FEATURE] [Sales]
         // Verify Error Message after Updating Invoice Discount Amount greater than Invoice Discount Base Amount on Sales Order.
 
         // Setup: Create Sales Order, Calculate Invoice Discount and VAT Amount on Sales Line.
@@ -305,6 +318,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
         QtyType: Option General,Invoicing,Shipping;
     begin
+        // [FEATURE] [Sales]
         // Verify VAT Base is Zero when Invoice Discount Amount is equal to Invoice Discount Base Amount for Sales Order.
 
         // Setup: Create Sales Order, Calculate Invoice Discount and VAT Amount Lines.
@@ -319,7 +333,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
 
         // Verify: Verify VAT Base Amount is Zero on VAT Amount Line.
         Assert.AreEqual(
-          0, VATAmountLine."VAT Base", StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Base"), 0, VATAmountLine.TableCaption));
+          0, VATAmountLine."VAT Base", StrSubstNo(AmountErr, VATAmountLine.FieldCaption("VAT Base"), 0, VATAmountLine.TableCaption));
 
         // Tear Down: Delete Sales Order created.
         SalesHeader.Delete(true);
@@ -337,6 +351,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         InvoiceDiscountAmount: Decimal;
         VATAmount: Decimal;
     begin
+        // [FEATURE] [Sales]
         // Verify GL Entries after posting Sales Order when Invoice Discount Amount is equal to Invoice Discount Base Amount.
 
         // Setup: Create Sales Order, Calculate Invoice Discount. Update Invoice Discount Amount in Sales Lines.
@@ -366,6 +381,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         "Count": Integer;
         QtyType: Option General,Invoicing,Shipping;
     begin
+        // [FEATURE] [Sales]
         // Verify Error Message after updating Invoice Discount Amount when Allow Invoice Discount is NO on Items taken in Sales Lines.
 
         // Setup: Create Sales Order with Non Discount Items, Release Sales Order and Calculate VAT Amount on Sales Line.
@@ -381,11 +397,13 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
 
         // Verify: Verify Error Message after changing Invoice Discount Amount.
         Assert.ExpectedError(
-          StrSubstNo(InvBaseDiscErrorErr, VATAmountLine.FieldCaption("Inv. Disc. Base Amount"), VATAmountLine.TableCaption,
+          StrSubstNo(InvBaseDiscErr, VATAmountLine.FieldCaption("Inv. Disc. Base Amount"), VATAmountLine.TableCaption,
             VATAmountLine.FieldCaption("VAT Identifier"), VATAmountLine."VAT Identifier",
             VATAmountLine.FieldCaption("VAT Calculation Type"), VATAmountLine."VAT Calculation Type",
-            VATAmountLine.FieldCaption("Tax Group Code"), VATAmountLine."Tax Group Code", VATAmountLine.FieldCaption("Use Tax"),
-            VATAmountLine."Use Tax", VATAmountLine.FieldCaption(Positive), VATAmountLine.Positive));
+            VATAmountLine.FieldCaption("Tax Group Code"), VATAmountLine."Tax Group Code",
+            VATAmountLine.FieldCaption("Tax Area Code"), VATAmountLine."Tax Area Code",
+            VATAmountLine.FieldCaption("Use Tax"), VATAmountLine."Use Tax",
+            VATAmountLine.FieldCaption(Positive), VATAmountLine.Positive));
     end;
 
     [Test]
@@ -395,6 +413,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         SalesLine: Record "Sales Line";
         InvoiceDiscountAmount: Decimal;
     begin
+        // [FEATURE] [Sales]
         // Check VAT specification field on Sales Invoice Statistics Rounded to Amount Rounding Precision of the Currency.
         CreateSalesDocWithDiscount(SalesLine);
         InvoiceDiscountAmount := FindInvDiscAmountForCustomer(SalesLine."Sell-to Customer No.", SalesLine."Line Amount");
@@ -414,6 +433,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         Currency: Record Currency;
         InvoiceDiscountAmount: Decimal;
     begin
+        // [FEATURE] [Purchase]
         // Check VAT specification field on Purchase Invoice Statistics Rounded to Amount Rounding Precision of the Currency.
         CreatePurchaseDocWithDiscount(
           PurchaseLine, CreateCurrency(Currency."VAT Rounding Type"::Nearest), PurchaseLine."Document Type"::Invoice);
@@ -434,6 +454,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         TempSalesLine: Record "Sales Line" temporary;
         DocumentNo: Code[20];
     begin
+        // [FEATURE] [Sales]
         // Setup.
         Initialize;
         CreateVATSalesDocument(SalesHeader, TempSalesLine, SalesHeader."Document Type"::Order, '');
@@ -453,6 +474,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         TempSalesLine: Record "Sales Line" temporary;
         DocumentNo: Code[20];
     begin
+        // [FEATURE] [Sales]
         // Setup.
         Initialize;
         CreateVATSalesDocument(SalesHeader, TempSalesLine, SalesHeader."Document Type"::"Credit Memo", '');
@@ -472,6 +494,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         TempPurchaseLine: Record "Purchase Line" temporary;
         DocumentNo: Code[20];
     begin
+        // [FEATURE] [Purchase]
         // Setup.
         Initialize;
         CreateVATPurchaseDocument(PurchaseHeader, TempPurchaseLine, PurchaseHeader."Document Type"::Order, '');
@@ -491,6 +514,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         TempPurchaseLine: Record "Purchase Line" temporary;
         DocumentNo: Code[20];
     begin
+        // [FEATURE] [Purchase]
         // Setup.
         Initialize;
         CreateVATPurchaseDocument(PurchaseHeader, TempPurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '');
@@ -510,6 +534,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         VATAmountLine: Record "VAT Amount Line";
         InvoiceDiscountAmount: Decimal;
     begin
+        // [FEATURE] [Purchase]
         // Verify that Negative Invoice Discount can be entered on Purchase Order Statistics.
 
         // Setup: Create Purchase Order, Calculate Invoice Discount.
@@ -525,7 +550,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         // Verify: Verify Negative Invoice Discount Amount on VAT Amount Line.
         Assert.AreEqual(
           InvoiceDiscountAmount, VATAmountLine."Invoice Discount Amount", StrSubstNo(
-            AmountError, VATAmountLine.FieldCaption("Invoice Discount Amount"), InvoiceDiscountAmount, VATAmountLine.TableCaption));
+            AmountErr, VATAmountLine.FieldCaption("Invoice Discount Amount"), InvoiceDiscountAmount, VATAmountLine.TableCaption));
     end;
 
     [Test]
@@ -535,6 +560,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         PurchaseLine: Record "Purchase Line";
         VATAmountLine: Record "VAT Amount Line";
     begin
+        // [FEATURE] [Purchase]
         // Verify Error Message after Updating Invoice Discount Amount greater than Invoice Discount Base Amount on Purchase Order.
 
         // Setup: Create Purchase Order, Calculate Invoice Discount.
@@ -559,6 +585,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         PurchaseLine: Record "Purchase Line";
         VATAmountLine: Record "VAT Amount Line";
     begin
+        // [FEATURE] [Purchase]
         // Verify VAT Base is Zero when Invoice Discount Amount is equal to Invoice Discount Base Amount for Purchase Order.
 
         // Setup: Create Purchase Order, Calculate Invoice Discount.
@@ -572,7 +599,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
 
         // Verify: Verify VAT Base Amount is Zero on VAT Amount Line.
         Assert.AreEqual(
-          0, VATAmountLine."VAT Base", StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Base"), 0, VATAmountLine.TableCaption));
+          0, VATAmountLine."VAT Base", StrSubstNo(AmountErr, VATAmountLine.FieldCaption("VAT Base"), 0, VATAmountLine.TableCaption));
     end;
 
     [Test]
@@ -586,6 +613,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         InvoiceDiscountAmount: Decimal;
         VATAmount: Decimal;
     begin
+        // [FEATURE] [Purchase]
         // Verify GL Entries after posting Purchase Order when Invoice Discount Amount is equal to Invoice Discount Base Amount.
 
         // Setup: Create Purchase Order, Calculate Invoice Discount. Update Invoice Discount Amount in Purchase Lines.
@@ -616,6 +644,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         QtyType: Option General,Invoicing,Shipping;
         "Count": Integer;
     begin
+        // [FEATURE] [Purchase]
         // Verify Error Message after updating Invoice Discount Amount when Allow Invoice Discount is NO on Items taken in Purchase Lines.
 
         // Setup: Create Purchase Header, Purchase Lines with Non Discount Items,Calculate VAT Amount on Purchase Line.
@@ -633,11 +662,13 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
 
         // Verify: Verify Error Message after changing Invoice Discount Amount.
         Assert.ExpectedError(
-          StrSubstNo(InvBaseDiscErrorErr, VATAmountLine.FieldCaption("Inv. Disc. Base Amount"), VATAmountLine.TableCaption,
+          StrSubstNo(InvBaseDiscErr, VATAmountLine.FieldCaption("Inv. Disc. Base Amount"), VATAmountLine.TableCaption,
             VATAmountLine.FieldCaption("VAT Identifier"), VATAmountLine."VAT Identifier",
             VATAmountLine.FieldCaption("VAT Calculation Type"), VATAmountLine."VAT Calculation Type",
-            VATAmountLine.FieldCaption("Tax Group Code"), VATAmountLine."Tax Group Code", VATAmountLine.FieldCaption("Use Tax"),
-            VATAmountLine."Use Tax", VATAmountLine.FieldCaption(Positive), VATAmountLine.Positive));
+            VATAmountLine.FieldCaption("Tax Group Code"), VATAmountLine."Tax Group Code",
+            VATAmountLine.FieldCaption("Tax Area Code"), VATAmountLine."Tax Area Code",
+            VATAmountLine.FieldCaption("Use Tax"), VATAmountLine."Use Tax",
+            VATAmountLine.FieldCaption(Positive), VATAmountLine.Positive));
     end;
 
     [Test]
@@ -652,6 +683,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         InvoiceDiscountAmount: Decimal;
         PostedDocumentNo: Code[20];
     begin
+        // [FEATURE] [Sales]
         // Verify GL Entries after posting partial Sales Order for Invoice Discount Amount.
 
         // Setup: Create Sales Order, Calculate Invoice Discount. Update Sales Line For Partial Posting.
@@ -1064,10 +1096,10 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         FindGLEntry(GLEntry, GLAccountNo, DocumentType, DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
-          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
     end;
 
     local procedure VerifyVATAmountOnGLEntry(DocumentNo: Code[20]; VATProdPostingGroup: Code[20]; CurrencyCode: Code[10]; VATAmount: Decimal; RoundingType: Text[1])
@@ -1087,7 +1119,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         ExpectedVATAmount := LibraryERM.ConvertCurrency(RoundVATAmount(-VATAmount, RoundingType), CurrencyCode, '', WorkDate);
         Assert.AreNearlyEqual(
           ExpectedVATAmount, Round(ActualVATAmount), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), ExpectedVATAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), ExpectedVATAmount, GLEntry.TableCaption));
     end;
 
     local procedure VerifyVATOnStatistics(VATPct: Decimal; VATAmount: Decimal)
@@ -1100,7 +1132,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         VATAmountLine.FindFirst;
         Assert.AreNearlyEqual(
           VATAmount, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption));
+          StrSubstNo(AmountErr, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption));
     end;
 
     local procedure VerifyVATOnStatisticsAll(CurrencyCode: Code[10]; VATPercent: Decimal; LineAmount: Decimal; InvoiceDiscountAmount: Decimal; VATAmount: Decimal)
@@ -1113,19 +1145,19 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         VATAmountLine.FindFirst;
         Assert.AreNearlyEqual(
           LineAmount, VATAmountLine."Line Amount", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATAmountLine.FieldCaption("Line Amount"), LineAmount, VATAmountLine.TableCaption));
+          StrSubstNo(AmountErr, VATAmountLine.FieldCaption("Line Amount"), LineAmount, VATAmountLine.TableCaption));
         Assert.AreNearlyEqual(
           LineAmount, VATAmountLine."Inv. Disc. Base Amount", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATAmountLine.FieldCaption("Inv. Disc. Base Amount"), LineAmount, VATAmountLine.TableCaption));
+          StrSubstNo(AmountErr, VATAmountLine.FieldCaption("Inv. Disc. Base Amount"), LineAmount, VATAmountLine.TableCaption));
         Assert.AreNearlyEqual(
           InvoiceDiscountAmount, VATAmountLine."Invoice Discount Amount", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATAmountLine.FieldCaption("Invoice Discount Amount"), InvoiceDiscountAmount, VATAmountLine.TableCaption));
+          StrSubstNo(AmountErr, VATAmountLine.FieldCaption("Invoice Discount Amount"), InvoiceDiscountAmount, VATAmountLine.TableCaption));
         Assert.AreNearlyEqual(
           LineAmount - InvoiceDiscountAmount, VATAmountLine."VAT Base", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Base"), LineAmount - InvoiceDiscountAmount, VATAmountLine.TableCaption));
+          StrSubstNo(AmountErr, VATAmountLine.FieldCaption("VAT Base"), LineAmount - InvoiceDiscountAmount, VATAmountLine.TableCaption));
         Assert.AreNearlyEqual(
           VATAmount, VATAmountLine."VAT Amount", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption));
+          StrSubstNo(AmountErr, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption));
     end;
 
     local procedure VerifyVATBaseOnPstdSalesInv(var TempSalesLine: Record "Sales Line" temporary; DocumentNo: Code[20])
@@ -1139,7 +1171,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
             SalesInvoiceLine.Get(DocumentNo, TempSalesLine."Line No.");
             Assert.AreNearlyEqual(
               TempSalesLine."Line Amount", SalesInvoiceLine."VAT Base Amount", GeneralLedgerSetup."Amount Rounding Precision",
-              StrSubstNo(AmountError, SalesInvoiceLine.FieldCaption("VAT Base Amount"), TempSalesLine."Line Amount",
+              StrSubstNo(AmountErr, SalesInvoiceLine.FieldCaption("VAT Base Amount"), TempSalesLine."Line Amount",
                 SalesInvoiceLine.TableCaption));
         until TempSalesLine.Next = 0;
     end;
@@ -1155,7 +1187,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
             SalesCrMemoLine.Get(DocumentNo, TempSalesLine."Line No.");
             Assert.AreNearlyEqual(
               TempSalesLine."Line Amount", SalesCrMemoLine."VAT Base Amount", GeneralLedgerSetup."Amount Rounding Precision",
-              StrSubstNo(AmountError, SalesCrMemoLine.FieldCaption("VAT Base Amount"), TempSalesLine."Line Amount",
+              StrSubstNo(AmountErr, SalesCrMemoLine.FieldCaption("VAT Base Amount"), TempSalesLine."Line Amount",
                 SalesCrMemoLine.TableCaption));
         until TempSalesLine.Next = 0;
     end;
@@ -1171,7 +1203,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
             PurchInvLine.Get(DocumentNo, TempPurchaseLine."Line No.");
             Assert.AreNearlyEqual(
               TempPurchaseLine."Line Amount", PurchInvLine."VAT Base Amount", GeneralLedgerSetup."Amount Rounding Precision",
-              StrSubstNo(AmountError, PurchInvLine.FieldCaption("VAT Base Amount"), TempPurchaseLine."Line Amount",
+              StrSubstNo(AmountErr, PurchInvLine.FieldCaption("VAT Base Amount"), TempPurchaseLine."Line Amount",
                 PurchInvLine.TableCaption));
         until TempPurchaseLine.Next = 0;
     end;
@@ -1187,7 +1219,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
             PurchCrMemoLine.Get(DocumentNo, TempPurchaseLine."Line No.");
             Assert.AreNearlyEqual(
               TempPurchaseLine."Line Amount", PurchCrMemoLine."VAT Base Amount", GeneralLedgerSetup."Amount Rounding Precision",
-              StrSubstNo(AmountError, PurchCrMemoLine.FieldCaption("VAT Base Amount"), TempPurchaseLine."Line Amount",
+              StrSubstNo(AmountErr, PurchCrMemoLine.FieldCaption("VAT Base Amount"), TempPurchaseLine."Line Amount",
                 PurchCrMemoLine.TableCaption));
         until TempPurchaseLine.Next = 0;
     end;
@@ -1201,7 +1233,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         FindGLEntry(GLEntry, GLAccountNo, DocumentType, DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
     end;
 }
 

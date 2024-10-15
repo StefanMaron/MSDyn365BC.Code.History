@@ -1708,23 +1708,143 @@ codeunit 134120 "Price Source UT"
     end;
 
     [Test]
-    procedure T110_CustomerPriceGroup_NewSourceGetsGroupAll()
+    procedure T110_CustomerPriceGroup_NewSourceGetsGroupCustomer()
     var
         PriceSource: Record "Price Source";
     begin
         // [SCENARIO] New source of type 'Customer Price Group' gets Group 'Customer'
         PriceSource.NewEntry(PriceSource."Source Type"::"Customer Price Group", 0);
-        PriceSource.Testfield("Source Group", PriceSource."Source Group"::All);
+        PriceSource.Testfield("Source Group", PriceSource."Source Group"::Customer);
     end;
 
     [Test]
-    procedure T111_CustomerDiscGroup_NewSourceGetsGroupAll()
+    procedure T111_CustomerDiscGroup_NewSourceGetsGroupCustomer()
     var
         PriceSource: Record "Price Source";
     begin
         // [SCENARIO] New source of type 'Customer Disc. Group' gets Group 'Customer'
         PriceSource.NewEntry(PriceSource."Source Type"::"Customer Disc. Group", 0);
-        PriceSource.Testfield("Source Group", PriceSource."Source Group"::All);
+        PriceSource.Testfield("Source Group", PriceSource."Source Group"::Customer);
+    end;
+
+    [Test]
+    procedure T120_All_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'All' gives "Price Type" 'Any'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::All);
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Any);
+    end;
+
+    [Test]
+    procedure T121_AllCustomers_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'All Customers' gives "Price Type" 'Sale'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"All Customers");
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Sale);
+    end;
+
+    [Test]
+    procedure T121_Customer_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Customer' gives "Price Type" 'Sale'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Customer);
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Sale);
+    end;
+
+    [Test]
+    procedure T122_AllVendors_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'All Vendors' gives "Price Type" 'Purchase'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"All Vendors");
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Purchase);
+    end;
+
+    [Test]
+    procedure T123_Vendor_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Vendor' gives "Price Type" 'Purchase'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Vendor);
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Purchase);
+    end;
+
+    [Test]
+    procedure T124_AllJobs_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'All Jobs' gives "Price Type" 'Any'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"All Jobs");
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Any);
+    end;
+
+    [Test]
+    procedure T125_Job_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Job' gives "Price Type" 'Any'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Job);
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Any);
+    end;
+
+    [Test]
+    procedure T126_JobTask_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Job Task' gives "Price Type" 'Any'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"Job Task");
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Any);
+    end;
+
+    [Test]
+    procedure T127_Campaign_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Campaign' gives "Price Type" 'Any'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Campaign);
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Any);
+    end;
+
+    [Test]
+    procedure T128_Contact_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Contact' gives "Price Type" 'Any'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Contact);
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Any);
+    end;
+
+    [Test]
+    procedure T129_CustomerPriceGroup_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Customer Price Group' gives "Price Type" 'Sale'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"Customer Price Group");
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Sale);
+    end;
+
+    [Test]
+    procedure T130_CustomerDiscGroup_GetPriceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Customer Disc. Group' gives "Price Type" 'Sale'
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"Customer Disc. Group");
+        PriceSource.TestField("Price Type", PriceSource."Price Type"::Sale);
     end;
 
     local procedure Initialize()

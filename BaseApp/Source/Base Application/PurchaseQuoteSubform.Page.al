@@ -63,6 +63,8 @@ page 97 "Purchase Quote Subform"
 
                         UpdateTypeText;
                         DeltaUpdateTotals;
+
+                        CurrPage.Update();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")

@@ -10,13 +10,13 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
     var
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
-        WrongLogEntryOnPageErr: Label 'Unexpected entry in VAT Registration Log page.';
         NamespaceTxt: Label 'urn:ec.europa.eu:taxud:vies:services:checkVat:types', Locked = true;
         VATTxt: Label 'vat';
         ValidTxt: Label 'valid';
@@ -32,6 +32,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         CountryRegionDoesNotExistErr: Label 'The %1 does not exist.', Comment = '%1 - Table caption.';
         DisclaimerTxt: Label 'You are accessing a third-party website and service. Review the disclaimer before you continue.';
         VATRegNoVIESSettingIsNotEnabledErr: Label 'VAT Reg. No. Validation Setup is not enabled.';
+        NoVATNoToValidateErr: Label 'Specify the VAT registration number that you want to verify.';
         CannotInsertMultipleSettingsErr: Label 'You cannot insert multiple settings.';
         UnexpectedResponseErr: Label 'The VAT registration number could not be verified because the VIES VAT Registration No. service may be currently unavailable for the selected EU state, %1.';
 
@@ -72,36 +73,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     end;
 
     [Test]
-    [HandlerFunctions('VATRegistrationLogHandler')]
-    [Scope('OnPrem')]
-    procedure TestLaunchingVatRegistrationLogCustomer()
-    var
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [UI] [Customer]
-        // [SCENARIO] When you click assist edit on "VAT Registration No." field on Customer page VAT Registration Log page is launched, and you can see the entire log
-        Initialize;
-
-        // [GIVEN] Create Customer "C" with "VAT Registration No." = "X"
-        CreateCustomer(Customer);
-        LibraryVariableStorage.Enqueue(Customer."VAT Registration No.");
-
-        // [GIVEN] Modify Customer "VAT Registration No." = "Y"
-        ModifyCustomerVATRegNo(Customer);
-        LibraryVariableStorage.Enqueue(Customer."VAT Registration No.");
-
-        // [WHEN] Assist edit on "VAT Registration No." field on Costomer page
-        OpenCustomerVATRegLog(Customer);
-
-        // [THEN] VAT Registration Log page is launched and there are two Customer's entries:
-        // [THEN] "Account Type" = "Customer", "Account No." = "C", "VAT Registration No." = "X"
-        // [THEN] "Account Type" = "Customer", "Account No." = "C", "VAT Registration No." = "Y"
-
-        // Tear Down
-        Customer.Delete();
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure TestCustomerCountryCodeChangeCausesVATValidation()
     var
@@ -139,137 +110,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
         // Tear Down
         asserterror Vendor.Delete();
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VATRegistrationLogHandler')]
-    [Scope('OnPrem')]
-    procedure TestLaunchingVatRegistrationLogCustomerCreatedFromContact()
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
-    begin
-        // [FEATURE] [UI] [Customer] [Contact]
-        // [SCENARIO 375488] When you click assist edit on "VAT Registration No." field on Customer (created from Contact) page VAT Registration Log page is launched, and you can see the entire log
-        Initialize;
-
-        // [GIVEN] Create Contact "A" with "VAT Registration No." = "X"
-        CreateContact(Contact);
-        LibraryVariableStorage.Enqueue(Contact."VAT Registration No.");
-
-        // [GIVEN] Create Customer "C" from Contact "A"
-        CreateCustomerFromContact(Customer, Contact);
-
-        // [GIVEN] Modify Customer "VAT Registration No." = "Y"
-        ModifyCustomerVATRegNo(Customer);
-        LibraryVariableStorage.Enqueue(Customer."VAT Registration No.");
-
-        // [WHEN] Assist edit on "VAT Registration No." field on Costomer page
-        OpenCustomerVATRegLog(Customer);
-
-        // [THEN] VAT Registration Log page is launched and there are two Customer's entries:
-        // [THEN] "Account Type" = "Customer", "Account No." = "C", "VAT Registration No." = "X"
-        // [THEN] "Account Type" = "Customer", "Account No." = "C", "VAT Registration No." = "Y"
-
-        // Tear Down
-        Contact.Delete();
-        Customer.Delete();
-    end;
-
-    [Test]
-    [HandlerFunctions('VATRegistrationLogHandler')]
-    [Scope('OnPrem')]
-    procedure TestLaunchingVatRegistrationLogVendor()
-    var
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [UI] [Vendor]
-        // [SCENARIO] When you click assist edit on "VAT Registration No." field on Vendor page VAT Registration Log page is launched, and you can see the entire log
-        Initialize;
-
-        // [GIVEN] Create Vendor "V" with "VAT Registration No." = "X"
-        CreateVendor(Vendor);
-        LibraryVariableStorage.Enqueue(Vendor."VAT Registration No.");
-
-        // [GIVEN] Modify Vendor "VAT Registration No." = "Y"
-        ModifyVendorVATRegNo(Vendor);
-        LibraryVariableStorage.Enqueue(Vendor."VAT Registration No.");
-
-        // [WHEN] Assist edit on "VAT Registration No." field on Vendor page
-        OpenVendorVATRegLog(Vendor);
-
-        // [THEN] VAT Registration Log page is launched and there are two Vendor's entries:
-        // [THEN] "Account Type" = "Vendor", "Account No." = "V", "VAT Registration No." = "X"
-        // [THEN] "Account Type" = "Vendor", "Account No." = "V", "VAT Registration No." = "Y"
-
-        // Tear Down
-        Vendor.Delete();
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VATRegistrationLogHandler')]
-    [Scope('OnPrem')]
-    procedure TestLaunchingVatRegistrationLogVendorCreatedFromContact()
-    var
-        Contact: Record Contact;
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [UI] [Vendor] [Contact]
-        // [SCENARIO 375488] When you click assist edit on "VAT Registration No." field on Vendor (created from Contact) page VAT Registration Log page is launched, and you can see the entire log
-        Initialize;
-
-        // [GIVEN] Create Contact "A" with "VAT Registration No." = "X"
-        CreateContact(Contact);
-        LibraryVariableStorage.Enqueue(Contact."VAT Registration No.");
-
-        // [GIVEN] Create Vendor "V" from Contact "A"
-        CreateVendorFromContact(Vendor, Contact);
-
-        // [GIVEN] Modify Vendor "VAT Registration No." = "Y"
-        ModifyVendorVATRegNo(Vendor);
-        LibraryVariableStorage.Enqueue(Vendor."VAT Registration No.");
-
-        // [WHEN] Assist edit on "VAT Registration No." field on Vendor page
-        OpenVendorVATRegLog(Vendor);
-
-        // [THEN] VAT Registration Log page is launched and there are two Vendor's entries:
-        // [THEN] "Account Type" = "Vendor", "Account No." = "V", "VAT Registration No." = "X"
-        // [THEN] "Account Type" = "Vendor", "Account No." = "V", "VAT Registration No." = "Y"
-
-        // Tear Down
-        Contact.Delete();
-        Vendor.Delete();
-    end;
-
-    [Test]
-    [HandlerFunctions('VATRegistrationLogHandler')]
-    [Scope('OnPrem')]
-    procedure TestLaunchingVatRegistrationLogContact()
-    var
-        Contact: Record Contact;
-    begin
-        // [FEATURE] [UI] [Contact]
-        // [SCENARIO] When you click assist edit on "VAT Registration No." field on Contact page VAT Registration Log page is launched, and you can see the entire log
-        Initialize;
-
-        // [GIVEN] Create Contact "A" with "VAT Registration No." = "X"
-        CreateContact(Contact);
-        LibraryVariableStorage.Enqueue(Contact."VAT Registration No.");
-
-        // [GIVEN] Modify Contact "VAT Registration No." = "Y"
-        Contact.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(50000000, 59999999)));
-        Contact.Modify();
-        LibraryVariableStorage.Enqueue(Contact."VAT Registration No.");
-
-        // [WHEN] Assist edit on "VAT Registration No." field on Contact page
-        OpenContactVATRegLog(Contact);
-
-        // [THEN] VAT Registration Log page is launched and there are two Contact's entries:
-        // [THEN] "Account Type" = "Contact", "Account No." = "A", "VAT Registration No." = "X"
-        // [THEN] "Account Type" = "Contact", "Account No." = "A", "VAT Registration No." = "Y"
-
-        // Tear Down
-        Contact.Delete();
     end;
 
     [Test]
@@ -1110,6 +950,28 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     end;
 
     [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ThrowErrorWhenVATRegistrationLogIsEmpty()
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+    begin
+        // [SCENARIO] 
+        // When there is no VAT to validate an error is thrown
+        VATRegistrationLog.DeleteAll();
+
+        VATRegNoSrvConfig.DeleteAll();
+        VATRegNoSrvConfig.Init();
+        VATRegNoSrvConfig.Enabled := true;
+        VATRegNoSrvConfig."Service Endpoint" := LibraryUtility.GenerateGUID;
+        VATRegNoSrvConfig.Insert();
+
+        asserterror CODEUNIT.Run(CODEUNIT::"VAT Lookup Ext. Data Hndl");
+        Assert.ExpectedError(NoVATNoToValidateErr);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ValidateHeaderVATRegistrationNoRespectsSellToCustomerSetting()
     var
@@ -1223,49 +1085,24 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         Assert.AreEqual(Contact.Name, Contact."Company Name", '');
     end;
 
-    [Test]
-    [HandlerFunctions('VATRegLogHandler')]
-    [Scope('OnPrem')]
-    procedure TestLaunchingVatRegistrationLogSelectLastValidatedVATRegistrationNo()
-    var
-        Customer: Record Customer;
-        CustomerCard: TestPage "Customer Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 330051] When you click assist edit on "VAT Registration No." field on Customer Card page VAT Registration Log page is launched, and last validated "VAT Registration No." line is selected.
-        Initialize;
-
-        // [GIVEN] Customer with VAT Registration No. = "A".
-        CreateCustomer(Customer);
-
-        // [GIVEN] On Customer Card Customer's VAT Registration No. is set to "B".
-        CustomerCard.OpenEdit;
-        CustomerCard.FILTER.SetFilter("No.", Customer."No.");
-        CustomerCard."VAT Registration No.".SetValue(LibraryRandom.RandIntInRange(10000000, 99999999));
-
-        // [WHEN] VAT Registration Log page is opened from Customer Card's field "VAT Registration No." Assist Edit.
-        LibraryVariableStorage.Enqueue(CustomerCard."VAT Registration No.".Value);
-        CustomerCard."VAT Registration No.".DrillDown;
-
-        // [THEN] On opened page selected line has VAT Registration No. = "B".
-    end;
-
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
 
         LibraryApplicationArea.EnableFoundationSetup;
-        LibraryApplicationArea.EnableVATSetup;
         SetVATRegSrvStatus(false, '');
 
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
     end;
 
     local procedure InitializeVATRegistrationLog(var VATRegistrationLog: Record "VAT Registration Log"; AccountType: Option; AccountNo: Code[20])
@@ -1382,70 +1219,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         Customer.Modify(true);
     end;
 
-    local procedure CreateCustomerFromContact(var Customer: Record Customer; Contact: Record Contact)
-    var
-        ContactBusinessRelation: Record "Contact Business Relation";
-    begin
-        Contact.CreateCustomer('');
-        ContactBusinessRelation.SetRange("Contact No.", Contact."No.");
-        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        ContactBusinessRelation.FindFirst;
-        Customer.Get(ContactBusinessRelation."No.");
-    end;
-
-    local procedure CreateVendorFromContact(var Vendor: Record Vendor; Contact: Record Contact)
-    var
-        ContactBusinessRelation: Record "Contact Business Relation";
-    begin
-        Contact.CreateVendor;
-        ContactBusinessRelation.SetRange("Contact No.", Contact."No.");
-        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
-        ContactBusinessRelation.FindFirst;
-        Vendor.Get(ContactBusinessRelation."No.");
-    end;
-
-    local procedure ModifyCustomerVATRegNo(var Customer: Record Customer)
-    begin
-        Customer.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-        Customer.Modify();
-    end;
-
-    local procedure ModifyVendorVATRegNo(var Vendor: Record Vendor)
-    begin
-        Vendor.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-        Vendor.Modify();
-    end;
-
-    local procedure OpenCustomerVATRegLog(Customer: Record Customer)
-    var
-        CustomerCard: TestPage "Customer Card";
-    begin
-        CustomerCard.OpenEdit;
-        CustomerCard.GotoRecord(Customer);
-        CustomerCard."VAT Registration No.".DrillDown;
-        CustomerCard.Close;
-    end;
-
-    local procedure OpenVendorVATRegLog(Vendor: Record Vendor)
-    var
-        VendorCard: TestPage "Vendor Card";
-    begin
-        VendorCard.OpenEdit;
-        VendorCard.GotoRecord(Vendor);
-        VendorCard."VAT Registration No.".DrillDown;
-        VendorCard.Close;
-    end;
-
-    local procedure OpenContactVATRegLog(Contact: Record Contact)
-    var
-        ContactCard: TestPage "Contact Card";
-    begin
-        ContactCard.OpenEdit;
-        ContactCard.GotoRecord(Contact);
-        ContactCard."VAT Registration No.".DrillDown;
-        ContactCard.Close;
-    end;
-
     local procedure UpdateCountryRegionInCompanyInformation(CountryRegionCode: Code[10])
     var
         CompanyInformation: Record "Company Information";
@@ -1489,42 +1262,11 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         Assert.AreEqual(ExpectedCount, VATRegistrationLog.Count, WrongLogEntryCountErr);
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure VATRegistrationLogHandler(var VATRegistrationLog: TestPage "VAT Registration Log")
-    var
-        VATRegistrationNo1: Variant;
-        VATRegistrationNo2: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(VATRegistrationNo1);
-        LibraryVariableStorage.Dequeue(VATRegistrationNo2);
-        VATRegistrationLog.First;
-        Assert.AreEqual(VATRegistrationNo2, VATRegistrationLog."VAT Registration No.".Value, WrongLogEntryOnPageErr);
-        VATRegistrationLog.Next;
-        Assert.AreEqual(VATRegistrationNo1, VATRegistrationLog."VAT Registration No.".Value, WrongLogEntryOnPageErr);
-        VATRegistrationLog.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure VATRegLogHandler(var VATRegistrationLog: TestPage "VAT Registration Log")
-    begin
-        VATRegistrationLog."VAT Registration No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        VATRegistrationLog.OK.Invoke;
-    end;
-
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text[1024])
-    begin
-        // Dummy message handler.
     end;
 
     local procedure SetVATRegSrvStatus(Status: Boolean; EndpointURL: Text[250])

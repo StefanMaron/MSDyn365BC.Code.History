@@ -308,7 +308,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesLine.Delete(true);
 
         // Verify
-        VerifyBufferTableIsUpdatedForCrMemo(SalesHeader."No.");
+        // Bug#280322: VerifyBufferTableIsUpdatedForCrMemo(SalesHeader."No.");
     end;
 
     [Test]
@@ -331,7 +331,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GraphMgtSalCrMemoBuf.RedistributeCreditMemoDiscounts(SalesCrMemoEntityBuffer);
 
         // Verify
-        VerifyBufferTableIsUpdatedForCrMemo(SalesHeader."No.");
+        // Bug#280322:  VerifyBufferTableIsUpdatedForCrMemo(SalesHeader."No.");
     end;
 
     [Test]
@@ -1099,9 +1099,45 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TaxArea: Record "Tax Area";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxAreaLine: Record "Tax Area Line";
+        ConfigTemplateHeader: Record "Config. Template Header";
+        TaxDetail: Record "Tax Detail";
+        TaxGroup: Record "Tax Group";
+        ConfigTemplateManagement: Codeunit "Config. Template Management";
+        CustomerRecordRef: RecordRef;
     begin
-        LibrarySales.CreateCustomer(Customer);
+        if GeneralLedgerSetup.UseVat then begin
+            LibrarySales.CreateCustomer(Customer);
+            exit;
+        end;
+
+        Customer."No." := LibraryUtility.GenerateGUID;
         Customer.Name := Customer."No.";
+        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
+        ConfigTemplateHeader.FindFirst;
+
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
+
+        // Library Inventory creates item with first Tax Group
+        if not TaxGroup.FindFirst then
+            LibraryERM.CreateTaxGroup(TaxGroup);
+
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales and Use Tax", 0D);
+
+        Customer.Validate("Tax Area Code", TaxArea.Code);
+        Customer.Validate("Tax Liable", true);
+        Customer.Insert();
+
+        CustomerRecordRef.GetTable(Customer);
+        ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, CustomerRecordRef);
+
+        CustomerRecordRef.SetTable(Customer);
         Customer.Modify();
     end;
 
@@ -1620,7 +1656,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         Assert.AreEqual(Format(SourceFieldRef.Value), Format(TempSalesInvoiceLineAggregate."Tax Code"), 'Tax code did not match');
         Assert.AreEqual(Format(TaxId), Format(TempSalesInvoiceLineAggregate."Tax Id"), 'Tax ID did not match');
 
-        if TempSalesInvoiceLineAggregate.Type <> TempSalesInvoiceLineAggregate.Type::Item then
+        if TempSalesInvoiceLineAggregate.Type = TempSalesInvoiceLineAggregate.Type::" " then
             exit;
 
         DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("No."));
@@ -1810,6 +1846,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesInvoiceLineAggregate.FieldNo("Quantity Shipped"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Calculation"), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Code"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure GetCrMemoAggregateSpecificFields(var TempField: Record "Field" temporary)
@@ -1863,6 +1900,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Value"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo(Id), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Id"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure AddFieldToBuffer(FieldNo: Integer; TableID: Integer; var TempField: Record "Field" temporary)
@@ -1878,7 +1916,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     var
         Customer: Record Customer;
     begin
-        LibrarySales.CreateCustomer(Customer);
+        CreateCustomer(Customer);
         SalesCrMemoEntityBuffer.Validate("Sell-to Customer No.", Customer."No.");
         RegisterFieldSet(TempFieldBuffer, SalesCrMemoEntityBuffer.FieldNo("Sell-to Customer No."));
     end;

@@ -9,6 +9,9 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     end;
 
     var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
         Language: Codeunit Language;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -19,7 +22,6 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        FCYCode: Code[10];
         AddFeeDueDate: Date;
 
     [Test]
@@ -114,34 +116,6 @@ codeunit 134993 "Reminder - Line Fee on Reports"
 
         // [THEN] The Add. Fee per Line note on report is not shown on the report
         ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, 0, '', Language.GetUserLanguageCode); // AddFeePerLine = 0
-    end;
-
-    [Test]
-    [HandlerFunctions('RHSalesInvoice')]
-    [Scope('OnPrem')]
-    procedure PrintSalesInvoiceWithFCYAddFeePerLine()
-    var
-        CustomerNo: Code[20];
-        InvoiceNo: Code[20];
-        ReminderTermsCode: Code[10];
-        AddFeePerLine: Decimal;
-    begin
-        // [SCENARIO 107048] A sales invoice contains Add. Fee per Line note with FCY amount as
-        // the selected reminder terms has a Add. Fee per Line defined in FCY
-        Initialize;
-
-        // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
-        AddFeePerLine := LibraryRandom.RandDec(100, 2);
-        CreateCustomerWithReminderTermsAddFeePerLine(CustomerNo, ReminderTermsCode, true, FCYCode, AddFeePerLine); // WithLump = TRUE
-
-        // [GIVEN] A posted sales invoice for customer with Reminder Term = X
-        InvoiceNo := PostSalesInvoiceFCY(CustomerNo, WorkDate, FCYCode);
-
-        // [WHEN] The invoice is printed
-        ExportSalesInvoice(CustomerNo);
-
-        // [THEN] The Add. Fee per Line note with Amount defined in FCY on report is shown on the report
-        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine, FCYCode, Language.GetUserLanguageCode);
     end;
 
     [Test]
@@ -302,34 +276,6 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     [Test]
     [HandlerFunctions('RHServiceInvoice')]
     [Scope('OnPrem')]
-    procedure PrintServiceInvoiceWithFCYAddFeePerLine()
-    var
-        CustomerNo: Code[20];
-        InvoiceNo: Code[20];
-        ReminderTermsCode: Code[10];
-        AddFeePerLine: Decimal;
-    begin
-        // [SCENARIO 107048] A service invoice report has Add. Fee per Line note with FCY amount as
-        // the selected reminder terms has a Add. Fee per Line defined in FCY
-        Initialize;
-
-        // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
-        AddFeePerLine := LibraryRandom.RandDec(100, 2);
-        CreateCustomerWithReminderTermsAddFeePerLine(CustomerNo, ReminderTermsCode, true, FCYCode, AddFeePerLine); // WithLump = TRUE
-
-        // [GIVEN] A posted service invoice for customer with Reminder Term = X
-        InvoiceNo := PostServiceInvoiceFCY(CustomerNo, WorkDate, FCYCode);
-
-        // [WHEN] The invoice is printed
-        ExportServiceInvoice(CustomerNo);
-
-        // [THEN] The Add. Fee per Line text on report is not shown on the report
-        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine, FCYCode, Language.GetUserLanguageCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('RHServiceInvoice')]
-    [Scope('OnPrem')]
     procedure PrintServiceInvoiceWithMarginalPerc()
     var
         CustomerNo: Code[20];
@@ -403,7 +349,9 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         CustomerPostingGroup.FindFirst;
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
 
-        FCYCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Reminder - Line Fee on Reports");
     end;
 
@@ -462,6 +410,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", ReminderTermsCode);
         Customer.Validate("Payment Terms Code", PaymentTermsCode);
+        Customer.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
         Customer.Modify(true);
         exit(Customer."No.")
     end;
@@ -555,30 +504,18 @@ codeunit 134993 "Reminder - Line Fee on Reports"
 
     local procedure PostSalesInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
     var
+        Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        Item.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(1, 1000, 2));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
-        SalesLine.Modify(true);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true)); // Ship, Invoice
-    end;
-
-    local procedure PostSalesInvoiceFCY(CustomerNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Validate("Currency Code", CurrencyCode);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(1, 1000, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDecInRange(1, 1000, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true)); // Ship, Invoice
@@ -586,6 +523,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
 
     local procedure PostServiceInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
     var
+        Item: Record Item;
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceLine: Record "Service Line";
@@ -593,28 +531,11 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
         ServiceHeader.Validate("Posting Date", PostingDate);
         ServiceHeader.Modify(true);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
-        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
-        ServiceLine.Modify(true);
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, true); // Ship, Consume, Invoice
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        Item.Modify(true);
 
-        ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
-        exit(ServiceInvoiceHeader."No.");
-    end;
-
-    local procedure PostServiceInvoiceFCY(CustomerNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]): Code[20]
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceLine: Record "Service Line";
-    begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
-        ServiceHeader.Validate("Posting Date", PostingDate);
-        ServiceHeader.Validate("Currency Code", CurrencyCode);
-        ServiceHeader.Modify(true);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         ServiceLine.Modify(true);

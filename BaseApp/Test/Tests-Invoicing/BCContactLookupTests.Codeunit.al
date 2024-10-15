@@ -251,6 +251,8 @@ codeunit 138945 "BC Contact Lookup Tests"
         if IsInitialized then
             exit;
 
+        CreateAndSetupDefaultTaxRateWithStateAndCity('SC', 6, 'CC', 4);
+
         LibraryInvoicingApp.SetupEmailTable;
         LibraryInvoicingApp.DisableC2Graph;
 
@@ -259,6 +261,19 @@ codeunit 138945 "BC Contact Lookup Tests"
 
         WorkDate(Today);
         IsInitialized := true;
+    end;
+
+    local procedure CreateAndSetupDefaultTaxRateWithStateAndCity(StateCode: Code[10]; StateRate: Decimal; CityCode: Code[10]; CityRate: Decimal)
+    var
+        O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
+    begin
+        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.State.Value(StateCode);
+        O365TaxSettingsCard.StateRate.SetValue(StateRate);
+        O365TaxSettingsCard.City.Value(CityCode);
+        O365TaxSettingsCard.CityRate.SetValue(CityRate);
+        O365TaxSettingsCard.Default.DrillDown;
+        O365TaxSettingsCard.Close;
     end;
 
     [SendNotificationHandler(true)]

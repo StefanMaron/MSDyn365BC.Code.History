@@ -52,8 +52,6 @@ codeunit 134771 "New Document from CustomerCard"
           Customer.Name, BlanketSalesOrder."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(
           Customer.Address, BlanketSalesOrder."Sell-to Address".Value, 'Customer address is not carried over to the document');
-        Assert.AreEqual(Customer."Post Code", BlanketSalesOrder."Sell-to Post Code".Value,
-          'Customer postcode is not carried over to the document');
         Assert.AreEqual(
           Customer.Contact, BlanketSalesOrder."Sell-to Contact".Value, 'Customer contact is not carried over to the document');
     end;

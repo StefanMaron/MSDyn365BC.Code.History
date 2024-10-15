@@ -210,6 +210,11 @@ page 42 "Sales Order"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update;
+                    end;
                 }
                 field("Promised Delivery Date"; "Promised Delivery Date")
                 {
@@ -511,7 +516,7 @@ page 42 "Sales Order"
 
                                             if ShipToAddressList.RunModal = ACTION::LookupOK then begin
                                                 ShipToAddressList.GetRecord(ShipToAddress);
-                                                OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(ShipToAddress);
+                                                OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(ShipToAddress, Rec);
                                                 Validate("Ship-to Code", ShipToAddress.Code);
                                                 IsShipToCountyVisible := FormatAddress.UseCounty(ShipToAddress."Country/Region Code");
                                             end else
@@ -1503,9 +1508,7 @@ page 42 "Sales Order"
 
                     trigger OnAction()
                     begin
-                        CopySalesDoc.SetSalesHeader(Rec);
-                        CopySalesDoc.RunModal;
-                        Clear(CopySalesDoc);
+                        CopyDocument();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -2242,7 +2245,6 @@ page 42 "Sales Order"
     end;
 
     var
-        CopySalesDoc: Report "Copy Sales Document";
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -2498,7 +2500,7 @@ page 42 "Sales Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShipToOptions(SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
+    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
     begin
     end;
 
@@ -2513,7 +2515,7 @@ page 42 "Sales Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(var ShipToAddress: Record "Ship-to Address")
+    local procedure OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(var ShipToAddress: Record "Ship-to Address"; var SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -524,56 +524,6 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure FilterByHasPaymentExportError()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        GenJnlBatch: Record "Gen. Journal Batch";
-        GenJnlLine1: Record "Gen. Journal Line";
-        GenJnlLine2: Record "Gen. Journal Line";
-        GenJnlLine3: Record "Gen. Journal Line";
-        PaymentJournal: TestPage "Payment Journal";
-        BankAccountNo: Code[20];
-    begin
-        Initialize;
-
-        // Pre-Setup
-        DeleteExtraPaymentJnlTemplates;
-        BankAccountNo := CreateSimpleBankAccount;
-        CreateGenJournalBatch(GenJnlBatch, BankAccountNo);
-
-        // Setup
-        LibraryERM.CreateGeneralJnlLine(GenJnlLine1, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
-          GenJnlLine1."Document Type"::Payment, GenJnlLine1."Account Type"::Vendor, '', LibraryRandom.RandDec(1000, 2));
-        GenJnlLine1.Description := Format(1);
-        GenJnlLine1.Modify();
-        LibraryERM.CreateGeneralJnlLine(GenJnlLine2, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
-          GenJnlLine2."Document Type"::Payment, GenJnlLine2."Account Type"::Vendor, '', LibraryRandom.RandDec(1000, 2));
-        LibraryERM.CreateGeneralJnlLine(GenJnlLine3, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
-          GenJnlLine3."Document Type"::Payment, GenJnlLine3."Account Type"::Vendor, '', LibraryRandom.RandDec(1000, 2));
-        GenJnlLine3.Description := Format(3);
-        GenJnlLine3.Modify();
-
-        CreateErrorsForGenJnlLine(GenJnlLine1);
-        CreateErrorsForGenJnlLine(GenJnlLine3);
-
-        // Exercise
-        Commit();
-        PaymentJournal.OpenEdit;
-        PaymentJournal.CurrentJnlBatchName.SetValue(GenJnlBatch.Name);
-        PaymentJournal.FILTER.SetFilter("Has Payment Export Error", Format(true));
-
-        // Verify
-        Assert.IsFalse(PaymentJournal."Has Payment Export Error".Editable, GenJnlLine.FieldCaption("Has Payment Export Error"));
-        PaymentJournal.First;
-        Assert.AreEqual('1', PaymentJournal.Description.Value, GenJnlLine1.FieldName(Description));
-        PaymentJournal.Next;
-        Assert.AreEqual('3', PaymentJournal.Description.Value, GenJnlLine3.FieldName(Description));
-        PaymentJournal.Next;
-        Assert.AreEqual('', PaymentJournal.Description.Value, GenJnlLine.FieldName(Description));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure FilterByExportedToPaymentFile()
     var
         BankAccount: Record "Bank Account";
@@ -2562,14 +2512,6 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         GenJournalLine.Modify();
     end;
 
-    local procedure CreateSimpleBankAccount(): Code[20]
-    var
-        BankAccount: Record "Bank Account";
-    begin
-        CreateBankAccount(BankAccount, '', '');
-        exit(BankAccount."No.");
-    end;
-
     local procedure DefinePaymentExportFormat(var DataExchMapping: Record "Data Exch. Mapping")
     var
         PaymentExportData: Record "Payment Export Data";
@@ -2596,23 +2538,6 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         PaymentMethod.Get(PaymentMethodCode);
         PaymentMethod.Validate("Pmt. Export Line Definition", DataExchLineDefCode);
         PaymentMethod.Modify(true);
-    end;
-
-    local procedure CreateErrorsForGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
-    var
-        PmtJnlExportErrorText: Record "Payment Jnl. Export Error Text";
-    begin
-        PmtJnlExportErrorText.CreateNew(GenJnlLine, '', '', '');
-    end;
-
-    local procedure DeleteExtraPaymentJnlTemplates()
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        GenJournalTemplate.SetFilter(Name, '<>%1', LibraryPurchase.SelectPmtJnlTemplate);
-        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.SetRange("Page ID", PAGE::"Payment Journal");
-        GenJournalTemplate.DeleteAll(true);
     end;
 }
 

@@ -248,22 +248,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType VendUnapplyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 465635117 - NamedType 1700181249" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Errors must match.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ErrorsMustMatchTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 465635117 - NamedType 1598875479" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType UnrealizedVATReverseErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is VAT Entry table caption,%2 is VAT Entry No]D;]A;(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType UnrealizedVATReverseErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1270787925 - NamedType 1850006683" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

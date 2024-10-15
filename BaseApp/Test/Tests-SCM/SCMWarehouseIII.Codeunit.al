@@ -2919,6 +2919,35 @@ codeunit 137051 "SCM Warehouse - III"
 
     [Test]
     [Scope('OnPrem')]
+    procedure DisablingDoNotUseForTaxCalculationFieldDisablesTaxFields()
+    var
+        Location: Record Location;
+        LocationCard: TestPage "Location Card";
+    begin
+        // [SCENARIO] Setting "Do Not Use ForTax Calculation" to FALSE, disabled the tax related fields.
+        Initialize;
+
+        // [GIVEN] Location.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        LocationCard.OpenEdit;
+        LocationCard.GotoRecord(Location);
+
+        Assert.IsTrue(LocationCard."Tax Area Code".Editable, 'Tax Area Code is expected to be editable.');
+        Assert.IsTrue(LocationCard."Tax Exemption No.".Editable, 'Tax Exemption No. is expected to be editable.');
+        Assert.IsTrue(LocationCard."Provincial Tax Area Code".Editable, 'Provincial Tax Area Code is expected to be editable.');
+
+        // [WHEN] "Do Not Use ForTax Calculation" is enabled.
+        LocationCard."Do Not Use For Tax Calculation".SetValue(true);
+
+        // [THEN] Tax related fields are set to non editable
+        Assert.IsFalse(LocationCard."Tax Area Code".Editable, 'Tax Area Code is expected not to be editable.');
+        Assert.IsFalse(LocationCard."Tax Exemption No.".Editable, 'Tax Exemption No. is expected not to be editable.');
+        Assert.IsFalse(LocationCard."Provincial Tax Area Code".Editable, 'Provincial Tax Area Code is expected not to be editable.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ReservedQtyNotDistributedOnAdjustmentBinOnCreatePick()
     var
         Location: Record Location;
@@ -3723,7 +3752,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Location with Pick According To FEFO, Require Shipment, Require Pick and Bin Mandatory
         CreateAndUpdateLocation(Location, true, false, true, false, true, true);
         LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', LibraryRandom.RandIntInRange(3, 5), false);
-        LibraryWarehouse.FindBin(Bin, Location.Code, '', 3); // Find Bin with Index 3.
+        LibraryWarehouse.FindBin(Bin,Location.Code,'',3); // Find Bin with Index 3.
         Location.Validate("Shipment Bin Code", Bin.Code);
         Location.Modify();
 
@@ -3736,7 +3765,7 @@ codeunit 137051 "SCM Warehouse - III"
         PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo, PartQty, CalcDate('<5Y>', WorkDate));
         PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo, PartQty, CalcDate('<5Y>', WorkDate));
         PostItemJournalLineWithLotNoExpiration(
-          Item."No.", Location.Code, Bin.Code, LotNo,2 * PartQty, CalcDate('<5Y>', WorkDate));
+          Item."No.", Location.Code, Bin.Code, LotNo, 2 * PartQty, CalcDate('<5Y>', WorkDate));
 
         // [GIVEN] Bin "B2" had Lot "L2" with Expiration Date = 1/1/2021 and 100 PCS
         LotNo := LibraryUtility.GenerateGUID;
@@ -4247,7 +4276,7 @@ codeunit 137051 "SCM Warehouse - III"
           Validate("Qty. to Handle", Qty);
           Modify(true);
           FindWhseActivityLine(
-            WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SalesHeader."No.", "Action Type"::Place);
+            WarehouseActivityLine,"Activity Type"::Pick, LocationCode, SalesHeader."No.", "Action Type"::Place);
           Validate("Qty. to Handle", Qty);
           Modify(true);
         end;

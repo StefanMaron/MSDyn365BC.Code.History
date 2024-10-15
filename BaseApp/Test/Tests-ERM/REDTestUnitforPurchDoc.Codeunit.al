@@ -778,7 +778,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [THEN] Deferral code is in Purchase Invoice Line
         // [THEN] Posted Deferral header and Line tables created
         // [THEN] G/L Entries are posted to Deferral Account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDefer, 1, 2, 3);
     end;
@@ -812,7 +812,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         // [THEN] Posted Deferral header and Line tables are for the partial quantities
         // [THEN] G/L Entries are posted to Deferral Account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDefer, 1, 2, 3);
     end;
@@ -851,7 +851,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         // [THEN] Posted Deferral header and Line tables are for the partial quantities and appropriate currency
         // [THEN] G/L Entries are posted to Deferral Account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDeferLCY, 1, 2, 3);
     end;
@@ -893,7 +893,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // [THEN] G/L Entries are combined for the deferral account from both lines
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForInvoice(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 2), 3, 0, false);
     end;
@@ -936,7 +936,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // [THEN] G/L Entries for purch account is reduced by amt deferred which is posted directly to deferral account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGLWithPurchAmt(DocNo,
           DeferralTemplateCode, AccNo, PurchAccount, AmtToDefer, AmtToDefer, 1, 2, 3, 5, PurchAmount);
@@ -981,7 +981,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         // [THEN] Posted Deferral header and Line tables are for the partial quantities from second order
         // [THEN] G/L Entries are posted to Deferral Account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDefer, 1, 2, 3);
     end;
@@ -1020,7 +1020,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchInvLine."Line No.", DeferralTemplateCode, SetDateDay(1, WorkDate), AmtToDefer, AmtToDefer, 2);
 
         // [THEN] The deferrals were posted to GL for 3 periods with zero balance if reversed out correctly
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForInvoice(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 2), 3, 0, false);
     end;
@@ -1114,7 +1114,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         VerifyInvoicePostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.11.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyInvoicePostedDeferrals(DocNo1, DeferralTemplateCode, AccNo, NewPostDate, AmtToDefer1);
         VerifyInvoicePostedDeferrals(DocNo2, DeferralTemplateCode, AccNo, NewPostDate, AmtToDefer2);
@@ -1164,7 +1164,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         VerifyInvoicePostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.11.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyInvoicePostedDeferrals(DocNo1, DeferralTemplateCode, AccNo, NewPostDate, AmtToDefer1);
         VerifyInvoicePostedDeferrals(DocNo2, DeferralTemplateCode, AccNo, NewPostDate, AmtToDefer2);
@@ -1214,7 +1214,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         VerifyCrMemoPostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.11.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyCrMemoPostedDeferrals(DocNo1, DeferralTemplateCode, AccNo, NewPostDate, AmtToDefer1);
         VerifyCrMemoPostedDeferrals(DocNo2, DeferralTemplateCode, AccNo, NewPostDate, AmtToDefer2);
@@ -1264,7 +1264,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         VerifyInvoicePostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.10.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyInvoicePostedDeferrals(DocNo1, DeferralTemplateCode, AccNo, PurchaseHeader1."Posting Date", AmtToDefer1);
         VerifyInvoicePostedDeferrals(DocNo2, DeferralTemplateCode, AccNo, PurchaseHeader2."Posting Date", AmtToDefer2);
@@ -1314,7 +1314,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         VerifyInvoicePostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.10.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyInvoicePostedDeferrals(DocNo1, DeferralTemplateCode, AccNo, PurchaseHeader1."Posting Date", AmtToDefer1);
         VerifyInvoicePostedDeferrals(DocNo2, DeferralTemplateCode, AccNo, PurchaseHeader2."Posting Date", AmtToDefer2);
@@ -1364,7 +1364,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         VerifyCrMemoPostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.11.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyCrMemoPostedDeferrals(DocNo1, DeferralTemplateCode, AccNo, PurchaseHeader1."Posting Date", AmtToDefer1);
         VerifyCrMemoPostedDeferrals(DocNo2, DeferralTemplateCode, AccNo, PurchaseHeader2."Posting Date", AmtToDefer2);
@@ -1448,7 +1448,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchInvLine."Line No.", DeferralTemplateCode, SetDateDay(1, WorkDate), AmtToDefer, AmtToDeferLCY, 2);
 
         // [THEN] The deferrals were posted to GL for 3 periods with zero balance if reversed out correctly
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForInvoice(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 2), 3, 0, false);
     end;
@@ -1492,7 +1492,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The deferrals were posted to GL for 3 periods with zero balance if reversed out correctly
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForInvoice(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 2), 3, 0, false);
 
@@ -1547,7 +1547,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         ValidateGLPurchAccount(DocNo, PurchAccount, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 2), 5, PurchAmount);
 
         // [THEN] The deferrals were posted to GL for 3 periods with zero balance if reversed out correctly
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForInvoice(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 2), 3, 0, true);
     end;
@@ -1711,7 +1711,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchCrMemoLine."Line No.", DeferralTemplateCode, SetDateDay(15, WorkDate), AmtToDefer, AmtToDefer, 3);
 
         // [THEN] The deferrals were posted to GL for 5 periods with zero balance if reversed out correctly
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForCrMemo(DocNo, AccNo, SetDateDay(15, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 3), 5, 0, false);
     end;
@@ -1769,7 +1769,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         ValidateGLPurchAccount(DocNo, PurchAccount, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 3), 5, PurchAmount);
 
         // [THEN] The deferrals were posted to GL for 3 periods with zero balance if reversed out correctly
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForCrMemo(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 3), 3, 0, true);
     end;
@@ -1808,7 +1808,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchCrMemoLine."Line No.", DeferralTemplateCode, SetDateDay(15, WorkDate), AmtToDefer, AmtToDefer, 3);
 
         // [THEN] The deferrals were posted to GL for 5 periods with zero balance if reversed out correctly
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForCrMemo(DocNo, AccNo, SetDateDay(15, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 3), 5, 0, false);
     end;
@@ -2900,7 +2900,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         with GLEntry do begin
             if PartialDeferral then begin
                 SetRange("VAT Amount", 0);
-                Assert.RecordCount(GLEntry, 1);
+                Assert.RecordCount(GLEntry, 2);
             end;
             FindFirst;
             SetRange("VAT Amount");
@@ -3292,17 +3292,22 @@ codeunit 134804 "RED Test Unit for Purch Doc"
               "G/L Account No.",
               GetPurchAccountNo(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group"));
 
-            SetFilter("VAT Amount", '<>%1', 0);
+            SetRange("VAT Amount", 0);
             FilterInvoiceGLEntryGroups(GLEntry, "Gen. Posting Type"::Purchase, PurchInvLine);
-            Assert.RecordCount(GLEntry, 1);
+            if PartialDeferral then
+                Assert.RecordCount(GLEntry, 2)
+            else
+                Assert.RecordCount(GLEntry, 1);
 
             // Verify paired GLEntry
             PairAmount := GetGLEntryPairAmount(GLEntry, PartialDeferral);
             SetFilter(Amount, '<%1', 0);
             FilterInvoiceGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummyPurchInvLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
-            TestField(Amount, -PairAmount);
+            if not PartialDeferral then begin
+                FindFirst;
+                TestField(Amount, -PairAmount);
+            end;
         end;
     end;
 
@@ -3319,17 +3324,22 @@ codeunit 134804 "RED Test Unit for Purch Doc"
               "G/L Account No.",
               GetPurchCrMemoAccountNo(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group"));
 
-            SetFilter("VAT Amount", '<>%1', 0);
+            SetRange("VAT Amount", 0);
             FilterCrMemoGLEntryGroups(GLEntry, "Gen. Posting Type"::Purchase, PurchCrMemoLine);
-            Assert.RecordCount(GLEntry, 1);
+            if PartialDeferral then
+                Assert.RecordCount(GLEntry, 2)
+            else
+                Assert.RecordCount(GLEntry, 1);
 
             // Verify paired GLEntry
             PairAmount := GetGLEntryPairAmount(GLEntry, PartialDeferral);
             SetFilter(Amount, '>%1', 0);
             FilterCrMemoGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummyPurchCrMemoLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
-            TestField(Amount, -PairAmount);
+            if not PartialDeferral then begin
+                FindFirst;
+                TestField(Amount, -PairAmount);
+            end;
         end;
     end;
 

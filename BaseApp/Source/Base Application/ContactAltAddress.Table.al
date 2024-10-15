@@ -118,9 +118,8 @@ table 5051 "Contact Alt. Address"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                if ("Search E-Mail" = UpperCase(xRec."E-Mail")) or ("Search E-Mail" = '') then
-                    "Search E-Mail" := "E-Mail";
                 MailManagement.ValidateEmailAddressField("E-Mail");
+                SetSearchEmail();
             end;
         }
         field(18; "Home Page"; Text[80])
@@ -177,6 +176,7 @@ table 5051 "Contact Alt. Address"
     var
         Contact: Record Contact;
     begin
+        SetSearchEmail();
         Contact.TouchContact("Contact No.");
     end;
 
@@ -184,6 +184,7 @@ table 5051 "Contact Alt. Address"
     var
         Contact: Record Contact;
     begin
+        SetSearchEmail();
         "Last Date Modified" := Today;
         Contact.TouchContact("Contact No.");
     end;
@@ -202,5 +203,11 @@ table 5051 "Contact Alt. Address"
 
     var
         PostCode: Record "Post Code";
+
+    local procedure SetSearchEmail()
+    begin
+        if "Search E-Mail" <> "E-Mail".ToUpper() then
+            "Search E-Mail" := "E-Mail";
+    end;
 }
 

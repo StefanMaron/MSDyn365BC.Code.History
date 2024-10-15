@@ -2,6 +2,7 @@ report 10096 "Outstanding Purch.Order Status"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OutstandingPurchOrderStatus.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Outstanding Purch.Order Status';
     UsageCategory = ReportsAndAnalysis;
 

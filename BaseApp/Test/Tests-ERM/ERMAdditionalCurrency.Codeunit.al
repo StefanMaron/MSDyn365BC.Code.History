@@ -1071,6 +1071,7 @@ codeunit 134043 "ERM Additional Currency"
 
     local procedure Initialize()
     var
+        CompanyInformation: Record "Company Information";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Additional Currency");
@@ -1087,6 +1088,10 @@ codeunit 134043 "ERM Additional Currency"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
+        if CompanyInformation.IsCanada then begin
+            CompanyInformation."Tax Area Code" := '';
+            CompanyInformation.Modify();
+        end;
         IsInitialized := true;
         Commit();
 

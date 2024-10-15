@@ -334,6 +334,8 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         // [GIVEN] Invoice's "Invoice Discount Amount" = 100, Invoice Discount % = 25.
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(LibraryRandom.RandIntInRange(100, 200), PurchaseHeader);
         FindLastPurchaseLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate("VAT %", LibraryRandom.RandIntInRange(1, 5)); // there is no VAT for Item in MX be default
+        PurchaseLine.Validate(Quantity);
         ExpectedDiscountPercent := PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine);
 
         // [WHEN] Delete line from invoice

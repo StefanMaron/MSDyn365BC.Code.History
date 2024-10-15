@@ -1,5 +1,7 @@
 codeunit 134403 "ERM Test SEPA Credit Transfers"
 {
+    Permissions = TableData "Cust. Ledger Entry" = imd,
+                  TableData "Vendor Ledger Entry" = imd;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -1464,6 +1466,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             Validate("Bal. Account No.", BankAccount."No.");
             Validate("Recipient Bank Account", RecipientBankAcc);
+            Validate("Posting Date", Today);
             Modify;
         end;
     end;

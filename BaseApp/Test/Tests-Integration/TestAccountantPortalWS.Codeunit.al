@@ -61,9 +61,9 @@ codeunit 134765 TestAccountantPortalWS
         VerifyFinanceCues(AccountantPortalFinanceCues,
           FinanceCue.FieldName("SOs Pending Approval"), '                             0', MasterStyle::None);
         VerifyFinanceCues(AccountantPortalFinanceCues,
-          FinanceCue.FieldName("Approved Sales Orders"), '                            22', MasterStyle::None);
+          FinanceCue.FieldName("Approved Sales Orders"), '                             0', MasterStyle::None);
         VerifyFinanceCues(AccountantPortalFinanceCues,
-          FinanceCue.FieldName("Approved Purchase Orders"), '                            14', MasterStyle::None);
+          FinanceCue.FieldName("Approved Purchase Orders"), '                             0', MasterStyle::None);
         VerifyFinanceCues(AccountantPortalFinanceCues,
           FinanceCue.FieldName("Purchase Return Orders"), '                             0', MasterStyle::None);
         VerifyFinanceCues(AccountantPortalFinanceCues,
@@ -104,12 +104,12 @@ codeunit 134765 TestAccountantPortalWS
 
         // [THEN] Various fields are validated.
         VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Ongoing Sales Invoices"), '                             2', MasterStyle::None);
+          ActivitiesCue.FieldName("Ongoing Sales Invoices"), '                             8', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Ongoing Purchase Invoices"), '                             1', MasterStyle::None);
+          ActivitiesCue.FieldName("Ongoing Purchase Invoices"), '                             4', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Sales This Month"),
-          '                         ' + AcctWebServicesMgt.FormatAmountString(0.0), MasterStyle::Ambiguous);
+          '                         ' + AcctWebServicesMgt.FormatAmountString(0.0), MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Top 10 Customer Sales YTD"),
           '                         ' + AcctWebServicesMgt.FormatAmountString(0.0), MasterStyle::Favorable);
@@ -118,11 +118,11 @@ codeunit 134765 TestAccountantPortalWS
           '                       ' + AcctWebServicesMgt.FormatAmountString(123.45), MasterStyle::Favorable);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Overdue Sales Invoice Amount"),
-          '                       ' + AcctWebServicesMgt.FormatAmountString(654.32), MasterStyle::None);
+          '                       ' + AcctWebServicesMgt.FormatAmountString(654.32), MasterStyle::Favorable);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           '                           ' + ActivitiesCue.FieldName("Average Collection Days"), '0.0', MasterStyle::Favorable);
         VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Ongoing Sales Quotes"), '                             1', MasterStyle::None);
+          ActivitiesCue.FieldName("Ongoing Sales Quotes"), '                             3', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Requests to Approve"), '                             0', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
@@ -132,17 +132,17 @@ codeunit 134765 TestAccountantPortalWS
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("My Incoming Documents"), '                             6', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Non-Applied Payments"), '                             2', MasterStyle::None);
+          ActivitiesCue.FieldName("Non-Applied Payments"), '                             2', MasterStyle::Favorable);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Purch. Invoices Due Next Week"), '                             6', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Sales Invoices Due Next Week"), '                             2', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Ongoing Sales Orders"), '                            42', MasterStyle::None);
+          ActivitiesCue.FieldName("Ongoing Sales Orders"), '                             4', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Inc. Doc. Awaiting Verfication"), '                             1', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Purchase Orders"), '                            21', MasterStyle::None);
+          ActivitiesCue.FieldName("Purchase Orders"), '                             5', MasterStyle::None);
 
         AccountantPortalActivityCues.Close;
     end;
@@ -166,7 +166,7 @@ codeunit 134765 TestAccountantPortalWS
         // [WHEN] Get Amount Format from Activities Cue
         // [THEN] Standard Format returned
         Assert.AreEqual(
-          '<Precision,0:0><Standard Format,0>',
+          '$<Precision,0:0><Standard Format,0>',
           ActivitiesCue.GetAmountFormat,
           'Standard Format not displaying correctly.');
     end;

@@ -533,9 +533,9 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [THEN] A Bank Account is created
         Assert.RecordIsNotEmpty(BankAccount);
 
-        // [THEN] Bank Account Posting Group has a default value
+        // [THEN] Bank Account Posting Group has a blank value
         Assert.AreEqual(
-          'OPERATING', GetBankAccountPostingGroup(CompanyInformationMgt.GetCompanyBankAccount),
+          '', GetBankAccountPostingGroup(CompanyInformationMgt.GetCompanyBankAccount),
           BankAccount.FieldCaption("Bank Acc. Posting Group"));
     end;
 

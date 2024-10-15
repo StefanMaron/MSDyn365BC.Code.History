@@ -348,7 +348,8 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         until ConfigTemplateHeader.Next = 0;
 
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Customer);
-        ConfigTmplSelectionRules.FindFirst;
+        if not ConfigTmplSelectionRules.FindFirst then
+            exit; // NA may not contain a selection rule for customers
 
         Assert.AreEqual(1, ConfigTmplSelectionRules.Count, 'There should only be one selection rule for customers');
         ConfigTmplSelectionRules."Selection Criteria".CreateInStream(InStr);

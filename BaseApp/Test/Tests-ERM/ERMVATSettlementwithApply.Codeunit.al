@@ -23,6 +23,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryInventory: Codeunit "Library - Inventory";
         isInitialized: Boolean;
         AdditionalCurrencyError: Label 'Additional Currency Amount must be %1.';
         UnappliedError: Label '%1 %2 field must be true after Unapply entries.';
@@ -436,6 +437,56 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryReportDataset.AssertElementTagWithValueExists('VATEntryGetFiltTaxJurisCd', TaxJurisdictionCode[2]);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckGenLedgerEntryAfterRunningReportForPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLEntry: Record "G/L Entry";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Report] [VAT Settlement]
+        // [SCENARIO 343791] Calc. and Post VAT Settlement for Purchase Invoice with Reverse Charge VAT
+        Initialize;
+
+        // [GIVEN] Created VAT Posting Group with Reverse Charge VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandDecInRange(10, 25, 2));
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Created and posted Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VatPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        DocNo := LibraryUtility.GenerateGUID();
+
+        // [WHEN] Run Calc. and Post VAT Settlement report
+	VATPostingSetup.SetRecFilter();
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
+        CalcAndPostVATSettlement.InitializeRequest(
+          WorkDate, WorkDate, WorkDate, DocNo, LibraryERM.CreateGLAccountNo, false, true);
+        CalcAndPostVATSettlement.UseRequestPage(false);
+        CalcAndPostVATSettlement.SaveAsXml('');
+
+        // [THEN] 2 General Ledger Entries with "Gen. Posting Type" = 'Settlement' were created
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Settlement);
+        Assert.RecordCount(GLEntry, 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -451,6 +502,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
         Commit();
@@ -633,7 +685,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
         LibraryERM.CreateTaxGroup(TaxGroup);
         LibraryERM.CreateTaxDetail(
-          TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", WorkDate);
+          TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandInt(10));
         TaxDetail.Modify(true);
         TaxAreaCode := TaxArea.Code;
@@ -660,7 +712,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
         CreateTaxJurisdiction(TaxJurisdiction);
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
     end;
 
     local procedure MockVATEntryForVATPostingSetup(var VATEntry: Record "VAT Entry"; TaxDetail: Record "Tax Detail"; VATPostingSetup: Record "VAT Posting Setup"; TaxAmount: Decimal; TaxLiable: Boolean; PostingDate: Date)
@@ -668,7 +720,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry."Posting Date" := PostingDate;
-        VATEntry."Tax Type" := VATEntry."Tax Type"::"Sales Tax";
+        VATEntry."Tax Type" := VATEntry."Tax Type"::"Sales Tax Only";
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry."Tax Group Code" := TaxDetail."Tax Group Code";
         VATEntry."Tax Jurisdiction Code" := TaxDetail."Tax Jurisdiction Code";

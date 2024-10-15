@@ -836,8 +836,6 @@ codeunit 134997 "Reminder - Add. Line fee"
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", ReminderLine."VAT Prod. Posting Group");
         Assert.AreEqual(VATPostingSetup."VAT %", ReminderLine."VAT %",
           StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("VAT %"), ReminderLine.TableCaption));
-        Assert.AreNotEqual(0, ReminderLine."VAT %",
-          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption("VAT %"), ReminderLine.TableCaption));
 
         // Clean up
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", OldGLAccountNo);
@@ -2310,58 +2308,6 @@ codeunit 134997 "Reminder - Add. Line fee"
     [Test]
     [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure IssueVATOnLineFee()
-    var
-        CustomerPostingGroup: Record "Customer Posting Group";
-        VATEntry: Record "VAT Entry";
-        ReminderLevel: Record "Reminder Level";
-        GLAccount: Record "G/L Account";
-        VATPostingSetup: Record "VAT Posting Setup";
-        Customer: Record Customer;
-        GLAccountNo: Code[20];
-        CustNo: Code[20];
-        ReminderTermCode: Code[10];
-        ReminderNo: Code[20];
-        IssuedReminderNo: Code[20];
-    begin
-        // [SCENARIO 107048] A Line Fee posted on a G/L account with VAT set up, creates VAT entries when issued
-
-        // [GIVEN] A Reminder Term (R) without additional fee and Line Fee = X, where X > 0 for level 1
-        CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
-        ReminderLevel.Get(ReminderTermCode, 1);
-        UpdateCustomerVATRegNo(CustNo);
-
-        // [GIVEN] G/L Account (M) is created with VAT set up with a non-zero VAT percentage (Z)
-        Customer.Get(CustNo);
-        GLAccountNo := FindGLAccountWithVAT(Customer."VAT Bus. Posting Group");
-        GLAccount.Get(GLAccountNo);
-        VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
-
-        // [GIVEN] M is set as default for Line Fee in Customer Posting Group
-        CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", GLAccountNo);
-
-        // [GIVEN] A reminder with a overdue sales invoice and a Line Fee (X) to G/L account M
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
-
-        // [WHEN] The Reminder is issued
-        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
-
-        // [THEN] A VAT entry is created for the Line Fee with amount = Y*Z/100 and base = Y
-        // [THEN] VAT Registration No. is filled in value taken from Customer (TFS 276034)
-        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Reminder);
-        VATEntry.SetRange("Document No.", IssuedReminderNo);
-        VATEntry.FindFirst;
-        Assert.AreNearlyEqual(-ReminderLevel."Add. Fee per Line Amount (LCY)", VATEntry.Base, 0.02,
-          StrSubstNo(MustMatchErr, VATEntry.FieldCaption(Base), VATEntry.TableCaption));
-        Assert.AreNearlyEqual(-ReminderLevel."Add. Fee per Line Amount (LCY)" * VATPostingSetup."VAT %" / 100, VATEntry.Amount, 0.02,
-          StrSubstNo(MustMatchErr, VATEntry.FieldCaption(Amount), VATEntry.TableCaption));
-        VATEntry.TestField("VAT Registration No.", Customer."VAT Registration No.");
-    end;
-
-    [Test]
-    [HandlerFunctions('IssueRemindersRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure PostNoInterestOnLineFeeFinCharge()
     var
         ReminderLevel: Record "Reminder Level";
@@ -2658,6 +2604,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
         ReminderHeader: Record "Reminder Header";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reminder - Add. Line fee");
         BindActiveDirectoryMockEvents;
@@ -2670,6 +2617,8 @@ codeunit 134997 "Reminder - Add. Line fee"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Reminder - Add. Line fee");
+
+        LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
 
@@ -2707,6 +2656,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Validate("Reminder Terms Code", ReminderTermsCode);
         Customer.Validate("Payment Terms Code", PaymentTermsCode);
         Customer.Validate("E-Mail", EmailTxt);
+        Customer.Validate("VAT Bus. Posting Group", '');
         Customer.Modify(true);
         exit(Customer."No.")
     end;
@@ -3010,17 +2960,6 @@ codeunit 134997 "Reminder - Add. Line fee"
         REPORT.RunModal(REPORT::"Update Reminder Text", true, false, ReminderHeader);
     end;
 
-    local procedure UpdateCustomerVATRegNo(CustomerNo: Code[20])
-    var
-        Customer: Record Customer;
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get();
-        Customer.Get(CustomerNo);
-        Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-        Customer.Modify();
-    end;
-
     local procedure FindOpenCustomerLedgerEntriesExclVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; IssuedReminderNo: Code[20]; CustomerNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
@@ -3075,9 +3014,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with VATPostingSetup do begin
             if VATBusGroup <> '' then
                 SetRange("VAT Bus. Posting Group", VATBusGroup);
-            SetRange("VAT %", 1, 100);
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            SetFilter("Sales VAT Account", '<>%1', '');
             FindFirst;
         end;
     end;

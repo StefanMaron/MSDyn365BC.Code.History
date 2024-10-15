@@ -10,10 +10,11 @@ codeunit 138200 "Normal DemoData"
 
     var
         Assert: Codeunit Assert;
-        LibrarySales: Codeunit "Library - Sales";
-        NothingToPostErr: Label 'There is nothing to post.';
         NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
         EmptyBlobErr: Label 'BLOB field is empty.';
+        NOTAXTok: Label 'NO TAX';
+        NONTAXABLETok: Label 'NonTAXABLE';
+        NoSalesHeaderErr: Label 'There is no Sales Header within the filter';
 
     [Test]
     [Scope('OnPrem')]
@@ -28,18 +29,69 @@ codeunit 138200 "Normal DemoData"
 
     [Test]
     [Scope('OnPrem')]
+    procedure GenPostingGroupCount()
+    var
+        GenBusPostingGroup: Record "Gen. Business Posting Group";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        // [SCENARIO] There are 4 Gen Bus. Posting group and 6 Prod. Posting groups
+        Assert.RecordCount(GenBusPostingGroup, 4);
+
+        Assert.RecordCount(GenProdPostingGroup, 6);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GenPostingSetupAccounts()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // [SCENARIO] Sales/Purchase accounts are filled for not blank Bus. Group.
+        GeneralPostingSetup.FindSet;
+        repeat
+            if GeneralPostingSetup."Gen. Bus. Posting Group" = '' then begin
+                GeneralPostingSetup.TestField("Sales Account", '');
+                GeneralPostingSetup.TestField("Purch. Account", '');
+            end else begin
+                GeneralPostingSetup.TestField("Sales Account");
+                GeneralPostingSetup.TestField("Purch. Account");
+            end;
+        until GeneralPostingSetup.Next = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NontaxableInGenPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // [SCENARIO] There are 5 Gen. Posting groups, where Product Group code is 'NO TAX'
+        // [WHEN] Find "Gen. Posting Setup" records
+        // [THEN] There are 5 groups, where "Gen. Prod. Posting Group" = 'NOTAX'
+        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", NOTAXTok);
+        Assert.RecordCount(GeneralPostingSetup, 5);
+        // [THEN] first, where "Gen. Bus. Posting Group" is blank
+        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.TestField("Gen. Bus. Posting Group", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CountSalesDocuments()
     var
         SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO] There is 1 Sales Invoice and 43 documents of other types
+        // [SCENARIO] There are 0 Sales Invoices, 0 Orders, and 0 Quotes
         with SalesHeader do begin
             SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 1);
+            Assert.RecordCount(SalesHeader, 0);
 
-            SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 43);
+            SetRange("Document Type", "Document Type"::Order);
+            Assert.RecordCount(SalesHeader, 0);
+
+            SetRange("Document Type", "Document Type"::Quote);
+            Assert.RecordCount(SalesHeader, 0);
         end;
     end;
 
@@ -50,17 +102,14 @@ codeunit 138200 "Normal DemoData"
         SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO] Existing Sales Invoice cannot be posted
+        // [SCENARIO] There are 0 Sales Invoices
         with SalesHeader do begin
             // [WHEN] Post all Invoices
             Reset;
             SetRange("Document Type", "Document Type"::Invoice);
-            FindSet;
-            repeat
-                asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
-                // [THEN] An error: 'There is nothing to post.'
-                Assert.ExpectedError(NothingToPostErr);
-            until Next = 0;
+            asserterror FindFirst;
+            // [THEN] An error: 'There is no Sales Header within the filter.'
+            Assert.ExpectedError(NoSalesHeaderErr);
         end;
     end;
 
@@ -71,13 +120,13 @@ codeunit 138200 "Normal DemoData"
         PurchHeader: Record "Purchase Header";
     begin
         // [FEATURE] [Purchase]
-        // [SCENARIO] There are 0 Purchase Invoices and 21 documents of other types
+        // [SCENARIO] There are 0 Purchase Invoices and 0 documents of other types
         with PurchHeader do begin
             SetRange("Document Type", "Document Type"::Invoice);
             Assert.RecordCount(PurchHeader, 0);
 
             SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 21);
+            Assert.RecordCount(PurchHeader, 0);
         end;
     end;
 
@@ -180,16 +229,6 @@ codeunit 138200 "Normal DemoData"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATPostingGroupsCount()
-    var
-        VATProductPostingGroup: Record "VAT Product Posting Group";
-    begin
-        // [SCENARIO] There are 3 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 3);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure InvoicingEmailMediaResources()
     begin
         // [SCENARIO 213193] Media resources related to invoicing email are imported
@@ -235,12 +274,10 @@ codeunit 138200 "Normal DemoData"
         UsageOption: Option;
     begin
         // [FEATURE] [Electronic Document]
-        // [SCENARIO 278316] Electronic document format has setup for PEPPOL 2.0, 2.1 for all Usage options
+        // [SCENARIO 341241] Electronic document format has setup for PEPPOL BIS3 for all Usage options
         with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do begin
-                Get('PEPPOL 2.0', UsageOption);
-                Get('PEPPOL 2.1', UsageOption);
-            end;
+            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do
+                Get('PEPPOL BIS3', UsageOption);
     end;
 
     [Test]
@@ -290,6 +327,29 @@ codeunit 138200 "Normal DemoData"
             TestField("Receive Submitted Return CU ID", 0);
             TestField("Auto Receive Period CU ID", 0);
         end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TaxGroupNonTaxable()
+    var
+        TaxGroup: Record "Tax Group";
+    begin
+        // [SCENARIO] Tax Group NONTAXABLE should be one of 5 group
+        TaxGroup.Get(NONTAXABLETok);
+        Assert.RecordCount(TaxGroup, 5);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CountItemConfigTemplates()
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+    begin
+        // [FEATURE] [Item] [Config. Template]
+        // [SCENARIO] There should be 3 Item Config. Templates
+        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
+        Assert.RecordCount(ConfigTemplateHeader, 3);
     end;
 }
 

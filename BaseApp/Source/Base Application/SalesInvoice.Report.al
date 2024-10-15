@@ -516,11 +516,16 @@ report 206 "Sales - Invoice"
                             end;
 
                             trigger OnPreDataItem()
+                            var
+                                PostedAssemblyLine: Record "Posted Assembly Line";
+                                DummyValueEntry: Record "Value Entry";
                             begin
                                 Clear(TempPostedAsmLine);
                                 if not DisplayAssemblyInformation then
                                     CurrReport.Break();
-                                CollectAsmInformation;
+                                PostedAssemblyLine.GetAssemblyLinesForDocument(
+                                  TempPostedAsmLine, DummyValueEntry."Document Type"::"Sales Invoice",
+                                  "Sales Invoice Line"."Document No.", "Sales Invoice Line"."Line No.");
                                 Clear(TempPostedAsmLine);
                                 SetRange(Number, 1, TempPostedAsmLine.Count);
                             end;

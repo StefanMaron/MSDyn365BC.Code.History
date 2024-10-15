@@ -885,9 +885,8 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         CashFlowSetup: Record "Cash Flow Setup";
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
+        CashFlowManagement: Codeunit "Cash Flow Management";
         TotalAmount: Decimal;
         StartDate: Date;
         EndDate: Date;
@@ -901,10 +900,7 @@ codeunit 131332 "Library - Cash Flow Helper"
                     PurchaseHeader.SetFilter("Document Date", StrSubstNo('%1..%2', StartDate, EndDate));
                     if PurchaseHeader.FindSet then
                         repeat
-                            PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-                            PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-                            PurchaseLine.CalcSums("Amount Including VAT", Amount);
-                            TotalAmount += PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
+                            TotalAmount += CashFlowManagement.GetTaxAmountFromPurchaseOrder(PurchaseHeader);
                         until PurchaseHeader.Next = 0;
                 end;
             DATABASE::"Sales Header":
@@ -912,10 +908,7 @@ codeunit 131332 "Library - Cash Flow Helper"
                     SalesHeader.SetFilter("Document Date", StrSubstNo('%1..%2', StartDate, EndDate));
                     if SalesHeader.FindSet then
                         repeat
-                            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-                            SalesLine.SetRange("Document No.", SalesHeader."No.");
-                            SalesLine.CalcSums("Amount Including VAT", Amount);
-                            TotalAmount += SalesLine.Amount - SalesLine."Amount Including VAT";
+                            TotalAmount += CashFlowManagement.GetTaxAmountFromSalesOrder(SalesHeader);
                         until SalesHeader.Next = 0;
                 end;
         end;

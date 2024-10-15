@@ -1780,17 +1780,17 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [UI] [Sales] [Order]
-        // [SCENARIO 382294] Sales Order with VAT is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
+        // [SCENARIO 382294] Sales Order without TAX is not shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
         Initialize;
 
-        // [GIVEN] Sales Order "A" with VAT
+        // [GIVEN] Sales Order "A" without TAX
         CreateSalesOrderWithVAT(SalesHeader);
 
         // [WHEN] Open "Sales Order List" page with SkipShowingLinesWithoutVAT = TRUE
-        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        LibraryVariableStorage.Enqueue('');
         OpenSalesOrderList(SalesHeader, true);
 
-        // [THEN] Sales Order "A" is on the order list
+        // [THEN] Sales Order "A" is not shown on the order list
         // Verify sales order in SalesOrderListPageHandler
     end;
 
@@ -1803,29 +1803,29 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         YourReference: Text[35];
     begin
         // [FEATURE] [UI] [Sales] [Order]
-        // [SCENARIO 269334] Page "Sales Order List" is filtering the Sales Orders without VAT and showing Sales Order with VAT when SkipShowingLinesWithoutVAT = TRUE
+        // [SCENARIO 269334] Page "Sales Order List" is not shown the Sales Orders without TAX when SkipShowingLinesWithoutVAT = TRUE
         Initialize;
 
-        // [GIVEN] Sales Order "A" without VAT
+        // [GIVEN] Sales Order "A" without TAX
         YourReference := CopyStr(LibraryRandom.RandText(MaxStrLen(YourReference)), 1, MaxStrLen(YourReference)); // Needed for filtering orders
         CreateSalesOrderWithoutVATAndWithYourReference(SalesHeader, YourReference);
 
-        // [GIVEN] Sales Order "B" with VAT
+        // [GIVEN] Sales Order "B" without TAX
         CreateSalesOrderWithVATAndYourReference(SalesHeader, YourReference);
-        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        LibraryVariableStorage.Enqueue('');
 
-        // [GIVEN] Sales Order "C" without VAT
+        // [GIVEN] Sales Order "C" without TAX
         CreateSalesOrderWithoutVATAndWithYourReference(SalesHeader, YourReference);
 
-        // [GIVEN] Sales Order "D" with VAT
+        // [GIVEN] Sales Order "D" without TAX
         CreateSalesOrderWithVATAndYourReference(SalesHeader, YourReference);
-        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        LibraryVariableStorage.Enqueue('');
 
         // [WHEN] Open "Sales Order List" page with SkipShowingLinesWithoutVAT = TRUE
         Clear(SalesHeader);
         OpenSalesOrdList(SalesHeader, true, YourReference);
 
-        // [THEN] "Sales Order List" contains sales orders "B" and "D", and doesn't contain sales orders "A" and "C"
+        // [THEN] "Sales Order List" doesn't contain sales orders "A", "B", "C" and "D"
         // Verify sales orders in SalesOrderListWithVATPageHandler
     end;
 
@@ -1940,17 +1940,17 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [FEATURE] [UI] [Purchase] [Order]
-        // [SCENARIO 382294] Purchase Order with VAT is shown on the "Purchase Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
+        // [SCENARIO 382294] Purchase Order without TAX is not shown on the "Purchase Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
         Initialize;
 
-        // [GIVEN] Purchase Order "A" with VAT
+        // [GIVEN] Purchase Order "A" without TAX
         CreatePurchaseOrderWithVAT(PurchaseHeader);
 
         // [WHEN] Open "Purchase Order List" page with SkipShowingLinesWithoutVAT = TRUE
-        LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
+        LibraryVariableStorage.Enqueue('');
         OpenPurchaseOrderList(PurchaseHeader, true);
 
-        // [THEN] Purchase Order "A" is on the order list
+        // [THEN] Purchase Order "A" is not shown on the order list
         // Verify purchase order in PurchaseOrderListPageHandler
     end;
 
@@ -1963,29 +1963,23 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         YourReference: Text[35];
     begin
         // [FEATURE] [UI] [Purchase] [Order]
-        // [SCENARIO 269334] Page "Purchase Order List" is filtering the Purchase Orders without VAT and showing Purchase Order with VAT when SkipShowingLinesWithoutVAT = TRUE
+        // [SCENARIO 269334] Page "Purchase Order List" is not shown the Purchase Orders without TAX when SkipShowingLinesWithoutVAT = TRUE
         Initialize;
-
-        // [GIVEN] Purchase Order "A" without VAT
+        // [GIVEN] Purchase Order "A" without TAX
         YourReference := CopyStr(LibraryRandom.RandText(MaxStrLen(YourReference)), 1, MaxStrLen(YourReference)); // Needed for filtering orders
         CreatePurchaseOrderWithoutVATAndWithYourReference(PurchaseHeader, YourReference);
-
-        // [GIVEN] Purchase Order "B" with VAT
+        // [GIVEN] Purchase Order "B" without TAX
         CreatePurchaseOrderWithVATAndYourReference(PurchaseHeader, YourReference);
-        LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
-
-        // [GIVEN] Purchase Order "C" without VAT
+        LibraryVariableStorage.Enqueue('');
+        // [GIVEN] Purchase Order "C" without TAX
         CreatePurchaseOrderWithoutVATAndWithYourReference(PurchaseHeader, YourReference);
-
-        // [GIVEN] Sales Order "D" with VAT
+        // [GIVEN] Sales Order "D" without TAX
         CreatePurchaseOrderWithVATAndYourReference(PurchaseHeader, YourReference);
-        LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
-
+        LibraryVariableStorage.Enqueue('');
         // [WHEN] Open "Purchase Order List" page with SkipShowingLinesWithoutVAT = TRUE
         Clear(PurchaseHeader);
         OpenPurchaseOrdList(PurchaseHeader, true, YourReference);
-
-        // [THEN] "Purchase Order List" contains purchase orders "B" and "D", and doesn't contain purchase orders "A" and "C"
+        // [THEN] "Purchase Order List" doesn't contain purchase orders "A", "B", "C" and "D"
         // Verify purchase orders in PurchaseOrderListWithVATPageHandler
     end;
 

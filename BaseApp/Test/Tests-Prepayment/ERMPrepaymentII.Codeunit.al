@@ -35,7 +35,8 @@ codeunit 134101 "ERM Prepayment II"
         ShipmentLinesDocNoErr: Label 'Wrong Document No. in shipment line in "Get Shipment Lines" page.';
         ReceiptLinesDocNoErr: Label 'Wrong Document No. in receipt line in "Get Receipt Lines" page.';
         VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
-        PrepmtLineAmtErr: Label 'Prepmt. Line Amount Excl. VAT cannot be more than';
+        PrepmtPctErr: Label 'must be %1 when the Prepayment Invoice has already been posted', Comment = '.';
+        MissingTaxGroupCodeErr: Label 'Tax Group Code must have a value';
 
     [Test]
     [Scope('OnPrem')]
@@ -420,7 +421,7 @@ codeunit 134101 "ERM Prepayment II"
         asserterror PurchaseHeader.Validate("Prepayment %", 100 - PurchaseHeader."Prepayment %" + LibraryRandom.RandInt(5));
 
         // [THEN] Error will popup after modifing Prepayment%.
-        Assert.ExpectedError(PrepmtLineAmtErr);
+        Assert.ExpectedError(StrSubstNo(PrepmtPctErr, PurchaseHeader."Prepayment %"));
     end;
 
     [Test]
@@ -1115,6 +1116,37 @@ codeunit 134101 "ERM Prepayment II"
 
         // [THEN] 2 Shipment Lines are in the list
         // Verification in VerifyNoOfGetShipmentLinesPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPrepmtWithEmptyTaxGroupCodeThrowsError()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxArea: Record "Tax Area";
+        SalesOrder: TestPage "Sales Order";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [SCENARIO ] Posting prepayment with missing Tax Group code throws an error
+        Initialize;
+
+        // [GIVEN] Sales Order, with sales lines where the Tax Group Code is missing
+        CreateSalesOrderWithPrepaymentVAT(SalesHeader, SalesLine, LibraryRandom.RandDecInRange(1, 99, 1));
+        LibraryERM.CreateTaxArea(TaxArea);
+        SalesHeader.Validate("Tax Area Code", TaxArea.Code);
+        SalesHeader.Modify();
+
+        // [WHEN] Post Prepayment Invoice
+        ErrorMessagesPage.Trap;
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.PostPrepaymentInvoice.Invoke;
+
+        // [THEN] Error Messages list shows one error: "Tax Group Code must have a value", Context = <blank>
+        Assert.ExpectedMessage(MissingTaxGroupCodeErr, ErrorMessagesPage.Description.Value);
+        ErrorMessagesPage.Context.AssertEquals('');
     end;
 
     [Test]

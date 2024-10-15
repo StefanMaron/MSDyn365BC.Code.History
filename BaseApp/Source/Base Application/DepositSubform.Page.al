@@ -352,6 +352,7 @@ page 10141 "Deposit Subform"
     procedure ShowApplyEntries()
     begin
         Clear(GenJnlApply);
+        Commit();
         GenJnlApply.Run(Rec);
     end;
 

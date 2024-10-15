@@ -26,6 +26,8 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         PostCode: Code[10];
         City: Text[30];
     begin
+        Initialize();
+
         // [GIVEN] A customer with no address
         LibrarySales.CreateCustomer(Customer);
         Assert.AreEqual('', Customer.Address, '');
@@ -72,6 +74,8 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         PostCode: Code[10];
         City: Text[30];
     begin
+        Initialize();
+
         // [GIVEN] A customer with an existing address
         LibrarySales.CreateCustomer(Customer);
         PostCode := '2800';
@@ -108,6 +112,13 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         Assert.AreEqual(Addr1, SalesHeader."Bill-to Address", 'Wrong Bill-to Address');
         Assert.AreEqual(City, SalesHeader."Bill-to City", 'Wrong Bill-to City');
         Assert.AreEqual(PostCode, SalesHeader."Bill-to Post Code", 'Wrong Bill-to Post Code');
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Test Update Cust. Addr.");
     end;
 
     local procedure CreatePostCode(NewPostCode: Code[10]; NewCity: Text[30])

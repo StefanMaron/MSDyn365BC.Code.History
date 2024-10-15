@@ -57,6 +57,8 @@ codeunit 5056 "CustCont-Update"
         Cont.Modify(true);
 
         Cust.Get(Cust."No.");
+
+        OnAfterOnModify(Cont, OldCont, Cust);
     end;
 
     procedure OnDelete(var Cust: Record Customer)
@@ -104,7 +106,7 @@ codeunit 5056 "CustCont-Update"
             Validate(Name);
             Validate("E-Mail");
             IsHandled := false;
-            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled);
+            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled, Cust);
             if not IsHandled then begin
                 "No." := '';
                 "No. Series" := '';
@@ -193,6 +195,11 @@ codeunit 5056 "CustCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnModify(var Contact: Record Contact; var OldContact: Record Contact; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFieldsFromCustToCont(var Contact: Record Contact; Customer: Record Customer)
     begin
     end;
@@ -218,7 +225,7 @@ codeunit 5056 "CustCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean);
+    local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean; Customer: Record Customer);
     begin
     end;
 }

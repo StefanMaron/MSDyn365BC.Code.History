@@ -11,6 +11,7 @@ codeunit 138500 "Common Demodata"
     var
         Assert: Codeunit Assert;
         DoNotChangeO365ProfileNameErr: Label 'Important!! DO NOT CHANGE THE NAME OF THE O365 Sales profile name!';
+        NONTAXABLETok: Label 'NonTAXABLE';
 
     [Test]
     [Scope('OnPrem')]
@@ -66,12 +67,35 @@ codeunit 138500 "Common Demodata"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TaxSetupShouldBeFilled()
+    var
+        TaxSetup: Record "Tax Setup";
+    begin
+        // [SCENARIO] Tax Setup should be filled
+        // [WHEN] Find "Tax Setup" record
+        TaxSetup.Get();
+        // [THEN] "Auto. Create Tax Details" is Yes
+        Assert.IsTrue(TaxSetup."Auto. Create Tax Details", TaxSetup.FieldName("Auto. Create Tax Details"));
+        // [THEN] "Non-Taxable Tax Group Code" is not blank and related to a Tax Group
+        TaxSetup.TestField("Non-Taxable Tax Group Code", NONTAXABLETok);
+        TaxSetup.Validate("Non-Taxable Tax Group Code");
+        // [THEN] "Tax Account (Sales)","Tax Account (Purchases)", "Reverse Charge (Purchases)" are not blank
+        TaxSetup.TestField("Tax Account (Sales)");
+        TaxSetup.TestField("Tax Account (Purchases)");
+        TaxSetup.TestField("Reverse Charge (Purchases)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VATPostingGroupsCount()
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [SCENARIO] There are 3 VAT Bus. Posting groups
-        Assert.RecordCount(VATBusPostingGroup, 3);
+        // [SCENARIO] VAT Bus./Prod. Posting groups do not exist
+        Assert.RecordCount(VATBusPostingGroup, 0);
+
+        Assert.RecordCount(VATProdPostingGroup, 0);
     end;
 
     [Test]
@@ -80,17 +104,15 @@ codeunit 138500 "Common Demodata"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
+        // [SCENARIO] There is one "Sales Tax" posting setup entry with "Tax Category" = 'E'
         with VATPostingSetup do begin
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Assert.RecordCount(VATPostingSetup, 2);
-
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
-            Assert.RecordCount(VATPostingSetup, 0);
-
-            Reset;
-            SetRange("EU Service", true);
             Assert.RecordCount(VATPostingSetup, 1);
+            FindFirst;
+            TestField("VAT Bus. Posting Group", '');
+            TestField("VAT Prod. Posting Group", '');
+            TestField("VAT Calculation Type", "VAT Calculation Type"::"Sales Tax");
+            TestField("VAT %", 0);
+            TestField("Tax Category", 'E');
         end;
     end;
 

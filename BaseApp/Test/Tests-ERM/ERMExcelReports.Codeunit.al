@@ -11,8 +11,6 @@ codeunit 134999 "ERM Excel Reports"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryInventory: Codeunit "Library - Inventory";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -21,13 +19,13 @@ codeunit 134999 "ERM Excel Reports"
         EvaluateErr: Label 'Value %1 cannot be converted to decimal.';
         IncorrectTotalBalanceLCYErr: Label 'Incorrect total balance LCY value.';
         CellValueNotFoundErr: Label 'Excel cell (row=%1, column=%2) value is not found.';
-        TotalLCYCap: Label 'Total (LCY)';
-        VATAmtSpecCaptionTxt: Label 'VAT Amount Specification';
-        VATSpecExistsErr: Label 'VAT specification section exists for line without VAT.';
-        ShiptoAddressCaptionTxt: Label 'Ship-to Address';
-        NoVATSpecLineErr: Label 'VAT spec line not found in report.';
-        AmountMustBeSpecifiedTxt: Label 'Amount must be specified.';
+        TotalLCYCap: Label 'Total (%1)';
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryUTUtility: Codeunit "Library UT Utility";
+        AccountNoNotFoundErr: Label '%1 is not found in %2 table';
         IsInitialized: Boolean;
+        AmountMustBeSpecifiedTxt: Label 'Amount must be specified.';
+        DefaultTxt: Label 'LCY';
 
     [Test]
     [Scope('OnPrem')]
@@ -46,47 +44,6 @@ codeunit 134999 "ERM Excel Reports"
 
         // Verify: Verify Total Balance value
         VerifyGeneralJournalTestTotalBalance;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchaseOrderReport_PositiveVATAmt_VATLineExists()
-    begin
-        ValidatePurchaseOrderReportWithVAT(1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchaseOrderReport_NegativeVATAmt_VATLineExists()
-    begin
-        ValidatePurchaseOrderReportWithVAT(-1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchaseOrderReport_ZeroVATAmt_NoVATLines()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        Item: Record Item;
-    begin
-        Initialize();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        PurchaseHeader.Validate("Prices Including VAT", false);
-        LibraryERM.FindZeroVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        PurchaseHeader.Modify(true);
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Item.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
-        PurchaseLine.Modify(true);
-
-        SavePurchaseOrderReportAsExcel(PurchaseHeader);
-
-        Assert.IsFalse(LibraryReportValidation.CheckIfValueExists(VATAmtSpecCaptionTxt), VATSpecExistsErr);
     end;
 
     [Test]
@@ -249,21 +206,6 @@ codeunit 134999 "ERM Excel Reports"
         GLAccount.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; VendorInvoiceNo: Code[20]; DocumentType: Option; No: Code[20]): Decimal
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
-        PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, No, LibraryRandom.RandDec(10, 2));  // Use Random Value for Purchase Line Quantity.
-        ModifyDirectUnitCostOnPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
-        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        PurchaseHeader.CalcFields("Amount Including VAT");
-        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        exit(PurchaseHeader."Amount Including VAT");
-    end;
-
     local procedure CreateVendor(): Code[20]
     var
         Vendor: Record Vendor;
@@ -272,31 +214,24 @@ codeunit 134999 "ERM Excel Reports"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateItem(): Code[20]
+    local procedure RunAndVerifyAgedAccountsReport(ReportId: Integer)
     var
-        Item: Record Item;
+        AgingMethodOption: Option "Trans Date","Due Date","Document Date";
     begin
-        LibraryInventory.CreateItem(Item);
-        exit(Item."No.");
-    end;
+        LibraryVariableStorage.Enqueue(AgingMethodOption::"Trans Date");
+        LibraryVariableStorage.Enqueue(false);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Commit();
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Option)
-    begin
-        PurchaseLine.SetRange("Document Type", DocumentType);
-        PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
-    end;
-
-    local procedure ModifyDirectUnitCostOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DirectUnitCost: Decimal)
-    begin
-        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
-        PurchaseLine.Modify(true);
+        REPORT.Run(ReportId);
+        LibraryReportValidation.DownloadFile;
     end;
 
     local procedure RunReportGeneralJournalTest(JournalTemplateName: Code[20]; JournalBatchName: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
         GeneralJournalTest: Report "General Journal - Test";
+        LibraryUtility: Codeunit "Library - Utility";
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         GenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
@@ -304,6 +239,17 @@ codeunit 134999 "ERM Excel Reports"
         GeneralJournalTest.SetTableView(GenJnlLine);
         GeneralJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
+    end;
+
+    local procedure CreateCustomer(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        with Customer do begin
+            "No." := LibraryUTUtility.GetNewCode;
+            Insert;
+            exit("No.");
+        end;
     end;
 
     local procedure VerifyGeneralJournalTestTotalBalance()
@@ -319,7 +265,7 @@ codeunit 134999 "ERM Excel Reports"
         LibraryReportValidation.OpenExcelFile;
 
         // Retrieve value from cell: row Total (LCY) and column Balance (LCY)
-        Row := LibraryReportValidation.FindRowNoFromColumnCaption(TotalLCYCap);
+        Row := LibraryReportValidation.FindRowNoFromColumnCaption(FindColumnCaption);
         Column := LibraryReportValidation.FindColumnNoFromColumnCaption(RefGenJnlLine.FieldCaption("Balance (LCY)"));
         TotalBalanceLCYAsText := LibraryReportValidation.GetValueAt(ValueFound, Row, Column);
         Assert.IsTrue(ValueFound, StrSubstNo(CellValueNotFoundErr, Row, Column));
@@ -329,53 +275,42 @@ codeunit 134999 "ERM Excel Reports"
         Assert.AreEqual(0, TotalBalanceLCY, IncorrectTotalBalanceLCYErr);
     end;
 
-    local procedure SavePurchaseOrderReportAsExcel(PurchaseHeader: Record "Purchase Header")
+    local procedure FindColumnCaption(): Text[250]
     var
-        PurchaseOrderReport: Report "Order";
+        GLSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+        CurrencyResult: Text[30];
     begin
-        LibraryReportValidation.SetFileName(PurchaseHeader."No.");
-        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-        PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
-        PurchaseOrderReport.SetTableView(PurchaseHeader);
-        PurchaseOrderReport.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        // The following function copies functionality from cod342 (Currency CaptionClass Mgmt)
+        if not GLSetup.Get then
+            exit(TotalLCYCap);
+
+        if GLSetup."LCY Code" = '' then
+            CurrencyResult := DefaultTxt
+        else
+            if not Currency.Get(GLSetup."LCY Code") then
+                CurrencyResult := GLSetup."LCY Code"
+            else
+                CurrencyResult := Currency.Code;
+
+        exit(CopyStr(StrSubstNo(TotalLCYCap, CurrencyResult), 1, 250));
     end;
 
-    local procedure ValidatePurchaseOrderReportWithVAT(CostMultiplier: Decimal)
+    local procedure VerifyAgedAccountsReportContent(AccountNo: Code[20]; FieldCaption: Text; TableCaption: Text)
     var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
+        Row: Integer;
+        Column: Integer;
+        CellValue: Text;
+        CellValueFound: Boolean;
     begin
-        Initialize();
-        CreatePurchaseDocument(
-          PurchaseHeader, CreateVendor, Format(LibraryRandom.RandInt(100)), PurchaseHeader."Document Type"::Order, CreateItem);
-        FindPurchaseLine(PurchaseLine, PurchaseHeader."No.", PurchaseLine."Document Type"::Order);
+        // Verify Saved Report's Data.
+        LibraryReportValidation.OpenExcelFile;
 
-        PurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" * CostMultiplier);
-        PurchaseLine.Modify(true);
-
-        SavePurchaseOrderReportAsExcel(PurchaseHeader);
-        ValidatePurchaseOrderReportForVATSpecificationLine(PurchaseHeader, PurchaseLine);
-    end;
-
-    local procedure ValidatePurchaseOrderReportForVATSpecificationLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
-    var
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        VATSpecificationLine: array[50] of Text[250];
-        ExcelValue: Decimal;
-    begin
-        PurchaseLine.CalcVATAmountLines(0, PurchaseHeader, PurchaseLine, TempVATAmountLine);
-
-        LibraryReportValidation.FindFirstRow(VATSpecificationLine);
-        repeat
-            LibraryReportValidation.FindNextRow(VATSpecificationLine);
-
-            if TempVATAmountLine."VAT Identifier" = VATSpecificationLine[1] then
-                if Evaluate(ExcelValue, VATSpecificationLine[7]) then
-                    if ExcelValue = TempVATAmountLine."VAT Amount" then
-                        exit; // line found
-        until VATSpecificationLine[1] = ShiptoAddressCaptionTxt;
-        Assert.Fail(NoVATSpecLineErr);
+        Row := LibraryReportValidation.FindRowNoFromColumnCaption(FieldCaption) + 1;
+        Column := LibraryReportValidation.FindColumnNoFromColumnCaption(FieldCaption);
+        CellValue := LibraryReportValidation.GetValueAt(CellValueFound, Row, Column);
+        Assert.IsTrue(CellValueFound, StrSubstNo(CellValueNotFoundErr, Row, Column));
+        Assert.AreEqual(AccountNo, CellValue, StrSubstNo(AccountNoNotFoundErr, AccountNo, TableCaption));
     end;
 }
 

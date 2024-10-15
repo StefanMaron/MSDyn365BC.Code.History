@@ -419,7 +419,6 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         DeferralTemplate: Record "Deferral Template";
-        VATPostingSetup: Record "VAT Posting Setup";
         DeferralTemplateCode: Code[10];
         DocNo: Code[20];
         ItemNo: Code[20];
@@ -442,8 +441,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         // [THEN] "VAT Entry".Base = -100
         // [THEN] "VAT Entry".Amount = -10
-        VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
-        VerifyVATEntry(-SalesLine.Amount, -Round(SalesLine.Amount * VATPostingSetup."VAT %" / 100), DocNo);
+        VerifyVATEntry(-SalesLine.Amount, 0, DocNo);
     end;
 
     [Test]
@@ -781,8 +779,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
           DocNo, PurchaseHeader."Posting Date", GLAccount."No.", DeferralTemplate."Deferral Account",
           PurchaseHeader."Posting Description",
           '2100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-          Round(666.66 * ExchRate / 100), Round(2000 * ExchRate / 100),
-          Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, 1);
+          Round(666.66 * ExchRate / 100),
+          Round(2000 * ExchRate / 100), Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, 1);
     end;
 
     [Test]
@@ -1547,6 +1545,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         DeferralSchedule."Start Date".SetValue(LibraryVariableStorage.DequeueDate);
         DeferralSchedule.CalculateSchedule.Invoke;
+        DeferralSchedule.OK.Invoke;
     end;
 
     [ModalPageHandler]

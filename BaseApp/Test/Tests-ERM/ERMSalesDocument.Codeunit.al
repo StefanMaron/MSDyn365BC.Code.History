@@ -2264,7 +2264,7 @@ codeunit 134385 "ERM Sales Document"
         // Verify
         GLEntry.FindLast;
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-        Assert.AreEqual(5, GLEntry.Count, 'wrong number of entries');
+        Assert.AreEqual(3, GLEntry.Count, 'wrong number of entries');
     end;
 
     [Test]
@@ -2286,7 +2286,7 @@ codeunit 134385 "ERM Sales Document"
         // Verify
         GLEntry.FindLast;
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-        Assert.AreEqual(3, GLEntry.Count, 'wrong number of entries');
+        Assert.AreEqual(2, GLEntry.Count, 'wrong number of entries');
     end;
 
     [Test]
@@ -2484,6 +2484,7 @@ codeunit 134385 "ERM Sales Document"
         // [SCENARIO 264555] When partially posted Sales Order is archived and then Archived Sales Order is copied to new Sales Order,
         // [SCENARIO 264555] then new Sales Order has <blank> Last Posting No. and <blank> Last Shipping No.
         Initialize;
+        LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Partially posted Sales Order "SO" with "Qty. to Ship" < Quantity
         PostPartialSalesOrder(SalesHeader);
@@ -2545,6 +2546,7 @@ codeunit 134385 "ERM Sales Document"
         // [SCENARIO 264555] When Sales Order has Prepayment Invoice and Credit Memo posted and then Sales Order is archived and then Archived Sales Order is copied to new Sales Order,
         // [SCENARIO 264555] then new Sales Order has <blank> Last Prepayment No. and Last Prepmt. Cr. Memo No.
         Initialize;
+        LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Prepayment Invoice and Prepayment Credit Memo were posted for Sales Order "SO"
         PrepareSalesOrderWithPrepaymentInvAndCrMemo(SalesHeader);

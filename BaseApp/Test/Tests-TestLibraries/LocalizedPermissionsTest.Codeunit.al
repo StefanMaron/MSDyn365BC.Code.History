@@ -1,8 +1,5 @@
 codeunit 132219 "Localized Permissions Test"
 {
-    // This codeunit is only modified in countries, do not change anything in W1!
-    // Any W1 changes should go directly into COD132218
-
 
     trigger OnRun()
     begin
@@ -19,7 +16,7 @@ codeunit 132219 "Localized Permissions Test"
         // Specifies if build contains O365 Company
         // O365 Company has significantly less demo data and different scope
         // causing different test execution path
-        exit(false);
+        exit(true);
     end;
 }
 

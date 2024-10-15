@@ -268,8 +268,15 @@ table 6550 "Whse. Item Tracking Line"
     end;
 
     local procedure CheckSerialNoQty()
+    var
+        IsHandled: Boolean;
     begin
-        if "Serial No." <> '' then
+        if "Serial No." = '' then
+            exit;
+
+        IsHandled := false;
+        OnBeforeCheckSerialNoQty(Rec, IsHandled);
+        if not IsHandled then
             if not ("Quantity (Base)" in [0, 1]) then
                 Error(Text003, FieldCaption("Quantity (Base)"), FieldCaption("Serial No."));
     end;
@@ -688,6 +695,11 @@ table 6550 "Whse. Item Tracking Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTrackingExists(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsTrackingExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSerialNoQty(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
     begin
     end;
 

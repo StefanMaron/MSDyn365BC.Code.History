@@ -1101,10 +1101,6 @@ codeunit 134761 "Test Custom Reports"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        FormatDocument: Codeunit "Format Document";
-        TotalText: Text[50];
-        TotalInclVATText: Text[50];
-        TotalExclVATText: Text[50];
     begin
         // [FEATURE] [Standard Sales - Invoice] [Prices Excl. VAT] [Invoice Discount]
         // [SCENARIO 203437] REP 1306 "Standard Sales - Invoice" prints subtotal discount line as "Total GBP Excl. VAT" in case of "Prices Including VAT" = FALSE
@@ -1122,8 +1118,7 @@ codeunit 134761 "Test Custom Reports"
         // [THEN] "Invoice Discount" = 1000
         // [THEN] "Total GBP Excl. VAT" = 4000
         // [THEN] "25% VAT" = 1000
-        FormatDocument.SetTotalLabels(SalesHeader.GetCurrencySymbol, TotalText, TotalInclVATText, TotalExclVATText);
-        VerifyStdSalesInvoiceReportTotalsLines(SalesLine, TotalExclVATText, SalesLine.Amount);
+        VerifyStdSalesInvoiceReportTotalsLines(SalesLine);
     end;
 
     [Test]
@@ -1133,11 +1128,6 @@ codeunit 134761 "Test Custom Reports"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        FormatDocument: Codeunit "Format Document";
-        TotalText: Text[50];
-        TotalInclVATText: Text[50];
-        TotalExclVATText: Text[50];
-        CurrencySymbol: Text[10];
     begin
         // [FEATURE] [Standard Sales - Invoice] [Prices Incl. VAT] [Invoice Discount]
         // [SCENARIO 203437] REP 1306 "Standard Sales - Invoice" prints subtotal discount line as "Total GBP Incl. VAT" in case of "Prices Including VAT" = TRUE
@@ -1155,9 +1145,7 @@ codeunit 134761 "Test Custom Reports"
         // [THEN] "Invoice Discount" = 1000
         // [THEN] "Total GBP Incl. VAT" = 5000
         // [THEN] "25% VAT" = 1000
-        CurrencySymbol := SalesHeader.GetCurrencySymbol;
-        FormatDocument.SetTotalLabels(CurrencySymbol, TotalText, TotalInclVATText, TotalExclVATText);
-        VerifyStdSalesInvoiceReportTotalsLines(SalesLine, TotalInclVATText, SalesLine."Amount Including VAT");
+        VerifyStdSalesInvoiceReportTotalsLines(SalesLine);
     end;
 
     [Test]
@@ -2536,7 +2524,7 @@ codeunit 134761 "Test Custom Reports"
         Assert.AreEqual('', FormattedLineAmt, '');
     end;
 
-    local procedure VerifyStdSalesInvoiceReportTotalsLines(SalesLine: Record "Sales Line"; SubtotalDiscountText: Text; SubtotalDiscountValue: Decimal)
+    local procedure VerifyStdSalesInvoiceReportTotalsLines(SalesLine: Record "Sales Line")
     var
         Row: Integer;
     begin
@@ -2544,9 +2532,8 @@ codeunit 134761 "Test Custom Reports"
         Row := LibraryReportDataset.FindRow(DescriptionReportTotalsLineTxt, SubtotalTxt) + 1;
         VerifyStdSalesInvoiceReportTotalsLine(Row, SubtotalTxt, SalesLine."Line Amount");
         VerifyStdSalesInvoiceReportTotalsLine(Row + 1, InvoiceDiscountTxt, -SalesLine."Inv. Discount Amount");
-        VerifyStdSalesInvoiceReportTotalsLine(Row + 2, SubtotalDiscountText, SubtotalDiscountValue);
         VerifyStdSalesInvoiceReportTotalsLine(
-          Row + 3, StrSubstNo('%1% VAT', SalesLine."VAT %"),
+          Row + 2, 'Total Tax',
           SalesLine."Amount Including VAT" - Round(SalesLine."Amount Including VAT" / (1 + SalesLine."VAT %" / 100)));
     end;
 

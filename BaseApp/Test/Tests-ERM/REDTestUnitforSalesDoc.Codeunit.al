@@ -817,7 +817,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The deferrals were moved to the Sales Invoice Line and Posted Deferral tables - GL is correct
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDefer, 2, 3, SetDateDay(1, WorkDate), false);
     end;
@@ -911,7 +911,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         VerifyInvoicePostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.11.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo1, DeferralTemplateCode, AccNo, AmtToDefer1, AmtToDefer1, 2, 3, NewPostDate, false);
         VerifyPostedInvoiceDeferralsAndGL(DocNo2, DeferralTemplateCode, AccNo, AmtToDefer2, AmtToDefer2, 2, 3, NewPostDate, false);
@@ -961,7 +961,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         VerifyInvoicePostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.11.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo1, DeferralTemplateCode, AccNo, AmtToDefer1, AmtToDefer1, 2, 3, NewPostDate, false);
         VerifyPostedInvoiceDeferralsAndGL(DocNo2, DeferralTemplateCode, AccNo, AmtToDefer2, AmtToDefer2, 2, 3, NewPostDate, false);
@@ -1011,7 +1011,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         VerifyCrMemoPostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.11.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedCrMemosDeferralsAndGL(
           SalesDocType::"Posted Credit Memo", DocNo1, DeferralTemplateCode, AccNo, AmtToDefer1, AmtToDefer1, 2, 3, NewPostDate);
@@ -1063,7 +1063,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         VerifyInvoicePostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.10.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(
           DocNo1, DeferralTemplateCode, AccNo, AmtToDefer1, AmtToDefer1, 2, 3, SalesHeader1."Posting Date", false);
@@ -1115,7 +1115,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         VerifyInvoicePostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.10.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(
           DocNo1, DeferralTemplateCode, AccNo, AmtToDefer1, AmtToDefer1, 2, 3, SalesHeader1."Posting Date", false);
@@ -1167,7 +1167,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         VerifyCrMemoPostingDate(DocNo2, NewPostDate);
 
         // [THEN] The deferrals are posted according to schedule from 01.10.16
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedCrMemosDeferralsAndGL(
           SalesDocType::"Posted Credit Memo", DocNo1, DeferralTemplateCode,
@@ -1208,7 +1208,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The deferrals were moved to the Sales Invoice Line and Posted Deferral tables
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDefer, 2, 3, SetDateDay(1, WorkDate), false);
 
@@ -1248,7 +1248,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The deferrals were moved to the Sales Invoice Line and Posted Deferral tables - GL is correct
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDeferLCY, 2, 3, SetDateDay(1, WorkDate), false);
     end;
@@ -1288,7 +1288,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The deferrals were posted to GL
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForInvoice(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 2), 3, 0, false);
 
@@ -1333,7 +1333,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The deferrals were moved to the Sales Invoice Line and Posted Deferral tables - GL & Sales is correct
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGLWithSalesAmt(
           DocNo, DeferralTemplateCode, AccNo, SalesAccount, AmtToDefer, AmtToDefer, 1, 2, 3, 5, SalesAmount);
@@ -1500,7 +1500,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           LineNo, DeferralTemplateCode, SetDateDay(15, WorkDate), AmtToDefer, AmtToDefer, 3);
 
         // [THEN] The deferrals were posted to GL
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForCrMemo(DocNo, AccNo, SetDateDay(15, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 3), 5, 0, false);
     end;
@@ -1562,7 +1562,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         Assert.AreEqual(SalesAmount, Abs(GLSalesAmount), 'An incorrect Amount was posted for sales');
 
         // [THEN] The deferrals were posted to GL
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForCrMemo(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 3), 3, 0, true);
     end;
@@ -1601,7 +1601,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           SalesCrMemoLine."Line No.", DeferralTemplateCode, SetDateDay(15, WorkDate), AmtToDefer, AmtToDefer, 3);
 
         // [THEN] The deferrals were posted to GL
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForCrMemo(DocNo, AccNo, SetDateDay(15, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 3), 5, 0, false);
     end;
@@ -1635,7 +1635,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [THEN] Deferral code is in Sales Invoice Line
         // [THEN] Posted Deferral header and Line tables created
         // [THEN] G/L Entries are posted to Deferral Account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDefer, 2, 3, SetDateDay(1, WorkDate), false);
     end;
@@ -1669,7 +1669,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         // [THEN] Posted Deferral header and Line tables are for the partial quantities
         // [THEN] G/L Entries are posted to Deferral Account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDefer, 2, 3, SetDateDay(1, WorkDate), false);
     end;
@@ -1708,7 +1708,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         // [THEN] Posted Deferral header and Line tables are for the partial quantities and appropriate currency
         // [THEN] G/L Entries are posted to Deferral Account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDeferLCY, 2, 3, SetDateDay(1, WorkDate), false);
     end;
@@ -1748,7 +1748,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] G/L Entries are combined for the deferral account from both lines
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyGLForInvoice(DocNo, AccNo, SetDateDay(1, WorkDate), PeriodDate(SetDateDay(1, WorkDate), 2), 3, 0, false);
     end;
@@ -1791,7 +1791,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] G/L Entries for sales account is reduced by amt deferred which is posted directly to deferral account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGLWithSalesAmt(DocNo,
           DeferralTemplateCode, AccNo, SalesAccount, AmtToDefer, AmtToDefer, 1, 2, 3, 5, SalesAmount);
@@ -1834,7 +1834,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         // [THEN] Posted Deferral header and Line tables are for the partial quantities from second order
         // [THEN] G/L Entries are posted to Deferral Account
-        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is no G/L Entry for a posting account with VAT (NA) (TFS 251252)
         // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
         VerifyPostedInvoiceDeferralsAndGL(DocNo, DeferralTemplateCode, AccNo, AmtToDefer, AmtToDefer, 2, 3, SetDateDay(1, WorkDate), false);
     end;
@@ -2884,7 +2884,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         with GLEntry do begin
             if PartialDeferral then begin
                 SetRange("VAT Amount", 0);
-                Assert.RecordCount(GLEntry, 1);
+                Assert.RecordCount(GLEntry, 2);
             end;
             FindFirst;
             SetRange("VAT Amount");
@@ -3209,17 +3209,22 @@ codeunit 134805 "RED Test Unit for Sales Doc"
               "G/L Account No.",
               GetSalesAccountNo(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group"));
 
-            SetFilter("VAT Amount", '<>%1', 0);
+            SetRange("VAT Amount", 0);
             FilterInvoiceGLEntryGroups(GLEntry, "Gen. Posting Type"::Sale, SalesInvoiceLine);
-            Assert.RecordCount(GLEntry, 1);
+            if PartialDeferral then
+                Assert.RecordCount(GLEntry, 2)
+            else
+                Assert.RecordCount(GLEntry, 1);
 
             // Verify paired GLEntry
             PairAmount := GetGLEntryPairAmount(GLEntry, PartialDeferral);
             SetFilter(Amount, '>%1', 0);
             FilterInvoiceGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummySalesInvoiceLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
-            TestField(Amount, -PairAmount);
+            if not PartialDeferral then begin
+                FindFirst;
+                TestField(Amount, -PairAmount);
+            end;
         end;
     end;
 
@@ -3236,17 +3241,22 @@ codeunit 134805 "RED Test Unit for Sales Doc"
               "G/L Account No.",
               GetSalesCrMemoAccountNo(SalesCrMemoLine."Gen. Bus. Posting Group", SalesCrMemoLine."Gen. Prod. Posting Group"));
 
-            SetFilter("VAT Amount", '<>%1', 0);
+            SetRange("VAT Amount", 0);
             FilterCrMemoGLEntryGroups(GLEntry, "Gen. Posting Type"::Sale, SalesCrMemoLine);
-            Assert.RecordCount(GLEntry, 1);
+            if PartialDeferral then
+                Assert.RecordCount(GLEntry, 2)
+            else
+                Assert.RecordCount(GLEntry, 1);
 
             // Verify paired GLEntry
             PairAmount := GetGLEntryPairAmount(GLEntry, PartialDeferral);
             SetFilter(Amount, '<%1', 0);
             FilterCrMemoGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummySalesCrMemoLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
-            TestField(Amount, -PairAmount);
+            if not PartialDeferral then begin
+                FindFirst;
+                TestField(Amount, -PairAmount);
+            end;
         end;
     end;
 

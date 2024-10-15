@@ -9,7 +9,7 @@ codeunit 138041 "O365 Company Information"
     end;
 
     var
-        CompanyBankAccountTxt: Label 'CompanyBankAccount';
+        CompanyBankAccountTxt: Label 'CHECKING';
         XPAYMENTTxt: Label 'PAYMENT', Comment = 'Payment';
         XPmtRegTxt: Label 'PMT REG', Comment = 'Payment Registration';
         Assert: Codeunit Assert;

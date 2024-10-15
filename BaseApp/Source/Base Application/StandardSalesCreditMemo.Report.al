@@ -415,6 +415,12 @@ report 1307 "Standard Sales - Credit Memo"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
+                column(CrossReferenceNo_Line; "Cross-Reference No.")
+                {
+                }
+                column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
+                {
+                }
                 column(ShipmentDate_Line; Format("Shipment Date"))
                 {
                 }
@@ -1163,7 +1169,13 @@ report 1307 "Standard Sales - Credit Memo"
     end;
 
     local procedure DocumentCaption(): Text[250]
+    var
+        DocCaption: Text[250];
     begin
+        OnBeforeDocumentCaption(Header, DocCaption);
+        if DocCaption <> '' then
+            exit(DocCaption);
+
         if Header."Prepayment Credit Memo" then
             exit(SalesPrepCreditMemoNoLbl);
         exit(SalesCreditMemoNoLbl);
@@ -1261,6 +1273,11 @@ report 1307 "Standard Sales - Credit Memo"
         end;
         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
         SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmountLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDocumentCaption(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var DocCaption: Text[250])
+    begin
     end;
 }
 

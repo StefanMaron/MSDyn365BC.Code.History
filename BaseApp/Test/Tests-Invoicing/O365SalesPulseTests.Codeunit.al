@@ -13,6 +13,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         LibraryInvoicingApp: Codeunit "Library - Invoicing App";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         IsInitialized: Boolean;
         EstimateSentMsg: Label 'Estimate %1 is being sent.', Comment = '%1=The estimate number';
         EstimateAcceptedMsg: Label 'Estimate %1 was accepted.', Comment = '%1=The estimate number';
@@ -20,6 +21,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
         EstimateExpiryTxt: Label 'Estimate Expiry';
         InvoiceEmailFailedMsg: Label 'Invoice %1 could not be sent.', Comment = '%1=The invoice number';
         EstimateEmailFailedMsg: Label 'Estimate %1 could not be sent.', Comment = '%1=The estimate number';
+        TaxSetupNeededTxt: Label 'You haven''t set up tax information for your business.';
 
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend')]
@@ -187,7 +189,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
     end;
 
     [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,EmailConfirmMessageHandler')]
+    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler,EmailConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestEstimateFailedToSendEvent()
     var
@@ -222,7 +224,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
     end;
 
     [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler')]
+    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestInvoiceFailedToSendEvent()
     var
@@ -301,6 +303,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
+        BindSubscription(TestProxyNotifMgtExt);
 
         WorkDate(Today);
         IsInitialized := true;
@@ -351,6 +354,14 @@ codeunit 138959 "O365 Sales Pulse Tests"
     procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
     begin
         Assert.Fail('No notification should be thrown.');
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure TaxNotificationHandler(var TheNotification: Notification): Boolean
+    begin
+        Assert.IsTrue(StrPos(TheNotification.Message, TaxSetupNeededTxt) <> 0,
+          'An unexpected notification was sent.');
     end;
 }
 

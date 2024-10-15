@@ -233,30 +233,6 @@ codeunit 134994 "ERM Account Schedule II"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure AccountScheduleExportToExcel()
-    var
-        AccScheduleName: Record "Acc. Schedule Name";
-        AccScheduleLine: Record "Acc. Schedule Line";
-    begin
-        // Verify account schedule export to Excel can fill Excel Buffer
-        Initialize;
-        AccScheduleName.SetFilter("Analysis View Name", '<>%1', '');
-        AccScheduleName.SetFilter("Default Column Layout", '<>%1', '');
-        if AccScheduleName.FindFirst then begin
-            LibraryReportValidation.SetFileName(AccScheduleName.Name);
-
-            // Export to Excel buffer
-            AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-            AccScheduleLine.SetRange("Date Filter", CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
-            // Verify
-            RunExportAccSchedule(AccScheduleLine, AccScheduleName);
-        end;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure AccountScheduleIndentation()
     var
@@ -706,26 +682,26 @@ codeunit 134994 "ERM Account Schedule II"
         // [GIVEN] Account Schedule Line has filters for "Center", "Object" and "CashFlow"
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAnalysisView(AnalysisView);
-        AccScheduleName.Validate("Analysis View Name",AnalysisView.Code);
+        AccScheduleName.Validate("Analysis View Name", AnalysisView.Code);
         AccScheduleName.Modify(true);
-        LibraryERM.CreateAccScheduleLine(AccScheduleLine,AccScheduleName.Name);
-        AccScheduleLine.SetFilter("Schedule Name",AccScheduleName.Name);
-        AccScheduleLine.SetFilter("Cost Center Filter",CostCenter.Code);
-        AccScheduleLine.SetFilter("Cost Object Filter",CostObject.Code);
-        AccScheduleLine.SetFilter("Cash Flow Forecast Filter",CashFlowForecast."No.");
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.SetFilter("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.SetFilter("Cost Center Filter", CostCenter.Code);
+        AccScheduleLine.SetFilter("Cost Object Filter", CostObject.Code);
+        AccScheduleLine.SetFilter("Cash Flow Forecast Filter", CashFlowForecast."No.");
 
         // [WHEN] Run export Account Schedule to Excel - Report 29 (Export Acc. Sched. to Excel)
         LibraryReportValidation.SetFileName(AccScheduleName.Name);
-        RunExportAccSchedule(AccScheduleLine,AccScheduleName);
+        RunExportAccSchedule(AccScheduleLine, AccScheduleName);
 
         // [THEN] Excel file contains filers for "Center", "Object" and "CashFlow"
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(2,1,AccScheduleLine.FieldCaption("Cost Center Filter"));
-        LibraryReportValidation.VerifyCellValue(2,2,CostCenter.Code);
-        LibraryReportValidation.VerifyCellValue(3,1,AccScheduleLine.FieldCaption("Cost Object Filter"));
-        LibraryReportValidation.VerifyCellValue(3,2,CostObject.Code);
-        LibraryReportValidation.VerifyCellValue(4,1,AccScheduleLine.FieldCaption("Cash Flow Forecast Filter"));
-        LibraryReportValidation.VerifyCellValue(4,2,CashFlowForecast."No.");
+        LibraryReportValidation.VerifyCellValue(2, 1, AccScheduleLine.FieldCaption("Cost Center Filter"));
+        LibraryReportValidation.VerifyCellValue(2, 2, CostCenter.Code);
+        LibraryReportValidation.VerifyCellValue(3, 1, AccScheduleLine.FieldCaption("Cost Object Filter"));
+        LibraryReportValidation.VerifyCellValue(3, 2, CostObject.Code);
+        LibraryReportValidation.VerifyCellValue(4, 1, AccScheduleLine.FieldCaption("Cash Flow Forecast Filter"));
+        LibraryReportValidation.VerifyCellValue(4, 2, CashFlowForecast."No.");
     end;
 
     [Test]
@@ -1111,6 +1087,31 @@ codeunit 134994 "ERM Account Schedule II"
 
         // [THEN] The message prints formula from column layout.
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FieldShowSetupForAlwaysValueCorrectlyInColumnLayout()
+    var
+        ColumnLayoutName: Record "Column Layout Name";
+        ColumnLayout: Record "Column Layout";
+        ColumnLayoutPage: TestPage "Column Layout";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 350308] Change field Show in Column Layout to Always
+        // [GIVEN] Created Column Layout Name
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+
+        // [WHEN] Opened page ColumnLayoutPage and set Show = "When Negative"
+        ColumnLayoutPage.OpenEdit();
+        ColumnLayoutPage.CurrentColumnName.SetValue(ColumnLayoutName.Name);
+        ColumnLayoutPage.Show.SetValue(ColumnLayout.Show::"When Negative");
+
+        // [WHEN] Set Show = Always
+        ColumnLayoutPage.Show.SetValue(ColumnLayout.Show::Always);
+
+        // [THEN] Show validated correctly and equal to Always
+        ColumnLayoutPage.Show.AssertEquals(ColumnLayout.Show::Always);
     end;
 
     local procedure Initialize()

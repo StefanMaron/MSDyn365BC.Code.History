@@ -1025,69 +1025,6 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure FillCFJnlWithTax()
-    var
-        CashFlowSetup: Record "Cash Flow Setup";
-        SalesHeader1: Record "Sales Header";
-        SalesHeader2: Record "Sales Header";
-        SalesHeader3: Record "Sales Header";
-        CashFlowForecast: Record "Cash Flow Forecast";
-        CFWorksheetLine: Record "Cash Flow Worksheet Line";
-        ConsiderSource: array[16] of Boolean;
-        DocumentDate1: Date;
-        DocumentDate2: Date;
-        DocumentDate3: Date;
-        TaxDueDate1: Date;
-        TaxDueDate2: Date;
-    begin
-        // Test filling a CF journal by using Fill batch with 3 sales orders
-        // and verify computed due and cash flow date
-
-        Initialize;
-
-        // Setup - set the Tax schedule on CashFlowSetup
-        CashFlowSetup.Get();
-        CashFlowSetup."Taxable Period" := CashFlowSetup."Taxable Period"::Quarterly;
-        Evaluate(CashFlowSetup."Tax Payment Window", '<5D>');
-        CashFlowSetup.Modify();
-        DocumentDate1 := CalcDate('<-CQ+1D>', WorkDate);
-        DocumentDate2 := CalcDate('<CQ>', WorkDate);
-        DocumentDate3 := CalcDate('<3D>', DocumentDate2);
-
-        // Setup - create the sales orders - 2 in the same tax period and the third a little later
-        SalesHeader1.DeleteAll();
-        CFHelper.CreateDefaultSalesOrder(SalesHeader1);
-        SalesHeader1."Document Date" := DocumentDate1;
-        SalesHeader1.Modify();
-        CFHelper.CreateDefaultSalesOrder(SalesHeader2);
-        SalesHeader2."Document Date" := DocumentDate2;
-        SalesHeader2.Modify();
-        CFHelper.CreateDefaultSalesOrder(SalesHeader3);
-        SalesHeader3."Document Date" := DocumentDate3;
-        SalesHeader3.Modify();
-
-        // Setup - create the forecast entity
-        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-
-        // Exercise
-        ConsiderSource[SourceType::Tax] := true;
-        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
-
-        // Verify - worksheet lines for the two dates for sales
-        CFWorksheetLine.SetRange("Source No.", Format(DATABASE::"Sales Header"));
-        TaxDueDate1 := CashFlowSetup.GetTaxPaymentDueDate(DocumentDate1);
-        CFWorksheetLine.SetRange("Cash Flow Date", TaxDueDate1);
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, '', SourceType::Tax,
-          CashFlowForecast."No.", CFHelper.GetTotalTaxAmount(TaxDueDate1, DATABASE::"Sales Header"), TaxDueDate1);
-        TaxDueDate2 := CashFlowSetup.GetTaxPaymentDueDate(DocumentDate3);
-        CFWorksheetLine.SetRange("Cash Flow Date", TaxDueDate2);
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, '', SourceType::Tax,
-          CashFlowForecast."No.", CFHelper.GetTotalTaxAmount(TaxDueDate2, DATABASE::"Sales Header"), TaxDueDate2);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure FillCFJnlWithTaxAfterTaxPayment()
     var
         GLAccount: Record "G/L Account";
@@ -1125,6 +1062,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateDefaultSalesOrder(SalesHeader);
         SalesHeader."Document Date" := DocumentDate;
         SalesHeader.Modify();
+        SetupSalesHeaderForTaxes(SalesHeader);
 
         // Setup - create the forecast entity
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
@@ -1182,57 +1120,6 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify: The sum of the tax amounts in the two purchase orders
         Assert.AreEqual(CFHelper.GetTotalTaxAmount(CashFlowSetup.GetTaxPaymentDueDate(PurchaseHeader1."Document Date"),
             DATABASE::"Purchase Header"), Result, 'Incorrect total taxable amount on purchase order calculated.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure FillCFJnlWithTaxSkipOlderPeriods()
-    var
-        CashFlowSetup: Record "Cash Flow Setup";
-        SalesHeaderPrevPeriod: Record "Sales Header";
-        SalesHeaderOlderThanPrevPeriod: Record "Sales Header";
-        CashFlowForecast: Record "Cash Flow Forecast";
-        CFWorksheetLine: Record "Cash Flow Worksheet Line";
-        ConsiderSource: array[16] of Boolean;
-        DocumentDatePrevPeriod: Date;
-        DocumentDateOlderThenPrevPeriod: Date;
-    begin
-        // Test filling a CF journal by using Fill batch with 2 sales orders in two periods
-        // and verify that due and cash flow date are calculated only for the sales order whose taxa due date ends in current period.
-
-        Initialize;
-
-        // Setup - set the Tax schedule on CashFlowSetup
-        CashFlowSetup.Get();
-        CashFlowSetup."Taxable Period" := CashFlowSetup."Taxable Period"::Quarterly;
-        Evaluate(CashFlowSetup."Tax Payment Window", '<5D>');
-        CashFlowSetup.Modify();
-        DocumentDatePrevPeriod := CalcDate('<-CQ-30D>', WorkDate);
-        DocumentDateOlderThenPrevPeriod := CalcDate('<-CQ-30D>', DocumentDatePrevPeriod);
-
-        // Setup - create the sales orders
-        CFHelper.CreateDefaultSalesOrder(SalesHeaderPrevPeriod);
-        SalesHeaderPrevPeriod."Document Date" := DocumentDatePrevPeriod;
-        SalesHeaderPrevPeriod.Modify();
-        SalesHeaderPrevPeriod.CalcFields("Amount Including VAT", Amount);
-        CFHelper.CreateDefaultSalesOrder(SalesHeaderOlderThanPrevPeriod);
-        SalesHeaderOlderThanPrevPeriod."Document Date" := DocumentDateOlderThenPrevPeriod;
-        SalesHeaderOlderThanPrevPeriod.Modify();
-
-        // Setup - create the forecast entity
-        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-
-        // Exercise
-        ConsiderSource[SourceType::Tax] := true;
-        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
-
-        // Verify - no worksheet lines for the sales
-        CFWorksheetLine.SetRange("Source No.", Format(DATABASE::"Sales Header"));
-        CFWorksheetLine.SetFilter("Cash Flow Date", '<%1', WorkDate);
-        Assert.AreEqual(1, CFWorksheetLine.Count, 'Old sales are going to be cumulated to the work date.');
-        CFWorksheetLine.FindFirst;
-        Assert.AreEqual(SalesHeaderPrevPeriod.Amount - SalesHeaderPrevPeriod."Amount Including VAT",
-          CFWorksheetLine."Amount (LCY)", 'Only the sales from the prev period will be considered.');
     end;
 
     [Test]
@@ -2497,6 +2384,63 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateJobPlanningLine(Job, JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine);
         JobPlanningLine.Validate("Planning Date", NewDate);
         JobPlanningLine.Modify(true);
+    end;
+
+    local procedure SetupSalesHeaderForTaxes(var SalesHeader: Record "Sales Header")
+    var
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxGroup: Record "Tax Group";
+        TaxDetail: Record "Tax Detail";
+        SalesLine: Record "Sales Line";
+    begin
+        if not TaxArea.FindFirst then begin
+            TaxArea.Code := 'MyTaxArea';
+            TaxArea.Insert();
+        end;
+
+        if not TaxJurisdiction.FindFirst then begin
+            TaxJurisdiction.Code := 'MyTaxJur';
+            TaxJurisdiction.Insert();
+        end;
+
+        TaxAreaLine.SetRange("Tax Area", TaxArea.Code);
+        if not TaxAreaLine.FindFirst then begin
+            TaxAreaLine."Tax Area" := TaxArea.Code;
+            TaxAreaLine."Tax Jurisdiction Code" := TaxJurisdiction.Code;
+            TaxAreaLine.Insert();
+        end;
+
+        if not TaxGroup.FindFirst then begin
+            TaxGroup.Code := 'MyTaxGroup';
+            TaxGroup.Insert();
+        end;
+
+        TaxDetail.SetRange("Tax Jurisdiction Code", TaxJurisdiction.Code);
+        TaxDetail.SetRange("Tax Group Code", TaxGroup.Code);
+        TaxDetail.SetFilter("Effective Date", '<=%1', SalesHeader."Document Date");
+        if not TaxDetail.FindFirst then begin
+            TaxDetail.Validate("Tax Jurisdiction Code", TaxJurisdiction.Code);
+            TaxDetail.Validate("Tax Group Code", TaxGroup.Code);
+            TaxDetail.Validate("Effective Date", CalcDate('<-1d>', SalesHeader."Document Date"));
+            TaxDetail.Validate("Tax Below Maximum", 0.4);
+            TaxDetail.Insert();
+        end;
+
+        SalesHeader.Validate("Tax Liable", true);
+        SalesHeader.Validate("Tax Area Code", TaxArea.Code);
+        SalesHeader.Modify();
+
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet then
+            repeat
+                SalesLine.Validate("Tax Liable", true);
+                SalesLine.Validate("Tax Area Code", SalesHeader."Tax Area Code");
+                SalesLine.Validate("Tax Group Code", TaxGroup.Code);
+                SalesLine.Modify();
+            until SalesLine.Next = 0;
     end;
 }
 

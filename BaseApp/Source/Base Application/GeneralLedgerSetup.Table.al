@@ -517,7 +517,7 @@ table 98 "General Ledger Setup"
         }
         field(97; "Allow G/L Acc. Deletion Before"; Date)
         {
-            Caption = 'Allow G/L Acc. Deletion Before';
+            Caption = 'Check G/L Acc. Deletion After';
         }
         field(98; "Check G/L Account Usage"; Boolean)
         {

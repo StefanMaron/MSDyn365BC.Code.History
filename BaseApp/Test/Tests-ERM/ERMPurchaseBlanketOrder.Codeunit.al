@@ -1044,26 +1044,10 @@ codeunit 134326 "ERM Purchase Blanket Order"
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseBlanketOrderChangePricesInclVATRefreshesPage()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        BlanketPurchaseOrderPage: TestPage "Blanket Purchase Order";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        Initialize;
-
-        // [GIVEN] Page with Prices including VAT disabled was open
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '');
-        BlanketPurchaseOrderPage.OpenEdit;
-        BlanketPurchaseOrderPage.GotoRecord(PurchaseHeader);
-
-        // [WHEN] User checks Prices including VAT
-        BlanketPurchaseOrderPage."Prices Including VAT".SetValue(true);
-
-        // [THEN] Caption for BlanketPurchaseOrderPage.PurchLines."Direct Unit Cost" field is updated
-        Assert.AreEqual('Direct Unit Cost Incl. VAT',
-          BlanketPurchaseOrderPage.PurchLines."Direct Unit Cost".Caption,
-          'The caption for BlanketPurchaseOrderPage.PurchLines."Direct Unit Cost" is incorrect');
+        // This Country doesn't have this field on the page.
     end;
 
     [Test]

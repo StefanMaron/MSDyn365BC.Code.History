@@ -86,7 +86,7 @@ codeunit 136902 "Resource Reports"
         Resource: Record Resource;
         WorkType: Record "Work Type";
         WorkType2: Record "Work Type";
-        ResourceCostBreakdown: Report "Resource - Cost Breakdown";
+        ResourceCostBreakdown: Report "Cost Breakdown";
     begin
         // Test and verify Resource - Cost Breakdown Report.
 
@@ -285,7 +285,7 @@ codeunit 136902 "Resource Reports"
     procedure ResourceListReport()
     var
         Resource: Record Resource;
-        ResourceList: Report "Resource - List";
+        ResourceList: Report "Resource List";
     begin
         // Test and verify Resource List Report.
 
@@ -504,8 +504,8 @@ codeunit 136902 "Resource Reports"
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Resource_Group_No__', Resource."Resource Group No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Gen__Prod__Posting_Group_', Resource."Gen. Prod. Posting Group");
-        LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Global_Dimension_1_Code_', Resource."Global Dimension 1 Code");
-        LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Global_Dimension_2_Code_', Resource."Global Dimension 2 Code");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Unit_Cost_', Resource."Unit Cost");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Unit_Price_', Resource."Unit Price");
     end;
 
     local procedure VerifyResourceCostBreakDown(ResourceNo: Code[20]; WorkTypeCode: Code[10]; WorkTypeCode2: Code[10])
@@ -513,7 +513,7 @@ codeunit 136902 "Resource Reports"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('No1_Resource', ResourceNo);
+        LibraryReportDataset.SetRange('Res__Ledger_Entry_Resource_No_', ResourceNo);
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the resource no');
 
         // Verify First Row Values on Resource - Cost Breakdown Report.
@@ -529,11 +529,10 @@ codeunit 136902 "Resource Reports"
 
     local procedure VerifyResourceCostBreakDownRow(ResLedgerEntry: Record "Res. Ledger Entry")
     begin
-        LibraryReportDataset.SetRange('WorkTypeCode_ResLedgEntry', ResLedgerEntry."Work Type Code");
+        LibraryReportDataset.SetRange('Res__Ledger_Entry__Work_Type_Code_', ResLedgerEntry."Work Type Code");
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the work type code');
 
-        LibraryReportDataset.AssertCurrentRowValueEquals('Qty_ResLedgEntry', ResLedgerEntry.Quantity);
-        LibraryReportDataset.AssertCurrentRowValueEquals('TotalCost_ResLedgEntry', ResLedgerEntry."Total Cost");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Res__Ledger_Entry_Quantity', ResLedgerEntry.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalDirectCost', ResLedgerEntry.Quantity * ResLedgerEntry."Direct Unit Cost");
     end;
 
@@ -591,14 +590,14 @@ codeunit 136902 "Resource Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Res__Ledger_Entry_Quantity', ResLedgerEntry.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('Res__Ledger_Entry__Total_Cost_', ResLedgerEntry."Total Cost");
         LibraryReportDataset.AssertCurrentRowValueEquals('Res__Ledger_Entry__Total_Price_', ResLedgerEntry."Total Price");
-        LibraryReportDataset.AssertCurrentRowValueEquals('Res__Ledger_Entry__Entry_No__', ResLedgerEntry."Entry No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Res__Led_Entry___Entry_No__', ResLedgerEntry."Entry No.");
     end;
 
     local procedure VerifyResourceStatistics(Resource: Record Resource; Resource2: Record Resource)
     begin
         LibraryReportDataset.LoadDataSetFile;
-        Resource.CalcFields("Sales (Price)", "Usage (Price)");
-        Resource2.CalcFields("Sales (Price)", "Usage (Price)");
+        Resource.CalcFields("Sales (Qty.)", "Usage (Qty.)");
+        Resource2.CalcFields("Sales (Qty.)", "Usage (Qty.)");
 
         // Verify First Row Values on Resource Statistics Report.
         VerifyResourceStatisticsRow(Resource);
@@ -609,11 +608,11 @@ codeunit 136902 "Resource Reports"
 
     local procedure VerifyResourceStatisticsRow(Resource: Record Resource)
     begin
-        LibraryReportDataset.SetRange('No_Resource', Resource."No.");
+        LibraryReportDataset.SetRange('Resource__No__', Resource."No.");
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the resource no');
 
-        LibraryReportDataset.AssertCurrentRowValueEquals('UsagePrice_Resource', Resource."Usage (Price)");
-        LibraryReportDataset.AssertCurrentRowValueEquals('SalesPrice_Resource', Resource."Sales (Price)");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Usage__Qty___', Resource."Usage (Qty.)");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Sales__Qty___', Resource."Sales (Qty.)");
     end;
 
     local procedure VerifyResourceUsage(Resource: Record Resource)
@@ -621,12 +620,12 @@ codeunit 136902 "Resource Reports"
         Resource.CalcFields(Capacity, "Usage (Qty.)");
 
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('No_Resource', Resource."No.");
+        LibraryReportDataset.SetRange('Resource__No__', Resource."No.");
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the resource no');
 
-        LibraryReportDataset.AssertCurrentRowValueEquals('capacity_Resource', Resource.Capacity);
-        LibraryReportDataset.AssertCurrentRowValueEquals('UsageQty_Resource', Resource."Usage (Qty.)");
-        LibraryReportDataset.AssertCurrentRowValueEquals('CapacityUsageQty', Resource.Capacity - Resource."Usage (Qty.)");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Resource_Capacity', Resource.Capacity);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Resource__Usage__Qty___', Resource."Usage (Qty.)");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Capacity____Usage__Qty___', Resource.Capacity - Resource."Usage (Qty.)");
     end;
 
     [ConfirmHandler]
@@ -658,7 +657,7 @@ codeunit 136902 "Resource Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure ResourceCostBreakdownReportHandler(var ResourceCostBreakdown: TestRequestPage "Resource - Cost Breakdown")
+    procedure ResourceCostBreakdownReportHandler(var ResourceCostBreakdown: TestRequestPage "Cost Breakdown")
     begin
         ResourceCostBreakdown.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -672,7 +671,7 @@ codeunit 136902 "Resource Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure ResourceListReportHandler(var ResourceList: TestRequestPage "Resource - List")
+    procedure ResourceListReportHandler(var ResourceList: TestRequestPage "Resource List")
     begin
         ResourceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

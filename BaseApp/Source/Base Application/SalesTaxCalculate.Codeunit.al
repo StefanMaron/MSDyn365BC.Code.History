@@ -805,6 +805,7 @@ codeunit 398 "Sales Tax Calculate"
             exit;
 
         if not PurchHeaderRead then begin
+            PurchLine.GetPurchHeader();
             PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
             PurchHeaderRead := true;
             PurchHeader.TestField("Prices Including VAT", false);
@@ -1245,7 +1246,7 @@ codeunit 398 "Sales Tax Calculate"
                         if "Tax Base Amount" <> 0 then
                             SalesTaxAmountLine2."Tax %" := 100 * ("Amount Including Tax" - "Tax Base Amount") / "Tax Base Amount"
                         else
-                            if "Tax %" = 0 then
+                            if ("Tax %" = 0) and "Tax Liable" then
                                 SalesTaxAmountLine2."Tax %" := TaxDetail."Tax Below Maximum"
                             else
                                 SalesTaxAmountLine2."Tax %" := "Tax %";
@@ -1538,6 +1539,7 @@ codeunit 398 "Sales Tax Calculate"
         end;
 
         ResetTaxAmountsInPurchLines(PurchLine, PurchHeader."Tax Area Code");
+        PurchLine.SetPurchHeader(PurchHeader);
 
         with TempSalesTaxLine do begin
             Reset;
@@ -1884,6 +1886,25 @@ codeunit 398 "Sales Tax Calculate"
                 TaxAmountDifference."Tax Difference" := TempSalesTaxLine."Tax Difference";
                 TaxAmountDifference.Insert();
             until TempSalesTaxLine.Next = 0;
+    end;
+
+    procedure SetPurchHeader(NewPurchHeader: Record "Purchase Header")
+    begin
+        PurchHeader := NewPurchHeader;
+
+        SetUpCurrency(PurchHeader."Currency Code");
+        if PurchHeader."Currency Code" <> '' then
+            PurchHeader.TestField("Currency Factor");
+        if PurchHeader."Currency Factor" = 0 then
+            ExchangeFactor := 1
+        else
+            ExchangeFactor := PurchHeader."Currency Factor";
+        CopyTaxDifferencesToTemp(
+          TaxAmountDifference."Document Product Area"::Purchase,
+          PurchHeader."Document Type".AsInteger(),
+          PurchHeader."No.");
+
+        PurchHeaderRead := true;
     end;
 
     procedure CalculateExpenseTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal) TaxAmount: Decimal

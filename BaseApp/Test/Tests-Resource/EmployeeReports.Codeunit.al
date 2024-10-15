@@ -10,7 +10,6 @@ codeunit 136903 "Employee Reports"
     end;
 
     var
-        LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryUtility: Codeunit "Library - Utility";
@@ -364,7 +363,7 @@ codeunit 136903 "Employee Reports"
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.", WorkDate);
         EmployeeNo := EmployeeAbsence."Employee No.";
-        CreateEmployeeAbsence(EmployeeAbsence, EmployeeNo, CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+        CreateEmployeeAbsence(EmployeeAbsence, EmployeeNo, CalcDate('<-' + Format(Random(10)) + 'D>', WorkDate));
 
         // 2. Exercise: Generate Employee - Absences by Causes Report.
         Commit();
@@ -550,11 +549,12 @@ codeunit 136903 "Employee Reports"
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1" and PostCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, CountryRegion.Code);
 
-        // [THEN] PostCodeCityText = 'Moscow'
-        Assert.AreEqual(City, PostCodeCityText, PostCodeCityTextErr);
+        // [THEN] PostCodeCityText = 'Moscow, Moscowia'
+        Assert.AreEqual(
+          DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(County) - 2) + ', ' + County, PostCodeCityText, PostCodeCityTextErr);
 
-        // [THEN] CountyText = 'Moscowia'
-        Assert.AreEqual(County, CountyText, CountyTextErr);
+        // [THEN] CountyText = ''
+        Assert.AreEqual('', CountyText, CountyTextErr);
     end;
 
     [Test]
@@ -919,11 +919,12 @@ codeunit 136903 "Employee Reports"
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = '' and PostCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, '');
 
-        // [THEN] PostCodeCityText = 'Moscow'
-        Assert.AreEqual(City, PostCodeCityText, PostCodeCityTextErr);
+        // [THEN] PostCodeCityText = 'Moscow, Moscowia'
+        Assert.AreEqual(
+          DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(County) - 2) + ', ' + County, PostCodeCityText, PostCodeCityTextErr);
 
-        // [THEN] CountyText = 'Moscowia'
-        Assert.AreEqual(County, CountyText, CountyTextErr);
+        // [THEN] CountyText = ''
+        Assert.AreEqual('', CountyText, CountyTextErr);
     end;
 
     [Test]
@@ -1184,8 +1185,8 @@ codeunit 136903 "Employee Reports"
     begin
         // Use TODAY instead of WORKDATE because original code uses TODAY.
         Employee.Validate("Alt. Address Code", AltAddressCode);
-        Employee.Validate("Alt. Address Start Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', Today));
-        Employee.Validate("Alt. Address End Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', Today));
+        Employee.Validate("Alt. Address Start Date", CalcDate('<-' + Format(Random(10)) + 'D>', Today));
+        Employee.Validate("Alt. Address End Date", CalcDate('<' + Format(Random(10)) + 'D>', Today));
         Employee.Modify(true);
     end;
 
@@ -1225,7 +1226,7 @@ codeunit 136903 "Employee Reports"
         EmployeeAbsence.Validate("To Date", FromDate);
         EmployeeAbsence.Validate("Cause of Absence Code", GetCauseOfAbsenceCode);
         EmployeeAbsence.Validate(
-          Quantity, LibraryRandom.RandDec(100, 2));  // Required field - value is not important to test case.
+          Quantity, Random(100) + LibraryUtility.GenerateRandomFraction);  // Required field - value is not important to test case.
         EmployeeAbsence.Modify(true);
     end;
 
@@ -1271,7 +1272,7 @@ codeunit 136903 "Employee Reports"
         Employee.Validate("Statistics Group Code", FindEmployeeStatisticsGroup);
         Employee.Validate("Country/Region Code", PostCode."Country/Region Code");
         Employee.Validate("Post Code", PostCode.Code);
-        Employee.Validate("Employment Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'Y>'));
+        Employee.Validate("Employment Date", CalcDate('<' + Format(Random(10)) + 'Y>'));
         Employee.Modify(true);
     end;
 
@@ -1311,45 +1312,70 @@ codeunit 136903 "Employee Reports"
     local procedure FindRelative(): Code[10]
     var
         Relative: Record Relative;
+        RecRef: RecordRef;
     begin
-        LibraryHumanResource.CreateRelative(Relative);
+        Relative.Init();
+        RecRef.GetTable(Relative);
+        LibraryUtility.FindRecord(RecRef);
+        RecRef.SetTable(Relative);
         exit(Relative.Code);
     end;
 
     local procedure FindMiscellaneousArticle(): Code[10]
     var
         MiscArticle: Record "Misc. Article";
+        RecRef: RecordRef;
     begin
-        LibraryHumanResource.CreateMiscArticle(MiscArticle);
+        MiscArticle.Init();
+        RecRef.GetTable(MiscArticle);
+        LibraryUtility.FindRecord(RecRef);
+        RecRef.SetTable(MiscArticle);
         exit(MiscArticle.Code);
     end;
 
     local procedure FindConfidential(): Code[10]
     var
         Confidential: Record Confidential;
+        RecRef: RecordRef;
     begin
-        LibraryHumanResource.CreateConfidential(Confidential);
+        Confidential.Init();
+        RecRef.GetTable(Confidential);
+        LibraryUtility.FindRecord(RecRef);
+        RecRef.SetTable(Confidential);
         exit(Confidential.Code);
     end;
 
     local procedure FindEmploymentContract(var EmploymentContract: Record "Employment Contract")
+    var
+        RecRef: RecordRef;
     begin
-        LibraryHumanResource.CreateEmploymentContract(EmploymentContract);
+        EmploymentContract.Init();
+        RecRef.GetTable(EmploymentContract);
+        LibraryUtility.FindRecord(RecRef);
+        RecRef.SetTable(EmploymentContract);
     end;
 
     local procedure FindEmployeeStatisticsGroup(): Code[10]
     var
         EmployeeStatisticsGroup: Record "Employee Statistics Group";
+        RecRef: RecordRef;
     begin
-        LibraryHumanResource.CreateEmployeeStatGroup(EmployeeStatisticsGroup);
+        EmployeeStatisticsGroup.Init();
+        RecRef.GetTable(EmployeeStatisticsGroup);
+        LibraryUtility.FindRecord(RecRef);
+        RecRef.SetTable(EmployeeStatisticsGroup);
         exit(EmployeeStatisticsGroup.Code);
     end;
 
     local procedure FindQualification(): Code[10]
     var
         Qualification: Record Qualification;
+        RecRef: RecordRef;
     begin
-        LibraryHumanResource.CreateQualification(Qualification);
+        Qualification.Init();
+        RecRef.GetTable(Qualification);
+        LibraryUtility.FindRecord(RecRef);
+        RecRef.SetTable(Qualification);
         exit(Qualification.Code);
     end;
 
@@ -1376,12 +1402,8 @@ codeunit 136903 "Employee Reports"
 
     local procedure ModifyEmployeePhoneNos(var Employee: Record Employee)
     begin
-        Employee.Validate(
-          "Phone No.",
-          Format(LibraryRandom.RandInt(100) + LibraryRandom.RandInt(100) + LibraryRandom.RandInt(100)));
-        Employee.Validate(
-          "Mobile Phone No.",
-          Format(LibraryRandom.RandInt(100) + LibraryRandom.RandInt(100) + LibraryRandom.RandInt(100)));
+        Employee.Validate("Phone No.", Format(Random(100) + Random(100) + Random(100)));
+        Employee.Validate("Mobile Phone No.", Format(Random(100) + Random(100) + Random(100)));
         Employee.Modify(true);
     end;
 

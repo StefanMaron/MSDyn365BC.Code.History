@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BC O365 Customer List Tests - NamedType UnblockCustomerQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2701239543 - NamedType 3943690371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You haven't set up tax information for your business.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BC O365 Customer List Tests - NamedType TaxSetupNeededTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4255580360 - NamedType 1552154670" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to remove the address?]]></Val>
@@ -21,6 +30,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BC O365 Email Test - NamedType RemoveConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1541705385 - NamedType 3943690371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You haven't set up tax information for your business.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BC O365 No. Series Tests - NamedType TaxSetupNeededTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1567994183 - NamedType 4102914656" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -111,15 +129,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BC O365 Payment Tests - NamedType MarkedUnpaidMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2142795754 - NamedType 4162851505" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot send a test invoice.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BC Test Invoice - NamedType CannotSendTestInvoiceErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 960568865 - NamedType 3439410284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -417,6 +426,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 E2E Page Tests - NamedType BlockQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 311775933 - NamedType 1872013284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You haven't set up tax information for your business.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 E2E Page Tests - NamedType TaxSetupNeededMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 311775933 - NamedType 1290980847" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unhandled notification: %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 E2E Page Tests - NamedType UnhandledNotificationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2748680954 - NamedType 3083752344" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -851,6 +878,15 @@
       <Cmt Name="Dev"><![CDATA[%1=The estimate number]D;]A;(LookupHint=Codeunit O365 Sales Pulse Tests - NamedType EstimateEmailFailedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1601031183 - NamedType 3943690371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You haven't set up tax information for your business.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Sales Pulse Tests - NamedType TaxSetupNeededTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3453598861 - NamedType 117069472" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[An invalid month was specified.]]></Val>
@@ -894,24 +930,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit O365 Translation Tests - NamedType FRCTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3952233183 - NamedType 1950147054" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This is the default VAT Rate]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 VAT Rates - NamedType DefaultVATRateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3952233183 - NamedType 2167257820" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Set as default VAT Rate]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 VAT Rates - NamedType SetDefaultVATRateTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3900585282 - NamedType 1208324429" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

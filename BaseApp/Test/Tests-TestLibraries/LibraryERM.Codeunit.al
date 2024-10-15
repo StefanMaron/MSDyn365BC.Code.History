@@ -312,6 +312,41 @@ codeunit 131300 "Library - ERM"
         BusinessUnit.Insert(true);
     end;
 
+    procedure CreateBankRecHeader(var BankRecHeader: Record "Bank Rec. Header"; BankAccountNo: Code[20])
+    begin
+        BankRecHeader.Init();
+        BankRecHeader.Validate("Bank Account No.", BankAccountNo);
+        BankRecHeader.Validate("Statement Date", WorkDate);
+        BankRecHeader.Insert(true);
+    end;
+
+    procedure CreateBankRecLine(var BankRecLine: Record "Bank Rec. Line"; BankRecHeader: Record "Bank Rec. Header")
+    var
+        RecRef: RecordRef;
+    begin
+        BankRecLine.Init();
+        BankRecLine.Validate("Bank Account No.", BankRecHeader."Bank Account No.");
+        BankRecLine.Validate("Statement No.", BankRecHeader."Statement No.");
+        BankRecLine.Validate("Record Type", BankRecLine."Record Type"::Adjustment);
+        RecRef.GetTable(BankRecLine);
+        BankRecLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, BankRecLine.FieldNo("Line No.")));
+        Commit(); // Commit required for update Document No.
+        BankRecLine.Insert(true);
+    end;
+
+    procedure CreateBankCommentLine(var BankCommentLine: Record "Bank Comment Line"; BankAccountNo: Code[20]; No: Code[20])
+    var
+        RecRef: RecordRef;
+    begin
+        BankCommentLine.Init();
+        BankCommentLine.Validate("Table Name", BankCommentLine."Table Name"::"Bank Rec.");
+        BankCommentLine.Validate("Bank Account No.", BankAccountNo);
+        BankCommentLine.Validate("No.", No);
+        RecRef.GetTable(BankCommentLine);
+        BankCommentLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, BankCommentLine.FieldNo("Line No.")));
+        BankCommentLine.Insert(true);
+    end;
+
     procedure CreateChangeLogField(var ChangeLogSetupField: Record "Change Log Setup (Field)"; TableNo: Integer; FieldNo: Integer)
     begin
         ChangeLogSetupField.Init();
@@ -749,10 +784,13 @@ codeunit 131300 "Library - ERM"
     var
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";
+        TaxGroup: Record "Tax Group";
     begin
         FindGeneralPostingSetup(GeneralPostingSetup);
         CreateGLAccount(GLAccount);
         GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
+        if TaxGroup.FindFirst then
+            GLAccount.Validate("Tax Group Code", TaxGroup.Code);
         UpdateGLAccountWithPostingSetup(GLAccount, GenPostingType, GeneralPostingSetup, VATPostingSetup);
         exit(GLAccount."No.");
     end;
@@ -1092,7 +1130,9 @@ codeunit 131300 "Library - ERM"
             exit;
 
         with VATPostingSetup do begin
-            if (SetupGLAccount."VAT Bus. Posting Group" <> '') and (SetupGLAccount."VAT Prod. Posting Group" <> '') then
+            if (VATCalcType = "VAT Calculation Type"::"Sales Tax") or
+               (SetupGLAccount."VAT Bus. Posting Group" <> '') and (SetupGLAccount."VAT Prod. Posting Group" <> '')
+            then
                 if Get(SetupGLAccount."VAT Bus. Posting Group", SetupGLAccount."VAT Prod. Posting Group") then
                     exit;
 
@@ -1359,8 +1399,14 @@ codeunit 131300 "Library - ERM"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         VATPostingSetup.Init();
-        CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        CreateVATProductPostingGroup(VATProductPostingGroup);
+        if not (VATPostingSetup.GetFilter("VAT Bus. Posting Group") in ['', '''', '<>''''']) then
+            VATBusinessPostingGroup.Get(VATPostingSetup.GetFilter("VAT Bus. Posting Group"))
+        else
+            CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        if not (VATPostingSetup.GetFilter("VAT Prod. Posting Group") in ['', '''', '<>''''']) then
+            VATProductPostingGroup.Get(VATPostingSetup.GetFilter("VAT Prod. Posting Group"))
+        else
+            CreateVATProductPostingGroup(VATProductPostingGroup);
         VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
         VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
@@ -1371,6 +1417,25 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccountNo);
         VATPostingSetup.Validate("Tax Category", 'S');
         VATPostingSetup.Insert(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateVATPostingSetupWithSalesAndPurchVATAccounts(var VATPostingSetup: Record "VAT Posting Setup"; GLAccount: Record "G/L Account")
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        CreateVATProductPostingGroup(VATProductPostingGroup);
+        FindVATBusinessPostingGroup(VATBusinessPostingGroup);
+        CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandDec(10, 2));
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Sales VAT Account", GLAccount."No.");
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", GLAccount."No.");
+        VATPostingSetup.Validate("Purchase VAT Account", GLAccount."No.");
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", GLAccount."No.");
+        VATPostingSetup.Modify(true);
     end;
 
     procedure CreateVATProductPostingGroup(var VATProductPostingGroup: Record "VAT Product Posting Group")
@@ -1976,7 +2041,8 @@ codeunit 131300 "Library - ERM"
 
     procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
     begin
-        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
+        if VATPostingSetup.GetFilter("VAT Bus. Posting Group") = '' then
+            VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
@@ -1984,18 +2050,31 @@ codeunit 131300 "Library - ERM"
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
 
-    procedure FindVATPostingSetupInvt(var VATPostingSetup: Record "VAT Posting Setup")
+    procedure FindVATPostingSetupInvt(var VATPostingSetup: Record "VAT Posting Setup"): Boolean
     begin
-        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
-        VATPostingSetup.SetFilter("VAT %", '<>%1', 0);
-        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        if SearchPostingType <> SearchPostingType::Purchase then
-            VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
-        if SearchPostingType <> SearchPostingType::Sales then
-            VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
-        if not VATPostingSetup.FindFirst then
-            CreateVATPostingSetupWithAccounts(VATPostingSetup,
-              VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
+        if VATPostingSetup.GetFilter("VAT Prod. Posting Group") = '' then
+            VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        exit(VATPostingSetup.FindFirst);
+    end;
+
+    procedure FindVATPostingSetupSales(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+    begin
+        with VATPostingSetup do begin
+            SetFilter("VAT Bus. Posting Group", '<>%1', '');
+            if not FindFirst then begin
+                Init;
+                VATBusPostingGroup.FindFirst;
+                VATProdPostingGroup.FindFirst;
+                "VAT Bus. Posting Group" := VATBusPostingGroup.Code;
+                "VAT Prod. Posting Group" := VATProdPostingGroup.Code;
+                "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
+                "VAT %" := 0;
+                Insert(true);
+            end;
+        end;
     end;
 
     procedure FindZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
@@ -2004,8 +2083,10 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetRange("VAT %", 0);
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst then begin
+            VATPostingSetup.Reset();
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, 0);
+        end;
     end;
 
     procedure FindUnrealVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option)
@@ -2375,7 +2456,7 @@ codeunit 131300 "Library - ERM"
         // Find a correct account for realized adjustment
         GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::" ");
+        GLAccount.SetFilter("Gen. Posting Type", '<> %1', GLAccount."Gen. Posting Type"::" ");
         GLAccount.SetRange(Blocked, false);
         GLAccount.FindSet;
         GLAccount.Next(0); // Needed to trick preCAL
@@ -2623,7 +2704,6 @@ codeunit 131300 "Library - ERM"
     begin
         GLAccount.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
         GLAccount.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
-        GLAccount.SetFilter("VAT Prod. Posting Group", '<>%1', '');
     end;
 
     procedure SetGeneralPostingSetupInvtAccounts(var GeneralPostingSetup: Record "General Posting Setup")

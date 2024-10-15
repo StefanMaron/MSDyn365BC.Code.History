@@ -1,7 +1,7 @@
 codeunit 139451 "O365 Item Permission Test"
 {
     Subtype = Test;
-    TestPermissions = Disabled;
+    TestPermissions = NonRestrictive;
 
     trigger OnRun()
     begin

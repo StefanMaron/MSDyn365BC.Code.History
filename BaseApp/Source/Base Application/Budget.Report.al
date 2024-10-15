@@ -263,7 +263,7 @@ report 10001 Budget
                     CalcFields("Budgeted Amount");
                     if InThousands then
                         "Budgeted Amount" := "Budgeted Amount" / 1000;
-                    BudgetToPrint[i] := Round("Budgeted Amount", 1);
+                    BudgetToPrint[i] := MatrixMgt.RoundValue("Budgeted Amount", RndFactor);
                     TotalBudgetAmount += BudgetToPrint[i];
                     if NoDataFound then
                         NoDataFound := ("Budgeted Amount" = 0); // will set NoDataFound flag to no if budget found
@@ -320,6 +320,13 @@ report 10001 Budget
                         ApplicationArea = Suite;
                         Caption = 'Amounts in 1000s';
                         ToolTip = 'Specifies that budget values are divided by USD 1,000 and rounded to improve readability.';
+                    }
+                    field(RoundingFactor; RndFactor)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Rounding Factor';
+                        OptionCaption = 'None,1,1000,1000000';
+                        ToolTip = 'Specifies the factor that is used to round the amounts.';
                     }
                     field(PrintAllBalance; PrintAllBalance)
                     {
@@ -400,6 +407,7 @@ report 10001 Budget
     var
         CompanyInformation: Record "Company Information";
         AccountingPeriod: Record "Accounting Period";
+        MatrixMgt: Codeunit "Matrix Management";
         GLFilter: Text;
         MainTitle: Text[132];
         SubTitle: Text;
@@ -431,6 +439,13 @@ report 10001 Budget
         Text006Lbl: Label 'Accounts without budgets are not included.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         NameCaptionLbl: Label 'Name';
+        RndFactor: Option "None","1","1000","1000000";
         TotalLbl: Label 'Total';
+
+    procedure SetParameters(NewRoundingFactor: Option "None","1","1000","1000000")
+    begin
+        RndFactor := NewRoundingFactor;
+    end;
 }
+
 

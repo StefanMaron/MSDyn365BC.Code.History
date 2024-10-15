@@ -1008,7 +1008,7 @@ codeunit 134329 "ERM Purchase Return Order"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseReturnShipmentReportHandler,PurchaseCreditMemoReportHandler')]
+    [HandlerFunctions('PurchaseCreditMemoReportHandler,ReturnShipmentReportHandler')]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderPostAndPrintCreditMemo()
     var
@@ -1028,32 +1028,16 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchPostPrint.GetReport(PurchaseHeader)
 
         // [THEN] Report "Purchase - Credit Memo" ran
-        // Verification done by calling (PurchaseReturnShipmentReportHandler and PurchaseCreditMemoReportHandler)
+        // Verification done by calling (ReturnShipmentReportHandler and PurchaseCreditMemoReportHandler)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderChangePricesInclVATRefreshesPage()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseReturnOrderPage: TestPage "Purchase Return Order";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        Initialize;
-
-        // [GIVEN] Page with Prices including VAT disabled was open
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '');
-        PurchaseReturnOrderPage.OpenEdit;
-        PurchaseReturnOrderPage.GotoRecord(PurchaseHeader);
-
-        // [WHEN] User checks Prices including VAT
-        PurchaseReturnOrderPage."Prices Including VAT".SetValue(true);
-
-        // [THEN] Caption for PurchaseReturnOrderPage.PurchLines."Direct Unit Cost" field is updated
-        Assert.AreEqual('Direct Unit Cost Incl. VAT',
-          PurchaseReturnOrderPage.PurchLines."Direct Unit Cost".Caption,
-          'The caption for PurchaseReturnOrderPage.PurchLines."Direct Unit Cost" is incorrect');
+        // This Country doesn't have this field on the page.
     end;
 
     [Test]
@@ -1881,13 +1865,13 @@ codeunit 134329 "ERM Purchase Return Order"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure PurchaseCreditMemoReportHandler(var PurchaseCreditMemo: Report "Purchase - Credit Memo")
+    procedure PurchaseCreditMemoReportHandler(var PurchaseCreditMemo: Report "Purchase Credit Memo NA")
     begin
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure PurchaseReturnShipmentReportHandler(var PurchaseReturnShipment: Report "Purchase - Return Shipment")
+    procedure ReturnShipmentReportHandler(var ReturnShipment: Report "Return Shipment")
     begin
     end;
 

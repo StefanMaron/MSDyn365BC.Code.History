@@ -237,10 +237,10 @@ page 866 "Cash Flow Availability Lines"
     end;
 
     protected var
+        CashFlowForecast: Record "Cash Flow Forecast";
         RoundingFactor: Option "None","1","1000","1000000";
 
     var
-        CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowForecast2: Record "Cash Flow Forecast";
         CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
         DateRec: Record Date;
@@ -301,11 +301,11 @@ page 866 "Cash Flow Availability Lines"
         Tax := GetAmount(CashFlowForecastEntry."Source Type"::Tax);
         Total := GetAmount(0);
 
-        OnAfterCalcLine(CashFlowForecast, Rec);
+        OnAfterCalcLine(CashFlowForecast, Rec, RoundingFactor);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcLine(var CashFlowForecast: Record "Cash Flow Forecast"; var CashFlowAvailabilityBuffer: Record "Cash Flow Availability Buffer")
+    local procedure OnAfterCalcLine(var CashFlowForecast: Record "Cash Flow Forecast"; var CashFlowAvailabilityBuffer: Record "Cash Flow Availability Buffer"; RoundingFactor: Option "None","1","1000","1000000")
     begin
     end;
 }

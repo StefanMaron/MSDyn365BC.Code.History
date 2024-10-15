@@ -136,25 +136,13 @@ codeunit 134093 "ERM G/L Account Where-Used"
     procedure CheckSalesSetupFreightGLAccNo()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        GeneralPostingSetup: Record "General Posting Setup";
-        GLAccount: Record "G/L Account";
-        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
-        GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
         // [SCENARIO 212385] "Freight G/L Acc. No." from Sales & Receivables Setup should be shown on Where-Used page
         Initialize;
 
         // [GIVEN] Sales & Receivables Setup has "Freight G/L Acc. No." = "F"
-        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
-        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
-        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
-
         SalesReceivablesSetup.Get();
-        LibraryERM.CreateGLAccount(GLAccount);
-        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-        GLAccount.Modify(true);
-
-        SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccount."No.");
+        SalesReceivablesSetup.Validate("Freight G/L Acc. No.", LibraryERM.CreateGLAccountNo);
         SalesReceivablesSetup.Modify(true);
         LibraryVariableStorage.Enqueue(SalesReceivablesSetup.FieldCaption("Freight G/L Acc. No."));
 

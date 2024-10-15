@@ -225,7 +225,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         AmountInclVAT := Round(PurchCrMemoHdr.Amount * (1 + VATPostingSetup."VAT %" / 100));
 
         VerifyGLEntry(PostedCreditMemoNo, AmountInclVAT);
-        VerifyVendorLedgerEntry(PostedCreditMemoNo, AmountInclVAT);
+        VerifyVendorLedgerEntry(PostedCreditMemoNo, PurchCrMemoHdr.Amount);
         VerifyVATEntry(PostedCreditMemoNo, AmountInclVAT);
         VerifyValueEntry(PostedCreditMemoNo, PurchCrMemoHdr.Amount);
     end;
@@ -1214,26 +1214,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoChangePricesInclVATRefreshesPage()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseCreditMemoPage: TestPage "Purchase Credit Memo";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        Initialize;
-
-        // [GIVEN] Page with Prices including VAT disabled was open
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", '');
-        PurchaseCreditMemoPage.OpenEdit;
-        PurchaseCreditMemoPage.GotoRecord(PurchaseHeader);
-
-        // [WHEN] User checks Prices including VAT
-        PurchaseCreditMemoPage."Prices Including VAT".SetValue(true);
-
-        // [THEN] Caption for PurchaseCreditMemoPage.PurchLines."Direct Unit Cost" field is updated
-        Assert.AreEqual('Direct Unit Cost Incl. VAT',
-          PurchaseCreditMemoPage.PurchLines."Direct Unit Cost".Caption,
-          'The caption for PurchaseCreditMemoPage.PurchLines."Direct Unit Cost" is incorrect');
+        // This Country doesn't have this field on the page.
     end;
 
 

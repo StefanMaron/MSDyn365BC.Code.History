@@ -118,7 +118,6 @@ codeunit 10202 "Entry Application Management"
         VendLedgEntry: Record "Vendor Ledger Entry";
         TempInteger: Record "Integer" temporary;
         AmountToApply: Decimal;
-        PaymentDiscount: Decimal;
     begin
         TempAppliedVendLedgEntry.Reset();
         TempAppliedVendLedgEntry.DeleteAll();
@@ -143,13 +142,10 @@ codeunit 10202 "Entry Application Management"
                         PmtDtldVendLedgEntry.FindSet;
                         repeat
                             if TryCacheEntryNo(TempInteger, PmtDtldVendLedgEntry."Entry No.") then begin
-                                PaymentDiscount := 0;
-                                if PmtDtldVendLedgEntry."Posting Date" <= PmtDtldVendLedgEntry."Initial Entry Due Date" then
-                                    PaymentDiscount := PmtDtldVendLedgEntry."Remaining Pmt. Disc. Possible";
                                 if UseLCY then
-                                    AmountToApply := -PmtDtldVendLedgEntry."Amount (LCY)" - PaymentDiscount
+                                    AmountToApply := -PmtDtldVendLedgEntry."Amount (LCY)"
                                 else
-                                    AmountToApply := -PmtDtldVendLedgEntry.Amount - PaymentDiscount;
+                                    AmountToApply := -PmtDtldVendLedgEntry.Amount;
                                 PmtVendLedgEntry.Get(PmtDtldVendLedgEntry."Vendor Ledger Entry No.");
                                 TempAppliedVendLedgEntry := PmtVendLedgEntry;
                                 if TempAppliedVendLedgEntry.Find then begin
@@ -163,6 +159,8 @@ codeunit 10202 "Entry Application Management"
                                         ClosingVendLedgEntry.Get(PmtDtldVendLedgEntry."Vendor Ledger Entry No.");
                                         if ClosingVendLedgEntry."Closed by Entry No." <> TempAppliedVendLedgEntry."Entry No." then
                                             TempAppliedVendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
+                                        TempAppliedVendLedgEntry."Amount to Apply" += 
+                                            GetPaymentDiscount(ClosingVendLedgEntry."Closed by Entry No.", UseLCY);
                                     end;
                                     TempAppliedVendLedgEntry.Insert();
                                 end;
@@ -172,10 +170,26 @@ codeunit 10202 "Entry Application Management"
             until VendLedgEntry.Next = 0;
     end;
 
+    local procedure GetPaymentDiscount(ClosingVendLedgEntryNo: Integer; UseLCY: Boolean): Decimal
+    var
+        DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
+        DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", ClosingVendLedgEntryNo);
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::"Payment Discount");
+        DtldVendLedgEntry.SetRange(Unapplied, false);
+        if DtldVendLedgEntry.FindFirst() then
+            if UseLCY then
+                exit(DtldVendLedgEntry."Amount (LCY)")
+            else
+                exit(DtldVendLedgEntry.Amount);
+        exit(0);
+    end;
+
     local procedure TryCacheEntryNo(var TempInteger: Record "Integer" temporary; EntryNo: Integer): Boolean
     begin
         TempInteger.Number := EntryNo;
-        exit(TempInteger.Insert);
+        exit(TempInteger.Insert());
     end;
 }
 

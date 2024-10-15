@@ -71,7 +71,8 @@ codeunit 130509 "Library - Sales"
         LibraryERM.FindPaymentMethod(PaymentMethod);
         LibraryERM.SetSearchGenPostingTypeSales;
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        Customer.CopyFilter("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryUtility.UpdateSetupNoSeriesCode(
           DATABASE::"Sales & Receivables Setup", SalesReceivablesSetup.FieldNo("Customer Nos."));
 
@@ -80,6 +81,7 @@ codeunit 130509 "Library - Sales"
         Customer.Validate(Name, Customer."No.");  // Validating Name as No. because value is not important.
         Customer.Validate("Payment Method Code", PaymentMethod.Code);  // Mandatory for posting in ES build
         Customer.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode);  // Mandatory for posting in ES build
+        Customer.Validate("Check Date Format", Customer."Check Date Format"::"DD MM YYYY"); // Mandatory for printing checks.
         Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         Customer.Validate("Customer Posting Group", FindCustomerPostingGroup);
@@ -356,6 +358,29 @@ codeunit 130509 "Library - Sales"
         OnAfterCreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
     end;
 
+    procedure CreateSalesLineWithoutVAT(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    begin
+        CreateSalesLineSimple(SalesLine, SalesHeader);
+
+        SalesLine.Validate(Type, Type);
+        case Type of
+            SalesLine.Type::Item:
+                if No = '' then
+                    No := LibraryInventory.CreateItemNoWithoutVAT;
+            SalesLine.Type::Resource:
+                if No = '' then
+                    No := LibraryResource.CreateResourceNo;
+            SalesLine.Type::"Charge (Item)":
+                if No = '' then
+                    No := LibraryInventory.CreateItemChargeNoWithoutVAT;
+        end;
+        SalesLine.Validate("No.", No);
+        SalesLine.Validate("Shipment Date", SalesHeader."Shipment Date");
+        if Quantity <> 0 then
+            SalesLine.Validate(Quantity, Quantity);
+        SalesLine.Modify(true);
+    end;
+
     procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal)
     begin
         CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, Type, No, SalesHeader."Shipment Date", Quantity);
@@ -414,10 +439,13 @@ codeunit 130509 "Library - Sales"
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
           Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
+        if not VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group") then
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
     end;
 
@@ -659,6 +687,14 @@ codeunit 130509 "Library - Sales"
         CombineShipments.RunModal;
     end;
 
+    procedure CreateDepositHeader(var DepositHeader: Record "Deposit Header"; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        DepositHeader.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
+        DepositHeader.SetFilter("Journal Batch Name", GenJournalBatch.Name);
+        DepositHeader.Init();
+        DepositHeader.Insert(true);
+    end;
+
     procedure DeleteInvoicedSalesOrders(var SalesHeader: Record "Sales Header")
     var
         TmpSalesHeader: Record "Sales Header";
@@ -722,6 +758,7 @@ codeunit 130509 "Library - Sales"
         // Filter Item so that errors are not generated due to mandatory fields or Item Tracking.
         Item.SetFilter("Inventory Posting Group", '<>''''');
         Item.SetFilter("Gen. Prod. Posting Group", '<>''''');
+        Item.SetFilter("Tax Group Code", '<>''''');
         Item.SetRange("Item Tracking Code", '');
         Item.SetRange(Blocked, false);
         Item.SetFilter("Unit Price", '<>0');
@@ -744,6 +781,11 @@ codeunit 130509 "Library - Sales"
     begin
         Clear(SalesGetShipment);
         SalesGetShipment.Run(SalesLine);
+    end;
+
+    procedure PostDepositDocument(var DepositHeader: Record "Deposit Header")
+    begin
+        CODEUNIT.Run(CODEUNIT::"Deposit-Post (Yes/No)", DepositHeader);
     end;
 
     procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; NewShipReceive: Boolean; NewInvoice: Boolean): Code[20]
@@ -805,6 +847,7 @@ codeunit 130509 "Library - Sales"
             DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesSalesDate(NoSeriesCode), false)
         else
             DocumentNo := SalesHeader."Posting No.";
+        SetTaxGroupOnSalesLines(SalesHeader);
         Clear(SalesPost);
         if AfterPostSalesDocumentSendAsEmail then
             SalesPostPrint.PostAndEmail(SalesHeader)
@@ -1152,6 +1195,20 @@ codeunit 130509 "Library - Sales"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+    end;
+
+    local procedure SetTaxGroupOnSalesLines(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        TaxGroup: Record "Tax Group";
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Tax Group Code", '');
+        if SalesLine.FindSet then begin
+            TaxGroup.FindFirst;
+            SalesLine.ModifyAll("Tax Group Code", TaxGroup.Code);
+        end;
     end;
 
     procedure EnableSalesSetupIgnoreUpdatedAddresses()

@@ -3270,6 +3270,17 @@ table 246 "Requisition Line"
         GetPlanningParameters.AtSKU(StockkeepingUnit, "No.", "Variant Code", "Location Code");
         if Subcontracting then
             StockkeepingUnit."Replenishment System" := StockkeepingUnit."Replenishment System"::"Prod. Order";
+        ValidateReplenishmentSystem(StockkeepingUnit);
+    end;
+
+    local procedure ValidateReplenishmentSystem(StockkeepingUnit: Record "Stockkeeping Unit")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateReplenishmentSystem(Rec, StockkeepingUnit, IsHandled);
+        if IsHandled then
+            exit;
         Validate("Replenishment System", StockkeepingUnit."Replenishment System");
     end;
 
@@ -3410,6 +3421,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOrderReceiptDate(var RequisitionLine: Record "Requisition Line"; LeadTimeCalc: DateFormula; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateReplenishmentSystem(var RequisitionLine: Record "Requisition Line"; StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
     begin
     end;
 

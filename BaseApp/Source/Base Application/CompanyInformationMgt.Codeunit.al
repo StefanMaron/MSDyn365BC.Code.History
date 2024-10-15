@@ -131,5 +131,11 @@ codeunit 1306 "Company Information Mgt."
 
         exit(CountryRegion."EU Country/Region Code" <> '');
     end;
-}
 
+    procedure GetCompanyDisplayNameDefaulted(Company: Record Company): Text[250]
+    begin
+        if Company."Display Name" <> '' then
+            exit(Company."Display Name");
+        exit(Company.Name)
+    end;
+}

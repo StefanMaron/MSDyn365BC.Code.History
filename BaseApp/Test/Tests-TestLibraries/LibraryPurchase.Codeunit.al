@@ -177,6 +177,25 @@ codeunit 130512 "Library - Purchase"
         OnAfterCreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
     end;
 
+    procedure CreatePurchaseLineWithoutVAT(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    begin
+        CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+
+        PurchaseLine.Validate(Type, Type);
+        case Type of
+            PurchaseLine.Type::Item:
+                if No = '' then
+                    No := LibraryInventory.CreateItemNoWithoutVAT;
+            PurchaseLine.Type::"Charge (Item)":
+                if No = '' then
+                    No := LibraryInventory.CreateItemChargeNoWithoutVAT;
+        end;
+        PurchaseLine.Validate("No.", No);
+        if Type <> PurchaseLine.Type::" " then
+            PurchaseLine.Validate(Quantity, Quantity);
+        PurchaseLine.Modify(true);
+    end;
+
     procedure CreatePurchaseLineSimple(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     var
         RecRef: RecordRef;
@@ -337,7 +356,8 @@ codeunit 130512 "Library - Purchase"
         LibraryERM.FindPaymentMethod(PaymentMethod);
         LibraryERM.SetSearchGenPostingTypePurch;
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        Vendor.CopyFilter("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryUtility.UpdateSetupNoSeriesCode(
           DATABASE::"Purchases & Payables Setup", PurchasesPayablesSetup.FieldNo("Vendor Nos."));
 

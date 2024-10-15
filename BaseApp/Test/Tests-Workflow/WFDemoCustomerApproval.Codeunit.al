@@ -26,6 +26,7 @@ codeunit 134205 "WF Demo Customer Approval"
         RecordRestrictedErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -752,6 +753,7 @@ codeunit 134205 "WF Demo Customer Approval"
         WorkflowUserGroup: Record "Workflow User Group";
         WorkflowUserGroupMember: Record "Workflow User Group Member";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Customer Approval");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
@@ -760,8 +762,10 @@ codeunit 134205 "WF Demo Customer Approval"
         WorkflowUserGroupMember.DeleteAll();
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Customer Approval");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Customer Approval");
     end;
 
     [Scope('OnPrem')]

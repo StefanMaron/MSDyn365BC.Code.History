@@ -15,6 +15,7 @@ codeunit 134327 "ERM Purchase Order"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -3328,24 +3329,24 @@ codeunit 134327 "ERM Purchase Order"
         // [SCENARIO 252065]
         Initialize();
         No := 'ITEM_TEST_ITEM';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] Item "ITEM" with "Description" = "(Desc)"
+        // [GIVEN] Item "ITEM" with "Description" = "Desc"
         MockItemWithNoAndDescription(No, Description);
         // [GIVEN] Purchase order line, "Type" = "Item"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         MockPurchaseLine(PurchaseLine, PurchaseHeader);
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
 
-        // [WHEN] Validate purchase line's "Description" = "glacc"/"(desc)"/"glac"/"(des"/"acc"/"esc"/"xesc)"
-        // [THEN] Purchase line's: "No." = "ITEM", "Description" = "(Desc)"
+        // [WHEN] Validate purchase line's "Description" = "item"/"desc"/"ite"/"des"/"tem"/"esc"/"xesc"
+        // [THEN] Purchase line's: "No." = "ITEM", "Description" = "Desc"
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'item_test_item', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'Description(Test)Description', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description_test_description', No, Description);
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'item_test', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description(test)', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description_test', No, Description);
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_item', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'discriptyon(tezt)discriptyon', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_description', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'discriptyon_tezt_discriptyon', No, Description);
 
         // Tear down
         Item.Get(No);
@@ -3367,9 +3368,9 @@ codeunit 134327 "ERM Purchase Order"
         // [SCENARIO 252065]
         Initialize();
         No := 'ITEMCH_TEST_ITEMCH';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] Item Charge "ITEMCHARGE" with "Description" = "(Desc)"
+        // [GIVEN] Item Charge "ITEMCHARGE" with "Description" = "Desc"
         MockItemChargeWithNoAndDescription(No, Description);
         // [GIVEN] Purchase order line, "Type" = "Charge (Item)"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -3377,14 +3378,14 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine.Validate(Type, PurchaseLine.Type::"Charge (Item)");
 
         // [WHEN] Validate purchase line's "Description" = "itemcharge"/"desc"/"itemch"/"des"/"charge"/"esc"/"xesc"
-        // [THEN] Purchase line's: "No." = "ITEMCHARGE", "Description" = "(Desc)"
+        // [THEN] Purchase line's: "No." = "ITEMCHARGE", "Description" = "Desc"
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'itemch_test_itemch', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'Description(Test)Description', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description_test_description', No, Description);
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'itemch_test', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description(test)', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description_test', No, Description);
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_itemch', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'discriptyon(tezt)discriptyon', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_description', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'discriptyon_tezt_discriptyon', No, Description);
 
         // Tear down
         ItemCharge.Get(No);
@@ -3406,9 +3407,9 @@ codeunit 134327 "ERM Purchase Order"
         // [SCENARIO 252065]
         Initialize();
         No := 'FA_TEST_FA';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] Fixed Asset "FIXEDASSET" with "Description" = "(Desc)"
+        // [GIVEN] Fixed Asset "FIXEDASSET" with "Description" = "Desc"
         MockFAWithNoAndDescription(No, Description);
         // [GIVEN] Purchase order line, "Type" = "Fixed Asset"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -3416,14 +3417,14 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine.Validate(Type, PurchaseLine.Type::"Fixed Asset");
 
         // [WHEN] Validate purchase line's "Description" = "fixedasset"/"desc"/"fixed"/"des"/"asset"/"esc"/"xesc"
-        // [THEN] Purchase line's: "No." = "FIXEDASSET", "Description" = "(Desc)"
+        // [THEN] Purchase line's: "No." = "FIXEDASSET", "Description" = "Desc"
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'fa_test_fa', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'Description(Test)Description', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description_test_description', No, Description);
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'fa_test', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description(test)', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description_test', No, Description);
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_fa', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'discriptyon(tezt)discriptyon', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_description', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'discriptyon_tezt_discriptyon', No, Description);
 
         // Tear down
         FixedAsset.Get(No);
@@ -3443,12 +3444,11 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By Description] [Standard Text]
         // [SCENARIO 222522] Purchase Line's Standard Text validation can not be done using "Description" field.
         // [SCENARIO 222522] Typed value remains in the "Description" field with empty "Type", "No." values.
-        // [SCENARIO 252065]
         Initialize();
         No := 'STDTEXT_TEST_STDTEXT';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] Standard Text "STDTEXT" with "Description" = "(Desc)"
+        // [GIVEN] Standard Text "STDTEXT" with "Description" = "Desc"
         MockStandardText(No, Description);
         // [GIVEN] Purchase order line, "Type" = ""
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -3457,12 +3457,12 @@ codeunit 134327 "ERM Purchase Order"
         // [WHEN] Validate purchase line's "Description" = "stdtext"/"desc"/"stdte"/"des"/"tdtext"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "", "Description" = "stdtext"/"desc"/"stdte"/"des"/"tdtext"/"esc"/"xesc"
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'stdtext_test_stdtext', '', 'stdtext_test_stdtext');
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description(test)des', '', 'description(test)des');
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description_test_des', '', 'description_test_des');
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'stdtext_test', '', 'stdtext_test');
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_stdtext', '', 'test_stdtext');
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, '(test)description', '', '(test)description');
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_description', '', 'test_description');
         VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'tdtext_test_stdtex', '', 'tdtext_test_stdtex');
-        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'ription(test)descrip', '', 'ription(test)descrip');
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'ription_test_descrip', '', 'ription_test_descrip');
 
         // Tear down
         StandardText.Get(No);
@@ -3485,9 +3485,9 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
         EnableFindRecordByNo;
         No := 'GLACC_TEST_GLACC';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] G/L Account "GLACC" with "Name" = "(Desc)"
+        // [GIVEN] G/L Account "GLACC" with "Name" = "Desc"
         MockGLAccountWithNoAndDescription(No, Description);
         // [GIVEN] Purchase order line, "Type" = "G/L Account"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -3495,14 +3495,14 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine.Validate(Type, PurchaseLine.Type::"G/L Account");
 
         // [WHEN] Validate purchase line's "No." = "glacc"/"desc"/"glac"/"des"/"acc"/"esc"/"xesc"
-        // [THEN] Purchase line's: "No." = "GLACC", "Description" = "(Desc)"
+        // [THEN] Purchase line's: "No." = "GLACC", "Description" = "Desc"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'glacc_test_glacc', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description_test_des', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'glacc_test', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_glacc', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_description', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'lacc_test_glac', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription_test_descrip', No, Description);
 
         // Tear down
         GLAccount.Get(No);
@@ -3525,25 +3525,25 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
         EnableFindRecordByNo;
         No := 'ITEM_TEST_ITEM';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] Item "ITEM" with "Description" = "(Desc)"
+        // [GIVEN] Item "ITEM" with "Description" = "Desc"
         MockItemWithNoAndDescription(No, Description);
         // [GIVEN] Purchase order line, "Type" = "Item"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         MockPurchaseLine(PurchaseLine, PurchaseHeader);
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
 
-        // [WHEN] Validate purchase line's "Description" = "glacc"/"(desc)"/"glac"/"(des"/"acc"/"esc"/"xesc)"
-        // [THEN] Purchase line's: "No." = "ITEM", "Description" = "(Desc)"
+        // [WHEN] Validate purchase line's "Description" = "item"/"desc"/"ite"/"des"/"tem"/"esc"/"xesc"
+        // [THEN] Purchase line's: "No." = "ITEM", "Description" = "Desc"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'item_test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description_test_des', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'item_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description_test', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_description', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'tem_test_ite', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription_test_descrip', No, Description);
 
         // Tear down
         Item.Get(No);
@@ -3566,9 +3566,9 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
         EnableFindRecordByNo;
         No := 'ITEMCH_TEST_ITEMCH';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] Item Charge "ITEMCHARGE" with "Description" = "(Desc)"
+        // [GIVEN] Item Charge "ITEMCHARGE" with "Description" = "Desc"
         MockItemChargeWithNoAndDescription(No, Description);
         // [GIVEN] Purchase order line, "Type" = "Charge (Item)"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -3576,14 +3576,14 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine.Validate(Type, PurchaseLine.Type::"Charge (Item)");
 
         // [WHEN] Validate purchase line's "Description" = "itemcharge"/"desc"/"itemch"/"des"/"charge"/"esc"/"xesc"
-        // [THEN] Purchase line's: "No." = "ITEMCHARGE", "Description" = "(Desc)"
+        // [THEN] Purchase line's: "No." = "ITEMCHARGE", "Description" = "Desc"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'itemch_test_itemch', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description_test_des', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'itemch_test', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_itemch', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_description', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'emch_test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription_test_descrip', No, Description);
 
         // Tear down
         ItemCharge.Get(No);
@@ -3606,9 +3606,9 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
         EnableFindRecordByNo;
         No := 'FA_TEST_FA';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] Fixed Asset "FIXEDASSET" with "Description" = "(Desc)"
+        // [GIVEN] Fixed Asset "FIXEDASSET" with "Description" = "Desc"
         MockFAWithNoAndDescription(No, Description);
         // [GIVEN] Purchase order line, "Type" = "Fixed Asset"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -3616,14 +3616,14 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine.Validate(Type, PurchaseLine.Type::"Fixed Asset");
 
         // [WHEN] Validate purchase line's "Description" = "fixedasset"/"desc"/"fixed"/"des"/"asset"/"esc"/"xesc"
-        // [THEN] Purchase line's: "No." = "FIXEDASSET", "Description" = "(Desc)"
+        // [THEN] Purchase line's: "No." = "FIXEDASSET", "Description" = "Desc"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'fa_test_fa', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description_test_des', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'fa_test', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_fa', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_description', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'a_test_f', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription_test_descrip', No, Description);
 
         // Tear down
         FixedAsset.Get(No);
@@ -3646,23 +3646,23 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
         EnableFindRecordByNo;
         No := 'STDTEXT_TEST_STDTEXT';
-        Description := 'Description(Test)Description';
+        Description := 'Description_Test_Description';
 
-        // [GIVEN] Standard Text "STDTEXT" with "Description" = "(Desc)"
+        // [GIVEN] Standard Text "STDTEXT" with "Description" = "Desc"
         MockStandardText(No, Description);
         // [GIVEN] Purchase order line, "Type" = ""
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         MockPurchaseLine(PurchaseLine, PurchaseHeader);
 
         // [WHEN] Validate purchase line's "Description" = "stdtext"/"desc"/"stdte"/"des"/"tdtext"/"esc"/"xesc"
-        // [THEN] Purchase line's: "No." = "STDTEXT", "Description" = "(Desc)"
+        // [THEN] Purchase line's: "No." = "STDTEXT", "Description" = "Desc"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'stdtext_test_stdtext', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description_test_des', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'stdtext_test', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_stdtext', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_description', No, Description);
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'tdtext_test_stdtex', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
+        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription_test_descrip', No, Description);
 
         // Tear down
         StandardText.Get(No);
@@ -3754,6 +3754,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 201668] Stan can print purchase order having comment and "Drop Shipment" lines
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreateDropShipmentPurchaseLine(PurchaseLine, PurchaseHeader);
 
@@ -3775,6 +3776,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 201668] Stan can print purchase order without "Drop Shipment" lines
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
@@ -4153,7 +4155,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Vendor] [Location] [UT]
         // [SCENARIO 231794] Default location code set from the vendor card should be preserved in the purchase document when the Purchase Header record is inserted after validating the vendor code
-
+        Initialize();
         CreateVendorWithDefaultLocation(Vendor);
 
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
@@ -4172,7 +4174,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Vendor] [Location] [UT]
         // [SCENARIO 231794] Location code in a sales header should be copied from the vendor card when "Buy-from Vendor No." is set and then revalidated with a new value
-
+        Initialize();
         CreateVendorWithDefaultLocation(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
 
@@ -4183,7 +4185,7 @@ codeunit 134327 "ERM Purchase Order"
     end;
 
     [Test]
-    [HandlerFunctions('GetReceiptLinesPageHandler,ConfirmHandler')]
+    [HandlerFunctions('GetReceiptLinesPageHandler')]
     [Scope('OnPrem')]
     procedure NotInsertInvLineFromExtTextRcptLine()
     var
@@ -4687,26 +4689,10 @@ codeunit 134327 "ERM Purchase Order"
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderChangePricesInclVATRefreshesPage()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseOrderPage: TestPage "Purchase Order";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        Initialize();
-
-        // [GIVEN] Page with Prices including VAT disabled was open
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        PurchaseOrderPage.OpenEdit;
-        PurchaseOrderPage.GotoRecord(PurchaseHeader);
-
-        // [WHEN] User checks Prices including VAT
-        PurchaseOrderPage."Prices Including VAT".SetValue(true);
-
-        // [THEN] Caption for PurchaseOrderPage.PurchLines."Direct Unit Cost" field is updated
-        Assert.AreEqual('Direct Unit Cost Incl. VAT',
-          PurchaseOrderPage.PurchLines."Direct Unit Cost".Caption,
-          'The caption for PurchaseOrderPage.PurchLines."Direct Unit Cost" is incorrect');
+        // This Country doesn't have this field on the page.
     end;
 
     [Test]
@@ -4719,7 +4705,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Posting Description] [UT]
         // [SCENARIO 285973] "Posting Description" contains "Document Type" and "No." in the purchase document when the Purchase Header record is inserted after validating the vendor code
-
+        Initialize();
         // [GIVEN] Vendor - X
         LibraryPurchase.CreateVendor(Vendor);
 
@@ -4743,7 +4729,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Posting Description] [UT]
         // [SCENARIO 285973] "Posting Description" contains "Document Type" and "No." when "Buy-from Vendor No." is set and then revalidated with a new value
-
+        Initialize();
         // [GIVEN] Vendor - X
         LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Purchase header with "Buy-from Vendor No." = X
@@ -5695,6 +5681,53 @@ codeunit 134327 "ERM Purchase Order"
 
         // [THEN] "Direct Unit Cost" = "RC"
         Assert.AreEqual(PurchaseLine."Direct Unit Cost", ResourceCost."Direct Unit Cost", 'Wrong resource cost');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutstandingPOReportsVisibility()
+    var
+        VendorListPage: TestPage "Vendor List";
+    begin
+        // [FEATURE] [Report] [UI] [Application Area]
+        // [SCENARIO 347245] Otstanding PO reports are available from Vendor List page in SaaS
+        Initialize();
+
+        // [GIVEN] Enabled SaaS setup       
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+
+        // [WHEN] Vendor List page
+        VendorListPage.OpenEdit();
+
+        // [THEN] Otstanding PO reports are available        
+        Assert.AreEqual(true, VendorListPage."Vendor - Order Summary".Visible, '');
+        Assert.AreEqual(true, VendorListPage."Vendor - Order Detail".Visible, '');
+        Assert.AreEqual(true, VendorListPage."Outstanding Purch.Order Status".Visible, '');
+        VendorListPage.Close();
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RecreatePurchCommentLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        // [FEATURE] [Purch Comment Line] [UT]
+        // [SCENARIO 351187] The Purch. Comment Lines must be copied after Purchase Lines have been recreated
+        Initialize();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, "Purchase Document Type"::Order, PurchaseHeader."No.", PurchaseLine."Line No.");
+
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+
+        PurchCommentLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchCommentLine.SetRange("No.", PurchaseHeader."No.");
+        Assert.RecordCount(PurchCommentLine, 1);
     end;
 
     local procedure Initialize()

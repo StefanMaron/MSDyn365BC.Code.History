@@ -15,7 +15,9 @@ codeunit 134590 "Mandatory Fields Tests"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         UnexpectedShowMandatoryValueTxt: Label 'Unexpected value of ShowMandatory property.';
+        UnexpectedVisibleValueTxt: Label 'Unexpected value of Visible property.';
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
 
     local procedure Initialize()
@@ -43,7 +45,6 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(ItemCard.Description.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(ItemCard."Base Unit of Measure".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(ItemCard."Gen. Prod. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(ItemCard."VAT Prod. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(ItemCard."Inventory Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         ItemCard.Close;
     end;
@@ -61,7 +62,6 @@ codeunit 134590 "Mandatory Fields Tests"
         CustomerCard.OpenNew;
         Assert.IsTrue(CustomerCard.Name.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CustomerCard."Gen. Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsFalse(CustomerCard."VAT Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CustomerCard."Customer Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CustomerCard."Payment Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         CustomerCard.Close;
@@ -80,7 +80,6 @@ codeunit 134590 "Mandatory Fields Tests"
         VendorCard.OpenNew;
         Assert.IsTrue(VendorCard.Name.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(VendorCard."Gen. Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsFalse(VendorCard."VAT Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(VendorCard."Vendor Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         VendorCard.Close;
     end;
@@ -217,6 +216,73 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsFalse(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         CompanyInformation.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatorySalesTaxFieldOnItem()
+    var
+        ItemCard: TestPage "Item Card";
+    begin
+        // [FEATURE] [Sales Tax] [Item]
+        // [SCENARIO 161104] "VAT Prod. Posting Group" on Item Card should be invisible while Sales Tax is enabled
+        DeleteAllTemplates;
+        // [GIVEN] Sales Tax enabled
+        LibraryApplicationArea.EnableSalesTaxSetup;
+
+        with ItemCard do begin
+            // [WHEN] Open Item Card
+            OpenNew;
+            // [THEN] "Tax Group Code" is not marked as mandatory
+            Assert.IsFalse("Tax Group Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+            Close;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatorySalesTaxFieldOnCustomer()
+    var
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [Sales Tax] [Customer]
+        // [SCENARIO 161104] "VAT Bus. Posting Group" on Customer Card should be invisible while Sales Tax is enabled
+        DeleteAllTemplates;
+        // [GIVEN] Sales Tax is enabled
+        LibraryApplicationArea.EnableSalesTaxSetup;
+
+        with CustomerCard do begin
+            // [WHEN] Open Customer Card
+            OpenNew;
+            // [THEN] "Tax Area Code" is marked as mandatory
+            Assert.IsTrue("Tax Area Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+            // [THEN] "Tax Liable" is visible
+            Assert.IsTrue("Tax Liable".Visible, UnexpectedVisibleValueTxt);
+            Close;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatorySalesTaxFieldOnVendor()
+    var
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [Sales Tax] [Vendor]
+        // [SCENARIO 161104] "VAT Bus. Posting Group" on Vendor Card should be invisible while Sales Tax is enabled
+        DeleteAllTemplates;
+        // [GIVEN] Sales Tax is enabled
+        LibraryApplicationArea.EnableSalesTaxSetup;
+
+        with VendorCard do begin
+            // [WHEN] Open Vendor Card
+            OpenNew;
+            // [THEN] "Tax Area Code" is marked as mandatory
+            Assert.IsTrue("Tax Area Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+            // [THEN] "Tax Liable" is visible
+            Assert.IsTrue("Tax Liable".Visible, UnexpectedVisibleValueTxt);
+            Close;
+        end;
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesInvoice(Customer: Record Customer)

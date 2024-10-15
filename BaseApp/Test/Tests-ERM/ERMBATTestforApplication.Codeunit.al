@@ -46,7 +46,7 @@ codeunit 134013 "ERM BAT Test for Application"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
 
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
 
         // Use LibraryRandom to select Random Amount.
@@ -139,7 +139,7 @@ codeunit 134013 "ERM BAT Test for Application"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
 
-        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
 
         // Use LibraryRandom to select Random Amount.

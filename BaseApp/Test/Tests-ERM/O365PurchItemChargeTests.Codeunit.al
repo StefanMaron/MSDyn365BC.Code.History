@@ -218,6 +218,8 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     local procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; UseRandomCurrency: Boolean)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeader.Modify(true);
 
         if UseRandomCurrency then
             CreateCurrencyWithCurrencyFactor(PurchaseHeader);
@@ -226,14 +228,18 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     local procedure AddItemLinesToPurchHeader(var PurchaseHeader: Record "Purchase Header"; AmountOfItemLines: Integer)
     var
         PurchaseLine: Record "Purchase Line";
+        TaxGroup: Record "Tax Group";
+        LibraryERM: Codeunit "Library - ERM";
         i: Integer;
     begin
         Assert.IsTrue(AmountOfItemLines > 0, IncorrectAmountOfLinesErr);
+        LibraryERM.CreateTaxGroup(TaxGroup);
 
         for i := 1 to AmountOfItemLines do begin
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
+            LibraryPurchase.CreatePurchaseLineWithoutVAT(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
             PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
             PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
+            PurchaseLine."Tax Group Code" := TaxGroup.Code;
             PurchaseLine.Modify(true);
         end;
     end;
@@ -241,15 +247,19 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     local procedure AddItemChargeLinesToPurchHeader(var PurchaseHeader: Record "Purchase Header"; AmountOfItemChargeLines: Integer)
     var
         PurchaseLine: Record "Purchase Line";
+        TaxGroup: Record "Tax Group";
+        LibraryERM: Codeunit "Library - ERM";
         i: Integer;
     begin
         Assert.IsTrue(AmountOfItemChargeLines > 0, IncorrectAmountOfLinesErr);
+        LibraryERM.CreateTaxGroup(TaxGroup);
 
         for i := 1 to AmountOfItemChargeLines do begin
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", '', 1);
+            LibraryPurchase.CreatePurchaseLineWithoutVAT(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", '', 1);
             PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
             PurchaseLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive;
             PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
+            PurchaseLine."Tax Group Code" := TaxGroup.Code;
             PurchaseLine.Modify(true);
 
             PurchaseLine.ShowItemChargeAssgnt;

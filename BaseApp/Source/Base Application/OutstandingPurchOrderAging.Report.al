@@ -2,6 +2,7 @@ report 10095 "Outstanding Purch. Order Aging"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OutstandingPurchOrderAging.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Outstanding Purch. Order Aging';
     UsageCategory = ReportsAndAnalysis;
 

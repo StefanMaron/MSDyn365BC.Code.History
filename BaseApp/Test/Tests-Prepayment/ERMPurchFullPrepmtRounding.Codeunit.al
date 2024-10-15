@@ -19,6 +19,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         IsInitialized: Boolean;
         CannotBeLessThanMsg: Label 'cannot be less than %1', Comment = '.';
         CannotBeMoreThanMsg: Label 'cannot be more than %1', Comment = '.';
+        DirectCostModifyMsg: Label 'must be %1 when the Prepayment Invoice has already been posted', Comment = 'starts with a field name; %1 - numeric value';
 
     [Test]
     [Scope('OnPrem')]
@@ -423,13 +424,14 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
     var
         PurchaseOrderHeader: Record "Purchase Header";
         PurchaseInvoiceHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease PurchaseInvoiceLine."Direct Unit Cost" value with 100% Prepayment after Get Receipt Lines
         Initialize;
 
-        // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Line Amount" = "X". Post Prepayment. Post Receipt.
+        // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Direct Unit Cost" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
 
         // [GIVEN] Create Purchase Invoice. Get Receipt Lines from posted Receipt.
@@ -440,8 +442,10 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         asserterror PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(
             PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal - 0.01);
 
-        // [THEN] Error occurs: "Line Amount Excl. VAT cannot be less than X"
-        VerifyLineAmountExpectedError(CannotBeLessThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDEcimal);
+        // [THEN] Error occurs: "Direct Unit Cost must be X when the Prepayment Invoice has already been posted"
+        Assert.ExpectedErrorCode('Validation');
+        Assert.ExpectedError(PurchaseLine.FieldCaption("Direct Unit Cost"));
+        Assert.ExpectedError(StrSubstNo(DirectCostModifyMsg, PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal));
     end;
 
     [Test]
@@ -450,13 +454,14 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
     var
         PurchaseOrderHeader: Record "Purchase Header";
         PurchaseInvoiceHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to increase PurchaseInvoiceLine."Direct Unit Cost" value with 100% Prepayment after Get Receipt Lines
         Initialize;
 
-        // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Line Amount" = "X". Post Prepayment. Post Receipt.
+        // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Direct Unit Cost" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
 
         // [GIVEN] Create Purchase Invoice. Get Receipt Lines from posted Receipt.
@@ -467,8 +472,10 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         asserterror PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(
             PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal + 0.01);
 
-        // [THEN] Error occurs: "Line Amount Excl. VAT cannot be more than X"
-        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDEcimal);
+        // [THEN] Error occurs: "Direct Unit Cost must be X when the Prepayment Invoice has already been posted"
+        Assert.ExpectedErrorCode('Validation');
+        Assert.ExpectedError(PurchaseLine.FieldCaption("Direct Unit Cost"));
+        Assert.ExpectedError(StrSubstNo(DirectCostModifyMsg, PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal));
     end;
 
     [Test]
@@ -729,19 +736,60 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         VerifyGLEntryAccountBalance(InvoiceNo, VATPostingSetup."Purchase VAT Account", 0, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteLinesFromSeparateInvoiceAfterFullPrepaymentAndReceipt()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Get Receipt Lines]
+        // [SCENARIO 348166] Stan can delete line from Invoice created from prepaid shipment lines.
+
+        // [GIVEN] Purchase order with 2 lines
+        PreparePurchOrder(PurchaseHeaderOrder);
+        AddPurchOrderLine(
+          PurchaseLine, PurchaseHeaderOrder, LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDecInRange(1000, 2000, 2), 100, 0);
+        AddPurchOrderLine(
+          PurchaseLine, PurchaseHeaderOrder, LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDecInRange(1000, 2000, 2), 100, 0);
+        // [GIVEN] Posted 100% prepayment invoice
+        PostPurchPrepmtInvoice(PurchaseHeaderOrder);
+        // [GIVEN] Posted receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Purchase Invoice create from receipt lines
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+        GetReceiptLine(PurchaseHeaderInvoice, PurchaseHeaderOrder."Last Receiving No.");
+
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeaderInvoice);
+        PurchaseLine.SetFilter(Quantity, '<>0');
+        PurchaseLine.FindFirst();
+        Assert.RecordCount(PurchaseLine, 2);
+
+        // [WHEN] Delete line with amount from Invoice
+        PurchaseLine.Delete(true);
+
+        // [THEN] The single line with amount remains in invoice
+        Assert.RecordCount(PurchaseLine, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
+        LibraryApplicationArea.EnableFoundationSetup;
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
 
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData;
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");

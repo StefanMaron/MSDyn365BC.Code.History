@@ -374,7 +374,7 @@ codeunit 138012 "O365 Templates Test"
         TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
         RecRefCust: RecordRef;
         RecRefMiniCustTempl: RecordRef;
-        FieldRefArray: array[23] of FieldRef;
+        FieldRefArray: array[24] of FieldRef;
     begin
         // [FEATURE] [Customer]
         Initialize;
@@ -394,7 +394,7 @@ codeunit 138012 "O365 Templates Test"
         TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
         RecRefVend: RecordRef;
         RecRefVendTempl: RecordRef;
-        FieldRefArray: array[17] of FieldRef;
+        FieldRefArray: array[20] of FieldRef;
     begin
         // [FEATURE] [Vendor]
         Initialize;
@@ -3756,7 +3756,7 @@ codeunit 138012 "O365 Templates Test"
         Item.Validate("Automatic Ext. Texts", not Item."Automatic Ext. Texts");
         Item.Validate("VAT Prod. Posting Group", Item2."VAT Prod. Posting Group");
         LibrarySmallBusiness.SetVATBusPostingGrPriceSetup(Item."VAT Prod. Posting Group", not Item."Price Includes VAT");
-        Item.Validate("Price Includes VAT", not Item."Price Includes VAT");
+        Item.Validate("Price Includes VAT", false);
         Item.Validate("Costing Method", Item."Costing Method"::FIFO);
         Item.Modify(true);
     end;

@@ -8,6 +8,8 @@ codeunit 99000792 "Create Prod. Order from Sale"
     var
         Text000: Label '%1 Prod. Order %2 has been created.';
         UOMMgt: Codeunit "Unit of Measure Management";
+
+    protected var
         HideValidationDialog: Boolean;
 
     procedure CreateProdOrder(SalesLine: Record "Sales Line"; ProdOrderStatus: Option Simulated,Planned,"Firm Planned",Released,Finished; OrderType: Option ItemOrder,ProjectOrder)
@@ -27,8 +29,9 @@ codeunit 99000792 "Create Prod. Order from Sale"
         ProdOrder.Init();
         ProdOrder.Status := ProdOrderStatus;
         ProdOrder."No." := '';
+        OnCreateProdOrderOnBeforeProdOrderInsert(ProdOrder, SalesLine);
         ProdOrder.Insert(true);
-        OnCreateProdOrderOnAfterProdOrderInsert(ProdOrder);
+        OnCreateProdOrderOnAfterProdOrderInsert(ProdOrder, SalesLine);
 
         ProdOrder."Starting Date" := WorkDate;
         ProdOrder."Creation Date" := WorkDate;
@@ -121,7 +124,12 @@ codeunit 99000792 "Create Prod. Order from Sale"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateProdOrderOnAfterProdOrderInsert(var ProductionOrder: Record "Production Order")
+    local procedure OnCreateProdOrderOnAfterProdOrderInsert(var ProductionOrder: Record "Production Order"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProdOrderOnBeforeProdOrderInsert(var ProductionOrder: Record "Production Order"; SalesLine: Record "Sales Line")
     begin
     end;
 }

@@ -101,6 +101,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
         ExchRateServiceEnabledTxt: Label 'The user enabled a currency exchange rate service.', Locked = true;
         ExchRateServiceDisabledTxt: Label 'The user disabled a currency exchange rate service.', Locked = true;
         TelemetryCategoryTok: Label 'AL Exchange Rate Service', Locked = true;
+        JobQueueEntryDescriptionTxt: Label '%1 - recurring update of exchange rates', Comment = '%1 - the code of the exchange rate setup';
 
     procedure GetWebServiceURL(var ServiceURL: Text) WebServiceURL: Text
     var
@@ -188,7 +189,9 @@ table 1650 "Curr. Exch. Rate Update Setup"
     begin
         if Enabled then begin
             JobQueueEntry.ScheduleRecurrentJobQueueEntryWtihFrequency(JobQueueEntry."Object Type to Run"::Codeunit,
-              CODEUNIT::"Update Currency Exchange Rates", DummyRecId, 24 * 60);
+              CODEUNIT::"Update Currency Exchange Rates", DummyRecId, 24 * 60, 3, 3600);
+            JobQueueEntry.Description := StrSubstNo(JobQueueEntryDescriptionTxt, GetDescription());
+            JobQueueEntry.Modify();
             if Confirm(DailyUpdateQst) then
                 PAGE.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
         end else
@@ -232,6 +235,14 @@ table 1650 "Curr. Exch. Rate Update Setup"
         OnBeforeSetupCurrencyExchRateService(Rec);
         if IsEmpty then
             CODEUNIT.Run(CODEUNIT::"Set Up Curr Exch Rate Service");
+    end;
+
+    local procedure GetDescription(): Text
+    begin
+        if Description <> '' then
+            exit(Description);
+
+        exit(Code);
     end;
 
     [IntegrationEvent(true, false)]

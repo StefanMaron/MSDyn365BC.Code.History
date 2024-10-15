@@ -158,7 +158,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The VAT Entry record reflects the VAT Base Amount and VAT Amount
-        VerifyDeferralAndVAT(DocNo, DeferralDocType::Sales, AccNo, PostingDate, PeriodDate(PostingDate, 2), 3, 0);
+        VerifyDeferralAndVAT(DocNo, DeferralDocType::Sales, AccNo, PostingDate, PeriodDate(PostingDate, 2), 3, 0, false);
     end;
 
     [Test]
@@ -188,7 +188,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The deferrals were posted to GL in 3 periods which should then balance to 0
-        VerifyDeferralAndVAT(DocNo, DeferralDocType::Purchase, AccNo, PostingDate, PeriodDate(PostingDate, 2), 3, 0);
+        VerifyDeferralAndVAT(DocNo, DeferralDocType::Purchase, AccNo, PostingDate, PeriodDate(PostingDate, 2), 3, 0, false);
     end;
 
     [Test]
@@ -214,7 +214,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The VAT Entry record reflects the VAT Base Amount and VAT Amount
-        VerifyDeferralAndVAT(DocNo, DeferralDocType::Sales, AccNo, PostingDate, PeriodDate(PostingDate, 3), 5, 0);
+        VerifyDeferralAndVAT(DocNo, DeferralDocType::Sales, AccNo, PostingDate, PeriodDate(PostingDate, 3), 5, 0, false);
     end;
 
     [Test]
@@ -240,7 +240,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The deferrals were posted to GL in 4 periods which should then balance to 0
-        VerifyDeferralAndVAT(DocNo, DeferralDocType::Purchase, AccNo, PostingDate, PeriodDate(PostingDate, 3), 5, 0);
+        VerifyDeferralAndVAT(DocNo, DeferralDocType::Purchase, AccNo, PostingDate, PeriodDate(PostingDate, 3), 5, 0, false);
     end;
 
     [Test]
@@ -269,7 +269,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The VAT Entry record reflects the VAT Base Amount and VAT Amount
-        VerifyDeferralAndVAT(DocNo, DeferralDocType::Sales, AccNo, PostingDate, PeriodDate(PostingDate, 3), 5, 0);
+        VerifyDeferralAndVAT(DocNo, DeferralDocType::Sales, AccNo, PostingDate, PeriodDate(PostingDate, 3), 5, 0, false);
     end;
 
     [Test]
@@ -298,7 +298,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The VAT Entry record reflects the VAT Base Amount and VAT Amount
-        VerifyDeferralAndVAT(DocNo, DeferralDocType::Purchase, AccNo, PostingDate, PeriodDate(PostingDate, 3), 5, 0);
+        VerifyDeferralAndVAT(DocNo, DeferralDocType::Purchase, AccNo, PostingDate, PeriodDate(PostingDate, 3), 5, 0, false);
     end;
 
     [Test]
@@ -388,7 +388,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The VAT Entry record reflects the VAT Base Amount and VAT Amount for Sales Tax
-        VerifyDeferralAndVAT(DocNo, DeferralDocType::Sales, AccNo, PostingDate, PeriodDate(PostingDate, 2), 4, 0);
+        VerifyDeferralAndVAT(DocNo, DeferralDocType::Sales, AccNo, PostingDate, PeriodDate(PostingDate, 2), 4, 0, true);
     end;
 
     [Test]
@@ -414,7 +414,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The VAT Entry record reflects the VAT Base Amount and VAT Amount for Sales Tax
-        VerifyDeferralAndVAT(DocNo, DeferralDocType::Purchase, AccNo, PostingDate, PeriodDate(PostingDate, 2), 4, 0);
+        VerifyDeferralAndVAT(DocNo, DeferralDocType::Purchase, AccNo, PostingDate, PeriodDate(PostingDate, 2), 4, 0, true);
     end;
 
     [Test]
@@ -895,7 +895,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         Assert.AreEqual(DeferralAmount, GLAmt, 'An incorrect Amount was posted for purchase');
     end;
 
-    local procedure VerifyDeferralAndVAT(DocNo: Code[20]; DeferralDocType: Option Purchase,Sales,"G/L"; AccNo: Code[20]; PostingDate: Date; PeriodDate: Date; DeferralCount: Integer; DeferralSum: Decimal)
+    local procedure VerifyDeferralAndVAT(DocNo: Code[20]; DeferralDocType: Option Purchase,Sales,"G/L"; AccNo: Code[20]; PostingDate: Date; PeriodDate: Date; DeferralCount: Integer; DeferralSum: Decimal; ForSalesTax: Boolean)
     var
         NonDeferralAmt: Decimal;
         GLSum: Decimal;
@@ -913,6 +913,8 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
                 PurchaseIvcLineCalcSum(DocNo, LineAmtExcVAT, LineAmt);
         end;
         VerifyVAT(TransactionNo, LineAmtExcVAT, LineAmt);
+        if ForSalesTax then
+            LineAmt := 0;
         VerifyGLEntryAmount(TransactionNo, LineAmtExcVAT, LineAmt);
     end;
 
@@ -1155,7 +1157,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // Create Posting Setup for Sales Tax.
         CreateVATPostingSetupForSalesTax(VATPostingSetup, SalesHeader."VAT Bus. Posting Group");
         SetupSalesTax(
-          TaxDetail, TaxJurisdiction, Customer."Tax Area Code", TaxGroupCode, TaxDetail."Tax Type"::"Sales Tax",
+          TaxDetail, TaxJurisdiction, Customer."Tax Area Code", TaxGroupCode, TaxDetail."Tax Type"::"Sales Tax Only",
           1000, SetDateDay(15, WorkDate));
 
         ItemNo := CreateItemVATWithDeferral(true, VATPostingSetup."VAT Prod. Posting Group", DeferralPercent, TaxGroupCode);
@@ -1188,7 +1190,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
 
         CreateVATPostingSetupForSalesTax(VATPostingSetup, PurchHeader."VAT Bus. Posting Group");
         SetupSalesTax(
-          TaxDetail, TaxJurisdiction, Vendor."Tax Area Code", TaxGroupCode, TaxDetail."Tax Type"::"Sales Tax",
+          TaxDetail, TaxJurisdiction, Vendor."Tax Area Code", TaxGroupCode, TaxDetail."Tax Type"::"Sales Tax Only",
           1000, SetDateDay(15, WorkDate));
         ItemNo := CreateItemVATWithDeferral(true, VATPostingSetup."VAT Prod. Posting Group", DeferralPercent, TaxGroupCode);
 

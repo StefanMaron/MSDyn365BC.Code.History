@@ -104,7 +104,7 @@ codeunit 138913 "O365 Verify Visibility"
         O365SalesInvoiceLineCard.OpenNew;
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
-        Assert.IsFalse(O365SalesInvoiceLineCard."Tax Group Code".Visible, '"Tax Group Code" should NOT be visible when VAT is used');
+        Assert.IsFalse(O365SalesInvoiceLineCard.Taxable.Visible, 'Taxable should NOT be visible when VAT is used');
         Assert.IsFalse(O365SalesInvoiceLineCard.TaxRate.Visible, '"Tax Rate" should NOT be visible when VAT is used');
     end;
 
@@ -166,7 +166,7 @@ codeunit 138913 "O365 Verify Visibility"
         O365PostedSalesInvoice.OpenNew;
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
-        Assert.IsTrue(O365PostedSalesInvoice.Lines."Tax Group Code".Visible, '"Tax Group Code" should be visible when sales tax is used');
+        Assert.IsTrue(O365PostedSalesInvoice.Lines.Taxable.Visible, 'Taxable should be visible when sales tax is used');
         Assert.IsTrue(O365PostedSalesInvoice.Lines."VAT %".Visible, '"Tax Rate" should be visible when sales tax is used');
         Assert.IsFalse(
           O365PostedSalesInvoice.Lines.VATProductPostingGroupDescription.Visible,
@@ -189,7 +189,7 @@ codeunit 138913 "O365 Verify Visibility"
         O365PostedSalesInvoice.OpenNew;
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
-        Assert.IsFalse(O365PostedSalesInvoice.Lines."Tax Group Code".Visible, '"Tax Group Code" should NOT be visible when VAT is used');
+        Assert.IsFalse(O365PostedSalesInvoice.Lines.Taxable.Visible, 'Taxable should NOT be visible when VAT is used');
         Assert.IsFalse(O365PostedSalesInvoice.Lines."VAT %".Visible, '"Tax Rate" should NOT be visible when VAT is used');
         Assert.IsTrue(
           O365PostedSalesInvoice.Lines.VATProductPostingGroupDescription.Visible,
@@ -212,7 +212,7 @@ codeunit 138913 "O365 Verify Visibility"
         O365ItemCard.OpenNew;
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
-        Assert.IsTrue(O365ItemCard."Tax Group Code".Visible, 'Tax group code should be visible when sales tax is used');
+        Assert.IsTrue(O365ItemCard.Taxable.Visible, 'Tax group code should be visible when sales tax is used');
         Assert.IsFalse(
           O365ItemCard.VATProductPostingGroupDescription.Visible, 'VAT prod. posting group should NOT be visible when sales tax is used');
     end;
@@ -233,7 +233,7 @@ codeunit 138913 "O365 Verify Visibility"
         O365ItemCard.OpenNew;
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
-        Assert.IsFalse(O365ItemCard."Tax Group Code".Visible, 'Tax group code should NOT be visible when sales tax is used');
+        Assert.IsFalse(O365ItemCard.Taxable.Visible, 'Tax group code should NOT be visible when sales tax is used');
         Assert.IsTrue(
           O365ItemCard.VATProductPostingGroupDescription.Visible, 'VAT prod. posting group should be visible when sales tax is used');
     end;
@@ -487,7 +487,6 @@ codeunit 138913 "O365 Verify Visibility"
           PhysInvtCountingPeriods."Count Frequency per Year".Visible,
           StrSubstNo(FieldShouldBeVisibleMsg, PhysInvtCountingPeriods."Count Frequency per Year".Caption));
     end;
-
     local procedure Initialize()
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";

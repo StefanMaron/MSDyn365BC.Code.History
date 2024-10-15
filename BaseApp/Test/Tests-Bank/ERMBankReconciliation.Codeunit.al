@@ -1222,8 +1222,8 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [GIVEN] Create and post purchase credit memo
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
-        PurchaseHeader.CalcFields("Amount Including VAT");
-        Amount := PurchaseHeader."Amount Including VAT";
+        PurchaseHeader.CalcFields(Amount);
+        Amount := PurchaseHeader.Amount;
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [GIVEN] Create bank reconciliation
@@ -1234,6 +1234,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [GIVEN] Create bank reconciliation line and make manual match with posted credit memo
         CreateBankAccReconciliationLine(
           BankAccReconciliation, BankAccReconciliationLine, PurchaseHeader."Buy-from Vendor No.", Amount, WorkDate);
+
         LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");
         LibraryVariableStorage.Enqueue(DocumentNo);
         MatchBankReconLineManually(BankAccReconciliationLine);

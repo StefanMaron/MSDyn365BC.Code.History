@@ -697,6 +697,9 @@ codeunit 131902 "Library - Service"
     begin
         ServiceHeader.Find;
         SetCorrDocNoService(ServiceHeader);
+
+        UpdateTaxGroupCodeInServiceLine(ServiceHeader);
+
         OnBeforePostServiceOrder(ServiceHeader);
         ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
     end;
@@ -853,11 +856,8 @@ codeunit 131902 "Library - Service"
     end;
 
     procedure GetServiceOrderReportGrossAmount(ServiceLine: Record "Service Line"): Decimal
-    var
-        CustInvDisc: Record "Cust. Invoice Disc.";
     begin
-        CustInvDisc.Get(ServiceLine."Customer No.", ServiceLine."Currency Code", 0);
-        exit(ServiceLine."Amount Including VAT" - (ServiceLine."Amount Including VAT" * CustInvDisc."Discount %" / 100));
+        exit(ServiceLine.Amount);
     end;
 
     procedure IsWorking(DateToCheck: Date): Boolean
@@ -907,7 +907,7 @@ codeunit 131902 "Library - Service"
 
     procedure AutoReserveServiceLine(ServiceLine: Record "Service Line")
     begin
-        ServiceLine.AutoReserve;
+        ServiceLine.AutoReserve(true);
     end;
 
     procedure UndoShipmentLinesByServiceOrderNo(ServiceOrderNo: Code[20])
@@ -989,6 +989,19 @@ codeunit 131902 "Library - Service"
             Validate(Nonworking, IsNonWorking);
             Insert(true);
         end;
+    end;
+
+    local procedure UpdateTaxGroupCodeInServiceLine(ServiceHeader: Record "Service Header")
+    var
+        ServiceLine: Record "Service Line";
+        TaxGroup: Record "Tax Group";
+    begin
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetFilter(Type, '<>%1', ServiceLine.Type::" ");
+        ServiceLine.SetRange("Tax Group Code", '');
+        TaxGroup.FindFirst;
+        ServiceLine.ModifyAll("Tax Group Code", TaxGroup.Code);
     end;
 
     [IntegrationEvent(false, false)]

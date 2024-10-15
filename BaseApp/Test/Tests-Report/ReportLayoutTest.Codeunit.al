@@ -309,16 +309,20 @@ codeunit 134600 "Report Layout Test"
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word);
         CustomReportLayout.Get(LayoutCode);
         DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ServerTempFileName('docx'), false);
+        LayoutDescription := LibraryUtility.GenerateGUID;
 
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
         CustomReportLayout.DeleteAll();
         CustomReportLayout.Init();
         CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
-        LayoutDescription := LibraryUtility.GenerateGUID;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout."File Extension" := 'docx';
         CustomReportLayout.Description := LayoutDescription;
         CustomReportLayout."Built-In" := true;
         CustomReportLayout.Insert();
+
         LayoutCode := CustomReportLayout.Code;
+
         if not ReportLayout.Get(LayoutCode) then begin
             ReportLayout.Init();
             ReportLayout.Code := LayoutCode;
@@ -994,7 +998,7 @@ codeunit 134600 "Report Layout Test"
     end;
 
     [Test]
-    [HandlerFunctions('ReturnOrderConfirmation_RPH')]
+    [HandlerFunctions('ReturnAuthorization_RPH')]
     [Scope('OnPrem')]
     procedure SalesReturnOrder_Print()
     var
@@ -1135,6 +1139,34 @@ codeunit 134600 "Report Layout Test"
         Assert.ExpectedMessage(FileNameIsBlankMsg, LibraryVariableStorage.DequeueText); // message from MessageHandler
     end;
 
+    [Test]
+    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AppliedToDocExposedOnSalesCreditMemoReport()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [FEATURE] [Posted Sales Credit Memo] [Sales - Credit Memo]
+        // [SCENARIO 272182] Applied to Document No.and Type are exposed in Report 207 "Sales - Credit Memo"
+
+        // [GIVEN] Mock Posted Sales Credit Memo with "Applies to Doc. Type" and "Applies to Doc. No." populated.
+        MockPostedSalesCreditMemo(SalesCrMemoHeader);
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");
+        Commit();
+
+        // [WHEN] Run Report 207 "Standard Sales - Credit Memo".
+        REPORT.Run(REPORT::"Sales - Credit Memo", true, true, SalesCrMemoHeader);
+
+        // [THEN] "Applies-to Doc. No." and "Applies-to Doc. No." are printed.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(
+          'AppliedToText',
+          StrSubstNo(
+            '(Applies to %1 %2)',
+            Format(SalesCrMemoHeader."Applies-to Doc. Type"),
+            SalesCrMemoHeader."Applies-to Doc. No."));
+    end;
+
     local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Option; WithCompanyName: Boolean)
     var
         LayoutCode: Code[20];
@@ -1249,6 +1281,15 @@ codeunit 134600 "Report Layout Test"
         SalesLine.Modify(true);
     end;
 
+    local procedure MockPostedSalesCreditMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        SalesCrMemoHeader.Init();
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."Applies-to Doc. Type" := SalesCrMemoHeader."Applies-to Doc. Type"::Invoice;
+        SalesCrMemoHeader."Applies-to Doc. No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader.Insert();
+    end;
+
     local procedure FileContainsLine(FileName: Text; ExpectedLine: Text)
     var
         InStr: InStream;
@@ -1330,6 +1371,7 @@ codeunit 134600 "Report Layout Test"
                            'VATAmountLine',
                            'VATClauseLine',
                            'ReportTotalsLine',
+                           'USReportTotalsLine',
                            'Totals'],
               '');
         end;
@@ -1449,7 +1491,7 @@ codeunit 134600 "Report Layout Test"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure ReturnOrderConfirmation_RPH(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
+    procedure ReturnAuthorization_RPH(var ReturnAuthorization: TestRequestPage "Return Authorization")
     begin
     end;
 
@@ -1479,6 +1521,14 @@ codeunit 134600 "Report Layout Test"
                     Handled := true;
                 end;
         end;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
+    begin
+        SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

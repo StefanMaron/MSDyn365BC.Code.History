@@ -357,6 +357,8 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         // [GIVEN] Invoice's "Invoice Discount Amount" = 100, Invoice Discount % = 25.
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(LibraryRandom.RandIntInRange(100, 200), SalesHeader);
         FindLastSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("VAT %", LibraryRandom.RandIntInRange(1, 5)); // there is no VAT for Item in MX be default
+        SalesLine.Validate(Quantity);
         ExpectedDiscountPercent := SalesCalcDiscByType.GetCustInvoiceDiscountPct(SalesLine);
 
         // [WHEN] Delete line from invoice
