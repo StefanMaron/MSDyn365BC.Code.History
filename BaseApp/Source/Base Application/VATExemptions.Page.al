@@ -50,7 +50,7 @@ page 12100 "VAT Exemptions"
                         NoSeriesMgt: Codeunit NoSeriesManagement;
                     begin
                         NoSeriesMgt.LookupSeries(GetVATExemptionNos, "No. Series");
-                        NoSeriesMgt.SetSeries("VAT Exempt. Int. Registry No.")
+                        NoSeriesMgt.SetSeries("VAT Exempt. Int. Registry No.");
                     end;
                 }
                 field("VAT Exempt. Int. Registry Date"; "VAT Exempt. Int. Registry Date")
@@ -123,9 +123,11 @@ page 12100 "VAT Exemptions"
     begin
         if GetFilter(Type) = Format(Type::Customer) then begin
             SalesSetup.Get;
+            SalesSetup.TestField("VAT Exemption Nos.");
             NoSeries := SalesSetup."VAT Exemption Nos.";
         end else begin // Vendor
             PurchasesSetup.Get;
+            PurchasesSetup.TestField("VAT Exemption Nos.");
             NoSeries := PurchasesSetup."VAT Exemption Nos.";
         end;
 

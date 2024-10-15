@@ -845,21 +845,9 @@
     end;
 
     procedure SetVendApplId(CurrentRec: Boolean)
-    var
-        RaiseError: Boolean;
     begin
-        if CalcType = CalcType::GenJnlLine then begin
-            RaiseError := ApplyingVendLedgEntry."Posting Date" < "Posting Date";
-            OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry, Rec, RaiseError, CalcType);
-            if RaiseError then
-                Error(
-                  EarlierPostingDateErr, ApplyingVendLedgEntry."Document Type", ApplyingVendLedgEntry."Document No.",
-                  "Document Type", "Document No.");
-        end;
-
-        if ApplyingVendLedgEntry."Entry No." <> 0 then
-            GenJnlApply.CheckAgainstApplnCurrency(
-              ApplnCurrencyCode, "Currency Code", GenJnlLine."Account Type"::Vendor, true);
+        CurrPage.SetSelectionFilter(VendLedgEntry);
+        CheckVendLedgEntry(VendLedgEntry);
 
         VendLedgEntry.Copy(Rec);
         if CurrentRec then
@@ -873,6 +861,27 @@
 
         ActionPerformed := VendLedgEntry."Applies-to ID" <> '';
         CalcApplnAmount;
+    end;
+
+    procedure CheckVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        RaiseError: Boolean;
+    begin
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                if CalcType = CalcType::GenJnlLine then begin
+                    RaiseError := ApplyingVendLedgEntry."Posting Date" < VendorLedgerEntry."Posting Date";
+                    OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry, VendorLedgerEntry, RaiseError, CalcType);
+                    if RaiseError then
+                        Error(
+                            EarlierPostingDateErr, ApplyingVendLedgEntry."Document Type", ApplyingVendLedgEntry."Document No.",
+                            VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
+                end;
+
+                if ApplyingVendLedgEntry."Entry No." <> 0 then
+                    GenJnlApply.CheckAgainstApplnCurrency(
+                        ApplnCurrencyCode, VendorLedgerEntry."Currency Code", GenJnlLine."Account Type"::Vendor, true);
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     procedure CalcApplnAmount()

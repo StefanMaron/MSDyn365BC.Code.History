@@ -2534,15 +2534,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Invoice Discount And VAT - NamedType ChangedInvDiscountAmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 150808602 - NamedType 2420549545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?]D;]A;(LookupHint=Codeunit ERM Invoice Discount And VAT - NamedType CompletionStatsGenJnlQst)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 150808602 - NamedType 151154373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Total Amount of Purchase lines with allowed discount is incorrect.]]></Val>
