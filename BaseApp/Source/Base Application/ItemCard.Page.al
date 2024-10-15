@@ -1641,6 +1641,8 @@ page 30 "Item Card"
                         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
                         ItemTemplMgt.UpdateItemFromTemplate(Rec);
+                        EnableControls();
+                        CurrPage.Update();
                     end;
                 }
                 action(SaveAsTemplate)
@@ -2848,6 +2850,7 @@ page 30 "Item Card"
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
             Copy(Item);
             OnCreateItemFromTemplateOnBeforeCurrPageUpdate(Rec);
+            EnableControls();
             CurrPage.Update();
             OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
         end else
@@ -2860,6 +2863,7 @@ page 30 "Item Card"
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             if (Item."No." = '') and InventorySetup.Get then
                 Validate("Costing Method", InventorySetup."Default Costing Method");
+
     end;
 
     local procedure SetNoFieldVisible()
