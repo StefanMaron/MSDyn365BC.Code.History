@@ -77,10 +77,12 @@
                     end;
 
                 Validate("Deferral Code", '');
+#if not CLEAN23
                 if FillInvRcptDate then
                     "Invoice Receipt Date" := "Document Date"
                 else
                     "Invoice Receipt Date" := 0D;
+#endif
             end;
         }
         field(4; "Account No."; Code[20])
@@ -193,7 +195,7 @@
                 if "Deferral Code" <> '' then
                     Validate("Deferral Code");
 
-                
+
                 GLSetup.Get();
                 GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
                 Validate("VAT Reporting Date");
@@ -237,10 +239,12 @@
                     end;
                 UpdateSalesPurchLCY();
                 ValidateApplyRequirements(Rec);
+#if not CLEAN23
                 if FillInvRcptDate then
                     Validate("Invoice Receipt Date", "Document Date")
                 else
                     Validate("Invoice Receipt Date", 0D);
+#endif
             end;
         }
         field(7; "Document No."; Code[20])
@@ -1179,10 +1183,12 @@
                     if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                         FieldError("Bal. Account Type");
                 end;
+#if not CLEAN23
                 if FillInvRcptDate then
                     "Invoice Receipt Date" := "Document Date"
                 else
                     "Invoice Receipt Date" := 0D;
+#endif
             end;
         }
         field(64; "Bal. Gen. Posting Type"; Enum "General Posting Type")
@@ -1518,7 +1524,7 @@
             begin
                 Validate("Payment Terms Code");
 
-                
+
                 GLSetup.Get();
                 GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
                 Validate("VAT Reporting Date");
@@ -2042,6 +2048,16 @@
         field(173; "Applies-to Ext. Doc. No."; Code[35])
         {
             Caption = 'Applies-to Ext. Doc. No.';
+        }
+        field(175; "Invoice Received Date"; Date)
+        {
+            trigger OnValidate()
+            begin
+                if (Rec."Invoice Received Date" <> 0D) and
+                   (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor))
+                then
+                    TestField("Document Type", "Document Type"::Invoice);
+            end;
         }
         field(180; "Keep Description"; Boolean)
         {
@@ -2780,8 +2796,17 @@
         }
         field(10500; "Invoice Receipt Date"; Date)
         {
-            Caption = 'Invoice Receipt Date';
 
+            ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#endif
+
+#if not CLEAN23
             trigger OnValidate()
             begin
                 if ("Invoice Receipt Date" <> 0D) and
@@ -2789,6 +2814,7 @@
                 then
                     TestField("Document Type", "Document Type"::Invoice);
             end;
+#endif
         }
     }
 
@@ -3150,8 +3176,10 @@
         "Source Code" := GenJnlTemplate."Source Code";
         "Reason Code" := GenJnlBatch."Reason Code";
         "Posting No. Series" := GenJnlBatch."Posting No. Series";
+#if not CLEAN23
         if FillInvRcptDate then
             "Invoice Receipt Date" := "Document Date";
+#endif
 
         IsHandled := false;
         OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled, GenJnlTemplate, GenJnlBatch, BottomLine, Rec, CurrFieldNo);
@@ -5938,7 +5966,7 @@
         Prepayment := true;
         "Due Date" := PurchHeader."Prepayment Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
-        "Payment Method Code" := PurchHeader."Payment Method Code"; 
+        "Payment Method Code" := PurchHeader."Payment Method Code";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
@@ -5962,6 +5990,7 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         "Due Date" := PurchHeader."Due Date";
+        "Invoice Received Date" := PurchHeader."Invoice Received Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
         "Pmt. Discount Date" := PurchHeader."Pmt. Discount Date";
         "Payment Discount %" := PurchHeader."Payment Discount %";
@@ -6039,7 +6068,7 @@
         Prepayment := true;
         "Due Date" := SalesHeader."Prepayment Due Date";
         "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
-        "Payment Method Code" := SalesHeader."Payment Method Code"; 
+        "Payment Method Code" := SalesHeader."Payment Method Code";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := SalesHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := SalesHeader."Prepmt. Payment Discount %";
@@ -8332,12 +8361,14 @@
     begin
     end;
 
+#if not CLEAN23
     local procedure FillInvRcptDate(): Boolean
     begin
         exit(
           ("Document Type" = "Document Type"::Invoice) and
           (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor)));
     end;
+#endif
 
     procedure ShowDeferralSchedule()
     begin

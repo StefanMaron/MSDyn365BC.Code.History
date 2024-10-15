@@ -1053,6 +1053,15 @@
         {
             Caption = 'Intrastat Partner Type';
         }
+        field(134; "Exclude from Pmt. Practices"; Boolean)
+        {
+            Caption = 'Exclude from Payment Practices';
+        }
+        field(135; "Company Size Code"; Code[20])
+        {
+            Caption = 'Company Size Code';
+            TableRelation = "Company Size";
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
@@ -1434,6 +1443,14 @@
         field(10501; "Exclude from Pmt. Pract. Rep."; Boolean)
         {
             Caption = 'Exclude from Payment Practices Report';
+            ObsoleteReason = 'Replaced by W1 field "Exclude from Pmt. Practices"';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 

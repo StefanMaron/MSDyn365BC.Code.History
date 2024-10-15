@@ -1,5 +1,9 @@
+#if not CLEAN23
 codeunit 10525 "Payment Practices Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. Replaced by W1 extension "Payment Practices".';
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -212,4 +216,4 @@ codeunit 10525 "Payment Practices Mgt."
         exit(Round(OverduePmts / Total * 100));
     end;
 }
-
+#endif

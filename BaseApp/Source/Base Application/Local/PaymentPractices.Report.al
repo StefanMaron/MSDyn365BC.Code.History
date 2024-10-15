@@ -1,9 +1,13 @@
+#if not CLEAN23
 report 10580 "Payment Practices"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PaymentPractices.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Payment Practices';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
+    ObsoleteTag = '23.0';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -272,4 +276,4 @@ report 10580 "Payment Practices"
         TempPaymentApplicationBuffer.ClearMarks();
     end;
 }
-
+#endif

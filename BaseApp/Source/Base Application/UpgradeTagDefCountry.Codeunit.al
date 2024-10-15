@@ -21,5 +21,10 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         exit('MS-432461-GetUpdateIntrastatSetupTag-20220420');
     end;
+
+    procedure GetUpgradePaymentPracticesTag(): Code[250]
+    begin
+        exit('MS-473083-GB-GetUpgradePaymentPracticesTag-20230713');
+    end;
 }
 

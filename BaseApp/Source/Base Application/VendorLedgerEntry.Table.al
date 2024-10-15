@@ -517,6 +517,10 @@
         {
             Caption = 'Applies-to Ext. Doc. No.';
         }
+        field(175; "Invoice Received Date"; Date)
+        {
+
+        }
         field(288; "Recipient Bank Account"; Code[20])
         {
             Caption = 'Recipient Bank Account';
@@ -615,7 +619,15 @@
         }
         field(10500; "Invoice Receipt Date"; Date)
         {
-            Caption = 'Invoice Receipt Date';
+
+            ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 
@@ -871,7 +883,10 @@
         "Vendor No." := GenJnlLine."Account No.";
         "Posting Date" := GenJnlLine."Posting Date";
         "Document Date" := GenJnlLine."Document Date";
+#if not CLEAN23
         "Invoice Receipt Date" := GenJnlLine."Invoice Receipt Date";
+#endif
+        "Invoice Received Date" := GenJnlLine."Invoice Received Date";
         "Document Type" := GenJnlLine."Document Type";
         "Document No." := GenJnlLine."Document No.";
         "External Document No." := GenJnlLine."External Document No.";
