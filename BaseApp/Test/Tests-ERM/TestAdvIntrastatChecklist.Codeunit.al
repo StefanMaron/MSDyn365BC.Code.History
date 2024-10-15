@@ -13,7 +13,9 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         LibraryERM: Codeunit "Library - ERM";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
+        DummyReportId: Integer;
         FilterStringParseErr: Label 'Could not parse the filter expression. Use the lookup action, or type a string in the following format: "Type: Shipment, Quantity: <>0".';
         AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
 
@@ -108,34 +110,27 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         // [SCENARIO 395476] IsAdvancedChecklistReportField() returns True in case of existing field setup
         Initialize();
 
-        Assert.IsFalse(
-          IntraJnlManagement.IsAdvancedChecklistReportField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Type), ''), '');
+        Assert.IsFalse(IntraJnlManagement.IsAdvancedChecklistReportField(DummyReportId, IntrastatJnlLine.FieldNo(Type), ''), '');
 
         AdvancedIntrastatChecklist."Object Type" := AdvancedIntrastatChecklist."Object Type"::Report;
         AdvancedIntrastatChecklist.Insert();
-        Assert.IsFalse(
-          IntraJnlManagement.IsAdvancedChecklistReportField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Type), ''), '');
+        Assert.IsFalse(IntraJnlManagement.IsAdvancedChecklistReportField(DummyReportId, IntrastatJnlLine.FieldNo(Type), ''), '');
 
         AdvancedIntrastatChecklist."Object Type" := AdvancedIntrastatChecklist."Object Type"::Report;
-        AdvancedIntrastatChecklist."Object Id" := Report::"Intrastat - Checklist";
+        AdvancedIntrastatChecklist."Object Id" := DummyReportId;
         AdvancedIntrastatChecklist.Insert();
-        Assert.IsFalse(
-          IntraJnlManagement.IsAdvancedChecklistReportField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Type), ''), '');
+        Assert.IsFalse(IntraJnlManagement.IsAdvancedChecklistReportField(DummyReportId, IntrastatJnlLine.FieldNo(Type), ''), '');
 
         AdvancedIntrastatChecklist."Object Type" := AdvancedIntrastatChecklist."Object Type"::Report;
-        AdvancedIntrastatChecklist."Object Id" := Report::"Intrastat - Checklist";
+        AdvancedIntrastatChecklist."Object Id" := DummyReportId;
         AdvancedIntrastatChecklist."Field No." := IntrastatJnlLine.FieldNo(Type);
         AdvancedIntrastatChecklist.Insert();
-        Assert.IsTrue(
-          IntraJnlManagement.IsAdvancedChecklistReportField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Type), ''), '');
+        Assert.IsTrue(IntraJnlManagement.IsAdvancedChecklistReportField(DummyReportId, IntrastatJnlLine.FieldNo(Type), ''), '');
 
         AdvancedIntrastatChecklist.Validate("Filter Expression", 'Type: Shipment');
         AdvancedIntrastatChecklist.Modify();
-        Assert.IsTrue(
-          IntraJnlManagement.IsAdvancedChecklistReportField(
-            Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Type), 'Type: Shipment'), '');
-        Assert.IsFalse(
-          IntraJnlManagement.IsAdvancedChecklistReportField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Type), ''), '');
+        Assert.IsTrue(IntraJnlManagement.IsAdvancedChecklistReportField(DummyReportId, IntrastatJnlLine.FieldNo(Type), 'Type: Shipment'), '');
+        Assert.IsFalse(IntraJnlManagement.IsAdvancedChecklistReportField(DummyReportId, IntrastatJnlLine.FieldNo(Type), ''), '');
     end;
 
     [Test]
@@ -148,30 +143,74 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         // [SCENARIO 395476] ValidateReportWithAdvancedChecklist() basic tests
         Initialize();
 
-        Assert.IsTrue(
-          IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Checklist", false), '');
-        Assert.IsTrue(
-          IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Checklist", true), '');
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, true), '');
 
-        CreateFieldSetup(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
-        Assert.IsFalse(
-          IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Checklist", false), '');
-        asserterror IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Checklist", true);
+        CreateFieldSetup(DummyReportId, IntrastatJnlLine.FieldNo(Quantity), '');
+        Assert.IsFalse(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        asserterror IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, true);
         VerifyError();
 
         IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
         IntrastatJnlLine.Quantity := 1;
-        CreateFieldSetup(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo("Transaction Type"), 'Type: Shipment');
-        Assert.IsTrue(
-          IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Checklist", false), '');
-        Assert.IsTrue(
-          IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Checklist", true), '');
+        CreateFieldSetup(DummyReportId, IntrastatJnlLine.FieldNo("Transaction Type"), 'Type: Shipment');
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, true), '');
 
         IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
-        Assert.IsFalse(
-          IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Checklist", false), '');
-        asserterror IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Checklist", true);
+        Assert.IsFalse(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        asserterror IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, true);
         VerifyError();
+    end;
+
+    [Test]
+    procedure ValidateReportFilterExprReverse()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 395476] ValidateReportWithAdvancedChecklist() basic tests incase of "Reversed Filter Expression" = True
+        Initialize();
+
+        // Ignore "Reverse" for blanked filter expression
+        CreateFieldSetupFull(DummyReportId, IntrastatJnlLine.FIELDNO(Quantity), '', true);
+        Assert.IsFalse(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Quantity := 1;
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+
+        // "Reverse" = False
+        CreateFieldSetupFull(
+          DummyReportId, IntrastatJnlLine.FIELDNO("Transaction Specification"), 'Type: Shipment, Counterparty: True', false);
+        IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
+        IntrastatJnlLine.Counterparty := true;
+        Assert.IsFalse(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Counterparty := false;
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Counterparty := true;
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
+        IntrastatJnlLine.Counterparty := true;
+        IntrastatJnlLine."Transaction Specification" := 'dummy';
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+
+        // "Reverse" = True
+        CreateFieldSetupFull(DummyReportId, IntrastatJnlLine.FIELDNO("Transaction Type"), 'Type: Shipment, Counterparty: True', true);
+        IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
+        IntrastatJnlLine.Counterparty := true;
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Counterparty := false;
+        Assert.IsFalse(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
+        Assert.IsFalse(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Counterparty := true;
+        Assert.IsFalse(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
+        IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
+        IntrastatJnlLine.Counterparty := true;
+        IntrastatJnlLine."Transaction Type" := 'dummy';
+        Assert.IsTrue(IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, DummyReportId, false), '');
     end;
 
     [Test]
@@ -218,11 +257,11 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         Initialize();
         CreateJournalLine(IntrastatJnlLine);
         CreateFieldSetup(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo("Item No."), '');
-        CreateFieldSetup(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo("Tariff No."), '');
+        CreateFieldSetup(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo("Transport Method"), '');
 
         RunChecklistReport(IntrastatJnlLine);
 
-        VerifyBatchTwoErrors(IntrastatJnlLine, IntrastatJnlLine.FieldName("Tariff No."), IntrastatJnlLine.FieldName("Item No."));
+        VerifyBatchTwoErrors(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transport Method"), IntrastatJnlLine.FieldName("Item No."));
     end;
 
     [Test]
@@ -270,12 +309,12 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         Initialize();
         CreateJournalLine(IntrastatJnlLine);
         CreateFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo("Item No."), '');
-        CreateFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo("Tariff No."), '');
+        CreateFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo("Transport Method"), '');
 
         asserterror RunIntrastatForm(IntrastatJnlLine);
 
         VerifyError();
-        VerifyBatchTwoErrors(IntrastatJnlLine, IntrastatJnlLine.FieldName("Tariff No."), IntrastatJnlLine.FieldName("Item No."));
+        VerifyBatchTwoErrors(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transport Method"), IntrastatJnlLine.FieldName("Item No."));
     end;
 
     [Test]
@@ -329,12 +368,12 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         IntrastatJnlBatch.DeleteAll();
         CreateJournalLine(IntrastatJnlLine);
         CreateFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Item No."), '');
-        CreateFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Tariff No."), '');
+        CreateFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Transport Method"), '');
 
         asserterror RunIntrastatMakeDiskTaxAuth(IntrastatJnlLine);
 
         VerifyError();
-        VerifyBatchTwoErrors(IntrastatJnlLine, IntrastatJnlLine.FieldName("Tariff No."), IntrastatJnlLine.FieldName("Item No."));
+        VerifyBatchTwoErrors(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transport Method"), IntrastatJnlLine.FieldName("Item No."));
     end;
 
     local procedure Initialize()
@@ -347,6 +386,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
             EXIT;
 
         EnableSetup();
+        DummyReportId := Report::"Intrastat - Checklist";
         IsInitialized := true;
         Commit();
     end;
@@ -355,7 +395,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
     var
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        IF NOT IntrastatSetup.Get THEN
+        if not IntrastatSetup.Get() then
             IntrastatSetup.Insert();
         IntrastatSetup."Use Advanced Checklist" := true;
         IntrastatSetup."Report Receipts" := true;
@@ -364,6 +404,11 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
     end;
 
     local procedure CreateFieldSetup(ReportId: Integer; FieldNo: Integer; FilterExpression: Text)
+    begin
+        CreateFieldSetupFull(ReportId, FieldNo, FilterExpression, false);
+    end;
+
+    local procedure CreateFieldSetupFull(ReportId: Integer; FieldNo: Integer; FilterExpression: Text; Reverse: Boolean)
     var
         AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
     begin
@@ -374,6 +419,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         AdvancedIntrastatChecklist.Validate(
           "Filter Expression",
           CopyStr(FilterExpression, 1, MaxStrLen(AdvancedIntrastatChecklist."Filter Expression")));
+        AdvancedIntrastatChecklist.Validate("Reversed Filter Expression", Reverse);
         AdvancedIntrastatChecklist.Insert();
     end;
 
@@ -390,7 +436,22 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlTemplate.Name, IntrastatJnlBatch.Name);
         IntrastatJnlLine.Validate(Type, IntrastatJnlLine.Type::Shipment);
         IntrastatJnlLine.Validate("Country/Region Code", 'DE');
+        IntrastatJnlLine.Validate("Tariff No.", CreateTariffNumber());
+        IntrastatJnlLine."Transaction Type" := 'dummy';
+        IntrastatJnlLine.Area := 'dummy';
+        IntrastatJnlLine."Total Weight" := 1;
+        IntrastatJnlLine."Statistical Value" := 1;
         IntrastatJnlLine.Modify(true);
+    end;
+
+    local procedure CreateTariffNumber(): Code[20]
+    var
+        TariffNumber: Record "Tariff Number";
+    begin
+        TariffNumber.Init();
+        TariffNumber."No." := LibraryUtility.GenerateGUID();
+        TariffNumber.Insert(true);
+        exit(TariffNumber."No.");
     end;
 
     local procedure RunChecklistReport(IntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -423,9 +484,11 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
         IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
         IntrastatJnlBatch.SetRecFilter();
+        IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type);
         Commit();
         IntrastatMakeDiskTaxAuth.InitializeRequest(LibraryReportDataset.GetFileName());
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlBatch);
+        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
         IntrastatMakeDiskTaxAuth.UseRequestPage(true);
         IntrastatMakeDiskTaxAuth.Run();
     end;

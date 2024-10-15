@@ -332,6 +332,26 @@ page 5977 "Posted Service Invoices"
                     ShowActivityLog;
                 end;
             }
+            action("Update Document")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document, such as a payment reference. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedServiceInvUpdate: Page "Posted Service Inv. - Update";
+                begin
+                    PostedServiceInvUpdate.LookupMode := true;
+                    PostedServiceInvUpdate.SetRec(Rec);
+                    PostedServiceInvUpdate.RunModal();
+                end;
+            }
         }
     }
 
