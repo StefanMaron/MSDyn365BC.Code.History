@@ -4478,7 +4478,7 @@
                                 if ("Item Tracking" = "Item Tracking"::None) and AskApply then
                                     ConfirmApply;
                                 if (not ApplyFully) or ("Item Tracking" <> "Item Tracking"::None) then
-                                    RemainingQtyBase := GetQtyOfPurchILENotShipped("Entry No.") * SignFactor
+                                    RemainingQtyBase := GetQtyOfPurchILENotShipped("Entry No.", FromPurchLine) * SignFactor
                                 else
                                     RemainingQtyBase := FromPurchLine."Quantity (Base)" - ApplyRec.Returned("Entry No.");
                             end else
@@ -5289,7 +5289,7 @@
         until SalesLine.Next() = 0;
     end;
 
-    local procedure GetQtyOfPurchILENotShipped(ItemLedgerEntryNo: Integer): Decimal
+    local procedure GetQtyOfPurchILENotShipped(ItemLedgerEntryNo: Integer; FromPurchLine: Record "Purchase Line"): Decimal
     var
         ItemApplicationEntry: Record "Item Application Entry";
         ItemLedgerEntryLocal: Record "Item Ledger Entry";
@@ -5305,8 +5305,15 @@
                 exit(QtyNotShipped);
             QtyNotShipped := Quantity;
             SetFilter("Outbound Item Entry No.", '<>0');
-            if not FindSet(false, false) then
+            if not FindSet(false, false) then begin
+                if FromPurchLine."Copied From Posted Doc." and (FromPurchLine."Receipt No." <> '') then begin
+                    ItemLedgerEntryLocal.SetLoadFields("Invoiced Quantity");
+                    ItemLedgerEntryLocal.Get(ItemLedgerEntryNo);
+                    if Abs(ItemLedgerEntryLocal."Invoiced Quantity") < Abs(QtyNotShipped) then
+                        QtyNotShipped := ItemLedgerEntryLocal."Invoiced Quantity";
+                end;
                 exit(QtyNotShipped);
+            end;
             repeat
                 ItemLedgerEntryLocal.Get("Outbound Item Entry No.");
                 if (ItemLedgerEntryLocal."Entry Type" in
@@ -6090,7 +6097,6 @@
             exit;
         if ToSalesLine."Document Type" in
            [ToSalesLine."Document Type"::"Blanket Order",
-            ToSalesLine."Document Type"::"Credit Memo",
             ToSalesLine."Document Type"::"Return Order"]
         then begin
             ToSalesLine."Blanket Order No." := '';
@@ -6140,7 +6146,6 @@
             exit;
         if ToPurchLine."Document Type" in
            [ToPurchLine."Document Type"::"Blanket Order",
-            ToPurchLine."Document Type"::"Credit Memo",
             ToPurchLine."Document Type"::"Return Order"]
         then begin
             ToPurchLine."Blanket Order No." := '';
