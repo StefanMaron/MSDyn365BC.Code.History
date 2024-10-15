@@ -3398,7 +3398,6 @@ codeunit 134123 "Price List Line UT"
         ResourceGroup: Record "Resource Group";
         Job: Record Job;
         JobTask: Record "Job Task";
-
         OldNo: Code[20];
         ResourceGroupNo: Code[20];
         JobTaskNo: Code[20];
@@ -3427,7 +3426,7 @@ codeunit 134123 "Price List Line UT"
 
         // [WHEN] Rename the Job task No
         JobTask.Get(Job."No.", JobTaskNo);
-        JobTask.Rename(JobTask."Job Task No.", LibraryUtility.GenerateGUID());
+        JobTask.Rename(JobTask."Job No.", LibraryUtility.GenerateGUID());
 
         // [THEN] Verify Resource Group is updated in Price List Line.
         PriceListLine.Find();
@@ -3435,6 +3434,139 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Verify the Assign-to No. is updated in Price List Line
         Assert.AreEqual(JobTask."Job Task No.", PriceListLine."Assign-to No.", AssignToNoErr);
+    end;
+
+    [Test]
+    procedure VerifyValuesOnPriceListHeaderAndPriceListLineWhenItemAndGLAccountRename()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLineItem: Record "Price List Line";
+        PriceListLineGLAcc: Record "Price List Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Item: Record Item;
+        GLAccount: Record "G/L Account";
+        ItemNo: Code[20];
+        GLAccNo: Code[20];
+    begin
+        // [SCENARIO 458555] Item and G/L Account and Assign-to No. on the Price List Lines page are not renamed
+        Initialize();
+
+        // [GIVEN] Create 2 Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Item and G/L Account
+        ItemNo := LibraryInventory.CreateItemNo();
+        GLAccNo := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"Job Task", Job."No.", JobTask."Job Task No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLineItem, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Item", ItemNo);
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLineGLAcc, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", GLAccNo);
+
+        // [WHEN] Rename the Item
+        Item.Get(ItemNo);
+        Item.Rename(LibraryUtility.GenerateGUID());
+
+        // [WHEN] Rename the G/L Account
+        GLAccount.Get(GLAccNo);
+        GLAccount.Rename(LibraryUtility.GenerateGUID());
+
+        // [THEN] Verify Item No. is updated in Price List Line.
+        PriceListLineItem.Find();
+        Assert.AreEqual(Item."No.", PriceListLineItem."Product No.", 'Item No. is not updated');
+
+        // [THEN] Verify G/L Account No. is updated in Price List Line.
+        PriceListLineGLAcc.Find();
+        Assert.AreEqual(GLAccount."No.", PriceListLineGLAcc."Product No.", 'G/L Account No. is not updated');
+    end;
+
+    [Test]
+    procedure VerifyPriceListLineforJobTaskAfterCopyJob()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLine2: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        CopyJob: Codeunit "Copy Job";
+        TargetJobNo: Code[20];
+    begin
+        // [SCENARIO 458131] The Assign-to Job No.  on the Price List Lines page is incorrect, if the job is created by ‘Copy Job.’
+        Initialize();
+
+        // [GIVEN] Creat Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"Job Task", Job."No.", JobTask."Job Task No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [GIVEN] Set "Allow Updating Defaults" as true to copy price list line for copy job
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [THEN] Copy Job 
+        TargetJobNo := IncStr(Job."No.");
+        CopyJob.SetCopyOptions(true, false, false, 0, 0, 0);
+        CopyJob.CopyJob(Job, TargetJobNo, '', '', '');
+
+        // [VERIFY] Verify New Job No on "Assign-to Parent No."
+        PriceListLine2.Reset();
+        PriceListLine2.SetRange("Source Type", PriceListLine2."Source Type"::"Job Task");
+        PriceListLine2.SetRange("Parent Source No.", Job."No.");
+        Assert.RecordCount(PriceListLine2, 1);
+    end;
+
+    [Test]
+    procedure VerifyPriceListLineforJobAfterCopyJob()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLine2: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        CopyJob: Codeunit "Copy Job";
+        TargetJobNo: Code[20];
+    begin
+        // [SCENARIO 458131] The Assign-to Job No.  on the Price List Lines page is incorrect, if the job is created by ‘Copy Job.’
+        Initialize();
+
+        // [GIVEN] Creat Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::Job, '', Job."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [GIVEN] Set "Allow Updating Defaults" as true to copy price list line for copy job
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [THEN] Copy Job 
+        TargetJobNo := IncStr(Job."No.");
+        CopyJob.SetCopyOptions(true, false, false, 0, 0, 0);
+        CopyJob.CopyJob(Job, TargetJobNo, '', '', '');
+
+        // [VERIFY] Verify New Job No on "Assign-to Parent No."
+        PriceListLine2.Reset();
+        PriceListLine2.SetRange("Source Type", PriceListLine2."Source Type"::Job);
+        PriceListLine2.SetRange("Source No.", Job."No.");
+        Assert.RecordCount(PriceListLine2, 1);
     end;
 
     local procedure Initialize()
@@ -3490,10 +3622,12 @@ codeunit 134123 "Price List Line UT"
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
         PriceListLine."Unit of Measure Code" := UOM1;
+        PriceListLine."Unit of Measure Code Lookup" := UOM1;
         PriceListLine.Modify();
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
         PriceListLine."Unit of Measure Code" := UOM2;
+        PriceListLine."Unit of Measure Code Lookup" := UOM2;
         PriceListLine.Modify();
     end;
 
@@ -3563,10 +3697,13 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.SetRange("Variant Code", VariantCode1);
+        PriceListLine.SetRange("Variant Code Lookup", VariantCode1);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Variant Code", VariantCode2);
+        PriceListLine.SetRange("Variant Code Lookup", VariantCode2);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Variant Code", OldVariantCode);
+        PriceListLine.SetRange("Variant Code Lookup", OldVariantCode);
         Assert.RecordIsEmpty(PriceListLine);
     end;
 
@@ -3575,10 +3712,13 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
     begin
         PriceListLine.SetRange("Unit of Measure Code", UOM1);
+        PriceListLine.SetRange("Unit of Measure Code Lookup", UOM1);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Unit of Measure Code", UOM2);
+        PriceListLine.SetRange("Unit of Measure Code Lookup", UOM2);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Unit of Measure Code", OldUOM);
+        PriceListLine.SetRange("Unit of Measure Code Lookup", OldUOM);
         Assert.RecordIsEmpty(PriceListLine);
     end;
 

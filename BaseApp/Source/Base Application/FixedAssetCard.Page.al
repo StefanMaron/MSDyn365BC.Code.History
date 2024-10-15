@@ -321,6 +321,7 @@
                 Caption = 'Depreciation Books';
                 SubPageLink = "FA No." = FIELD("No.");
                 Visible = NOT Simple;
+                UpdatePropagation = Both;
             }
             group(Maintenance)
             {
@@ -724,7 +725,6 @@
     end;
 
     var
-        FADepreciationBookOld: Record "FA Depreciation Book";
         FAAcquireWizardNotificationId: Guid;
         NoFieldVisible: Boolean;
         Simple: Boolean;
@@ -738,6 +738,7 @@
 
     protected var
         FADepreciationBook: Record "FA Depreciation Book";
+        FADepreciationBookOld: Record "FA Depreciation Book";
 
     protected procedure ShowAcquisitionNotification()
     var
