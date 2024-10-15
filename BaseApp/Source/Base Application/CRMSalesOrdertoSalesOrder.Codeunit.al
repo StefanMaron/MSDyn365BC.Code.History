@@ -544,6 +544,10 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure InitializeSalesOrderLine(CRMSalesorderdetail: Record "CRM Salesorderdetail"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         CRMProduct: Record "CRM Product";
+        Item: Record Item;
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        UnitPrice: Decimal;
     begin
         InitNewSalesLine(SalesHeader, SalesLine);
 
@@ -565,8 +569,17 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SetLineDescription(SalesHeader, SalesLine, CRMSalesorderdetail);
 
         SalesLine.Validate(Quantity, CRMSalesorderdetail.Quantity);
-        SalesLine.Validate("Unit Price", CRMSalesorderdetail.PricePerUnit);
-        SalesLine.Validate(Amount, CRMSalesorderdetail.BaseAmount);
+        UnitPrice := CRMSalesorderdetail.PricePerUnit;
+        GeneralLedgerSetup.Get();
+        if CRMProduct.ProductTypeCode = CRMProduct.ProductTypeCode::SalesInventory then
+            if Item.GET(SalesLine."No.") then
+                if (Item."Price Includes VAT") AND (Item."VAT Bus. Posting Gr. (Price)" <> '') then
+                    if SalesLine."VAT Bus. Posting Group" = Item."VAT Bus. Posting Gr. (Price)" then
+                        if VATPostingSetup.GET(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
+                            UnitPrice :=
+                                ROUND(CRMSalesorderdetail.PricePerUnit / (1 + VATPostingSetup."VAT %" / 100), GeneralLedgerSetup."Unit-Amount Rounding Precision");
+        SalesLine.VALIDATE("Unit Price", UnitPrice);
+
         SalesLine.Validate(
           "Line Discount Amount",
           CRMSalesorderdetail.Quantity * CRMSalesorderdetail.VolumeDiscountAmount +
