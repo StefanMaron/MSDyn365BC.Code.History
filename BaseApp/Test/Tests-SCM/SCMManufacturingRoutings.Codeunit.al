@@ -1595,9 +1595,8 @@ codeunit 137082 "SCM Manufacturing - Routings"
         StartingDateTime, EndingDateTime : DateTime;
         ItemNo: Code[20];
         ShopCalendarCode: Code[10];
-        CRL: Codeunit "Calculate Routing Line";
     begin
-        // [SCENARIO 465575] Verify Queue Time on Production Order Routing correspond to work center queue time when routing type is parallel
+        // [SCENARIO 465575] Verify Queue Time on Production Order Routing correspond to work center queue time when routing type is parallel with routing version
         Initialize();
 
         // [GIVEN] Capacity Unit of Measure in Days
@@ -1617,8 +1616,8 @@ codeunit 137082 "SCM Manufacturing - Routings"
         CurrWorkDate := WorkDate();
         System.WorkDate(DMY2Date(27, 2, Date2DMY(Today(), 3)));
 
-        // [GIVEN] Create a parallel routing with 10 operations
-        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+        // [GIVEN] Create a routing with 10 operations
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '20', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '50', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
@@ -1631,11 +1630,11 @@ codeunit 137082 "SCM Manufacturing - Routings"
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '99', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
 
         LibraryManufacturing.CreateRoutingVersion(RoutingVersion, RoutingHeader."No.", RoutingHeader."No.");
+        RoutingLineCopyLines.CopyRouting(RoutingVersion."Routing No.", '', RoutingHeader, RoutingVersion."Version Code");
+
+        // [GIVEN] Change routing type to Parallel        
         RoutingVersion.Validate(Type, RoutingVersion.Type::Parallel);
         RoutingVersion.Modify();
-        RoutingLineCopyLines.CopyRouting(RoutingVersion."Routing No.", '', RoutingHeader, RoutingVersion."Version Code");
-        RoutingHeader.Validate(Type, RoutingHeader.Type::Parallel);
-        RoutingHeader.Modify();
 
         // [GIVEN] Setup sequential execution of the operations by filling the previous and next operation no.
         UpdateSequentialExecution(RoutingVersion."Routing No.", RoutingVersion."Version Code", '10', '', '20|60', 100);
@@ -1685,6 +1684,215 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingVersion."Routing No.", '55');
         StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
         Assert.AreEqual(DT2Time(StartingDateTime), DT2Time(EndingDateTime), 'Operation 55 doesn''t start when operation 20 is finished');
+
+        // Verfiy ending date-time of first operation '10' is less then starting date-time of the operation '20'
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '10');
+        EndingDateTime := ProdOrderRoutingLine."Ending Date-Time";
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '20');
+        StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+        Assert.IsTrue(EndingDateTime < StartingDateTime, 'First operation ends after next one starts');
+
+        //Restore working date
+        System.WorkDate(CurrWorkDate);
+    end;
+
+    [Test]
+    procedure VerifyQueueTimeOnProdOrderRoutingWCQueueTimeForParallelRoutingSingleNextOperation()
+    var
+        WorkCenter: Record "Work Center";
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        RoutingVersion: Record "Routing Version";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        RoutingLineCopyLines: Codeunit "Routing Line-Copy Lines";
+        LeadTimeMgt: Codeunit "Lead-Time Management";
+        ProductionOrderStatus: Enum "Production Order Status";
+        StartingDateTime, EndingDateTime : DateTime;
+        ItemNo: Code[20];
+        ShopCalendarCode: Code[10];
+    begin
+        // [SCENARIO 475108] Verify Queue Time on Production Order Routing correspond to work center queue time when routing type is parallel with routing version and without multiple next operations
+        Initialize();
+
+        // [GIVEN] Capacity Unit of Measure in Days
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Days);
+
+        // [GIVEN] Calendar with working days from 8AM till 4PM
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarFullWorkingWeekCustomTime(080000T, 160000T);
+
+        // [GIVEN] Work center with Queue Times for unit of measure DAYS
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter, 1, CapacityUnitOfMeasure.Code, CapacityUnitOfMeasure.Code, ShopCalendarCode);
+
+        // [GIVEN] Create a routing with 5 operations
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Work Center", WorkCenter."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '20', RoutingLine.Type::"Work Center", WorkCenter."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '50', RoutingLine.Type::"Work Center", WorkCenter."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '55', RoutingLine.Type::"Work Center", WorkCenter."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '99', RoutingLine.Type::"Work Center", WorkCenter."No.");
+
+        LibraryManufacturing.CreateRoutingVersion(RoutingVersion, RoutingHeader."No.", RoutingHeader."No.");
+        RoutingLineCopyLines.CopyRouting(RoutingVersion."Routing No.", '', RoutingHeader, RoutingVersion."Version Code");
+
+        // [GIVEN] Change routing type to Parallel        
+        RoutingVersion.Validate(Type, RoutingVersion.Type::Parallel);
+        RoutingVersion.Modify();
+
+        // [GIVEN] Setup sequential execution of the operations by filling the previous and next operation no.
+        UpdateSequentialExecution(RoutingVersion."Routing No.", RoutingVersion."Version Code", '10', '', '20|50|55', 10);
+        UpdateSequentialExecution(RoutingVersion."Routing No.", RoutingVersion."Version Code", '20', '10', '99', 10);
+        UpdateSequentialExecution(RoutingVersion."Routing No.", RoutingVersion."Version Code", '50', '10', '99', 10);
+        UpdateSequentialExecution(RoutingVersion."Routing No.", RoutingVersion."Version Code", '55', '10', '99', 10);
+        UpdateSequentialExecution(RoutingVersion."Routing No.", RoutingVersion."Version Code", '99', '20|50|55', '', 10);
+
+        // [GIVEN] Certiy Routing Version
+        RoutingVersion.Validate(Status, RoutingVersion.Status::Certified);
+        RoutingVersion.Modify();
+
+        // [GIVEN] Item with Routing No. and without Production BOM
+        ItemNo := CreateItemWithRoutingAndProductionBOM(RoutingVersion."Routing No.", '');
+
+        // [GIVEN] Create and refresh Released Production Order with due date current_year-05-11
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, ProductionOrder."Source Type"::Item, ItemNo, 1);
+
+        // [WHEN] Refersh Production Order backward
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [THEN] Verify Production Order Routing starting and ending time
+        // Verfiy ending date-time of first operation '10' is less then starting date-time of the operation '20'
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '10');
+        EndingDateTime := ProdOrderRoutingLine."Ending Date-Time";
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '20');
+        StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+        Assert.IsTrue(EndingDateTime < StartingDateTime, 'First operation ends after next one starts');
+
+        // Verfiy starting date-time of next operations are equal
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '20');
+        StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '50');
+        Assert.AreEqual(StartingDateTime, ProdOrderRoutingLine."Starting Date-Time", 'Oprerations doesn''t start at the same date-time');
+
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '20');
+        StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '55');
+        Assert.AreEqual(StartingDateTime, ProdOrderRoutingLine."Starting Date-Time", 'Oprerations doesn''t start at the same date-time');
+    end;
+
+    [Test]
+    procedure VerifyQueueTimeOnProdOrderRoutingCorrespondToWCQueueTimeForParallelRoutingWithoutVersion()
+    var
+        WorkCenter: array[4] of Record "Work Center";
+        CapacityUnitOfMeasure: array[2] of Record "Capacity Unit of Measure";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        LeadTimeMgt: Codeunit "Lead-Time Management";
+        ProductionOrderStatus: Enum "Production Order Status";
+        CurrWorkDate: Date;
+        StartingDateTime, EndingDateTime : DateTime;
+        ItemNo: Code[20];
+        ShopCalendarCode: Code[10];
+    begin
+        // [SCENARIO 465575] Verify Queue Time on Production Order Routing correspond to work center queue time when routing type is parallel without routing version
+        Initialize();
+
+        // [GIVEN] Capacity Unit of Measure in Days
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure[1], CapacityUnitOfMeasure[1].Type::Minutes);
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure[2], CapacityUnitOfMeasure[2].Type::Days);
+
+        // [GIVEN] Calendar with working days from 8AM till 4PM
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarFullWorkingWeekCustomTime(080000T, 160000T);
+
+        // [GIVEN] Four work centers with Queue Times for unit of measure DAYS
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter[1], 1, CapacityUnitOfMeasure[1].Code, CapacityUnitOfMeasure[2].Code, ShopCalendarCode);
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter[2], 0, CapacityUnitOfMeasure[1].Code, '', ShopCalendarCode);
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter[3], 0.5, CapacityUnitOfMeasure[1].Code, CapacityUnitOfMeasure[2].Code, ShopCalendarCode);
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter[4], 2, CapacityUnitOfMeasure[1].Code, CapacityUnitOfMeasure[2].Code, ShopCalendarCode);
+
+        // [GIVEN] Set Working Date
+        CurrWorkDate := WorkDate();
+        System.WorkDate(DMY2Date(27, 2, Date2DMY(Today(), 3)));
+
+        // [GIVEN] Create a routing with 10 operations
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '20', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '50', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '55', RoutingLine.Type::"Work Center", WorkCenter[4]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '56', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '60', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '61', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '70', RoutingLine.Type::"Work Center", WorkCenter[4]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '90', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '99', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+
+        // [GIVEN] Change routing type to Parallel
+        RoutingHeader.Validate(Type, RoutingHeader.Type::Parallel);
+        RoutingHeader.Modify();
+
+        // [GIVEN] Setup sequential execution of the operations by filling the previous and next operation no.
+        UpdateSequentialExecution(RoutingHeader."No.", '', '10', '', '20|60', 100);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '20', '10', '50|55', 240);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '50', '20', '56', 180);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '55', '20', '56', 60);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '56', '50|55', '61', 0);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '60', '10', '61', 240);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '61', '56|60', '70|90', 0);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '70', '61', '99', 10320);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '90', '61', '99', 780);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '99', '70|90', '', 120);
+
+        // [GIVEN] Certiy Routing Version
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify();
+
+        // [GIVEN] Item with Routing No. and without Production BOM
+        ItemNo := CreateItemWithRoutingAndProductionBOM(RoutingHeader."No.", '');
+
+        // [GIVEN] Create and refresh Released Production Order with due date current_year-05-11
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, ProductionOrder."Source Type"::Item, ItemNo, 1);
+        ProductionOrder.Validate("Due Date", DMY2Date(11, 5, Date2DMY(WorkDate(), 3)));
+        ProductionOrder."Ending Date" := LeadTimeMgt.PlannedEndingDate(ProductionOrder."Source No.", ProductionOrder."Location Code", '', ProductionOrder."Due Date", '', 2);
+        ProductionOrder."Starting Date" := ProductionOrder."Ending Date";
+        ProductionOrder."Starting Date-Time" := CreateDateTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
+        ProductionOrder."Ending Date-Time" := CreateDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
+        ProductionOrder.Modify();
+
+        // [WHEN] Refersh Production Order backward
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [THEN] Verify Production Order Routing starting and ending time
+        // Verify ending time of operation '61' is equal to starting time of operation '70'
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '61');
+        EndingDateTime := ProdOrderRoutingLine."Ending Date-Time";
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '70');
+        StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+        Assert.AreEqual(DT2Time(StartingDateTime), DT2Time(EndingDateTime), 'Operation 70 doesn''t start when operation 61 is finished');
+
+        // Verify ending time of operation '20' is equal to starting time of operation '55'
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '20');
+        EndingDateTime := ProdOrderRoutingLine."Ending Date-Time";
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '55');
+        StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+        Assert.AreEqual(DT2Time(StartingDateTime), DT2Time(EndingDateTime), 'Operation 55 doesn''t start when operation 20 is finished');
+
+        // Verfiy ending date-time of first operation '10' is less then starting date-time of the operation '20'
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '10');
+        EndingDateTime := ProdOrderRoutingLine."Ending Date-Time";
+        ProdOrderRoutingLine.Get(ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Routing Reference No.", RoutingHeader."No.", '20');
+        StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+        Assert.IsTrue(EndingDateTime < StartingDateTime, 'First operation ends after next one starts');
 
         //Restore working date
         System.WorkDate(CurrWorkDate);
