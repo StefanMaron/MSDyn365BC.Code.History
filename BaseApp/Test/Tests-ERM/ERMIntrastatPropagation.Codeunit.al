@@ -13,6 +13,7 @@ codeunit 134149 "ERM Intrastat Propagation"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
@@ -95,6 +96,98 @@ codeunit 134149 "ERM Intrastat Propagation"
         ServiceHeader.TestField("Transaction Type", GetDefaultReturnTransactionType);
     end;
 
+    [Test]
+    procedure SalesInvDefaultTransactionSpecification()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 433410] Intrastat Setup field "Default Trans. Spec. Code" gets auto-filled in the new Sales Invoice
+
+        Initialize();
+        LibraryLowerPermissions.SetO365BusinessPremium();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.TestField("Transaction Specification", GetDefaultTransactionSpecification());
+    end;
+
+    [Test]
+    procedure SalesCrMemoDefaultTransactionSpecification()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 433410] Intrastat Setup field "Default Trans. Spec. Code" gets auto-filled in the new Sales Credit Memo
+
+        Initialize();
+        LibraryLowerPermissions.SetO365BusinessPremium();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        SalesHeader.TestField("Transaction Specification", GetDefaultReturnTransactionSpecification());
+    end;
+
+    [Test]
+    procedure ServiceInvDefaultTransactionSpecification()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Service] [Invoice]
+        // [SCENARIO 433410] Intrastat Setup field "Default Trans. Spec. Code" gets auto-filled in the new Service Invoice
+
+        Initialize();
+        LibraryLowerPermissions.SetO365BusinessPremium();
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        ServiceHeader.TestField("Transaction Specification", GetDefaultTransactionSpecification());
+    end;
+
+    [Test]
+    procedure ServiceCrMemoDefaultTransactionSpecification()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Service] [Invoice]
+        // [SCENARIO 433410] Intrastat Setup field "Default Trans. Spec. Code" gets auto-filled in the new Service Credit Memo
+
+        Initialize();
+        LibraryLowerPermissions.SetO365BusinessPremium();
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        ServiceHeader.TestField("Transaction Specification", GetDefaultReturnTransactionSpecification());
+    end;
+
+    [Test]
+    procedure PurchaseInvDefaultTransactionSpecification()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 433410] Intrastat Setup field "Default Trans. Spec. Code" gets auto-filled in the new Purchase Invoice
+
+        Initialize();
+        LibraryLowerPermissions.SetO365BusinessPremium();
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor."Shipment Method Code" := '';
+        Vendor.Modify();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader.TestField("Transaction Specification", GetDefaultTransactionSpecification);
+    end;
+
+    [Test]
+    procedure PurchaseCrMemoDefaultTransactionSpecification()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 433410] Intrastat Setup field "Default Trans. Spec. Code" gets auto-filled in the new Purchase Credit Memo
+
+        Initialize();
+        LibraryLowerPermissions.SetO365BusinessPremium();
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor."Shipment Method Code" := '';
+        Vendor.Modify();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
+        PurchaseHeader.TestField("Transaction Specification", GetDefaultReturnTransactionSpecification);
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -107,9 +200,10 @@ codeunit 134149 "ERM Intrastat Propagation"
         IsInitialized := true;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Intrastat Propagation");
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         LibraryERM.FindIntrastatSetup(IntrastatSetup);
-        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
+        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup();
+        LibraryERM.SetDefaultTransactionSpecificationInIntrastatSetup();
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Intrastat Propagation");
@@ -129,6 +223,22 @@ codeunit 134149 "ERM Intrastat Propagation"
     begin
         IntrastatSetup.Get();
         exit(IntrastatSetup."Default Trans. - Return");
+    end;
+
+    local procedure GetDefaultTransactionSpecification(): Code[10]
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+    begin
+        IntrastatSetup.Get();
+        exit(IntrastatSetup."Default Trans. Spec. Code");
+    end;
+
+    local procedure GetDefaultReturnTransactionSpecification(): Code[10]
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+    begin
+        IntrastatSetup.Get();
+        exit(IntrastatSetup."Default Trans. Spec. Ret. Code");
     end;
 }
 

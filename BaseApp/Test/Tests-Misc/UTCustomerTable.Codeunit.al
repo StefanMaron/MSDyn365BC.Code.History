@@ -742,6 +742,19 @@ codeunit 134825 "UT Customer Table"
         Contact.TestField("No.", '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetTopCustomerHeadlineQueryDocumentTypeFilter()
+    var
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 431393] UT for function GetTopCustomerHeadlineQueryDocumentTypeFilter 
+        Initialize();
+
+        // [WHEN] Function GetTopCustomerHeadlineQueryDocumentTypeFilter returns empty value
+        Assert.AreEqual('', Customer.GetTopCustomerHeadlineQueryDocumentTypeFilter(), '');
+    end;
+
     local procedure Initialize()
     var
         Customer: Record Customer;

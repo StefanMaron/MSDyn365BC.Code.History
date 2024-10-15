@@ -3997,7 +3997,8 @@
 
         if IsCreditDocType() then
             exit("Return Qty. Shipped" + "Return Qty. to Ship" - "Quantity Invoiced");
-
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit(Quantity - "Quantity Invoiced");
         exit("Quantity Received" + "Qty. to Receive" - "Quantity Invoiced");
     end;
 
@@ -4013,7 +4014,8 @@
 
         if IsCreditDocType() then
             exit("Return Qty. Shipped (Base)" + "Return Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
-
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit("Quantity (Base)" - "Qty. Invoiced (Base)");
         exit("Qty. Received (Base)" + "Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
     end;
 
@@ -7540,16 +7542,11 @@
 
     procedure GetDeductibleVATAmount(): Decimal
     var
-        VATPostingSetupLocal: Record "VAT Posting Setup";
         Result: Decimal;
     begin
         Result := 0;
 
-        if ("VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT") and ("Non Deductible VAT %" <> 0) then begin
-            VATPostingSetupLocal.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-            Result := Round(Amount * VATPostingSetupLocal."VAT %" / 100);
-        end else
-            Result := "Amount Including VAT" - Amount;
+        Result := Round(GetVatAmount());
 
         Result -= GetNonDeductibleVATAmount();
 
@@ -7558,18 +7555,42 @@
 
     procedure GetNonDeductibleVATAmount(): Decimal
     var
-        VATPostingSetupLocal: Record "VAT Posting Setup";
         Result: Decimal;
     begin
         Result := 0;
 
+        Result := GetVatAmount();
+
+        Result := Round(Result * "Non Deductible VAT %" / 100);
+
+        exit(Result);
+    end;
+
+    local procedure GetVatAmount(): Decimal
+    var
+        VATPostingSetupLocal: Record "VAT Posting Setup";
+        Result: Decimal;
+    begin
         if ("VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT") and ("Non Deductible VAT %" <> 0) then begin
             VATPostingSetupLocal.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+            GetPurchHeader();
             Result := Amount * VATPostingSetupLocal."VAT %" / 100;
+            Result := Result * (1 - PurchHeader."VAT Base Discount %" / 100);
         end else
             Result := "Amount Including VAT" - Amount;
 
-        Result := Round(Result * "Non Deductible VAT %" / 100);
+        exit(Result);
+    end;
+
+    procedure GetVatBaseAmount(): Decimal
+    var
+        Result: Decimal;
+    begin
+        GetPurchHeader();
+
+        Result := "VAT Base Amount";
+        if (Rec."Non Deductible VAT %" <> 0) and ("VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT") then
+            Result := Round(Result * (1 - PurchHeader."VAT Base Discount %" / 100));
 
         exit(Result);
     end;

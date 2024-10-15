@@ -341,8 +341,8 @@
 
         TotalAmount := PurchLine.Amount + PurchLine.GetNonDeductibleVATAmount();
         TotalAmountACY := PurchLineACY.Amount + PurchLineACY.GetNonDeductibleVATAmount();
-        TotalVATBase := PurchLine."VAT Base Amount" + NonDeDuctibleVAT;
-        TotalVATBaseACY := PurchLineACY."VAT Base Amount" + NonDeDuctibleVATACY;
+        TotalVATBase := PurchLine.GetVatBaseAmount() + NonDeDuctibleVAT;
+        TotalVATBaseACY := PurchLineACY.GetVatBaseAmount() + NonDeDuctibleVATACY;
 
         OnAfterInitTotalAmounts(PurchLine, PurchLineACY, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY);
     end;
