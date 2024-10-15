@@ -605,6 +605,11 @@
                   DATABASE::Campaign, "Campaign No.");
             end;
         }
+        field(28; "Pending Approval"; Boolean)
+        {
+            Caption = 'Pending Approval';
+            Editable = false;
+        }
         field(29; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
@@ -4607,105 +4612,110 @@
     procedure GetCustLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Customer) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '')
         then begin
             CustLedgEntry.Reset();
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             CustLedgEntry.SetRange(Open, true);
-            if not CustLedgEntry.FindFirst then
+            if not CustLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", CustLedgEntry."Customer No.");
             OnGetCustLedgerEntryOnAfterAssignCustomerNo(Rec, CustLedgEntry);
 
-            CustLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                CustLedgEntry.CalcFields("Remaining Amount");
 
-            if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
-                Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
-            else
-                Amount := -CustLedgEntry."Remaining Amount";
+                if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
+                    Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
+                else
+                    Amount := -CustLedgEntry."Remaining Amount";
 
-            if "Currency Code" <> CustLedgEntry."Currency Code" then
-                UpdateCurrencyCode(CustLedgEntry."Currency Code");
+                if "Currency Code" <> CustLedgEntry."Currency Code" then
+                    UpdateCurrencyCode(CustLedgEntry."Currency Code");
 
-            SetAppliesToFields(
-              CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."External Document No.");
+                SetAppliesToFields(
+                  CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."External Document No.");
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
 
-            OnAfterGetCustLedgerEntry(Rec, CustLedgEntry);
+                OnAfterGetCustLedgerEntry(Rec, CustLedgEntry);
+            end;
         end;
     end;
 
     procedure GetVendLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Vendor) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '') 
         then begin
             VendLedgEntry.Reset();
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             VendLedgEntry.SetRange(Open, true);
-            if not VendLedgEntry.FindFirst then
+            if not VendLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", VendLedgEntry."Vendor No.");
             OnGetVendLedgerEntryOnAfterAssignVendorNo(Rec, VendLedgEntry);
 
-            VendLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                VendLedgEntry.CalcFields("Remaining Amount");
 
-            if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
-                Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
-            else
-                Amount := -VendLedgEntry."Remaining Amount";
+                if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
+                    Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
+                else
+                    Amount := -VendLedgEntry."Remaining Amount";
 
-            if "Currency Code" <> VendLedgEntry."Currency Code" then
-                UpdateCurrencyCode(VendLedgEntry."Currency Code");
+                if "Currency Code" <> VendLedgEntry."Currency Code" then
+                    UpdateCurrencyCode(VendLedgEntry."Currency Code");
 
-            SetAppliesToFields(
-              VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry."External Document No.");
+                SetAppliesToFields(
+                  VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry."External Document No.");
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
 
-            OnAfterGetVendLedgerEntry(Rec, VendLedgEntry);
+                OnAfterGetVendLedgerEntry(Rec, VendLedgEntry);
+            end;
         end;
     end;
 
     procedure GetEmplLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Employee) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '')
         then begin
             EmplLedgEntry.Reset();
             EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             EmplLedgEntry.SetRange(Open, true);
-            if not EmplLedgEntry.FindFirst then
+            if not EmplLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", EmplLedgEntry."Employee No.");
-            EmplLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                EmplLedgEntry.CalcFields("Remaining Amount");
 
-            Amount := -EmplLedgEntry."Remaining Amount";
+                Amount := -EmplLedgEntry."Remaining Amount";
 
-            SetAppliesToFields(EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", '');
+                SetAppliesToFields(EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", '');
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
-
-            OnAfterGetEmplLedgerEntry(Rec, EmplLedgEntry);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
+                OnAfterGetEmplLedgerEntry(Rec, EmplLedgEntry);
+            end;
         end;
     end;
 

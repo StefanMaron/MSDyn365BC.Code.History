@@ -22,7 +22,10 @@ codeunit 144001 "VAT Tools Test"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryVATReport: Codeunit "Library - VAT Report";
         NorwegianVATTools: Codeunit "Norwegian VAT Tools";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         SettledAndClosedVATPeriodErr: Label 'is in a settled and closed VAT period (%1 period %2)';
         IsInitialized: Boolean;
         OpenClosedSelection: Enum "VAT Statement Report Selection";
@@ -565,6 +568,69 @@ codeunit 144001 "VAT Tools Test"
         ValueEntry.TestField("Cost Amount (Actual)", 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATDataForYear2022()
+    var
+        TempVATSpecification: Record "VAT Specification" temporary;
+        TempVATNote: Record "VAT Note" temporary;
+        VATSpecification: Record "VAT Specification";
+        VATNote: Record "VAT Note";
+        TempVATCode: Record "VAT Code" temporary;
+        NorwegianVATTools: Codeunit "Norwegian VAT Tools";
+    begin
+        // [FEATURE] [DEMO]
+        // [SCENARIO 418697] Stan can use the VAT data (specification, notes, codes) for year 2022
+
+        Initialize();
+        NorwegianVATTools.GetVATSpecifications2022(TempVATSpecification);
+        Assert.RecordCount(TempVATSpecification, 6);
+        TempVATSpecification.FindSet();
+        repeat
+            VATSpecification := TempVATSpecification;
+            VATSpecification.Insert();
+        until TempVATSpecification.Next() = 0;
+        NorwegianVATTools.GetVATNotes2022(TempVATNote);
+        Assert.RecordCount(TempVATNote, 27);
+        TempVATNote.FindSet();
+        repeat
+            VATNote := TempVATNote;
+            VATNote.Insert();
+        until TempVATNote.Next() = 0;
+        NorwegianVATTools.GetVATCodes2022(TempVATCode);
+        Assert.RecordCount(TempVATCode, 12);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestLinesCustomVATStatementRPH')]
+    [Scope('OnPrem')]
+    procedure CalcVATBaseAndAmountWithVATCodeFilter()
+    var
+        VATStatementLine: Record "VAT Statement Line";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntry: Record "VAT Entry";
+        VATCode: Code[10];
+        PostingDate: Date;
+    begin
+        // [FEATURE] [VAT Return] [Suggest Lines]
+        // [SCENARIO 418697] Both VAT base and VAT amount are calculated when VAT Statement has "VAT Code" specified
+
+        Initialize();
+        SetReportVATBaseInVATReportSetup(true);
+        LibraryVATReport.CreateVATReportConfigurationNo(Codeunit::"VAT Report Suggest Lines", 0, 0, 0, 0);
+        PostingDate := FindPostingDateWithNoVATEntries();
+        CreateVATReturn(VATReportHeader, DATE2DMY(PostingDate, 3));
+        VATCode := CreateVATCode();
+        SetupSingleVATStatementLineForVATCode(VATStatementLine, VATCode);
+        MockVATEntryWithVATCode(VATEntry, PostingDate, VATCode);
+        LibraryVariableStorage.Enqueue(VATStatementLine."Statement Template Name");
+        LibraryVariableStorage.Enqueue(VATStatementLine."Statement Name");
+        SuggestLinesWithPeriod(
+          VATReportHeader, Selection::Open, PeriodSelection::"Within Period", VATReportHeader."Period Year", Date2DMY(PostingDate, 2), false);
+        VerifyVATStatementReportLineBaseAndAmount(VATReportHeader, VATStatementLine."Box No.", VATEntry.Base, VATEntry.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -579,6 +645,7 @@ codeunit 144001 "VAT Tools Test"
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.Save(Database::"VAT Report Setup");
         IsInitialized := true;
         Commit();
     end;
@@ -879,6 +946,89 @@ codeunit 144001 "VAT Tools Test"
         exit(UserCreated);
     end;
 
+    local procedure SetReportVATBaseInVATReportSetup(NewReportVATBase: Boolean)
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        VATReportSetup.Get();
+        VATReportSetup.Validate("Report VAT Base", NewReportVATBase);
+        VATReportSetup.Modify(true);
+    end;
+
+    local procedure SetupSingleVATStatementLineForVATCode(var VATStatementLine: Record "VAT Statement Line"; VATCode: Code[10])
+    var
+        VATStatementTemplate: Record "VAT Statement Template";
+        VATStatementName: Record "VAT Statement Name";
+    begin
+        LibraryERM.CreateVATStatementTemplate(VATStatementTemplate);
+        LibraryERM.CreateVATStatementName(VATStatementName, VATStatementTemplate.Name);
+        LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
+        VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::Amount);
+        VATStatementLine.Validate("VAT Code", VATCode);
+        VATStatementLine.Validate("Box No.", LibraryUtility.GenerateGUID());
+        VATStatementLine.Modify(true);
+    end;
+
+    local procedure FindPostingDateWithNoVATEntries(): Date
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetCurrentKey("Posting Date");
+        if VATEntry.FindLast() then
+            exit(CalcDate('<1Y>', VATEntry."Posting Date"));
+        exit(WorkDate());
+    end;
+
+    local procedure CreateVATCode(): Code[10]
+    var
+        VATCode: Record "VAT Code";
+    begin
+        VATCode.Code := LibraryUtility.GenerateGUID();
+        VATCode.Insert();
+        exit(VATCode.Code)
+    end;
+
+    local procedure CreateVATReturn(var VATReportHeader: Record "VAT Report Header"; PeriodYear: Integer);
+    begin
+        VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
+        VATReportHeader.Insert(true);
+        VATReportHeader.Validate("Period Year", PeriodYear);
+        VATReportHeader.Modify();
+    end;
+
+    local procedure MockVATEntryWithVATCode(var VATEntry: Record "VAT Entry"; PostingDate: Date; VATCode: Code[10])
+    begin
+        with VATEntry do begin
+            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FIELDNO("Entry No."));
+            "Posting Date" := PostingDate;
+            Closed := FALSE;
+            "VAT Code" := VATCode;
+            Amount := LibraryRandom.RandDec(1000, 2);
+            Base := LibraryRandom.RandDec(1000, 2);
+            "Remaining Unrealized Amount" := LibraryRandom.RandDec(1000, 2);
+            "Remaining Unrealized Base" := LibraryRandom.RandDec(1000, 2);
+            "Additional-Currency Amount" := LibraryRandom.RandDec(1000, 2);
+            "Additional-Currency Base" := LibraryRandom.RandDec(1000, 2);
+            "Add.-Curr. Rem. Unreal. Amount" := LibraryRandom.RandDec(1000, 2);
+            "Add.-Curr. Rem. Unreal. Base" := LibraryRandom.RandDec(1000, 2);
+            Insert();
+        end;
+    end;
+
+    local procedure SuggestLinesWithPeriod(VATReportHeader: Record "VAT Report Header"; Selection: Enum "VAT Statement Report Selection"; PeriodSelection: Enum "VAT Statement Report Period Selection"; PeriodYear: Integer; PeriodNo: Integer; AmountInACY: Boolean);
+    var
+        VATReportMediator: Codeunit "VAT Report Mediator";
+    begin
+        Commit();
+        LibraryVariableStorage.Enqueue(Selection);
+        LibraryVariableStorage.Enqueue(PeriodSelection);
+        LibraryVariableStorage.Enqueue(PeriodYear);
+        LibraryVariableStorage.Enqueue(PeriodNo);
+        LibraryVariableStorage.Enqueue(AmountInACY);
+        VATReportMediator.GetLines(VATReportHeader);
+    end;
+
     local procedure CreateOrUpdateSettledVATPeriod(var SettledVATPeriod: Record "Settled VAT Period"; PeriodDate: Date)
     begin
         CalcAndPostVATSettlement(PeriodDate, PeriodDate, PeriodDate, true);
@@ -923,6 +1073,20 @@ codeunit 144001 "VAT Tools Test"
         GLEntry.Init();
         GLEntry.SetRange("Document No.", DocumentNo);
         Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
+    local procedure VerifyVATStatementReportLineBaseAndAmount(VATReportHeader: Record "VAT Report Header"; BoxNo: Text[30]; ExpectedBase: Decimal; ExpectedAmount: Decimal)
+    var
+        VATStatementReportLine: Record "VAT Statement Report Line";
+    begin
+        with VATStatementReportLine do begin
+            SetRange("VAT Report No.", VATReportHeader."No.");
+            SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
+            SetRange("Box No.", BoxNo);
+            FindFirst();
+            TestField(Base, ExpectedBase);
+            TestField(Amount, ExpectedAmount);
+        end;
     end;
 
     local procedure DeleteSettledVATPeriods()
@@ -991,6 +1155,25 @@ codeunit 144001 "VAT Tools Test"
 
         TradeSettlement."VAT Entry".SetFilter("Document No.", DocumentNoFiltering);
         TradeSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestLinesCustomVATStatementRPH(var VATReportRequestPage: TestRequestPage "VAT Report Request Page")
+    begin
+        VATReportRequestPage.VATStatementTemplate.SETVALUE(LibraryVariableStorage.DequeueText());
+        VATReportRequestPage.VATStatementName.SETVALUE(LibraryVariableStorage.DequeueText());
+
+        Selection := "VAT Statement Report Selection".FromInteger(LibraryVariableStorage.DequeueInteger());
+        VATReportRequestPage.Selection.SETVALUE(Format(Selection));
+
+        PeriodSelection := "VAT Statement Report Period Selection".FromInteger(LibraryVariableStorage.DequeueInteger());
+        VATReportRequestPage.PeriodSelection.SETVALUE(Format(PeriodSelection));
+
+        VATReportRequestPage."Period Year".SETVALUE(LibraryVariableStorage.DequeueInteger());
+        VATReportRequestPage."Period No.".SetValue(LibraryVariableStorage.DequeueInteger());
+        VATReportRequestPage."Amounts in ACY".SETVALUE(LibraryVariableStorage.DequeueBoolean());
+        VATReportRequestPage.OK().Invoke();
     end;
 }
 

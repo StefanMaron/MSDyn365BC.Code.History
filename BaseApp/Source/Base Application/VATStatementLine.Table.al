@@ -130,6 +130,17 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Box No.';
         }
+        field(10600; "VAT Code"; Code[10])
+        {
+            Caption = 'VAT Code';
+            TableRelation = "VAT Code";
+
+            trigger OnValidate()
+            begin
+                if "VAT Code" <> '' then
+                    Testfield(Type, Type::"VAT Entry Totaling");
+            end;
+        }
     }
 
     keys

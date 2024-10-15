@@ -196,7 +196,8 @@ codeunit 10672 "SAF-T Mapping Helper"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Get(GLAccNo);
+        if not GLAccount.Get(GLAccNo) then
+            exit(false);
         exit(GLAccNetChangeIsNotZero(GLAccount, StartingDate, EndingDate, IncludeIncomingBalance));
     end;
 

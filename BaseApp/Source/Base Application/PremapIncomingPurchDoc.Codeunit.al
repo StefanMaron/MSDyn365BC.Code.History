@@ -428,6 +428,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             if FindFirst then
                 if Value <> '' then begin
                     GLN := Value;
+                    Vendor.SetCurrentKey(Blocked);
                     Vendor.SetRange(GLN, Value);
                     if Vendor.FindFirst then begin
                         InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header",
@@ -437,6 +438,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
                 end;
 
             Vendor.Reset();
+            Vendor.SetCurrentKey(Blocked);
             VatRegNo := '';
 
             // Lookup VAT Reg No
@@ -529,6 +531,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
 
             // Lookup GLN
             if GLN <> '' then begin
+                Vendor.SetCurrentKey(Blocked);
                 Vendor.SetRange(GLN, GLN);
                 if Vendor.FindFirst then begin
                     InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header",
@@ -539,8 +542,10 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             end;
 
             Vendor.Reset();
+            Vendor.SetCurrentKey(Blocked);
 
             // Lookup VAT Reg No
+            Vendor.SetLoadFields("VAT Registration No.", "Country/Region Code");
             Vendor.SetFilter("VAT Registration No.", StrSubstNo('*%1', CopyStr(VatRegNo, StrLen(VatRegNo))));
             if Vendor.FindSet then
                 repeat
@@ -575,6 +580,8 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         AddressNearness: Integer;
     begin
         with IntermediateDataImport do begin
+            Vendor.SetCurrentKey(Blocked);
+            Vendor.SetLoadFields(Name, Address);
             if Vendor.FindSet then
                 repeat
                     NameNearness := RecordMatchMgt.CalculateStringNearness(VendorName, Vendor.Name, MatchThreshold, NormalizingFactor);
@@ -620,16 +627,14 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
 
             if VendorIBAN <> '' then begin
                 VendorBankAccount.SetRange(IBAN, VendorIBAN);
-                if VendorBankAccount.FindFirst then
-                    VendorNo := VendorBankAccount."Vendor No.";
+                VendorNo := TryFindLeastBlockedVendorNoByVendorBankAcc(VendorBankAccount);
             end;
 
             if (VendorNo = '') and (VendorBankBranchNo <> '') and (VendorBankAccountNo <> '') then begin
                 VendorBankAccount.Reset();
                 VendorBankAccount.SetRange("Bank Branch No.", VendorBankBranchNo);
                 VendorBankAccount.SetRange("Bank Account No.", VendorBankAccountNo);
-                if VendorBankAccount.FindFirst then
-                    VendorNo := VendorBankAccount."Vendor No.";
+                VendorNo := TryFindLeastBlockedVendorNoByVendorBankAcc(VendorBankAccount);
             end;
 
             if VendorNo <> '' then begin
@@ -653,6 +658,8 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
 
         PhoneNo := DelChr(PhoneNo, '=', DelChr(PhoneNo, '=', '0123456789'));
         with IntermediateDataImport do begin
+            Vendor.SetCurrentKey(Blocked);
+            Vendor.SetLoadFields("Phone No.");
             if Vendor.FindSet then
                 repeat
                     PhoneNoNearness := RecordMatchMgt.CalculateStringNearness(PhoneNo, Vendor."Phone No.", MatchThreshold, NormalizingFactor);
@@ -1368,6 +1375,37 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
                         exit(TextToAccountMapping."Debit Acc. No.");
                 end;
         end
+    end;
+
+    local procedure TryFindLeastBlockedVendorNoByVendorBankAcc(var VendorBankAccount: record "Vendor Bank Account"): Code[20]
+    var
+        Vendor: Record Vendor;
+        NonBlockedVendorNo: Code[20];
+        BlockedPaymentVendorNo: Code[20];
+        BlockedAllVendorNo: Code[20];
+    begin
+        if VendorBankAccount.FindSet() then
+            repeat
+                if Vendor.Get(VendorBankAccount."Vendor No.") then begin
+                    if Vendor.Blocked = "Vendor Blocked"::" " then
+                        NonBlockedVendorNo := Vendor."No.";
+
+                    if (Vendor.Blocked = "Vendor Blocked"::Payment) and (BlockedPaymentVendorNo = '') then
+                        BlockedPaymentVendorNo := Vendor."No.";
+
+                    if (Vendor.Blocked = "Vendor Blocked"::All) and (BlockedAllVendorNo = '') then
+                        BlockedAllVendorNo := Vendor."No.";
+                end;
+            until (VendorBankAccount.Next() = 0) or (NonBlockedVendorNo <> '');
+
+        if NonBlockedVendorNo <> '' then
+            exit(NonBlockedVendorNo);
+        if BlockedPaymentVendorNo <> '' then
+            exit(BlockedPaymentVendorNo);
+        if BlockedAllVendorNo <> '' then
+            exit(BlockedAllVendorNo);
+
+        exit('');
     end;
 
     [IntegrationEvent(false, false)]

@@ -457,6 +457,33 @@ codeunit 148102 "SAF-T Unit Tests"
         Assert.RecordCount(SAFTExportLine, 2);
     end;
 
+    [Test]
+    procedure GLEntriesExistanceForAccountThatDoesNotExist()
+    var
+        SAFTMappingRange: Record "SAF-T Mapping Range";
+        SAFTGLAccountMapping: Record "SAF-T G/L Account Mapping";
+        GLAccount: Record "G/L Account";
+        SAFTMappingHelper: Codeunit "SAF-T Mapping Helper";
+    begin
+        // [SCENARIO 422814] A function UpdateGLEntriesExistStateForGLAccMapping correctly works even when G/L account does not exist
+
+        Initialize();
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        GLAccount.Modify(true);
+        SAFTTestHelper.InsertSAFTMappingRangeWithSource(
+            SAFTMappingRange, SAFTMappingRange."Mapping Type"::"Four Digit Standard Account",
+            CalcDate('<-CY>', WorkDate()), CalcDate('<-CY>', WorkDate()));
+        SAFTMappingHelper.Run(SAFTMappingRange);
+        SAFTTestHelper.MockGLEntryNoVAT(
+            SAFTMappingRange."Starting Date", GLAccount."No.", 0, 0, 0, '', '', LibraryRandom.RandDec(100, 2), 0);
+        GLAccount.Delete();
+        SAFTMappingHelper.UpdateGLEntriesExistStateForGLAccMapping(SAFTMappingRange.Code);
+
+        SAFTGLAccountMapping.Get(SAFTMappingRange.Code, GLAccount."No.");
+        SAFTGLAccountMapping.TestField("G/L Entries Exists", false);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SAF-T Unit Tests");
