@@ -6,6 +6,7 @@ codeunit 121 "Calc. Running Vend. Balance"
 
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
+        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
         EntryValuesLCY: Dictionary of [Integer, Decimal];
 
     procedure GetVendorBalanceLCY(var VendorLedgerEntry: Record "Vendor Ledger Entry"): Decimal
@@ -20,9 +21,10 @@ codeunit 121 "Calc. Running Vend. Balance"
     var
         BalanceLCY: Decimal;
     begin
+        if ClientTypeManagement.GetCurrentClientType() in [ClientType::OData, ClientType::ODataV4] then
+            exit;
         if EntryValuesLCY.Get(VendorLedgerEntry."Entry No.", RunningBalanceLCY) then
             exit;
-
         RunningBalanceLCY := 0;
         VendorLedgerEntry2.SetLoadFields("Entry No.", "Amount (LCY)");
         VendorLedgerEntry2.SetAutoCalcFields("Amount (LCY)");

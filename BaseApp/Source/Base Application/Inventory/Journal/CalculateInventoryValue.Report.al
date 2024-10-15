@@ -422,6 +422,7 @@ report 5899 "Calculate Inventory Value"
         AverageCost: Decimal;
         NotComplInvQty: Decimal;
         NotComplInvValue: Decimal;
+        IsHandled: Boolean;
     begin
         with ValueEntry do begin
             "Item No." := Item."No.";
@@ -454,8 +455,11 @@ report 5899 "Calculate Inventory Value"
 
         if AverageQty <> 0 then begin
             AverageUnitCostLCY := AverageCost / AverageQty;
-            if AverageUnitCostLCY < 0 then
-                AverageUnitCostLCY := 0;
+            IsHandled := false;
+            OnCalcAverageUnitCostOnBeforeCheckNegCost(Item, AverageUnitCostLCY, IsHandled);
+            if not IsHandled then
+                if AverageUnitCostLCY < 0 then
+                    AverageUnitCostLCY := 0;
         end else
             AverageUnitCostLCY := 0;
 
@@ -746,6 +750,11 @@ report 5899 "Calculate Inventory Value"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemJnlLineOnCaseCalcBaseOnStandardCostAssemblyOrManufacturing(var ItemJournalLine: Record "Item Journal Line"; var TempNewStdCostItem: Record Item temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAverageUnitCostOnBeforeCheckNegCost(var Item: Record Item; var AverageUnitCostLCY: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

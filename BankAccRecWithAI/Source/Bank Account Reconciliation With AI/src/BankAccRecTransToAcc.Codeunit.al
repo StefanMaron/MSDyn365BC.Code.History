@@ -241,18 +241,36 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
 #pragma warning restore AL0432
 #endif
     var
+        GLAccount: Record "G/L Account";
         BankRecAIMatchingImpl: Codeunit "Bank Rec. AI Matching Impl.";
         StatementLines: Text;
+        InitialGLAccountFound: Boolean;
+        InitialGLAccountInsertDone: Boolean;
     begin
         if (StatementLines = '') then
             StatementLines := '**Statement Lines**:\n"""\n';
 
+        GLAccount.SetRange("Direct Posting", true);
+        if GLAccount.FindFirst() then
+            if not BankRecAIMatchingImpl.HasReservedWords(GLAccount.Name) then
+                InitialGLAccountFound := true;
+
+        BankAccReconciliationLine.Ascending(true);
         if BankAccReconciliationLine.FindSet() then
             repeat
                 if not BankRecAIMatchingImpl.HasReservedWords(BankAccReconciliationLine.Description) then begin
                     TempBankStatementMatchingBuffer.Reset();
                     TempBankStatementMatchingBuffer.SetRange("Line No.", BankAccReconciliationLine."Statement Line No.");
                     if TempBankStatementMatchingBuffer.IsEmpty() then begin
+                        if InitialGLAccountFound then
+                            if not InitialGLAccountInsertDone then begin
+                                if BankAccReconciliationLine."Statement Line No." > 1 then begin
+                                    StatementLines += '#Id: ' + Format(BankAccReconciliationLine."Statement Line No." - 1);
+                                    StatementLines += ', Description: ' + GLAccount.Name;
+                                    StatementLines += '\n';
+                                end;
+                                InitialGLAccountInsertDone := true;
+                            end;
                         StatementLines += '#Id: ' + Format(BankAccReconciliationLine."Statement Line No.");
                         StatementLines += ', Description: ' + BankAccReconciliationLine.Description;
                         StatementLines += '\n';

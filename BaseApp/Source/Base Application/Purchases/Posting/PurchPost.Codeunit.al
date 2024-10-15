@@ -2762,6 +2762,7 @@ codeunit 90 "Purch.-Post"
 
     procedure CheckAndUpdateAssocOrderPostingDate(var SalesHeader: Record "Sales Header"; PostingDate: Date)
     var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         ReleaseSalesDocument: Codeunit "Release Sales Document";
         OriginalDocumentDate: Date;
     begin
@@ -2772,8 +2773,15 @@ codeunit 90 "Purch.-Post"
             OriginalDocumentDate := SalesHeader."Document Date";
             SalesHeader.SetHideValidationDialog(true);
             SalesHeader.Validate("Posting Date", PostingDate);
-            OnCheckAndUpdateAssocOrderPostingDateOnBeforeValidateDocumentDate(SalesHeader, OriginalDocumentDate);
-            SalesHeader.Validate("Document Date", OriginalDocumentDate);
+
+            SalesReceivablesSetup.SetLoadFields("Link Doc. Date To Posting Date");
+            SalesReceivablesSetup.GetRecordOnce();
+            if SalesReceivablesSetup."Link Doc. Date To Posting Date" then
+                SalesHeader.Validate("Document Date", PostingDate)
+            else begin
+                OnCheckAndUpdateAssocOrderPostingDateOnBeforeValidateDocumentDate(SalesHeader, OriginalDocumentDate);
+                SalesHeader.Validate("Document Date", OriginalDocumentDate);
+            end;
 
             ReleaseSalesDocument.Run(SalesHeader);
         end;
@@ -3344,7 +3352,7 @@ codeunit 90 "Purch.-Post"
         OnAfterFillInvoicePostBuffer(InvoicePostBuffer, PurchLine, TempInvoicePostBuffer, SuppressCommit, PurchHeader, GenJnlLineDocNo, GenJnlPostLine);
         UpdateInvoicePostBuffer(InvoicePostBuffer);
 
-        OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(PurchHeader, PurchLine, InvoicePostBuffer, TempInvoicePostBuffer);
+        OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(PurchHeader, PurchLine, InvoicePostBuffer, TempInvoicePostBuffer, GenJnlLineDocNo, GenJnlPostLine);
 
         if PurchLine."Deferral Code" <> '' then begin
             OnBeforeFillDeferralPostingBuffer(
@@ -11399,11 +11407,13 @@ codeunit 90 "Purch.-Post"
 #endif
 
 #if not CLEAN23
+#pragma warning disable AS0072
     [Obsolete('Moved to Purchase Invoice Posting implementation. Use the new event OnPrepareLineOnAfterUpdateInvoicePostingBuffer in codeunit 826 "Purch. Post Invoice Events".', '20.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
+    local procedure OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var GenJnlLineDocNo: Code[20]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
+#pragma warning restore AS0072
 #endif
 
 #if not CLEAN23

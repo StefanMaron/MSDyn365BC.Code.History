@@ -66,6 +66,7 @@ codeunit 137072 "SCM Production Orders II"
         ConfirmStatusFinishTxt: Label 'has not been finished. Some output is still missing. Do you still want to finish the order?';
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
         DateConflictInReservErr: Label 'The change leads to a date conflict with existing reservations.';
+        QuantityErr: Label '%1 must be %2 in %3', Comment = '%1: Quantity, %2: Consumption Quantity Value, %3: Item Ledger Entry';
 
     [Test]
     [Scope('OnPrem')]
@@ -4170,6 +4171,148 @@ codeunit 137072 "SCM Production Orders II"
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ProductionJournalPageHandlerOnlyOutput,ConfirmHandlerTrue,MessageHandler')]
+    procedure VerifyILEQuantityWhenFlushingMethodIsBackward()
+    var
+        CompItem, CompItem2, ProdItem : Record Item;
+        CompItemUnitOfMeasure, CompItemUnitOfMeasure2, ProdItemUnitOfMeasure : array[2] of Record "Item Unit of Measure";
+        RoutingLink: Record "Routing Link";
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionJournalMgt: codeunit "Production Journal Mgt";
+        QuantityCalculationFormula: Enum "Quantity Calculation Formula";
+        ConsumptionQuantity: Decimal;
+        ConsumptionQuantity2: Decimal;
+    begin
+        // [SCENARIO 497746] When stan creates a Released Production Order using Backward Flushing Method, Quantities calculated in Item ledger Entries are correct.
+        Initialize();
+
+        // [GIVEN] Create Component Item with Item Unit of Measure Code.
+        CreateComponentItemWithItemUnitOfMeasureCode(CompItem, CompItemUnitOfMeasure);
+
+        // [GIVEN] Create Component Item 2 with Item Unit of Measure Code.
+        CreateComponentItemWithItemUnitOfMeasureCode(CompItem2, CompItemUnitOfMeasure2);
+
+        // [GIVEN] Create and Post two Item Journal Lines of Component Item and Component Item 2.
+        CreateAndPostItemJournalLine(CompItem."No.", LibraryRandom.RandIntInRange(100, 100), '', '', false);
+        CreateAndPostItemJournalLine(CompItem2."No.", LibraryRandom.RandIntInRange(100, 100), '', '', false);
+
+        // [GIVEN] Create Production Item with Item Unit of Measure Code.
+        CreateProductionItemWithItemUnitOfMeasureCode(ProdItem, ProdItemUnitOfMeasure);
+
+        // [GIVEN] Create Routing Link.
+        LibraryManufacturing.CreateRoutingLink(RoutingLink);
+
+        // [GIVEN] Create Work Center and Validate Flushing Method, Capacity and Efficiency.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Flushing Method", WorkCenter."Flushing Method"::Backward);
+        WorkCenter.Validate(Capacity, LibraryRandom.RandInt(0));
+        WorkCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        WorkCenter.Modify(true);
+
+        // [GIVEN] Create and Certify Routing with Routing Link Code..
+        CreateAndCertifyRoutingWithRoutingLinkCode(RoutingHeader, RoutingLine, WorkCenter."No.", RoutingLink.Code);
+
+        // [GIVEN] Create and Certify Production BOM with Routing Link Code.
+        CreateAndCertifyProductionBOMwithRoutingLinkCode(ProductionBOMHeader, ProductionBOMLine, ProdItem, CompItem, CompItem2, RoutingLink);
+
+        // [GIVEN] Update Production Item.
+        ProdItem.Validate("Base Unit of Measure", ProdItemUnitOfMeasure[1].Code);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Backward);
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Rounding Precision", 0.001);
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProdItem."No.",
+            LibraryRandom.RandIntInRange(10, 10),
+            '',
+            '');
+
+        // [GIVEN] Find and Update Prod. Order Component of Component Item.
+        FindAndUpdateProdOrderComponentWithCalcFormula(
+            ProductionOrder,
+            ProdOrderComponent,
+            CompItem,
+            RoutingLink,
+            LibraryRandom.RandIntInRange(3, 3),
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandInt(0),
+            QuantityCalculationFormula::Length);
+
+        // [GIVEN] Generate and save Consumption Quantity in a Variable.
+        ConsumptionQuantity := ProdOrderComponent."Quantity per" * ProdOrderComponent.Length * ProductionOrder.Quantity;
+
+        // [GIVEN] Find and Update Prod. Order Component of Component Item 2.
+        FindAndUpdateProdOrderComponentWithCalcFormula(
+            ProductionOrder,
+            ProdOrderComponent,
+            CompItem2,
+            RoutingLink,
+            LibraryRandom.RandIntInRange(2, 2),
+            LibraryRandom.RandIntInRange(2, 2),
+            LibraryRandom.RandInt(0),
+            QuantityCalculationFormula::"Length * Width");
+
+        // [GIVEN] Generate and save Consumption Quantity 2 in a Variable.
+        ConsumptionQuantity2 := ProdOrderComponent."Quantity per" * ProdOrderComponent.Length * ProdOrderComponent.Width * ProductionOrder.Quantity;
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Post Production Journal.
+        LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalQst);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalTxt);
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Find Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Document No.", ProductionOrder."No.");
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.FindFirst();
+
+        // [VERIFY] Consumption Quantity and Item Ledger Entry Quantity are same.
+        Assert.AreEqual(
+            -ConsumptionQuantity,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                ItemLedgerEntry.FieldCaption(Quantity),
+                -ConsumptionQuantity,
+                ItemLedgerEntry.TableCaption()));
+
+        // [WHEN] Find Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Document No.", ProductionOrder."No.");
+        ItemLedgerEntry.SetRange("Item No.", CompItem2."No.");
+        ItemLedgerEntry.FindFirst();
+
+        // [VERIFY] Consumption Quantity 2 and Item Ledger Entry Quantity are same.
+        Assert.AreEqual(
+            -ConsumptionQuantity2,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                ItemLedgerEntry.FieldCaption(Quantity),
+                -ConsumptionQuantity2,
+                ItemLedgerEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5835,6 +5978,83 @@ codeunit 137072 "SCM Production Orders II"
         LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure[2], ProdItem."No.", LibraryRandom.RandDecInDecimalRange(12.4, 12.4, 1));
     end;
 
+    local procedure FindAndUpdateProdOrderComponentWithCalcFormula(
+        var ProductionOrder: Record "Production Order";
+        var ProdOrderComponent: Record "Prod. Order Component";
+        Item: Record Item;
+        RoutingLink: Record "Routing Link";
+        Length: Decimal;
+        Width: Decimal;
+        Depth: Decimal;
+        CalculationFormula: Enum "Quantity Calculation Formula")
+    begin
+        FindProdOrderComponentByOrderNoAndItem(ProdOrderComponent, ProductionOrder."No.", Item."No.");
+        ProdOrderComponent.Validate(Length, Length);
+        ProdOrderComponent.Validate(Width, Width);
+        ProdOrderComponent.Validate(Depth, Depth);
+        ProdOrderComponent.Validate("Calculation Formula", CalculationFormula);
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Backward);
+        ProdOrderComponent.Validate("Routing Link Code", RoutingLink.Code);
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure CreateAndCertifyProductionBOMwithRoutingLinkCode(
+        var ProductionBOMHeader: Record "Production BOM Header";
+        var ProductionBOMLine: Record "Production BOM Line";
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        CompItem2: Record Item;
+        RoutingLink: Record "Routing Link")
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            CompItem."No.",
+            LibraryRandom.RandIntInRange(2, 2));
+
+        ProductionBOMLine.Validate("Unit of Measure Code", CompItem."Base Unit of Measure");
+        ProductionBOMLine.Validate("Routing Link Code", RoutingLink.Code);
+        ProductionBOMLine.Modify(true);
+
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            CompItem2."No.",
+            LibraryRandom.RandIntInRange(2, 2));
+
+        ProductionBOMLine.Validate("Unit of Measure Code", CompItem2."Base Unit of Measure");
+        ProductionBOMLine.Validate("Routing Link Code", RoutingLink.Code);
+        ProductionBOMLine.Modify(true);
+
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateAndCertifyRoutingWithRoutingLinkCode(
+        var RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkcenterNo: Code[20];
+        RoutingLinkCode: Code[10])
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+            RoutingHeader,
+            RoutingLine,
+            '',
+            Format(LibraryRandom.RandIntInRange(10, 10)),
+            RoutingLine.Type::"Work Center",
+            WorkCenterNo);
+
+        RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -5918,6 +6138,19 @@ codeunit 137072 "SCM Production Orders II"
     procedure CreateOrderFromSalesModalPageHandler(var CreateOrderFromSales: TestPage "Create Order From Sales")
     begin
         CreateOrderFromSales.Yes().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandlerOnlyOutput(var ProductionJournal: TestPage "Production Journal")
+    var
+        EntryType: Enum "Item Ledger Entry Type";
+        FlushingMethod: Enum "Flushing Method";
+    begin
+        ProductionJournal.FlushingFilter.SetValue(FlushingMethod::Backward);
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output), '');
+        ProductionJournal."Output Quantity".SetValue(LibraryVariableStorage.DequeueInteger());
+        ProductionJournal.Post.Invoke();
     end;
 
     [MessageHandler]

@@ -120,6 +120,7 @@ codeunit 136613 "Res. Jnl. Error Handling"
     var
         ResJournalLine: Record "Res. Journal Line";
         ResourceJournal: TestPage "Resource Journal";
+        LinesWithIssuesCounter: Integer;
     begin
         // [SCENARIO 411162] Action "Show All Lines" makes action "Show Lines with Errors" enabled
         Initialize();
@@ -130,16 +131,23 @@ codeunit 136613 "Res. Jnl. Error Handling"
         // [GIVEN] Open res journal for batch "XXX"
         ResourceJournal.Trap();
         Page.Run(Page::"Resource Journal", ResJournalLine);
-        // [GIVEN] Action "Show Lines with Errors" is selected
+        // [WHEN] Action "Show Lines with Errors" is selected
         ResourceJournal.ShowLinesWithErrors.Invoke();
+
+        // [THEN] Check that there is one line shown in the journal
+        if ResourceJournal.First() then
+            repeat
+                LinesWithIssuesCounter += 1;
+            until not ResourceJournal.Next();
+        Assert.AreEqual(1, LinesWithIssuesCounter - 1, 'There must be exactly one line shown in the journal');
 
         // [WHEN] Action "Show All Lines" is being selected
         ResourceJournal.ShowAllLines.Invoke();
 
         // [THEN] Action "Show Lines with Errors" enabled
-        assert.IsTrue(ResourceJournal.ShowLinesWithErrors.Enabled(), 'Action ShowLinesWithErrors must be enabled');
+        Assert.IsTrue(ResourceJournal.ShowLinesWithErrors.Enabled(), 'Action ShowLinesWithErrors must be enabled');
         // [THEN] Action "Show All Lines" disabled
-        assert.IsFalse(ResourceJournal.ShowAllLines.Enabled(), 'Action ShowAllLines must be disabled');
+        Assert.IsFalse(ResourceJournal.ShowAllLines.Enabled(), 'Action ShowAllLines must be disabled');
     end;
 
     [Test]
