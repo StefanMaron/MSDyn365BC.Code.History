@@ -575,6 +575,11 @@ codeunit 139709 "Sales Invoices E2E"
         TempRecordField.SETRANGE(FieldName, 'Due Date Modified');
         if TempRecordField.FINDFIRST() then
             LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, TempRecordField."No.", DATABASE::"Sales Header");
+        // Special ignore case for CZ
+        TempRecordField.SetRange(TableNo, Database::"Sales Header");
+        TempRecordField.SetRange(FieldName, 'VAT Date');
+        if TempRecordField.FindFirst() then
+            LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, TempRecordField."No.", Database::"Sales Header");
 
         // Time zone will impact how the date from the page vs WebService is saved. If removed this will fail in snap between 12:00 - 1 AM
         IF TIME() < 020000T THEN BEGIN
