@@ -67,6 +67,7 @@ codeunit 6299 "Power BI Embed Helper"
             StrPos(UrlTokenText, '/pageChanged') > 0,
             StrPos(UrlTokenText, '/selectionChanged') > 0:
                 exit; // Power BI notifies us of these events: no reaction needed
+            IsReportLoadedEvent(JsonCallbackMessage),
             StrPos(UrlTokenText, '/loaded') > 0:
                 // Step 1: Power BI report is ready, get all pages of the report
                 ResponseForWebPage := GetPagesWebRequestJsonTxt;
@@ -111,6 +112,24 @@ codeunit 6299 "Power BI Embed Helper"
 
         if not IsValidJson(ResponseForWebPage) then
             Error(InvalidJsonResponseErr, ResponseForWebPage);
+    end;
+
+    local procedure IsReportLoadedEvent(JsonCallbackText: JsonToken): Boolean
+    var
+        DecodedCallbackJson: JsonToken;
+        RaisedEventJson: JsonToken;
+    begin
+        // Workaround for bug 441863:
+        // Power BI stopped sending /loaded events. We should now instead listen to reportPageLoaded events and eventually move to a supported library.
+        // These events come as encoded json objects, so we need to read the value again to make sure it's decoded.
+
+        if JsonCallbackText.IsValue() then
+            if DecodedCallbackJson.ReadFrom(JsonCallbackText.AsValue().AsText()) then
+                if DecodedCallbackJson.SelectToken('$.event', RaisedEventJson) then
+                    if RaisedEventJson.IsValue() then
+                        exit(RaisedEventJson.AsValue().AsText() = 'reportPageLoaded');
+
+        exit(false);
     end;
 
     local procedure IsValidJson(JsonData: Text): Boolean
