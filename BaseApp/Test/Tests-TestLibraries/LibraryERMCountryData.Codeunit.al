@@ -102,7 +102,8 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdatePrepaymentAccounts()
     begin
-        exit;
+        UpdateVATPostingSetupOnPrepAccount();
+        UpdateGenProdPostingSetupOnPrepAccount();
     end;
 
     procedure UpdatePurchasesPayablesSetup()
@@ -178,6 +179,61 @@ codeunit 131305 "Library - ERM Country Data"
     procedure UpdateLocalData()
     begin
         exit;
+    end;
+
+    local procedure UpdateGenProdPostingSetupOnPrepAccount()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet() then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+                if GLAccount."Gen. Prod. Posting Group" = '' then begin
+                    GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next() = 0;
+        GeneralPostingSetup.Reset();
+        GeneralPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet() then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+                if GLAccount."Gen. Prod. Posting Group" = '' then begin
+                    GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next() = 0;
+    end;
+
+    local procedure UpdateVATPostingSetupOnPrepAccount()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet() then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+                if GLAccount."VAT Prod. Posting Group" = '' then begin
+                    GenProdPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Validate("VAT Prod. Posting Group", GenProdPostingGroup."Def. VAT Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next() = 0;
+        GeneralPostingSetup.Reset();
+        GeneralPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet() then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+                if GLAccount."VAT Prod. Posting Group" = '' then begin
+                    GenProdPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Validate("VAT Prod. Posting Group", GenProdPostingGroup."Def. VAT Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     procedure CompanyInfoSetVATRegistrationNo()

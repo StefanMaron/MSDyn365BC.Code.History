@@ -1801,6 +1801,7 @@
         BankAccReconciliationLine2: Record "Bank Acc. Reconciliation Line";
     begin
         BankAccReconciliationLine2.CopyFilters(BankAccReconciliationLine);
+        OnUpdatePaymentMatchDetailsOnAfterBankAccReconciliationLine2SetFilters(BankAccReconciliationLine2, BankAccReconciliationLine);
 
         if BankAccReconciliationLine2.FindSet() then
             repeat
@@ -1820,6 +1821,7 @@
         PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        OnDeletePaymentMatchDetailsOnAfterPaymentMatchingDetailsSetFilters(PaymentMatchingDetails, BankAccReconciliation);
         PaymentMatchingDetails.DeleteAll(true);
     end;
 
@@ -1830,6 +1832,7 @@
         AppliedPaymentEntry.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         AppliedPaymentEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         AppliedPaymentEntry.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        OnDeleteAppliedPaymentEntriesOnAfterAppliedPaymentEntrySetFilters(AppliedPaymentEntry, BankAccReconciliation);
         AppliedPaymentEntry.DeleteAll(true);
     end;
 
@@ -2159,6 +2162,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDeletePaymentMatchDetailsOnAfterPaymentMatchingDetailsSetFilters(var PaymentMatchingDetails: Record "Payment Matching Details"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteAppliedPaymentEntriesOnAfterAppliedPaymentEntrySetFilters(var AppliedPaymentEntry: Record "Applied Payment Entry"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDisableMatchBankLedgerEntriesFromClosingLedgerEntries(var Disable: boolean)
     begin
     end;
@@ -2190,6 +2203,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRelatedPartyInfoMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Name: Text[100]; Address: Text[100]; City: Text[30]; AccountType: Enum "Gen. Journal Account Type"; var RelatedPartyMatchedInfoText: Text; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePaymentMatchDetailsOnAfterBankAccReconciliationLine2SetFilters(var BankAccReconciliationLine2: Record "Bank Acc. Reconciliation Line"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 }

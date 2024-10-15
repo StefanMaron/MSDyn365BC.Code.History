@@ -102,6 +102,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
             else
                 AssetType := AssetType::" ";
         end;
+        OnAfterGetAssetType(ServiceLine, AssetType);
     end;
 
     procedure CopyToBuffer(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."): Boolean
@@ -268,6 +269,11 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(
         var PriceCalculationBuffer: Record "Price Calculation Buffer"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAssetType(ServiceLine: Record "Service Line"; var AssetType: Enum "Price Asset Type")
     begin
     end;
 

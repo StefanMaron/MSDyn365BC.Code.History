@@ -300,7 +300,7 @@ codeunit 5870 "Calculate BOM Tree"
                                             BOMBuffer."Scrap Qty. per Parent" := BOMBuffer."Scrap Qty. per Parent" * ParentBOMBuffer."Qty. per Parent";
                                             BOMBuffer."Qty. per BOM Line" := BOMBuffer."Qty. per BOM Line" * ParentBOMBuffer."Qty. per Parent";
                                         end;
-                                        OnAfterTransferFromProdItem(BOMBuffer, ProdBOMLine);
+                                        OnAfterTransferFromProdItem(BOMBuffer, ProdBOMLine, EntryNo);
                                         GenerateItemSubTree("No.", BOMBuffer);
                                     end;
                                 Type::"Production BOM":
@@ -972,7 +972,7 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromProdItem(var BOMBuffer: Record "BOM Buffer"; ProdBOMLine: Record "Production BOM Line")
+    local procedure OnAfterTransferFromProdItem(var BOMBuffer: Record "BOM Buffer"; ProdBOMLine: Record "Production BOM Line"; var EntryNo: Integer)
     begin
     end;
 

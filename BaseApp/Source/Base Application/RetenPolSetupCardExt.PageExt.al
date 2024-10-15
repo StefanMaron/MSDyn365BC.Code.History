@@ -1,4 +1,4 @@
-pageextension 3998 "Reten. Pol. Setup Card - JQ" extends "Retention Policy Setup Card"
+pageextension 3998 "Reten. Pol. Setup Card Ext." extends "Retention Policy Setup Card"
 {
     actions
     {
@@ -19,4 +19,14 @@ pageextension 3998 "Reten. Pol. Setup Card - JQ" extends "Retention Policy Setup
             }
         }
     }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        CurrPage."Retention Policy Setup Lines".Page.SetIsDocumentArchiveTable(Rec."Table Id");
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage."Retention Policy Setup Lines".Page.SetIsDocumentArchiveTable(Rec."Table Id");
+    end;
 }

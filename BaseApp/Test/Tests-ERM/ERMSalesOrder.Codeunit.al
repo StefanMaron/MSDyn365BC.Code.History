@@ -24,6 +24,8 @@ codeunit 134378 "ERM Sales Order"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         isInitialized: Boolean;
         VATAmountErr: Label 'VAT Amount must be %1 in %2.', Comment = '%1 = value, %2 = field';
@@ -4278,6 +4280,93 @@ codeunit 134378 "ERM Sales Order"
         SalesInvoiceLine.TestField(Amount, SalesLine.Amount);
     end;
 
+    [Test]
+    procedure TypeSetOnCreateNewOrderLineWhenSubscribedToOnBeforeSetDefaultType()
+    var
+        FixedAsset: Record "Fixed Asset";
+        SalesLine: Record "Sales Line";
+        SalesOrderCard: TestPage "Sales Order";
+        ERMSalesOrder: Codeunit "ERM Sales Order";
+        SalesOrderNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 394306] Create new Sales Order line when Type <> Item is set inside a subscriber to OnBeforeSetDefaultType event of Sales Order Subform, FoundationSetup is true.
+        Initialize();
+        UpdateManualNosOnSalesOrderNoSeries(true);
+
+        // [GIVEN] Foundation setup is enabled.
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Fixed Asset "F".
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+
+        // [GIVEN] Sales Order card is opened, a new order is created.
+        SalesOrderCard.OpenNew();
+        SalesOrderNo := 'SetDefaultTypeEvent';  // to set IsHandled = true inside subscriber
+        SalesOrderCard."No.".SetValue(SalesOrderNo);
+        SalesOrderCard."Sell-to Customer No.".SetValue(LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Stan subscribes to OnBeforeSetDefaultType of page Sales Order Subform. 
+        // [GIVEN] Type is set to "Fixed Asset" inside subscriber when a new order line is created.
+        BindSubscription(ERMSalesOrder);
+
+        // [WHEN] Create a new order line on page, set "No." = "F".
+        SalesOrderCard.SalesLines.New();
+        SalesOrderCard.SalesLines."No.".SetValue(FixedAsset."No.");
+        SalesOrderCard.Close();
+
+        // [THEN] Sales Line is created. Type is "Fixed Asset", "No." = "F".
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesOrderNo);
+        SalesLine.FindLast();
+        SalesLine.TestField(Type, SalesLine.Type::"Fixed Asset");
+        SalesLine.TestField("No.", FixedAsset."No.");
+
+        // tear down
+        UpdateManualNosOnSalesOrderNoSeries(false);
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    procedure DefaultTypeItemSetOnCreateNewOrderLine()
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        SalesOrderCard: TestPage "Sales Order";
+        ERMSalesOrder: Codeunit "ERM Sales Order";
+        SalesOrderNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 394306] Create new Sales Order line when FoundationSetup is true.
+        Initialize();
+
+        // [GIVEN] Foundation setup is enabled.
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Item "I".
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Sales Order card is opened, a new order is created.
+        SalesOrderCard.OpenNew();
+        SalesOrderCard."Sell-to Customer No.".SetValue(LibrarySales.CreateCustomerNo());
+        SalesOrderNo := SalesOrderCard."No.".Value;
+
+        // [WHEN] Create a new order line on page, set "No." = "I".
+        SalesOrderCard.SalesLines.New();
+        SalesOrderCard.SalesLines."No.".SetValue(Item."No.");
+        SalesOrderCard.Close();
+
+        // [THEN] Sales Line is created. Type is "Item", "No." = "I".
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesOrderNo);
+        SalesLine.FindLast();
+        SalesLine.TestField(Type, SalesLine.Type::Item);
+        SalesLine.TestField("No.", Item."No.");
+
+        // tear down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -5249,6 +5338,17 @@ codeunit 134378 "ERM Sales Order"
         end;
     end;
 
+    local procedure UpdateManualNosOnSalesOrderNoSeries(ManualNos: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NoSeries: Record "No. Series";
+    begin
+        SalesReceivablesSetup.Get();
+        NoSeries.Get(SalesReceivablesSetup."Order Nos.");
+        NoSeries.Validate("Manual Nos.", ManualNos);
+        NoSeries.Modify(true);
+    end;
+
     local procedure UpdateDefaultWarehouseSetup(RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean)
     var
         WarehouseSetup: Record "Warehouse Setup";
@@ -6096,6 +6196,13 @@ codeunit 134378 "ERM Sales Order"
         SalesLine.Get(TempSalesLine.RecordId);
         SalesLine."Description 2" := 'x';
         SalesLine.Modify();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Sales Order Subform", 'OnBeforeSetDefaultType', '', false, false)]
+    local procedure OnBeforeSetDefaultSalesOrderLineType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean);
+    begin
+        SalesLine.Type := SalesLine.Type::"Fixed Asset";
+        IsHandled := SalesLine."Document No." = 'SETDEFAULTTYPEEVENT';  // to prevent undesired handling for other tests
     end;
 
     [ModalPageHandler]

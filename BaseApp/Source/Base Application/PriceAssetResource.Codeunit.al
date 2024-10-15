@@ -108,6 +108,7 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
         end;
         NewPriceAsset."Work Type Code" := PriceAsset."Work Type Code";
         PriceAssetList.Add(NewPriceAsset);
+        OnAfterPutRelatedAssetsToList(PriceAsset, PriceAssetList);
     end;
 
     procedure FillFromBuffer(var PriceAsset: Record "Price Asset"; PriceCalculationBuffer: Record "Price Calculation Buffer")
@@ -137,6 +138,11 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
     begin
     end;
 }
