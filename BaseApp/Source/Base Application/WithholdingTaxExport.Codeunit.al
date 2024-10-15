@@ -530,7 +530,7 @@ codeunit 12132 "Withholding Tax Export"
                 TempErrorMessage.LogIfEmpty(
                   TempWithholdingTax, TempWithholdingTax.FieldNo("Non-Taxable Income Type"), TempErrorMessage."Message Type"::Error)
             else
-                FlatFileManagement.WriteBlockValue('AU001006', ConstFormat::NP, Format(TempWithholdingTax."Non-Taxable Income Type"));
+                FlatFileManagement.WriteBlockValue('AU001006', ConstFormat::NP, Format(TempWithholdingTax.GetNonTaxableIncomeTypeNumber()));
         WriteBlockValueAmount('AU001007', ConstFormat::VP,
           TempWithholdingTax."Non Taxable Amount" + TempWithholdingTax."Base - Excluded Amount");
         if TempWithholdingTax."Taxable Base" = 0 then

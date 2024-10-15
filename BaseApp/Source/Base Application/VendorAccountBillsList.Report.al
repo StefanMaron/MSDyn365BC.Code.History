@@ -493,6 +493,7 @@ report 12116 "Vendor Account Bills List"
         TempDetailedVendorLedgEntryApplied.Reset();
         TempDetailedVendorLedgEntryApplied.DeleteAll();
 
+        DetailedVendorLedgEntry.SetFilter("Posting Date", '<=%1', EndingDate);
         DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntryNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
         DetailedVendorLedgEntry.SetRange(Unapplied, false);

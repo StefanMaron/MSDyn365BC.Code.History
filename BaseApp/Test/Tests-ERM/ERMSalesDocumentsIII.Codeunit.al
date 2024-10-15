@@ -5549,6 +5549,190 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsSetOnSalesCreditMemo()
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is assigned from Sell-to Customer on Sales Credit memo
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesCreditMemo."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        Assert.AreEqual(Customer."Country/Region Code", SalesCreditMemo."Rcvd-from Country/Region Code".Value, 'Received-from Country Code is not set');
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsSetOnSalesReturnOrder()
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is assigned from Sell-to Customer on Sales Return Order
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesReturnOrder."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        Assert.AreEqual(Customer."Country/Region Code", SalesReturnOrder."Rcvd-from Country/Region Code".Value, 'Received-from Country Code is not set');
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsNotSetOnSalesQuote()
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is not assigned from Sell-to Customer on Sales Quote
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Quote
+        SalesQuote.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesQuote."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        SalesHeader.Get(SalesHeader."Document TYpe"::Quote, SalesQuote."No.".Value);
+        SalesQuote.Close();
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsNotSetOnSalesOrder()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales header";
+        CountryRegion: Record "Country/Region";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is not assigned from Sell-to Customer on Sales Order
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Order
+        SalesOrder.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        SalesHeader.Get(SalesHeader."Document TYpe"::Order, SalesOrder."No.".Value);
+        SalesOrder.Close();
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsNotSetOnSalesInvoice()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is not assigned from Sell-to Customer on Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Invoice
+        SalesInvoice.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesInvoice."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        SalesHeader.Get(SalesHeader."Document TYpe"::Invoice, SalesInvoice."No.".Value);
+        SalesInvoice.Close();
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsNotSetOnSalesBlanketOrder()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is not assigned from Sell-to Customer on Sales Blanket Order
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Blanket Order
+        BlanketSalesOrder.OpenNew();
+
+        // [WHEN] Customer is entered
+        BlanketSalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        SalesHeader.Get(SalesHeader."Document TYpe"::"Blanket Order", BlanketSalesOrder."No.".Value);
+        BlanketSalesOrder.Close();
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";

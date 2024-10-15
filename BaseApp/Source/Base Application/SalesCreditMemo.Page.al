@@ -699,6 +699,11 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the service tariff that is associated with the sales journal.';
                 }
+                field("Rcvd-from Country/Region Code"; Rec."Rcvd-from Country/Region Code")
+                {
+                    ApplicationArea = BasicEU, BasicCH, BasicNO;
+                    ToolTip = 'Specifies the country or region from which the items are returned for the purpose of Intrastat reporting.';
+                }
             }
         }
         area(factboxes)
@@ -1605,6 +1610,8 @@
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
+	    Rec.SetTrackInfoForCancellation();
+        
         if OfficeMgt.IsAvailable then begin
             SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
             if SalesCrMemoHeader.FindFirst() then
