@@ -2752,6 +2752,79 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure T192_SalesLineChangeActivatedCampaignOnHeaderAsSource()
+    var
+        Campaign: Array[2] of Record Campaign;
+        PriceListLine: array[2] of Record "Price List Line";
+        Contact: Record Contact;
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        OldHandler: enum "Price Calculation Handler";
+        UnitPrice: array[2] of Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Sales] [Campaign]        
+        // [SCENARIO 465382] When changing the Campaign No. in the header, the Unit Price must be updated on the previously added line
+
+        Initialize();
+        // [GIVEN] New Contact with Customer
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        //OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and activate segment campaigns 'C1' with lower price and 'C2' with higher price for Contact  
+        CreateSegmentCampaignsForContact(Campaign, Contact, Item);
+        // Activate campaign 'C1'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], '', "Price Source Type"::Campaign, Campaign[1]."No.",
+            "Price Asset Type"::Item, Item."No.");
+        UnitPrice[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        PriceListLine[1].Validate("Unit Price", UnitPrice[1]);
+        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Modify();
+        CampaignTargetGroupMgt.ActivateCampaign(Campaign[1]);
+
+        // Activate campaign 'C2'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], '', "Price Source Type"::Campaign, Campaign[2]."No.",
+            "Price Asset Type"::Item, Item."No.");
+        UnitPrice[2] := LibraryRandom.RandDecInRange(300, 400, 2);
+        PriceListLine[2].Validate("Unit Price", UnitPrice[2]);
+        PriceListLine[2].Status := PriceListLine[1].Status::Active;
+        PriceListLine[2].Modify();
+        CampaignTargetGroupMgt.ActivateCampaign(Campaign[2]);
+
+        // [GIVEN] Order with campaign 'C1' for customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Campaign No.", Campaign[1]."No.");
+        SalesHeader.Modify(true);
+        // [GIVEN] with one line, where "Type" is 'Item', "No." is 'X'
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine.Validate("No.", Item."No.");
+        SalesLine.Modify(true);
+
+        // Exercise: Unit price from active campaign 'C1' must be applied on sales line
+        Assert.AreEqual(UnitPrice[1], SalesLine."Unit Price", 'Wrong price for first campaign');
+
+        // [WHEN] Switch campaign on sales order
+        SalesHeader.Validate("Campaign No.", Campaign[2]."No.");
+
+        // [THEN] Verify unit price is changed on sales order
+        SalesLine.SetRecFilter();
+        SalesLine.FindFirst();
+        Assert.AreEqual(UnitPrice[2], SalesLine."Unit Price", 'Wrong price for second campaign');
+        //LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
     procedure T200_PostedArchivedSalesDocumentsContainPriceCalcMethod()
     var
         Customer: Record Customer;
@@ -4771,6 +4844,23 @@ codeunit 134159 "Test Price Calculation - V16"
         CreateStandardCostWorksheet(StandardCostWorksheetPage, Resource."No.", StandardCost, NewStandardCost);
         Commit();  // Commit Required due to Run Modal.
         StandardCostWorksheetPage."&Implement Standard Cost Changes".Invoke;
+    end;
+
+    local procedure CreateSegmentCampaignsForContact(var Campaign: array[2] of Record Campaign; Contact: Record Contact; Item: Record Item)
+    var
+        SegmentHeader: array[2] of Record "Segment Header";
+        SegmentLine: array[2] of Record "Segment Line";
+        i: Integer;
+    begin
+        for i := 1 to 2 do begin
+            LibraryMarketing.CreateCampaign(Campaign[i]);
+            LibraryMarketing.CreateSegmentHeader(SegmentHeader[i]);
+            LibraryMarketing.CreateSegmentLine(SegmentLine[i], SegmentHeader[i]."No.");
+            SegmentLine[i].Validate("Contact No.", Contact."No.");
+            SegmentHeader[i].Validate("Campaign No.", Campaign[i]."No.");
+            SegmentHeader[i].Validate("Campaign Target", true);
+            SegmentHeader[i].Modify();
+        end;
     end;
 
     [RequestPageHandler]
