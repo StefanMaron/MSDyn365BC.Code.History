@@ -1,7 +1,7 @@
 page 99000772 "Capacity Absence"
 {
     Caption = 'Capacity Absence';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Calendar Absence Entry";
