@@ -126,6 +126,10 @@ report 7052 "Suggest Sales Price on Wksh."
                 OnBeforeModifyOrInsertSalesPriceWksh(SalesPriceWksh, "Sales Price");
 
                 if PriceAlreadyExists or CreateNewPrices then begin
+                    TempSalesPriceWksh := SalesPriceWksh;
+                    if not TempSalesPriceWksh.Insert then
+                        Error(SalesPriceWkshLineExistsErr, TempSalesPriceWksh.RecordId);
+
                     SalesPriceWksh2 := SalesPriceWksh;
                     if SalesPriceWksh2.Find('=') then
                         SalesPriceWksh.Modify(true)
@@ -404,6 +408,7 @@ report 7052 "Suggest Sales Price on Wksh."
         Text001: Label 'Processing items  #1##########';
         SalesPriceWksh2: Record "Sales Price Worksheet";
         SalesPriceWksh: Record "Sales Price Worksheet";
+        TempSalesPriceWksh: Record "Sales Price Worksheet" temporary;
         ToCust: Record Customer;
         ToCustPriceGr: Record "Customer Price Group";
         ToCampaign: Record Campaign;
@@ -437,6 +442,7 @@ report 7052 "Suggest Sales Price on Wksh."
         ToStartDateCtrlEnable: Boolean;
         [InDataSet]
         ToEndDateCtrlEnable: Boolean;
+        SalesPriceWkshLineExistsErr: Label 'There are multiple source lines for the record: %1.', Comment = '%1 = RecordId';
 
     procedure InitializeRequest(NewToSalesType: Option Customer,"Customer Price Group",Campaign,"All CUstomers"; NewToSalesCode: Code[20]; NewToStartDate: Date; NewToEndDate: Date; NewToCurrCode: Code[10]; NewToUOMCode: Code[10]; NewCreateNewPrices: Boolean)
     begin

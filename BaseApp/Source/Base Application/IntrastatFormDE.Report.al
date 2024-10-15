@@ -72,9 +72,12 @@ report 11012 "Intrastat - Form DE"
                 column(Intrastat_Jnl__Line__Transport_Method_; "Transport Method")
                 {
                 }
-                column(Intrastat_Jnl__Line__Total_Weight_; Transctotal)
+                column(Intrastat_Jnl__Line__Total_Weight_; Transtotal)
                 {
                     DecimalPlaces = 0 : 0;
+                }
+                column(Intrastat_Jnl__Line__Total_Weight_Rounded_; TranstotalRounded)
+                {
                 }
                 column(Intrastat_Jnl__Line_Quantity; Quantity)
                 {
@@ -94,6 +97,9 @@ report 11012 "Intrastat - Form DE"
                 column(SumTotalWeight; SumTotalWeight)
                 {
                     DecimalPlaces = 0 : 0;
+                }
+                column(SumTotalWeightRounded; SumTotalWeightRounded)
+                {
                 }
                 column(Intrastat_Jnl__Line__Statistical_Value__Control1140038; "Statistical Value")
                 {
@@ -196,7 +202,8 @@ report 11012 "Intrastat - Form DE"
                     else
                         Quantity := 0;
                     "Tariff No." := OldTariffNo;
-                    SumTotalWeight := SumTotalWeight + Round("Total Weight", 1);
+                    SumTotalWeight := SumTotalWeight + "Total Weight";
+                    SumTotalWeightRounded := Round(SumTotalWeight, 1);
 
                     Country.Get("Country/Region Code");
                     Country.TestField("Intrastat Code");
@@ -217,10 +224,11 @@ report 11012 "Intrastat - Form DE"
                        ("Intrastat Jnl. Line"."Country/Region of Origin Code" <> IntrastatJnlLine1."Country/Region of Origin Code")
                     then begin
                         NoOfRecords := NoOfRecords + 1;
-                        Transctotal := 0;
+                        Transtotal := 0;
                     end;
                     IntrastatJnlLine1 := "Intrastat Jnl. Line";
-                    Transctotal := Transctotal + Round("Total Weight", 1);
+                    Transtotal := Transtotal + "Total Weight";
+                    TranstotalRounded := Round(Transtotal, 1);
                 end;
             }
 
@@ -282,7 +290,8 @@ report 11012 "Intrastat - Form DE"
         VATIDNo: Code[11];
         OriginCountryIntrastatCode: Code[10];
         SumTotalWeight: Decimal;
-        Transctotal: Decimal;
+        SumTotalWeightRounded: Integer;
+        Transtotal: Decimal;
         Intrastat___FormCaptionLbl: Label 'Intrastat - Form';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         VATIDNoCaptionLbl: Label 'VAT Reg. No.';
@@ -295,5 +304,6 @@ report 11012 "Intrastat - Form DE"
         OriginCountry__Intrastat_Code_CaptionLbl: Label 'Country of Origin Code';
         Intrastat_Jnl__Line__Total__Caption_Control1140036Lbl: Label 'Total';
         NoOfRecordsCaptionLbl: Label 'No. of Entries';
+        TranstotalRounded: Integer;
 }
 

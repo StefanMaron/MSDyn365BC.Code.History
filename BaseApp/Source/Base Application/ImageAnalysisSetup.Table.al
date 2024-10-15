@@ -98,13 +98,13 @@ table 2020 "Image Analysis Setup"
 
     procedure ValidateApiUri()
     var
-        DotNet_Regex: Codeunit DotNet_Regex;
+        Uri: DotNet Uri;
     begin
-        "Api Uri" := DelChr("Api Uri", '>', ' /');
-        // For security reasons we are making sure its a cognitive services URI that is being inserted
         if "Api Uri" <> '' then begin
-            DotNet_Regex.Regex('https://([a-z0-9]|\.)*\.api\.cognitive\.microsoft.com/.*');
-            if not DotNet_Regex.IsMatch("Api Uri") then
+            "Api Uri" := DelChr("Api Uri", '>', ' /');
+            // For security reasons we are making sure its a cognitive services URI that is being inserted
+            Uri := Uri.Uri("Api Uri");
+            if not (Uri.Host.EndsWith('.microsoft.com') or Uri.Host.EndsWith('.azure.com')) or (Uri.Scheme <> 'https') then
                 Error(InvalidApiUriErr);
         end;
 

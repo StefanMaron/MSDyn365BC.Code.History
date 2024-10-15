@@ -33,6 +33,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         isInitialized: Boolean;
         StatementNoEditableErr: Label '%1 should not be editable.', Comment = '%1 - "Statement No." field caption';
         TransactionAmountReducedMsg: Label 'The value in the Transaction Amount field has been reduced';
+        ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
 
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
@@ -1433,6 +1434,30 @@ codeunit 134141 "ERM Bank Reconciliation"
         Assert.AreEqual(1, Cnt, 'Only one Bank Account Ledger Entry is expected.');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmEnqueueQuestionHandler')]
+    [Scope('OnPrem')]
+    procedure BankAccReconciliationLineAccountTypeICPartnerConfirmMessage()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 328682] When Stan chooses "Account Type" equal to "IC Partner" confirm message is shown.
+        Initialize;
+
+        // [GIVEN] Bank Account field.
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccReconciliation, CreateBankAccount, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+
+        // [WHEN] "Account Type" field is validated with "IC Partner".
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::"IC Partner");
+
+        // [THEN] Confirm with text ICPartnerAccountTypeQst is shown.
+        Assert.AreEqual(ICPartnerAccountTypeQst, LibraryVariableStorage.DequeueText, '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Reconciliation");
@@ -2129,6 +2154,14 @@ codeunit 134141 "ERM Bank Reconciliation"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         // Handler for confirmation messages, always send positive reply.
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmEnqueueQuestionHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
         Reply := true;
     end;
 

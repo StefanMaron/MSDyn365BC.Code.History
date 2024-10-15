@@ -159,6 +159,13 @@ codeunit 1140 "OAuth 2.0 Mgt."
     var
         JSONMgt: Codeunit "JSON Management";
     begin
+        if RetryOnCredentialsFailure and (OAuth20Setup."Access Token Due DateTime" <> 0DT) then
+            if OAuth20Setup."Access Token Due DateTime" < CurrentDateTime() then begin
+                if OAuth20Setup.RefreshAccessToken(HttpError) then
+                    exit(OAuth20Setup.InvokeRequest(RequestJson, ResponseJson, HttpError, false));
+                exit(false);
+            end;
+
         Result := InvokeSingleRequest(OAuth20Setup, RequestJson, ResponseJson, HttpError, AccessToken);
         if not Result and RetryOnCredentialsFailure then
             if JSONMgt.InitializeFromString(ResponseJson) then
@@ -247,7 +254,7 @@ codeunit 1140 "OAuth 2.0 Mgt."
             if "Latest Datetime" = 0DT then
                 "Daily Count" := 0
             else
-                if CreateDateTime(Today(), 0T) - "Latest Datetime" > 0 then
+                if "Latest Datetime" < CreateDateTime(Today(), 0T) then
                     "Daily Count" := 0;
             if ("Daily Limit" <= 0) or ("Daily Count" < "Daily Limit") or ("Latest Datetime" = 0DT) then begin
                 Result := HttpWebRequestMgt.InvokeJSONRequest(RequestJson, ResponseJson, HttpError);

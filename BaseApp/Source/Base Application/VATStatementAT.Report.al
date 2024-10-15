@@ -44,15 +44,9 @@ report 11110 "VAT Statement AT"
                         Position[71] := 0;
 
                     for i := 1000 to 1099 do begin
-                        if i in [1012, 1015, 1017, 1018, 1019, 1016, 1020, 1021] then
+                        if i in [1011, 1012, 1015, 1016, 1017, 1018, 1019, 1020, 1021] then
                             if Position[i] < 0 then begin
                                 Position[1000] := Position[1000] - Position[i];
-                                Position[i] := 0;
-                            end;
-                        if i = 1011 then
-                            if Position[i] < 0 then begin
-                                Position[1000] := Position[1000] - Position[i];
-                                Position[1090] := Position[1090] + Position[i];
                                 Position[i] := 0;
                             end;
                         if i in [1060, 1061, 1083, 1065, 1066, 1082, 1087, 1089, 1064, 1062, 1063] then

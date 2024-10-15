@@ -17,6 +17,7 @@ codeunit 136145 "Service Contracts II"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         AmountError: Label '%1 must be equal to ''%2''  in %3: %4=%5. Current value is ''%6''.', Comment = '%1=Field name,%2=Field value,%3=Table name,%4=Field name,%5=Field value,%6=Field value';
         NoOfLinesError: Label 'No. of lines in %1 must be %2.', Comment = '%1=Table name';
@@ -927,6 +928,72 @@ codeunit 136145 "Service Contracts II"
           ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.", ServiceContractHeader.Status::Signed);
     end;
 
+    [Test]
+    [HandlerFunctions('DoNotCreateContrUsingTemplateConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CreateServHeaderWithBillToSellToVATCalcSetToBillToPayToNo()
+    var
+        Customer: array[2] of Record Customer;
+        GLSetup: Record "General Ledger Setup";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceHeader: Record "Service Header";
+        ServContractManagement: Codeunit ServContractManagement;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 326175] When creating Service Invoice from Service Contract fields affecting VAT is taken from Bill-to Customer if "Bill-to/Sell-to VAT Calc." is set to "Bill-to/Pay-to No.".
+        Initialize;
+
+        LibraryERM.SetBillToSellToVATCalc(GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
+
+        CreateCustomerWithGenBusPostingGroup(Customer[1]);
+        CreateCustomerWithGenBusPostingGroup(Customer[2]);
+        LibraryService.CreateServiceContractHeader(
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer[1]."No.");
+        ServiceContractHeader.Validate("Bill-to Customer No.", Customer[2]."No.");
+        ServiceContractHeader.Modify(true);
+
+        ServiceHeader.Get(
+          ServiceHeader."Document Type"::Invoice, ServContractManagement.CreateServHeader(ServiceContractHeader, WorkDate, true));
+
+        Assert.AreEqual(Customer[2]."VAT Bus. Posting Group", ServiceHeader."VAT Bus. Posting Group", '');
+        Assert.AreEqual(Customer[2]."VAT Registration No.", ServiceHeader."VAT Registration No.", '');
+        Assert.AreEqual(Customer[2]."Country/Region Code", ServiceHeader."VAT Country/Region Code", '');
+        Assert.AreEqual(Customer[2]."Gen. Bus. Posting Group", ServiceHeader."Gen. Bus. Posting Group", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('DoNotCreateContrUsingTemplateConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CreateServHeaderWithBillToSellToVATCalcSetToSellToBuyFromNo()
+    var
+        Customer: array[2] of Record Customer;
+        GLSetup: Record "General Ledger Setup";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceHeader: Record "Service Header";
+        ServContractManagement: Codeunit ServContractManagement;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 326175] When creating Service Invoice from Service Contract fields affecting VAT are taken from Sell-to Customer if "Bill-to/Sell-to VAT Calc." is set to "Sell-to/Buy-from No.".
+        Initialize;
+
+        LibraryERM.SetBillToSellToVATCalc(GLSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+
+        CreateCustomerWithGenBusPostingGroup(Customer[1]);
+        CreateCustomerWithGenBusPostingGroup(Customer[2]);
+        LibraryService.CreateServiceContractHeader(
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer[1]."No.");
+        ServiceContractHeader.Validate("Bill-to Customer No.", Customer[2]."No.");
+        ServiceContractHeader.Modify(true);
+
+        ServiceHeader.Get(
+          ServiceHeader."Document Type"::Invoice, ServContractManagement.CreateServHeader(ServiceContractHeader, WorkDate, true));
+
+        Assert.AreEqual(Customer[1]."VAT Bus. Posting Group", ServiceHeader."VAT Bus. Posting Group", '');
+        Assert.AreEqual(Customer[1]."VAT Registration No.", ServiceHeader."VAT Registration No.", '');
+        Assert.AreEqual(Customer[1]."Country/Region Code", ServiceHeader."VAT Country/Region Code", '');
+        Assert.AreEqual(Customer[1]."Gen. Bus. Posting Group", ServiceHeader."Gen. Bus. Posting Group", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -934,10 +1001,12 @@ codeunit 136145 "Service Contracts II"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Contracts II");
         LibraryVariableStorage.Clear;
         DeleteObjectOptionsIfNeeded;
+        LibrarySetupStorage.Restore;
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Contracts II");
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         // Setup demonstration data
         LibraryService.SetupServiceMgtNoSeries;
@@ -1137,6 +1206,16 @@ codeunit 136145 "Service Contracts II"
             Modify(true);
             exit("No.");
         end;
+    end;
+
+    local procedure CreateCustomerWithGenBusPostingGroup(var Customer: Record Customer)
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        Customer.Modify(true);
     end;
 
     local procedure FilterServiceLedgEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceContractNo: Code[20])
@@ -1767,6 +1846,13 @@ codeunit 136145 "Service Contracts II"
     procedure ConditionalConfirmHandler(Message: Text[1024]; var Reply: Boolean)
     begin
         Reply := StrPos(Message, CreateInvoiceMsg) = 0;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure DoNotCreateContrUsingTemplateConfirmHandler(Message: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := StrPos(Message, CreateContrUsingTemplateQst) = 0;
     end;
 
     [ConfirmHandler]

@@ -39,6 +39,7 @@ report 499 "Delete Invoiced Purch. Orders"
                 if PurchLine.Find('-') then begin
                     PurchLine.SetRange("Quantity Invoiced");
                     PurchLine.SetFilter("Outstanding Quantity", '<>0');
+                    OnAfterSetPurchLineFilters(PurchLine);
                     if not PurchLine.Find('-') then begin
                         PurchLine.SetRange("Outstanding Quantity");
                         PurchLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
@@ -138,6 +139,11 @@ report 499 "Delete Invoiced Purch. Orders"
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
         AllLinesDeleted: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchLineDelete(var PurchLine: Record "Purchase Line")

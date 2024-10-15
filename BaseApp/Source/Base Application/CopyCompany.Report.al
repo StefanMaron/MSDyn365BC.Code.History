@@ -70,6 +70,7 @@ report 357 "Copy Company"
                 ProgressWindow.Close;
                 SetNewNameToNewCompanyInfo;
                 SetRecurringJobsOnHold;
+                RegisterUpgradeTags(NewCompanyName);
                 Message(CopySuccessMsg, Name);
             end;
         }
@@ -121,6 +122,13 @@ report 357 "Copy Company"
     procedure GetCompanyName(): Text[30]
     begin
         exit(NewCompanyName);
+    end;
+
+    local procedure RegisterUpgradeTags(CompanyName: Code[30])
+    var
+        UpgradeTag: codeunit "Upgrade Tag";
+    begin
+        UpgradeTag.SetAllUpgradeTags(CompanyName);
     end;
 
     local procedure SetNewNameToNewCompanyInfo()

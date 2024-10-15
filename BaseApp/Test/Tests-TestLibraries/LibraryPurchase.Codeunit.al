@@ -515,6 +515,22 @@ codeunit 130512 "Library - Purchase"
         PurchExplodeBOM.Run(PurchaseLine);
     end;
 
+    procedure FilterPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    begin
+        PurchaseHeaderArchive.SetRange("Document Type", DocumentType);
+        PurchaseHeaderArchive.SetRange("No.", DocumentNo);
+        PurchaseHeaderArchive.SetRange("Doc. No. Occurrence", DocNoOccurance);
+        PurchaseHeaderArchive.SetRange("Version No.", Version);
+    end;
+
+    procedure FilterPurchaseLineArchive(var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    begin
+        PurchaseLineArchive.SetRange("Document Type", DocumentType);
+        PurchaseLineArchive.SetRange("Document No.", DocumentNo);
+        PurchaseLineArchive.SetRange("Doc. No. Occurrence", DocNoOccurance);
+        PurchaseLineArchive.SetRange("Version No.", Version);
+    end;
+
     procedure FindVendorPostingGroup(): Code[20]
     var
         VendorPostingGroup: Record "Vendor Posting Group";

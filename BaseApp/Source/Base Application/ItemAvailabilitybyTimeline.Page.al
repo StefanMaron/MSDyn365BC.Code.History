@@ -168,6 +168,36 @@ page 5540 "Item Availability by Timeline"
                 usercontrol(Visualization; "Microsoft.Dynamics.Nav.Client.TimelineVisualization")
                 {
                     ApplicationArea = Basic, Suite;
+
+                    trigger TransactionActivated(refNo: Text)
+                    begin
+                        ShowDocument(refNo);
+                    end;
+
+                    trigger SelectedTransactionChanged(refNo: Text)
+                    begin
+                        SetCurrentChangeRec(refNo);
+                    end;
+
+                    trigger TransactionValueChanged(refNo: Text)
+                    begin
+                        if IgnoreChanges then
+                            exit;
+
+                        if refNo <> '' then begin // Specific Transaction Value Changed
+                            State := State::"Unsaved Changes";
+                            if NewSupply then
+                                CurrReferenceNo := CopyStr(refNo, 1, MaxStrLen("Reference No."));
+                        end;
+
+                        ImportChangesFromTimeline;
+                    end;
+
+                    trigger AddInReady()
+                    begin
+                        if ItemSelected then
+                            InitAndCreateTimelineEvents;
+                    end;
                 }
             }
             grid(changeListGroup)

@@ -2292,7 +2292,7 @@ table 5080 "To-do"
         Error(Text043, FieldName);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure AssignDefaultAttendeeInfo()
     var
         InteractionTemplate: Record "Interaction Template";
@@ -2488,7 +2488,7 @@ table 5080 "To-do"
               Rec, TempTaskInteractionLanguage, TempAttachment, InteractionTemplate.Code, true);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure ValidateInteractionTemplCode()
     begin
         UpdateInteractionTemplate(
@@ -2496,7 +2496,7 @@ table 5080 "To-do"
         LoadTempAttachment;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure AssistEditAttachment()
     begin
         if TempAttachment.Get("Attachment No.") then begin
@@ -2528,7 +2528,7 @@ table 5080 "To-do"
             end;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure LoadTempAttachment()
     var
         Attachment: Record Attachment;

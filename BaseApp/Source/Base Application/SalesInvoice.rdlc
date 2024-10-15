@@ -9064,7 +9064,7 @@ Fields!FooterTxt8.Value</Value>
         <Height>26.46725cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
           <Height>2.46945cm</Height>
@@ -9231,7 +9231,7 @@ Fields!FooterTxt8.Value</Value>
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>7.5cm</Left>
+              <Left>7cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>5</ZIndex>
@@ -9254,7 +9254,7 @@ Fields!FooterTxt8.Value</Value>
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>6</ZIndex>

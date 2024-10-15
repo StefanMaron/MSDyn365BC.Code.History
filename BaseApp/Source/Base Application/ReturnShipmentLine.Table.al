@@ -167,7 +167,7 @@ table 6651 "Return Shipment Line"
             Editable = false;
             TableRelation = Vendor;
         }
-        field(70; "Vendor Item No."; Text[20])
+        field(70; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }
@@ -554,6 +554,7 @@ table 6651 "Return Shipment Line"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         NextLineNo: Integer;
         ExtTextLine: Boolean;
+        IsHandled: Boolean;
     begin
         SetRange("Document No.", "Document No.");
 
@@ -637,7 +638,10 @@ table 6651 "Return Shipment Line"
             OnAfterCopyFieldsFromReturnShipmentLine(Rec, PurchLine);
 
             if not ExtTextLine then begin
-                PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
+                IsHandled := false;
+                OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(Rec, PurchLine, IsHandled);
+                if not IsHandled then
+                    PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 PurchLine.Validate("Direct Unit Cost", PurchOrderLine."Direct Unit Cost");
                 PurchLine.Validate("Line Discount %", PurchOrderLine."Line Discount %");
                 if PurchOrderLine.Quantity = 0 then
@@ -658,8 +662,10 @@ table 6651 "Return Shipment Line"
             PurchLine."Shortcut Dimension 2 Code" := PurchOrderLine."Shortcut Dimension 2 Code";
             PurchLine."Dimension Set ID" := PurchOrderLine."Dimension Set ID";
 
-            OnBeforeInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec);
-            PurchLine.Insert;
+            IsHandled := false;
+            OnBeforeInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec, IsHandled);
+            if not IsHandled then
+                PurchLine.Insert;
             OnAfterInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchOrderLine, PurchLine);
@@ -783,7 +789,12 @@ table 6651 "Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvLineFromRetShptLine(var PurchLine: Record "Purchase Line"; var PurchOrderLine: Record "Purchase Line"; var ReturnShipmentLine: Record "Return Shipment Line")
+    local procedure OnBeforeInsertInvLineFromRetShptLine(var PurchLine: Record "Purchase Line"; var PurchOrderLine: Record "Purchase Line"; var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(var ReturnShipmentLine: Record "Return Shipment Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

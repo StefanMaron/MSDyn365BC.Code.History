@@ -27,8 +27,6 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             TestField("Registration No.");
             TestField(Area);
             TestField("Agency No.");
-            TestField("Sales Authorized No.");
-            TestField("Purch. Authorized No.");
             TestField("Company No.");
             TestField(Address);
             TestField("Post Code");
@@ -97,6 +95,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         FileMgt.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerFileShipments);
         ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
         if FormatType = FormatType::ASCII then begin
+            VerifyCompanyInformation;
             FileMgt.BLOBImportFromServerFile(ServerReceiptsTempBlob, ServerFileReceipts);
             ServerReceiptsTempBlob.CreateInStream(ServerReceiptsInStream);
             DataCompression.AddEntry(ServerReceiptsInStream, GetAuthorizedNo(ExportTypeGlb::Receipt) + '.ASC');
@@ -458,6 +457,15 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
                     Vendor.TestField(City);
                     Vendor.TestField("Country/Region Code");
                 end;
+        end;
+    end;
+
+    local procedure VerifyCompanyInformation()
+    begin
+        with CompanyInformation do begin
+            Get;
+            TestField("Sales Authorized No.");
+            TestField("Purch. Authorized No.");
         end;
     end;
 }

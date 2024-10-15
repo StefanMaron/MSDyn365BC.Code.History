@@ -3,7 +3,7 @@ codeunit 134316 "Workflow UI Tests"
     Permissions = TableData "Approval Entry" = i,
                   TableData "Workflow - Record Change" = i;
     Subtype = Test;
-    TestPermissions = NonRestrictive;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin
@@ -22,6 +22,8 @@ codeunit 134316 "Workflow UI Tests"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryPermissions: Codeunit "Library - Permissions";
+        LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryERM: Codeunit "Library - ERM";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         SelectedEventDesc: Text;
@@ -29,6 +31,7 @@ codeunit 134316 "Workflow UI Tests"
         ShowMessageTestMsg: Label 'Test Message';
         CannotAddStepToNoCodeWorkflowErr: Label 'Workflow Code must have a value in Workflow Step: Workflow Code=, ID=0. It cannot be zero or empty.';
         FieldShouldBeVisibleErr: Label 'The field should be visible';
+        FieldShouldBeEditableErr: Label 'The field should be editable';
         ValuesAreNotTheSameErr: Label 'The values are not the same';
 
     [Test]
@@ -961,6 +964,117 @@ codeunit 134316 "Workflow UI Tests"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestCreateNotificationEntryResponseOptions()
+    var
+        Workflow: Record Workflow;
+        WorkflowStepResponse: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        User: Record User;
+        UserSetup: Record "User Setup";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        WorkflowResponseOptions: TestPage "Workflow Response Options";
+        EntryPointEventStepId: Integer;
+        ResponseStepId: Integer;
+        UserName: Code[50];
+    begin
+        // [SCENARIO] Entering a "Notification User ID" option works for CreateNotificationEntry response.
+        // [GIVEN] The non-windows user: 'NAV Test User' set as the approval user
+        UserName := LibraryUtility.GenerateGUID;
+        LibraryPermissions.CreateUser(User, UserName, false);
+        LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserName, '');
+        // [GIVEN] A workflow with the CreateNotificationEntry response.
+        LibraryWorkflow.CreateWorkflow(Workflow);
+        EntryPointEventStepId :=
+            LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+        ResponseStepId :=
+            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, EntryPointEventStepId);
+        LibraryWorkflow.InsertNotificationArgument(ResponseStepId, '', 0, '');
+
+        WorkflowStepResponse.Get(Workflow.Code, ResponseStepId);
+        WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
+
+        // [WHEN] The user navigates to the response options.
+        WorkflowResponseOptions.OpenEdit;
+        WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
+
+        // [THEN] "Link Target Page", "Custom Link", "Notification User ID", and "Notify Sender" are visible and editable
+        Assert.IsTrue(WorkflowResponseOptions."Link Target Page".Visible, 'Link Target Page.Visible');
+        Assert.IsTrue(WorkflowResponseOptions."Custom Link".Visible, 'Custom Link.Visible');
+        Assert.IsTrue(WorkflowResponseOptions."Link Target Page".Editable, 'Link Target Page.Editable');
+        Assert.IsTrue(WorkflowResponseOptions."Custom Link".Editable, 'Custom Link.Editable');
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible, 'Notification User ID.Visible');
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Editable, 'Notification User ID.Editable');
+        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Visible, 'Notify Sender.Visible');
+        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Editable, 'Notify Sender.Editable');
+
+        // [THEN] The user can enter a "Notification User ID", as it is visible and editable.
+        WorkflowResponseOptions."Notification User ID".Value := UserName;
+
+        WorkflowResponseOptions.OK.Invoke;
+
+        // Verify
+        WorkflowStepArgument.Find;
+        WorkflowStepArgument.TestField("Notification User ID", UserName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCreateNotificationEntryForSenderResponseOptions()
+    var
+        Workflow: Record Workflow;
+        WorkflowStepResponse: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        User: Record User;
+        UserSetup: Record "User Setup";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        WorkflowResponseOptions: TestPage "Workflow Response Options";
+        EntryPointEventStepId: Integer;
+        ResponseStepId: Integer;
+        UserName: Code[50];
+    begin
+        // [SCENARIO] Entering a "Notify Sender" option works for CreateNotificationEntry response.
+        // [GIVEN] The non-windows user: 'NAV Test User' set as the approval user
+        UserName := LibraryUtility.GenerateGUID;
+        LibraryPermissions.CreateUser(User, UserName, false);
+        LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserName, '');
+        // [GIVEN] A workflow with the CreateNotificationEntry response.
+        LibraryWorkflow.CreateWorkflow(Workflow);
+        EntryPointEventStepId :=
+            LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+        ResponseStepId :=
+            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, EntryPointEventStepId);
+        LibraryWorkflow.InsertNotificationArgument(ResponseStepId, UserName, 0, '');
+
+        WorkflowStepResponse.Get(Workflow.Code, ResponseStepId);
+        WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
+
+        // [GIVEN] The user navigates to the response options.
+        WorkflowResponseOptions.OpenEdit;
+        WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
+
+        // [GIVEN] "Notification User ID", and "Notify Sender" are visible and editable
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible, 'Notification User ID.Visible');
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Editable, 'Notification User ID.Editable');
+        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Visible, 'Notify Sender.Visible');
+        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Editable, 'Notify Sender.Editable');
+
+        // [WHEN] The user set "Notify Sender" as 'Yes'.
+        WorkflowResponseOptions.NotifySender3.Value := format(true);
+
+        // [THEN] "Notification User ID" is visible, but not editable
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible, 'Notification User ID.Visible');
+        Assert.IsFalse(WorkflowResponseOptions."Notification User ID".Editable, 'Notification User ID.Editable');
+
+        WorkflowResponseOptions.OK.Invoke;
+
+        // [THEN] WorkflowStepArgument, where "Notify Sender" is 'Yes', "Notification User ID" is blank 
+        WorkflowStepArgument.Find;
+        WorkflowStepArgument.Testfield("Notify Sender");
+        WorkflowStepArgument.TestField("Notification User ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestShowMessageResponseOptions()
     var
         Workflow: Record Workflow;
@@ -1492,6 +1606,70 @@ codeunit 134316 "Workflow UI Tests"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure WorkflowCardDoesNotMixRecsWithTemplates_NonTemplateIsOpened()
+    var
+        Workflow: array[2] of Record 1501;
+        TemplateWorkflow: array[2] of Record 1501;
+        TestPageWorkflow: TestPage 1501;
+        Index: Integer;
+    begin
+        // [FEATURE] [Workflow Card]
+        // [SCENARIO 324094] Workflow Card opened from non-template Workflow show only non-template records when switching records with "back" and "previous" buttons
+        Workflow[1].DeleteAll();
+
+        // [GIVEN] Workflows "WF1" and "WF2" and Workflow Templates "WT1" and "WT2"
+        for Index := 1 to ArrayLen(Workflow) do begin
+            LibraryWorkflow.CreateWorkflow(Workflow[Index]);
+            LibraryWorkflow.CreateTemplateWorkflow(TemplateWorkflow[Index]);
+        end;
+
+        // [GIVEN] Workflow Card page opened for "WF1"
+        TestPageWorkflow.Trap();
+        Page.Run(Page::Workflow, Workflow[1]);
+
+        // [WHEN] Go to previous record
+        // [THEN] "WF1" selected
+        // [WHEN] Go to next record
+        // [THEN] "WF2" selected
+        // [WHEN] Go to next record
+        // [THEN] "WF2" selected
+        VerifyPreviousAndNextWorkflowRecords(TestPageWorkflow, Workflow[1].Code, Workflow[2].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WorkflowCardDoesNotMixRecsWithTemplates_TemplateIsOpened()
+    var
+        Workflow: array[2] of Record 1501;
+        TemplateWorkflow: array[2] of Record 1501;
+        TestPageWorkflow: TestPage 1501;
+        Index: Integer;
+    begin
+        // [FEATURE] [Workflow Card]
+        // [SCENARIO 324094] Workflow Card opened from template Workflow show only template records when switching records with "back" and "previous" buttons
+        Workflow[1].DeleteAll();
+
+        // [GIVEN] Workflows "WF1" and "WF2" and Workflow Templates "WT1" and "WT2"
+        for Index := 1 to ArrayLen(Workflow) do begin
+            LibraryWorkflow.CreateWorkflow(Workflow[Index]);
+            LibraryWorkflow.CreateTemplateWorkflow(TemplateWorkflow[Index]);
+        end;
+
+        // [GIVEN] Workflow Card page opened for "WT1"
+        TestPageWorkflow.Trap();
+        Page.Run(Page::Workflow, TemplateWorkflow[1]);
+
+        // [WHEN] Go to previous record
+        // [THEN] "WT1" selected
+        // [WHEN] Go to next record
+        // [THEN] "WT2" selected
+        // [WHEN] Go to next record
+        // [THEN] "WT2" selected
+        VerifyPreviousAndNextWorkflowRecords(TestPageWorkflow, TemplateWorkflow[1].Code, TemplateWorkflow[2].Code);
+    end;
+
     local procedure CreateWorkflowEvent() EventFunctionName: Text[128]
     var
         WorkflowEvent: Record "Workflow Event";
@@ -1521,8 +1699,8 @@ codeunit 134316 "Workflow UI Tests"
     begin
         IsActionable := not Workflow.Template;
 
-        WorkflowPage.OpenNew;
-        WorkflowPage.GotoRecord(Workflow);
+        WorkflowPage.Trap();
+        Page.Run(Page::Workflow, Workflow);
 
         Assert.AreEqual(IsActionable, WorkflowPage.WorkflowStepInstances.Visible, UIElementDoesNotHaveCorrectStateErr);
         Assert.AreEqual(IsActionable, WorkflowPage.ArchivedWorkflowStepInstances.Visible, UIElementDoesNotHaveCorrectStateErr);
@@ -1536,6 +1714,16 @@ codeunit 134316 "Workflow UI Tests"
         Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage.DeleteEventConditions.Visible, UIElementDoesNotHaveCorrectStateErr);
 
         Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage."Event Description".Editable, UIElementDoesNotHaveCorrectStateErr);
+    end;
+
+    local procedure VerifyPreviousAndNextWorkflowRecords(var TestPageWorkflow: TestPage 1501; WorkflowCode1: Code[20]; WorkflowCode2: Code[20])
+    begin
+        TestPageWorkflow.Previous();
+        TestPageWorkflow.Code.AssertEquals(WorkflowCode1);
+        TestPageWorkflow.Next();
+        TestPageWorkflow.Code.AssertEquals(WorkflowCode2);
+        TestPageWorkflow.Next();
+        TestPageWorkflow.Code.AssertEquals(WorkflowCode2);
     end;
 
     [ModalPageHandler]

@@ -14,25 +14,31 @@ report 9000 "Add/Subtract Permission Set"
                 Permission: Record Permission;
                 TenantPermission: Record "Tenant Permission";
             begin
-                if DummySourceAggregatePermissionSet.Scope = DummySourceAggregatePermissionSet.Scope::System then begin
-                    Permission.SetRange("Role ID", DummySourceAggregatePermissionSet."Role ID");
+                if Scope = Scope::System then begin
+                    Permission.SetRange("Role ID", "Role ID");
                     if Permission.FindSet then
                         repeat
-                            IncludeExcludePermission(Permission);
+                            if DestinationAggregatePermissionSet.Scope = DestinationAggregatePermissionSet.Scope::System then
+                                IncludeExcludePermissionInPermission(Permission)
+                            else
+                                IncludeExcludePermission(Permission);
                         until Permission.Next = 0;
                 end else begin
-                    TenantPermission.SetRange("App ID", DummySourceAggregatePermissionSet."App ID");
-                    TenantPermission.SetRange("Role ID", DummySourceAggregatePermissionSet."Role ID");
+                    TenantPermission.SetRange("App ID", "App ID");
+                    TenantPermission.SetRange("Role ID", "Role ID");
                     if TenantPermission.FindSet then
                         repeat
-                            IncludeExcludeTenantPermission(TenantPermission);
+                            if DestinationAggregatePermissionSet.Scope = DestinationAggregatePermissionSet.Scope::System then
+                                IncludeExcludeTenantPermissionInPermission(TenantPermission)
+                            else
+                                IncludeExcludeTenantPermission(TenantPermission);
                         until TenantPermission.Next = 0;
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
-                CopyFilters(DummySourceAggregatePermissionSet);
+                Copy(DummySourceAggregatePermissionSet);
             end;
         }
     }
@@ -59,7 +65,7 @@ report 9000 "Add/Subtract Permission Set"
                     OptionCaption = 'Include,Exclude';
                     ToolTip = 'Specifies if the batch job includes or excludes a permission set for the destination permission set.';
                 }
-                field(SourceAggregatePermissionSet; DummySourceAggregatePermissionSet."Role ID")
+                field(SourceAggregatePermissionSet; SelectedRoleIdFilter)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source';
@@ -70,11 +76,12 @@ report 9000 "Add/Subtract Permission Set"
                     var
                         TempPermissionSetBuffer: Record "Permission Set Buffer" temporary;
                         PermissionSetList: Page "Permission Set List";
+                        SelectionFilterManagement: Codeunit SelectionFilterManagement;
                     begin
                         PermissionSetList.LookupMode := true;
                         if PermissionSetList.RunModal = ACTION::LookupOK then begin
-                            PermissionSetList.GetRecord(TempPermissionSetBuffer);
-                            DummySourceAggregatePermissionSet.TransferFields(TempPermissionSetBuffer);
+                            PermissionSetList.GetSelectionFilter(DummySourceAggregatePermissionSet);
+                            SelectedRoleIdFilter := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(DummySourceAggregatePermissionSet);
                         end;
                     end;
                 }
@@ -94,11 +101,12 @@ report 9000 "Add/Subtract Permission Set"
     begin
         if DestinationAggregatePermissionSet."Role ID" = '' then
             Error(NoDestinationErr);
-        if DummySourceAggregatePermissionSet."Role ID" = '' then
+        if not DummySourceAggregatePermissionSet.FindSet() then
             Error(NoSourceErr);
-        if DestinationAggregatePermissionSet.RecordId = DummySourceAggregatePermissionSet.RecordId then
-            Error(SameSrcDestnErr);
-        DummySourceAggregatePermissionSet.SetRecFilter;
+        repeat
+            if DestinationAggregatePermissionSet.RecordId = DummySourceAggregatePermissionSet.RecordId then
+                Error(SameSrcDestnErr);
+        until DummySourceAggregatePermissionSet.Next() = 0;
     end;
 
     var
@@ -108,6 +116,7 @@ report 9000 "Add/Subtract Permission Set"
         NoDestinationErr: Label 'No destination permission set has been set.';
         NoSourceErr: Label 'You must select a source permission set.';
         SameSrcDestnErr: Label 'You cannot select permission set as both source and destination.';
+        SelectedRoleIdFilter: Text;
 
     procedure SetDestination(NewDestinationAggregatePermissionSet: Record "Aggregate Permission Set")
     begin
@@ -268,6 +277,152 @@ report 9000 "Add/Subtract Permission Set"
                             then
                                 DestinationTenantPermission.Delete;
                         until DestinationTenantPermission.Next = 0;
+                end;
+        end;
+    end;
+
+    local procedure IncludeExcludePermissionInPermission(SourcePermission: Record Permission)
+    var
+        DestinationPermission: Record Permission;
+    begin
+        case SetOperation of
+            SetOperation::Include:
+                if DestinationPermission.Get(
+                     DestinationAggregatePermissionSet."Role ID", SourcePermission."Object Type", SourcePermission."Object ID")
+                then begin
+                    if PermissionValueIsGreaterOrEqual(SourcePermission."Read Permission", DestinationPermission."Read Permission") then
+                        DestinationPermission."Read Permission" := SourcePermission."Read Permission";
+                    if PermissionValueIsGreaterOrEqual(SourcePermission."Insert Permission", DestinationPermission."Insert Permission") then
+                        DestinationPermission."Insert Permission" := SourcePermission."Insert Permission";
+                    if PermissionValueIsGreaterOrEqual(SourcePermission."Modify Permission", DestinationPermission."Modify Permission") then
+                        DestinationPermission."Modify Permission" := SourcePermission."Modify Permission";
+                    if PermissionValueIsGreaterOrEqual(SourcePermission."Delete Permission", DestinationPermission."Delete Permission") then
+                        DestinationPermission."Delete Permission" := SourcePermission."Delete Permission";
+                    if PermissionValueIsGreaterOrEqual(SourcePermission."Execute Permission", DestinationPermission."Execute Permission") then
+                        DestinationPermission."Execute Permission" := SourcePermission."Execute Permission";
+                    DestinationPermission.Modify;
+                end else begin
+                    DestinationPermission."Object ID" := SourcePermission."Object ID";
+                    DestinationPermission."Object Type" := SourcePermission."Object Type";
+                    DestinationPermission."Read Permission" := SourcePermission."Read Permission";
+                    DestinationPermission."Insert Permission" := SourcePermission."Insert Permission";
+                    DestinationPermission."Modify Permission" := SourcePermission."Modify Permission";
+                    DestinationPermission."Delete Permission" := SourcePermission."Delete Permission";
+                    DestinationPermission."Execute Permission" := SourcePermission."Execute Permission";
+                    DestinationPermission."Security Filter" := SourcePermission."Security Filter";
+                    DestinationPermission."Role ID" := DestinationAggregatePermissionSet."Role ID";
+                    DestinationPermission.Insert;
+                end;
+            SetOperation::Exclude:
+                begin
+                    DestinationPermission.SetRange("Role ID", DestinationAggregatePermissionSet."Role ID");
+                    DestinationPermission.SetRange("Object Type", SourcePermission."Object Type");
+                    if SourcePermission."Object ID" <> 0 then
+                        DestinationPermission.SetRange("Object ID", SourcePermission."Object ID");
+                    if DestinationPermission.FindSet then
+                        repeat
+                            if PermissionValueIsGreaterOrEqual(SourcePermission."Read Permission", DestinationPermission."Read Permission") then
+                                DestinationPermission."Read Permission" := SourcePermission."Read Permission"::" ";
+                            if PermissionValueIsGreaterOrEqual(SourcePermission."Insert Permission", DestinationPermission."Insert Permission") then
+                                DestinationPermission."Insert Permission" := SourcePermission."Insert Permission"::" ";
+                            if PermissionValueIsGreaterOrEqual(SourcePermission."Modify Permission", DestinationPermission."Modify Permission") then
+                                DestinationPermission."Modify Permission" := SourcePermission."Modify Permission"::" ";
+                            if PermissionValueIsGreaterOrEqual(SourcePermission."Delete Permission", DestinationPermission."Delete Permission") then
+                                DestinationPermission."Delete Permission" := SourcePermission."Delete Permission"::" ";
+                            if PermissionValueIsGreaterOrEqual(
+                                 SourcePermission."Execute Permission", DestinationPermission."Execute Permission")
+                            then
+                                DestinationPermission."Execute Permission" := SourcePermission."Execute Permission"::" ";
+                            DestinationPermission.Modify;
+                            if (DestinationPermission."Read Permission" = SourcePermission."Read Permission"::" ") and
+                               (DestinationPermission."Insert Permission" = SourcePermission."Read Permission"::" ") and
+                               (DestinationPermission."Modify Permission" = SourcePermission."Read Permission"::" ") and
+                               (DestinationPermission."Delete Permission" = SourcePermission."Read Permission"::" ") and
+                               (DestinationPermission."Execute Permission" = SourcePermission."Read Permission"::" ")
+                            then
+                                DestinationPermission.Delete;
+                        until DestinationPermission.Next = 0;
+                end;
+        end;
+    end;
+
+    local procedure IncludeExcludeTenantPermissionInPermission(SourceTenantPermission: Record "Tenant Permission")
+    var
+        DestinationPermission: Record Permission;
+    begin
+        case SetOperation of
+            SetOperation::Include:
+                if DestinationPermission.Get(
+                     DestinationAggregatePermissionSet."Role ID", SourceTenantPermission."Object Type", SourceTenantPermission."Object ID")
+                then begin
+                    if PermissionValueIsGreaterOrEqual(SourceTenantPermission."Read Permission", DestinationPermission."Read Permission") then
+                        DestinationPermission."Read Permission" := SourceTenantPermission."Read Permission";
+                    if PermissionValueIsGreaterOrEqual(
+                         SourceTenantPermission."Insert Permission", DestinationPermission."Insert Permission")
+                    then
+                        DestinationPermission."Insert Permission" := SourceTenantPermission."Insert Permission";
+                    if PermissionValueIsGreaterOrEqual(
+                         SourceTenantPermission."Modify Permission", DestinationPermission."Modify Permission")
+                    then
+                        DestinationPermission."Modify Permission" := SourceTenantPermission."Modify Permission";
+                    if PermissionValueIsGreaterOrEqual(
+                         SourceTenantPermission."Delete Permission", DestinationPermission."Delete Permission")
+                    then
+                        DestinationPermission."Delete Permission" := SourceTenantPermission."Delete Permission";
+                    if PermissionValueIsGreaterOrEqual(
+                         SourceTenantPermission."Execute Permission", DestinationPermission."Execute Permission")
+                    then
+                        DestinationPermission."Execute Permission" := SourceTenantPermission."Execute Permission";
+                    DestinationPermission.Modify;
+                end else begin
+                    DestinationPermission."Object ID" := SourceTenantPermission."Object ID";
+                    DestinationPermission."Object Type" := SourceTenantPermission."Object Type";
+                    DestinationPermission."Read Permission" := SourceTenantPermission."Read Permission";
+                    DestinationPermission."Insert Permission" := SourceTenantPermission."Insert Permission";
+                    DestinationPermission."Modify Permission" := SourceTenantPermission."Modify Permission";
+                    DestinationPermission."Delete Permission" := SourceTenantPermission."Delete Permission";
+                    DestinationPermission."Execute Permission" := SourceTenantPermission."Execute Permission";
+                    DestinationPermission."Security Filter" := SourceTenantPermission."Security Filter";
+                    DestinationPermission."Role ID" := DestinationAggregatePermissionSet."Role ID";
+                    DestinationPermission.Insert;
+                end;
+            SetOperation::Exclude:
+                begin
+                    DestinationPermission.SetRange("Role ID", DestinationAggregatePermissionSet."Role ID");
+                    DestinationPermission.SetRange("Object Type", SourceTenantPermission."Object Type");
+                    if SourceTenantPermission."Object ID" <> 0 then
+                        DestinationPermission.SetRange("Object ID", SourceTenantPermission."Object ID");
+                    if DestinationPermission.FindSet then
+                        repeat
+                            if PermissionValueIsGreaterOrEqual(
+                                 SourceTenantPermission."Read Permission", DestinationPermission."Read Permission")
+                            then
+                                DestinationPermission."Read Permission" := SourceTenantPermission."Read Permission"::" ";
+                            if PermissionValueIsGreaterOrEqual(
+                                 SourceTenantPermission."Insert Permission", DestinationPermission."Insert Permission")
+                            then
+                                DestinationPermission."Insert Permission" := SourceTenantPermission."Insert Permission"::" ";
+                            if PermissionValueIsGreaterOrEqual(
+                                 SourceTenantPermission."Modify Permission", DestinationPermission."Modify Permission")
+                            then
+                                DestinationPermission."Modify Permission" := SourceTenantPermission."Modify Permission"::" ";
+                            if PermissionValueIsGreaterOrEqual(
+                                 SourceTenantPermission."Delete Permission", DestinationPermission."Delete Permission")
+                            then
+                                DestinationPermission."Delete Permission" := SourceTenantPermission."Delete Permission"::" ";
+                            if PermissionValueIsGreaterOrEqual(
+                                 SourceTenantPermission."Execute Permission", DestinationPermission."Execute Permission")
+                            then
+                                DestinationPermission."Execute Permission" := SourceTenantPermission."Execute Permission"::" ";
+                            DestinationPermission.Modify;
+                            if (DestinationPermission."Read Permission" = SourceTenantPermission."Read Permission"::" ") and
+                               (DestinationPermission."Insert Permission" = SourceTenantPermission."Read Permission"::" ") and
+                               (DestinationPermission."Modify Permission" = SourceTenantPermission."Read Permission"::" ") and
+                               (DestinationPermission."Delete Permission" = SourceTenantPermission."Read Permission"::" ") and
+                               (DestinationPermission."Execute Permission" = SourceTenantPermission."Read Permission"::" ")
+                            then
+                                DestinationPermission.Delete;
+                        until DestinationPermission.Next = 0;
                 end;
         end;
     end;

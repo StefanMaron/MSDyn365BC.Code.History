@@ -69,6 +69,8 @@ table 900 "Assembly Header"
             TableRelation = Item WHERE(Type = CONST(Inventory));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 CheckIsNotAsmToOrder;
                 TestStatusOpen;
@@ -83,8 +85,12 @@ table 900 "Assembly Header"
                     "Indirect Cost %" := Item."Indirect Cost %";
                     Validate("Unit of Measure Code", Item."Base Unit of Measure");
                     SetDim;
-                    ValidateDates(FieldNo("Due Date"), true);
+                    IsHandled := false;
+                    OnValidateItemNoOnBeforeValidateDates(Rec, xRec, IsHandled);
+                    if not IsHandled then
+                        ValidateDates(FieldNo("Due Date"), true);
                     GetDefaultBin;
+                    OnValidateItemNoOnAfterGetDefaultBin(Rec, Item);
                 end;
                 AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Item No."), true, CurrFieldNo, CurrentFieldNum);
                 AssemblyHeaderReserve.VerifyChange(Rec, xRec);
@@ -100,6 +106,7 @@ table 900 "Assembly Header"
             trigger OnValidate()
             var
                 ItemVariant: Record "Item Variant";
+                IsHandled: Boolean;
             begin
                 CheckIsNotAsmToOrder;
                 TestStatusOpen;
@@ -111,8 +118,15 @@ table 900 "Assembly Header"
                     Description := ItemVariant.Description;
                     "Description 2" := ItemVariant."Description 2";
                 end;
-                ValidateDates(FieldNo("Due Date"), true);
-                AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Variant Code"), false, CurrFieldNo, CurrentFieldNum);
+                IsHandled := false;
+                OnValidateVariantCodeOnBeforeValidateDates(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    ValidateDates(FieldNo("Due Date"), true);
+
+                IsHandled := false;
+                OnValidateVariantCodeOnBeforeUpdateAssemblyLines(Rec, xRec, CurrFieldNo, CurrentFieldNum, IsHandled);
+                if not IsHandled then
+                    AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Variant Code"), false, CurrFieldNo, CurrentFieldNum);
                 AssemblyHeaderReserve.VerifyChange(Rec, xRec);
                 GetDefaultBin;
                 Validate("Unit Cost", GetUnitCost);
@@ -998,7 +1012,9 @@ table 900 "Assembly Header"
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        exit(UOMMgt.CalcBaseQty(Qty, "Qty. per Unit of Measure"));
+        exit(
+          UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure"));
     end;
 
     procedure RoundQty(var Qty: Decimal)
@@ -1463,7 +1479,14 @@ table 900 "Assembly Header"
         NoLinesWerePresent: Boolean;
         LinesPresent: Boolean;
         DeleteLines: Boolean;
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReplaceLinesFromBOM(Rec, xRec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         NoLinesWerePresent := (xRec.Quantity * xRec."Qty. per Unit of Measure" = 0);
         LinesPresent := (Quantity * "Qty. per Unit of Measure" <> 0);
         DeleteLines := (Quantity = 0);
@@ -1567,7 +1590,32 @@ table 900 "Assembly Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeReplaceLinesFromBOM(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterGetDefaultBin(var AssemblyHeader: Record "Assembly Header"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnBeforeUpdateAssemblyLines(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 }

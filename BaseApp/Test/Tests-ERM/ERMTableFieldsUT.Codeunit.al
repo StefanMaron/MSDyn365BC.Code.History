@@ -541,6 +541,79 @@ codeunit 134155 "ERM Table Fields UT"
           PurchaseHeader.FieldNo("Buy-from Address"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_CustomerName_Relation()
+    var
+        "Field": Record "Field";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        O365SalesDocument: Record "O365 Sales Document";
+        SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
+        SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
+        SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
+    begin
+        // [FEATURE] [Sales] [Table Relation]
+        // [SCENARIO] "* Customer Name" fields have TableRelation = "Customer.Name"
+        LibraryTablesUT.FindField(Field, SalesHeader, SalesHeader.FieldNo("Sell-to Customer Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesHeader, SalesHeader.FieldNo("Bill-to Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, O365SalesDocument, O365SalesDocument.FieldNo("Sell-to Customer Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesInvoiceEntityAggregate, SalesInvoiceEntityAggregate.FieldNo("Sell-to Customer Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesInvoiceEntityAggregate, SalesInvoiceEntityAggregate.FieldNo("Bill-to Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesOrderEntityBuffer, SalesOrderEntityBuffer.FieldNo("Sell-to Customer Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesOrderEntityBuffer, SalesOrderEntityBuffer.FieldNo("Bill-to Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesQuoteEntityBuffer, SalesQuoteEntityBuffer.FieldNo("Sell-to Customer Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesQuoteEntityBuffer, SalesQuoteEntityBuffer.FieldNo("Bill-to Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesCrMemoEntityBuffer, SalesCrMemoEntityBuffer.FieldNo("Sell-to Customer Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, SalesCrMemoEntityBuffer, SalesCrMemoEntityBuffer.FieldNo("Bill-to Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_VendorName_Relation()
+    var
+        "Field": Record "Field";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
+    begin
+        // [FEATURE] [Purchases] [Table Relation]
+        // [SCENARIO] "* Vendor Name" fields have TableRelation = "Vendor.Name"
+        LibraryTablesUT.FindField(Field, PurchaseHeader, PurchaseHeader.FieldNo("Buy-from Vendor Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Vendor, Vendor.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, PurchaseHeader, PurchaseHeader.FieldNo("Pay-to Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Vendor, Vendor.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, PurchInvEntityAggregate, PurchInvEntityAggregate.FieldNo("Buy-from Vendor Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Vendor, Vendor.FieldNo(Name));
+
+        LibraryTablesUT.FindField(Field, PurchInvEntityAggregate, PurchInvEntityAggregate.FieldNo("Pay-to Name"));
+        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Vendor, Vendor.FieldNo(Name));
+    end;
+
     local procedure CreateAccountingPeriod(var AccountingPeriod: Record "Accounting Period"; StartingDate: Date; IsNewFiscalYear: Boolean)
     var
         InventorySetup: Record "Inventory Setup";

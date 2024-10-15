@@ -271,6 +271,69 @@ codeunit 136125 "Service Posting Journals"
         UpdateAutomaticCostPosting(OldAutomaticCostPosting);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceOrderWithJob_Customer_PriceInclVAT()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceItemLine: Record "Service Item Line";
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesPrice: Record "Sales Price";
+        Currency: Record Currency;
+        LibraryJob: Codeunit "Library - Job";
+        ExpectedUnitPrice: Decimal;
+        ExpectedTotalPrice: Decimal;
+    begin
+        // [FEATURE] [Job] [Sales Price] [Price Including VAT]
+        // [SCENARIO 325829] Posted prices does not include VAT in Job Ledger Entry when posting Service Order for customer with enabled "Prices Incl. VAT".
+        Initialize;
+
+        // [GIVEN] Job "J" with job task "JT"
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Customer "C" enabled "Prices Including VAT", Item "I" and sales price for "A" and "I" with "Unit Price" = 100 and "Price Incl. VAT" = TRUE (from customer)
+        Customer.Get(Job."Bill-to Customer No.");
+        Customer.Validate("Prices Including VAT", true);
+        Customer.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesPrice(
+          SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.",
+          WorkDate - 1, '', '', '', 0, LibraryRandom.RandIntInRange(100, 200));
+        SalesPrice.TestField("Price Includes VAT", Customer."Prices Including VAT");
+
+        // [GIVEN] Service Order "O" for "C" with service line having "Type" = Item, "Item No." = "I", "Qty. to Consume" = 2 and attached "J" with "JT"
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Job."Bill-to Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        CreateServiceLineWithBlankLocation(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        UpdateServiceLineWithJob(ServiceLine, JobTask, ServiceItemLine."Line No.", LibraryRandom.RandInt(10));
+        ServiceLine.Validate("Job Line Type", ServiceLine."Job Line Type"::"Both Budget and Billable");
+        ServiceLine.Modify(true);
+
+        // [GIVEN] "VAT %" = 10% and "Unit Price Incl. VAT" = 100 (from sales price) in service line.
+        ServiceLine.Validate("VAT %", LibraryRandom.RandIntInRange(10, 20));
+        ServiceLine.Modify(true);
+        ServiceLine.TestField("Unit Price", SalesPrice."Unit Price");
+
+        // [WHEN] When post "O"
+        LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
+
+        // [THEN] "Unit Price" = ROUND(100 / 1.1) = 90.9 in created Job Ledger Entry
+        // [THEN] "Total Price" = ROUND(2  * 100 / 1.1) = 181.8 in created Job Ledger Entry
+        Currency.Initialize('');
+
+        ExpectedUnitPrice :=
+          Round(SalesPrice."Unit Price" / (1 + ServiceLine."VAT %" / 100), Currency."Unit-Amount Rounding Precision");
+        ExpectedTotalPrice := Round(ServiceLine."Qty. to Consume" * ExpectedUnitPrice, Currency."Amount Rounding Precision");
+
+        VerifyPricesOnJobLedgerEntry(Item, ExpectedUnitPrice, ExpectedTotalPrice);
+    end;
+
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToTempServiceLine: Record "Service Line" temporary)
     begin
         if FromServiceLine.FindSet then
@@ -692,6 +755,18 @@ codeunit 136125 "Service Posting Journals"
         ServiceLedgerEntry.SetRange("Entry Type", EntryType);
         ServiceLedgerEntry.SetRange("Service Order No.", ServiceOrderNo);
         Assert.AreEqual(Count, ServiceLedgerEntry.Count, NumberOfServiceLedgerEntriesErr);
+    end;
+
+    local procedure VerifyPricesOnJobLedgerEntry(Item: Record Item; ExpectedUnitPrice: Decimal; ExpectedTotalPrice: Decimal)
+    var
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        JobLedgerEntry.SetRange(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.SetRange("No.", Item."No.");
+        JobLedgerEntry.FindFirst;
+
+        JobLedgerEntry.TestField("Unit Price (LCY)", ExpectedUnitPrice);
+        JobLedgerEntry.TestField("Total Price (LCY)", ExpectedTotalPrice);
     end;
 
     [ConfirmHandler]
