@@ -36,7 +36,7 @@ codeunit 5982 "Service-Post+Print"
     begin
         HideDialog := false;
         IsHandled := false;
-        OnBeforeConfirmPost(ServiceHeader, HideDialog, Ship, Consume, Invoice, IsHandled);
+        OnBeforeConfirmPost(ServiceHeader, HideDialog, Ship, Consume, Invoice, IsHandled, PassedServLine);
         if IsHandled then
             exit;
 
@@ -130,7 +130,7 @@ codeunit 5982 "Service-Post+Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmPost(var ServiceHeader: Record "Service Header"; var HideDialog: Boolean; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeConfirmPost(var ServiceHeader: Record "Service Header"; var HideDialog: Boolean; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; var IsHandled: Boolean; var PassedServLine: Record "Service Line")
     begin
     end;
 

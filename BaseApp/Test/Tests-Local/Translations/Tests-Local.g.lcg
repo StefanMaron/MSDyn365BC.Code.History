@@ -86,15 +86,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Finance Reports - NamedType FilterValue)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2980600833 - NamedType 1634217986" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<Precision,2><Standard Format,1>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Finance Reports - NamedType FormatString)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2980600833 - NamedType 4048758464" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Specify a filter for the %1 field in the %2 table.]]></Val>

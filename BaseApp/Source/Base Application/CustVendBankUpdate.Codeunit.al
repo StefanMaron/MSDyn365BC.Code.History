@@ -46,6 +46,8 @@ codeunit 5055 "CustVendBank-Update"
             TransferFields(Cont);
             "No." := ContBusRel."No.";
             "No. Series" := NoSeries;
+            "Last Modified Date Time" := CurrentDateTime;
+            "Last Date Modified" := Today;
             OnAfterUpdateCustomer(Cust, Cont);
             Modify;
             if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
@@ -67,6 +69,8 @@ codeunit 5055 "CustVendBank-Update"
             "No." := ContBusRel."No.";
             "No. Series" := NoSeries;
             "Purchaser Code" := PurchaserCode;
+            "Last Modified Date Time" := CurrentDateTime;
+            "Last Date Modified" := Today;
             OnAfterUpdateVendor(Vend, Cont);
             Modify;
             if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
@@ -85,6 +89,7 @@ codeunit 5055 "CustVendBank-Update"
             "No." := ContBusRel."No.";
             "No. Series" := NoSeries;
             "Our Contact Code" := OurContactCode;
+            "Last Date Modified" := Today;
             OnAfterUpdateBankAccount(BankAcc, Cont);
             Modify;
         end;

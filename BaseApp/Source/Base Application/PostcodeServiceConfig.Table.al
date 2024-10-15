@@ -23,35 +23,15 @@ table 9091 "Postcode Service Config"
         }
     }
 
-    fieldgroups
-    {
-    }
-
-    var
-        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
-
-    [Scope('OnPrem')]
     procedure SaveServiceKey(ServiceKeyText: Text)
     begin
-        if ServiceKey = '' then
-            ServiceKey := CreateGuid();
-
-        IsolatedStorageManagement.Set(ServiceKey, ServiceKeyText, DATASCOPE::Company);
-        Modify();
+        Rec.ServiceKey := CopyStr(ServiceKeyText, 1, MaxStrLen(Rec.ServiceKey));
+        Rec.Modify();
     end;
 
-    [Scope('OnPrem')]
     procedure GetServiceKey(): Text
-    var
-        Value: Text;
-        ServiceKeyGUID: Guid;
     begin
-        if ServiceKey <> '' then
-            Evaluate(ServiceKeyGUID, ServiceKey);
-
-        if not IsNullGuid(ServiceKeyGUID) then
-            if IsolatedStorageManagement.Get(ServiceKey, DATASCOPE::Company, Value) then
-                exit(Value);
+        exit(Rec.ServiceKey);
     end;
 }
 

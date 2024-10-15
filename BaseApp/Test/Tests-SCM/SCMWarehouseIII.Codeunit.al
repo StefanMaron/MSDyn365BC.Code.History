@@ -4126,6 +4126,63 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,PickCreatedMessageHandler')]
+    [Scope('OnPrem')]
+    procedure PickWithFEFOWithMultipleILEForBlockedLot()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Location: Record Location;
+        LotNo: array[3] of Code[20];
+        PartQty: Decimal;
+    begin
+        // [FEATURE] [FEFO] [Inventory Pick] [Lot Tracked Item] [Lot No. Info]
+        // [SCENARIO 376045] When create Pick from Sales Order and Pick According to FEFO is used with multiple ILE for a blocked lot,
+        // [SCENARIO 376045] Inventory Pick is created with quantity from non-blocked lot
+        Initialize();
+        PartQty := LibraryRandom.RandIntInRange(10, 50);
+
+        // [GIVEN] Location with Pick According To FEFO, Require Pick and Bin Mandatory
+        CreateAndUpdateLocation(Location, true, false, true, false, false, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] Item with Item Tracking Code having Lot Tracking and Expiration Dates enabled
+        CreateTrackedItem(Item, true, false, false, false, true);
+
+        // [GIVEN] Lot "L1" with Expiration Date = 1/1/2020 and 150 PCS
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo[1], PartQty, CalcDate('<5Y>', WorkDate));
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo[1], 0.5 * PartQty, CalcDate('<5Y>', WorkDate));
+
+        // [GIVEN] Blocked Lot "L2" with Expiration Date = 1/1/2021 and 500 PCS split between multiple Item Ledger Entries
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo[2], 2 * PartQty, CalcDate('<5Y+1D>', WorkDate));
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo[2], PartQty, CalcDate('<5Y+1D>', WorkDate));
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo[2], 2 * PartQty, CalcDate('<5Y+1D>', WorkDate));
+        SetLotBlocked(Item."No.", LotNo, 2);
+
+        // [GIVEN] Release Sales Order "SO1" with 200 PCS
+        CreateAndReleaseSalesOrder(SalesHeader, Item."No.", 2 * PartQty, Location.Code);
+
+        // [WHEN] Create Inventory Pick from Sales Order
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseActivityHeader."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
+
+        // [THEN] Pick is created with 150 PCS and Lot "L1"
+        VerifyWhseActivityLotNo(Location.Code, Item."No.", 1.5 * PartQty, LotNo[1]);
+
+        // [THEN] No Lot "L2" lines created on the pick
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, Item."No.", Location.Code, WarehouseActivityLine."Activity Type"::"Invt. Pick",
+          WarehouseActivityLine."Action Type"::Take, '', '');
+        WarehouseActivityLine.SetRange("Lot No.", LotNo[2]);
+        Assert.RecordIsEmpty(WarehouseActivityLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

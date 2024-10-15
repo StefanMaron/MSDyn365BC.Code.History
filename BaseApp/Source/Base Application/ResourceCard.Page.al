@@ -2,7 +2,7 @@ page 76 "Resource Card"
 {
     Caption = 'Resource Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Resource,Navigate,Prices,Planning';
+    PromotedActionCategories = 'New,Process,Report,Resource,Navigate,Prices & Discounts,Planning';
     RefreshOnActivate = true;
     SourceTable = Resource;
 
@@ -402,6 +402,7 @@ page 76 "Resource Card"
             {
                 Caption = 'Dynamics 365 Sales';
                 Visible = CRMIntegrationEnabled;
+                Enabled = (BlockedFilterApplied and (not Blocked)) or not BlockedFilterApplied;
                 action(CRMGoToProduct)
                 {
                     ApplicationArea = Suite;
@@ -522,7 +523,7 @@ page 76 "Resource Card"
                 action(PurchPriceLists)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Costs';
+                    Caption = 'Purchase Prices';
                     Image = ResourceCosts;
                     Promoted = true;
                     PromotedCategory = Category6;
@@ -540,7 +541,7 @@ page 76 "Resource Card"
                 action(SalesPriceLists)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Prices';
+                    Caption = 'Sales Prices';
                     Image = LineDiscount;
                     Promoted = true;
                     PromotedCategory = Category6;
@@ -708,8 +709,13 @@ page 76 "Resource Card"
     end;
 
     trigger OnOpenPage()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        if CRMIntegrationEnabled then
+            if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then
+                BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
         SetNoFieldVisible;
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
@@ -721,6 +727,7 @@ page 76 "Resource Card"
         FormatAddress: Codeunit "Format Address";
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;

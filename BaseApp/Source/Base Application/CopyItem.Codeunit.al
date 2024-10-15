@@ -1,4 +1,4 @@
-codeunit 730 "Copy Item"
+﻿codeunit 730 "Copy Item"
 {
     TableNo = Item;
 
@@ -110,17 +110,19 @@ codeunit 730 "Copy Item"
         CopyItemPicture(SourceItem, TargetItem);
         CopyItemUnisOfMeasure(SourceItem, TargetItem);
         CopyItemGlobalDimensions(SourceItem, TargetItem);
+        OnCopyItemOnBeforeTargetItemInsert(SourceItem, TargetItem, CopyCounter);
         TargetItem.Insert();
 
         CopyExtendedTexts(SourceItem."No.", TargetItem);
         CopyItemDimensions(SourceItem, TargetItem."No.");
-        CopyItemVariants(SourceItem."No.", TargetItem."No.");
+        CopyItemVariants(SourceItem."No.", TargetItem."No.", TargetItem.SystemId);
         CopyItemTranslations(SourceItem."No.", TargetItem."No.");
         CopyItemComments(SourceItem."No.", TargetItem."No.");
         CopyBOMComponents(SourceItem."No.", TargetItem."No.");
         CopyItemVendors(SourceItem."No.", TargetItem."No.");
         CopyTroubleshootingSetup(SourceItem."No.", TargetItem."No.");
         CopyItemResourceSkills(SourceItem."No.", TargetItem."No.");
+        CopyItemPriceListLines(SourceItem."No.", TargetItem."No.");
         CopyItemSalesPrices(SourceItem."No.", TargetItem."No.");
         CopySalesLineDiscounts(SourceItem."No.", TargetItem."No.");
         CopyPurchasePrices(SourceItem."No.", TargetItem."No.");
@@ -216,14 +218,23 @@ codeunit 730 "Copy Item"
             end;
     end;
 
-    local procedure CopyItemVariants(FromItemNo: Code[20]; ToItemNo: Code[20])
+    local procedure CopyItemVariants(FromItemNo: Code[20]; ToItemNo: Code[20]; ToItemId: Guid)
     var
         ItemVariant: Record "Item Variant";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyItemVariants(CopyItemBuffer, FromItemNo, ToItemNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CopyItemBuffer."Item Variants" then
             exit;
 
         CopyItemRelatedTable(DATABASE::"Item Variant", ItemVariant.FieldNo("Item No."), FromItemNo, ToItemNo);
+        ItemVariant.SetRange("Item No.", ToItemNo);
+        if not ItemVariant.IsEmpty() then
+            ItemVariant.ModifyAll("Item Id", ToItemId);
     end;
 
     local procedure CopyItemTranslations(FromItemNo: Code[20]; ToItemNo: Code[20])
@@ -352,7 +363,42 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, ResourceSkill.FieldNo("No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    local procedure CopyItemPriceListLines(FromItemNo: Code[20]; ToItemNo: Code[20])
+    begin
+        if CopyItemBuffer."Sales Prices" then
+            CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Sale, "Price Amount Type"::Price);
+        if CopyItemBuffer."Sales Line Discounts" then
+            CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Sale, "Price Amount Type"::Discount);
+        if CopyItemBuffer."Sales Prices" or CopyItemBuffer."Sales Line Discounts" then
+            CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Sale, "Price Amount Type"::Any);
+
+        if CopyItemBuffer."Purchase Prices" then
+            CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Purchase, "Price Amount Type"::Price);
+        if CopyItemBuffer."Purchase Line Discounts" then
+            CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Purchase, "Price Amount Type"::Discount);
+        if CopyItemBuffer."Purchase Prices" or CopyItemBuffer."Purchase Line Discounts" then
+            CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Purchase, "Price Amount Type"::Any);
+    end;
+
+    local procedure CopyItemPriceListLines(FromItemNo: Code[20]; ToItemNo: Code[20]; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    var
+        NewPriceListLine: Record "Price List Line";
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.SetRange("Price Type", PriceType);
+        PriceListLine.SetRange("Amount Type", AmountType);
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
+        PriceListLine.SetRange("Asset No.", FromItemNo);
+        if PriceListLine.FindSet() then
+            repeat
+                NewPriceListLine := PriceListLine;
+                NewPriceListLine."Asset No." := ToItemNo;
+                NewPriceListLine."Line No." := 0;
+                NewPriceListLine.Insert();
+            until PriceListLine.Next() = 0;
+    end;
+
+    [Obsolete('Replaced by the method CopyItemPriceListLines()', '17.0')]
     local procedure CopyItemSalesPrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -363,7 +409,7 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Sales Price", SalesPrice.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    [Obsolete('Replaced by the method CopyItemPriceListLines()', '17.0')]
     local procedure CopySalesLineDiscounts(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -378,7 +424,7 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, SalesLineDiscount.FieldNo(Code), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    [Obsolete('Replaced by the method CopyItemPriceListLines()', '17.0')]
     local procedure CopyPurchasePrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         PurchasePrice: Record "Purchase Price";
@@ -389,7 +435,7 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Purchase Price", PurchasePrice.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    [Obsolete('Replaced by the method CopyItemPriceListLines()', '17.0')]
     local procedure CopyPurchaseLineDiscounts(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         PurchLineDiscount: Record "Purchase Line Discount";
@@ -506,6 +552,16 @@ codeunit 730 "Copy Item"
         CopyItemReport: Report "Copy Item";
     begin
         CopyItemReport.AfterCopyItem(SourceItem, TargetItem);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItemVariants(var TempCopyItemBuffer: Record "Copy Item Buffer" temporary; FromItemNo: Code[20]; ToItemNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemOnBeforeTargetItemInsert(SourceItem: Record Item; var TargetItem: Record Item; CopyCounter: Integer)
+    begin
     end;
 }
 

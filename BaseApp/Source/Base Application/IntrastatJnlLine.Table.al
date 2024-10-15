@@ -201,7 +201,14 @@ table 263 "Intrastat Jnl. Line"
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCountryRegionOfOriginCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type, Type::Receipt);
             end;
         }
@@ -348,6 +355,11 @@ table 263 "Intrastat Jnl. Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetItemDescription(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateCountryRegionOfOriginCode(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var IsHandled: Boolean)
     begin
     end;
 }

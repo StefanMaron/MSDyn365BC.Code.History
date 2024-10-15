@@ -245,8 +245,9 @@ report 715 "Price List"
 
                 trigger OnAfterGetRecord()
                 var
-                    TempPriceListLine: Record "Price List Line" temporary;
+                    SalesHeader: Record "Sales Header";
                     SalesLine: Record "Sales Line";
+                    TempPriceListLine: Record "Price List Line" temporary;
                     CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
                     LineWithPrice: Interface "Line With Price";
                     PriceCalculation: Interface "Price Calculation";
@@ -259,10 +260,10 @@ report 715 "Price List"
                     SalesLine.Type := SalesLine.Type::Item;
                     SalesLine."No." := Item."No.";
                     SalesLine."Variant Code" := Code;
-                    SalesLine."Currency Code" := Currency.Code;
                     SalesLine."Posting Date" := DateReq;
+                    SetCurrencyFactorInHeader(SalesHeader);
                     SalesLine.GetLineWithPrice(LineWithPrice);
-                    LineWithPrice.SetLine(PriceType::Sale, SalesLine);
+                    LineWithPrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
                     LineWithPrice.SetSources(PriceSourceList);
                     PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
                     PriceCalculation.FindPrice(TempPriceListLine, false);
@@ -274,8 +275,9 @@ report 715 "Price List"
 
             trigger OnAfterGetRecord()
             var
-                TempPriceListLine: Record "Price List Line" temporary;
+                SalesHeader: Record "Sales Header";
                 SalesLine: Record "Sales Line";
+                TempPriceListLine: Record "Price List Line" temporary;
                 CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
                 LineWithPrice: Interface "Line With Price";
                 PriceCalculation: Interface "Price Calculation";
@@ -287,10 +289,10 @@ report 715 "Price List"
                 SalesLine.Init();
                 SalesLine.Type := SalesLine.Type::Item;
                 SalesLine."No." := Item."No.";
-                SalesLine."Currency Code" := Currency.Code;
                 SalesLine."Posting Date" := DateReq;
+                SetCurrencyFactorInHeader(SalesHeader);
                 SalesLine.GetLineWithPrice(LineWithPrice);
-                LineWithPrice.SetLine(PriceType::Sale, SalesLine);
+                LineWithPrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
                 LineWithPrice.SetSources(PriceSourceList);
                 PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
                 PriceCalculation.FindPrice(TempPriceListLine, false);
@@ -322,6 +324,7 @@ report 715 "Price List"
                                 ContNo := ContBusRel."Contact No.";
                                 PriceSourceList.Add(PriceSourceType::Contact, ContNo);
                             end;
+                            PriceSourceList.Add("Price Source Type"::"All Customers");
                         end;
                     SalesType::"Customer Price Group":
                         begin
@@ -531,7 +534,7 @@ report 715 "Price List"
         UnitOfMeasureCaptionLbl: Label 'Unit of Measure';
         MinimumQuantityCaptionLbl: Label 'Minimum Quantity';
         VATTextCaptionLbl: Label 'VAT';
-        NativeCalculationErr: Label 'The Business Central (Version 15.0) must be selected on the Price Calculation Setup page.';
+        NativeCalculationErr: Label 'The Business Central (Version 15.0) must be selected on the Price Calculation Method page.';
 
     local procedure VerifyPriceSetup()
     var
@@ -683,6 +686,13 @@ report 715 "Price List"
             else
                 UnitOfMeasure := "Unit of Measure Code";
         end;
+    end;
+
+    local procedure SetCurrencyFactorInHeader(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader."Posting Date" := DateReq;
+        SalesHeader."Currency Code" := Currency.Code;
+        SalesHeader.UpdateCurrencyFactor();
     end;
 
     procedure InitializeRequest(NewDateReq: Date; NewSalesType: Option; NewSalesCode: Code[20]; NewCurrencyCode: Code[10])

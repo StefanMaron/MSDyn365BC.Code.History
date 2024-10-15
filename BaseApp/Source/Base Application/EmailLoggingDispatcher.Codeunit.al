@@ -99,8 +99,8 @@ codeunit 5064 "Email Logging Dispatcher"
 
         SetErrorContext(Text102);
 
-        if not IsNullGuid(MarketingSetup."Exchange Tenant Id Key") then begin
-            TenantId := MarketingSetup.GetExchangeTenantId();
+        TenantId := MarketingSetup.GetExchangeTenantId();
+        if TenantId <> '' then begin
             SetupEmailLogging.GetClientCredentialsAccessToken(TenantId, Token);
             OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
             Initialized := ExchangeWebServicesServer.Initialize2010WithUserImpersonation(MarketingSetup."Autodiscovery E-Mail Address",

@@ -3,7 +3,14 @@ codeunit 550 "VAT Rate Change Conversion"
     Permissions = TableData "VAT Rate Change Log Entry" = i;
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(IsHandled);
+        if IsHandled then
+            exit;
+
         if not VATRateChangeSetup.Get then begin
             VATRateChangeSetup.Init();
             VATRateChangeSetup.Insert();
@@ -674,9 +681,6 @@ codeunit 550 "VAT Rate Change Conversion"
         OldReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
         OldReservationEntry.SetRange("Source Type", DATABASE::"Sales Line");
         OldReservationEntry.SetRange("Source Subtype", SalesLine."Document Type");
-        OldReservationEntry.SetFilter(
-          "Reservation Status", '%1|%2', OldReservationEntry."Reservation Status"::Reservation,
-          OldReservationEntry."Reservation Status"::Surplus);
         if OldReservationEntry.FindSet then
             repeat
                 NewReservationEntry := OldReservationEntry;
@@ -1702,6 +1706,11 @@ codeunit 550 "VAT Rate Change Conversion"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFinishConvert(var VATRateChangeSetup: Record "VAT Rate Change Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var IsHandled: Boolean)
     begin
     end;
 

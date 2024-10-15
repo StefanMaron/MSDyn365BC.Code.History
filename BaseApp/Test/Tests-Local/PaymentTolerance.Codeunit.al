@@ -29,6 +29,8 @@ codeunit 142076 "Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378178] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms
+        Initialize();
+
         // [GIVEN] Payment Terms "X" with "Discount %" = 0, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
         PaymentTerms.Validate("Discount %", 0);
@@ -55,6 +57,7 @@ codeunit 142076 "Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 378178] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms
+        Initialize();
 
         // [GIVEN] Payment Terms "X" with "Discount %" = 0, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
