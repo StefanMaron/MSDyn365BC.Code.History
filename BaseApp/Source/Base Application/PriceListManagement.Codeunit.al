@@ -1,6 +1,8 @@
 codeunit 7017 "Price List Management"
 {
     var
+        PriceIsFound: Boolean;
+        SearchIfPriceExists: Boolean;
         AllLinesVerifiedMsg: Label 'All price list lines are verified.';
         EmptyPriceSourceErr: Label 'You must specify what the price applies to.';
         ImplementPricesMsg: Label 'Implementing price changes: inserted - %1, modified - %2, skipped - %3', Comment = '%1, %2, %3 are numbers';
@@ -447,6 +449,7 @@ codeunit 7017 "Price List Management"
     procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type")
     begin
         PriceListLine.FilterGroup(2);
+        PriceListLine.SetRange(Status, "Price Status"::Draft, "Price Status"::Active);
         PriceListLine.SetRange("Price Type", PriceSourceList.GetPriceType());
         if AmountType = AmountType::Any then
             PriceListLine.SetRange("Amount Type")
@@ -458,9 +461,10 @@ codeunit 7017 "Price List Management"
         PriceListLine.FilterGroup(0);
     end;
 
-    procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List"; AmountType: Enum "Price Amount Type")
+    procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List"; AmountType: Enum "Price Amount Type"): Boolean;
     begin
         PriceListLine.FilterGroup(2);
+        PriceListLine.SetRange(Status, "Price Status"::Draft, "Price Status"::Active);
         PriceListLine.SetRange("Price Type", PriceSource."Price Type");
         if AmountType = AmountType::Any then
             PriceListLine.SetRange("Amount Type")
@@ -491,12 +495,23 @@ codeunit 7017 "Price List Management"
                     PriceListLine.SetRange("Variant Code", PriceAsset."Variant Code")
                 else
                     PriceListLine.SetRange("Variant Code");
-                if PriceListLine.FindSet() then
+                OnBuildAssetFiltersOnBeforeFindLines(PriceListLine, PriceAsset);
+                if PriceListLine.FindSet() then begin
+                    if SearchIfPriceExists then begin
+                        ClearAssetFilters(PriceListLine);
+                        PriceIsFound := true;
+                        exit;
+                    end;
                     repeat
                         PriceListLine.Mark(true);
                     until PriceListLine.Next() = 0;
+                end;
             until not PriceAssetList.Next(PriceAsset);
+        ClearAssetFilters(PriceListLine);
+    end;
 
+    local procedure ClearAssetFilters(var PriceListLine: Record "Price List Line")
+    begin
         PriceListLine.SetRange("Asset Type");
         PriceListLine.SetRange("Asset No.");
         PriceListLine.SetRange("Variant Code");
@@ -511,15 +526,38 @@ codeunit 7017 "Price List Management"
                 PriceListLine.SetRange("Source Type", PriceSource."Source Type");
                 PriceListLine.SetRange("Parent Source No.", PriceSource."Parent Source No.");
                 PriceListLine.SetRange("Source No.", PriceSource."Source No.");
-                if PriceListLine.FindSet() then
+                OnBuildSourceFiltersOnBeforeFindLines(PriceListLine, PriceSource);
+                if PriceListLine.FindSet() then begin
+                    if SearchIfPriceExists then begin
+                        ClearSourceFilters(PriceListLine);
+                        PriceIsFound := true;
+                        exit;
+                    end;
                     repeat
                         PriceListLine.Mark(true);
                     until PriceListLine.Next() = 0;
+                end;
             until not PriceSourceList.Next(PriceSource);
+        ClearSourceFilters(PriceListLine);
+    end;
 
+    local procedure ClearSourceFilters(var PriceListLine: Record "Price List Line")
+    begin
         PriceListLine.SetRange("Source Type");
         PriceListLine.SetRange("Source No.");
         PriceListLine.SetRange("Parent Source No.");
+    end;
+
+    procedure FindIfPriceExists()
+    begin
+        SearchIfPriceExists := true;
+        PriceIsFound := false;
+    end;
+
+    procedure IsPriceFound(): Boolean;
+    begin
+        SearchIfPriceExists := false;
+        exit(PriceIsFound);
     end;
 
     local procedure SetSourceFilters(PriceSourceList: Codeunit "Price Source List"; var PriceListHeader: Record "Price List Header")
@@ -673,7 +711,8 @@ codeunit 7017 "Price List Management"
     begin
         if Rec.IsTemporary() then
             exit;
-        MarkLineAsDraft(Rec, xRec);
+        if RunTrigger then
+            MarkLineAsDraft(Rec, xRec);
     end;
 
     local procedure MarkLineAsDraft(var Rec: Record "Price List Line"; var xRec: Record "Price List Line")
@@ -734,6 +773,16 @@ codeunit 7017 "Price List Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindDuplicatePriceListLine(PriceListLine: Record "Price List Line"; var DuplicatePriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBuildAssetFiltersOnBeforeFindLines(var PriceListLine: Record "Price List Line"; PriceAsset: Record "Price Asset")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBuildSourceFiltersOnBeforeFindLines(var PriceListLine: Record "Price List Line"; PriceSource: Record "Price Source")
     begin
     end;
 }

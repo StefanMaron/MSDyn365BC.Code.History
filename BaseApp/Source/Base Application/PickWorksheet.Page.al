@@ -57,11 +57,22 @@ page 7345 "Pick Worksheet"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Whse. Document Type"; "Whse. Document Type")
+                field("Whse. Document Type"; Rec."Whse. Document Type")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,,Shipment,,Internal Pick,Production,,,Assembly';
                     ToolTip = 'Specifies the type of warehouse document this line is associated with.';
+                    Visible = false;
+                }
+                field("WhseDocumentType"; WhseDocumentType)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Whse. Document Type';
+                    ToolTip = 'Specifies the type of warehouse document this line is associated with.';
+
+                    trigger OnValidate()
+                    begin
+                        Rec.Validate("Whse. Document Type", WhseDocumentType);
+                    end;
                 }
                 field("Whse. Document No."; "Whse. Document No.")
                 {
@@ -310,8 +321,8 @@ page 7345 "Pick Worksheet"
 
                     trigger OnAction()
                     begin
-                        WMSMgt.ShowWhseDocLine(
-                          "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+                        WMSMgt.ShowWhseActivityDocLine(
+                            Rec."Whse. Document Type", Rec."Whse. Document No.", Rec."Whse. Document Line No.");
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -476,17 +487,18 @@ page 7345 "Pick Worksheet"
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetItem("Item No.", ItemDescription);
+        Rec.GetItem(Rec."Item No.", ItemDescription);
+        WhseDocumentType := Rec."Whse. Document Type";
     end;
 
     trigger OnAfterGetRecord()
     begin
-        CrossDockMgt.CalcCrossDockedItems("Item No.", "Variant Code", "Unit of Measure Code", "Location Code",
-          QtyCrossDockedUOMBase,
-          QtyCrossDockedAllUOMBase);
+        CrossDockMgt.CalcCrossDockedItems(
+            Rec."Item No.", Rec."Variant Code", Rec."Unit of Measure Code", Rec."Location Code",
+            QtyCrossDockedUOMBase, QtyCrossDockedAllUOMBase);
         QtyCrossDockedUOM := 0;
-        if "Qty. per Unit of Measure" <> 0 then
-            QtyCrossDockedUOM := Round(QtyCrossDockedUOMBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+        if Rec."Qty. per Unit of Measure" <> 0 then
+            QtyCrossDockedUOM := Round(QtyCrossDockedUOMBase / Rec."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -501,14 +513,14 @@ page 7345 "Pick Worksheet"
         OpenedFromBatch := (Name <> '') and ("Worksheet Template Name" = '');
         if OpenedFromBatch then begin
             CurrentWkshName := Name;
-            CurrentLocationCode := "Location Code";
-            OpenWhseWksh(Rec, CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode);
+            CurrentLocationCode := Rec."Location Code";
+            Rec.OpenWhseWksh(Rec, CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode);
             exit;
         end;
-        TemplateSelection(PAGE::"Pick Worksheet", 1, Rec, WhseWkshSelected);
+        Rec.TemplateSelection(PAGE::"Pick Worksheet", 1, Rec, WhseWkshSelected);
         if not WhseWkshSelected then
             Error('');
-        OpenWhseWksh(Rec, CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode);
+        Rec.OpenWhseWksh(Rec, CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode);
     end;
 
     var
@@ -519,6 +531,7 @@ page 7345 "Pick Worksheet"
         QtyCrossDockedAllUOMBase: Decimal;
         QtyCrossDockedUOMBase: Decimal;
         OpenedFromBatch: Boolean;
+        WhseDocumentType: Enum "Warehouse Pick Document Type";
 
     protected var
         CurrentWkshTemplateName: Code[10];
@@ -534,17 +547,16 @@ page 7345 "Pick Worksheet"
 
     protected procedure CurrentWkshNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
+        CurrPage.SaveRecord();
+        Rec.SetWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;
 
     protected procedure CurrentSortingMethodOnAfterValidate()
     begin
-        SortWhseWkshLines(
-          CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode, CurrentSortingMethod);
+        Rec.SortWhseWkshLines(CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode, CurrentSortingMethod);
         CurrPage.Update(false);
-        SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Sorting Sequence No.");
+        Rec.SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Sorting Sequence No.");
     end;
 
     [IntegrationEvent(false, false)]

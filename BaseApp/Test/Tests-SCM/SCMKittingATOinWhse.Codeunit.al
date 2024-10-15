@@ -302,7 +302,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     end;
 
     [Normal]
-    local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Option; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
+    local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
     begin
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
         if ComponentType = BOMComponent.Type::Resource then

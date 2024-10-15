@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 3012 DotNet_ImageFormat
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. Use the ImageFormat Enum in the Image Module instead.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -65,4 +69,4 @@ codeunit 3012 DotNet_ImageFormat
         DotNetImageFormat := DotNetImageFormat2
     end;
 }
-
+#endif

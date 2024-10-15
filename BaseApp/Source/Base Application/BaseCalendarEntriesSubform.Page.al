@@ -87,7 +87,7 @@ page 7604 "Base Calendar Entries Subform"
         FoundDate: Boolean;
         FoundLine: Boolean;
     begin
-        FoundDate := PeriodFormMgt.FindDate(Which, DateRec, 0);
+        FoundDate := PeriodPageMgt.FindDate(Which, DateRec, "Analysis Period Type"::Day);
         if not FoundDate then
             exit(false);
 
@@ -101,7 +101,7 @@ page 7604 "Base Calendar Entries Subform"
         FoundLine: Boolean;
         ResultSteps: Integer;
     begin
-        ResultSteps := PeriodFormMgt.NextDate(Steps, DateRec, 0);
+        ResultSteps := PeriodPageMgt.NextDate(Steps, DateRec, "Analysis Period Type"::Day);
         if ResultSteps = 0 then
             exit(0);
 
@@ -119,7 +119,7 @@ page 7604 "Base Calendar Entries Subform"
 
     var
         CurrCalendarChange: Record "Customized Calendar Change";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         CalendarMgmt: Codeunit "Calendar Management";
         DateRec: Record Date;
 

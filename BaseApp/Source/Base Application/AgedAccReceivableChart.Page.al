@@ -171,6 +171,7 @@ page 768 "Aged Acc. Receivable Chart"
         if Rec.GetFilter("No.") <> '' then
             CustomerNo := Rec.GetRangeMax("No.");
         Rec.FilterGroup(0);
+        Rec."No." := CustomerNo;
         if CustomerNo <> '' then
             if UpdatePending then begin
                 BusinessChartBuffer.Update(CurrPage.BusinessChart);

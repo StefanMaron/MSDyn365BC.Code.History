@@ -26,6 +26,7 @@ codeunit 134153 "Test Intrastat"
         FileExtenstionTxt: Label '.EDI';
         AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
     [Scope('OnPrem')]
@@ -90,11 +91,7 @@ codeunit 134153 "Test Intrastat"
         asserterror RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filepath);
 
         // Verify
-#if CLEAN19
-        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
-#else
         VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
-#endif
     end;
 
     [Test]
@@ -138,6 +135,7 @@ codeunit 134153 "Test Intrastat"
         LibraryReportDataset.AssertCurrentRowValueEquals('Intrastat_Jnl__Line__Transaction_Type_', IntrastatJnlLine."Transaction Type");
         LibraryReportDataset.AssertCurrentRowValueEquals('Intrastat_Jnl__Line__Transport_Method_', IntrastatJnlLine."Transport Method");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
@@ -514,6 +512,7 @@ codeunit 134153 "Test Intrastat"
         CompanyInfo.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure EnableTransportMethodCheck()
     var
         CompanyInfo: Record "Company Information";
@@ -531,6 +530,7 @@ codeunit 134153 "Test Intrastat"
         CompanyInfo.Validate("Check Transaction Specific.", true);
         CompanyInfo.Modify(true);
     end;
+#endif
 
     local procedure VerifyIntrastatJnlLine(IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; ItemNo: Code[20]; ExpectedQty: Decimal; ExpectedAmount: Decimal)
     var
@@ -574,7 +574,7 @@ codeunit 134153 "Test Intrastat"
         ErrorMessage.FindFirst();
         Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
     end;
- 
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntriesReqPage: TestRequestPage "Get Item Ledger Entries")

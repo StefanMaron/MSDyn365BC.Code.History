@@ -300,6 +300,11 @@ page 1872 "Item Availability Check"
         exit(true);
     end;
 
+    procedure GetLocationCode(): Code[10]
+    begin
+        exit(LocationCode);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitializeFromNotification(var Item: Record Item; var AvailabilityCheckNotification: Notification)
     begin

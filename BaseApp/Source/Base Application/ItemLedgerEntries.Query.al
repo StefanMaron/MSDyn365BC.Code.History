@@ -15,9 +15,14 @@ query 265 "Item Ledger Entries"
             column(Item_No; "Item No.")
             {
             }
+#if not CLEAN19
             column(Cross_Reference_No; "Cross-Reference No.")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Item Reference feature.';
+                ObsoleteTag = '19.0';
             }
+#endif
             column(Item_Reference_No; "Item Reference No.")
             {
             }

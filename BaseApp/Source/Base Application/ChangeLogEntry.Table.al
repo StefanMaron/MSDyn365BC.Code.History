@@ -35,7 +35,7 @@ table 405 "Change Log Entry"
         }
         field(6; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table No.")));
             Caption = 'Table Caption';
             FieldClass = FlowField;
@@ -47,7 +47,7 @@ table 405 "Change Log Entry"
         }
         field(8; "Field Caption"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Field No.")));
             Caption = 'Field Caption';
             FieldClass = FlowField;
@@ -77,7 +77,7 @@ table 405 "Change Log Entry"
         }
         field(14; "Primary Key Field 1 Caption"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 1 No.")));
             Caption = 'Primary Key Field 1 Caption';
             FieldClass = FlowField;
@@ -93,7 +93,7 @@ table 405 "Change Log Entry"
         }
         field(17; "Primary Key Field 2 Caption"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 2 No.")));
             Caption = 'Primary Key Field 2 Caption';
             FieldClass = FlowField;
@@ -109,7 +109,7 @@ table 405 "Change Log Entry"
         }
         field(20; "Primary Key Field 3 Caption"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 3 No.")));
             Caption = 'Primary Key Field 3 Caption';
             FieldClass = FlowField;
@@ -121,7 +121,7 @@ table 405 "Change Log Entry"
         field(22; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(25; Protected; Boolean)
         {
@@ -159,7 +159,7 @@ table 405 "Change Log Entry"
         key(Key3; "Table No.", "Date and Time")
         {
         }
-        key(Key4;"Notification Message Id")
+        key(Key4; "Notification Message Id")
         {
         }
     }

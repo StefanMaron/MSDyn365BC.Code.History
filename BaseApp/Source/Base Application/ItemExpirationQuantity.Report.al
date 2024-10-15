@@ -42,7 +42,7 @@ report 5809 "Item Expiration - Quantity"
         dataitem(Item; Item)
         {
             PrintOnlyIfDetail = true;
-            RequestFilterFields = "No.", "Inventory Posting Group", "Statistics Group", "Location Filter";
+            RequestFilterFields = "No.", "Inventory Posting Group", "Statistics Group", "Location Filter", "Item Tracking Code";
             column(No_Item; "No.")
             {
             }

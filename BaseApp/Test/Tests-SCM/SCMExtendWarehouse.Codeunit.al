@@ -354,7 +354,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         ReservationManagement: Codeunit "Reservation Management";
     begin
-        ReservationManagement.SetSalesLine(SalesLine);
+        ReservationManagement.SetReservSource(SalesLine);
         ReservationManagement.AutoReserve(FullReservation, '', SalesLine."Shipment Date",
           Round(QtyToReserve / SalesLine."Qty. per Unit of Measure", 0.00001), QtyToReserve);
         SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -364,7 +364,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         ReservationManagement: Codeunit "Reservation Management";
     begin
-        ReservationManagement.SetProdOrderComponent(ProdOrderComp);
+        ReservationManagement.SetReservSource(ProdOrderComp);
         ReservationManagement.AutoReserve(FullReservation, '', ProdOrderComp."Due Date",
           Round(QtyToReserve / ProdOrderComp."Qty. per Unit of Measure", 0.00001), QtyToReserve);
         ProdOrderComp.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -666,7 +666,7 @@ codeunit 137030 "SCM Extend Warehouse"
         until ProdOrderComponent.Next = 0;
     end;
 
-    local procedure FillQtyToHandle(ProductionOrder: Record "Production Order"; ActionType: Option; QtyToHandle: Decimal; ActivityType: Option)
+    local procedure FillQtyToHandle(ProductionOrder: Record "Production Order"; ActionType: Enum "Warehouse Action Type"; QtyToHandle: Decimal; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -683,7 +683,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine.Modify(true);
     end;
 
-    local procedure DeleteActivityTypeWithSrcDoc(ProductionOrder: Record "Production Order"; Location: Record Location; ActivityType: Option)
+    local procedure DeleteActivityTypeWithSrcDoc(ProductionOrder: Record "Production Order"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -696,7 +696,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader.Delete(true);
     end;
 
-    local procedure ChangeBinInWhseActivityLine(ProductionOrder: Record "Production Order"; ActivityType: Option; Quantity: Decimal; BinCode: Code[20])
+    local procedure ChangeBinInWhseActivityLine(ProductionOrder: Record "Production Order"; ActivityType: Enum "Warehouse Activity Type"; Quantity: Decimal; BinCode: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -714,7 +714,7 @@ codeunit 137030 "SCM Extend Warehouse"
         until WarehouseActivityLine.Next = 0;
     end;
 
-    local procedure SplitWhseActivityLine(ProductionOrder: Record "Production Order"; ActionType: Option; QtyToHandle: Decimal)
+    local procedure SplitWhseActivityLine(ProductionOrder: Record "Production Order"; ActionType: Enum "Warehouse Action Type"; QtyToHandle: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -731,7 +731,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine.SplitLine(WarehouseActivityLine);
     end;
 
-    local procedure DeleteWhseActivityLine(ProductionOrder: Record "Production Order"; ActionType: Option)
+    local procedure DeleteWhseActivityLine(ProductionOrder: Record "Production Order"; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -770,7 +770,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine.DeleteQtyToHandle(WarehouseActivityLine);
     end;
 
-    local procedure GetLastActvHdrCreatedNoSource(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option)
+    local procedure GetLastActvHdrCreatedNoSource(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type")
     begin
         WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
@@ -778,7 +778,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityHdr.FindLast;
     end;
 
-    local procedure GetLastActvHdrCreatedWithSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[30])
+    local procedure GetLastActvHdrCreatedWithSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[30])
     begin
         WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
@@ -788,7 +788,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityHdr.FindLast;
     end;
 
-    local procedure AssertActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; NoOfLines: Integer; Message: Text[30])
+    local procedure AssertActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; NoOfLines: Integer; Message: Text[30])
     begin
         WhseActivityHdr.Init();
         WhseActivityHdr.SetCurrentKey("Source Document", "Source No.", "Location Code");
@@ -802,7 +802,7 @@ codeunit 137030 "SCM Extend Warehouse"
             WhseActivityHdr.FindSet(true);
     end;
 
-    local procedure AssertNoActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; Message: Text[30])
+    local procedure AssertNoActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; Message: Text[30])
     begin
         AssertActivityHdr(WhseActivityHdr, Location, ActivityType, SourceDoc, SourceNo, 0, Message);
     end;
@@ -836,7 +836,7 @@ codeunit 137030 "SCM Extend Warehouse"
         end;
     end;
 
-    local procedure AssertWhseActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; Message: Text[30])
+    local procedure AssertWhseActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type"; Message: Text[30])
     begin
         WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
@@ -846,7 +846,7 @@ codeunit 137030 "SCM Extend Warehouse"
           WhseActivityHdr.GetFilters);
     end;
 
-    local procedure AssertActivityLine(WhseActivityHdr: Record "Warehouse Activity Header"; Item: Record Item; Bin: Record Bin; ActionType: Option; Qty: Decimal; QtyToHandle: Decimal; NoOfLines: Integer; Message: Text[30])
+    local procedure AssertActivityLine(WhseActivityHdr: Record "Warehouse Activity Header"; Item: Record Item; Bin: Record Bin; ActionType: Enum "Warehouse Action Type"; Qty: Decimal; QtyToHandle: Decimal; NoOfLines: Integer; Message: Text[30])
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -917,7 +917,7 @@ codeunit 137030 "SCM Extend Warehouse"
             RegisteredInvtMovementHdr.Next(ReturnHdrNo - 1);
     end;
 
-    local procedure AssertRegisteredInvtMvmtLine(RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; Item: Record Item; Bin: Record Bin; ActionType: Option; Quantity: Decimal; ExpectedCount: Integer; Message: Text[1024])
+    local procedure AssertRegisteredInvtMvmtLine(RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; Item: Record Item; Bin: Record Bin; ActionType: Enum "Warehouse Action Type"; Quantity: Decimal; ExpectedCount: Integer; Message: Text[1024])
     var
         RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
     begin

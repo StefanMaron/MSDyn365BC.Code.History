@@ -59,10 +59,8 @@ page 464 "Tax Area"
     end;
 
     trigger OnOpenPage()
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        ShowTaxDetails := not EnvInfoProxy.IsInvoicing;
+        ShowTaxDetails := true;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

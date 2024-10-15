@@ -367,7 +367,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, WorkDate, BOMBuffer."No.", BOMBuffer."Location Code", BOMBuffer."Able to Make Top Item", BOMBuffer."Variant Code");
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, AssemblyHeader."Item No.",
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, AssemblyHeader."Item No.",
           AssemblyHeader."Unit of Measure Code", LibraryRandom.RandInt(5), 1, '');
 
         // Exercise.

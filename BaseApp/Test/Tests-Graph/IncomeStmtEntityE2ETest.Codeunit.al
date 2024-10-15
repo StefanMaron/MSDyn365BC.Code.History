@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135521 "Income Stmt. Entity E2E Test"
 {
     Subtype = Test;
@@ -87,4 +88,4 @@ codeunit 135521 "Income Stmt. Entity E2E Test"
         IncomeStatementJSON := JSONManagement.WriteObjectToString;
     end;
 }
-
+#endif

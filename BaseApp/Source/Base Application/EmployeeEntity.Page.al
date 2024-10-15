@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5483 "Employee Entity"
 {
     Caption = 'employees', Locked = true;
@@ -249,4 +250,4 @@ page 5483 "Employee Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

@@ -27,7 +27,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Sales Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Sales Account", GLAccountCategory."Account Category"::Income,
                       StrSubstNo('%1|%2', GLAccountCategoryMgt.GetIncomeProdSales, GLAccountCategoryMgt.GetIncomeService));
             end;
@@ -47,7 +47,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Sales Line Disc. Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Sales Line Disc. Account", GLAccountCategory."Account Category"::Income,
                       GLAccountCategoryMgt.GetIncomeSalesDiscounts);
             end;
@@ -67,7 +67,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Sales Inv. Disc. Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Sales Inv. Disc. Account", GLAccountCategory."Account Category"::Income,
                       GLAccountCategoryMgt.GetIncomeSalesDiscounts);
             end;
@@ -101,7 +101,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Purch. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
                       StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
             end;
@@ -121,7 +121,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Line Disc. Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Purch. Line Disc. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
                       GLAccountCategoryMgt.GetCOGSDiscountsGranted);
             end;
@@ -141,7 +141,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Inv. Disc. Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Purch. Inv. Disc. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
                       GLAccountCategoryMgt.GetCOGSDiscountsGranted);
             end;
@@ -175,7 +175,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("COGS Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "COGS Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
                       StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
             end;
@@ -195,7 +195,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Adjmt. Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Inventory Adjmt. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
                       StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
             end;
@@ -215,7 +215,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Sales Credit Memo Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                         "Sales Credit Memo Account", GLAccountCategory."Account Category"::Income,
                         StrSubstNo(AccountSubcategoryFilterTxt, GLAccountCategoryMgt.GetIncomeProdSales(), GLAccountCategoryMgt.GetIncomeService()));
             end;
@@ -235,7 +235,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Credit Memo Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                         "Purch. Credit Memo Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
                         StrSubstNo(AccountSubcategoryFilterTxt, GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
             end;
@@ -375,10 +375,10 @@ table 252 "General Posting Setup"
             trigger OnLookup()
             begin
                 if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Adjmt. Account")
+                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Invt. Accrual Acc. (Interim)")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
-                      "Inventory Adjmt. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
+                    LookupGLAccount(
+                      "Invt. Accrual Acc. (Interim)", GLAccountCategory."Account Category"::"Cost of Goods Sold",
                       StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
             end;
 
@@ -397,7 +397,7 @@ table 252 "General Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("COGS Account (Interim)")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "COGS Account (Interim)", GLAccountCategory."Account Category"::"Cost of Goods Sold",
                       StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
             end;
@@ -554,64 +554,64 @@ table 252 "General Posting Setup"
     procedure GetCOGSAccount(): Code[20]
     begin
         if "COGS Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("COGS Account"));
-        TestField("COGS Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("COGS Account"));
+
         exit("COGS Account");
     end;
 
     procedure GetCOGSInterimAccount(): Code[20]
     begin
         if "COGS Account (Interim)" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("COGS Account (Interim)"));
-        TestField("COGS Account (Interim)");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("COGS Account (Interim)"));
+
         exit("COGS Account (Interim)");
     end;
 
     procedure GetInventoryAdjmtAccount(): Code[20]
     begin
         if "Inventory Adjmt. Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Inventory Adjmt. Account"));
-        TestField("Inventory Adjmt. Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Inventory Adjmt. Account"));
+
         exit("Inventory Adjmt. Account");
     end;
 
     procedure GetInventoryAccrualAccount(): Code[20]
     begin
         if "Invt. Accrual Acc. (Interim)" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Invt. Accrual Acc. (Interim)"));
-        TestField("Invt. Accrual Acc. (Interim)");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Invt. Accrual Acc. (Interim)"));
+
         exit("Invt. Accrual Acc. (Interim)");
     end;
 
     procedure GetSalesAccount(): Code[20]
     begin
         if "Sales Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Account"));
-        TestField("Sales Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Account"));
+
         exit("Sales Account");
     end;
 
     procedure GetSalesCrMemoAccount(): Code[20]
     begin
         if "Sales Credit Memo Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Credit Memo Account"));
-        TestField("Sales Credit Memo Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Credit Memo Account"));
+
         exit("Sales Credit Memo Account");
     end;
 
     procedure GetSalesInvDiscAccount(): Code[20]
     begin
         if "Sales Inv. Disc. Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Inv. Disc. Account"));
-        TestField("Sales Inv. Disc. Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Inv. Disc. Account"));
+
         exit("Sales Inv. Disc. Account");
     end;
 
     procedure GetSalesLineDiscAccount(): Code[20]
     begin
         if "Sales Line Disc. Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Line Disc. Account"));
-        TestField("Sales Line Disc. Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Line Disc. Account"));
+
         exit("Sales Line Disc. Account");
     end;
 
@@ -619,13 +619,13 @@ table 252 "General Posting Setup"
     begin
         if Debit then begin
             if "Sales Pmt. Disc. Debit Acc." = '' then
-                PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Pmt. Disc. Debit Acc."));
-            TestField("Sales Pmt. Disc. Debit Acc.");
+                PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Pmt. Disc. Debit Acc."));
+
             exit("Sales Pmt. Disc. Debit Acc.");
         end;
         if "Sales Pmt. Disc. Credit Acc." = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Pmt. Disc. Credit Acc."));
-        TestField("Sales Pmt. Disc. Credit Acc.");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Pmt. Disc. Credit Acc."));
+
         exit("Sales Pmt. Disc. Credit Acc.");
     end;
 
@@ -633,13 +633,13 @@ table 252 "General Posting Setup"
     begin
         if Debit then begin
             if "Sales Pmt. Tol. Debit Acc." = '' then
-                PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Pmt. Tol. Debit Acc."));
-            TestField("Sales Pmt. Tol. Debit Acc.");
+                PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Pmt. Tol. Debit Acc."));
+
             exit("Sales Pmt. Tol. Debit Acc.");
         end;
         if "Sales Pmt. Tol. Credit Acc." = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Pmt. Tol. Credit Acc."));
-        TestField("Sales Pmt. Tol. Credit Acc.");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Pmt. Tol. Credit Acc."));
+
         exit("Sales Pmt. Tol. Credit Acc.");
     end;
 
@@ -657,40 +657,40 @@ table 252 "General Posting Setup"
             GLAccount.Get("Sales Prepayments Account");
             GLAccount.CheckGenProdPostingGroup();
         end else
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Prepayments Account"));
-        TestField("Sales Prepayments Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Sales Prepayments Account"));
+
         exit("Sales Prepayments Account");
     end;
 
     procedure GetPurchAccount(): Code[20]
     begin
         if "Purch. Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Account"));
-        TestField("Purch. Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Account"));
+
         exit("Purch. Account");
     end;
 
     procedure GetPurchCrMemoAccount(): Code[20]
     begin
         if "Purch. Credit Memo Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Credit Memo Account"));
-        TestField("Purch. Credit Memo Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Credit Memo Account"));
+
         exit("Purch. Credit Memo Account");
     end;
 
     procedure GetPurchInvDiscAccount(): Code[20]
     begin
         if "Purch. Inv. Disc. Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Inv. Disc. Account"));
-        TestField("Purch. Inv. Disc. Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Inv. Disc. Account"));
+
         exit("Purch. Inv. Disc. Account");
     end;
 
     procedure GetPurchLineDiscAccount(): Code[20]
     begin
         if "Purch. Line Disc. Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Line Disc. Account"));
-        TestField("Purch. Line Disc. Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Line Disc. Account"));
+
         exit("Purch. Line Disc. Account");
     end;
 
@@ -698,13 +698,13 @@ table 252 "General Posting Setup"
     begin
         if Debit then begin
             if "Purch. Pmt. Disc. Debit Acc." = '' then
-                PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Pmt. Disc. Debit Acc."));
-            TestField("Purch. Pmt. Disc. Debit Acc.");
+                PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Pmt. Disc. Debit Acc."));
+
             exit("Purch. Pmt. Disc. Debit Acc.");
         end;
         if "Purch. Pmt. Disc. Credit Acc." = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Pmt. Disc. Credit Acc."));
-        TestField("Purch. Pmt. Disc. Credit Acc.");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Pmt. Disc. Credit Acc."));
+
         exit("Purch. Pmt. Disc. Credit Acc.");
     end;
 
@@ -712,13 +712,13 @@ table 252 "General Posting Setup"
     begin
         if Debit then begin
             if "Purch. Pmt. Tol. Debit Acc." = '' then
-                PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Pmt. Tol. Debit Acc."));
-            TestField("Purch. Pmt. Tol. Debit Acc.");
+                PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Pmt. Tol. Debit Acc."));
+
             exit("Purch. Pmt. Tol. Debit Acc.");
         end;
         if "Purch. Pmt. Tol. Credit Acc." = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Pmt. Tol. Credit Acc."));
-        TestField("Purch. Pmt. Tol. Credit Acc.");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Pmt. Tol. Credit Acc."));
+
         exit("Purch. Pmt. Tol. Credit Acc.");
     end;
 
@@ -730,40 +730,40 @@ table 252 "General Posting Setup"
             GLAccount.Get("Purch. Prepayments Account");
             GLAccount.CheckGenProdPostingGroup();
         end else
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Prepayments Account"));
-        TestField("Purch. Prepayments Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. Prepayments Account"));
+
         exit("Purch. Prepayments Account");
     end;
 
     procedure GetPurchFADiscAccount(): Code[20]
     begin
         if "Purch. FA Disc. Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. FA Disc. Account"));
-        TestField("Purch. FA Disc. Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purch. FA Disc. Account"));
+
         exit("Purch. FA Disc. Account");
     end;
 
     procedure GetDirectCostAppliedAccount(): Code[20]
     begin
         if "Direct Cost Applied Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Direct Cost Applied Account"));
-        TestField("Direct Cost Applied Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Direct Cost Applied Account"));
+
         exit("Direct Cost Applied Account");
     end;
 
     procedure GetOverheadAppliedAccount(): Code[20]
     begin
         if "Overhead Applied Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Overhead Applied Account"));
-        TestField("Overhead Applied Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Overhead Applied Account"));
+
         exit("Overhead Applied Account");
     end;
 
     procedure GetPurchaseVarianceAccount(): Code[20]
     begin
         if "Purchase Variance Account" = '' then
-            PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purchase Variance Account"));
-        TestField("Purchase Variance Account");
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Purchase Variance Account"));
+
         exit("Purchase Variance Account");
     end;
 
@@ -905,6 +905,11 @@ table 252 "General Posting Setup"
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;
+    end;
+
+    local procedure LookupGLAccount(var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
+    begin
+        GLAccountCategoryMgt.LookupGLAccount(Database::"General Posting Setup", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
     end;
 
     [IntegrationEvent(false, false)]

@@ -1053,7 +1053,7 @@ codeunit 136131 "Service Demand Overview"
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
     begin
-        ReservMgt.SetPurchLine(PurchaseLine);
+        ReservMgt.SetReservSource(PurchaseLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', WorkDate, Quantity, Quantity);
     end;
 

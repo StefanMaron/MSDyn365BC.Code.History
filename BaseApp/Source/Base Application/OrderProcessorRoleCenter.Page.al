@@ -1,6 +1,6 @@
 page 9006 "Order Processor Role Center"
 {
-    Caption = 'Sales Order Processor', Comment = '{Dependency=Match,"ProfileDescription_ORDERPROCESSOR"}';
+    Caption = 'Sales Order Processor';
     PageType = RoleCenter;
 
     layout
@@ -625,6 +625,7 @@ page 9006 "Order Processor Role Center"
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
                 ObsoleteTag = '18.0';

@@ -18,6 +18,7 @@ codeunit 136207 "Marketing Batch Jobs"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryService: Codeunit "Library - Service";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         ExistError: Label '%1 for %2 must not exist.';
         Description: Label 'Follow-up on segment %1';
@@ -36,6 +37,7 @@ codeunit 136207 "Marketing Batch Jobs"
 
         BindSubscription(LibraryJobQueue);
         LibrarySales.SetCreditWarningsToNoWarnings;
+        LibraryTemplates.EnableTemplatesFeature();
 
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         IsInitialized := true;

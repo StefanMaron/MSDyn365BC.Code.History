@@ -31,13 +31,11 @@ codeunit 5814 "Undo Return Shipment Line"
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary;
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
-        InvtSetup: Record "Inventory Setup";
         UndoPostingMgt: Codeunit "Undo Posting Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         HideDialog: Boolean;
         Text003: Label 'Checking lines...';
         JobItem: Boolean;
@@ -118,14 +116,7 @@ codeunit 5814 "Undo Return Shipment Line"
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
             until Next() = 0;
 
-            InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.SetJobUpdateProperties(not JobItem);
-                InvtAdjmt.MakeMultiLevelAdjmt;
-            end;
+            MakeInventoryAdjustment();
 
             WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
         end;
@@ -309,6 +300,18 @@ codeunit 5814 "Undo Return Shipment Line"
                 ItemEntryRelation.TransferFieldsReturnShptLine(NewReturnShptLine);
                 ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next() = 0;
+    end;
+
+    local procedure MakeInventoryAdjustment()
+    var
+        Invtsetup: Record "Inventory Setup";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InvtSetup.Get();
+        if InvtSetup.AutomaticCostAdjmtRequired() then begin
+            InvtAdjmtHandler.SetJobUpdateProperties(not JobItem);
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

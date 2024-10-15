@@ -35,7 +35,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         InsertNotAllowedErr: Label 'New method failed because Insert is not allowed';
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,SalesAnalysisLinesModalPageHandler,ItemListModalPageHandler,SalesAnalysisMatrixModalPageHandler,SalesBudgetOverviewPageHandler,SalesAnalysisReportPageHandler,AnalysisLineTemplateModalPageHandler,AnalysisColumnsModalPageHandler,AnalysisColumnTemplateModalPageHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SalesAnalysisLinesModalPageHandler,ItemListModalPageHandler,SalesAnalysisMatrixModalPageHandler,SalesBudgetOverviewPageHandler,SalesAnalysisReportPageHandler,AnalysisLineTemplateModalPageHandler,AnalysisColumnsModalPageHandler,AnalysisColumnTemplateModalPageHandler')]
     [Scope('OnPrem')]
     procedure UsingSalesBudgetsAndAnalysisReportsAsBusinessManager()
     var
@@ -69,7 +69,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,SalesAnalysisLinesModalPageHandler,ItemListModalPageHandler,SalesAnalysisMatrixModalPageHandler,SalesBudgetOverviewPageHandler,SalesAnalysisReportPageHandler,AnalysisLineTemplateModalPageHandler,AnalysisColumnsModalPageHandler,AnalysisColumnTemplateModalPageHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SalesAnalysisLinesModalPageHandler,ItemListModalPageHandler,SalesAnalysisMatrixModalPageHandler,SalesBudgetOverviewPageHandler,SalesAnalysisReportPageHandler,AnalysisLineTemplateModalPageHandler,AnalysisColumnsModalPageHandler,AnalysisColumnTemplateModalPageHandler')]
     [Scope('OnPrem')]
     procedure UsingSalesBudgetsAndAnalysisReportsAsAccountant()
     var
@@ -150,7 +150,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,PurchaseAnalysisLinesModalPageHandler,ItemListModalPageHandler,PurchaseAnalysisMatrixModalPageHandler,PurchaseBudgetOverviewPageHandler,PurchaseAnalysisReportPageHandler,AnalysisLineTemplateModalPageHandler,AnalysisColumnsModalPageHandler,AnalysisColumnTemplateModalPageHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,PurchaseAnalysisLinesModalPageHandler,ItemListModalPageHandler,PurchaseAnalysisMatrixModalPageHandler,PurchaseBudgetOverviewPageHandler,PurchaseAnalysisReportPageHandler,AnalysisLineTemplateModalPageHandler,AnalysisColumnsModalPageHandler,AnalysisColumnTemplateModalPageHandler')]
     [Scope('OnPrem')]
     procedure UsingPurchaseBudgetsAndAnalysisReportsAsBusinessManager()
     var
@@ -183,7 +183,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,PurchaseAnalysisLinesModalPageHandler,ItemListModalPageHandler,PurchaseAnalysisMatrixModalPageHandler,PurchaseBudgetOverviewPageHandler,PurchaseAnalysisReportPageHandler,AnalysisLineTemplateModalPageHandler,AnalysisColumnsModalPageHandler,AnalysisColumnTemplateModalPageHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,PurchaseAnalysisLinesModalPageHandler,ItemListModalPageHandler,PurchaseAnalysisMatrixModalPageHandler,PurchaseBudgetOverviewPageHandler,PurchaseAnalysisReportPageHandler,AnalysisLineTemplateModalPageHandler,AnalysisColumnsModalPageHandler,AnalysisColumnTemplateModalPageHandler')]
     [Scope('OnPrem')]
     procedure UsingPurchaseBudgetsAndAnalysisReportsAsAccountant()
     var
@@ -282,7 +282,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisColumnTemplate.DeleteAll();
         AnalysisReportName.DeleteAll();
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
     end;
 
     local procedure CreateItem() ItemNo: Code[20]
@@ -403,10 +403,10 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]

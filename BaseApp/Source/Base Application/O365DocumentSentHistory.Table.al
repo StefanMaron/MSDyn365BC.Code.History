@@ -215,7 +215,7 @@ table 2158 "O365 Document Sent History"
         end;
     end;
 
-    local procedure SetHistoryForDocumentAsNotified(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; IsPosted: Boolean)
+    procedure SetHistoryForDocumentAsNotified(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; IsPosted: Boolean)
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
     begin

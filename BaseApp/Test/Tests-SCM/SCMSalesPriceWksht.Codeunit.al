@@ -25,6 +25,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         Assert: Codeunit Assert;
         isInitialized: Boolean;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountWithSalesPrice()
@@ -236,6 +237,7 @@ codeunit 137201 "SCM Sales Price Wksht"
             GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
         PurchaseLine.TestField("Line Amount", ExpectedLineAmount);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -268,6 +270,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         PurchaseLine.TestField("Expected Receipt Date", ExpectedReceiptDate);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CheckSalesPricePageforCustomerPriceGroup()
@@ -372,6 +375,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         // [THEN] Error is shown "There are multiple source lines for the record"
         Assert.ExpectedError('There are multiple source lines for the record');
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -387,7 +391,11 @@ codeunit 137201 "SCM Sales Price Wksht"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Sales Price Wksht");
 
+#if not CLEAN19
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
+#else
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+#endif
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
@@ -424,6 +432,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibrarySales.CreateCustomer(Customer);
     end;
 
+#if not CLEAN19
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
     var
         SalesPrice: Record "Sales Price";
@@ -473,6 +482,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         PurchaseLineDiscount.Modify(true);
         CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
     end;
+#endif
 
     local procedure UpdateItem(var Item: Record Item; FieldNo: Integer; Value: Variant)
     var
@@ -503,6 +513,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, MinimumQty);
     end;
 
+#if not CLEAN19
     local procedure ImplementNewSalesPrice() NewUnitPrice: Decimal
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -539,6 +550,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         SalesPriceWorksheet.Rename(
           WorkDate, WorkDate, "Sales Price Type"::Campaign, CampaignNo, '', Item."No.", '', Item."Base Unit of Measure", MinimumQuantity);
     end;
+#endif
 
     local procedure UpdateItemVendor(var ItemVendor: Record "Item Vendor")
     var
@@ -573,6 +585,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         SalesLine.TestField("Line Amount", ExpectedLineAmount);
     end;
 
+#if not CLEAN19
     local procedure VerifySalesPriceLineOnPage(CustomerPriceGroup: Record "Customer Price Group")
     var
         CustomerPriceGroups: TestPage "Customer Price Groups";
@@ -595,5 +608,6 @@ codeunit 137201 "SCM Sales Price Wksht"
             TestField("Current Unit Price", CurrentUnitPrice);
         end;
     end;
+#endif
 }
 

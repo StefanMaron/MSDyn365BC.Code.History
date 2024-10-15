@@ -49,6 +49,57 @@ page 680 "Report Inbox"
 
     actions
     {
+        area(Processing)
+        {
+            action(OpenInOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Open in OneDrive';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
+                Image = Cloud;
+                Enabled = ShareOptionsEnabled;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = true;
+                Scope = Repeater;
+                trigger OnAction()
+                begin
+                    Rec.OpenInOneDrive();
+                end;
+            }
+            action(Show)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Download';
+                Enabled = DownloadEnabled;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = true;
+                Scope = Repeater;
+                Image = Download;
+                ShortCutKey = 'Return';
+                ToolTip = 'Download the file to your device. Depending on the file, you will need an app to view or edit the file.';
+
+                trigger OnAction()
+                begin
+                    ShowReport();
+                    CurrPage.Update();
+                end;
+            }
+
+        }
     }
+
+    trigger OnAfterGetCurrRecord()
+    var
+        DocumentSharing: Codeunit "Document Sharing";
+    begin
+        ShareOptionsEnabled := (not ("Report Name" = '')) and (DocumentSharing.ShareEnabled());
+        DownloadEnabled := (not ("Report Name" = ''));
+    end;
+
+    var
+        ShareOptionsEnabled: Boolean;
+        DownloadEnabled: Boolean;
 }
 

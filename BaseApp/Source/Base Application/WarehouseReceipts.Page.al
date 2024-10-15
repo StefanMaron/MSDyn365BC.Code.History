@@ -113,10 +113,15 @@ page 7332 "Warehouse Receipts"
                     ToolTip = 'View the quantity that has been posted as received.';
                 }
             }
+#if not CLEAN19
             group("&Line")
             {
                 Caption = '&Line';
                 Image = Line;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by platform capabilities.';
+                ObsoleteTag = '19.0';
                 action(Card)
                 {
                     ApplicationArea = Warehouse;
@@ -124,6 +129,10 @@ page 7332 "Warehouse Receipts"
                     Image = EditLines;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by platform capabilities.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     begin
@@ -131,6 +140,7 @@ page 7332 "Warehouse Receipts"
                     end;
                 }
             }
+#endif
         }
     }
 

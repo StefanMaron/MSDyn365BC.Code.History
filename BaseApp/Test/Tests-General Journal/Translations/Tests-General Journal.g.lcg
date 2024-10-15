@@ -149,6 +149,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - field caption]D;]A;(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType TestFieldEmptyValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3814745315 - NamedType 2126021569" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - field caption]D;]A;(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType TestFieldMustHaveValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3814745315 - NamedType 1733554046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to %2.]]></Val>

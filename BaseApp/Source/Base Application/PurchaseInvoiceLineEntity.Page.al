@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5528 "Purchase Invoice Line Entity"
 {
     Caption = 'Purchase Invoice Line Entity';
@@ -429,4 +430,4 @@ page 5528 "Purchase Invoice Line Entity"
             Description := Item.Description;
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 888 "SmartList Designer"
 {
     Caption = 'SmartList Designer';
@@ -6,6 +7,9 @@ page 888 "SmartList Designer"
     ShowFilter = false;
     Extensible = false;
     SourceTable = "SmartList Designer Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -138,3 +142,4 @@ page 888 "SmartList Designer"
         SmartListQueryIdParameterLbl: Label '&queryId=%1', Locked = true;
         SmartListViewIdParameterLbl: Label '&viewId=%1', Locked = true;
 }
+#endif

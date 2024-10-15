@@ -266,7 +266,8 @@ codeunit 99000889 AvailabilityManagement
         FeasibleDateFound: Boolean;
     begin
         with OrderPromisingLine do begin
-            Item.Get("Item No.");
+            if Item."No." <> "Item no." then
+                Item.Get("Item No.");
             Item.SetRange("Variant Filter", "Variant Code");
             Item.SetRange("Location Filter", "Location Code");
             OnCalcAvailableToPromiseLineOnAfterSetFilters(Item, OrderPromisingLine);
@@ -541,9 +542,11 @@ codeunit 99000889 AvailabilityManagement
     end;
 
     local procedure JobPlanningLineIsInventoryItem(): Boolean
+    var
+        JobItem: Record Item;
     begin
-        Item.Get(JobPlanningLine."No.");
-        exit(Item.Type = Item.Type::Inventory);
+        JobItem.Get(JobPlanningLine."No.");
+        exit(JobItem.Type = JobItem.Type::Inventory);
     end;
 
     [IntegrationEvent(false, false)]

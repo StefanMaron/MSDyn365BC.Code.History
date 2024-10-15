@@ -154,28 +154,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         VerifyPostedSalesDocument(SalesHeader."No.", SalesHeader."Sell-to Customer No.");
     end;
 
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesOrderWithSalesInvoiceReport()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Verify Company Information and Dimension on Sales Invoice Report.
-        SalesSetupAndSalesReport(SalesHeader."Document Type"::Order, REPORT::"Sales - Invoice", CompanyInfoVATRegNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCrMemowithSalesCreditMemoReport()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Verify Company Information and Dimension on Sales Credit Memo Report.
-        SalesSetupAndSalesReport(SalesHeader."Document Type"::"Credit Memo", REPORT::"Sales - Credit Memo", CompanyInfoVATRegistrationNo);
-    end;
-
     local procedure SalesSetupAndSalesReport(DocumentType: Enum "Sales Document Type"; Number: Integer; VATRegNoName: Text[50])
     var
         SalesHeader: Record "Sales Header";
@@ -1200,35 +1178,9 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    var
-        No: Variant;
-    begin
-        CurrentSaveValuesId := REPORT::"Sales - Credit Memo";
-        LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
-        SalesCreditMemo.ShowInternalInfo.SetValue(true);  // Control use for Show Internal Information.
-        SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", No);
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure BlanketSalesOrderRequestPageHandler(var BlanketSalesOrder: TestRequestPage "Blanket Sales Order")
     begin
         BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        No: Variant;
-    begin
-        CurrentSaveValuesId := REPORT::"Sales - Invoice";
-        LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
-        SalesInvoice.ShowInternalInfo.SetValue(true);  // Control use for Show Internal Information.
-        SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

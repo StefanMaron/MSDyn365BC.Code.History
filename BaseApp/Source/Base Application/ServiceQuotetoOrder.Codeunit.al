@@ -119,7 +119,7 @@ codeunit 5923 "Service-Quote to Order"
             if ServCommentLine.Find('-') then
                 repeat
                     ServCommentLine2 := ServCommentLine;
-                    ServCommentLine2."Table Subtype" := "Document Type".AsInteger();
+                    ServCommentLine2."Table Subtype" := "Document Type";
                     ServCommentLine2."No." := "No.";
                     OnBeforeServCommentLineInsert(ServCommentLine2, ServiceHeader, ServOrderHeader);
                     ServCommentLine2.Insert();
@@ -180,7 +180,7 @@ codeunit 5923 "Service-Quote to Order"
             if ServCommentLine.Find('-') then
                 repeat
                     ServCommentLine2 := ServCommentLine;
-                    ServCommentLine2."Table Subtype" := "Document Type".AsInteger();
+                    ServCommentLine2."Table Subtype" := "Document Type";
                     ServCommentLine2."No." := "No.";
                     ServCommentLine2.Insert();
                 until ServCommentLine.Next() = 0;

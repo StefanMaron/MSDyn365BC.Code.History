@@ -118,7 +118,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateSalesReceivablesSetup()
     begin
-        UpdateSalesReceivablesSetupData;
+        exit;
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -358,16 +358,6 @@ codeunit 131305 "Library - ERM Country Data"
         GeneralLedgerSetup.Get();  // Need to set value to match field value with W1 Demo Data.
         GeneralLedgerSetup."Adjust for Payment Disc." := false;  // Using VALIDATE cause an error message,hence using Assignment.
         GeneralLedgerSetup.Modify(true);
-    end;
-
-    [Scope('OnPrem')]
-    procedure UpdateSalesReceivablesSetupData()
-    var
-        SalesAndReceivableSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesAndReceivableSetup.Get();
-        SalesAndReceivableSetup.Validate("Arch. Orders and Ret. Orders", true);
-        SalesAndReceivableSetup.Modify(true);
     end;
 
     local procedure UpdateVendorPostingGroup()

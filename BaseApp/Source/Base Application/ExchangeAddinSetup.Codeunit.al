@@ -12,7 +12,7 @@ codeunit 5323 "Exchange Add-in Setup"
         InvalidCredentialsErr: Label 'The provided email address and password are not valid Office 365 or Exchange credentials.';
         NoMailboxErr: Label 'An Office 365 or Exchange mailbox could not be found for this account.';
         AutodiscoverMsg: Label 'Searching for your mailbox.';
-        WelcomeSubjectTxt: Label 'Welcome to %1 - your Business Inbox in Outlook is ready!', Comment = '%1 - Application name';
+        WelcomeSubjectTxt: Label 'Welcome to %1 in Outlook', Comment = '%1 - Application name';
         WelcomeEmailFromNameTxt: Label '%1 Admin', Comment = '%1 - Application Name';
         SalesEmailAddrTxt: Label 'admin@contoso.com', Locked = true;
         ExchangeTelemetryCategoryTxt: Label 'AL Exchange', Locked = true;
@@ -23,10 +23,12 @@ codeunit 5323 "Exchange Add-in Setup"
         InitializedWithCredentialsTxt: Label 'The service is initialized with credentials.', Locked = true;
         NotInitializedWithCredentialsTxt: Label 'The service is not initialized with credentials.', Locked = true;
         TryAutodiscoverEndpointTxt: Label 'Try to autodiscover endpoint.', Locked = true;
+#if not CLEAN19
         PromptForCredentialsTxt: Label 'Prompt for credentials.', Locked = true;
         UserFoundTxt: Label 'User is found.', Locked = true;
         CredentialsRequiredTxt: Label 'Credentials are required.', Locked = true;
         CredentialsPromptCancelledTxt: Label 'Credentials prmpt is cancelled.', Locked = true;
+#endif
         ImpersonateUserTxt: Label 'Impersonate user.', Locked = true;
         DeployAddInTxt: Label 'Deploy add-in.', Locked = true;
         DeploySampleEmailsTxt: Label 'Deploy sample emails.', Locked = true;
@@ -38,6 +40,7 @@ codeunit 5323 "Exchange Add-in Setup"
         ToUserEmailTxt: Label 'Recipient email is the user email.', Locked = true;
         FromContactEmailTxt: Label 'Sender email is the contact email.', Locked = true;
         FromSalesEmailTxt: Label 'Sender email is the sales email.', Locked = true;
+        DemoCompanyEmailTxt: Label 'trey.research@contoso.com', Locked = true;
 
     [TryFunction]
     local procedure Initialize(AuthenticationEmail: Text[80])
@@ -113,6 +116,8 @@ codeunit 5323 "Exchange Add-in Setup"
         Required := not Initialize(AuthenticationEmail);
     end;
 
+#if not CLEAN19
+    [Obsolete('Removing legacy basic authentication. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
     [Scope('OnPrem')]
     procedure PromptForCredentials(): Boolean
     var
@@ -144,6 +149,7 @@ codeunit 5323 "Exchange Add-in Setup"
 
         exit(true);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure ImpersonateUser(Email: Text[80])
@@ -188,18 +194,23 @@ codeunit 5323 "Exchange Add-in Setup"
     [Scope('OnPrem')]
     procedure DeployAddins(var OfficeAddin: Record "Office Add-in")
     begin
-        if OfficeAddin.GetAddins then
+        if OfficeAddin.GetAddins() then
             repeat
                 DeployAddin(OfficeAddin);
             until OfficeAddin.Next() = 0;
+    end;
+
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure TryDeployAddins(var OfficeAddin: Record "Office Add-in")
+    begin
+        DeployAddins(OfficeAddin);
     end;
 
     [Scope('OnPrem')]
     procedure DeploySampleEmails(EmailAddress: Text)
     var
         User: Record User;
-        ContactBusinessRelation: Record "Contact Business Relation";
-        Contact: Record Contact;
         OfficeAddinSampleEmails: Codeunit "Office Add-In Sample Emails";
         RecipientEmail: Text;
         FromEmail: Text;
@@ -218,17 +229,11 @@ codeunit 5323 "Exchange Add-in Setup"
             end;
         end;
 
-        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        if ContactBusinessRelation.FindFirst then begin
-            if Contact.Get(ContactBusinessRelation."Contact No.") then begin
-                if Contact."E-Mail" <> '' then begin
-                    Session.LogMessage('0000BXN', FromContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
-                    FromEmail := Contact."E-Mail";
-                end;
-            end
-        end;
-
-        if FromEmail = '' then begin
+        FromEmail := GetFromEmail();
+        if FromEmail <> '' then
+            Session.LogMessage('0000BXN', FromContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt)
+        else begin
+            // Fallback to SalesEmailAddrTxt
             FromEmail := SalesEmailAddrTxt;
             Session.LogMessage('0000BYS', FromSalesEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
         end;
@@ -252,6 +257,28 @@ codeunit 5323 "Exchange Add-in Setup"
             Error(NoMailboxErr);
         end;
         Session.LogMessage('0000BXR', ValidCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
+    end;
+
+    local procedure GetFromEmail(): Text
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+        Contact: Record Contact;
+        FirstContactEmail: Text;
+    begin
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        if ContactBusinessRelation.FindSet() then
+            repeat
+                if Contact.Get(ContactBusinessRelation."Contact No.") then begin
+                    if (FirstContactEmail = '') and (Contact."E-Mail" <> '') then
+                        FirstContactEmail := Contact."E-Mail";
+                    if Contact."E-Mail" = DemoCompanyEmailTxt then begin
+                        exit(Contact."E-Mail");
+                    end;
+                end
+            until ContactBusinessRelation.Next() = 0;
+
+        if FirstContactEmail <> '' then
+            exit(FirstContactEmail);
     end;
 }
 

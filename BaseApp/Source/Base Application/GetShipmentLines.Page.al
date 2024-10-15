@@ -51,6 +51,13 @@ page 5708 "Get Shipment Lines"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of posted sales shipments.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Currency Code"; "Currency Code")
                 {
                     ApplicationArea = Suite;
@@ -120,6 +127,27 @@ page 5708 "Get Shipment Lines"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity of the shipped item that has been posted as shipped but that has not yet been posted as invoiced.';
+                }
+                field(OrderNo; OrderNo)
+                {
+                    Caption = 'Order No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the number of the sales order that this shipment was posted from.';
+                    Visible = false;
+                }
+                field(ExternalDocumentNo; ExternalDocumentNo)
+                {
+                    Caption = 'External Document No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the number that the customer uses in their own system to refer to this sales document.';
+                    Visible = false;
+                }
+                field(YourReference; YourReference)
+                {
+                    Caption = 'Your Reference';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
+                    Visible = false;
                 }
             }
         }
@@ -201,6 +229,12 @@ page 5708 "Get Shipment Lines"
     begin
         DocumentNoHideValue := false;
         DocumentNoOnFormat;
+        GetDataFromShipmentHeader();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        GetDataFromShipmentHeader();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -216,6 +250,9 @@ page 5708 "Get Shipment Lines"
         SalesGetShpt: Codeunit "Sales-Get Shipment";
         [InDataSet]
         DocumentNoHideValue: Boolean;
+        OrderNo: Code[20];
+        YourReference: Text[35];
+        ExternalDocumentNo: Text[35];
 
     procedure SetSalesHeader(var SalesHeader2: Record "Sales Header")
     begin
@@ -254,6 +291,17 @@ page 5708 "Get Shipment Lines"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    local procedure GetDataFromShipmentHeader()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        SalesShipmentHeader.Get("Document No.");
+
+        OrderNo := SalesShipmentHeader."Order No.";
+        YourReference := SalesShipmentHeader."Your Reference";
+        ExternalDocumentNo := SalesShipmentHeader."External Document No.";
     end;
 }
 

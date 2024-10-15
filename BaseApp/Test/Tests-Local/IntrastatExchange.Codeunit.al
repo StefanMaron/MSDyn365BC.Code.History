@@ -678,8 +678,7 @@ codeunit 144004 "Intrastat Exchange"
     var
         File: DotNet File;
     begin
-        Assert.IsTrue(FileManagement.ClientFileExists(FileName), FileNotCreatedErr);
-        FileName := FileManagement.UploadFileSilent(FileName);
+        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotCreatedErr);
         Line := File.ReadAllText(FileName);
         File.Delete(FileName);
         exit(Line);

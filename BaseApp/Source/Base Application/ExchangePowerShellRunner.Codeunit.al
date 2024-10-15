@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 1651 "Exchange PowerShell Runner"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'End of support for Exchange PowerShell. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -377,4 +381,5 @@ codeunit 1651 "Exchange PowerShell Runner"
         PSRunner.ClearLog;
     end;
 }
+#endif
 

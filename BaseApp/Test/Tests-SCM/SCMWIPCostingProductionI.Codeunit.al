@@ -332,13 +332,12 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemNo: Code[20];
         ItemNo2: Code[20];
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // 1. Setup: Update Inventory Setup, Create Items with Flushing method - Manual.
         Initialize;
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive.
@@ -1501,14 +1500,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemNo2: Code[20];
         CurrencyCode: Code[10];
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // 1. Setup: Update Inventory Setup, Create Items with Flushing method - Manual.
         Initialize;
         LibraryERM.SetAddReportingCurrency('');
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
         CreatePurchaseOrderAddnlCurr(PurchaseHeader, PurchaseLine, CurrencyCode, ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
         CurrencyCode := UpdateAddnlReportingCurrency;
@@ -1788,7 +1786,6 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemNo2: Code[20];
         ProdOrderRoutingLineType: Option "Work Center","Machine Center";
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         Qty: Decimal;
     begin
@@ -1796,7 +1793,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Initialize;
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // Create Work Center and Machine Center with required Flushing method and Create Routing.
         CreateWorkCenter(WorkCenterNo, FlushingMethod);
@@ -1887,7 +1884,6 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemNo4: Code[20];
         ProdOrderRoutingLineType: Option "Work Center","Machine Center";
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         Qty: Decimal;
     begin
@@ -1896,7 +1892,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         LibraryERM.SetAddReportingCurrency('');
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // Create Work Center and Machine Center with required Flushing method and Create Routing.
         CreateWorkCenter(WorkCenterNo, FlushingMethod);

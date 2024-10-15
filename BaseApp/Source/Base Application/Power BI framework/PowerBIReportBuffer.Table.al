@@ -15,24 +15,20 @@ table 6302 "Power BI Report Buffer"
         field(1; ReportID; Guid)
         {
             Caption = 'ReportID';
-            DataClassification = SystemMetadata;
+            DataClassification = EndUserPseudonymousIdentifiers;
         }
         field(2; ReportName; Text[100])
         {
             Caption = 'ReportName';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; EmbedUrl; Text[250])
         {
-#if not CLEAN16
-            ObsoleteState = Pending;
-#else
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'The field has been extended to a bigger field. Use ReportEmbedUrl field instead.';
             Caption = 'EmbedUrl';
-            DataClassification = SystemMetadata;
-            ObsoleteTag = '16.0';
+            DataClassification = CustomerContent;
+            ObsoleteTag = '19.0';
         }
         field(4; Enabled; Boolean)
         {
@@ -42,7 +38,17 @@ table 6302 "Power BI Report Buffer"
         field(10; ReportEmbedUrl; Text[2048])
         {
             Caption = 'ReportEmbedUrl';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
+        }
+        field(20; "Workspace ID"; Guid)
+        {
+            Caption = 'Workspace ID';
+            DataClassification = EndUserPseudonymousIdentifiers;
+        }
+        field(21; "Workspace Name"; Text[200])
+        {
+            Caption = 'Workspace Name';
+            DataClassification = CustomerContent;
         }
     }
 
@@ -61,4 +67,3 @@ table 6302 "Power BI Report Buffer"
     {
     }
 }
-

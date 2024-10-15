@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5443 "Automation User Groups"
 {
     APIGroup = 'automation';
@@ -10,6 +11,9 @@ page 5443 "Automation User Groups"
     InsertAllowed = false;
     PageType = API;
     SourceTable = "User Group";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -54,4 +58,4 @@ page 5443 "Automation User Groups"
     var
         AutomationAPIManagement: Codeunit "Automation - API Management";
 }
-
+#endif

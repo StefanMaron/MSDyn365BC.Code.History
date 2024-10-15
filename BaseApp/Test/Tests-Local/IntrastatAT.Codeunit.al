@@ -35,6 +35,7 @@ codeunit 144061 "Intrastat AT"
         NoIntrastatJnlLineErr: Label 'No Intrastat Journal Line exists';
         WrongQtyInCNT19Err: Label 'Wrong quantity is specified in section CNT+19.';
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatJnlCheckListReqPageHandler')]
     [Scope('OnPrem')]
@@ -253,7 +254,9 @@ codeunit 144061 "Intrastat AT"
         Assert.ExpectedError(
           StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption));
     end;
+#endif
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
     [Scope('OnPrem')]
@@ -282,6 +285,7 @@ codeunit 144061 "Intrastat AT"
         // TFS 344448, 406878: A period text in the file is correct
         VerifyIntrastatMakeDiskFiles(IntrastatJnlLine, FilenameSales, FilenamePurchase);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
@@ -307,6 +311,7 @@ codeunit 144061 "Intrastat AT"
         VerifyIntrastatJnlLineExists(IntrastatJnlBatch, Item."No.");
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
     [Scope('OnPrem')]
@@ -357,6 +362,7 @@ codeunit 144061 "Intrastat AT"
         // Verify: Total Net Weight in Export file is correct - Net Weight should be summed with same Country Region Code
         VerifyTotalNetWeightInstancesInFile(IntrastatJnlBatch, CountryRegionCode, FilenameSales);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
@@ -638,6 +644,7 @@ codeunit 144061 "Intrastat AT"
         exit(TextZeroFormat(DelChr(Format(Round(Abs(DecimalNumber), 1, '<'), 0, 1)), Length));
     end;
 
+#if not CLEAN19
     local procedure DisableTransportMethodCheck()
     var
         CompanyInfo: Record "Company Information";
@@ -673,6 +680,7 @@ codeunit 144061 "Intrastat AT"
         CompanyInfo.Validate("Check Transaction Specific.", true);
         CompanyInfo.Modify(true);
     end;
+#endif
 
     local procedure FindIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; CountryRegionCode: Code[10])
     begin
@@ -827,8 +835,7 @@ codeunit 144061 "Intrastat AT"
         File: DotNet File;
         Line: Text;
     begin
-        Assert.IsTrue(FileManagement.ClientFileExists(FileName), FileNotCreatedErr);
-        FileName := FileManagement.UploadFileSilent(FileName);
+        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotCreatedErr);
         Line := File.ReadAllText(FileName);
 
         Assert.AreEqual(Quantity, CopyStr(Line, StrPos(Line, 'CNT+19:') + 19, 1), WrongQtyInCNT19Err);
@@ -879,10 +886,6 @@ codeunit 144061 "Intrastat AT"
         // files exist
         Assert.IsTrue(FileManagement.ServerFileExists(FilenameSales), FileNotCreatedErr);
         Assert.IsTrue(FileManagement.ServerFileExists(FilenamePurchase), FileNotCreatedErr);
-
-        // upload to server
-        FilenameSales := FileManagement.UploadFileSilent(FilenameSales);
-        FilenamePurchase := FileManagement.UploadFileSilent(FilenamePurchase);
 
         // Assert Jnl. Line does not have Transaction Specification
         IntrastatJnlLine.SetFilter("Transaction Specification", '<>%1', '');
@@ -938,7 +941,6 @@ codeunit 144061 "Intrastat AT"
             TotalNetWeight += IntrastatJnlLine."Total Weight";
         until IntrastatJnlLine.Next = 0;
 
-        FilenameSales := FileManagement.UploadFileSilent(FilenameSales);
         SearchString :=
           Format(DelStr(CountryRegionCode, 1, StrLen(CountryRegionCode) - 2)) + KGMStringTxt + DecimalZeroFormat(TotalNetWeight, 12);
         VerifyStringInstancesInFile(FilenameSales, SearchString, 1);

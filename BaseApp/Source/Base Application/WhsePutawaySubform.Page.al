@@ -201,7 +201,6 @@ page 5771 "Whse. Put-away Subform"
                 field("Whse. Document Type"; Rec."Whse. Document Type")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,Receipt,,Internal Put-away';
                     ToolTip = 'Specifies the type of warehouse document from which the line originated.';
                     Visible = false;
                 }
@@ -297,7 +296,8 @@ page 5771 "Whse. Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        ShowWhseLine();
+                        WMSMgt.ShowWhseActivityDocLine(
+                            Rec."Whse. Document Type", Rec."Whse. Document No.", Rec."Whse. Document Line No.");
                     end;
                 }
                 action("Bin Contents List")
@@ -500,12 +500,6 @@ page 5771 "Whse. Put-away Subform"
             BinContent.ShowBinContents(Rec."Location Code", Rec."Item No.", Rec."Variant Code", Rec."Bin Code");
     end;
 
-    local procedure ShowWhseLine()
-    begin
-        WMSMgt.ShowWhseDocLine(
-          Rec."Whse. Document Type", Rec."Whse. Document No.", Rec."Whse. Document Line No.");
-    end;
-
     local procedure EnableZoneBin()
     begin
         ZoneCodeEditable :=
@@ -523,9 +517,7 @@ page 5771 "Whse. Put-away Subform"
         EntriesExist: Boolean;
     begin
         if Rec."Serial No." <> '' then
-            ExpDate :=
-                ItemTrackingMgt.ExistingExpirationDate(
-                    Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
 
         if ExpDate <> 0D then
             Rec."Expiration Date" := ExpDate;
@@ -538,9 +530,7 @@ page 5771 "Whse. Put-away Subform"
         EntriesExist: Boolean;
     begin
         if Rec."Lot No." <> '' then
-            ExpDate :=
-                ItemTrackingMgt.ExistingExpirationDate(
-                    Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
 
         if ExpDate <> 0D then
             Rec."Expiration Date" := ExpDate;

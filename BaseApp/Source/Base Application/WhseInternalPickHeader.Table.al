@@ -97,7 +97,7 @@ table 7333 "Whse. Internal Pick Header"
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist ("Warehouse Comment Line" WHERE("Table Name" = CONST("Internal Pick"),
+            CalcFormula = Exist("Warehouse Comment Line" WHERE("Table Name" = CONST("Internal Pick"),
                                                                 Type = CONST(" "),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
@@ -339,6 +339,8 @@ table 7333 "Whse. Internal Pick Header"
                 Location.Get(LocationCode);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by platform capabilities.','19.0')]
     procedure LookupWhseInternalPickHeader(var WhseInternalPickHeader: Record "Whse. Internal Pick Header")
     begin
         Commit();
@@ -353,6 +355,7 @@ table 7333 "Whse. Internal Pick Header"
             WhseInternalPickHeader.FilterGroup := 0;
         end;
     end;
+#endif
 
     procedure SetWhseLocationFilter()
     var
