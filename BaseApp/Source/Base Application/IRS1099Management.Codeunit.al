@@ -35,7 +35,11 @@ codeunit 10500 "IRS 1099 Management"
             REPORT.Run(REPORT::"Vendor 1099 Misc 2020");
             exit;
         end;
-        REPORT.Run(REPORT::"Vendor 1099 Misc 2021");
+        if Upgrade2022Needed() then begin
+            REPORT.Run(REPORT::"Vendor 1099 Misc 2021");
+            exit;
+        end;
+        REPORT.Run(REPORT::"Vendor 1099 Misc 2022");
     end;
 
     procedure Run1099NecReport()
@@ -44,7 +48,11 @@ codeunit 10500 "IRS 1099 Management"
             REPORT.Run(REPORT::"Vendor 1099 Nec");
             exit;
         end;
-        REPORT.Run(REPORT::"Vendor 1099 Nec 2021");
+        if Upgrade2022Needed() then begin
+            REPORT.Run(REPORT::"Vendor 1099 Nec 2021");
+            exit;
+        end;
+        REPORT.Run(REPORT::"Vendor 1099 Nec 2022");
     end;
 
     procedure Run1099DivReport()
@@ -53,7 +61,20 @@ codeunit 10500 "IRS 1099 Management"
             REPORT.Run(REPORT::"Vendor 1099 Div");
             exit;
         end;
-        REPORT.Run(REPORT::"Vendor 1099 Div 2021");
+        if Upgrade2022Needed() then begin
+            REPORT.Run(REPORT::"Vendor 1099 Div 2021");
+            exit;
+        end;
+        REPORT.Run(REPORT::"Vendor 1099 Div 2022");
+    end;
+
+    procedure Run1099IntReport()
+    begin
+        if Upgrade2022Needed() then begin
+            REPORT.Run(REPORT::"Vendor 1099 Int");
+            exit;
+        end;
+        REPORT.Run(REPORT::"Vendor 1099 Int 2022");
     end;
 
     [Scope('OnPrem')]
@@ -70,6 +91,8 @@ codeunit 10500 "IRS 1099 Management"
                 UpgradeYear := February2020Lbl;
             Upgrade2021Needed():
                 UpgradeYear := '2021';
+            Upgrade2022Needed():
+                UpgradeYear := '2022';
             else
                 exit;
         end;
@@ -118,9 +141,16 @@ codeunit 10500 "IRS 1099 Management"
     end;
 
     [Scope('OnPrem')]
+    procedure ThrowErrorfUpgrade2022Needed()
+    begin
+        if Upgrade2022Needed() then
+            Error(BlockIfUpgradeNeededErr);
+    end;
+
+    [Scope('OnPrem')]
     procedure UpgradeNeeded(): Boolean
     begin
-        exit(Upgrade2019Needed() or Upgrade2020Needed() or Upgrade2020FebruaryNeeded() or Upgrade2021Needed());
+        exit(Upgrade2019Needed() or Upgrade2020Needed() or Upgrade2020FebruaryNeeded() or Upgrade2021Needed() or Upgrade2022Needed());
     end;
 
     [Scope('OnPrem')]
@@ -153,6 +183,14 @@ codeunit 10500 "IRS 1099 Management"
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
         exit(not IRS1099FormBox.Get('MISC-11'));
+    end;
+
+    [Scope('OnPrem')]
+    procedure Upgrade2022Needed(): Boolean
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+    begin
+        exit(not IRS1099FormBox.Get('MISC-16'));
     end;
 
     local procedure GetUpgradeFormBoxesNotificationID(): Text

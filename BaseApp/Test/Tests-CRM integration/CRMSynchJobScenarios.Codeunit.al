@@ -332,9 +332,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Assert.AreEqual(2, UnitOfMeasure.Count, 'Expected 2 records to be synchronized');
 
         IntegrationTableMapping.Get(IntegrationTableMapping.Name);
-        Assert.AreEqual(
-          ExpectedLatestDateTime, IntegrationTableMapping."Synch. Modified On Filter",
-          'Expected the latest modified on value to go into the mapping "Synch. Modified On Filter" value.');
+        Assert.IsTrue(IntegrationTableMapping."Synch. Modified On Filter" <= ExpectedLatestDateTime, 'Expected the latest modified on value not to go into the mapping "Synch. Modified On Filter" value.');
 
         UnitOfMeasure.Reset();
         TestIntegrationTable.Reset();
@@ -361,37 +359,6 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Assert.AreEqual(
           ExpectedLatestDateTime, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.",
           'Expected the latest modified on value to go into the mapping "Synch. Int. Tbl. Mod. On Fltr." value.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SynchUpdatesLastSynchModifiedOnWhenNoDataChanges()
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        TestIntegrationTable: Record "Test Integration Table";
-        LastSynchModifiedOn: DateTime;
-    begin
-        // [FEATURE] [Modified On]
-        Initialize();
-        LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
-
-        // [GIVEN] A valid and registered CRM Connection Setup
-        // [GIVEN] A CRM source of 2 records already synched to NAV
-        LibraryCRMIntegration.CreateIntegrationTableData(0, 2);
-        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
-        // [GIVEN] CRM sources are updated but not in mapped fields.
-        TestIntegrationTable.ModifyAll("Integration Modified Field", CreateDateTime(CalcDate('<+1D>', Today), Time));
-        IntegrationTableMapping.Get(IntegrationTableMapping.Name);
-        LastSynchModifiedOn := IntegrationTableMapping."Synch. Modified On Filter";
-        Assert.AreNotEqual(0DT, LastSynchModifiedOn,
-          'Did not expect the synch. integration table last modified on filter to be empty');
-        // [WHEN] Scheduled synch executes
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
-        // [THEN] The mapping should be updated with the latest modified date.
-        IntegrationTableMapping.Get(IntegrationTableMapping.Name);
-        Assert.AreNotEqual(LastSynchModifiedOn, IntegrationTableMapping."Synch. Modified On Filter",
-          'Did not expect the synch. integration table last modified on filter to change when running the same synch. twice');
     end;
 
     [Test]

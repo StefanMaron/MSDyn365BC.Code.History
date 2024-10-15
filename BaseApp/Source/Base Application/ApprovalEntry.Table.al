@@ -304,8 +304,8 @@ table 454 "Approval Entry"
                     RecRef.SetTable(PurchHeader);
                     PurchHeader.CalcFields(Amount);
                     Details :=
-                      StrSubstNo(
-                        '%1 ; %2: %3', PurchHeader."Buy-from Vendor Name", PurchHeader.FieldCaption(Amount), PurchHeader.Amount);
+                    StrSubstNo(
+                        '%1 ; %2: %3', PurchHeader."Buy-from Vendor Name", PurchHeader.FieldCaption(Amount), Rec.Amount);
                 end;
             else
                 Details := Format("Record ID to Approve", 0, 1) + ChangeRecordDetails;

@@ -852,7 +852,7 @@
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -1797,6 +1797,11 @@
             Editable = false;
             TableRelation = "IC Partner";
         }
+        field(127; "IC Reference Document No."; Code[20])
+        {
+            Caption = 'IC Reference Document No.';
+            Editable = false;
+        }
         field(129; "IC Direction"; Option)
         {
             Caption = 'IC Direction';
@@ -2335,6 +2340,7 @@
                     UpdateSellToCust("Sell-to Contact No.");
                 UpdateSellToCustTemplateCode();
                 UpdateShipToContact();
+                GetShippingTime(FieldNo("Sell-to Contact No."));
             end;
         }
         field(5053; "Bill-to Contact No."; Code[20])
@@ -2954,6 +2960,16 @@
             Caption = 'SAT Weight Unit Of Measure';
             TableRelation = "SAT Weight Unit of Measure";
         }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
         field(12600; "Prepmt. Include Tax"; Boolean)
         {
             Caption = 'Prepmt. Include Tax';
@@ -2990,12 +3006,23 @@
         {
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
+
+            trigger OnValidate()
+            var
+                CFDIExportCode: Record "CFDI Export Code";
+            begin
+                "Foreign Trade" := false;
+                if CFDIExportCode.Get("CFDI Export Code") then
+                    "Foreign Trade" := CFDIExportCode."Foreign Trade";
+                GLSetup.Get();
+                "Exchange Rate USD" := 1 / CurrExchRate.ExchangeRate("Posting Date", GLSetup."USD Currency Code");
+            end;
         }
-        field(27005; "CFDI Period"; Option) 
+        field(27005; "CFDI Period"; Option)
         {
             Caption = 'CFDI Period';
             OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
-            OptionMembers = "Diario","Semanal","Quincenal","Mensual"; 
+            OptionMembers = "Diario","Semanal","Quincenal","Mensual";
         }
     }
 
@@ -6377,22 +6404,14 @@
     var
         Customer: Record Customer;
     begin
-        if Customer.Get("Bill-to Customer No.") then begin
-            "CFDI Purpose" := Customer."CFDI Purpose";
-            "CFDI Relation" := Customer."CFDI Relation";
-            "CFDI Export Code" := Customer."CFDI Export Code";
-            "CFDI Period" := Customer."CFDI Period";
-        end else
-            if Customer.Get("Sell-to Customer No.") then begin
-                "CFDI Purpose" := Customer."CFDI Purpose";
-                "CFDI Relation" := Customer."CFDI Relation";
-                "CFDI Export Code" := Customer."CFDI Export Code";
-                "CFDI Purpose" := Customer."CFDI Purpose";
-            end else begin
-                "CFDI Purpose" := '';
-                "CFDI Relation" := '';
-                "CFDI Export Code" := '';
-            end;
+        if not Customer.Get("Bill-to Customer No.") then
+            if not Customer.Get("Sell-to Customer No.") then
+                Customer.Init;
+
+        Validate("CFDI Purpose", Customer."CFDI Purpose");
+        Validate("CFDI Relation", Customer."CFDI Relation");
+        Validate("CFDI Export Code", Customer."CFDI Export Code");
+        Validate("CFDI Period", Customer."CFDI Period");
     end;
 
     local procedure CopySellToCustomerAddressFieldsFromCustomer(var SellToCustomer: Record Customer)
@@ -7252,6 +7271,8 @@
                 InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Ord. Cnfrmn.");
             "Document Type"::Quote:
                 InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Qte.");
+            "Document Type"::Invoice:
+                InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Draft Invoice");
         end;
 
         InteractionLogEntry.SetRange("Document No.", "No.");

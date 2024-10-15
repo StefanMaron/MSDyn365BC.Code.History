@@ -594,10 +594,10 @@ codeunit 138400 "RS Pack Content - Evaluation"
         InteractionTemplate: Record "Interaction Template";
     begin
         // [FEATURE] [CRM] [Interaction Template]
-        // [SCENARIO 174769] Interaction Template should have 30 templates.
+        // [SCENARIO 174769] Interaction Template should have 31 templates.
         Initialize();
 
-        Assert.RecordCount(InteractionTemplate, 30);
+        Assert.RecordCount(InteractionTemplate, 31);
     end;
 
     [Test]
@@ -734,9 +734,9 @@ codeunit 138400 "RS Pack Content - Evaluation"
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
         // [FEATURE] [CRM] [Interaction]
-        // [SCENARIO 171761] Interaction Template Setup should have 8 Purchase, 11 Sales, 4 General fields filled.
+        // [SCENARIO 171761] Interaction Template Setup should have 8 Purchase, 12 Sales, 4 General fields filled.
         InteractionTemplate.SetRange("Interaction Group Code", XSALESTok);
-        Assert.RecordCount(InteractionTemplate, 11);
+        Assert.RecordCount(InteractionTemplate, 12);
         InteractionTemplate.SetRange("Interaction Group Code", XPURCHASESTok);
         Assert.RecordCount(InteractionTemplate, 8);
 
@@ -751,6 +751,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         InteractionTemplateSetup.TestField("Sales Cr. Memo");
         InteractionTemplateSetup.TestField("Sales Invoices");
         InteractionTemplateSetup.TestField("Sales Ord. Cnfrmn.");
+		InteractionTemplateSetup.TestField("Sales Draft Invoices");
         InteractionTemplateSetup.TestField("Sales Shpt. Note");
         InteractionTemplateSetup.TestField("Sales Quotes");
     end;

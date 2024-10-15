@@ -19,6 +19,8 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
             UpdateIRS1099FormBoxesTo2020February();
         if IRS1099Management.Upgrade2021Needed() then
             UpdateIRS1099FormBoxesTo2021();
+        if IRS1099Management.Upgrade2022Needed() then
+            UpdateIRS1099FormBoxesTo2022();
     end;
 
     var
@@ -57,6 +59,15 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
         InsertIRS1099('DIV-02-F', 'Section 897 capital gain', 0);
         InsertIRS1099('MISC-11', 'Fish purchased for resale', 600);
         InsertIRS1099('NEC-02', 'Payer made direct sales totaling $5,000 or more of consumer products to recipient for resale', 5000);
+    end;
+
+    local procedure UpdateIRS1099FormBoxesTo2022()
+    begin
+        ShiftIRS1099('MISC-15');
+        ShiftIRS1099('MISC-14');
+        ShiftIRS1099('MISC-13');
+        ShiftIRS1099('DIV-12');
+        ShiftIRS1099('DIV-11');
     end;
 
     local procedure ShiftIRS1099(IRSCode: Code[10])

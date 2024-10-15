@@ -28,7 +28,8 @@ codeunit 134099 "Purchase Documents"
         WrongReportInvokedErr: Label 'Wrong report invoked.';
         ZeroQuantityInLineErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
         PurchLinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
-        PurchLinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines. You should review the lines and manually update prices and discounts if needed.';
+        PurchLinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.';
+        ReviewLinesManuallyMsg: Label 'You should review the lines and manually update prices and discounts if needed.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the purchase lines.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         UpdateManuallyMsg: Label 'You must update the existing purchase lines manually.';
@@ -766,6 +767,7 @@ codeunit 134099 "Purchase Documents"
     procedure WarningMessageWhenPostingDateIsUpdatedWithoutCurrency()
     var
         PurchaseHeader: Record "Purchase Header";
+        MessageText: Text;
     begin
         // [FEATURE] [UT] [Message] [FCY]
         // [SCENARIO 282342] Warning message that Purchase Lines were not updated do not unclude currency related text when currency is not used
@@ -775,10 +777,11 @@ codeunit 134099 "Purchase Documents"
 
         PurchaseHeader.Validate("Posting Date", WorkDate + 1);
 
+        MessageText := StrSubstNo(PurchLinesNotUpdatedDateMsg, PurchaseHeader.FieldCaption("Posting Date"));
+        MessageText := StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg);
+
         // A message is captured by MessageCaptureHandler
-        Assert.ExpectedMessage(
-          StrSubstNo(PurchLinesNotUpdatedDateMsg, PurchaseHeader.FieldCaption("Posting Date")),
-          LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -805,6 +808,7 @@ codeunit 134099 "Purchase Documents"
         // A message is captured by MessageCaptureHandler
         MessageText := StrSubstNo(PurchLinesNotUpdatedDateMsg, PurchaseHeader.FieldCaption("Posting Date"));
         MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
+        MessageText := StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg);
         Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText);
 
         LibraryVariableStorage.AssertEmpty;

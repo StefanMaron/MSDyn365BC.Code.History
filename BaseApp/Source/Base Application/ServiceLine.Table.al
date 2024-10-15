@@ -1704,8 +1704,7 @@
             trigger OnValidate()
             begin
                 TestField("Qty. per Unit of Measure");
-                CalcFields("Reserved Quantity");
-                Planned := "Reserved Quantity" = "Outstanding Quantity";
+                UpdatePlanned();
             end;
         }
         field(5700; "Responsibility Center"; Code[10])
@@ -3656,6 +3655,7 @@
                     Find;
                 end;
             end;
+            UpdatePlanned();
         end;
     end;
 
@@ -5159,6 +5159,15 @@
                 DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No."));
     end;
 
+    procedure UpdatePlanned(): Boolean
+    begin
+        CalcFields("Reserved Quantity");
+        if Planned = ("Reserved Quantity" = "Outstanding Quantity") then
+            exit(false);
+        Planned := not Planned;
+        exit(true);
+    end;
+
     procedure UpdateReservation(CalledByFieldNo: Integer)
     var
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
@@ -5177,6 +5186,7 @@
                 ServiceLineReserve.VerifyQuantity(Rec, xRec);
         end;
         ServiceLineReserve.VerifyChange(Rec, xRec);
+        UpdatePlanned();
     end;
 
     procedure ShowTracking()

@@ -33,7 +33,7 @@
             column(CompanyInformation_SATTaxRegime; CompanyInformation."SAT Tax Regime Classification" + ' - ' + SATTaxRegimeClassification)
             {
             }
-            column(CompanyInformation_SCTPermissionNumber; CompanyInformation."SCT Permission Number")
+            column(SCTPermissionNumber; FixedAssetVehicle."SCT Permission Number")
             {
             }
             column(TransferRFCNo; TransferRFCNoLbl)

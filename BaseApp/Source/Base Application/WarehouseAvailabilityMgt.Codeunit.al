@@ -22,11 +22,20 @@ codeunit 7314 "Warehouse Availability Mgt."
         PickQty: Decimal;
     begin
         // Returns the reserved quantity against ILE for the demand line
-        if SourceType = DATABASE::"Prod. Order Component" then begin
-            ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceSubLineNo, true);
-            ReservEntry.SetSourceFilter('', SourceLineNo);
-        end else
-            ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+        case SourceType of
+            Database::"Prod. Order Component":
+                begin
+                    ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceSubLineNo, true);
+                    ReservEntry.SetSourceFilter('', SourceLineNo);
+                end;
+            Database::Job:
+                begin
+                    ReservEntry.SetSourceFilter(Database::"Job Planning Line", 2, SourceNo, SourceLineNo, true);
+                    ReservEntry.SetSourceFilter('', 0);
+                end;
+            else
+                ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+        end;
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         if ReservEntry.Find('-') then
             repeat
