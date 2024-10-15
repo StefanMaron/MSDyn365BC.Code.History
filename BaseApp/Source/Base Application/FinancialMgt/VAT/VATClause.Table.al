@@ -160,7 +160,7 @@ table 560 "VAT Clause"
         ExtendedTextHeader.SetRange("No.", Code);
 
         IsHandled := false;
-        OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant, ExtendedTextHeader, IsHandled, LanguageCode, DocDate);
+        OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant, ExtendedTextHeader, IsHandled, LanguageCode, DocDate, RecRef);
         if not IsHandled then
             case RecRef.Number of
                 DATABASE::"Sales Header":
@@ -215,7 +215,7 @@ table 560 "VAT Clause"
                     exit;
             end;
 
-        OnGetDescriptionByExtendedTextOnBeforeReadExtTextLines(Rec, RecRef, ExtendedTextHeader, LanguageCode, DocDate);
+        OnGetDescriptionByExtendedTextOnBeforeReadExtTextLines(Rec, RecRef, ExtendedTextHeader, LanguageCode, DocDate, RecRelatedVariant);
         if not TransferExtendedText.ReadExtTextLines(ExtendedTextHeader, DocDate, LanguageCode) then
             exit;
 
@@ -322,12 +322,12 @@ table 560 "VAT Clause"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant: Variant; var ExtendedTextHeader: Record "Extended Text Header"; var IsHandled: Boolean; var LanguageCode: Code[10]; var DocDate: Date)
+    local procedure OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant: Variant; var ExtendedTextHeader: Record "Extended Text Header"; var IsHandled: Boolean; var LanguageCode: Code[10]; var DocDate: Date; RecordRef: RecordRef)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetDescriptionByExtendedTextOnBeforeReadExtTextLines(var VATClause: Record "VAT Clause"; var RelatedRecordRef: RecordRef; var ExtendedTextHeader: Record "Extended Text Header"; LanguageCode: Code[10]; DocDate: Date)
+    local procedure OnGetDescriptionByExtendedTextOnBeforeReadExtTextLines(var VATClause: Record "VAT Clause"; var RelatedRecordRef: RecordRef; var ExtendedTextHeader: Record "Extended Text Header"; var LanguageCode: Code[10]; var DocDate: Date; RecRelatedVariant: Variant)
     begin
     end;
 }

@@ -417,7 +417,7 @@ table 5878 "Phys. Invt. Record Line"
         end else begin
             ItemLedgEntry.SetItemVariantLocationFilters(
               "Item No.", "Variant Code", "Location Code", PhysInvtOrderHeader."Posting Date");
-            OnShowUsedTrackLinesSetItemLedgerEntryFilters(ItemLedgEntry, Rec);
+            OnShowUsedTrackLinesSetItemLedgerEntryFilters(ItemLedgEntry, Rec, TempPhysInvtTracking);
             if ItemLedgEntry.Find('-') then
                 repeat
                     InsertTrackingBuffer(
@@ -506,7 +506,7 @@ table 5878 "Phys. Invt. Record Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnShowUsedTrackLinesSetItemLedgerEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    local procedure OnShowUsedTrackLinesSetItemLedgerEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary)
     begin
     end;
 

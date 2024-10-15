@@ -10283,6 +10283,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders V - NamedType ValueEntriesWerePostedTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3152970314 - NamedType 740210915" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong lot quantity in Item Tracking on Purchase Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders V - NamedType WrongLotQtyOnPurchaseLineErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3152970314 - NamedType 654727060" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There must be %1 documents in the list.]]></Val>

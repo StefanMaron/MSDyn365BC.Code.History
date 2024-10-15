@@ -1021,6 +1021,7 @@ codeunit 7110 "Analysis Report Management"
             LineWithPrice.SetLine(PriceType::Sale, SalesLine);
             PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
             PriceCalculation.FindPrice(TempPriceListLine, false);
+            OnCalcUnitPriceOnBeforeReturnUnitPrice(TempPriceListLine, Item);
             exit(TempPriceListLine."Unit Price");
         end
     end;
@@ -1801,6 +1802,11 @@ codeunit 7110 "Analysis Report Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcItemStatisticsOnAfterSetFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcUnitPriceOnBeforeReturnUnitPrice(var TempPriceListLine: Record "Price List Line"; Item: Record Item)
     begin
     end;
 }
