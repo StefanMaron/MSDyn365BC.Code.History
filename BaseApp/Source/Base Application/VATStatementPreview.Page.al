@@ -154,9 +154,20 @@ page 474 "VAT Statement Preview"
 
     trigger OnOpenPage()
     begin
-        DateFilter := '';
+        if ValuesPassed then begin
+            Selection := PassedSelection;
+            PeriodSelection := PassedPeriodSelection;
+            DateFilter := PassedDateFilter;
+        end else
+            DateFilter := '';
         UpdateSubForm();
     end;
+
+    var
+        PassedSelection: Enum "VAT Statement Report Selection";
+        PassedPeriodSelection: Enum "VAT Statement Report Period Selection";
+        PassedDateFilter: Text[30];
+        ValuesPassed: Boolean;
 
     protected var
         Selection: Enum "VAT Statement Report Selection";
@@ -174,6 +185,14 @@ page 474 "VAT Statement Preview"
         NewSelection := Selection;
         NewPeriodSelection := PeriodSelection;
         NewUseAmtsInAddCurr := UseAmtsInAddCurr;
+    end;
+
+    procedure SetParameters(NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewDateFilter: Text[30])
+    begin
+        PassedSelection := NewSelection;
+        PassedPeriodSelection := NewPeriodSelection;
+        PassedDateFilter := NewDateFilter;
+        ValuesPassed := true;
     end;
 
     local procedure OpenandClosedSelectionOnPush()

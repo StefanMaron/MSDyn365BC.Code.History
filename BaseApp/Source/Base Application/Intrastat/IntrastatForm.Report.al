@@ -2,7 +2,7 @@ report 501 "Intrastat - Form"
 {
     // Could use COMPANYDISPLAYNAME for the companyname.
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatForm.rdlc';
+    RDLCLayout = './Intrastat/IntrastatForm.rdlc';
 
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Form';
@@ -341,10 +341,22 @@ report 501 "Intrastat - Form"
 
                 trigger OnAfterGetRecord()
                 begin
-                    TestField("Tariff No.");
-                    TestField("Country/Region Code");
-                    TestField("Transaction Type");
-                    TestField(Area);
+#if CLEAN19
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Form", true);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Form", true)
+                    else begin
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transaction Type");
+                        TestField(Area);
+                        if "Supplementary Units" then begin
+                            TestField(Quantity);
+                            TestField("Conversion Factor");
+                        end;
+                    end;
+#endif
                     if not GLSetup."Simplified Intrastat Decl." then begin
                         TestField("Transport Method");
                         TestField("Transaction Specification");
@@ -358,7 +370,6 @@ report 501 "Intrastat - Form"
                         TestField("Supplementary Units", true);
 
                     if "Supplementary Units" then begin
-                        TestField(Quantity);
 
                         if (PrevIntrastatJnlLine.Type <> Type) or
                            (PrevIntrastatJnlLine."Tariff No." <> "Tariff No.") or
@@ -378,7 +389,6 @@ report 501 "Intrastat - Form"
 
                         SubTotalWeight := SubTotalWeight + Round("Total Weight", 1);
                         TotalWeight := TotalWeight + Round("Total Weight", 1);
-                        TestField("Conversion Factor");
                         Vsupplunit := Quantity * "Conversion Factor";
                     end;
 
@@ -484,6 +494,7 @@ report 501 "Intrastat - Form"
                 VYear := CopyStr("Intrastat Jnl. Batch"."Statistics Period", 1, 2);
 
                 Pages := 1;
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
         }
     }
@@ -614,6 +625,9 @@ report 501 "Intrastat - Form"
         end;
 
         Vvatno := Company."Enterprise No.";
+#if not CLEAN19
+        if IntrastatSetup.Get() then;
+#endif
     end;
 
     var
@@ -632,6 +646,10 @@ report 501 "Intrastat - Form"
         IJL: Record "Intrastat Jnl. Line";
         IJL2: Record "Intrastat Jnl. Line";
         Tariffnumber: Record "Tariff Number";
+#if not CLEAN19
+        IntrastatSetup: Record "Intrastat Setup";
+#endif
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         CheckVatNo: Codeunit VATLogicalTests;
         ApplicationSystemConstants: Codeunit "Application System Constants";
         SubTotalWeight: Decimal;

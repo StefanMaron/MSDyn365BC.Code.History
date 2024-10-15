@@ -31,6 +31,7 @@ codeunit 144013 "VAT Annual Listing Report"
         LibraryBEHelper: Codeunit "Library - BE Helper";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -81,7 +82,7 @@ codeunit 144013 "VAT Annual Listing Report"
 
         // Exercise.
         OpenAnnualListingRep(
-            false, false, Date2DMY(StartDate, 3), 0, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
+          false, false, Date2DMY(StartDate, 3), 0.01, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // Verify report datasaet against VATEntry table.
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
@@ -111,24 +112,23 @@ codeunit 144013 "VAT Annual Listing Report"
     procedure ReportAnnualListingForPostedSalesCreditMemo()
     var
         Customer: Record Customer;
-        VATEntry: Record "VAT Entry";
         SalesHeader: Record "Sales Header";
     begin
-        // Verify report Annual Listing shows right VAT Amount for posted Sales Credit Memo.
-
-        // Setup: Create and post Sales Credit Memo for Domestic Customer.
+        // [SCENARIO 391947] Report Annual Listing does not print line for Customer with posted Sales Credit Memo only.
         Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo for Domestic Customer.
         LibraryBEHelper.CreateDomesticCustomer(Customer);
         CreateAndPostSalesDocument(SalesHeader."Document Type"::"Credit Memo", Customer."No.");
 
-        // Exercise: Run Report Annual Listing.
+        // [WHEN] Run Report Annual Listing.
         OpenAnnualListingRep(
-            false, true, Date2DMY(WorkDate(), 3), 0, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
+          false, true, Date2DMY(WorkDate(), 3), 0.01, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
-        // Verify: Verify VAT Base Amount and VAT Amount on report.
-        VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
-        VATEntry.FindFirst;
-        VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(-VATEntry.Amount, -VATEntry.Base);
+        // [THEN] Credit Memo is not printed
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer."Enterprise No."));
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), NonEmptyReportErr);
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 144013 "VAT Annual Listing Report"
         // [THEN] Invoice is not printed
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer."Enterprise No."));
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, NonEmptyReportErr);
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), NonEmptyReportErr);
     end;
 
     [Test]
@@ -165,10 +165,9 @@ codeunit 144013 "VAT Annual Listing Report"
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
-        VATEntry: Record "VAT Entry";
         CrMemoAmount: Decimal;
     begin
-        // [SCENARIO 264378] Report VAT Annual Listing does print credit memos which amount less than Minimum Amount
+        // [SCENARIO 391947] Report VAT Annual Listing does not print credit memos with amount less than Minimum Amount and without applied Sales Invoice from previous year.
         Initialize;
 
         // [GIVEN] Create post credit memo with amount X
@@ -180,24 +179,25 @@ codeunit 144013 "VAT Annual Listing Report"
         OpenAnnualListingRep(
             false, true, Date2DMY(WorkDate(), 3), CrMemoAmount * 2, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
-        // [THEN] Credit memo is printed
-        VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
-        VATEntry.FindFirst;
-        VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(-VATEntry.Amount, -VATEntry.Base);
+        // [THEN] Credit memo is not printed
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer."Enterprise No."));
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), NonEmptyReportErr);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
     [HandlerFunctions('VATAnnualListingRepRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure MinimumAmountForInvoiceWithCreditMemo()
+    procedure AnnualListingForInvoiceWithCrMemoSumAmountLessMin()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
-        VATEntry: Record "VAT Entry";
         CrMemoAmount: Decimal;
         InvoiceAmount: Decimal;
     begin
-        // [SCENARIO 276034] Report Annual Listing does export amount less than Minimum Amount if credit memo exists in the reported period
+        // [SCENARIO 391947] Report Annual Listing does not print Invoice and Credit Memo if sum of their amounts is less than Minimum Amount
         Initialize;
 
         // [GIVEN] Posted sales invoice with amount = 500 and VAT = 10%
@@ -209,15 +209,257 @@ codeunit 144013 "VAT Annual Listing Report"
         CreateAndPostSalesDocument(SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         CrMemoAmount := FindLastCrMemoAmount(Customer."No.");
 
-        // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 600
+        // [WHEN] Run report Annual Listing with Minimum Amount = 600
         OpenAnnualListingRep(
           false, true, Date2DMY(WorkDate(), 3), InvoiceAmount + CrMemoAmount,
           IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
-        // [THEN] Entry for the customer is printed with <TurnOver> = 400 and <VATAmount> = 40
+        // [THEN] Entry for the customer is not printed.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer."Enterprise No."));
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), NonEmptyReportErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRepRequestPageHandler')]
+    procedure AnnualListingForCrMemoWithAppldInvoiceSamePeriodSumAmountGreaterMin()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 391947] Report Annual Listing prints Credit Memo with applied Invoice posted in the same period if sum of amounts is greater than Minimum Amount.
+        Initialize();
+        UpdateUseWorkDateForApplyOnGLSetup(false);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Posted Sales Invoice with amount = 1000 and VAT = 10% and Posting Date = 31.12.2023.
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()), InvoiceAmount);
+
+        // [GIVEN] Posted Sales Credit Memo with amount -100 and VAT = 10% and Posting Date = 31.12.2023.
+        PostedCrMemoNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate()), CrMemoAmount);
+
+        // [GIVEN] Credit Memo is applied to Invoice.
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::"Credit Memo", CustLedgerEntry."Document Type"::Invoice, PostedCrMemoNo, PostedInvoiceNo);
+
+        // [WHEN] Run report Annual Listing with Minimum Amount = 450.
+        OpenAnnualListingRep(
+          false, true, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), (InvoiceAmount - CrMemoAmount) / 2,
+          IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
+
+        // [THEN] Entry for the Customer is printed with <TurnOver> = 900 and <VATAmount> = 90.
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
         VATEntry.CalcSums(Base, Amount);
         VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(-VATEntry.Amount, -VATEntry.Base);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRepRequestPageHandler')]
+    procedure AnnualListingForCrMemoWithAppldInvoiceSamePeriodSumAmountLessMin()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 391947] Report Annual Listing does not print Credit Memo with applied Invoice posted in the same period if sum of amounts is less than Minimum Amount.
+        Initialize();
+        UpdateUseWorkDateForApplyOnGLSetup(false);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Posted Sales Invoice with amount = 1000 and VAT = 10% and Posting Date = 31.12.2023.
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()), InvoiceAmount);
+
+        // [GIVEN] Posted Sales Credit Memo with amount -100 and VAT = 10% and Posting Date = 31.12.2023.
+        PostedCrMemoNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate()), CrMemoAmount);
+
+        // [GIVEN] Credit Memo is applied to Invoice.
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::"Credit Memo", CustLedgerEntry."Document Type"::Invoice, PostedCrMemoNo, PostedInvoiceNo);
+
+        // [WHEN] Run report Annual Listing with Minimum Amount = 2000.
+        OpenAnnualListingRep(
+          false, true, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), InvoiceAmount * 2,
+          IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
+
+        // [THEN] Entry for the customer is not printed.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer."Enterprise No."));
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), NonEmptyReportErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRepRequestPageHandler')]
+    procedure AnnualListingForCrMemoWithAppldInvoicePreviousPeriodSumAmountGreaterMin()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 391947] Report Annual Listing prints Credit Memo with applied Invoice posted in the previous period if sum of amounts is greater than Minimum Amount.
+        Initialize();
+        UpdateUseWorkDateForApplyOnGLSetup(false);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Posted Sales Invoice with amount = 1000 and VAT = 10% and Posting Date = 31.12.2022.
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+1Y>', WorkDate()), InvoiceAmount);
+
+        // [GIVEN] Posted Sales Credit Memo with amount -100 and VAT = 10% and Posting Date = 31.12.2023.
+        PostedCrMemoNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate()), CrMemoAmount);
+
+        // [GIVEN] Credit Memo is applied to Invoice.
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::"Credit Memo", CustLedgerEntry."Document Type"::Invoice, PostedCrMemoNo, PostedInvoiceNo);
+
+        // [WHEN] Run report Annual Listing with Minimum Amount = 450 for Year = 2023.
+        OpenAnnualListingRep(
+          false, true, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), (InvoiceAmount - CrMemoAmount) / 2,
+          IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
+
+        // [THEN] Entry for the Customer exported with <TurnOver> = -100 and <VATAmount> = -10.
+        VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
+        VATEntry.SetRange("Document No.", PostedCrMemoNo);
+        VATEntry.FindFirst();
+        VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(-VATEntry.Amount, -VATEntry.Base);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRepRequestPageHandler')]
+    procedure AnnualListingForCrMemoWithAppldInvoicePreviousPeriodSumAmountLessMin()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 391947] Report Annual Listing prints Credit Memo with applied Invoice posted in the previous period if sum of amounts is less than Minimum Amount.
+        Initialize();
+        UpdateUseWorkDateForApplyOnGLSetup(false);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Posted Sales Invoice with amount = 1000 and VAT = 10% and Posting Date = 31.12.2022.
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+1Y>', WorkDate()), InvoiceAmount);
+
+        // [GIVEN] Posted Sales Credit Memo with amount -100 and VAT = 10% and Posting Date = 31.12.2023.
+        PostedCrMemoNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate()), CrMemoAmount);
+
+        // [GIVEN] Credit Memo is applied to Invoice.
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::"Credit Memo", CustLedgerEntry."Document Type"::Invoice, PostedCrMemoNo, PostedInvoiceNo);
+
+        // [WHEN] Run report Annual Listing with Minimum Amount = 2000 for Year = 2023.
+        OpenAnnualListingRep(
+          false, true, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), InvoiceAmount * 2,
+          IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
+
+        // [THEN] Entry for the Customer exported with <TurnOver> = -100 and <VATAmount> = -10.
+        VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
+        VATEntry.SetRange("Document No.", PostedCrMemoNo);
+        VATEntry.FindFirst();
+        VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(-VATEntry.Amount, -VATEntry.Base);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRepRequestPageHandler')]
+    procedure AnnualListingForCrMemoWithAppldInvoiceTwoPreviousYearsSumAmountLessMin()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [SCENARIO 391947] Report Annual Listing prints Credit Memo with applied Invoice posted two years ago if sum of amounts is less than Minimum Amount.
+        Initialize();
+        UpdateUseWorkDateForApplyOnGLSetup(false);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Posted Sales Invoice with amount = 1000 and VAT = 10% and Posting Date = 31.12.2021.
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY>', WorkDate()), InvoiceAmount);
+
+        // [GIVEN] Posted Sales Credit Memo with amount -100 and VAT = 10% and Posting Date = 31.12.2023.
+        PostedCrMemoNo :=
+          CreateAndPostSalesDocumentWithAmount(
+            Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate()), CrMemoAmount);
+
+        // [GIVEN] Credit Memo is applied to Invoice.
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::"Credit Memo", CustLedgerEntry."Document Type"::Invoice, PostedCrMemoNo, PostedInvoiceNo);
+
+        // [WHEN] Run report Annual Listing with Minimum Amount = 2000 for Year = 2023.
+        OpenAnnualListingRep(
+          false, true, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), InvoiceAmount * 2,
+          IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
+
+        // [THEN] Entry for the Customer exported with <TurnOver> = -100 and <VATAmount> = -10.
+        VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
+        VATEntry.SetRange("Document No.", PostedCrMemoNo);
+        VATEntry.FindFirst();
+        VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(-VATEntry.Amount, -VATEntry.Base);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -328,6 +570,22 @@ codeunit 144013 "VAT Annual Listing Report"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
+    local procedure CreateAndPostSalesDocumentWithAmount(CustomerNo: Code[20]; DocumentType: Option; PostingDate: Date; Amount: Decimal) PostedDocNo: Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', 1);
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
     local procedure CreateItem(): Code[20]
     var
         Item: Record Item;
@@ -386,6 +644,15 @@ codeunit 144013 "VAT Annual Listing Report"
         VATAnnualListing.SetTableView(Customer);
         Commit();
         VATAnnualListing.Run();
+    end;
+
+    local procedure UpdateUseWorkDateForApplyOnGLSetup(UseWorkDateForApply: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Use Workdate for Appl./Unappl.", UseWorkDateForApply);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     [RequestPageHandler]

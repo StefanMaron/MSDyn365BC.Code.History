@@ -7696,6 +7696,12 @@ End Function
         <Field Name="ShipmentDate_Line_Lbl">
           <DataField>ShipmentDate_Line_Lbl</DataField>
         </Field>
+        <Field Name="PlannedShipmentDate_Line">
+          <DataField>PlannedShipmentDate_Line</DataField>
+        </Field>
+        <Field Name="PlannedShipmentDate_Line_Lbl">
+          <DataField>PlannedShipmentDate_Line_Lbl</DataField>
+        </Field>
         <Field Name="Quantity_Line">
           <DataField>Quantity_Line</DataField>
         </Field>

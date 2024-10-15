@@ -18,10 +18,31 @@ report 11309 "VAT Annual Listing - Disk"
                     DataItemTableView = SORTING("Entry No.");
 
                     trigger OnAfterGetRecord()
+                    var
+                        CrMemoCustLedgerEntry: Record "Cust. Ledger Entry";
+                        TempAppliedCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+                        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+                        IsCreditMemo: Boolean;
                     begin
                         WBase := WBase + Base;
                         WAmount := WAmount + Amount;
-                        IsCreditMemo := IsCreditMemo or (Base > 0);
+                        IsCreditMemo := (Base > 0);
+
+                        if IsCreditMemoWithAppliedInvoice then
+                            CurrReport.Skip();
+
+                        if IsCreditMemo then begin
+                            CrMemoCustLedgerEntry.SetRange("Document Type", "Document Type");
+                            CrMemoCustLedgerEntry.SetRange("Document No.", "Document No.");
+                            CrMemoCustLedgerEntry.SetRange("Posting Date", "Posting Date");
+                            CrMemoCustLedgerEntry.SetRange("Customer No.", "Bill-to/Pay-to No.");
+                            if CrMemoCustLedgerEntry.FindFirst() then begin
+                                CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempAppliedCustLedgerEntry, CrMemoCustLedgerEntry."Entry No.");
+                                TempAppliedCustLedgerEntry.SetRange("Posting Date", 0D, DMY2Date(31, 12, PreviousYear));
+                                if not TempAppliedCustLedgerEntry.IsEmpty() then
+                                    IsCreditMemoWithAppliedInvoice := true;
+                            end;
+                        end;
                     end;
 
                     trigger OnPreDataItem()
@@ -73,7 +94,7 @@ report 11309 "VAT Annual Listing - Disk"
                     i: Integer;
                 begin
                     i := Buffer.Count + 1;
-                    if not SkipMinimumAmount or IsCreditMemo then begin
+                    if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
                         Buffer.Init();
                         Buffer."Entry No." := i;
                         Buffer."Enterprise No." := DelChr(Customer."Enterprise No.", '=', DelChr(Customer."Enterprise No.", '=', '0123456789'));
@@ -87,7 +108,7 @@ report 11309 "VAT Annual Listing - Disk"
 
                 trigger OnPostDataItem()
                 begin
-                    if not SkipMinimumAmount or IsCreditMemo then begin
+                    if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
                         WTotBase2 := WTotBase2 + Buffer.Base;
                         WTotAmount2 := WTotAmount2 + Buffer.Amount;
                     end;
@@ -101,7 +122,7 @@ report 11309 "VAT Annual Listing - Disk"
 
                 Clear(WBase);
                 Clear(WAmount);
-                IsCreditMemo := false;
+                IsCreditMemoWithAppliedInvoice := false;
             end;
 
             trigger OnPreDataItem()
@@ -274,6 +295,7 @@ report 11309 "VAT Annual Listing - Disk"
     begin
         if not AddRepresentative then
             INTERVATHelper.VerifyCpyInfoEmailExists;
+        PreviousYear := VYear - 1;
     end;
 
     var
@@ -308,7 +330,8 @@ report 11309 "VAT Annual Listing - Disk"
         IncludeCountry: Option All,Specific;
         Country: Code[10];
         ClientFileNameTxt: Label 'Intervat.xml', Locked = true;
-        IsCreditMemo: Boolean;
+        IsCreditMemoWithAppliedInvoice: Boolean;
+        PreviousYear: Integer;
 
     local procedure InitializeXMLFile()
     begin
@@ -457,9 +480,9 @@ report 11309 "VAT Annual Listing - Disk"
         PageSetRepresentativeEnabled;
     end;
 
-    local procedure SkipMinimumAmount(): Boolean
+    local procedure IsCustBalanceGreaterThanMinimum(): Boolean
     begin
-        exit((Abs(WBase) < Minimum) and (WBase <= 0));
+        exit(-WBase >= Minimum);
     end;
 
     local procedure PageSetRepresentativeEnabled()

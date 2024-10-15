@@ -94,7 +94,7 @@ codeunit 1203 "Import XML File to Data Exch."
                     CurrentNodeID := IncreaseNodeID(NodeID, CurrentIndex);
                     CurrentIndex += 1;
                     InsertColumn(
-                      DataExchColumnDef.Path, CurrentLineNo, CurrentNodeID, ParentNodeID, XmlNodeList.ItemOf(I - 1).Name,
+                      DataExchColumnDef."Column No.", CurrentLineNo, CurrentNodeID, ParentNodeID, XmlNodeList.ItemOf(I - 1).Name,
                       XmlNodeList.ItemOf(I - 1).InnerText, CurrentDataExchLineDef, EntryNo);
                 end;
             until DataExchColumnDef.Next = 0;
@@ -139,26 +139,21 @@ codeunit 1203 "Import XML File to Data Exch."
             until DataExchLineDef.Next = 0;
     end;
 
-    local procedure InsertColumn(Path: Text; LineNo: Integer; NodeId: Text[250]; ParentNodeId: Text[250]; Name: Text; Value: Text; var DataExchLineDef: Record "Data Exch. Line Def"; EntryNo: Integer)
+    local procedure InsertColumn(ColumnNo: Integer; LineNo: Integer; NodeId: Text[250]; ParentNodeId: Text[250]; Name: Text; Value: Text; var DataExchLineDef: Record "Data Exch. Line Def"; EntryNo: Integer)
     var
         DataExchColumnDef: Record "Data Exch. Column Def";
         DataExchField: Record "Data Exch. Field";
     begin
         // Note: The Data Exch. variable is passed by reference only to improve performance.
-        DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
-        DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-        DataExchColumnDef.SetRange(Path, Path);
-
-        if DataExchColumnDef.FindSet then
-            repeat
-                UpdateProgressWindow(LineNo);
-                if DataExchColumnDef."Use Node Name as Value" then
-                    DataExchField.InsertRecXMLFieldWithParentNodeID(EntryNo, LineNo, DataExchColumnDef."Column No.", NodeId, ParentNodeId, Name,
-                      DataExchLineDef.Code)
-                else
-                    DataExchField.InsertRecXMLFieldWithParentNodeID(EntryNo, LineNo, DataExchColumnDef."Column No.", NodeId, ParentNodeId, Value,
-                      DataExchLineDef.Code);
-            until DataExchColumnDef.Next = 0;
+        if DataExchColumnDef.Get(DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, ColumnNo) then begin
+            UpdateProgressWindow(LineNo);
+            if DataExchColumnDef."Use Node Name as Value" then
+                DataExchField.InsertRecXMLFieldWithParentNodeID(EntryNo, LineNo, DataExchColumnDef."Column No.", NodeId, ParentNodeId, Name,
+                  DataExchLineDef.Code)
+            else
+                DataExchField.InsertRecXMLFieldWithParentNodeID(EntryNo, LineNo, DataExchColumnDef."Column No.", NodeId, ParentNodeId, Value,
+                  DataExchLineDef.Code);
+        end;
     end;
 
     local procedure GetRelativePath(ChildPath: Text[250]; ParentPath: Text[250]): Text
