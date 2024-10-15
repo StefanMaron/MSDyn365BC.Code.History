@@ -613,7 +613,7 @@ page 1180 "Data Privacy Wizard"
         OptionsDescriptionTxt: Label '\Choose what you want to do with the privacy data.\\You can export data for a specific data subject, such as a customer.\You can also create a configuration package so that you can view and edit the fields and tables that the data will be exported from.';
         AvailableOptionsDescription: Text;
         PrivacyURL: Text;
-        PrivacyUrlTxt: Label 'https://docs.microsoft.com/en-us/dynamics365/business-central/admin-responding-to-requests-about-personal-data', Locked = true;
+        PrivacyUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2206516', Locked = true;
         DataSubjectBlockedMsg: Label 'This data subject is already marked as blocked due to privacy. You can export the related data.';
         NoPartnerPeopleErr: Label 'No records of Partner Type of ''Person'' were found.';
         NoPersonErr: Label 'No records of type ''Person'' were found.';

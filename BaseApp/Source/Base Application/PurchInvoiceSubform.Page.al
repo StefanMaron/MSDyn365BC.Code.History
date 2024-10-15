@@ -1350,7 +1350,7 @@
             CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
             (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
-        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber, InvDiscAmountEditable, CurrPageIsEditable, TotalPurchaseHeader);
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1390,6 +1390,7 @@
         if SuppressTotals then
             exit;
 
+        OnBeforeDeltaUpdateTotals(Rec, xRec);
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         CheckSendLineInvoiceDiscountResetNotification();
     end;
@@ -1476,7 +1477,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean; var InvDiscAmountEditable: Boolean; CurrPageIsEditable: Boolean; TotalPurchaseHeader: Record "Purchase Header");
     begin
     end;
 
@@ -1530,6 +1531,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetDimensionsVisibility()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 }

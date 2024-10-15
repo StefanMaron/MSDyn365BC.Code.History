@@ -187,22 +187,20 @@ codeunit 419 "File Management"
     end;
 
     [Scope('OnPrem')]
-    procedure DownloadHandler(FromFile: Text; DialogTitle: Text; ToFolder: Text; ToFilter: Text; ToFile: Text): Boolean
+    procedure DownloadHandler(FromFile: Text; DialogTitle: Text; ToFolder: Text; ToFilter: Text; ToFile: Text) Downloaded: Boolean
     var
-        Downloaded: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDownloadHandler(ToFolder, ToFile, FromFile, IsHandled);
-        if IsHandled then
-            exit;
-
-        ClearLastError();
-        Downloaded := Download(FromFile, DialogTitle, ToFolder, ToFilter, ToFile);
-        if not Downloaded then
-            if GetLastErrorText <> '' then
-                Error('%1', GetLastErrorText);
-        exit(Downloaded);
+        OnBeforeDownloadHandler(ToFolder, ToFile, FromFile, IsHandled, Downloaded);
+        if not IsHandled then begin
+            ClearLastError();
+            Downloaded := Download(FromFile, DialogTitle, ToFolder, ToFilter, ToFile);
+            if not Downloaded then
+                if GetLastErrorText <> '' then
+                    Error('%1', GetLastErrorText);
+        end;
+        OnAfterDownloadHandler(ToFolder, ToFile, FromFile, Downloaded);
     end;
 
     [Scope('OnPrem')]
@@ -693,12 +691,17 @@ codeunit 419 "File Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var Downloaded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeBlobExport(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean; var Downloaded: Boolean)
     begin
     end;
 

@@ -760,7 +760,7 @@
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
 
-                OnAfterLookupPostCode(Rec, PostCode);
+                OnAfterLookupPostCode(Rec, xRec, PostCode);
             end;
 
             trigger OnValidate()
@@ -3282,7 +3282,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLookupPostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    local procedure OnAfterLookupPostCode(var Customer: Record Customer; xCustomer: Record Customer; var PostCodeRec: Record "Post Code")
     begin
     end;
 

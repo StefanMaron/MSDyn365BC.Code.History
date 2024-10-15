@@ -1339,6 +1339,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 Database::"CRM Systemuser"] then begin
             Session.LogMessage('0000FMC', 'Synching a base entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             FeatureTelemetry.LogUsage('0000H7O', 'Dataverse', 'Base entity synch');
+            FeatureTelemetry.LogUsage('0000IIL', 'Dataverse Base Entities', 'Base entity synch');
             exit;
         end;
         if IntegrationTableID > MinCustomTableId() then begin

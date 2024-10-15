@@ -56,7 +56,7 @@ page 9807 "User Card"
                     Caption = 'Status';
                     OptionCaption = 'Active, Inactive';
                     Importance = Promoted;
-                    ToolTip = 'Specifies if the user''s login is enabled.';
+                    ToolTip = 'Specifies whether the user can access companies in the current environment.';
                     AboutTitle = 'Control the user''s access';
                     AboutText = 'You can temporarily prevent a user from signing in by disabling their user account. This does not remove the license from the user.';
 
@@ -497,7 +497,7 @@ page 9807 "User Card"
         if DeleteUserIsAllowed(Rec) then
             exit(true);
         if not ManageUsersIsAllowed() then
-            Error('');
+            Error(DeleteUserInSaaSErr);
     end;
 
     trigger OnInit()
@@ -514,7 +514,8 @@ page 9807 "User Card"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if not ManageUsersIsAllowed() then
-            Error('');
+            Error(CreateUserInSaaSErr);
+
         WindowsUserName := '';
         Password := '';
         "Change Password" := false;
@@ -558,6 +559,8 @@ page 9807 "User Card"
         Text001Err: Label 'The account %1 is not a valid Windows account.', Comment = 'USERID';
         Text002Err: Label 'The account %1 already exists.', Comment = 'USERID';
         Text003Err: Label 'The account %1 is not allowed.', Comment = 'USERID';
+        CreateUserInSaaSErr: Label 'Creating users is not allowed in the online environment.';
+        DeleteUserInSaaSErr: Label 'Deleting users is not allowed in the online environment.';
         Password: Text[80];
         ACSStatus: Option Disabled,Pending,Registered,Unknown;
         WebServiceID: Text[80];

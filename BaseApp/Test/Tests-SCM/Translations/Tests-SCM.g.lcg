@@ -3866,6 +3866,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Item Tracking II - NamedType ExistingSalesLnITError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2769833927 - NamedType 2744503909" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 is not available on inventory or it has already been reserved for another document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Item Tracking ID, %2 = Item Tracking No."]D;]A;(LookupHint=Codeunit SCM Inventory Item Tracking II - NamedType InventoryNotAvailableErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2769833927 - NamedType 502483874" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A lot number could not be found for serial number]]></Val>
@@ -7835,6 +7844,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType DeleteRtngErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1233714583 - NamedType 3607385583" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Did not expect a Warehouse Pick Request associated with the Production Order Component Line, since the line doesn't have a postitive remaining quantity]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType DidntExpectWhsePickRequest)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1233714583 - NamedType 282716722" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document No. %1 does not exist.]]></Val>
@@ -7878,6 +7896,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType ExpectedQuantityError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1233714583 - NamedType 3233549257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected a Warehouse Pick Request associated with the Production Order Component Line, since the line has a positive remaining quantity]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType ExpectedWhsePickRequest)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1233714583 - NamedType 2012558403" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

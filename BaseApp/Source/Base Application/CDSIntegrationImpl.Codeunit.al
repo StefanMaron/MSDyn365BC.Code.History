@@ -268,7 +268,7 @@ codeunit 7201 "CDS Integration Impl."
         AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received.', Locked = true;
         AccessTokenNotReceivedErr: Label 'Failed to acquire an access token for %1.', Comment = '%1 URL to the Dataverse environment.';
         GuiNotAllowedTxt: Label 'GUI not allowed, so acquiring the auth code through the interactive experience is not possible', Locked = true;
-        FixPermissionsUrlTxt: Label 'https://docs.microsoft.com/en-us/power-platform/admin/troubleshooting-user-needs-read-write-access-organization#user-doesnt-have-sufficient-permissions', Locked = true;
+        FixPermissionsUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2206515', Locked = true;
         InsufficientPriviegesTxt: Label 'The Dataverse user has insufficient privileges to perform this task. Navigate to this link to read about how to add privileges to the user: %1', Comment = '%1 A URL';
         AttemptingAuthCodeTokenWithCertTxt: Label 'Attempting to acquire a CDS access token via authorization code flow with a SNI certificate', Locked = true;
         AttemptingClientCredentialsTokenWithCertTxt: Label 'Attempting to acquire a CDS access token via client credentials flow with a SNI certificate', Locked = true;
@@ -314,6 +314,7 @@ codeunit 7201 "CDS Integration Impl."
         VTAppSourceLinkTxt: Label 'https://appsource.microsoft.com/product/dynamics-365/microsoftdynsmb.businesscentral_virtualentity', Locked = true;
         CRMEntityUrlTemplateTxt: Label '%1/main.aspx?pagetype=entityrecord&etn=%2&id=%3', Locked = true;
         CRMEntityListUrlTemplateTxt: Label '%1/main.aspx?pagetype=entitylist&etn=%2&navbar=on&cmdbar=true', Locked = true;
+        UsingCustomIntegrationUsernameEmailTxt: Label 'Dataverse setup is using custom integration username email, specified via event subscriber.', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetBaseSolutionUniqueName(): Text
@@ -1227,6 +1228,7 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionFirstPartyAppCertificateTxt: Text;
         NewConnectionString: Text;
         IntegrationUsernameEmailTxt: Text[100];
+        OnGetIntegrationUserEmailHandled: Boolean;
         CDSConnectionClientId: Guid;
         EmptyGuid: Guid;
         ExistingApplicationUserCount: Integer;
@@ -1261,7 +1263,11 @@ codeunit 7201 "CDS Integration Impl."
             CrmSystemUser.FindFirst();
         end else begin
             Session.LogMessage('0000C4M', StrSubstNo(FoundNoIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            IntegrationUsernameEmailTxt := CopyStr(GetAvailableIntegrationUserEmail(), 1, MaxStrLen(CRMSystemuser.InternalEMailAddress));
+            OnGetIntegrationUserEmail(IntegrationUsernameEmailTxt, OnGetIntegrationUserEmailHandled);
+            if not OnGetIntegrationUserEmailHandled then
+                IntegrationUsernameEmailTxt := CopyStr(GetAvailableIntegrationUserEmail(), 1, MaxStrLen(CRMSystemuser.InternalEMailAddress))
+            else
+                Session.LogMessage('0000IOW', UsingCustomIntegrationUsernameEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             if IntegrationUsernameEmailTxt = '' then begin
                 Session.LogMessage('0000D1D', StrSubstNo(FailedToInsertApplicationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(FailedToInsertApplicationUserErr, CDSConnectionClientId, CDSConnectionSetup."Server Address");
@@ -3881,9 +3887,9 @@ codeunit 7201 "CDS Integration Impl."
             TempCDSCompany.OwnerIdType::systemuser:
                 CheckOwningUser(OwnerId, SkipBusinessUnitCheck);
             else begin
-                    Session.LogMessage('0000AUC', UnsupportedOwnerTypeTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                    Error(OwnerIdTypeErr);
-                end;
+                Session.LogMessage('0000AUC', UnsupportedOwnerTypeTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                Error(OwnerIdTypeErr);
+            end;
         end;
 
         if CheckOnly then begin
@@ -4705,7 +4711,12 @@ codeunit 7201 "CDS Integration Impl."
     end;
 
     local procedure GetDefaultBusinessUnitName(CompanyName: Text; CompanyId: Text) BusinessUnitName: Text[160]
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeGetDefaultBusinessUnitName(BusinessUnitName, IsHandled);
+        if IsHandled then
+            exit;
         BusinessUnitName := CopyStr(StrSubstNo(BusinessUnitNameTemplateTok, CompanyName, CompanyId), 1, MaxStrLen(BusinessUnitName));
     end;
 
@@ -4936,6 +4947,16 @@ codeunit 7201 "CDS Integration Impl."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetBusinessEventsSupported(var Supported: Boolean; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetDefaultBusinessUnitName(var BusinessUnitName: Text[160]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetIntegrationUserEmail(var IntegrationUsernameEmailTxt: Text[100]; var IsHandled: Boolean)
     begin
     end;
 }

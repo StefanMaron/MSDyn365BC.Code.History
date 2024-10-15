@@ -51,7 +51,7 @@ codeunit 401 "Sales Header Apply"
         Text000: Label 'You must specify %1 or %2.';
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterFilterCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; SalesHeader: Record "Sales Header")
+    local procedure OnRunOnAfterFilterCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
