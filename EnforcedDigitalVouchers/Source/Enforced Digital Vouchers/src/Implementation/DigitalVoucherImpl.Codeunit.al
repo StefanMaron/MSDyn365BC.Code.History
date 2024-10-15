@@ -14,7 +14,7 @@
     var
         DigitalVoucherEntrySetup: Record "Digital Voucher Entry Setup";
     begin
-        DigitalVoucherEntrySetup.Get(EntryType);
+        GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, EntryType);
         HandleDigitalVoucherForEntryTypeAndDoc(ErrorMessageMgt, DigitalVoucherEntrySetup, Record);
     end;
 
@@ -36,7 +36,7 @@
         RecRef: RecordRef;
         DigitalVoucherCheck: Interface "Digital Voucher Check";
     begin
-        DigitalVoucherEntrySetup.Get(EntryType);
+        GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, EntryType);
         if DigitalVoucherEntrySetup."Check Type" = DigitalVoucherEntrySetup."Check Type"::"No Check" then
             exit;
         DigitalVoucherCheck := DigitalVoucherEntrySetup."Check Type";
@@ -51,16 +51,19 @@
         RecRef: RecordRef;
         DigitalVoucherCheck: Interface "Digital Voucher Check";
     begin
-        if not DigitalVoucherEntrySetup.Get(DigitalVoucherEntry.GetVoucherTypeFromGLEntryOrSourceType(GLEntry, GenJournalSourceType)) then
+        if not GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, DigitalVoucherEntry.GetVoucherTypeFromGLEntryOrSourceType(GLEntry, GenJournalSourceType)) then
             exit;
         if DigitalVoucherEntrySetup."Check Type" = DigitalVoucherEntrySetup."Check Type"::"No Check" then
             exit;
         DigitalVoucherCheck := DigitalVoucherEntrySetup."Check Type";
         FindGenJournalLineFromGLEntry(ConnectedGenJournalLine, GenJournalLine, GLEntry);
+        if not (GenJournalLine."Document Type" in [GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo"]) then
+            exit;
         RecRef.GetTable(ConnectedGenJournalLine);
         DigitalVoucherCheck.GenerateDigitalVoucherForPostedDocument(DigitalVoucherEntrySetup."Entry Type", RecRef);
     end;
 
+    [CommitBehavior(CommitBehavior::Ignore)]
     procedure GenerateDigitalVoucherForDocument(RecRef: RecordRef)
     var
         SalesInvHeader: Record "Sales Invoice Header";
@@ -69,56 +72,56 @@
         ServCrMemoHeader: Record "Service Cr.Memo Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        DigVoucherManualSubscriber: Codeunit "Dig. Voucher Manual Subscriber";
+        ReportSelections: Record "Report Selections";
     begin
         case RecRef.Number of
             Database::"Sales Invoice Header":
                 begin
                     RecRef.SetTable(SalesInvHeader);
-                    SalesInvHeader.SetRecFilter();
-                    BindSubscription(DigVoucherManualSubscriber);
-                    SalesInvHeader.PrintToDocumentAttachment(SalesInvHeader);
-                    UnbindSubscription(DigVoucherManualSubscriber);
+                    AttachDigitalVoucherFromReportPDF(
+                        ReportSelections.Usage::"S.Invoice", RecRef, true,
+                        SalesInvHeader."Posting Date", SalesInvHeader."No.", Database::Customer,
+                        SalesInvHeader."Bill-to Customer No.", Report::"Standard Sales - Invoice");
                 end;
             Database::"Service Invoice Header":
                 begin
                     RecRef.SetTable(ServInvHeader);
-                    ServInvHeader.SetRecFilter();
-                    BindSubscription(DigVoucherManualSubscriber);
-                    ServInvHeader.PrintToDocumentAttachment(ServInvHeader);
-                    UnbindSubscription(DigVoucherManualSubscriber);
+                    AttachDigitalVoucherFromReportPDF(
+                        ReportSelections.Usage::"SM.Invoice", RecRef, true,
+                        ServInvHeader."Posting Date", ServInvHeader."No.", Database::Customer,
+                        ServInvHeader."Bill-to Customer No.", Report::"Service - Invoice");
                 end;
             Database::"Service Cr.Memo Header":
                 begin
                     RecRef.SetTable(ServCrMemoHeader);
-                    ServCrMemoHeader.SetRecFilter();
-                    BindSubscription(DigVoucherManualSubscriber);
-                    ServCrMemoHeader.PrintToDocumentAttachment(ServCrMemoHeader);
-                    UnbindSubscription(DigVoucherManualSubscriber);
+                    AttachDigitalVoucherFromReportPDF(
+                        ReportSelections.Usage::"SM.Credit Memo", RecRef, false,
+                        ServCrMemoHeader."Posting Date", ServCrMemoHeader."No.", Database::Customer,
+                        ServCrMemoHeader."Bill-to Customer No.", Report::"Service - Credit Memo");
                 end;
             Database::"Sales Cr.Memo Header":
                 begin
                     RecRef.SetTable(SalesCrMemoHeader);
-                    SalesCrMemoHeader.SetRecFilter();
-                    BindSubscription(DigVoucherManualSubscriber);
-                    SalesCrMemoHeader.PrintToDocumentAttachment(SalesCrMemoHeader);
-                    UnbindSubscription(DigVoucherManualSubscriber);
+                    AttachDigitalVoucherFromReportPDF(
+                        ReportSelections.Usage::"S.Cr.Memo", RecRef, false,
+                        SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."No.", Database::Customer,
+                        SalesCrMemoHeader."Bill-to Customer No.", Report::"Standard Sales - Credit Memo");
                 end;
             Database::"Purch. Inv. Header":
                 begin
                     RecRef.SetTable(PurchInvHeader);
-                    PurchInvHeader.SetRecFilter();
-                    BindSubscription(DigVoucherManualSubscriber);
-                    PurchInvHeader.PrintToDocumentAttachment(PurchInvHeader);
-                    UnbindSubscription(DigVoucherManualSubscriber);
+                    AttachDigitalVoucherFromReportPDF(
+                        ReportSelections.Usage::"P.Invoice", RecRef, true,
+                        PurchInvHeader."Posting Date", PurchInvHeader."No.", Database::Vendor,
+                        PurchInvHeader."Pay-to Vendor No.", report::"Purchase - Invoice");
                 end;
             Database::"Purch. Cr. Memo Hdr.":
                 begin
                     RecRef.SetTable(PurchCrMemoHeader);
-                    PurchCrMemoHeader.SetRecFilter();
-                    BindSubscription(DigVoucherManualSubscriber);
-                    PurchCrMemoHeader.PrintToDocumentAttachment(PurchCrMemoHeader);
-                    UnbindSubscription(DigVoucherManualSubscriber);
+                    AttachDigitalVoucherFromReportPDF(
+                        ReportSelections.Usage::"P.Cr.Memo", RecRef, false,
+                        PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."No.", Database::Vendor,
+                        PurchCrMemoHeader."Pay-to Vendor No.", report::"Purchase - Credit Memo");
                 end;
             Database::"Gen. Journal Line":
                 AttachGenJnlLinePDFToIncomingDocument(RecRef);
@@ -150,11 +153,19 @@
     var
         DigitalVoucherEntrySetup: Record "Digital Voucher Entry Setup";
         IncomingDocument: Record "Incoming Document";
+        SourceCodeSetup: Record "Source Code Setup";
         VoucherAttached: Boolean;
     begin
-        DigitalVoucherEntrySetup.Get(DigitalVoucherEntryType);
+        GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, DigitalVoucherEntryType);
         VoucherAttached := GetIncomingDocumentRecordFromRecordRef(IncomingDocument, RecRef);
-        exit(VoucherAttached or DigitalVoucherEntrySetup."Generate Automatically");
+        if VoucherAttached then
+            exit(true);
+        if DigitalVoucherEntrySetup."Generate Automatically" then
+            exit(true);
+        SourceCodeSetup.Get();
+        if IsPaymentReconciliationJournal(DigitalVoucherEntrySetup."Entry Type", RecRef) then
+            exit(true);
+        exit(false);
     end;
 
     procedure CheckIncomingDocumentChange(Rec: Record "Incoming Document Attachment")
@@ -175,6 +186,13 @@
         DataTypeManagement.GetRecordRef(RelatedRecord, RecRef);
         if DigitalVoucherFeature.IsDigitalVoucherEnabledForTableNumber(RecRef.Number) then
             error(CannotChangeIncomDocWithEnforcedDigitalVoucherErr);
+    end;
+
+    procedure GetDigitalVoucherEntrySetup(var DigitalVoucherEntrySetup: Record "Digital Voucher Entry Setup"; EntryType: Enum "Digital Voucher Entry Type"): Boolean
+    begin
+        if DigitalVoucherFeature.EnforceDigitalVoucherFunctionality() then
+            OnHandleDigitalVoucherEntrySetupWhenEnforced(EntryType);
+        exit(DigitalVoucherEntrySetup.Get(EntryType));
     end;
 
     procedure GetIncomingDocumentRecordFromRecordRef(var IncomingDocument: Record "Incoming Document"; MainRecordRef: RecordRef): Boolean
@@ -234,7 +252,7 @@
     begin
         if not DigitalVoucherFeature.IsFeatureEnabled() then
             exit;
-        if not DigitalVoucherEntrySetup.Get(DigitalVoucherEntryType) then
+        if not GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, DigitalVoucherEntryType) then
             exit;
         if DigitalVoucherEntrySetup."Generate Automatically" then
             exit;
@@ -249,6 +267,61 @@
         ImportAttachmentIncDoc.CreateNewAttachment(InvIncomingDocumentAttachment);
         InvIncomingDocumentAttachment.Insert(true);
         exit(InvIncomingDocumentAttachment."Incoming Document Entry No.");
+    end;
+
+    local procedure IsPaymentReconciliationJournal(DigitalVoucherEntryType: Enum "Digital Voucher Entry Type"; RecRef: RecordRef): Boolean
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        FieldRef: FieldRef;
+        SourceCodeValue: Text;
+    begin
+        if DigitalVoucherEntryType <> DigitalVoucherEntryType::"Purchase Journal" then
+            exit(false);
+        if not SourceCodeSetup.Get() then
+            exit(false);
+        FieldRef := RecRef.Field(GenJournalLine.FieldNo("Source Code"));
+        if not Evaluate(SourceCodeValue, FieldRef.Value()) then
+            exit(false);
+        exit(SourceCodeValue = SourceCodeSetup."Payment Reconciliation Journal");
+    end;
+
+    local procedure AttachDigitalVoucherFromReportPDF(ReportUsage: Enum "Report Selection Usage"; RecRef: RecordRef; IsInvoice: Boolean; PostingDate: Date; DocNo: Code[20]; AccountTableNo: Integer; AccountNo: Code[20]; StandardReportID: Integer)
+    var
+        TempAttachReportSelections: Record "Report Selections" temporary;
+        SalesHeader: Record "Sales Header";
+        TempBlob: Codeunit "Temp Blob";
+        DocType: Text;
+    begin
+        FindReportSelections(TempAttachReportSelections, ReportUsage, AccountTableNo, AccountNo, StandardReportID);
+        RecRef.SetRecFilter();
+        TempAttachReportSelections.SaveReportAsPDFInTempBlob(TempBlob, TempAttachReportSelections."Report ID", RecRef, TempAttachReportSelections."Custom Report Layout Code", ReportUsage);
+        if IsInvoice then
+            DocType := Format(SalesHeader."Document Type"::Invoice)
+        else
+            DocType := Format(SalesHeader."Document Type"::"Credit Memo");
+        AttachBlobToIncomingDocument(TempBlob, DocType, PostingDate, DocNo);
+    end;
+
+    local procedure FindReportSelections(var TempAttachReportSelections: Record "Report Selections" temporary; ReportUsage: Enum "Report Selection Usage"; AccountTableNo: Integer; AccountNo: Code[20]; StandardReportID: Integer)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.SetRange(Usage, ReportUsage);
+        ReportSelections.SetFilter("Report ID", '<>0');
+        ReportSelections.FindReportSelections(TempAttachReportSelections, AccountNo, AccountTableNo);
+        TempAttachReportSelections.SetRange("Use for Email Body", false);
+        TempAttachReportSelections.SetRange("Use for Email Attachment", false);
+        if TempAttachReportSelections.FindFirst() then
+            exit;
+        TempAttachReportSelections.SetRange("Use for Email Body");
+        TempAttachReportSelections.SetRange("Use for Email Attachment");
+        if TempAttachReportSelections.FindFirst() then
+            exit;
+        Clear(TempAttachReportSelections);
+        TempAttachReportSelections.Usage := ReportUsage;
+        TempAttachReportSelections."Report ID" := StandardReportID;
+        TempAttachReportSelections.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', true, true)]
@@ -277,7 +350,7 @@
             exit;
         if not SalesHeader.Invoice then
             exit;
-        DigitalVoucherEntrySetup.Get(DigitalVoucherEntrySetup."Entry Type"::"Sales Document");
+        GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, DigitalVoucherEntrySetup."Entry Type"::"Sales Document");
         if DigitalVoucherEntrySetup."Check Type" = DigitalVoucherEntrySetup."Check Type"::"No Check" then
             exit;
         DigitalVoucherCheck := DigitalVoucherEntrySetup."Check Type";
@@ -301,7 +374,7 @@
             exit;
         if PreviewMode then
             exit;
-        DigitalVoucherEntrySetup.Get(DigitalVoucherEntrySetup."Entry Type"::"Sales Document");
+        GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, DigitalVoucherEntrySetup."Entry Type"::"Sales Document");
         if DigitalVoucherEntrySetup."Check Type" = DigitalVoucherEntrySetup."Check Type"::"No Check" then
             exit;
         DigitalVoucherCheck := DigitalVoucherEntrySetup."Check Type";
@@ -346,7 +419,9 @@
             exit;
         if GenJournalLine."System-Created Entry" then
             exit;
-        if not DigitalVoucherEntrySetup.Get(DigitalVoucherEntry.GetVoucherEntryTypeFromGenJnlLine(GenJournalLine)) then
+        if not (GenJournalLine."Document Type" in [GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo"]) then
+            exit;
+        if not GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, DigitalVoucherEntry.GetVoucherEntryTypeFromGenJnlLine(GenJournalLine)) then
             exit;
         HandleDigitalVoucherForEntryTypeAndDoc(ErrorMessageMgt, DigitalVoucherEntrySetup, GenJournalLine);
     end;
@@ -360,7 +435,10 @@
             exit;
         if not SalesHeader.Invoice then
             exit;
-        HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Sales Document", SalesInvoiceHeader);
+        if SalesInvoiceHeader."No." <> '' then
+            HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Sales Document", SalesInvoiceHeader);
+        if SalesCrMemoHeader."No." <> '' then
+            HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Sales Document", SalesCrMemoHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnAfterPostServiceDoc', '', true, true)]
@@ -389,7 +467,10 @@
     begin
         if not DigitalVoucherFeature.IsFeatureEnabled() then
             exit;
-        HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Sales Document", SalesInvoiceHeader);
+        if SalesInvoiceHeader."No." <> '' then
+            HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Sales Document", SalesInvoiceHeader);
+        if SalesCrMemoHeader."No." <> '' then
+            HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Sales Document", SalesCrMemoHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterFinalizePostingOnBeforeCommit', '', true, true)]
@@ -401,7 +482,10 @@
             exit;
         if not PurchHeader.Invoice then
             exit;
-        HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Purchase Document", PurchInvHeader);
+        if PurchInvHeader."No." <> '' then
+            HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Purchase Document", PurchInvHeader);
+        if PurchCrMemoHdr."No." <> '' then
+            HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Purchase Document", PurchCrMemoHdr);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purchase-Post Prepayments", 'OnAfterPostPrepayments', '', true, true)]
@@ -409,7 +493,10 @@
     begin
         if not DigitalVoucherFeature.IsFeatureEnabled() then
             exit;
-        HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Purchase Document", PurchInvHeader);
+        if PurchInvHeader."No." <> '' then
+            HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Purchase Document", PurchInvHeader);
+        if PurchCrMemoHdr."No." <> '' then
+            HandleDigitalVoucherForPostedDocument("Digital Voucher Entry Type"::"Purchase Document", PurchCrMemoHdr);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Batch", 'OnProcessLinesOnAfterPostGenJnlLines', '', true, true)]
@@ -474,6 +561,8 @@
         RecRef: RecordRef;
         RelatedRecordID: RecordId;
     begin
+        if not DigitalVoucherFeature.IsFeatureEnabled() then
+            exit;
         RelatedRecordID := IncomingDocument."Related Record ID";
         if RelatedRecordID.TableNo = 0 then
             exit;
@@ -483,9 +572,10 @@
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Digital Voucher Setup", 'OnBeforeModifyEvent', '', false, false)]
-    local procedure CheckIfChangeIsAllowedOnModifyDigitalVoucherSetup(var Rec: Record "Digital Voucher Setup"; var xRec: Record "Digital Voucher Setup"; RunTrigger: Boolean)
+    local procedure CheckIfChangeIsAllowedOnModifyDigitalVoucherSetup(var Rec: Record "Digital Voucher Setup")
     begin
-        DigitalVoucherFeature.CheckIfDigitalVoucherSetupChangeIsAllowed();
+        if not Rec.Enabled then
+            DigitalVoucherFeature.CheckIfDigitalVoucherSetupChangeIsAllowed();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Email Item", 'OnAttachIncomingDocumentsOnAfterSetFilter', '', false, false)]
@@ -516,6 +606,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGenerateDigitalVoucherForDocumentOnCaseElse(RecRef: RecordRef)
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    internal procedure OnHandleDigitalVoucherEntrySetupWhenEnforced(EntryType: Enum "Digital Voucher Entry Type")
     begin
     end;
 }
