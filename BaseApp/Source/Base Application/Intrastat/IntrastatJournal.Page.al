@@ -373,12 +373,14 @@
                         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
                         MakeDiskReport: Report "Intrastat - Make Disk Tax Auth";
                     begin
-		                FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
+                        FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
+                        Commit();
+
                         IntrastatJnlBatch.SetRange("Journal Template Name", "Journal Template Name");
                         IntrastatJnlBatch.SetRange(Name, "Journal Batch Name");
                         MakeDiskReport.SetTableView(IntrastatJnlBatch);
                         MakeDiskReport.Run();
-			            FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
+                        FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
                     end;
                 }
             }
@@ -459,7 +461,6 @@
         JnlSelected: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
-        Commit();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;

@@ -1,4 +1,4 @@
-report 5915 "Service Document - Test"
+﻿report 5915 "Service Document - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceDocumentTest.rdlc';
@@ -1496,6 +1496,7 @@ report 5915 "Service Document - Test"
 
     local procedure CheckType(ServiceLine2: Record "Service Line")
     begin
+        OnBeforeCheckType(ServiceLine2, ErrorCounter, ErrorText);
         with ServiceLine2 do
             case Type of
                 Type::"G/L Account":
@@ -1630,5 +1631,10 @@ report 5915 "Service Document - Test"
                 else
                     if not UserSetupManagement.TestAllowedPostingDate("Posting Date", TempErrorText) then
                         AddError(TempErrorText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckType(ServiceLine: Record "Service Line"; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
+    begin
     end;
 }

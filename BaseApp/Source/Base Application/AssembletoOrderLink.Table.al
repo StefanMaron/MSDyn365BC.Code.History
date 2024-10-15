@@ -138,7 +138,7 @@ table 904 "Assemble-to-Order Link"
         AsmHeader."Shortcut Dimension 2 Code" := NewSalesLine."Shortcut Dimension 2 Code";
         AsmHeader.Modify(true);
 
-        OnAfterUpdateAsm(AsmHeader);
+        OnAfterUpdateAsm(AsmHeader, Rec, NewSalesLine, AsmExists);
     end;
 
     procedure UpdateAsmDimFromSalesLine(SalesLine: Record "Sales Line")
@@ -338,9 +338,10 @@ table 904 "Assemble-to-Order Link"
         RestoreItemTracking(TempTrackingSpecification, NewSalesLine);
 
         NewSalesLine.CheckAsmToOrder(AsmHeader);
-        Window.Close;
+        Window.Close();
 
-        AsmHeader.ShowDueDateBeforeWorkDateMsg;
+        AsmHeader.SetWarningsOn();
+        AsmHeader.ShowDueDateBeforeWorkDateMsg();
     end;
 
     procedure MakeAsmOrderLinkedToSalesOrderLine(FromSalesLine: Record "Sales Line"; ToSalesOrderLine: Record "Sales Line")
@@ -1291,7 +1292,7 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateAsm(AsmHeader: Record "Assembly Header")
+    local procedure OnAfterUpdateAsm(var AsmHeader: Record "Assembly Header"; var AssembleToOrderLink: Record "Assemble-to-Order Link"; var SalesLine: Record "Sales Line"; AsmExists: Boolean)
     begin
     end;
 

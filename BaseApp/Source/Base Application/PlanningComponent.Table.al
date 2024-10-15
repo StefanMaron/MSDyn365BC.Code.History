@@ -137,7 +137,7 @@ table 99000829 "Planning Component"
                 if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
                     Validate("Expected Quantity", Quantity)
                 else
-                    Validate("Expected Quantity", Quantity * PlanningNeeds);
+                    UpdateExpectedQuantityForPlanningNeeds();
 
                 "Due Date" := ReqLine."Starting Date";
                 "Due Time" := ReqLine."Starting Time";
@@ -189,7 +189,7 @@ table 99000829 "Planning Component"
 
             trigger OnValidate()
             begin
-                Validate("Expected Quantity", Quantity * PlanningNeeds);
+                UpdateExpectedQuantityForPlanningNeeds();
             end;
         }
         field(21; "Variant Code"; Code[10])
@@ -406,14 +406,12 @@ table 99000829 "Planning Component"
                         OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
 
-                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
-
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
-                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
+                "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
                 if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
                     Validate("Expected Quantity", "Quantity per")
                 else
-                    Validate("Expected Quantity", Quantity * PlanningNeeds);
+                    UpdateExpectedQuantityForPlanningNeeds();
             end;
         }
         field(45; "Quantity per"; Decimal)
@@ -893,6 +891,18 @@ table 99000829 "Planning Component"
         "Due Date-Time" := CreateDateTime("Due Date", "Due Time");
     end;
 
+    local procedure UpdateExpectedQuantityForPlanningNeeds()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateExpectedQuantityForPlanningNeeds(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Expected Quantity", Quantity * PlanningNeeds());
+    end;
+
     procedure OpenItemTrackingLines()
     begin
         if "Item No." <> '' then
@@ -1343,6 +1353,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlanningNeeds(var PlanningComponent: Record "Planning Component"; var NeededQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateExpectedQuantityForPlanningNeeds(var PlanningComponent: Record "Planning Component"; var IsHandled: Boolean)
     begin
     end;
 

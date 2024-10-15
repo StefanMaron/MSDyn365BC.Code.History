@@ -2140,6 +2140,7 @@ table 5965 "Service Contract Header"
             "Ship-to County" := County;
             "Ship-to Country/Region Code" := "Country/Region Code";
         end;
+        OnAfterUpdateShipToCode(Rec);
     end;
 
     procedure NextInvoicePeriod(): Text[250]
@@ -2637,7 +2638,7 @@ table 5965 "Service Contract Header"
         DimMgt.AddDimSource(DefaultDimSource, Database::"Service Contract Template", Rec."Template No.", FieldNo = Rec.FieldNo("Template No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Service Order Type", Rec."Service Order Type", FieldNo = Rec.FieldNo("Service Order Type"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
 #if not CLEAN20
@@ -2671,7 +2672,7 @@ table 5965 "Service Contract Header"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var ServiceContractHeader: Record "Service Contract Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var ServiceContractHeader: Record "Service Contract Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -2694,6 +2695,11 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCont(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateShiptoCode(var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 

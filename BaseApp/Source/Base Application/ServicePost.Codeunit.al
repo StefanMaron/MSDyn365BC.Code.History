@@ -78,106 +78,110 @@
         ServInvoiceNo: Code[20];
         ServCrMemoNo: Code[20];
         ServShipmentNo: Code[20];
+        IsHandled: Boolean;
     begin
-        OnBeforePostWithLines(PassedServHeader, PassedServLine, PassedShip, PassedConsume, PassedInvoice);
+        IsHandled := false;
+        OnBeforePostWithLines(PassedServHeader, PassedServLine, PassedShip, PassedConsume, PassedInvoice, PostingDateExists, HideValidationDialog, IsHandled);
+        if not IsHandled then begin
 
-        ServiceHeader := PassedServHeader;
+            ServiceHeader := PassedServHeader;
 
-        Clear(ServDocumentsMgt);
+            Clear(ServDocumentsMgt);
 
-        ValidatePostingAndDocumentDate(ServiceHeader);
+            ValidatePostingAndDocumentDate(ServiceHeader);
 
-        Initialize(ServiceHeader, PassedServLine, PassedShip, PassedConsume, PassedInvoice);
+            Initialize(ServiceHeader, PassedServLine, PassedShip, PassedConsume, PassedInvoice);
 
-        with ServiceHeader do begin
-            if Invoice then
-                Window.Open('#1#################################\\' + Text002 + Text003 + Text004 + Text005)
-            else
-                Window.Open('#1#################################\\' + Text006);
-            Window.Update(1, StrSubstNo('%1 %2', "Document Type", "No."));
-
-            if ServDocumentsMgt.SetNoSeries(ServiceHeader) then
-                Modify;
-
-            ServDocumentsMgt.CalcInvDiscount;
-            Find;
-
-            CollectWhseShipmentInformation(PassedServHeader);
-
-            LockTables(ServiceLine, GLEntry);
-
-            // fetch related document (if any), for testing invoices and credit memos fields.
-            Clear(ServDocReg);
-            ServDocReg.ServiceDocument("Document Type".AsInteger(), "No.", ServDocType, ServDocNo);
-
-            // update quantites upon posting options and test related fields.
-            ServDocumentsMgt.CheckAndBlankQtys(ServDocType);
-
-            // create posted documents (both header and lines).
-            WhseShip := false;
-            if Ship then begin
-                ServShipmentNo := ServDocumentsMgt.PrepareShipmentHeader;
-                WhseShip := not TempWarehouseShipmentHeader.IsEmpty;
-            end;
-            if Invoice then
-                if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
-                    ServInvoiceNo := ServDocumentsMgt.PrepareInvoiceHeader(Window)
+            with ServiceHeader do begin
+                if Invoice then
+                    Window.Open('#1#################################\\' + Text002 + Text003 + Text004 + Text005)
                 else
-                    ServCrMemoNo := ServDocumentsMgt.PrepareCrMemoHeader(Window);
+                    Window.Open('#1#################################\\' + Text006);
+                Window.Update(1, StrSubstNo('%1 %2', "Document Type", "No."));
 
-            if WhseShip then begin
-                WarehouseShipmentHeader.Get(TempWarehouseShipmentHeader."No.");
-                OnBeforeCreatePostedWhseShptHeader(PostedWhseShipmentHeader, WarehouseShipmentHeader, ServiceHeader);
-                WhsePostShpt.CreatePostedShptHeader(PostedWhseShipmentHeader, WarehouseShipmentHeader, "Shipping No.", "Posting Date");
+                if ServDocumentsMgt.SetNoSeries(ServiceHeader) then
+                    Modify();
+
+                ServDocumentsMgt.CalcInvDiscount();
+                Find();
+
+                CollectWhseShipmentInformation(PassedServHeader);
+
+                LockTables(ServiceLine, GLEntry);
+
+                // fetch related document (if any), for testing invoices and credit memos fields.
+                Clear(ServDocReg);
+                ServDocReg.ServiceDocument("Document Type".AsInteger(), "No.", ServDocType, ServDocNo);
+
+                // update quantites upon posting options and test related fields.
+                ServDocumentsMgt.CheckAndBlankQtys(ServDocType);
+
+                // create posted documents (both header and lines).
+                WhseShip := false;
+                if Ship then begin
+                    ServShipmentNo := ServDocumentsMgt.PrepareShipmentHeader();
+                    WhseShip := not TempWarehouseShipmentHeader.IsEmpty();
+                end;
+                if Invoice then
+                    if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
+                        ServInvoiceNo := ServDocumentsMgt.PrepareInvoiceHeader(Window)
+                    else
+                        ServCrMemoNo := ServDocumentsMgt.PrepareCrMemoHeader(Window);
+
+                if WhseShip then begin
+                    WarehouseShipmentHeader.Get(TempWarehouseShipmentHeader."No.");
+                    OnBeforeCreatePostedWhseShptHeader(PostedWhseShipmentHeader, WarehouseShipmentHeader, ServiceHeader);
+                    WhsePostShpt.CreatePostedShptHeader(PostedWhseShipmentHeader, WarehouseShipmentHeader, "Shipping No.", "Posting Date");
+                end;
+
+                // main lines posting routine via Journals
+                ServDocumentsMgt.PostDocumentLines(Window);
+                ServDocumentsMgt.CollectTrackingSpecification(TempTrackingSpecification);
+
+                ServDocumentsMgt.SetLastNos(ServiceHeader);
+                Modify();
+
+                // handling afterposting modification/deletion of documents
+                ServDocumentsMgt.UpdateDocumentLines();
+
+                ServDocumentsMgt.InsertValueEntryRelation();
+
+                if WhseShip then begin
+                    if TempWarehouseShipmentLine.FindSet() then
+                        repeat
+                            WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
+                            WhsePostShpt.CreatePostedShptLine(WarehouseShipmentLine, PostedWhseShipmentHeader,
+                              PostedWhseShipmentLine, TempTrackingSpecification);
+                        until TempWarehouseShipmentLine.Next() = 0;
+                    if WarehouseShipmentHeaderLocal.Get(WarehouseShipmentHeader."No.") then
+                        UpdateWhseDocuments();
+                end;
+
+                if PreviewMode then begin
+                    Window.Close();
+                    GenJnlPostPreview.ThrowError();
+                end;
+
+                Finalize(ServiceHeader);
+
+                OnAfterFinalizePostingOnBeforeCommit(
+                  PassedServHeader, PassedServLine, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice);
             end;
 
-            // main lines posting routine via Journals
-            ServDocumentsMgt.PostDocumentLines(Window);
-            ServDocumentsMgt.CollectTrackingSpecification(TempTrackingSpecification);
+            if WhseShip then
+                WhseServiceRelease.Release(ServiceHeader);
 
-            ServDocumentsMgt.SetLastNos(ServiceHeader);
-            Modify;
+            if not SuppressCommit then
+                Commit();
 
-            // handling afterposting modification/deletion of documents
-            ServDocumentsMgt.UpdateDocumentLines;
+            OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo, ServDocumentsMgt, SuppressCommit, PassedShip, PassedConsume, PassedInvoice, WhseShip);
 
-            ServDocumentsMgt.InsertValueEntryRelation;
+            Window.Close();
+            UpdateAnalysisView.UpdateAll(0, true);
+            UpdateItemAnalysisView.UpdateAll(0, true);
 
-            if WhseShip then begin
-                if TempWarehouseShipmentLine.FindSet() then
-                    repeat
-                        WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
-                        WhsePostShpt.CreatePostedShptLine(WarehouseShipmentLine, PostedWhseShipmentHeader,
-                          PostedWhseShipmentLine, TempTrackingSpecification);
-                    until TempWarehouseShipmentLine.Next() = 0;
-                if WarehouseShipmentHeaderLocal.Get(WarehouseShipmentHeader."No.") then
-                    UpdateWhseDocuments();
-            end;
-
-            if PreviewMode then begin
-                Window.Close;
-                GenJnlPostPreview.ThrowError;
-            end;
-
-            Finalize(ServiceHeader);
-
-            OnAfterFinalizePostingOnBeforeCommit(
-              PassedServHeader, PassedServLine, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice);
+            PassedServHeader := ServiceHeader;
         end;
-
-        if WhseShip then
-            WhseServiceRelease.Release(ServiceHeader);
-
-        if not SuppressCommit then
-            Commit();
-
-        OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo, ServDocumentsMgt, SuppressCommit, PassedShip, PassedConsume, PassedInvoice, WhseShip);
-
-        Window.Close;
-        UpdateAnalysisView.UpdateAll(0, true);
-        UpdateItemAnalysisView.UpdateAll(0, true);
-
-        PassedServHeader := ServiceHeader;
 
         OnAfterPostWithLines(PassedServHeader);
     end;
@@ -237,7 +241,14 @@
     end;
 
     local procedure CheckAndSetPostingConstants(var ServiceHeader: Record "Service Header"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAndSetPostingConstants(ServiceHeader, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceHeader do begin
             case "Document Type" of
                 "Document Type"::Invoice:
@@ -277,8 +288,12 @@
     local procedure TestMandatoryFields(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line")
     var
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        IsHandled: Boolean;
     begin
-        OnBeforeTestMandatoryFields(PassedServiceHeader);
+        IsHandled := false;
+        OnBeforeTestMandatoryFields(PassedServiceHeader, PassedServiceLine, Invoice, IsHandled);
+        if IsHandled then
+            exit;
 
         with PassedServiceHeader do begin
             TestField("Document Type", ErrorInfo.Create());
@@ -322,8 +337,15 @@
     end;
 
     procedure SetPostingDate(NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewPostingDate: Date)
+    var
+        IsHandled: Boolean;
     begin
-        ClearAll;
+        IsHandled := false;
+        OnBeforeSetPostingDate(PostingDateExists, ReplacePostingDate, ReplaceDocumentDate, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        ClearAll();
         PostingDateExists := true;
         ReplacePostingDate := NewReplacePostingDate;
         ReplaceDocumentDate := NewReplaceDocumentDate;
@@ -638,6 +660,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAndSetPostingConstants(var ServiceHeader: Record "Service Header"; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePostedWhseShptHeader(var PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; ServiceHeader: Record "Service Header")
     begin
     end;
@@ -648,12 +675,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
+    local procedure OnBeforePostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; var PostingDateExists: Boolean; var HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPostingDate(var PostingDateExists: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -673,7 +705,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestMandatoryFields(var PassedServiceHeader: Record "Service Header")
+    local procedure OnBeforeTestMandatoryFields(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line"; var Invoice: Boolean; var IsHandled: Boolean)
     begin
     end;
 

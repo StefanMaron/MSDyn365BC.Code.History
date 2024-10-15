@@ -190,6 +190,7 @@
         BiggestLineNo: Integer;
         LastLineRetrieved: Boolean;
         Check: Boolean;
+        ShouldPostShipmentServiceEntry: Boolean;
     begin
         with ServHeader do begin
             if not FindVATExemption(VATExemption, Check, true) then
@@ -251,6 +252,7 @@
 
         ServLine.Reset();
         SortLines(ServLine);
+        OnPostDocumentLinesOnAfterSortLines(ServHeader, ServLine);
         ServLedgEntryNo := FindFirstServLedgEntry(ServLine);
         if ServLine.Find('-') then
             repeat
@@ -279,10 +281,12 @@
                     end;
 
                     // post Service Ledger Entry of type Usage, on shipment
-                    if (Ship and ("Document Type" = "Document Type"::Order) or
+                    ShouldPostShipmentServiceEntry :=
+                        (Ship and ("Document Type" = "Document Type"::Order) or
                         ("Document Type" = "Document Type"::Invoice)) and
-                       ("Qty. to Ship" <> 0) and not ServAmountsMgt.RoundingLineInserted
-                    then begin
+                       ("Qty. to Ship" <> 0) and not ServAmountsMgt.RoundingLineInserted();
+                    OnPostDocumentLinesOnAfterCalcShouldPostShipmentServiceEntry(ServHeader, ServLine, Ship, ApplToServEntryNo, NextServLedgerEntryNo, ShouldPostShipmentServiceEntry);
+                    if ShouldPostShipmentServiceEntry then begin
                         TempServLine := ServLine;
                         ServPostingJnlsMgt.CalcSLEDivideAmount("Qty. to Ship", ServHeader, TempServLine, TempVATAmountLineForSLE);
 
@@ -335,6 +339,7 @@
                         CheckIfServDuplicateLine(ServLine);
                         ServPostingJnlsMgt.CreateCreditEntry(NextServLedgerEntryNo,
                           ServHeader, ServLine, GenJnlLineDocNo);
+                        OnPostDocumentLinesOnAfterServPostingJnlsMgtCreateCreditEntry(NextServLedgerEntryNo);
                     end else
                         if (Invoice or ("Document Type" = "Document Type"::Invoice)) and
                            ("Qty. to Invoice" <> 0) and not ServAmountsMgt.RoundingLineInserted
@@ -342,13 +347,10 @@
                             CheckIfServDuplicateLine(ServLine);
                             ServPostingJnlsMgt.InsertServLedgerEntrySale(NextServLedgerEntryNo,
                               ServHeader, ServLine, ServItemLine, "Qty. to Invoice", "Qty. to Invoice", GenJnlLineDocNo, "Line No.");
+                            OnPostDocumentLinesOnAfterServPostingJnlsMgtInsertServLedgerEntrySaleInvoice(NextServLedgerEntryNo);
                         end;
 
-                    if Consume and ("Document Type" = "Document Type"::Order) and
-                       ("Qty. to Consume" <> 0)
-                    then
-                        ServPostingJnlsMgt.InsertServLedgerEntrySale(NextServLedgerEntryNo,
-                          ServHeader, ServLine, ServItemLine, "Qty. to Consume", 0, ServHeader."Shipping No.", "Line No.");
+                    InsertServLedgerEntrySaleConsume();
 
                     RemQtyToBeInvoiced := "Qty. to Invoice";
                     RemQtyToBeConsumed := "Qty. to Consume";
@@ -536,12 +538,30 @@
         OnAfterPostDocumentLines(ServHeader, ServInvHeader, ServInvLine, ServCrMemoHeader, ServCrMemoLine, GenJnlLineDocType, GenJnlLineDocNo);
     end;
 
+    local procedure InsertServLedgerEntrySaleConsume()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertServLedgerEntrySaleConsume(ServHeader, ServLine, ServItemLine, ServMgtSetup, NextServLedgerEntryNo, GenJnlLineDocNo, Consume, IsHandled);
+        if not IsHandled then
+            with ServLine do
+                if Consume and ("Document Type" = "Document Type"::Order) and
+                   ("Qty. to Consume" <> 0)
+                then
+                    ServPostingJnlsMgt.InsertServLedgerEntrySale(NextServLedgerEntryNo,
+                      ServHeader, ServLine, ServItemLine, "Qty. to Consume", 0, ServHeader."Shipping No.", "Line No.");
+
+        OnAfterInsertServLedgerEntrySaleConsume(NextServLedgerEntryNo);
+    end;
+
     local procedure PostServiceItemLine(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; RemQtyToBeInvoicedBase: Decimal; RemQtyToBeInvoiced: Decimal; RemQtyToBeConsumedBase: Decimal; RemQtyToBeConsumed: Decimal; var WarrantyNo: Integer)
     var
         TempServLine: Record "Service Line" temporary;
         TempVATAmountLineForSLE: Record "VAT Amount Line" temporary;
         DummyTrackingSpecification: Record "Tracking Specification";
     begin
+        OnBeforePostServiceItemLine(ServLine);
         with ServLine do begin
             if Ship and ("Document Type" = "Document Type"::Order) then begin
                 TempServLine := ServLine;
@@ -2353,6 +2373,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertServLedgerEntrySaleConsume(var NextServLedgerEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostDocumentLines(var ServHeader: Record "Service Header"; var ServInvHeader: Record "Service Invoice Header"; var ServInvLine: Record "Service Invoice Line"; var ServCrMemoHeader: Record "Service Cr.Memo Header"; var ServCrMemoLine: Record "Service Cr.Memo Line"; GenJnlLineDocType: enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20])
     begin
     end;
@@ -2459,6 +2484,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitialize(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var CloseCondition: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostServiceItemLine(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServLedgerEntrySaleConsume(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; var ServItemLine: Record "Service Item Line"; var ServMgtSetup: Record "Service Mgt. Setup"; var NextServLedgerEntryNo: Integer; var GenJnlLineDocNo: Code[20]; Consume: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -2587,6 +2622,15 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnAfterSortLines(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnAfterCalcShouldPostShipmentServiceEntry(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; var Ship: Boolean; var ApplToServEntryNo: Integer; var NextServLedgerEntryNo: Integer; var ShouldPostShipmentServiceEntry: Boolean)
+    begin
+    end;
 #if not CLEAN20
     [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
@@ -2607,6 +2651,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentLinesOnBeforeRoundAmount(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnAfterServPostingJnlsMgtCreateCreditEntry(var NextServLedgerEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnAfterServPostingJnlsMgtInsertServLedgerEntrySaleInvoice(var NextServLedgerEntryNo: Integer)
     begin
     end;
 

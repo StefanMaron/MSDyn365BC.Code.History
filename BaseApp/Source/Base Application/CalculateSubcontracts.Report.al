@@ -1,4 +1,4 @@
-report 99001015 "Calculate Subcontracts"
+﻿report 99001015 "Calculate Subcontracts"
 {
     Caption = 'Calculate Subcontracts';
     ProcessingOnly = true;
@@ -26,6 +26,7 @@ report 99001015 "Calculate Subcontracts"
                     ProdOrderLine.SetRange("Prod. Order No.", "Prod. Order No.");
                     ProdOrderLine.SetRange("Routing No.", "Routing No.");
                     ProdOrderLine.SetRange("Routing Reference No.", "Routing Reference No.");
+                    OnProdOrderRoutingLineOnAfterGetRecordOnAfterProdOrderLineSetFilters(ProdOrderLine, "Prod. Order Routing Line");
                     if ProdOrderLine.Find('-') then begin
                         DeleteRepeatedReqLines();
                         repeat
@@ -264,6 +265,7 @@ report 99001015 "Calculate Subcontracts"
             SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
             SetRange("Operation No.", "Prod. Order Routing Line"."Operation No.");
+            OnDeleteRepeatedReqLinesOnAfterRequisitionLineSetFilters(RequisitionLine, ProdOrderLine, "Prod. Order Routing Line");
             DeleteAll(true);
         end;
     end;
@@ -309,6 +311,16 @@ report 99001015 "Calculate Subcontracts"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReqWkshLineInsert(var RequisitionLine: Record "Requisition Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRepeatedReqLinesOnAfterRequisitionLineSetFilters(var RequisitionLine: Record "Requisition Line"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProdOrderRoutingLineOnAfterGetRecordOnAfterProdOrderLineSetFilters(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 }

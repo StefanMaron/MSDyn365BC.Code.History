@@ -100,9 +100,12 @@ report 5692 "Calculate Depreciation"
             end;
 
             trigger OnPostDataItem()
+            var
+                NeedCommit: Boolean;
             begin
                 with FAJnlLine do begin
                     if TempFAJnlLine.Find('-') then begin
+                        NeedCommit := true;
                         LockTable();
                         FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
@@ -152,6 +155,7 @@ report 5692 "Calculate Depreciation"
 
                 with GenJnlLine do begin
                     if TempGenJnlLine.Find('-') then begin
+                        NeedCommit := true;
                         LockTable();
                         FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
@@ -203,6 +207,8 @@ report 5692 "Calculate Depreciation"
                         until TempGenJnlLine.Next() = 0;
                 end;
                 OnAfterPostDataItem();
+                if NeedCommit then
+                    Commit();
             end;
         }
     }

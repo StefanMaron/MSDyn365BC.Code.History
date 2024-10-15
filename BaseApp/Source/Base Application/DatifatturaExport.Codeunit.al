@@ -323,8 +323,9 @@ codeunit 12182 "Datifattura Export"
         XMLDOMManagement.AddElement(CessionarioCommittenteDTEXmlNode, 'IdentificativiFiscali', '', '', IdentificativiFiscaliXmlNode);
         Valued := false;
 
-        if not Customer.Get(VATReportLine."Bill-to/Pay-to No.") then
+        if not GetCustomerForVATReportLine(Customer, VATReportLine) then
             exit;
+
         if (Customer."VAT Registration No." = '') and (Customer."Fiscal Code" = '') then
             if Customer."Individual Person" then
                 ErrorMessage.LogIfEmpty(Customer, Customer.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error)
@@ -357,7 +358,7 @@ codeunit 12182 "Datifattura Export"
     begin
         XMLDOMManagement.AddElement(CessionarioCommittenteDTEXmlNode, 'AltriDatiIdentificativi', '', '', AltriDatiIdentificativiXmlNode);
 
-        if not Customer.Get(VATReportLine."Bill-to/Pay-to No.") then
+        if not GetCustomerForVATReportLine(Customer, VATReportLine) then
             exit;
 
         if not Customer."Individual Person" then
@@ -377,6 +378,12 @@ codeunit 12182 "Datifattura Export"
                 AddTaxRepresentativeInfo(AltriDatiIdentificativiXmlNode, Customer."Tax Representative No.", TaxRepresentativeType::Customer)
             else
                 AddTaxRepresentativeInfo(AltriDatiIdentificativiXmlNode, Customer."Tax Representative No.", TaxRepresentativeType::Contact);
+    end;
+
+    local procedure GetCustomerForVATReportLine(var Customer: Record Customer; VATReportLine: Record "VAT Report Line") CustomerExists: Boolean
+    begin
+        CustomerExists := Customer.Get(VATReportLine."Bill-to/Pay-to No.");
+        OnAfterGetCustomerForVATReportLine(Customer, VATReportLine, CustomerExists);
     end;
 
     local procedure AddCustAddress(Customer: Record Customer; var AltriDatiIdentificativiXmlNode: DotNet XmlNode)
@@ -458,7 +465,7 @@ codeunit 12182 "Datifattura Export"
         XMLDOMManagement.AddElement(CedentePrestatoreDTRXmlNode, 'IdentificativiFiscali', '', '', IdentificativiFiscaliXmlNode);
 
         VendorNo := GetVendorNoForIdentificativiFiscali(VATReportLine);
-        if not Vendor.Get(VendorNo) then
+        if not GetVendorForVATReportLine(Vendor, VendorNo, VATReportLine) then
             exit;
 
         // IdFiscaleIVA node
@@ -490,7 +497,7 @@ codeunit 12182 "Datifattura Export"
     begin
         XMLDOMManagement.AddElement(CedentePrestatoreDTRXmlNode, 'AltriDatiIdentificativi', '', '', AltriDatiIdentificativiXmlNode);
 
-        if not Vendor.Get(VATReportLine."Bill-to/Pay-to No.") then
+        if not GetVendorForVATReportLine(Vendor, VATReportLine."Bill-to/Pay-to No.", VATReportLine) then
             exit;
 
         if not Vendor."Individual Person" then
@@ -510,6 +517,12 @@ codeunit 12182 "Datifattura Export"
                 AddTaxRepresentativeInfo(AltriDatiIdentificativiXmlNode, Vendor."Tax Representative No.", TaxRepresentativeType::Vendor)
             else
                 AddTaxRepresentativeInfo(AltriDatiIdentificativiXmlNode, Vendor."Tax Representative No.", TaxRepresentativeType::Contact);
+    end;
+
+    local procedure GetVendorForVATReportLine(var Vendor: Record Vendor; VendorNo: Code[20]; VATReportLine: Record "VAT Report Line") VendorExists: Boolean
+    begin
+        VendorExists := Vendor.Get(VendorNo);
+        OnAfterGetVendorForVATReportLine(Vendor, VendorNo, VATReportLine, VendorExists);
     end;
 
     local procedure AddVendAddress(Vendor: Record Vendor; var AltriDatiIdentificativiXmlNode: DotNet XmlNode)
@@ -587,6 +600,7 @@ codeunit 12182 "Datifattura Export"
         if not IsHandled then
             if VATPostingSetup.Get(VATReportLine."VAT Bus. Posting Group", VATReportLine."VAT Prod. Posting Group") then begin
                 // DatiIVA
+                OnAddInvoiceAmountsDataOnAfterVATPostingSetupGet(VATPostingSetup, VATReportLine);
                 XMLDOMManagement.AddElement(DatiRiepilogoXmlNode, 'DatiIVA', '', '', DatiIVAXmlNode);
                 XMLDOMManagement.AddElement(DatiIVAXmlNode, 'Imposta', FormatAmount(Abs(VATReportLine.Amount)), '', XmlNode);
                 XMLDOMManagement.AddElement(DatiIVAXmlNode, 'Aliquota', FormatAmount(VATPostingSetup."VAT %"), '', XmlNode);
@@ -862,6 +876,21 @@ codeunit 12182 "Datifattura Export"
 
     [IntegrationEvent(false, false)]
     local procedure OnAddInvoiceAmountsDataOnBeforeGetVATPostingSetup(VATReportLine: Record "VAT Report Line"; XMLDOMManagement: Codeunit "XML DOM Management"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddInvoiceAmountsDataOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup"; var VATReportLine: Record "VAT Report Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCustomerForVATReportLine(var Customer: Record Customer; VATReportLine: Record "VAT Report Line"; var CustomerExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVendorForVATReportLine(var Vendor: Record Vendor; VendorNo: Code[20]; VATReportLine: Record "VAT Report Line"; var VendorExists: Boolean)
     begin
     end;
 

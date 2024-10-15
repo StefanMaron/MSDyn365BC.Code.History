@@ -97,6 +97,7 @@ page 12171 "Payment Date Lines"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
+        OnBeforeUpdateAmount(Rec);
         ClearAll;
         if Find('-') then
             repeat
@@ -153,16 +154,40 @@ page 12171 "Payment Date Lines"
                         end;
                 end;
 
-                PaymentLines2.Copy(Rec);
-                LastRec := PaymentLines2.Next() = 0;
-                if LastRec then
-                    Amount := DocumentAmount - ResidualTotal
-                else begin
-                    Amount := Round("Payment %" * DocumentAmount / 100, Currency."Amount Rounding Precision");
-                    ResidualTotal := ResidualTotal + Amount;
-                end;
-                Modify;
+                CalcUpdateAmount();
+                Modify();
             until Next() = 0;
+    end;
+
+    local procedure CalcUpdateAmount()
+    begin
+        OnBeforeCalcUpdateAmount(Rec, DocumentAmount);
+
+        PaymentLines2.Copy(Rec);
+        LastRec := PaymentLines2.Next() = 0;
+        if LastRec then
+            Amount := DocumentAmount - ResidualTotal
+        else begin
+            Amount := Round("Payment %" * DocumentAmount / 100, Currency."Amount Rounding Precision");
+            ResidualTotal := ResidualTotal + Amount;
+        end;
+
+        OnAfterCalcUpdateAmount(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmount(var PaymentLines: Record "Payment Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcUpdateAmount(var PaymentLines: Record "Payment Lines"; var DocumentAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcUpdateAmount(var PaymentLines: Record "Payment Lines")
+    begin
     end;
 }
 

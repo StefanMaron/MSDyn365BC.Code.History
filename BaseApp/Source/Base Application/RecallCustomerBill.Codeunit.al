@@ -226,6 +226,7 @@ codeunit 12170 "Recall Customer Bill"
                 CustLedgEntry.Modify();
 
                 InitGenJnlLine(BalanceAccountNo);
+                OnRecallIssuedBillOnAfterInitGenJnlLine(GenJnlLine, BillPostingGroup, IssuedCustomerBillHeader, IssuedCustomerBillLine, CustLedgEntry2);
 
                 CustLedgEntry2."Allow Issue" := false;
                 CustLedgEntry2."Bank Receipt Issued" := false;
@@ -260,6 +261,11 @@ codeunit 12170 "Recall Customer Bill"
     begin
         PaymentMethod.Get(PaymentMethodCode);
         BillCode.Get(PaymentMethod."Bill Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecallIssuedBillOnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; BillPostingGroup: Record "Bill Posting Group"; IssuedCustomerBillHeader: Record "Issued Customer Bill Header"; var IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var CustLedgerEntry2: Record "Cust. Ledger Entry")
+    begin
     end;
 }
 

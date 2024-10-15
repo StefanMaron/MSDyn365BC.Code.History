@@ -21,6 +21,7 @@ codeunit 144207 "FatturaPA Applications"
         FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
         UnexpectedElementNameErr: Label 'Unexpected element name. Expected element name: %1. Actual element name: %2.', Comment = '%1=Expetced XML Element Name;%2=Actual XML Element Name;';
         UnexpectedElementValueErr: Label 'Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.', Comment = '%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;';
+        WrongFileNameErr: Label 'File name should be: %1', Comment = '%1 - Client File Name';
 
     [Test]
     procedure InvoiceToCreditMemoFromDocument()
@@ -278,6 +279,49 @@ codeunit 144207 "FatturaPA Applications"
           ServerFileName, InvCustLedgerEntry."Document No.", InvCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
+    [Test]
+    procedure FatturaElectronicDocumentFileNameVerification()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        ProgressiveNo: Code[20];
+        FatturaProjectCode: Code[15];
+        FatturaTenderCode: Code[15];
+        ClientFileName: Text;
+        ServerFileName: Text;
+        ExpectedFileName: Text;
+    begin
+        // [SCENARIO 435433] To verify if file name with Electronic Document option from Posted Sales Invoice is following a nomenclature : country code + the transmitter's unique identity code + ‘_’ + unique progressive number of the file
+
+        Initialize();
+        SalesReceivablesSetup.Get();
+        NoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.");
+
+        // [GIVEN] Posted Sales Invoice with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
+        CreatePostSalesDocWithFatturaCodes(
+          CustLedgerEntry, FatturaProjectCode, FatturaTenderCode, CustLedgerEntry."Document Type"::Invoice);
+
+        // [WHEN] Export Sales Invoice
+        SalesInvoiceHeader.SetRange("No.", CustLedgerEntry."Document No.");
+        ElectronicDocumentFormat.SendElectronically(
+          ServerFileName,
+          ClientFileName,
+          SalesInvoiceHeader,
+          CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Client File Name should be country code + the transmitter's unique identity code + ‘_’ + unique progressive number of the file
+        NoSeriesManagement.FindNoSeriesLine(NoSeriesLine, NoSeries.Code, Today);
+        ProgressiveNo := NoSeriesLine."Last No. Used";
+        ExpectedFileName := GetFatturaFileName(ProgressiveNo);
+
+        Assert.AreEqual(ExpectedFileName, ClientFileName, StrSubstNo(WrongFileNameErr, ExpectedFileName));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -395,6 +439,20 @@ codeunit 144207 "FatturaPA Applications"
         AssertElementValue(TempXMLBuffer, 'CodiceCUP', FatturaProjectCode);
         AssertElementValue(TempXMLBuffer, 'CodiceCIG', FatturaTenderCode);
         DeleteServerFile(ServerFileName);
+    end;
+
+    procedure GetFatturaFileName(ProgressiveNo: Code[20]): Text[40]
+    var
+        CompanyInformation: Record "Company Information";
+        ZeroNo: Code[10];
+        BaseString: Text;
+    begin
+        // - country code + the transmitter's unique identity code + unique progressive number of the file
+        CompanyInformation.Get();
+        BaseString := CopyStr(DelChr(ProgressiveNo, '=', ',?;.:/-_ '), 1, 10);
+        ZeroNo := PadStr('', 10 - StrLen(BaseString), '0');
+        exit(CompanyInformation."Country/Region Code" +
+          CompanyInformation."Fiscal Code" + '_' + ZeroNo + BaseString + '.xml');
     end;
 }
 

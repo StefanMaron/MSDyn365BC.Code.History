@@ -131,6 +131,7 @@ codeunit 5950 "Service-Calc. Discount"
                 end else
                     if ServiceChargeLineNo <> 0 then begin
                         ServiceLine2.Get("Document Type", "Document No.", ServiceChargeLineNo);
+                        OnCalculateInvoiceDiscountOnBeforeServiceLine2Delete(ServiceLine2);
                         ServiceLine2.Delete(true);
                     end;
 
@@ -228,6 +229,11 @@ codeunit 5950 "Service-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcServDiscount(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeServiceLine2Delete(var ServiceLine: Record "Service Line")
     begin
     end;
 

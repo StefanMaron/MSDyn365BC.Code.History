@@ -429,6 +429,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
         VATEntry.CalcSums(Amount);
         VATPurchases := VATEntry.Amount;
         VATEntry.SetRange(Type);
+        OnGetVATPurchasesOnBeforeExit(LastPeriodicSettlementVATEntry, PeriodicSettlementVATEntryFound, VATPurchases);
         exit(VATPurchases);
     end;
 
@@ -544,6 +545,11 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
     begin
         exit(Format(Date2DMY(GivenDate, 3)) + '/' +
           ConvertStr(Format(Date2DMY(GivenDate, 2), 2), ' ', '0'));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVATPurchasesOnBeforeExit(LastPeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry"; PeriodicSettlementVATEntryFound: Boolean; var VATPurchases: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

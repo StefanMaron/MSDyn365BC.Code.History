@@ -8,7 +8,13 @@ codeunit 12176 "Customer Bills Floppy"
         IssuedCustomerBillHeader: Record "Issued Customer Bill Header";
         DirectDebitCollection: Record "Direct Debit Collection";
         SEPADDExportMgt: Codeunit "SEPA - DD Export Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         DirectDebitCollection.Get(GetRangeMin("Direct Debit Collection No."));
         case DirectDebitCollection."Source Table ID" of
             DATABASE::"Customer Bill Header":
@@ -26,6 +32,11 @@ codeunit 12176 "Customer Bills Floppy"
                     REPORT.Run(REPORT::"Issued Cust Bills Floppy", false, false, IssuedCustomerBillHeader);
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

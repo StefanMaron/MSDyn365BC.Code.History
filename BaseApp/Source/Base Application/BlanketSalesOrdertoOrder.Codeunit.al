@@ -326,6 +326,7 @@ codeunit 87 "Blanket Sales Order to Order"
     var
         ATOLink: Record "Assemble-to-Order Link";
         IsHandled: Boolean;
+        ShouldCheckSalesLineItemAvailability: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckAvailability(BlanketOrderSalesHeader, IsHandled);
@@ -355,7 +356,9 @@ codeunit 87 "Blanket Sales Order to Order"
                             SalesLine."Outstanding Qty. (Base)" -= SalesLine."Qty. to Asm. to Order (Base)";
                         end;
 
-                        if not HideValidationDialog then
+                        ShouldCheckSalesLineItemAvailability := not HideValidationDialog;
+                        OnCheckAvailabilityOnAfterCalcShouldCheckSalesLineItemAvailability(BlanketOrderSalesHeader, SalesLine, ShouldCheckSalesLineItemAvailability);
+                        if ShouldCheckSalesLineItemAvailability then
                             CheckSalesLineItemAvailability(BlanketOrderSalesHeader);
                     end;
                 until Next() = 0;
@@ -463,6 +466,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReserveItemsManuallyLoop(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAvailabilityOnAfterCalcShouldCheckSalesLineItemAvailability(BlanketOrderSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ShouldCheckSalesLineItemAvailability: Boolean)
     begin
     end;
 

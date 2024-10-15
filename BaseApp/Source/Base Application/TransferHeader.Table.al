@@ -69,6 +69,7 @@ table 5740 "Transfer Header"
                             TransLine.LockTable();
                             TransLine.SetRange("Document No.", "No.");
                         end;
+                        OnValidateTransferFromCodeOnBeforeUpdateTransLines(Rec);
                         UpdateTransLines(Rec, FieldNo("Transfer-from Code"));
                     end else
                         "Transfer-from Code" := xRec."Transfer-from Code";
@@ -1661,6 +1662,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateDirectTransferOnBeforeValidateInTransitCode(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateTransferFromCodeOnBeforeUpdateTransLines(var TransferHeader: Record "Transfer Header")
     begin
     end;
 }

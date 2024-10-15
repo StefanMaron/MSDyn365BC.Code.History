@@ -96,6 +96,7 @@ page 12172 "Posted Payments"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
+        OnBeforeUpdateAmount(Rec);
         ClearAll;
         if Find('-') then
             repeat
@@ -159,17 +160,41 @@ page 12172 "Posted Payments"
                     Currency.TestField("Amount Rounding Precision");
                 end;
 
-                Amount := "Payment %" * DocumentAmount / 100;
-                PostedPaymentLines2.Copy(Rec);
-                LastRec := PostedPaymentLines2.Next() = 0;
-                if LastRec then
-                    Amount := DocumentAmount - ResidualTotal
-                else begin
-                    Amount := Round("Payment %" * DocumentAmount / 100, Currency."Amount Rounding Precision");
-                    ResidualTotal := ResidualTotal + Amount;
-                end;
-                Modify;
+                CalcUpdateAmount();
+                Modify();
             until Next() = 0;
+    end;
+
+    local procedure CalcUpdateAmount()
+    begin
+        OnBeforeCalcUpdateAmount(Rec, DocumentAmount);
+
+        Amount := "Payment %" * DocumentAmount / 100;
+        PostedPaymentLines2.Copy(Rec);
+        LastRec := PostedPaymentLines2.Next() = 0;
+        if LastRec then
+            Amount := DocumentAmount - ResidualTotal
+        else begin
+            Amount := Round("Payment %" * DocumentAmount / 100, Currency."Amount Rounding Precision");
+            ResidualTotal := ResidualTotal + Amount;
+        end;
+
+        OnAfterCalcUpdateAmount(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmount(var PostedPaymentLines: Record "Posted Payment Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcUpdateAmount(var PostedPaymentLines: Record "Posted Payment Lines"; var DocumentAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcUpdateAmount(var PostedPaymentLines: Record "Posted Payment Lines")
+    begin
     end;
 }
 

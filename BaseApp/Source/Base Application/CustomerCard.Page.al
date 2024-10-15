@@ -556,6 +556,12 @@
                     Importance = Additional;
                     ToolTip = 'Specifies for direct debit collections if the customer that the payment is collected from is a person or a company.';
                 }
+                field("Intrastat Partner Type"; Rec."Intrastat Partner Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies for Intrastat reporting if the customer is a person or a company.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -2781,7 +2787,8 @@
             CurrPage.Update();
         end else
             if CustomerTemplMgt.TemplatesAreNotEmpty() then
-                CurrPage.Close;
+                if not CustomerTemplMgt.IsOpenBlankCardConfirmed() then
+                    CurrPage.Close;
     end;
 
     local procedure VerifyVatRegNo(var Customer: Record Customer)

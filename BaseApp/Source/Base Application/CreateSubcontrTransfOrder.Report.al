@@ -42,6 +42,7 @@ report 12152 "Create Subcontr.Transf. Order"
                             TransferLine."Work Center No." := "Work Center No.";
                             TransferLine."Operation No." := "Operation No.";
                             TransferLine.Insert();
+                            OnPurchaselineOnAfterGetRecordOnAfterTransferLineInsert(TransferHeader, TransferLine, "Purchase Line");
                         end;
                     end;
                 end;
@@ -243,6 +244,8 @@ report 12152 "Create Subcontr.Transf. Order"
                         TransferLine."Work Center No." := PurchLine."Work Center No.";
                         TransferLine."Operation No." := PurchLine."Operation No.";
                         TransferLine.Insert();
+                        OnCheckPurchLineOnAfterTransferLineInsert(TransferHeader, TransferLine, PurchLine);
+
                         if ProdOrderComponent."Original Location" = '' then
                             ProdOrderComponent."Original Location" := ProdOrderComponent."Location Code";
                         ProdOrderComponent."Location Code" := TransferHeader."Transfer-to Code";
@@ -282,6 +285,16 @@ report 12152 "Create Subcontr.Transf. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDocument(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckPurchLineOnAfterTransferLineInsert(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPurchaselineOnAfterGetRecordOnAfterTransferLineInsert(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

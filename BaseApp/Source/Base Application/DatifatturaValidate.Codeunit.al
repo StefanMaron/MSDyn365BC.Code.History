@@ -51,12 +51,19 @@ codeunit 12183 "Datifattura Validate"
         VATReportLine.SetRange("Incl. in Report", true);
         if VATReportLine.FindSet() then
             repeat
-                ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Posting Date"), ErrorMessage."Message Type"::Error);
-                ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Document No."), ErrorMessage."Message Type"::Error);
-                ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Bill-to/Pay-to No."), ErrorMessage."Message Type"::Error);
-                if VATReportLine.Amount = 0 then
-                    ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("VAT Transaction Nature"), ErrorMessage."Message Type"::Error);
+                ValidateVATReportLine(VATReportLine);
             until VATReportLine.Next() = 0
+    end;
+
+    local procedure ValidateVATReportLine(var VATReportLine: Record "VAT Report Line")
+    begin
+        ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Posting Date"), ErrorMessage."Message Type"::Error);
+        ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Document No."), ErrorMessage."Message Type"::Error);
+        ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Bill-to/Pay-to No."), ErrorMessage."Message Type"::Error);
+        if VATReportLine.Amount = 0 then
+            ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("VAT Transaction Nature"), ErrorMessage."Message Type"::Error);
+
+        OnAfterValidateVATReportLine(VATReportLine, ErrorMessage);
     end;
 
     local procedure CheckCompanyInfo()
@@ -91,6 +98,11 @@ codeunit 12183 "Datifattura Validate"
             ErrorMessage.LogIfEmpty(Vendor, Vendor.FieldNo("First Name"), ErrorMessage."Message Type"::Error);
             ErrorMessage.LogIfEmpty(Vendor, Vendor.FieldNo("Last Name"), ErrorMessage."Message Type"::Error);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateVATReportLine(VATReportLine: Record "VAT Report Line"; var ErrorMessage: Record "Error Message")
+    begin
     end;
 }
 

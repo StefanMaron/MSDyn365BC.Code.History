@@ -535,7 +535,14 @@
             Caption = 'Message to Recipient';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateMessagetoRecipient(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Open, true);
             end;
         }
@@ -1069,6 +1076,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDrillDownOnOverdueEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var DrillDownPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateMessagetoRecipient(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

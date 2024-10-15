@@ -112,7 +112,14 @@ codeunit 12174 "Incl. in VAT Report Validation"
     end;
 
     local procedure CheckVATRegistrationNoInGenJnl(GenJournalLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckVATRegistrationNoInGenJnl(GenJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsVATRegNoNeeded(
              GenJournalLine."Country/Region Code", GenJournalLine."Individual Person", GenJournalLine."Tax Representative No.") and
            (GenJournalLine."VAT Registration No." = '')
@@ -491,6 +498,11 @@ codeunit 12174 "Incl. in VAT Report Validation"
             if (not IndividualPerson) and (TaxRepresentativeNo = '') then
                 exit(true);
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVATRegistrationNoInGenJnl(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

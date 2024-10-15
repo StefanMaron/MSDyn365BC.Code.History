@@ -170,6 +170,7 @@ codeunit 12172 "Customer Bill - Post + Print"
         IssuedCustBillLine.TransferFields(CustomerBillLine);
         IssuedCustBillLine."Customer Bill No." := ListNo;
         IssuedCustBillLine."Final Cust. Bill No." := FinalBillNo;
+        OnInsertIssuedBillLineOnBeforeInsert(IssuedCustBillLine);
         IssuedCustBillLine.Insert();
     end;
 
@@ -246,6 +247,7 @@ codeunit 12172 "Customer Bill - Post + Print"
                 CustomerBillHeader.Type::"Bills Subject To Collection":
                     Validate("Account No.", BillPostingGroup."Bills Subj. to Coll. Acc. No.");
             end;
+            OnPostBalanceAccountOnAfterValidateAccountNo(GenJnlLine, BillPostingGroup, CustomerBillHeader);
 
             Description := CustomerBillHeader."Report Header";
             Validate(Amount, BalanceAmount);
@@ -330,6 +332,16 @@ codeunit 12172 "Customer Bill - Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCustomerBillLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerBillHeader: Record "Customer Bill Header"; CustomerBillLine: Record "Customer Bill Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertIssuedBillLineOnBeforeInsert(var IssuedCustomerBillLine: Record "Issued Customer Bill Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBalanceAccountOnAfterValidateAccountNo(var GenJournalLine: Record "Gen. Journal Line"; BillPostingGroup: Record "Bill Posting Group"; CustomerBillHeader: Record "Customer Bill Header")
     begin
     end;
 }
