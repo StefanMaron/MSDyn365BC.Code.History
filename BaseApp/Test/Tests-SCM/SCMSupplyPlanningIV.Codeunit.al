@@ -3507,6 +3507,60 @@ codeunit 137077 "SCM Supply Planning -IV"
         PurchaseHeader.TestField("Expected Receipt Date", 0D);
     end;
 
+    [Test]
+    [HandlerFunctions('GenericMessageHandler')]
+    procedure KeepOriginalItemTrackingInDemandInFrozenZone()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        LotNos: array[2] of Code[20];
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 443870] Keep original item tracking in a demand in frozen zone (period before planning start date).
+        Initialize();
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Lot-tracked item set up for "lot-for-lot" planning.
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Modify(true);
+
+        // [GIVEN] Post 5 pcs of the item to inventory, assign lot no. "L1".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandInt(10));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', LotNos[1], ItemJournalLine.Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create sales order for 15 pcs, assign lot no. "L2".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandIntInRange(11, 20), '', CalcDate('<-1W>', WorkDate()));
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNos[2], SalesLine.Quantity);
+
+        // [WHEN] Calculate regenerative plan in planning worksheet.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));
+
+        // [THEN] The program suggests purchasing 10 pcs.
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField(Quantity, SalesLine.Quantity - ItemJournalLine.Quantity);
+
+        // [THEN] Item tracking for the sales line stays intact - Lot "L2" for 15 pcs.
+        ReservationEntry.Reset();
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+        ReservationEntry.SetRange("Lot No.", LotNos[2]);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";

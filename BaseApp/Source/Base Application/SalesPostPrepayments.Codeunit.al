@@ -1,7 +1,9 @@
 ﻿codeunit 442 "Sales-Post Prepayments"
 {
     Permissions = TableData "Sales Line" = imd,
+#if not CLEAN20
                   TableData "Invoice Post. Buffer" = imd,
+#endif
                   TableData "Sales Invoice Header" = imd,
                   TableData "Sales Invoice Line" = imd,
                   TableData "Sales Cr.Memo Header" = imd,

@@ -8060,14 +8060,16 @@
         Customer: Record Customer;
         LookupStateManager: Codeunit "Lookup State Manager";
         RecVariant: Variant;
+        SearchCustomerName: Text;
     begin
+        SearchCustomerName := CustomerName;
         Customer.SetFilter("Date Filter", GetFilter("Date Filter"));
         if "Sell-to Customer No." <> '' then
             Customer.Get("Sell-to Customer No.");
 
         if Customer.LookupCustomer(Customer) then begin
             if Rec."Sell-to Customer Name" = Customer.Name then
-                CustomerName := ''
+                CustomerName := SearchCustomerName
             else
                 CustomerName := Customer.Name;
             RecVariant := Customer;

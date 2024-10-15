@@ -314,6 +314,7 @@ codeunit 7201 "CDS Integration Impl."
         VTAppSourceLinkTxt: Label 'https://appsource.microsoft.com/product/dynamics-365/microsoftdynsmb.businesscentral_virtualentity', Locked = true;
         CRMEntityUrlTemplateTxt: Label '%1/main.aspx?pagetype=entityrecord&etn=%2&id=%3', Locked = true;
         CRMEntityListUrlTemplateTxt: Label '%1/main.aspx?pagetype=entitylist&etn=%2&navbar=on&cmdbar=true', Locked = true;
+        UsingCustomIntegrationUsernameEmailTxt: Label 'Dataverse setup is using custom integration username email, specified via event subscriber.', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetBaseSolutionUniqueName(): Text
@@ -1227,6 +1228,7 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionFirstPartyAppCertificateTxt: Text;
         NewConnectionString: Text;
         IntegrationUsernameEmailTxt: Text[100];
+        OnGetIntegrationUserEmailHandled: Boolean;
         CDSConnectionClientId: Guid;
         EmptyGuid: Guid;
         ExistingApplicationUserCount: Integer;
@@ -1261,7 +1263,11 @@ codeunit 7201 "CDS Integration Impl."
             CrmSystemUser.FindFirst();
         end else begin
             Session.LogMessage('0000C4M', StrSubstNo(FoundNoIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            IntegrationUsernameEmailTxt := CopyStr(GetAvailableIntegrationUserEmail(), 1, MaxStrLen(CRMSystemuser.InternalEMailAddress));
+            OnGetIntegrationUserEmail(IntegrationUsernameEmailTxt, OnGetIntegrationUserEmailHandled);
+            if not OnGetIntegrationUserEmailHandled then
+                IntegrationUsernameEmailTxt := CopyStr(GetAvailableIntegrationUserEmail(), 1, MaxStrLen(CRMSystemuser.InternalEMailAddress))
+            else
+                Session.LogMessage('0000IOW', UsingCustomIntegrationUsernameEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             if IntegrationUsernameEmailTxt = '' then begin
                 Session.LogMessage('0000D1D', StrSubstNo(FailedToInsertApplicationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(FailedToInsertApplicationUserErr, CDSConnectionClientId, CDSConnectionSetup."Server Address");
@@ -4956,6 +4962,16 @@ codeunit 7201 "CDS Integration Impl."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetBusinessEventsSupported(var Supported: Boolean; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetDefaultBusinessUnitName(var BusinessUnitName: Text[160]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetIntegrationUserEmail(var IntegrationUsernameEmailTxt: Text[100]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -585,7 +585,9 @@ codeunit 5812 "Calculate Standard Cost"
             if Find('-') then
                 repeat
                     CompItemQtyBase :=
-                      CostCalcMgt.CalcCompItemQtyBase(ProdBOMLine, CalculationDate, MfgItemQtyBase, RtngNo, IsTypeItem) / UOMFactor;
+                      UOMMgt.RoundQty(
+                        CostCalcMgt.CalcCompItemQtyBase(ProdBOMLine, CalculationDate, MfgItemQtyBase, RtngNo, IsTypeItem) / UOMFactor);
+
                     OnCalcProdBOMCostOnAfterCalcCompItemQtyBase(
                       CalculationDate, MfgItem, MfgItemQtyBase, IsTypeItem, ProdBOMLine, CompItemQtyBase, RtngNo, UOMFactor);
                     case Type of
@@ -834,7 +836,7 @@ codeunit 5812 "Calculate Standard Cost"
 
     local procedure IncrCost(var Cost: Decimal; UnitCost: Decimal; Qty: Decimal)
     begin
-        Cost := Cost + (Qty * UnitCost);
+        Cost := Cost + Round(Qty * UnitCost, GLSetup."Unit-Amount Rounding Precision");
     end;
 
     procedure CalculateAssemblyCostExp(AssemblyHeader: Record "Assembly Header"; var ExpCost: array[5] of Decimal)

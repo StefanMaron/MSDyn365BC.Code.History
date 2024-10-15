@@ -1,4 +1,4 @@
-page 427 "Payment Methods"
+﻿page 427 "Payment Methods"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Payment Methods';
@@ -31,7 +31,7 @@ page 427 "Payment Methods"
                 field("Bal. Account No."; "Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
+                    ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry of a posted sales or purchase document is posted to, such as a cash account for cash purchases. Please note Payment Method is not considered when creating document entries through journals.';
                 }
                 field("Free Type"; "Free Type")
                 {

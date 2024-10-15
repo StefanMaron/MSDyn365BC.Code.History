@@ -1456,7 +1456,6 @@
                             LastProjectedInventory -= DemandInvtProfile."Remaining Quantity (Base)";
                             LastAvailableInventory -= DemandInvtProfile."Untracked Quantity";
                         end;
-                        DemandInvtProfile."Untracked Quantity" := 0;
                         DemandInvtProfile.Modify();
                         DemandExists := DemandInvtProfile.Next <> 0;
                     end;
@@ -1480,6 +1479,9 @@
                     if LastAvailableInventory < 0 then
                         InsertEmergencyOrderSupply(SupplyInvtProfile, DemandInvtProfile, LastAvailableInventory, LastProjectedInventory, PlanningStartDate);
 
+                    if not DemandInvtProfile.IsEmpty() then
+                        DemandInvtProfile.ModifyAll("Untracked Quantity", 0);
+                    
                     // Initial Safety Stock Warning
                     if LastAvailableInventory < TempSKU."Safety Stock Quantity" then
                         InsertInitialSafetyStockWarningSupply(SupplyInvtProfile, LastAvailableInventory, LastProjectedInventory, PlanningStartDate, RespectPlanningParm, IsReorderPointPlanning);
@@ -2054,6 +2056,12 @@
         SupplyInvtProfile.Insert();
         MaintainPlanningLine(SupplyInvtProfile, DemandInvtProfile, PlanningLineStage::Exploded, ScheduleDirection::Backward);
         Track(SupplyInvtProfile, DemandInvtProfile, true, false, SupplyInvtProfile.Binding::" ");
+
+        DemandInvtProfile.SetFilter("Untracked Quantity", '<>0');
+        if DemandInvtProfile.FindFirst() then
+            Track(DemandInvtProfile, SupplyInvtProfile, true, false, "Reservation Binding"::" ");
+        DemandInvtProfile.SetRange("Untracked Quantity");
+
         LastProjectedInventory += SupplyInvtProfile."Remaining Quantity (Base)";
         LastAvailableInventory += SupplyInvtProfile."Untracked Quantity";
         PlanningTransparency.LogSurplus(

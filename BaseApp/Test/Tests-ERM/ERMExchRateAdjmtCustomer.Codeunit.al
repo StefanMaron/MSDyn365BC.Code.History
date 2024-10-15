@@ -1260,6 +1260,7 @@
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField("Ledger Entry Amount", true);
+        DetailedCustLedgEntry.TestField("Exch. Rate Adjmt. Reg. No.");
         DetailedCustLedgEntry.CalcSums("Amount (LCY)");
         Currency.Get(DetailedCustLedgEntry."Currency Code");
         Assert.AreNearlyEqual(

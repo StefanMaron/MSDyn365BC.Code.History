@@ -246,6 +246,11 @@ codeunit 12179 "Export FatturaPA Document"
         Customer."PA Code" := FatturaSetup."Company PA Code";
     end;
 
+    local procedure GetDenominazioneMaxLength(): Integer
+    begin
+        exit(80);
+    end;
+
     local procedure CopyVendorToCustomerBuffer(var Customer: Record Customer; VendorNo: Code[20])
     var
         Vendor: Record Vendor;
@@ -336,7 +341,7 @@ codeunit 12179 "Export FatturaPA Document"
             AddNonEmptyElement('CodiceFiscale', CompanyInformation."Fiscal Code");
 
             AddGroupElement('Anagrafica');
-            AddNonEmptyLastElement('Denominazione', CompanyInformation.Name);
+            AddNonEmptyLastElement('Denominazione', CopyStr(CompanyInformation.Name, 1, GetDenominazioneMaxLength()));
             AddNonEmptyLastElement('RegimeFiscale', 'RF' + CompanyInformation."Company Type");
 
             // 1.2.2 Sede
@@ -394,7 +399,7 @@ codeunit 12179 "Export FatturaPA Document"
                 AddNonEmptyElement('Nome', TempVendor."First Name");
                 AddNonEmptyLastElement('Cognome', TempVendor."Last Name");
             end else
-                AddNonEmptyLastElement('Denominazione', TempVendor.Name);
+                AddNonEmptyLastElement('Denominazione', CopyStr(TempVendor.Name, 1, GetDenominazioneMaxLength()));
 
             GetParent;
             GetParent;
@@ -430,7 +435,7 @@ codeunit 12179 "Export FatturaPA Document"
                 AddNonEmptyElement('Nome', Customer."First Name");
                 AddNonEmptyLastElement('Cognome', Customer."Last Name");
             end else
-                AddNonEmptyLastElement('Denominazione', Customer.Name);
+                AddNonEmptyLastElement('Denominazione', CopyStr(Customer.Name, 1, GetDenominazioneMaxLength()));
             GetParent;
 
             // 1.4.2. Sede
