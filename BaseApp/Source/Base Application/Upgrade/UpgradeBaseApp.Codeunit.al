@@ -39,6 +39,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradePowerBiEmbedUrl();
 
         UpgradeAPIs();
+        UpgradeIntrastatJnlLine();
     end;
 
     local procedure UpdateDefaultDimensionsReferencedIds()
@@ -243,6 +244,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSalesCrMemoEntityBuffer;
         UpgradeSalesOrderShipmentMethod;
         UpgradeSalesCrMemoShipmentMethod;
+        UpgradeInvoicesCreatedFromOrders();
     end;
 
     local procedure CreateTimeSheetDetailsIds()
@@ -294,6 +296,21 @@ codeunit 104000 "Upgrade - BaseApp"
             UNTIL SalesInvoiceEntityAggregate.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesInvoiceEntityAggregateUpgradeTag());
+    end;
+
+    local procedure UpgradeInvoicesCreatedFromOrders()
+    var
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
+        GraphMgtSalesOrderBuffer: Codeunit "Graph Mgt - Sales Order Buffer";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPISalesInvoicesCreatedFromOrders())) then
+            SalesInvoiceAggregator.FixInvoicesCreatedFromOrders();
+
+        if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPIPurchaseInvoicesCreatedFromOrders())) then
+            PurchInvAggregator.FixInvoicesCreatedFromOrders();
     end;
 
     local procedure UpgradePurchInvEntityAggregate()
@@ -890,6 +907,24 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
         if Changed then
             TargetRecordRef.MODIFY;
+    end;
+
+    local procedure UpgradeIntrastatJnlLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+      if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag()) THEN
+        exit;
+
+      if IntrastatJnlLine.FindSet() then
+        repeat
+          IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine."VAT Registration No.";
+          IntrastatJnlLine.Modify();
+        until IntrastatJnlLine.Next() = 0;
+
+      UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag());
     end;
 }
 

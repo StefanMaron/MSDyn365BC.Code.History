@@ -452,6 +452,8 @@ report 594 "Get Item Ledger Entries"
         CurrExchRate: Record "Currency Exchange Rate";
         CompanyInfo: Record "Company Information";
         Currency: Record Currency;
+        SalesSetup: Record "Sales & Receivables Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
         UOMMgt: Codeunit "Unit of Measure Management";
         StartDate: Date;
         EndDate: Date;
@@ -461,12 +463,6 @@ report 594 "Get Item Ledger Entries"
         AddCurrencyFactor: Decimal;
         GLSetupRead: Boolean;
         ShowBlank: Boolean;
-        ItemVendor: Record "Item Vendor";
-        Vendor: Record Vendor;
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        SalesSetup: Record "Sales & Receivables Setup";
-        PurchSetup: Record "Purchases & Payables Setup";
-        PurchInvHeader: Record "Purch. Inv. Header";
         CustomsOfficeNo: Code[10];
         CorrectedIntrastatRepNo: Code[10];
         Text12100: Label 'There is no %1 with in the filter.\\Filters: %2';
@@ -487,7 +483,6 @@ report 594 "Get Item Ledger Entries"
 
     local procedure InsertItemJnlLine()
     var
-        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         IsHandled: Boolean;
     begin
         Item.Get("Item Ledger Entry"."Item No.");
@@ -529,21 +524,6 @@ report 594 "Get Item Ledger Entries"
                 end else
                     Type := Type::Receipt;
 
-                if PurchRcptHeader.Get("Item Ledger Entry"."Document No.") then begin
-                    if Vendor.Get(PurchRcptHeader."Buy-from Vendor No.") then
-                        "VAT Registration No." := Vendor."VAT Registration No.";
-                end else begin
-                    PurchSetup.Get;
-                    if not PurchSetup."Receipt on Invoice" and
-                       PurchInvHeader.Get("Item Ledger Entry"."Document No.")
-                    then begin
-                        if Vendor.Get(PurchInvHeader."Buy-from Vendor No.") then
-                            "VAT Registration No." := Vendor."VAT Registration No.";
-                    end else
-                        if PurchCrMemoHeader.Get(ValueEntry."Document No.") then
-                            if Vendor.Get(PurchCrMemoHeader."Buy-from Vendor No.") then
-                                "VAT Registration No." := Vendor."VAT Registration No.";
-                end;
                 if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then begin
                     Amount := Round(Abs(Amount), GLSetup."Amount Rounding Precision");
                     Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision));
@@ -557,20 +537,12 @@ report 594 "Get Item Ledger Entries"
 
             Validate("Item No.");
 
-            if IntrastatJnlBatch.Type = IntrastatJnlBatch.Type::Purchases then begin
-                if ItemVendor.Get("Item Ledger Entry"."Source No.", "Item Ledger Entry"."Item No.", "Item Ledger Entry"."Variant Code") and
-                   // mo
-                   (ItemVendor."Country/Region of Origin Code" <> '')
-                then
-                    "Country/Region of Origin Code" := GetIntrastatCountryCode(ItemVendor."Country/Region of Origin Code")
-                else
-                    "Country/Region of Origin Code" := GetIntrastatCountryCode(Item."Country/Region of Origin Code");
-                FindSourceCurrency(
-                  "Item Ledger Entry"."Source No.", "Item Ledger Entry"."Document Date", "Item Ledger Entry"."Posting Date");
-            end else
-                "Country/Region of Origin Code" := GetIntrastatCountryCode(Item."Country/Region of Origin Code");
+            FindSourceCurrency(
+                "Item Ledger Entry"."Source No.", "Item Ledger Entry"."Document Date", "Item Ledger Entry"."Posting Date");
 
             "Source Type" := "Source Type"::"Item Entry";
+            "Country/Region of Origin Code" := GetCountryOfOriginCode();
+            "Partner VAT ID" := GetPartnerID();
             Validate("Cost Regulation %", IndirectCostPctReq);
             "Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
 
@@ -583,9 +555,6 @@ report 594 "Get Item Ledger Entries"
 
     local procedure InsertJobLedgerLine()
     var
-        Job: Record Job;
-        Customer: Record Customer;
-        VendLedgEntry: Record "Vendor Ledger Entry";
         IsHandled: Boolean;
     begin
         with IntrastatJnlLine do begin
@@ -612,17 +581,6 @@ report 594 "Get Item Ledger Entries"
             Area := "Job Ledger Entry".Area;
             "Transaction Specification" := "Job Ledger Entry"."Transaction Specification";
             "Shpt. Method Code" := "Job Ledger Entry"."Shpt. Method Code";
-            if "Job Ledger Entry"."Entry Type" = "Job Ledger Entry"."Entry Type"::Sale then begin
-                if Job.Get("Job Ledger Entry"."Job No.") then
-                    if Customer.Get(Job."Bill-to Customer No.") then
-                        "VAT Registration No." := Customer."VAT Registration No.";
-            end else begin
-                VendLedgEntry.SetCurrentKey("Document No.");
-                VendLedgEntry.SetRange("Document No.", "Job Ledger Entry"."Document No.");
-                if VendLedgEntry.FindFirst then
-                    if Vendor.Get(VendLedgEntry."Vendor No.") then
-                        "VAT Registration No." := Vendor."VAT Registration No.";
-            end;
 
             if IntrastatJnlBatch."Amounts in Add. Currency" then
                 Amount := Round(Abs(Amount), Currency."Amount Rounding Precision")
@@ -631,6 +589,8 @@ report 594 "Get Item Ledger Entries"
 
             Validate("Item No.");
             "Source Type" := "Source Type"::"Job Entry";
+            "Country/Region of Origin Code" := GetCountryOfOriginCode();
+            "Partner VAT ID" := GetPartnerID();
             Validate(Quantity, Round(Abs(Quantity), 0.00001));
 
             Validate("Cost Regulation %", IndirectCostPctReq);
@@ -779,6 +739,8 @@ report 594 "Get Item Ledger Entries"
 
             Validate("Item No.");
             "Source Type" := "Source Type"::"Item Entry";
+            "Country/Region of Origin Code" := GetCountryOfOriginCode();
+            "Partner VAT ID" := GetPartnerID();
             Validate(Quantity, Round(Abs(Quantity), 0.00001));
             Validate("Cost Regulation %", IndirectCostPctReq);
 
@@ -1512,7 +1474,7 @@ report 594 "Get Item Ledger Entries"
     begin
         if not Customer.Get(CustomerNo) then
             exit;
-        IntrastatJnlLine."VAT Registration No." := Customer."VAT Registration No.";
+        IntrastatJnlLine."Partner VAT ID" := Customer."VAT Registration No.";
         IntrastatJnlLine."Country/Region Code" := IntrastatJnlLine.GetIntrastatCountryCode(Customer."Country/Region Code");
     end;
 

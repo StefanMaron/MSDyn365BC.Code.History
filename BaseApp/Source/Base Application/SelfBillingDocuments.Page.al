@@ -3,6 +3,7 @@ page 12203 "Self-Billing Documents"
     ApplicationArea = Basic, Suite;
     Caption = 'Self-Billing Documents';
     DeleteAllowed = false;
+    InsertAllowed = false;
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "VAT Entry";
@@ -31,7 +32,6 @@ page 12203 "Self-Billing Documents"
             }
             repeater(Control1130001)
             {
-                Editable = false;
                 ShowCaption = false;
                 field("Document No."; "Document No.")
                 {
@@ -185,6 +185,16 @@ page 12203 "Self-Billing Documents"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this VAT entry is to be reported as a service in the periodic VAT reports.';
                     Visible = false;
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
+
+                    trigger OnValidate()
+                    begin
+                        FatturaDocHelper.UpdateFatturaDocTypeInVATEntry("Entry No.", "Fattura Document Type");
+                    end;
                 }
             }
         }

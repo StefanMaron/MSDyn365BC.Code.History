@@ -46,6 +46,24 @@ codeunit 144206 "Self-Billing Documents"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure UI_FatturaDocTypeVisibleInSelfBillingDocumentsPage()
+    var
+        SelfBillingDocuments: TestPage "Self-Billing Documents";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 373967] "Fattura Document Type" field is visible in the "Self-Billing Documents" page
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+        LibraryLowerPermissions.SetLocal;
+        LibraryLowerPermissions.AddeRead;
+        SelfBillingDocuments.OpenEdit;
+        Assert.IsTrue(SelfBillingDocuments."Fattura Document Type".Visible, '');
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure UI_ExportSelfBillingDocumentWithoutFatturaSetupThrowsConfirmation()
@@ -334,6 +352,146 @@ codeunit 144206 "Self-Billing Documents"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSingleSelfBillingDocumentWithFatturaDocTypeFromVATEntry()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
+        ServerFilePath: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 373967] Stan can export a single Self-Billing Document with "Fattura Document Type" taken from VAT Entry
+
+        Initialize();
+
+        // [GIVEN] Posted Self-Billing Document with VAT Entry with "Fattura Document Type" = "X"
+        // [GIVEN] Associated VAT Posting Setup has "Fattura Document Type" = "Y"
+        CreatePurchDocument(PurchaseHeader);
+        FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("Fattura Document Type", LibraryITLocalization.GetRandomFatturaDocType(''));
+        VATPostingSetup.Modify(true);
+        VATEntry."Fattura Document Type" := LibraryITLocalization.GetRandomFatturaDocType(VATPostingSetup."Fattura Document Type");
+        VATEntry.Modify();
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
+
+        // [WHEN] Export posted Self-Billing Document to XML
+        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+
+        // [THEN] TipoDocumento has value "X"
+        TempXMLBuffer.Load(ServerFilePath);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento');
+        AssertElementValue(TempXMLBuffer, 'TipoDocumento', VATEntry."Fattura Document Type");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSingleSelfBillingDocumentWithFatturaDocTypeFromVATPostingSetup()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
+        ServerFilePath: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 373967] Stan can export a single Self-Billing Document with "Fattura Document Type" taken from VAT Posting Setup
+
+        Initialize();
+
+        // [GIVEN] Posted Self-Billing Document with VAT Entry with blank "Fattura Document Type"
+        // [GIVEN] Associated VAT Posting Setup has "Fattura Document Type" = "X"
+        CreatePurchDocument(PurchaseHeader);
+        FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("Fattura Document Type", LibraryITLocalization.GetRandomFatturaDocType(''));
+        VATPostingSetup.Modify(true);
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
+
+        // [WHEN] Export posted Self-Billing Document to XML
+        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+
+        // [THEN] TipoDocumento has value "X"
+        TempXMLBuffer.Load(ServerFilePath);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento');
+        AssertElementValue(TempXMLBuffer, 'TipoDocumento', VATPostingSetup."Fattura Document Type");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSingleSelfBillingDocumentWithDefaultFatturaDocType()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+        ServerFilePath: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 373967] Stan can export a single Self-Billing Document with default "Fattura Document Type"
+
+        Initialize();
+
+        // [GIVEN] Posted Self-Billing Document with VAT Entry with blank "Fattura Document Type"
+        // [GIVEN] Associated VAT Posting Setup has blank "Fattura Document Type"
+        CreatePurchDocument(PurchaseHeader);
+        FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
+
+        // [WHEN] Export posted Self-Billing Document to XML
+        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+
+        // [THEN] TipoDocumento has value "TD01"
+        TempXMLBuffer.Load(ServerFilePath);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento');
+        AssertElementValue(TempXMLBuffer, 'TipoDocumento', FatturaDocHelper.GetDefaultFatturaDocType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UI_UpdateSelfBillingDocumentFatturaDocTypeFromPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        SelfBillingDocuments: TestPage "Self-Billing Documents";
+        FatturaDocType: Code[20];
+    begin
+        // [SCENARIO 373967] Stan can update the value of the "Fattura Document Type" in the "Self-Billing Documents" page
+
+        Initialize;
+
+        // [GIVEN] Posted Self-Billing Document with VAT Entry with blank "Fattura Document Type"
+        CreatePurchDocument(PurchaseHeader);
+        FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        LibraryApplicationArea.EnableBasicSetup;
+        LibraryLowerPermissions.SetLocal;
+        LibraryLowerPermissions.AddO365Setup;
+
+        // [GIVEN] Opened Self-Billing Documents page filtered by posted VAT entry
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        SelfBillingDocuments.OpenEdit;
+        SelfBillingDocuments.FILTER.SetFilter("Bill-to/Pay-to No.", VATEntry."Bill-to/Pay-to No.");
+
+        // [WHEN] Change "Fattura Document Type" to "X"
+        SelfBillingDocuments."Fattura Document Type".SetValue(FatturaDocType);
+
+        // [THEN] "Fattura Document Type" is "X" in the posted VAT Entry
+        VATEntry.Find;
+        VATEntry.TestField("Fattura Document Type", FatturaDocType);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -502,7 +660,8 @@ codeunit 144206 "Self-Billing Documents"
         TempVATEntry.CalcSums(Amount, Base);
         TempVATEntry.TestField(Amount);
         TempVATEntry.TestField(Base);
-        VerifyDocHeader(TempXMLBuffer, TempVATEntry, Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base));
+        VerifyDocHeader(
+          TempXMLBuffer, TempVATEntry, Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base));
         TempVATEntry.SetCurrentKey(
           "Document No.", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
           "VAT %", "Deductible %", "VAT Identifier", "Transaction No.", "Unrealized VAT Entry No.");

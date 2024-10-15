@@ -491,6 +491,26 @@ page 144 "Posted Sales Credit Memos"
                     ShowActivityLog;
                 end;
             }
+            action("Update Document")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedSalesCrMemoUpdate: Page "Posted Sales Cr. Memo - Update";
+                begin
+                    PostedSalesCrMemoUpdate.LookupMode := true;
+                    PostedSalesCrMemoUpdate.SetRec(Rec);
+                    PostedSalesCrMemoUpdate.RunModal();
+                end;
+            }
         }
     }
 

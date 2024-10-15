@@ -22,10 +22,12 @@ codeunit 144210 "FatturaPA Document Type"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
         UnexpectedElementValueErr: Label 'Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.', Comment = '%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;';
         OptionAlreadySpecifiedErr: Label 'Documents of type %1 already have code %2 as default. You can only use one code for each type of document.', Comment = '%1 = field caption;%2 = code value.';
+        FatturaDocTypeDiffQst: Label 'There are one or more different values of Fattura document type coming from the VAT posting setup of lines. As it''''s not possible to identify the value, %1 from the header will be used.\\Do you want to continue?', Comment = '%1 = the value of Fattura Document type from the header';
 
     [Test]
     [Scope('OnPrem')]
@@ -68,7 +70,7 @@ codeunit 144210 "FatturaPA Document Type"
         Assert.IsTrue(PrepaymentFatturaDocumentType.FindFirst(), 'No code for the Prepayment');
         Commit;
 
-        FilterFatturaDocumentTypeNoDefaultValues(FatturaDocumentType);
+        LibraryITLocalization.FilterFatturaDocumentTypeNoDefaultValues(FatturaDocumentType);
         FatturaDocumentType.FindFirst();
         asserterror FatturaDocumentType.Validate(Invoice, true);
         Assert.ExpectedError(
@@ -180,7 +182,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [SCENARIO 352458] A FatturaPA xml file has Fattura Document Type code manually entered in the sales document
 
         Initialize;
-        FatturaDocType := GetRandomFatturaDocType();
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
         DocumentNo := PostSalesInvoice(FatturaDocType);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
@@ -207,7 +209,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [SCENARIO 352458] A FatturaPA xml file has Fattura Document Type code manually entered in the service document
 
         Initialize;
-        FatturaDocType := GetRandomFatturaDocType();
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
         CustomerNo := PostServiceInvoice(FatturaDocType);
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
 
@@ -217,6 +219,345 @@ codeunit 144210 "FatturaPA Document Type"
 
         // [THEN] TipoDocumento is "TD02" in exported file
         VerifyTipoDocumento(ServerFileName, FatturaDocType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesAssignVATPostingSetupWithValidateDocumentAllLinesSameDocType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Sales] [Export]
+        // [SCENARIO 373967] "Fattura Document Type" assigns to the sales document during posting from the VAT Posting Setup when all lines have the same value and "Validate Document On Posting" is enabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is enabled in "Sales & Receivables Setup"
+        UpdateValidateDocumentOnPostingInSalesSetup(true);
+        CreateSalesHeader(SalesHeader);
+        // [GIVEN] Sales Invoice with two lines, both has different VAT Posting Setup but with the same value of "Fattura Document Type" = "X"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader, CreateVATPostingSetupWithFatturaDocType(SalesHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader, CreateVATPostingSetupWithFatturaDocType(SalesHeader."VAT Bus. Posting Group", FatturaDocType));
+
+        // [WHEN] Post invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [THEN] "Fattura Document Type" in the posted sales invoice is "X"
+        SalesInvoiceHeader.TestField("Fattura Document Type", FatturaDocType);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure SalesAssignVATPostingSetupWithValidateDocumentLinesHasDiffDocTypeConfirm()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Sales] [Export]
+        // [SCENARIO 373967] "Fattura Document Type" remains default in the sales document during posting with confirmation/
+        // [SCENARIO 373967] when lines have different value of the "Fattura Document Type" in the the VAT Posting Setup and "Validate Document On Posting" is enabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is enabled in "Sales & Receivables Setup"
+        UpdateValidateDocumentOnPostingInSalesSetup(true);
+        CreateSalesHeader(SalesHeader);
+        // [GIVEN] Sales Invoice with "Fattura Document Type" = "X" in the header and two lines
+        // [GIVEN] The first line has VAT Posting Setup with "Fattura Document Type" = "Y"
+        // [GIVEN] The second line has VAT Posting Setup with "Fattura Document Type" = "Z"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader, CreateVATPostingSetupWithFatturaDocType(SalesHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader,
+          CreateVATPostingSetupWithFatturaDocType(
+            SalesHeader."VAT Bus. Posting Group", LibraryITLocalization.GetRandomFatturaDocType(FatturaDocType)));
+        LibraryVariableStorage.Enqueue(StrSubstNo(FatturaDocTypeDiffQst, SalesHeader."Fattura Document Type"));
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Post invoice with confirmation
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [THEN] "Fattura Document Type" in the posted sales invoice is "X"
+        SalesInvoiceHeader.TestField("Fattura Document Type", SalesHeader."Fattura Document Type");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure SalesAssignVATPostingSetupWithValidateDocumentLinesHasDiffDocTypeDoNotConfirm()
+    var
+        SalesHeader: Record "Sales Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Sales] [Export]
+        // [SCENARIO 373967] Posting sales document cancelled after user does not confirm that lines have different value of the "Fattura Document Type" in the VAT Posting Setup
+        // [SCENARIO 373967] and "Validate Document On Posting" is enabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is enabled in "Sales & Receivables Setup"
+        UpdateValidateDocumentOnPostingInSalesSetup(true);
+        CreateSalesHeader(SalesHeader);
+        // [GIVEN] Sales Invoice with "Fattura Document Type" = "X" in the header and two lines
+        // [GIVEN] The first line has VAT Posting Setup with "Fattura Document Type" = "Y"
+        // [GIVEN] The second line has VAT Posting Setup with "Fattura Document Type" = "Z"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader, CreateVATPostingSetupWithFatturaDocType(SalesHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader,
+          CreateVATPostingSetupWithFatturaDocType(
+            SalesHeader."VAT Bus. Posting Group", LibraryITLocalization.GetRandomFatturaDocType(FatturaDocType)));
+        Commit();
+        LibraryVariableStorage.Enqueue(StrSubstNo(FatturaDocTypeDiffQst, SalesHeader."Fattura Document Type"));
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Post invoice without confirmation
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Sales Invoice remains unposted
+        SalesHeader.Find();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesAssignVATPostingSetupWithoutValidateDocumentAllLinesSameDocType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Sales] [Export]
+        // [SCENARIO 373967] "Fattura Document Type" assigns to the sales document during posting from the VAT Posting Setup when all lines have the same value and "Validate Document On Posting" is disabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is disabled in "Sales & Receivables Setup"
+        UpdateValidateDocumentOnPostingInSalesSetup(false);
+        CreateSalesHeader(SalesHeader);
+        // [GIVEN] Sales Invoice with two lines, both has different VAT Posting Setup but with the same value of "Fattura Document Type" = "X"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader, CreateVATPostingSetupWithFatturaDocType(SalesHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader, CreateVATPostingSetupWithFatturaDocType(SalesHeader."VAT Bus. Posting Group", FatturaDocType));
+
+        // [WHEN] Post invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [THEN] "Fattura Document Type" in the posted sales invoice is "X"
+        SalesInvoiceHeader.TestField("Fattura Document Type", FatturaDocType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesAssignVATPostingSetupWithoutValidateDocumentLineHasDiffDocType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Sales] [Export]
+        // [SCENARIO 373967] "Fattura Document Type" remains default in the sales document during posting
+        // [SCENARIO 373967] when lines have different value of the "Fattura Document Type" in the the VAT Posting Setup and "Validate Document On Posting" is disabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is disabled in "Sales & Receivables Setup"
+        UpdateValidateDocumentOnPostingInSalesSetup(false);
+        CreateSalesHeader(SalesHeader);
+        // [GIVEN] Sales Invoice with "Fattura Document Type" = "X" in the header and two lines
+        // [GIVEN] The first line has VAT Posting Setup with "Fattura Document Type" = "Y"
+        // [GIVEN] The second line has VAT Posting Setup with "Fattura Document Type" = "Z"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader, CreateVATPostingSetupWithFatturaDocType(SalesHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateSalesLineWithVATProdPostGroup(
+          SalesHeader,
+          CreateVATPostingSetupWithFatturaDocType(
+            SalesHeader."VAT Bus. Posting Group", LibraryITLocalization.GetRandomFatturaDocType(FatturaDocType)));
+
+        // [WHEN] Post invoice with confirmation
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [THEN] "Fattura Document Type" in the posted sales invoice is "X"
+        SalesInvoiceHeader.TestField("Fattura Document Type", SalesHeader."Fattura Document Type");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServAssignVATPostingSetupWithValidateDocumentAllLinesSameDocType()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Service] [Export]
+        // [SCENARIO 373967] "Fattura Document Type" assigns to the service document during posting from the VAT Posting Setup when all lines have the same value and "Validate Document On Posting" is enabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is enabled in "Service Setup"
+        UpdateValidateDocumentOnPostingInServiceSetup(true);
+        CreateServiceHeader(ServiceHeader);
+        // [GIVEN] Service Invoice with two lines, both has different VAT Posting Setup but with the same value of "Fattura Document Type" = "X"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader, CreateVATPostingSetupWithFatturaDocType(ServiceHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader, CreateVATPostingSetupWithFatturaDocType(ServiceHeader."VAT Bus. Posting Group", FatturaDocType));
+
+        // [WHEN] Post invoice
+        GetServiceInvoiceHeaderAfterPosting(ServiceInvoiceHeader, ServiceHeader);
+
+        // [THEN] "Fattura Document Type" in the posted service invoice is "X"
+        ServiceInvoiceHeader.TestField("Fattura Document Type", FatturaDocType);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure ServAssignVATPostingSetupWithValidateDocumentLinesHasDiffDocTypeConfirm()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Service] [Export]
+        // [SCENARIO 373967] "Fattura Document Type" remains default in the service document during posting with confirmation/
+        // [SCENARIO 373967] when lines have different value of the "Fattura Document Type" in the the VAT Posting Setup and "Validate Document On Posting" is enabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is enabled in "Service Setup"
+        UpdateValidateDocumentOnPostingInServiceSetup(true);
+        CreateServiceHeader(ServiceHeader);
+        // [GIVEN] Service Invoice with "Fattura Document Type" = "X" in the header and two lines
+        // [GIVEN] The first line has VAT Posting Setup with "Fattura Document Type" = "Y"
+        // [GIVEN] The second line has VAT Posting Setup with "Fattura Document Type" = "Z"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader, CreateVATPostingSetupWithFatturaDocType(ServiceHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader,
+          CreateVATPostingSetupWithFatturaDocType(
+            ServiceHeader."VAT Bus. Posting Group", LibraryITLocalization.GetRandomFatturaDocType(FatturaDocType)));
+        LibraryVariableStorage.Enqueue(StrSubstNo(FatturaDocTypeDiffQst, ServiceHeader."Fattura Document Type"));
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Post invoice with confirmation
+        GetServiceInvoiceHeaderAfterPosting(ServiceInvoiceHeader, ServiceHeader);
+
+        // [THEN] "Fattura Document Type" in the posted service invoice is "X"
+        ServiceInvoiceHeader.TestField("Fattura Document Type", ServiceHeader."Fattura Document Type");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure ServAssignVATPostingSetupWithValidateDocumentLinesHasDiffDocTypeDoNotConfirm()
+    var
+        ServiceHeader: Record "Service Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Service] [Export]
+        // [SCENARIO 373967] Posting service document cancelled after user does not confirm that lines have different value of the "Fattura Document Type" in the VAT Posting Setup and "Validate Document On Posting" is enabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is enabled in "Service Setup"
+        UpdateValidateDocumentOnPostingInServiceSetup(true);
+        CreateServiceHeader(ServiceHeader);
+        // [GIVEN] Service Invoice with "Fattura Document Type" = "X" in the header and two lines
+        // [GIVEN] The first line has VAT Posting Setup with "Fattura Document Type" = "Y"
+        // [GIVEN] The second line has VAT Posting Setup with "Fattura Document Type" = "Z"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader, CreateVATPostingSetupWithFatturaDocType(ServiceHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader,
+          CreateVATPostingSetupWithFatturaDocType(
+            ServiceHeader."VAT Bus. Posting Group", LibraryITLocalization.GetRandomFatturaDocType(FatturaDocType)));
+        Commit();
+        LibraryVariableStorage.Enqueue(StrSubstNo(FatturaDocTypeDiffQst, ServiceHeader."Fattura Document Type"));
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Post invoice without confirmation
+        asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Service Invoice remains unposted
+        ServiceHeader.Find();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServAssignVATPostingSetupWithoutValidateDocumentAllLinesSameDocType()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Service] [Export]
+        // [SCENARIO 373967] "Fattura Document Type" assigns to the service document during posting from the VAT Posting Setup when all lines have the same value and "Validate Document On Posting" is disabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is disabled in "Service Setup"
+        UpdateValidateDocumentOnPostingInServiceSetup(false);
+        CreateServiceHeader(ServiceHeader);
+        // [GIVEN] Service Invoice with two lines, both has different VAT Posting Setup but with the same value of "Fattura Document Type" = "X"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader, CreateVATPostingSetupWithFatturaDocType(ServiceHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader, CreateVATPostingSetupWithFatturaDocType(ServiceHeader."VAT Bus. Posting Group", FatturaDocType));
+
+        // [WHEN] Post invoice
+        GetServiceInvoiceHeaderAfterPosting(ServiceInvoiceHeader, ServiceHeader);
+
+        // [THEN] "Fattura Document Type" in the posted service invoice is "X"
+        ServiceInvoiceHeader.TestField("Fattura Document Type", FatturaDocType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServAssignVATPostingSetupWithoutValidateDocumentLineHasDiffDocType()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        FatturaDocType: Code[20];
+    begin
+        // [FEATURE] [Service] [Export]
+        // [SCENARIO 373967] "Fattura Document Type" remains default in the service document during posting
+        // [SCENARIO 373967] when lines have different value of the "Fattura Document Type" in the the VAT Posting Setup and "Validate Document On Posting" is disabled
+
+        Initialize();
+        // [GIVEN] "Validate Document On Posting" is disabled in "Service Setup"
+        UpdateValidateDocumentOnPostingInServiceSetup(false);
+        CreateServiceHeader(ServiceHeader);
+        // [GIVEN] Service Invoice with "Fattura Document Type" = "X" in the header and two lines
+        // [GIVEN] The first line has VAT Posting Setup with "Fattura Document Type" = "Y"
+        // [GIVEN] The second line has VAT Posting Setup with "Fattura Document Type" = "Z"
+        FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader, CreateVATPostingSetupWithFatturaDocType(ServiceHeader."VAT Bus. Posting Group", FatturaDocType));
+        CreateServiceLineWithVATProdPostGroup(
+          ServiceHeader,
+          CreateVATPostingSetupWithFatturaDocType(
+            ServiceHeader."VAT Bus. Posting Group", LibraryITLocalization.GetRandomFatturaDocType(FatturaDocType)));
+
+        // [WHEN] Post invoice with confirmation
+        GetServiceInvoiceHeaderAfterPosting(ServiceInvoiceHeader, ServiceHeader);
+
+        // [THEN] "Fattura Document Type" in the posted service invoice is "X"
+        ServiceInvoiceHeader.TestField("Fattura Document Type", ServiceHeader."Fattura Document Type");
     end;
 
     local procedure Initialize()
@@ -232,6 +573,7 @@ codeunit 144210 "FatturaPA Document Type"
         LibrarySetupStorage.SaveCompanyInformation();
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"FatturaPA Document Type");
         IsInitialized := true;
     end;
@@ -244,37 +586,96 @@ codeunit 144210 "FatturaPA Document Type"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
           LibraryITLocalization.CreateCustomer(), '', 5, '', 0D);
+        UpdateSalesHeaderWithFatturaCodes(SalesHeader, FatturaDocType);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
+        UpdateSalesHeaderWithFatturaCodes(SalesHeader, SalesHeader."Fattura Document Type");
+    end;
+
+    local procedure CreateSalesLineWithVATProdPostGroup(SalesHeader: Record "Sales Header"; VATProdPostGroupCode: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
+        GLAccount.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateSalesHeaderWithFatturaCodes(var SalesHeader: Record "Sales Header"; FatturaDocType: Code[20])
+    begin
         SalesHeader.Validate("Fattura Document Type", FatturaDocType);
         SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
         SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
         SalesHeader.Modify(true);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header")
+    begin
+        LibraryService.CreateServiceHeader(
+          ServiceHeader, ServiceHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer());
+        UpdateServiceaderWithFatturaCodes(ServiceHeader, ServiceHeader."Fattura Document Type");
+    end;
+
+    local procedure CreateServiceLineWithVATProdPostGroup(ServiceHeader: Record "Service Header"; VATProdPostGroupCode: Code[20])
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
+        Item.Modify(true);
+        CreateServiceLine(ServiceHeader, Item."No.");
+    end;
+
+    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; ItemNo: Code[20])
+    var
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLine(
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure UpdateServiceaderWithFatturaCodes(var ServiceHeader: Record "Service Header"; FatturaDocType: Code[20])
+    begin
+        ServiceHeader.Validate("Order Date", WorkDate());
+        ServiceHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode());
+        ServiceHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode());
+        ServiceHeader.Validate("Fattura Document Type", FatturaDocType);
+        ServiceHeader.Modify(true);
     end;
 
     local procedure PostServiceInvoice(FatturaDocType: Code[20]): Code[20]
     var
         ServiceHeader: Record "Service Header";
-        ServiceItem: Record "Service Item";
-        ServiceItemLine: Record "Service Item Line";
-        ServiceLine: Record "Service Line";
     begin
         LibraryService.CreateServiceHeader(
           ServiceHeader, ServiceHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer());
-        ServiceHeader.Validate("Order Date", WorkDate);
-        ServiceHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode());
-        ServiceHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode());
-        ServiceHeader.Validate("Fattura Document Type", FatturaDocType);
-        ServiceHeader.Modify(true);
-        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        LibraryService.CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
-        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        ServiceLine.Modify(true);
+        UpdateServiceaderWithFatturaCodes(ServiceHeader, FatturaDocType);
+        CreateServiceLine(ServiceHeader, LibraryInventory.CreateItemNo());
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         exit(ServiceHeader."Customer No.");
+    end;
+
+    local procedure GetServiceInvoiceHeaderAfterPosting(var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceHeader: Record "Service Header")
+    begin
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure SetVATRegistrationNoInCompanyInformation(VATRegistrationNo: Code[20])
@@ -286,24 +687,35 @@ codeunit 144210 "FatturaPA Document Type"
         CompanyInformation.Modify(true);
     end;
 
-    local procedure GetRandomFatturaDocType(): Code[20]
+    local procedure CreateVATPostingSetupWithFatturaDocType(VATBusPostGroupCode: Code[20]; FatturaDocType: Code[20]): Code[20]
     var
-        FatturaDocumentType: Record "Fattura Document Type";
-        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        FatturaDocHelper.InsertFatturaDocumentTypeList();
-        FilterFatturaDocumentTypeNoDefaultValues(FatturaDocumentType);
-        FatturaDocumentType.FindSet();
-        FatturaDocumentType.Next(LibraryRandom.RandIntInRange(1, 5));
-        exit(FatturaDocumentType."No.");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGroupCode, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Fattura Document Type", FatturaDocType);
+        VATPostingSetup.Modify(true);
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
-    local procedure FilterFatturaDocumentTypeNoDefaultValues(var FatturaDocumentType: Record "Fattura Document Type")
+    local procedure UpdateValidateDocumentOnPostingInSalesSetup(NewValidateDocumentOnPosting: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        FatturaDocumentType.SetRange(Invoice, false);
-        FatturaDocumentType.SetRange("Credit Memo", false);
-        FatturaDocumentType.SetRange("Self-Billing", false);
-        FatturaDocumentType.SetRange(Prepayment, false);
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Validate Document On Posting", NewValidateDocumentOnPosting);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateValidateDocumentOnPostingInServiceSetup(NewValidateDocumentOnPosting: Boolean)
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup.Validate("Validate Document On Posting", NewValidateDocumentOnPosting);
+        ServiceMgtSetup.Modify(true);
     end;
 
     local procedure VerifyTipoDocumento(ServerFileName: Text[250]; ExpectedElementValue: Text)
@@ -323,6 +735,14 @@ codeunit 144210 "FatturaPA Document Type"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerWithVerification(Question: Text; var Reply: Boolean)
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Question, '');
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

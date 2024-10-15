@@ -21,7 +21,7 @@ report 12160 "Intrastat - Monthly Report"
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name), Type = FIELD(Type);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
+                DataItemTableView = SORTING(Type, "Country/Region Code", "Partner VAT ID", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
                 RequestFilterFields = "Journal Template Name", "Journal Batch Name";
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
@@ -62,7 +62,7 @@ report 12160 "Intrastat - Monthly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code_; "Country/Region Code")
                 {
                 }
-                column(Intrastat_Jnl__Line__VAT_Registration_No__; "VAT Registration No.")
+                column(Intrastat_Jnl__Line__VAT_Registration_No__; "Partner VAT ID")
                 {
                 }
                 column(RoundAmount_Control1130016; RoundAmount)
@@ -93,7 +93,7 @@ report 12160 "Intrastat - Monthly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130121; "Country/Region Code")
                 {
                 }
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130123; "VAT Registration No.")
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130123; "Partner VAT ID")
                 {
                 }
                 column(RoundAmount_Control1130125; RoundAmount)
@@ -139,7 +139,7 @@ report 12160 "Intrastat - Monthly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130153; "Country/Region Code")
                 {
                 }
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130155; "VAT Registration No.")
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130155; "Partner VAT ID")
                 {
                 }
                 column(RoundAmount_Control1130157; RoundAmount)
@@ -182,7 +182,7 @@ report 12160 "Intrastat - Monthly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130181; "Country/Region Code")
                 {
                 }
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130183; "VAT Registration No.")
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130183; "Partner VAT ID")
                 {
                 }
                 column(RoundAmount_Control1130185; RoundAmount)
@@ -401,7 +401,7 @@ report 12160 "Intrastat - Monthly Report"
                     Country.Get("Country/Region Code");
 
                     if "Intrastat Jnl. Batch"."EU Service" then begin
-                        TestField("VAT Registration No.");
+                        TestField("Partner VAT ID");
                         TestField("Country/Region Code");
                         TestField("Service Tariff No.");
                         NoOfRecords := NoOfRecords + 1;
@@ -415,9 +415,9 @@ report 12160 "Intrastat - Monthly Report"
                                ("Transport Method" = '') and
                                ("Total Weight" = 0)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
-                            TestField("VAT Registration No.");
+                            TestField("Partner VAT ID");
                             TestField("Transaction Type");
                             TestField("Tariff No.");
                             TestField("Country/Region Code");
@@ -440,7 +440,7 @@ report 12160 "Intrastat - Monthly Report"
                                 SupplUnits := "Intrastat Jnl. Line".Quantity;
 
                             "Intra - form Buffer".Reset;
-                            if "Intra - form Buffer".Get("Intrastat Jnl. Line"."VAT Registration No.", "Intrastat Jnl. Line"."Transaction Type",
+                            if "Intra - form Buffer".Get("Partner VAT ID", "Intrastat Jnl. Line"."Transaction Type",
                                  "Intrastat Jnl. Line"."Tariff No.", "Intrastat Jnl. Line"."Group Code", "Intrastat Jnl. Line"."Transport Method",
                                  "Intrastat Jnl. Line"."Transaction Specification", CountryOriginCode, "Intrastat Jnl. Line".Area,
                                  "Intrastat Jnl. Line"."Corrective entry")
@@ -466,7 +466,7 @@ report 12160 "Intrastat - Monthly Report"
                                 Error(Text1130002, FieldCaption("Statistics Period"));
 
                             TestField("Country/Region Code");
-                            TestField("VAT Registration No.");
+                            TestField("Partner VAT ID");
                             TestField("Transaction Type");
                             TestField("Tariff No.");
                             TestField("Reference Period");

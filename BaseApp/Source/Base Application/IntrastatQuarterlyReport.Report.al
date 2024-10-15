@@ -18,7 +18,7 @@ report 12161 "Intrastat - Quarterly Report"
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
+                DataItemTableView = SORTING(Type, "Country/Region Code", "Partner VAT ID", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
                 RequestFilterFields = "Journal Template Name", "Journal Batch Name";
                 column(STRSUBSTNO_Text001__Intrastat_Jnl__Batch___Statistics_Period__; StrSubstNo(Text001, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
@@ -56,7 +56,7 @@ report 12161 "Intrastat - Quarterly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code_; "Country/Region Code")
                 {
                 }
-                column(Intrastat_Jnl__Line__VAT_Registration_No__; "VAT Registration No.")
+                column(Intrastat_Jnl__Line__VAT_Registration_No__; "Partner VAT ID")
                 {
                 }
                 column(RoundAmount_Control1130036; RoundAmount)
@@ -87,7 +87,7 @@ report 12161 "Intrastat - Quarterly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130052; "Country/Region Code")
                 {
                 }
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130054; "VAT Registration No.")
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130054; "Partner VAT ID")
                 {
                 }
                 column(RoundAmount_Control1130056; RoundAmount)
@@ -130,7 +130,7 @@ report 12161 "Intrastat - Quarterly Report"
                 column(Intrastat_Jnl__Line__Corrected_Document_No__; "Corrected Document No.")
                 {
                 }
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130084; "VAT Registration No.")
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130084; "Partner VAT ID")
                 {
                 }
                 column(RoundAmount_Control1130086; RoundAmount)
@@ -176,7 +176,7 @@ report 12161 "Intrastat - Quarterly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130111; "Country/Region Code")
                 {
                 }
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130113; "VAT Registration No.")
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130113; "Partner VAT ID")
                 {
                 }
                 column(RoundAmount_Control1130115; RoundAmount)
@@ -390,7 +390,7 @@ report 12161 "Intrastat - Quarterly Report"
                 trigger OnAfterGetRecord()
                 begin
                     if "Intrastat Jnl. Batch"."EU Service" then begin
-                        TestField("VAT Registration No.");
+                        TestField("Partner VAT ID");
                         TestField("Country/Region Code");
                         TestField("Service Tariff No.");
                         NoOfRecords := NoOfRecords + 1;
@@ -398,13 +398,13 @@ report 12161 "Intrastat - Quarterly Report"
                         GetPaymentMethod;
                     end else begin
                         if ("Tariff No." = '') and
-                           ("VAT Registration No." = '') and
+                           ("Partner VAT ID" = '') and
                            ("Transaction Type" = '') and
                            ("Total Weight" = 0)
                         then
                             CurrReport.Skip;
 
-                        TestField("VAT Registration No.");
+                        TestField("Partner VAT ID");
                         TestField("Transaction Type");
                         TestField("Tariff No.");
                         TestField("Country/Region Code");
@@ -427,7 +427,7 @@ report 12161 "Intrastat - Quarterly Report"
 
                         "Intra - form Buffer".Reset;
 
-                        if "Intra - form Buffer".Get("Intrastat Jnl. Line"."VAT Registration No.", "Intrastat Jnl. Line"."Transaction Type",
+                        if "Intra - form Buffer".Get("Partner VAT ID", "Intrastat Jnl. Line"."Transaction Type",
                              "Intrastat Jnl. Line"."Tariff No.", '', '', '', '', '', "Intrastat Jnl. Line"."Corrective entry")
                         then begin
                             "Intra - form Buffer".Amount := "Intra - form Buffer".Amount + "Intrastat Jnl. Line".Amount;

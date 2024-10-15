@@ -73,12 +73,16 @@ codeunit 12180 "FatturaPA Sales Validation"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         DummyElectronicDocumentFormat: Record "Electronic Document Format";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
     begin
         SalesReceivablesSetup.Get;
-        if not SalesReceivablesSetup."Validate Document On Posting" then
+        if not SalesReceivablesSetup."Validate Document On Posting" then begin
+            FatturaDocHelper.AssignFatturaDocTypeFromVATPostingSetupToSalesHeader(SalesHeader, false);
             exit;
+        end;
 
         AutoValidateDocument(SalesHeader, SalesHeader."Sell-to Customer No.", DummyElectronicDocumentFormat.Usage::"Sales Validation");
+        FatturaDocHelper.AssignFatturaDocTypeFromVATPostingSetupToSalesHeader(SalesHeader, true);
     end;
 
     [IntegrationEvent(false, false)]

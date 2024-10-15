@@ -1,4 +1,4 @@
-page 311 "Intrastat Journal"
+﻿page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
     AutoSplitKey = true;
@@ -61,6 +61,9 @@ page 311 "Intrastat Journal"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies VAT registration number that is associated with the Intrastat journal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merged to W1';
+                    ObsoleteTag = '18.0';
                 }
                 field("Item No."; "Item No.")
                 {
@@ -241,6 +244,12 @@ page 311 "Intrastat Journal"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the progressive number.';
+                }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                    Visible = false;
                 }
             }
             group(Control40)

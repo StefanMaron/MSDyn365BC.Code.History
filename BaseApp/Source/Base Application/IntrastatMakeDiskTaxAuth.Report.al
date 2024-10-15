@@ -21,7 +21,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 begin
                     TotalLines := TotalLines + 1;
                     TestField("Country/Region Code");
-                    TestField("VAT Registration No.");
+                    TestField("Partner VAT ID");
                     if not "Intrastat Jnl. Batch"."Corrective Entry" then
                         TestField(Amount);
 
@@ -75,7 +75,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                             EU3PartyTrade := IsEU3PartyTrade("Intrastat Jnl. Line");
                             "Intra - form Buffer".Reset;
-                            if "Intra - form Buffer".Get("Intrastat Jnl. Line"."VAT Registration No.",
+                            if "Intra - form Buffer".Get("Partner VAT ID",
                                  "Intrastat Jnl. Line"."Transaction Type", "Intrastat Jnl. Line"."Tariff No.",
                                  "Intrastat Jnl. Line"."Group Code", "Intrastat Jnl. Line"."Transport Method",
                                  "Intrastat Jnl. Line"."Transaction Specification", CountryOriginCode,
@@ -97,6 +97,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
                                 "Intra - form Buffer"."User ID" := UserId;
                                 "Intra - form Buffer"."No." := 0;
                                 "Intra - form Buffer"."EU 3-Party Trade" := EU3PartyTrade;
+                                "Intra - form Buffer"."VAT Registration No." :=
+                                    CopyStr("Partner VAT ID", 1, MaxStrLen("Intra - form Buffer"."VAT Registration No."));
                                 "Intra - form Buffer".Insert;
                                 TotalAmount += Round(Amount, 1);
                                 TotalRecords += 1;

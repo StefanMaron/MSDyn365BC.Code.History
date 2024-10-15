@@ -2173,7 +2173,7 @@ codeunit 144060 "ERM Intrastat"
         // [WHEN] Get Entries for Intrastat Journal
         GetEntriesForIntrastatBatch(IntrastatJnlBatch, false);
 
-        // [THEN] "Intrastat Jnl. Line"."VAT Registration No." = "VATRegNo"
+        // [THEN] "Intrastat Jnl. Line"."Partner VAT ID" = "VATRegNo"
         // [THEN] "Intrastat Jnl. Line"."Country/Region Code" = "CRC"
         VerifyIntrastatJnlLineVATRegNoCountryRegionCode(IntrastatJnlBatch, Customer, ItemNo);
     end;
@@ -2594,7 +2594,7 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlLine."Item No." := Item."No.";
         IntrastatJnlLine.Quantity := LibraryRandom.RandInt(10);
         IntrastatJnlLine.Amount := LibraryRandom.RandDec(100, 2);
-        IntrastatJnlLine."VAT Registration No." := LibraryUTUtility.GetNewCode;
+        IntrastatJnlLine."Partner VAT ID" := LibraryUTUtility.GetNewCode;
         IntrastatJnlLine."Document No." := LibraryUTUtility.GetNewCode;
         IntrastatJnlLine.Date := WorkDate;
         IntrastatJnlLine."Service Tariff No." := LibraryUTUtility.GetNewCode10;
@@ -3051,7 +3051,7 @@ codeunit 144060 "ERM Intrastat"
                 "Corrected Intrastat Report No." := CorrectedJnlBatchName;
             end;
             "Country/Region Code" := 'IT';
-            "VAT Registration No." := '123123789';
+            "Partner VAT ID" := '123123789';
             Amount := LibraryRandom.RandDec(1000, 2);
             Date := WorkDate;
             "Service Tariff No." := '123456';
@@ -3206,7 +3206,7 @@ codeunit 144060 "ERM Intrastat"
             IntrastatJnlLine.Validate("Transaction Specification", TransactionSpecification);
             IntrastatJnlLine.Validate("Country/Region of Origin Code", CompanyInfo."Country/Region Code");
             IntrastatJnlLine.Validate(Area, Area);
-            IntrastatJnlLine.Validate("VAT Registration No.", LibraryUtility.GenerateGUID);
+            IntrastatJnlLine.Validate("Partner VAT ID", LibraryUtility.GenerateGUID);
             IntrastatJnlLine.Modify(true);
         until IntrastatJnlLine.Next = 0;
     end;
@@ -3397,7 +3397,7 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         FindIntrastatJournalLine(IntrastatJnlLine, JournalBatchName, DocumentNo);
-        IntrastatJnlLine.TestField("VAT Registration No.", VATRegistrationNo);
+        IntrastatJnlLine.TestField("Partner VAT ID", VATRegistrationNo);
     end;
 
     local procedure VerifyIntrastatJnlLine(JournalBatchName: Code[10]; DocumentNo: Code[20]; Amount: Decimal)
@@ -3529,7 +3529,7 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
         IntrastatJnlLine.FindFirst;
-        IntrastatJnlLine.TestField("VAT Registration No.", Customer."VAT Registration No.");
+        IntrastatJnlLine.TestField("Partner VAT ID", Customer."VAT Registration No.");
         IntrastatJnlLine.TestField("Country/Region Code", Customer."Country/Region Code");
     end;
 

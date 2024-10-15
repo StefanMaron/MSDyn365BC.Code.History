@@ -1565,6 +1565,7 @@ table 5409 "Prod. Order Routing Line"
     var
         ParentProdOrderLine: Record "Prod. Order Line";
         ProdOrderComponent: Record "Prod. Order Component";
+        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
     begin
         ParentProdOrderLine.SetRange(Status, ChildProdOrderLine.Status);
         ParentProdOrderLine.SetRange("Prod. Order No.", ChildProdOrderLine."Prod. Order No.");
@@ -1580,6 +1581,9 @@ table 5409 "Prod. Order Routing Line"
                     if GuiAllowed then
                         ShowMessage(TimeShiftedOnParentLineMsg);
                     ParentProdOrderLine.Validate("Starting Date-Time", ChildProdOrderLine."Ending Date-Time");
+                    if ParentProdOrderLine."Planning Level Code" = 0 then
+                        ReservationCheckDateConfl.ProdOrderLineCheck(ParentProdOrderLine, true);
+
                     if ParentProdOrderLine."Ending Date-Time" < ParentProdOrderLine."Starting Date-Time" then
                         ParentProdOrderLine."Ending Date-Time" := ParentProdOrderLine."Starting Date-Time";
                     ParentProdOrderLine.Modify(true);

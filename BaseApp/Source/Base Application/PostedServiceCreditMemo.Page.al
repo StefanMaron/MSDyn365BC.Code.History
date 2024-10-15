@@ -158,6 +158,12 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                 }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;;
+                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
+                }
                 group("Bill-to")
                 {
                     Caption = 'Bill-to';
@@ -567,6 +573,26 @@
                 trigger OnAction()
                 begin
                     ShowActivityLog;
+                end;
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Service;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedServCrMemoUpdate: Page "Posted Serv. Cr. Memo - Update";
+                begin
+                    PostedServCrMemoUpdate.LookupMode := true;
+                    PostedServCrMemoUpdate.SetRec(Rec);
+                    PostedServCrMemoUpdate.RunModal();
                 end;
             }
         }

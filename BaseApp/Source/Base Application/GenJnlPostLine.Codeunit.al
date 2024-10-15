@@ -646,6 +646,7 @@
                     VATEntry."Payment Method" := "Payment Method Code";
                 end else
                     TestField("Service Tariff No.", '');
+            VATEntry."Fattura Document Type" := VATPostingSetup."Fattura Document Type";
 
             if "VAT Difference" = 0 then
                 VATDifferenceLCY := 0

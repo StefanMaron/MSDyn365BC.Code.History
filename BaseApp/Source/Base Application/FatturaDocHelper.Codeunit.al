@@ -1,5 +1,6 @@
 codeunit 12184 "Fattura Doc. Helper"
 {
+    Permissions = TableData "VAT Entry" = rm;
 
     trigger OnRun()
     begin
@@ -69,6 +70,7 @@ codeunit 12184 "Fattura Doc. Helper"
         DeferredInvLettbTxt: Label 'Deferred invoice (ex art. 21, comma 4, terzo periodo lett. b)';
         FixedAssetTransferTxt: Label 'Fixed assed transfer or internal  transfer  (ex art.36 DPR 633/72)';
         SelfConsumingInvoiceTxt: Label 'Invoice for self-consuming or free gift without VAT Compensation';
+        FatturaDocTypeDiffQst: Label 'There are one or more different values of Fattura document type coming from the VAT posting setup of lines. As it''''s not possible to identify the value, %1 from the header will be used.\\Do you want to continue?', Comment = '%1 = the value of Fattura Document type from the header';
 
     [Scope('OnPrem')]
     procedure CollectDocumentInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var TempFatturaLine: Record "Fattura Line" temporary; HeaderRecRef: RecordRef)
@@ -184,6 +186,8 @@ codeunit 12184 "Fattura Doc. Helper"
 
     [Scope('OnPrem')]
     procedure CollectSelfBillingDocInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var TempFatturaLine: Record "Fattura Line" temporary; var TempVATEntry: Record "VAT Entry" temporary)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         CompanyInformation.Get;
         CheckCompanyInformationFields(ErrorMessage);
@@ -200,7 +204,16 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaHeader."Document No." := TempVATEntry."Document No.";
         TempFatturaHeader."Progressive No." := GetNextProgressiveNo;
         TempFatturaHeader."Transmission Type" := NonPublicCompanyLbl;
-        TempFatturaHeader."Fattura Document Type" := GetDefaultFatturaDocType;
+        TempFatturaHeader."Fattura Document Type" :=
+          CopyStr(TempVATEntry."Fattura Document Type", 1, MaxStrLen(TempFatturaHeader."Fattura Document Type"));
+        if TempFatturaHeader."Fattura Document Type" = '' then begin
+            VATPostingSetup.Get(TempVATEntry."VAT Bus. Posting Group", TempVATEntry."VAT Prod. Posting Group");
+            if VATPostingSetup."Fattura Document Type" = '' then
+                TempFatturaHeader."Fattura Document Type" := GetDefaultFatturaDocType()
+            else
+                TempFatturaHeader."Fattura Document Type" :=
+                  CopyStr(VATPostingSetup."Fattura Document Type", 1, MaxStrLen(TempFatturaHeader."Fattura Document Type"));
+        end;
         TempVATEntry.CalcSums(Amount, Base);
         TempFatturaHeader."Total Amount" := Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base);
         TempFatturaHeader.Insert;
@@ -713,7 +726,8 @@ codeunit 12184 "Fattura Doc. Helper"
             exit(NoSeriesManagement.GetNextNo(FatturaPANoSeries.Code, Today, true));
     end;
 
-    local procedure GetDefaultFatturaDocType(): Text[4]
+    [Scope('OnPrem')]
+    procedure GetDefaultFatturaDocType(): Text[4]
     begin
         exit('TD01');
     end;
@@ -1328,6 +1342,18 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
     end;
 
+    procedure UpdateFatturaDocTypeInVATEntry(EntryNo: Integer; FatturaDocType: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        if EntryNo = 0 then
+            exit;
+        if not VATEntry.Get(EntryNo) then
+            exit;
+        VATEntry.Validate("Fattura Document Type", FatturaDocType);
+        VATEntry.Modify(true);
+    end;
+
     procedure GetSelfBillingCode(): Code[20]
     var
         FatturaDocumentType: Record "Fattura Document Type";
@@ -1366,6 +1392,94 @@ codeunit 12184 "Fattura Doc. Helper"
         FatturaDocumentType.SetRange("Credit Memo", true);
         if FatturaDocumentType.FindFirst() then
             exit(FatturaDocumentType."No.");
+    end;
+
+    [Scope('OnPrem')]
+    procedure AssignFatturaDocTypeFromVATPostingSetupToSalesHeader(var SalesHeader: Record "Sales Header"; Confirmation: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Stop: Boolean;
+        FatturaDocType: Code[20];
+        FatturaDocTypeIsDifferent: Boolean;
+        FirstLineHandled: Boolean;
+    begin
+        FirstLineHandled := false;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                if (VATPostingSetup."VAT Bus. Posting Group" <> SalesLine."VAT Bus. Posting Group") or
+                   (VATPostingSetup."VAT Prod. Posting Group" <> SalesLine."VAT Prod. Posting Group")
+                then
+                    if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
+                        VATPostingSetup.Init();
+                if not FirstLineHandled then begin
+                    FatturaDocType := VATPostingSetup."Fattura Document Type";
+                    FirstLineHandled := true;
+                end else
+                    if FatturaDocType <> VATPostingSetup."Fattura Document Type" then begin
+                        FatturaDocTypeIsDifferent := true;
+                        Stop := true;
+                    end;
+                if Stop then
+                    FatturaDocType := '';
+                Stop := Stop or (SalesLine.Next() = 0);
+            until Stop;
+        if FatturaDocTypeIsDifferent then begin
+            if GuiAllowed() and Confirmation then
+                if not Confirm(StrSubstNo(FatturaDocTypeDiffQst, SalesHeader."Fattura Document Type"), false) then
+                    Error('');
+            exit;
+        end;
+        if FatturaDocType <> '' then begin
+            SalesHeader.Validate("Fattura Document Type", FatturaDocType);
+            SalesHeader.Modify(true);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure AssignFatturaDocTypeFromVATPostingSetupToServiceHeader(var ServiceHeader: Record "Service Header"; Confirmation: Boolean)
+    var
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Stop: Boolean;
+        FatturaDocType: Code[20];
+        FatturaDocTypeIsDifferent: Boolean;
+        FirstLineHandled: Boolean;
+    begin
+        FirstLineHandled := false;
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        if ServiceLine.FindSet() then
+            repeat
+                if (VATPostingSetup."VAT Bus. Posting Group" <> ServiceLine."VAT Bus. Posting Group") or
+                   (VATPostingSetup."VAT Prod. Posting Group" <> ServiceLine."VAT Prod. Posting Group")
+                then
+                    if not VATPostingSetup.Get(ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then
+                        VATPostingSetup.Init();
+                if not FirstLineHandled then begin
+                    FatturaDocType := VATPostingSetup."Fattura Document Type";
+                    FirstLineHandled := true;
+                end else
+                    if FatturaDocType <> VATPostingSetup."Fattura Document Type" then begin
+                        FatturaDocTypeIsDifferent := true;
+                        Stop := true;
+                    end;
+                if Stop then
+                    FatturaDocType := '';
+                Stop := Stop or (ServiceLine.Next() = 0);
+            until Stop;
+        if FatturaDocTypeIsDifferent then begin
+            if GuiAllowed() and Confirmation then
+                if not Confirm(StrSubstNo(FatturaDocTypeDiffQst, ServiceHeader."Fattura Document Type"), false) then
+                    Error('');
+            exit;
+        end;
+        if FatturaDocType <> '' then begin
+            ServiceHeader.Validate("Fattura Document Type", FatturaDocType);
+            ServiceHeader.Modify(true);
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1305, 'OnBeforeInsertSalesInvoiceHeader', '', false, false)]

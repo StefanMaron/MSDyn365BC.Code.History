@@ -1672,6 +1672,73 @@ codeunit 144561 "ERM Split VAT"
         ServiceLine.TestField("Dimension Set ID", ServiceHeader."Dimension Set ID");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GenerateServiceSplitVATLinesWorkDate()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 377189] Service Line created by Generate Split VAT Lines function has Posting Date that is copied from Service Header.
+        Initialize();
+
+        // [GIVEN] Split VAT Posting Setup.
+        CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
+
+        // [GIVEN] Service Invoice with Posting Date = 'D1'.
+        // [GIVEN] Service Invoice has Service Line.
+        LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::Invoice);
+        PostingDate := LibraryRandom.RandDate(10);
+        UpdatePostingDateOnServiceHeader(ServiceHeader, PostingDate);
+        LibrarySplitVAT.CreateServiceLine(ServiceLine, ServiceHeader, VATPostingSetup."VAT Prod. Posting Group");
+
+        // [WHEN] Run function Generate Split VAT Lines.
+        ServiceHeader.AddSplitVATLines();
+
+        // [THEN] Created Service Line has the same Posting Date as Service Header.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        ServiceHeader.TestField("Posting Date", PostingDate);
+        ServiceLine.TestField("Posting Date", PostingDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostServiceInvoiceWithServiceSplitVATLinesWhenAllowPostingDatesSet()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 377189] Service Line created by Generate Split VAT Lines function has Posting Date that is copied from Service Header.
+        Initialize();
+
+        // [GIVEN] Posting is allowed within +-20 days period from WorkDate.
+        LibraryERM.SetAllowPostingFromTo(CalcDate('<-20D>', WorkDate()), CalcDate('<20D>', WorkDate()));
+
+        // [GIVEN] Split VAT Posting Setup.
+        CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
+
+        // [GIVEN] Service Invoice with Posting Date = WorkDate + 10 days.
+        // [GIVEN] Service Invoice has Service Line.
+        LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::Invoice);
+        UpdatePostingDateOnServiceHeader(ServiceHeader, LibraryRandom.RandDate(10));
+        LibrarySplitVAT.CreateServiceLine(ServiceLine, ServiceHeader, VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Split VAT Line is generated for Service Invoice.
+        ServiceHeader.AddSplitVATLines();
+
+        // [WHEN] Post Service Invoice.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Service Invoice is posted.
+        LibraryService.FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.");
+    end;
+
     local procedure Initialize()
     begin
         Clear(LibraryReportDataset);
@@ -1993,6 +2060,12 @@ codeunit 144561 "ERM Split VAT"
         Commit;
         LibraryVariableStorage.Enqueue(DocumentNo);
         REPORT.Run(REPORT::"Service - Credit Memo");
+    end;
+
+    local procedure UpdatePostingDateOnServiceHeader(var ServiceHeader: Record "Service Header"; PostingDate: Date)
+    begin
+        ServiceHeader.Validate("Posting Date", PostingDate);
+        ServiceHeader.Modify(true);
     end;
 
     local procedure VerifyVATEntryForVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20]; ExpectedBase: Decimal; ExpectedAmount: Decimal)
