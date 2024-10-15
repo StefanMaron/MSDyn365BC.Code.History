@@ -17,7 +17,7 @@ table 11203 "Automatic Acc. Header"
         }
         field(3; Balance; Decimal)
         {
-            CalcFormula = Sum ("Automatic Acc. Line"."Allocation %" WHERE("Automatic Acc. No." = FIELD("No.")));
+            CalcFormula = Sum("Automatic Acc. Line"."Allocation %" WHERE("Automatic Acc. No." = FIELD("No.")));
             Caption = 'Balance';
             FieldClass = FlowField;
         }
@@ -41,7 +41,16 @@ table 11203 "Automatic Acc. Header"
         AutoAccountLine.DeleteAll(true);
     end;
 
+    trigger OnInsert()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUptake('0001P9A', AccTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
+
+
     var
         AutoAccountLine: Record "Automatic Acc. Line";
+        AccTok: Label 'SE Automatic Account', Locked = true;
 }
 

@@ -816,9 +816,11 @@ table 5065 "Interaction Log Entry"
                 InteractionTemplate."Information Flow"::Outbound:
                     if ("Salesperson Code" <> '') and SalespersonPurchaser.Get("Salesperson Code") then
                         EntryTitle := StrSubstNo(TitleByLbl, InteractionTemplate.Description, SalespersonPurchaser.Name)
-                    else
-                        if User.Get(UserSecurityId()) then
+                    else begin
+                        User.SetRange("User Name", "User ID");
+                        if User.FindFirst() then
                             EntryTitle := StrSubstNo(TitleByLbl, InteractionTemplate.Description, User."Full Name");
+                    end;
                 InteractionTemplate."Information Flow"::Inbound:
                     begin
                         CalcFields("Contact Name");

@@ -1,4 +1,4 @@
-codeunit 1231 "SEPA DD-Fill Export Buffer"
+﻿codeunit 1231 "SEPA DD-Fill Export Buffer"
 {
     Permissions = TableData "Payment Export Data" = rimd;
     TableNo = "Payment Export Data";
@@ -31,7 +31,7 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
 
         DirectDebitCollection.Get(TempDirectDebitCollectionEntry."Direct Debit Collection No.");
         BankAccount.Get(DirectDebitCollection."To Bank Account No.");
-        BankAccount.GetDDExportImportSetup(BankExportImportSetup);
+        GetDDExportImportSetup(BankAccount, BankExportImportSetup);
         BankExportImportSetup.TestField("Check Export Codeunit");
         repeat
             CODEUNIT.Run(BankExportImportSetup."Check Export Codeunit", TempDirectDebitCollectionEntry);
@@ -90,6 +90,18 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         end;
     end;
 
+    local procedure GetDDExportImportSetup(BankAccount: Record "Bank Account"; var BankExportImportSetup: Record "Bank Export/Import Setup")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetDDExportImportSetup(BankAccount, BankExportImportSetup, IsHandled);
+        if IsHandled then
+            exit;
+
+        BankAccount.GetDDExportImportSetup(BankExportImportSetup);
+    end;
+
     local procedure UpdateSourceEntrySequenceType(TempDirectDebitCollectionEntry: Record "Direct Debit Collection Entry" temporary) SequenceType: Integer
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
@@ -110,6 +122,11 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
                 "Sequence Type" := SequenceType;
                 Modify;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDDExportImportSetup(BankAccount: Record "Bank Account"; var BankExportImportSetup: Record "Bank Export/Import Setup"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

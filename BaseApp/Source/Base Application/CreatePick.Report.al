@@ -1,4 +1,4 @@
-report 5754 "Create Pick"
+﻿report 5754 "Create Pick"
 {
     Caption = 'Create Pick';
     ProcessingOnly = true;
@@ -217,6 +217,8 @@ report 5754 "Create Pick"
                 if Location."Use ADCS" then
                     DoNotFillQtytoHandle := true;
             end;
+
+            OnAfterOnOpenPage(DoNotFillQtytoHandle);
         end;
     }
 
@@ -518,6 +520,11 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetResultMessage(var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnOpenPage(var DoNotFillQtytoHandle: Boolean)
     begin
     end;
 

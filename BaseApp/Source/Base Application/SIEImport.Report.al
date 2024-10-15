@@ -239,6 +239,7 @@ report 11208 "SIE Import"
 
         trigger OnOpenPage()
         begin
+            FeatureTelemetry.LogUptake('0001P9B', SieeTok, Enum::"Feature Uptake Status"::Discovered);
             OnActivateForm;
         end;
     }
@@ -249,6 +250,7 @@ report 11208 "SIE Import"
 
     trigger OnPostReport()
     begin
+        FeatureTelemetry.LogUptake('0001P9C', SieeTok, Enum::"Feature Uptake Status"::"Set up");
         ImportFile.Close;
         Erase(ServerFileName);
         Message(Text005);
@@ -276,6 +278,7 @@ report 11208 "SIE Import"
         GLAccount: Record "G/L Account";
         TempSieBuffer: Record "SIE Import Buffer";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         SieDimensionPage: Page "SIE Dimensions";
         DialogWindow: Dialog;
         ImportFile: File;
@@ -291,6 +294,7 @@ report 11208 "SIE Import"
         DocNo: Code[20];
         Text001: Label 'SIE files(*.se)|*.se|All files|*.*';
         Text002: Label 'Import SIE File';
+        SieeTok: Label 'SE SIEE Data', Locked = true;
         FileText: Text[250];
         Text003: Label 'Reading SIE file           @1@@@@@@@@@@\';
         InsertNewAccount: Boolean;

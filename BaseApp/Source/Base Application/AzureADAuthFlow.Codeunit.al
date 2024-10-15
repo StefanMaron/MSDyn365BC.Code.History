@@ -11,11 +11,22 @@ codeunit 6303 "Azure AD Auth Flow"
         AuthFlow: DotNet ALAzureAdCodeGrantFlow;
         ProviderNotInitializedErr: Label 'The Azure AD Authentication Flow provider has not been initialized.';
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Azure AD Mgt. Setup", 'R')]
     procedure CanHandle(): Boolean
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
+        UserAccountHelper: DotNet NavUserAccountHelper;
     begin
-        if AzureADMgtSetup.Get then
+        // only return false in SaaS if an extension explicitly overwrote the default
+        if UserAccountHelper.IsAzure() then
+            if AzureADMgtSetup.Get() then
+                exit((AzureADMgtSetup."Auth Flow Codeunit ID" = CODEUNIT::"Azure AD Auth Flow") or
+                     (AzureADMgtSetup."Auth Flow Codeunit ID" = 0))
+            else
+                exit(true);
+
+        // have a stricter check for tests and OnPrem (legacy behavior)
+        if AzureADMgtSetup.Get() then
             exit(AzureADMgtSetup."Auth Flow Codeunit ID" = CODEUNIT::"Azure AD Auth Flow");
 
         exit(false);

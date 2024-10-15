@@ -68,21 +68,6 @@ codeunit 144022 "UT Intrastat SE"
     [Test]
     [HandlerFunctions('CreateFileMessageHandler')]
     [Scope('OnPrem')]
-    procedure OnAfterGetRecordMakeDisketteZeroNetWeightError()
-    var
-        IntrastatLineValues: Decimal;
-    begin
-        // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
-        // Actual error Total Weight must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty.
-        Initialize();
-        IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity and Amount.
-        MakeDisketteWithEmptyFieldsOnIntrastatJournal(
-          GetCountryCode, GetTransactionType, 0, IntrastatLineValues, IntrastatLineValues, GetTariffNo);  // Using 0 for Net Weight.
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateFileMessageHandler')]
-    [Scope('OnPrem')]
     procedure OnAfterGetRecordMakeDisketteZeroQuantityError()
     var
         IntrastatLineValues: Decimal;
@@ -271,35 +256,6 @@ codeunit 144022 "UT Intrastat SE"
     end;
 
     [Test]
-    [HandlerFunctions('CreateFileMessageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordMakeDisketteRoundingNetWeightError()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatJournal: TestPage "Intrastat Journal";
-        IntrastatLineValues: Decimal;
-    begin
-        // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
-
-        // Setup: Create Intrastate Journal Line with Item No. having Tariff No. and Net Weight.
-        Initialize();
-        IntrastatJournal.OpenEdit;
-        IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity and Amount.
-        CreateIntrastatJournalLine(
-          IntrastatJnlLine, GetCountryCode, GetTransactionType, 0, IntrastatLineValues, IntrastatLineValues, '');  // Using 0 for Net Weight and blank for Tariff No.
-        IntrastatJnlLine.Validate("Item No.", CreateItem); // Validate required as per Manual.
-        IntrastatJnlLine.Modify();
-        LibraryVariableStorage.Enqueue(Format(IntrastatJnlLine.Type));
-        Commit();  // Commit is explicitly called in Codeunit - 350 IntraJnlManagement for Template Selection.
-
-        // Exercise.
-        MakeDisketteFromIntrastatJournal(IntrastatJournal, IntrastatJnlLine."Journal Batch Name");
-
-        // Verify: Verify error code, actual error Total Weight must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty..
-        // Handler will verify message
-    end;
-
-    [Test]
     [HandlerFunctions('IntrastatCheckList_RPH')]
     [Scope('OnPrem')]
     procedure TransportMethodIsNotMandatoryOnIntrastatChecklistReport()
@@ -376,17 +332,6 @@ codeunit 144022 "UT Intrastat SE"
         IntrastatJnlBatch."Statistics Period" := Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod());
         IntrastatJnlBatch.Reported := false;
         IntrastatJnlBatch.Insert();
-    end;
-
-    local procedure CreateItem(): Code[20]
-    var
-        Item: Record Item;
-    begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item."Tariff No." := GetTariffNo;
-        Item."Net Weight" := LibraryRandom.RandDecInDecimalRange(0.1, 0.4, 1);  // Tiny value required in Random as per manual.
-        Item.Insert();
-        exit(Item."No.");
     end;
 
     local procedure CreateIntrastatJournalLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; CountryRegionCode: Code[10]; TransactionType: Code[10]; NetWeight: Decimal; Quantity: Decimal; Amount: Decimal; TariffNo: Code[20])

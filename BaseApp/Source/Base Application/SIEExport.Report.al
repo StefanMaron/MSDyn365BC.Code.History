@@ -86,13 +86,18 @@ report 11207 "SIE Export"
     }
 
     trigger OnPostReport()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SieeTok: Label 'SE SIEE Data', Locked = true;
     begin
+        FeatureTelemetry.LogUptake('0001P9D', SieeTok, Enum::"Feature Uptake Status"::"Used");
         ExportFile.Close;
         if ServerFileName = '' then
             FileMgt.DownloadHandler(ServerTempFilename, '', '', Text001, SIEFileTxt)
         else
             FileMgt.CopyServerFile(ServerTempFilename, ServerFileName, true);
         FileMgt.DeleteServerFile(ServerTempFilename);
+        FeatureTelemetry.LogUsage('0001P9E', SieeTok, 'SIEE reported');
     end;
 
     trigger OnPreReport()

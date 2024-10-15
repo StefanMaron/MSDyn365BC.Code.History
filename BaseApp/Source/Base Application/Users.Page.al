@@ -57,6 +57,7 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Windows Security ID of the user. This is only relevant for Windows authentication.';
                     Visible = false;
+                    Editable = not IsSaas;
                 }
                 field("Windows User Name"; WindowsUserName)
                 {

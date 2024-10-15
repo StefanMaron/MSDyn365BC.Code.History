@@ -956,6 +956,7 @@ report 6631 "Return Order Confirmation"
         FormatAddr.GetCompanyAddr(SalesHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
         FormatAddr.SalesHeaderBillTo(CustAddr, SalesHeader);
         ShowShippingAddr := FormatAddr.SalesHeaderShipTo(ShipToAddr, CustAddr, SalesHeader);
+        OnAfterFormatAddressFields(ShipToAddr, CustAddr, SalesHeader, ShowShippingAddr);
     end;
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
@@ -969,12 +970,17 @@ report 6631 "Return Order Confirmation"
         end;
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitReport()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatAddressFields(var ShipToAddr: array[8] of Text[100]; var CustAddr: array[8] of Text[100]; var SalesHeader: Record "Sales Header"; var ShowShippingAddr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostDataItem(var SalesHeader: Record "Sales Header")
     begin
     end;

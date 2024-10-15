@@ -32,5 +32,15 @@ page 11208 "Automatic Acc. List"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUptake('0001P8Z', AccTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
+    var
+        AccTok: Label 'SE Automatic Account', Locked = true;
 }
 

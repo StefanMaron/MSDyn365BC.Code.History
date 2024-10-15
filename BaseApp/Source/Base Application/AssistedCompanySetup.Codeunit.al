@@ -89,7 +89,13 @@ codeunit 1800 "Assisted Company Setup"
         AccountingPeriod: Record "Accounting Period";
         CreateFiscalYear: Report "Create Fiscal Year";
         DateFormulaVariable: DateFormula;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateAccountingPeriod(StartDate, IsHandled);
+        if IsHandled then
+            exit;
+
         // The wizard should only setup accounting periods, if non exist.
         if (not AccountingPeriod.IsEmpty) or (StartDate = 0D) then
             exit;
@@ -505,6 +511,11 @@ codeunit 1800 "Assisted Company Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistedCompanySetupStatusEnabled(NewCompanyName: Text[30]; InstallAdditionalDemoData: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAccountingPeriod(StartDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

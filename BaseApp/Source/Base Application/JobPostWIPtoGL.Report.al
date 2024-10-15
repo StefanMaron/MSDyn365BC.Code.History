@@ -15,6 +15,7 @@ report 1085 "Job Post WIP to G/L"
 
             trigger OnAfterGetRecord()
             begin
+                GLSetup.Get();
                 if GLSetup."Journal Templ. Name Mandatory" then
                     JobCalculateWIP.SetGenJnlBatch(GenJnlBatch);
                 JobCalculateWIP.CalcGLWIP("No.", JustReverse, DocNo, PostingDate, ReplacePostDate);
@@ -149,6 +150,7 @@ report 1085 "Job Post WIP to G/L"
         if PostingDate = 0D then
             PostingDate := WorkDate;
 
+        GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             GenJnlBatch.TestField("No. Series");
             DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, true);
