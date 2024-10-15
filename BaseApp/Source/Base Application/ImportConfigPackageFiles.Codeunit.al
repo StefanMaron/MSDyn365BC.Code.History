@@ -1,0 +1,194 @@
+codeunit 1805 "Import Config. Package Files"
+{
+    // // This code unit is executed in a separate session. Messages and errors will be output to the event log.
+
+    TableNo = "Configuration Package File";
+
+    trigger OnRun()
+    var
+        AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+        UserPersonalization: Record "User Personalization";
+        LogInManagement: Codeunit LogInManagement;
+        CurrentLanguageID: Integer;
+    begin
+        AssistedCompanySetupStatus.Get(CompanyName);
+        AssistedCompanySetupStatus."Server Instance ID" := ServiceInstanceId;
+        AssistedCompanySetupStatus."Company Setup Session ID" := SessionId;
+        AssistedCompanySetupStatus.Modify();
+        Commit();
+
+        UserPersonalization.Get(UserSecurityId);
+        CurrentLanguageID := GlobalLanguage;
+        if (UserPersonalization."Language ID" <> "Language ID") and ("Language ID" <> 0) then
+            if not TrySetGlobalLanguage("Language ID") then
+                Error(InvalidLanguageIDErr, "Language ID");
+
+        LogInManagement.InitializeCompany;
+        ImportConfigurationPackageFiles(Rec);
+
+        GlobalLanguage(CurrentLanguageID);
+    end;
+
+    var
+        NoPackDefinedMsg: Label 'Critical Error: No configuration package file is defined within the specified filter %1. Please contact your system administrator.', Comment = '%1 = Filter String';
+        ImportStartedMsg: Label 'The import of the %1 configuration package to the %2 company has started.', Comment = '%1 = Configuration Package Code, %2 = Company Name';
+        ImportSuccessfulMsg: Label 'The configuration package %1 was successfully imported to the %2 company.', Comment = '%1 = Configuration Package Code, %2 = Company Name';
+        ApplicationStartedMsg: Label 'Application of the %1 configuration package to the %2 company has started.', Comment = '%1 = Configuration Package Code, %2 = Company Name';
+        ApplicationSuccessfulMsg: Label 'The configuration package %1 was successfully applied to the %2 company.', Comment = '%1 = Configuration Package Code, %2 = Company Name';
+        ApplicationFailedMsg: Label 'Critical Error: %1 errors occurred during the package application. Please contact your system administrator.', Comment = '%1 = No. of errors, %2 = Package Code, %3 = Company Name';
+        PackageLbl: Label 'Package';
+        CompanyLbl: Label 'Company';
+        InvalidLanguageIDErr: Label 'Cannot set the language to %1. The language pack ID number is invalid.', Comment = '%1 is the language code, tried to be set';
+
+    local procedure ImportConfigurationPackageFiles(var ConfigurationPackageFile: Record "Configuration Package File")
+    var
+        AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+        TempConfigSetupSystemRapidStart: Record "Config. Setup" temporary;
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        ConfigPackageImport: Codeunit "Config. Package - Import";
+        AssistedCompanySetup: Codeunit "Assisted Company Setup";
+        MessageText: Text;
+        ServerTempFileName: Text;
+        ErrorCount: Integer;
+        TotalNoOfErrors: Integer;
+    begin
+        AssistedCompanySetupStatus.Get(CompanyName);
+        ConfigurationPackageFile.SetCurrentKey("Processing Order");
+        if ConfigurationPackageFile.FindSet then begin
+            repeat
+                MessageText := StrSubstNo(ImportStartedMsg, ConfigurationPackageFile.Code, CompanyName);
+                InitVirtualJobQueueEntry(JobQueueEntry, AssistedCompanySetupStatus."Task ID");
+                UpdateVirtualJobQueueEntry(JobQueueEntry, MessageText);
+                JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
+                Message(MessageText);
+
+                ServerTempFileName := AssistedCompanySetup.GetConfigurationPackageFile(ConfigurationPackageFile);
+                ConfigPackageImport.ImportRapidStartPackage(ServerTempFileName, TempConfigSetupSystemRapidStart);
+                MessageText := StrSubstNo(ImportSuccessfulMsg, ConfigurationPackageFile.Code, CompanyName);
+                JobQueueLogEntry.Description := CopyStr(MessageText, 1, MaxStrLen(JobQueueLogEntry.Description));
+                JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
+                Message(MessageText);
+
+                MessageText := StrSubstNo(ApplicationStartedMsg, ConfigurationPackageFile.Code, CompanyName);
+                UpdateVirtualJobQueueEntry(JobQueueEntry, MessageText);
+                JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
+                Message(MessageText);
+
+                ErrorCount := TempConfigSetupSystemRapidStart.ApplyPackages;
+                TotalNoOfErrors += ErrorCount;
+
+                Erase(ServerTempFileName);
+
+                if ErrorCount > 0 then begin
+                    MessageText :=
+                      GetApplicationErrorSourceText(
+                        CompanyName, TempConfigSetupSystemRapidStart."Package Code") + ' ' +
+                      StrSubstNo(ApplicationFailedMsg, ErrorCount);
+                    JobQueueEntry.Status := JobQueueEntry.Status::Error;
+                    JobQueueEntry."Error Message" := CopyStr(MessageText, 1, 2048);
+                end else begin
+                    MessageText := StrSubstNo(ApplicationSuccessfulMsg, ConfigurationPackageFile.Code, CompanyName);
+                    JobQueueLogEntry.Description := CopyStr(MessageText, 1, MaxStrLen(JobQueueLogEntry.Description));
+                    TempConfigSetupSystemRapidStart.Delete();
+                end;
+                JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
+                Message(MessageText);
+
+            until ConfigurationPackageFile.Next = 0;
+            if TotalNoOfErrors > 0 then
+                AssistedCompanySetupStatus.Validate("Import Failed", true)
+            else
+                AssistedCompanySetupStatus.Validate("Package Imported", true);
+        end else begin
+            AssistedCompanySetupStatus.Validate("Import Failed", true);
+            MessageText := StrSubstNo(NoPackDefinedMsg, ConfigurationPackageFile.GetFilters);
+            InitVirtualJobQueueEntry(JobQueueEntry, AssistedCompanySetupStatus."Task ID");
+            UpdateVirtualJobQueueEntry(JobQueueEntry, MessageText);
+            JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
+            JobQueueEntry.Status := JobQueueEntry.Status::Error;
+            JobQueueEntry."Error Message" := CopyStr(MessageText, 1, 2048);
+            JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
+            Message(MessageText);
+        end;
+        AssistedCompanySetupStatus."Company Setup Session ID" := 0;
+        AssistedCompanySetupStatus."Server Instance ID" := 0;
+        AssistedCompanySetupStatus.Modify();
+        Commit();
+    end;
+
+    local procedure InitVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskID: Guid)
+    begin
+        with JobQueueEntry do begin
+            Init;
+            ID := TaskID;
+            "User ID" := UserId;
+            "Object Type to Run" := "Object Type to Run"::Codeunit;
+            "Object ID to Run" := CODEUNIT::"Import Config. Package Files";
+        end;
+    end;
+
+    local procedure UpdateVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskDescription: Text)
+    begin
+        with JobQueueEntry do begin
+            "User Session Started" := CurrentDateTime;
+            Description := CopyStr(TaskDescription, 1, MaxStrLen(Description));
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, 674, 'OnShowDetails', '', false, false)]
+    local procedure OnShowDetailedLog(JobQueueLogEntry: Record "Job Queue Log Entry")
+    var
+        ConfigPackageError: Record "Config. Package Error";
+        ApplCompanyName: Text;
+        PackageCode: Text;
+    begin
+        if (JobQueueLogEntry."Object ID to Run" = CODEUNIT::"Import Config. Package Files") and
+           (JobQueueLogEntry.Status = JobQueueLogEntry.Status::Error) and
+           ParseApplicationErrorText(ApplCompanyName, PackageCode, JobQueueLogEntry."Error Message")
+        then begin
+            ConfigPackageError.ChangeCompany(ApplCompanyName);
+            ConfigPackageError.SetRange("Package Code", PackageCode);
+            PAGE.RunModal(0, ConfigPackageError);
+        end;
+    end;
+
+    local procedure ParseApplicationErrorText(var ApplCompanyName: Text; var PackageCode: Text; ErrorText: Text): Boolean
+    begin
+        ApplCompanyName := ExtractSubstring(ErrorText);
+        PackageCode := ExtractSubstring(ErrorText);
+        exit((ApplCompanyName <> '') and (PackageCode <> ''));
+    end;
+
+    local procedure GetApplicationErrorSourceText(ApplCompanyName: Text; PackageCode: Text): Text
+    begin
+        exit(
+          StrSubstNo(
+            '%1 <%2>, %3 <%4>.', CompanyLbl, ApplCompanyName, PackageLbl, PackageCode));
+    end;
+
+    local procedure ExtractSubstring(var ErrorText: Text) Substring: Text
+    var
+        StartPos: Integer;
+        EndPos: Integer;
+    begin
+        StartPos := StrPos(ErrorText, '<');
+        EndPos := StrPos(ErrorText, '>');
+        if (StartPos <> 0) and (EndPos <> 0) then begin
+            Substring := CopyStr(ErrorText, StartPos + 1, EndPos - StartPos - 1);
+            ErrorText := CopyStr(ErrorText, EndPos + 1);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TrySetGlobalLanguage(LanguageId: Integer)
+    begin
+        // <summary>
+        // TryFunction for setting the global language.
+        // </summary>
+        // <param name="LanguageId">The id of the language to be set as global</param>
+
+        GlobalLanguage(LanguageId);
+    end;
+}
+

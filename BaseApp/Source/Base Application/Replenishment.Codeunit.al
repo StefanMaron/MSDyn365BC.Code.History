@@ -1,0 +1,296 @@
+codeunit 7308 Replenishment
+{
+
+    trigger OnRun()
+    begin
+    end;
+
+    var
+        Text000: Label 'must not be %1.';
+        Bin: Record Bin;
+        BinType: Record "Bin Type";
+        TempWhseWkshLine: Record "Whse. Worksheet Line" temporary;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Location: Record Location;
+        UOMMgt: Codeunit "Unit of Measure Management";
+        WhseWkshTemplateName: Code[10];
+        WhseWkshName: Code[10];
+        LocationCode: Code[10];
+        RemainQtyToReplenishBase: Decimal;
+        NextLineNo: Integer;
+        DoNotFillQtytoHandle: Boolean;
+
+    procedure ReplenishBin(ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean)
+    begin
+        with ToBinContent do begin
+            if not Fixed then
+                FieldError(Fixed, StrSubstNo(Text000, FieldCaption(Fixed)));
+
+            if BinBlockedInbound("Location Code", "Bin Code") then
+                Bin.FieldError("Block Movement", StrSubstNo(Text000, Bin."Block Movement"));
+
+            if not NeedToReplenish(0) then
+                exit;
+
+            RemainQtyToReplenishBase := CalcQtyToReplenish(0);
+            if RemainQtyToReplenishBase <= 0 then
+                exit;
+
+            FindReplenishmtBin(ToBinContent, AllowBreakBulk);
+        end;
+    end;
+
+    local procedure FindReplenishmtBin(ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean)
+    var
+        FromBinContent: Record "Bin Content";
+        WhseWkshLine2: Record "Whse. Worksheet Line";
+        QtyAvailToTakeBase: Decimal;
+        MovementQtyBase: Decimal;
+    begin
+        with ToBinContent do begin
+            FromBinContent.Reset();
+            FromBinContent.SetCurrentKey(
+              "Location Code", "Item No.", "Variant Code", "Cross-Dock Bin",
+              "Qty. per Unit of Measure", "Bin Ranking");
+            FromBinContent.Ascending(false);
+            FromBinContent.SetRange("Location Code", "Location Code");
+            FromBinContent.SetRange("Item No.", "Item No.");
+            FromBinContent.SetRange("Variant Code", "Variant Code");
+            FromBinContent.SetRange("Cross-Dock Bin", false);
+            FromBinContent.SetRange("Qty. per Unit of Measure", "Qty. per Unit of Measure");
+            FromBinContent.SetFilter("Bin Ranking", '<%1', "Bin Ranking");
+            if FromBinContent.Find('-') then begin
+                WhseWkshLine2.Copy(TempWhseWkshLine);
+                TempWhseWkshLine.SetCurrentKey(
+                  "Item No.", "From Bin Code", "Location Code", "Variant Code", "From Unit of Measure Code");
+                TempWhseWkshLine.SetRange("Item No.", FromBinContent."Item No.");
+                TempWhseWkshLine.SetRange("Location Code", FromBinContent."Location Code");
+                TempWhseWkshLine.SetRange("Variant Code", FromBinContent."Variant Code");
+                repeat
+                    if UseForReplenishment(FromBinContent) then begin
+                        QtyAvailToTakeBase := FromBinContent.CalcQtyAvailToTake(0);
+                        TempWhseWkshLine.SetRange("From Bin Code", FromBinContent."Bin Code");
+                        TempWhseWkshLine.SetRange("From Unit of Measure Code", FromBinContent."Unit of Measure Code");
+                        TempWhseWkshLine.CalcSums("Qty. (Base)");
+                        QtyAvailToTakeBase := QtyAvailToTakeBase - TempWhseWkshLine."Qty. (Base)";
+
+                        if QtyAvailToTakeBase > 0 then begin
+                            if QtyAvailToTakeBase < RemainQtyToReplenishBase then
+                                MovementQtyBase := QtyAvailToTakeBase
+                            else
+                                MovementQtyBase := RemainQtyToReplenishBase;
+                            CreateWhseWkshLine(ToBinContent, FromBinContent, MovementQtyBase);
+                            RemainQtyToReplenishBase := RemainQtyToReplenishBase - MovementQtyBase;
+                        end;
+                    end;
+                until (FromBinContent.Next = 0) or (RemainQtyToReplenishBase = 0);
+                TempWhseWkshLine.Copy(WhseWkshLine2);
+            end;
+        end;
+
+        if AllowBreakBulk then
+            if RemainQtyToReplenishBase > 0 then
+                FindBreakbulkBin(ToBinContent);
+    end;
+
+    local procedure FindBreakbulkBin(ToBinContent: Record "Bin Content")
+    var
+        FromBinContent: Record "Bin Content";
+        WhseWkshLine2: Record "Whse. Worksheet Line";
+        QtyAvailToTakeBase: Decimal;
+        MovementQtyBase: Decimal;
+    begin
+        ItemUnitOfMeasure.Reset();
+        ItemUnitOfMeasure.SetCurrentKey("Item No.", "Qty. per Unit of Measure");
+        ItemUnitOfMeasure.SetRange("Item No.", ToBinContent."Item No.");
+        ItemUnitOfMeasure.SetFilter(
+          "Qty. per Unit of Measure", '>%1', ToBinContent."Qty. per Unit of Measure");
+        if ItemUnitOfMeasure.Find('-') then
+            repeat
+                FromBinContent.Reset();
+                FromBinContent.SetCurrentKey(
+                  "Location Code", "Item No.", "Variant Code", "Cross-Dock Bin",
+                  "Qty. per Unit of Measure", "Bin Ranking");
+                FromBinContent.SetRange("Location Code", ToBinContent."Location Code");
+                FromBinContent.SetRange("Item No.", ToBinContent."Item No.");
+                FromBinContent.SetRange("Variant Code", ToBinContent."Variant Code");
+                FromBinContent.SetRange("Cross-Dock Bin", false);
+                FromBinContent.SetRange(
+                  "Qty. per Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure");
+                FromBinContent.SetFilter("Bin Ranking", '<%1', ToBinContent."Bin Ranking");
+                FromBinContent.Ascending(false);
+                if FromBinContent.Find('-') then begin
+                    WhseWkshLine2.Copy(TempWhseWkshLine);
+                    TempWhseWkshLine.SetCurrentKey(
+                      "Item No.", "From Bin Code", "Location Code", "Variant Code", "From Unit of Measure Code");
+                    TempWhseWkshLine.SetRange("Item No.", FromBinContent."Item No.");
+                    TempWhseWkshLine.SetRange("Location Code", FromBinContent."Location Code");
+                    TempWhseWkshLine.SetRange("Variant Code", FromBinContent."Variant Code");
+                    repeat
+                        if UseForReplenishment(FromBinContent) then begin
+                            QtyAvailToTakeBase := FromBinContent.CalcQtyAvailToTake(0);
+                            TempWhseWkshLine.SetRange("From Bin Code", FromBinContent."Bin Code");
+                            TempWhseWkshLine.SetRange("From Unit of Measure Code", FromBinContent."Unit of Measure Code");
+                            TempWhseWkshLine.CalcSums("Qty. (Base)");
+                            QtyAvailToTakeBase := QtyAvailToTakeBase - TempWhseWkshLine."Qty. (Base)";
+
+                            if QtyAvailToTakeBase > 0 then begin
+                                MovementQtyBase := QtyAvailToTakeBase;
+                                if RemainQtyToReplenishBase < MovementQtyBase then
+                                    MovementQtyBase := RemainQtyToReplenishBase;
+                                CreateWhseWkshLine(ToBinContent, FromBinContent, MovementQtyBase);
+                                RemainQtyToReplenishBase := RemainQtyToReplenishBase - MovementQtyBase;
+                            end;
+                        end;
+                    until (FromBinContent.Next = 0) or (RemainQtyToReplenishBase = 0);
+                    TempWhseWkshLine.Copy(WhseWkshLine2);
+                end;
+            until (ItemUnitOfMeasure.Next = 0) or (RemainQtyToReplenishBase = 0);
+    end;
+
+    local procedure CreateWhseWkshLine(ToBinContent: Record "Bin Content"; FromBinContent: Record "Bin Content"; MovementQtyBase: Decimal)
+    begin
+        TempWhseWkshLine.Init();
+        TempWhseWkshLine."Worksheet Template Name" := WhseWkshTemplateName;
+        TempWhseWkshLine.Name := WhseWkshName;
+        TempWhseWkshLine."Location Code" := LocationCode;
+        TempWhseWkshLine."Line No." := NextLineNo;
+        TempWhseWkshLine."From Bin Code" := FromBinContent."Bin Code";
+        TempWhseWkshLine."From Zone Code" := FromBinContent."Zone Code";
+        TempWhseWkshLine."From Unit of Measure Code" := FromBinContent."Unit of Measure Code";
+        TempWhseWkshLine."Qty. per From Unit of Measure" := FromBinContent."Qty. per Unit of Measure";
+        TempWhseWkshLine."To Bin Code" := ToBinContent."Bin Code";
+        TempWhseWkshLine."To Zone Code" := ToBinContent."Zone Code";
+        TempWhseWkshLine."Unit of Measure Code" := ToBinContent."Unit of Measure Code";
+        TempWhseWkshLine."Qty. per Unit of Measure" := ToBinContent."Qty. per Unit of Measure";
+        TempWhseWkshLine."Item No." := ToBinContent."Item No.";
+        TempWhseWkshLine.Validate("Variant Code", ToBinContent."Variant Code");
+        TempWhseWkshLine.Validate(Quantity, Round(MovementQtyBase / ToBinContent."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+
+        TempWhseWkshLine."Qty. (Base)" := MovementQtyBase;
+        TempWhseWkshLine."Qty. Outstanding (Base)" := MovementQtyBase;
+        TempWhseWkshLine."Qty. to Handle (Base)" := MovementQtyBase;
+
+        TempWhseWkshLine."Whse. Document Type" := TempWhseWkshLine."Whse. Document Type"::"Whse. Mov.-Worksheet";
+        TempWhseWkshLine."Whse. Document No." := WhseWkshName;
+        TempWhseWkshLine."Whse. Document Line No." := TempWhseWkshLine."Line No.";
+        TempWhseWkshLine.Insert();
+
+        NextLineNo := NextLineNo + 10000;
+    end;
+
+    procedure InsertWhseWkshLine(): Boolean
+    var
+        WhseWkshLine: Record "Whse. Worksheet Line";
+    begin
+        TempWhseWkshLine.Reset();
+        TempWhseWkshLine.SetFilter(Quantity, '>0');
+        if TempWhseWkshLine.Find('-') then begin
+            repeat
+                WhseWkshLine.Init();
+                WhseWkshLine := TempWhseWkshLine;
+                if DoNotFillQtytoHandle then begin
+                    WhseWkshLine."Qty. to Handle" := 0;
+                    WhseWkshLine."Qty. to Handle (Base)" := 0;
+                end;
+                if PickAccordingToFEFO(TempWhseWkshLine."Item No.", TempWhseWkshLine."Variant Code") then begin
+                    WhseWkshLine."From Zone Code" := '';
+                    WhseWkshLine."From Bin Code" := '';
+                end;
+                WhseWkshLine.Insert();
+            until TempWhseWkshLine.Next = 0;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure BinBlockedInbound(LocationCode: Code[10]; BinCode: Code[20]) Blocked: Boolean
+    begin
+        GetBin(LocationCode, BinCode);
+        Blocked := Bin."Block Movement" in
+          [Bin."Block Movement"::Inbound, Bin."Block Movement"::All];
+        exit(Blocked);
+    end;
+
+    local procedure UseForReplenishment(FromBinContent: Record "Bin Content"): Boolean
+    begin
+        if FromBinContent."Block Movement" in
+           [FromBinContent."Block Movement"::Outbound,
+            FromBinContent."Block Movement"::All]
+        then
+            exit(false);
+
+        GetBinType(FromBinContent."Bin Type Code");
+        exit(not (BinType.Receive or BinType.Ship));
+    end;
+
+    local procedure GetBinType(BinTypeCode: Code[10])
+    begin
+        if BinTypeCode = '' then
+            BinType.Init
+        else
+            if BinType.Code <> BinTypeCode then
+                BinType.Get(BinTypeCode);
+    end;
+
+    local procedure GetBin(LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        if (Bin."Location Code" <> LocationCode) or
+           (Bin.Code <> BinCode)
+        then
+            Bin.Get(LocationCode, BinCode);
+    end;
+
+    procedure SetWhseWorksheet(WhseWkshTemplateName2: Code[10]; WhseWkshName2: Code[10]; LocationCode2: Code[10]; DoNotFillQtytoHandle2: Boolean)
+    var
+        WhseWkshLine: Record "Whse. Worksheet Line";
+    begin
+        TempWhseWkshLine.DeleteAll();
+        WhseWkshLine.SetRange("Worksheet Template Name", WhseWkshTemplateName2);
+        WhseWkshLine.SetRange(Name, WhseWkshName2);
+        WhseWkshLine.SetRange("Location Code", LocationCode2);
+        if WhseWkshLine.FindLast then
+            NextLineNo := WhseWkshLine."Line No." + 10000
+        else
+            NextLineNo := 10000;
+
+        WhseWkshTemplateName := WhseWkshTemplateName2;
+        WhseWkshName := WhseWkshName2;
+        LocationCode := LocationCode2;
+        Location.Get(LocationCode);
+        DoNotFillQtytoHandle := DoNotFillQtytoHandle2;
+    end;
+
+    local procedure PickAccordingToFEFO(ItemNo: Code[20]; VariantCode: Code[10]): Boolean
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        EntriesExist: Boolean;
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePickAccordingToFEFO(Location, ItemNo, VariantCode, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
+        if not Location."Pick According to FEFO" then
+            exit(false);
+
+        if not ItemTrackingMgt.GetWhseItemTrkgSetup(ItemNo) then
+            exit(false);
+
+        if ItemTrackingMgt.ExistingExpirationDate(ItemNo, VariantCode, '', '', false, EntriesExist) <> 0D then
+            exit(true);
+
+        if ItemTrackingMgt.WhseExistingExpirationDate(ItemNo, VariantCode, Location, '', '', EntriesExist) <> 0D then
+            exit(true);
+
+        exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePickAccordingToFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+}
+

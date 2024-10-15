@@ -1,0 +1,174 @@
+page 543 "Default Dimension Priorities"
+{
+    ApplicationArea = Dimensions;
+    Caption = 'Default Dimension Priorities';
+    DelayedInsert = true;
+    PageType = Worksheet;
+    SaveValues = true;
+    SourceTable = "Default Dimension Priority";
+    SourceTableView = SORTING("Source Code", Priority);
+    UsageCategory = Administration;
+
+    layout
+    {
+        area(content)
+        {
+            group(General)
+            {
+                Caption = 'General';
+                field(CurrentSourceCode; CurrentSourceCode)
+                {
+                    ApplicationArea = Dimensions;
+                    Caption = 'Source Code';
+                    Lookup = true;
+                    TableRelation = "Source Code".Code;
+                    ToolTip = 'Specifies the source.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        CurrPage.SaveRecord;
+                        LookupSourceCode(CurrentSourceCode, Rec);
+                        CurrPage.Update(false);
+                    end;
+
+                    trigger OnValidate()
+                    var
+                        SourceCode: Record "Source Code";
+                    begin
+                        SourceCode.Get(CurrentSourceCode);
+                        CurrentSourceCodeOnAfterValida;
+                    end;
+                }
+            }
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field("Table ID"; "Table ID")
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the table ID for the account type, if you want to prioritize an account type.';
+
+                    trigger OnValidate()
+                    begin
+                        TableIDOnAfterValidate;
+                    end;
+                }
+                field("Table Caption"; "Table Caption")
+                {
+                    ApplicationArea = Dimensions;
+                    DrillDown = false;
+                    ToolTip = 'Specifies the table name for the account type you wish to prioritize.';
+                }
+                field(Priority; Priority)
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the priority of an account type, with the highest priority being 1.';
+
+                    trigger OnValidate()
+                    begin
+                        PriorityOnAfterValidate;
+                    end;
+                }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
+            }
+        }
+    }
+
+    actions
+    {
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        PriorityOnFormat(Format(Priority));
+    end;
+
+    trigger OnOpenPage()
+    begin
+        OpenSourceCode(CurrentSourceCode, Rec);
+    end;
+
+    var
+        Text000: Label '<auto>';
+        Text001: Label 'You need to define a source code.';
+        CurrentSourceCode: Code[20];
+
+    local procedure OpenSourceCode(var CurrentSourceCode: Code[20]; var DefaultDimPriority: Record "Default Dimension Priority")
+    begin
+        CheckSourceCode(CurrentSourceCode);
+        with DefaultDimPriority do begin
+            FilterGroup := 2;
+            SetRange("Source Code", CurrentSourceCode);
+            FilterGroup := 0;
+        end;
+    end;
+
+    local procedure CheckSourceCode(var CurrentSourceCode: Code[20])
+    var
+        SourceCode: Record "Source Code";
+    begin
+        if not SourceCode.Get(CurrentSourceCode) then
+            if SourceCode.FindFirst then
+                CurrentSourceCode := SourceCode.Code
+            else
+                Error(Text001);
+    end;
+
+    procedure SetSourceCode(CurrentSourceCode: Code[20]; var DefaultDimPriority: Record "Default Dimension Priority")
+    begin
+        with DefaultDimPriority do begin
+            FilterGroup := 2;
+            SetRange("Source Code", CurrentSourceCode);
+            FilterGroup := 0;
+            if Find('-') then;
+        end;
+    end;
+
+    local procedure LookupSourceCode(var CurrentSourceCode: Code[20]; var DefaultDimPriority: Record "Default Dimension Priority")
+    var
+        SourceCode: Record "Source Code";
+    begin
+        Commit();
+        SourceCode.Code := DefaultDimPriority.GetRangeMax("Source Code");
+        if PAGE.RunModal(0, SourceCode) = ACTION::LookupOK then begin
+            CurrentSourceCode := SourceCode.Code;
+            SetSourceCode(CurrentSourceCode, DefaultDimPriority);
+        end;
+    end;
+
+    local procedure TableIDOnAfterValidate()
+    begin
+        CalcFields("Table Caption");
+    end;
+
+    local procedure PriorityOnAfterValidate()
+    begin
+        CurrPage.Update;
+    end;
+
+    local procedure CurrentSourceCodeOnAfterValida()
+    begin
+        CurrPage.SaveRecord;
+        SetSourceCode(CurrentSourceCode, Rec);
+        CurrPage.Update(false);
+    end;
+
+    local procedure PriorityOnFormat(Text: Text[1024])
+    begin
+        if Priority = 0 then
+            Text := Text000;
+    end;
+}
+

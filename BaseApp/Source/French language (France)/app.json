@@ -1,0 +1,19 @@
+{
+    "id":  "c75a45c6-4e83-46e1-b17b-48c6506c19f3",
+    "name":  "French language (France)",
+    "publisher":  "Microsoft",
+    "version":  "17.0.16993.0",
+    "dependencies":  [
+
+                     ],
+    "target":  "Cloud",
+    "showMyCode":  true,
+    "brief":  "This application adds the French language (France) to Dynamics 365 Business Central",
+    "description":  "Dynamics 365 Business Central is available in many languages. By installing this application you add the capability of showing the base application in the French language (France)",
+    "logo":  "ExtensionLogo.png",
+    "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
+    "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
+    "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
+    "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
+    "application":  "17.0.0.0"
+}
