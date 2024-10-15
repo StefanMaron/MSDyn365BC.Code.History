@@ -2397,13 +2397,26 @@ codeunit 7201 "CDS Integration Impl."
     procedure ImportIntegrationSolution(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; AdminUsername: Text; AdminPassword: Text; AccessToken: Text; RenewSolution: Boolean)
     var
         TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
+        Version: DotNet Version;
+        SolutionVersion: Text;
+        SolutionInstalled: Boolean;
+        SolutionOutdated: Boolean;
         ImportSolution: Boolean;
     begin
         GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+
+        if GetSolutionVersion(TempAdminCDSConnectionSetup, GetBaseSolutionUniqueName(), SolutionVersion) then
+            if Version.TryParse(SolutionVersion, Version) then begin
+                SolutionInstalled := true;
+                SolutionOutdated := Version.CompareTo(NavTenantSettingsHelper.GetPlatformVersion()) < 0;
+            end;
+
         if RenewSolution then
-            ImportSolution := true
+            ImportSolution := (not SolutionInstalled) or SolutionOutdated
         else
-            ImportSolution := not IsSolutionInstalled(TempAdminCDSConnectionSetup);
+            ImportSolution := not SolutionInstalled;
+
         if ImportSolution then begin
             SendTraceTag('0000AU4', CategoryTok, VERBOSITY::Normal, SolutionNotInstalledTxt, DataClassification::SystemMetadata);
             CrmHelper.ImportDefaultCdsSolution();

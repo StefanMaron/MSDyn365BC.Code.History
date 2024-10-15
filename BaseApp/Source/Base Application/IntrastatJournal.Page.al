@@ -192,6 +192,11 @@
                     ToolTip = 'Specifies the counter party''s VAT number.';
                     Visible = false;
                 }
+                field("Location Code"; "Location Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the location that the entry is linked to.';
+                }
             }
             group(Control40)
             {
@@ -305,10 +310,12 @@
                     VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) then begin
                         CODEUNIT.Run(VATReportsConfiguration."Validate Codeunit ID", Rec);
+                        CurrPage.Update();
                         exit;
                     end;
 
                     ReportPrint.PrintIntrastatJnlLine(Rec);
+                    CurrPage.Update();
                 end;
             }
             action("Toggle Error Filter")
@@ -414,11 +421,16 @@
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        UpdateErrors();
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::ODataV4 then
             UpdateStatisticalValue;
-        UpdateErrors;
+        UpdateErrors();
     end;
 
     trigger OnInit()

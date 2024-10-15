@@ -3173,6 +3173,51 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Assert.IsFalse(PlanningWorksheet.First(), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RequisitionLineVendorNotBlockedOnLocationSKU()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        SalesLine: Record "Sales Line";
+        Location: Record Location;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        RequisitionLine: Record "Requisition Line";
+        Purchasing: Record Purchasing;
+    begin
+        // [FEATURE] [Get Sales Orders] [Vendor]
+        // [SCENARIO 382449] "Get Sales Orders" allows creation of Requisition Line when Vendor is only not blocked for the Location on the Sales Line
+        Initialize();
+
+        // [GIVEN] Item "I" with "Vendor No." = "V1"
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        UpdateItemVendorNo(Item, Vendor."No.");
+
+        // [GIVEN] Location "L", Stockkeeping Unit "SKU" for Item "I", Location "L" with "Vendor No." = "V2"
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", '');
+        StockkeepingUnit.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Vendor "V1" Blocked
+        Vendor.Validate(Blocked, Vendor.Blocked::All);
+        Vendor.Modify(true);
+
+        // [GIVEN] Sales order "SO" with Special Order purchasing code for "I" on the Location "L"
+        LibraryPurchase.CreateSpecialOrderPurchasingCode(Purchasing);
+        CreateSalesOrderWithPurchasingCode(SalesLine, '', Item."No.", Location.Code, Purchasing.Code, LibraryRandom.RandInt(10));
+
+        // [WHEN] Get sales order to Requisition Line "R"
+        CreateRequisitionLine(RequisitionLine);
+        LibraryPlanning.GetSpecialOrder(RequisitionLine, Item."No.");
+
+        // [THEN] Requisition Line created for the Special Order "SO"
+        // [THEN] "R"."Vendor No." is equal to "V2"
+        FindRequisitionLineForItem(RequisitionLine, Item."No.");
+        RequisitionLine.TestField("Vendor No.", StockkeepingUnit."Vendor No.");
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
