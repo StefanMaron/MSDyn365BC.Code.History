@@ -419,7 +419,7 @@ report 1001 "Inventory Valuation"
         end; // if not IsEmptyLine
 
         IsHandled := false;
-        OnAfterGetRecordItemOnBeforeSkipEmptyLine(Item, StartingInvoicedQty, IncreaseInvoicedQty, DecreaseInvoicedQty, IsHandled, IsEmptyLine);
+        OnAfterGetRecordItemOnBeforeSkipEmptyLine(Item, StartingInvoicedQty, IncreaseInvoicedQty, DecreaseInvoicedQty, IsHandled, IsEmptyLine, StartingExpectedQty, IncreaseExpectedQty, DecreaseExpectedQty);
         if not IsHandled then
             if IsEmptyLine then
                 CurrReport.Skip();
@@ -480,7 +480,7 @@ report 1001 "Inventory Valuation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetRecordItemOnBeforeSkipEmptyLine(var Item: Record Item; var StartingInvoicedQty: Decimal; var IncreaseInvoicedQty: Decimal; var DecreaseInvoicedQty: Decimal; var IsHandled: Boolean; var IsEmptyLine: Boolean)
+    local procedure OnAfterGetRecordItemOnBeforeSkipEmptyLine(var Item: Record Item; var StartingInvoicedQty: Decimal; var IncreaseInvoicedQty: Decimal; var DecreaseInvoicedQty: Decimal; var IsHandled: Boolean; var IsEmptyLine: Boolean; var StartingExpectedQty: Decimal; var IncreaseExpectedQty: Decimal; var DecreaseExpectedQty: Decimal)
     begin
     end;
 

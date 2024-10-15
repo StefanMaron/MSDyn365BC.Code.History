@@ -28,6 +28,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         PrintDocRef: Option " ",Print,Email;
         EmailTxt: Label 'abc@microsoft.com', Locked = true;
         ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the finance charge memo when it is posted according to invoice rounding setup.\Do you want to continue?';
+        GLEntryMustNotBeEmpty: Label 'GL Entry must not be empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -466,6 +467,71 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         asserterror FinanceChargeMemoHeader.Get(FinChargeMemoNo);
         Assert.AssertRecordNotFound;
 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IssueFinChargeMemoCreatesGLEntryOfAltCustPostingGrpIfAllowMultiPostingGrps()
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        CustomerPostingGroup2: Record "Customer Posting Group";
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        FinanceChargeMemoLine: Record "Finance Charge Memo Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        IssueFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        GLEntry: Record "G/L Entry";
+        FinChargeTermsCode: Code[10];
+    begin
+        // [SCENARIO 498604] When stan Issue a Finance Charge Memo having Alternate Customer Posting Group of Customer having Allow Multiple Posting Groups as true then it creates GL Entry of Alternate Customer Posting Group's Receivables Account.
+        Initialize();
+
+        // [GIVEN] Validate Allow Multiple Posting Groups in Sales & Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Allow Multiple Posting Groups", true);
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create Finance Charge Terms.
+        FinChargeTermsCode := CreateFinanceChargeTerms(LibraryRandom.RandInt(0));
+
+        // [GIVEN] Create Customer Posting Group.
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup2);
+
+        // [GIVEN] Create Customer Posting group 2.
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+
+        // [GIVEN] Create Alternate Customer Posting Group.
+        LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup.Code, CustomerPostingGroup2.Code);
+
+        // [GIVEN] Create Customer and Validate Customer Posting Group,
+        // Allow Multiple Posting Groups and Fin. Charge Terms Code.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Validate("Fin. Charge Terms Code", FinChargeTermsCode);
+        Customer.Modify(true);
+
+        // [GIVEN] Create Finance Charge Memo Header and Validate Customer Posting Group.
+        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, Customer."No.");
+        FinanceChargeMemoHeader.Validate("Customer Posting Group", CustomerPostingGroup2.Code);
+        FinanceChargeMemoHeader.Modify(true);
+
+        // [GIVEN] Create Finance Charge Memo Line.
+        CreateFinChargeMemoLineForInvRounding(FinanceChargeMemoLine, FinanceChargeMemoHeader, LibraryRandom.RandInt(0));
+
+        // [GIVEN] Issue Finance Charge Memo.
+        LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
+
+        // [GIVEN] Find Issued Fin. Charge Memo Header.
+        IssueFinChargeMemoHeader.SetRange("Customer No.", Customer."No.");
+        IssueFinChargeMemoHeader.FindFirst();
+
+        // [WHEN] Find GL Entry.
+        GLEntry.SetRange("Document No.", IssueFinChargeMemoHeader."No.");
+        GLEntry.SetRange("G/L Account No.", CustomerPostingGroup2."Receivables Account");
+
+        // [VERIFY] GL Entry has Receivables Account of Customer Posting Group 2 in GL Account No. 
+        Assert.IsFalse(GLEntry.IsEmpty(), GLEntryMustNotBeEmpty);
     end;
 
     local procedure Initialize()

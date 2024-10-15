@@ -182,6 +182,13 @@ page 370 "Bank Account Card"
                         Importance = Additional;
                         ToolTip = 'Specifies whether to disable automatic payment matching after importing bank transactions for this bank account.';
                     }
+                    field("Disable Bank Rec. Optimization"; Rec."Disable Bank Rec. Optimization")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Disable Bank Reconciliation Optimization';
+                        Importance = Additional;
+                        ToolTip = 'Specifies whether to disable bank reconciliation optimization for this bank account. It will result in more precise matches, but it will be slower. Disabling the optimization is useful when there are several bank ledger entries with the same amount and date that need to be automatched.';
+                    }
                 }
                 group("Payment Match Tolerance")
                 {

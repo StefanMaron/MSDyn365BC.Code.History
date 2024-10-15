@@ -5,6 +5,7 @@ using Microsoft.Bank.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
 using System.Telemetry;
 using System.Utilities;
+using Microsoft.Bank.BankAccount;
 
 codeunit 1252 "Match Bank Rec. Lines"
 {
@@ -28,6 +29,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         AutomatchEventNameTelemetryTxt: Label 'Automatch', Locked = true;
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
         Relation: Option "One-to-One","One-to-Many","Many-to-One";
+        TextMatchGreater: Option First,Second,Tie;
         MatchLengthTreshold: Integer;
         NormalizingFactor: Integer;
 
@@ -243,6 +245,7 @@ codeunit 1252 "Match Bank Rec. Lines"
     /// <param name="ShouldShowMatchSummary"></param>
     procedure BankAccReconciliationAutoMatch(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; DaysTolerance: Integer; RaiseFindBestMatchesEvent: Boolean; ShouldShowMatchSummary: Boolean)
     var
+        BankAccount: Record "Bank Account";
         TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
         TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary;
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
@@ -252,11 +255,14 @@ codeunit 1252 "Match Bank Rec. Lines"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ProgressDialog: Dialog;
         Overwrite: Boolean;
+        DisableOptimization: Boolean;
         RemovedPreviouslyAssigned: Boolean;
         Handled: Boolean;
         BankAccRecLineCounter: Integer;
         OriginallyMatchedBankAccRecLineNos: List of [Integer];
     begin
+        BankAccount.Get(BankAccReconciliation."Bank Account No.");
+        DisableOptimization := BankAccount."Disable Bank Rec. Optimization";
         FeatureTelemetry.LogUptake('0000JLB', BankAccReconciliation.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
         Overwrite := true;
         BankAccRecLineCounter := 0;
@@ -306,7 +312,7 @@ codeunit 1252 "Match Bank Rec. Lines"
                         // If there are no candidate Bank Account Ledger Entries left, we can stop as there will be no other match
                         if TempBankAccLedgerEntryMatchingBuffer.IsEmpty() then
                             break;
-                        AttemptToMatch(BankAccReconciliationLine, TempBankAccLedgerEntryMatchingBuffer, DaysTolerance, TempBankStatementMatchingBuffer, RemovedPreviouslyAssigned);
+                        AttemptToMatch(BankAccReconciliationLine, TempBankAccLedgerEntryMatchingBuffer, DaysTolerance, TempBankStatementMatchingBuffer, RemovedPreviouslyAssigned, DisableOptimization);
                         BankAccRecLineCounter += 1
                     until (BankAccReconciliationLine.Next() = 0);
 
@@ -367,7 +373,7 @@ codeunit 1252 "Match Bank Rec. Lines"
     /// <param name="TempBankAccLedgerEntryMatchingBuffer">Candidate Bank Account Ledger Entries to consider for the match sorted by Posting Date</param>
     /// <param name="DaysTolerance">Days of tolerance allowed</param>
     /// <param name="TempBankStatementMatchingBuffer">Temporary table where the match is inserted if found</param>
-    local procedure AttemptToMatch(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; DaysTolerance: Integer; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var RemovedPreviouslyAssigned: Boolean)
+    local procedure AttemptToMatch(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; DaysTolerance: Integer; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var RemovedPreviouslyAssigned: Boolean; DisableOptimization: Boolean)
     var
         TempBestBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
         TempMatchingDetailsBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
@@ -394,7 +400,7 @@ codeunit 1252 "Match Bank Rec. Lines"
             if (not BankTransactionTooEarly) and (not BankTransactionTooLate) then begin
                 TempMatchingDetailsBankStatementMatchingBuffer.Reset();
                 if MatchingIsAcceptable(BankAccReconciliationLine, TempBankAccLedgerEntryMatchingBuffer, TempMatchingDetailsBankStatementMatchingBuffer) then begin
-                    if MatchingIsHighConfidence(TempMatchingDetailsBankStatementMatchingBuffer) then
+                    if (not DisableOptimization) and MatchingIsHighConfidence(TempMatchingDetailsBankStatementMatchingBuffer) then
                         if AddMatchToCandidatesIfBetter(TempBankStatementMatchingBuffer, TempMatchingDetailsBankStatementMatchingBuffer, RemovedPreviouslyAssigned) then
                             exit;
                     if MatchIsBetter(TempMatchingDetailsBankStatementMatchingBuffer, TempBestBankStatementMatchingBuffer) then
@@ -478,12 +484,14 @@ codeunit 1252 "Match Bank Rec. Lines"
 
         if Abs(TempBankStatementMatchingBuffer."Amount Difference") > Abs(TempToCompareBankStatementMatchingBuffer."Amount Difference") then
             exit(false);
+        // Amount differences are equal in both matches
 
         if TextMatchingBetter then
             exit(true);
 
-        if GetMaxTextScore(TempBankStatementMatchingBuffer) < GetMaxTextScore(TempToCompareBankStatementMatchingBuffer) then
+        if IsTextMatchingBetter(TempToCompareBankStatementMatchingBuffer, TempBankStatementMatchingBuffer) then
             exit(false);
+        // Text scores are equally good in both matches
 
         exit(DateDifferenceSmaller);
     end;
@@ -496,29 +504,91 @@ codeunit 1252 "Match Bank Rec. Lines"
     /// <returns></returns>
     local procedure IsTextMatchingBetter(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempToCompareBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary): Boolean
     var
-        FirstExactScore: Integer;
-        SecondExactScore: Integer;
+        FirstDocNoScore, SecondDocNoScore, WinnerDocNoScore : Integer;
+        FirstExtDocNoScore, SecondExtDocNoScore, WinnerExtDocNoScore : Integer;
+        FirstDescriptionScore, SecondDescriptionScore, WinnerDescriptionScore : Integer;
+        ComparisonResultDocNo, ComparisonResultExtDocNo, ComparisonResultDescription : Option;
+        BestMaxWinner: Option;
     begin
-        FirstExactScore := GetMaxTextExactScore(TempBankStatementMatchingBuffer);
-        SecondExactScore := GetMaxTextExactScore(TempToCompareBankStatementMatchingBuffer);
-        if FirstExactScore > SecondExactScore then
+        FirstDocNoScore := GetMax(TempBankStatementMatchingBuffer."Doc. No. Score", TempBankStatementMatchingBuffer."Doc. No. Exact Score");
+        SecondDocNoScore := GetMax(TempToCompareBankStatementMatchingBuffer."Doc. No. Score", TempToCompareBankStatementMatchingBuffer."Doc. No. Exact Score");
+
+        FirstExtDocNoScore := GetMax(TempBankStatementMatchingBuffer."Ext. Doc. No. Score", TempBankStatementMatchingBuffer."Ext. Doc. No. Exact Score");
+        SecondExtDocNoScore := GetMax(TempToCompareBankStatementMatchingBuffer."Ext. Doc. No. Score", TempToCompareBankStatementMatchingBuffer."Ext. Doc. No. Exact Score");
+
+        FirstDescriptionScore := GetMax(TempBankStatementMatchingBuffer."Description Score", TempBankStatementMatchingBuffer."Description Exact Score");
+        SecondDescriptionScore := GetMax(TempToCompareBankStatementMatchingBuffer."Description Score", TempToCompareBankStatementMatchingBuffer."Description Exact Score");
+
+        TextScoreGreaterThan(FirstDocNoScore, SecondDocNoScore, ComparisonResultDocNo, WinnerDocNoScore);
+        TextScoreGreaterThan(FirstExtDocNoScore, SecondExtDocNoScore, ComparisonResultExtDocNo, WinnerExtDocNoScore);
+        TextScoreGreaterThan(FirstDescriptionScore, SecondDescriptionScore, ComparisonResultDescription, WinnerDescriptionScore);
+
+        GetMaxScoreOfWinner(ComparisonResultDocNo, WinnerDocNoScore, ComparisonResultExtDocNo, WinnerExtDocNoScore, ComparisonResultDescription, WinnerDescriptionScore, BestMaxWinner);
+
+        if BestMaxWinner = TextMatchGreater::Tie then
+            exit(false);
+        if BestMaxWinner = TextMatchGreater::First then
             exit(true);
-        exit(GetMaxTextScore(TempBankStatementMatchingBuffer) > GetMaxTextScore(TempToCompareBankStatementMatchingBuffer));
+        if BestMaxWinner = TextMatchGreater::Second then
+            exit(false);
     end;
 
-    /// <summary>
-    /// Returns a number between 0-100 representing the best score obtained by string nearness in that match
-    /// </summary>
-    /// <param name="TempBankStatementMatchingBuffer"></param>
-    /// <returns></returns>
-    local procedure GetMaxTextScore(TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary): Integer
+    local procedure GetMaxScoreOfWinner(ComparisonResultDocNo: Option; WinnerDocNoScore: Integer; ComparisonResultExtDocNo: Option; WinnerExtDocNoScore: Integer; ComparisonResultDescription: Option; WinnerDescriptionScore: Integer; var BestMaxWinner: Option)
     var
-        MaxTextScore: Integer;
+        MaxWinnerScore: Integer;
     begin
-        MaxTextScore := GetMaxTextNearnessScore(TempBankStatementMatchingBuffer);
-        if MaxTextScore < GetMaxTextExactScore(TempBankStatementMatchingBuffer) then
-            MaxTextScore := GetMaxTextExactScore(TempBankStatementMatchingBuffer);
-        exit(MaxTextScore);
+        BestMaxWinner := TextMatchGreater::Tie;
+        if ComparisonResultDocNo <> TextMatchGreater::Tie then begin
+            MaxWinnerScore := WinnerDocNoScore;
+            BestMaxWinner := ComparisonResultDocNo
+        end;
+
+        if BestMaxWinner = TextMatchGreater::Tie then begin
+            if ComparisonResultExtDocNo <> TextMatchGreater::Tie then begin
+                MaxWinnerScore := WinnerExtDocNoScore;
+                BestMaxWinner := ComparisonResultExtDocNo;
+            end;
+        end else
+            if ComparisonResultExtDocNo <> TextMatchGreater::Tie then
+                if MaxWinnerScore < WinnerExtDocNoScore then begin
+                    MaxWinnerScore := WinnerExtDocNoScore;
+                    BestMaxWinner := ComparisonResultExtDocNo;
+                end;
+
+        if BestMaxWinner = TextMatchGreater::Tie then begin
+            if ComparisonResultDescription <> TextMatchGreater::Tie then begin
+                MaxWinnerScore := WinnerDescriptionScore;
+                BestMaxWinner := ComparisonResultDescription;
+            end;
+        end else
+            if ComparisonResultDescription <> TextMatchGreater::Tie then
+                if MaxWinnerScore < WinnerDescriptionScore then begin
+                    MaxWinnerScore := WinnerDescriptionScore;
+                    BestMaxWinner := ComparisonResultDescription;
+                end;
+    end;
+
+    local procedure TextScoreGreaterThan(TextScore1: Integer; TextScore2: Integer; var Result: Option; var WinnerScoreValue: Integer)
+    begin
+        if TextScore1 > TextScore2 then begin
+            WinnerScoreValue := TextScore1;
+            Result := TextMatchGreater::First;
+            exit;
+        end;
+        if TextScore2 > TextScore1 then begin
+            WinnerScoreValue := TextScore2;
+            Result := TextMatchGreater::Second;
+            exit;
+        end;
+        WinnerScoreValue := TextScore1;
+        Result := TextMatchGreater::Tie;
+    end;
+
+    local procedure GetMax(N1: Integer; N2: Integer): Integer
+    begin
+        if N1 > N2 then
+            exit(N1);
+        exit(N2);
     end;
 
     local procedure GetMaxTextNearnessScore(TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary): Integer
@@ -651,6 +721,15 @@ codeunit 1252 "Match Bank Rec. Lines"
 
         if Max < Score then
             Max := Score;
+
+        if Exact then
+            Score := RecordMatchMgt.CalculateExactStringNearness(BankAccReconciliationLine."Document No.", TextToMatch, 100)
+        else
+            Score := RecordMatchMgt.CalculateStringNearness(BankAccReconciliationLine."Document No.", TextToMatch, 4, 100);
+
+        if Max < Score then
+            Max := Score;
+
         exit(Max);
     end;
 

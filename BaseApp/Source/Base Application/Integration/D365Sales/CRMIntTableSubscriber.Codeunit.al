@@ -1768,9 +1768,15 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     var
         SalesLine: Record "Sales Line";
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        IsHandled: Boolean;
     begin
         SourceRecordRef.SetTable(SalesLine);
         DestinationRecordRef.SetTable(CRMSalesorderdetail);
+
+        IsHandled := false;
+        OnApplySalesLineTaxOnBeforeSetTax(CRMSalesorderdetail, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
 
         CRMSalesorderdetail.Tax := SalesLine."Amount Including VAT" - SalesLine.Amount;
 
@@ -3091,6 +3097,47 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Int. Table Couple", 'OnBeforeSetMatchingFilter', '', false, false)]
+    local procedure HandleOnBeforeSetMatchingFilter(var IntegrationRecordRef: RecordRef; var MatchingIntegrationRecordFieldRef: FieldRef; var LocalRecordRef: RecordRef; var MatchingLocalFieldRef: FieldRef; var SetMatchingFilterHandled: Boolean)
+    var
+        UnitGroup: Record "Unit Group";
+        Item: Record Item;
+        Resource: Record Resource;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        CRMUomschedule: Record "CRM Uomschedule";
+        CRMUom: Record "CRM Uom";
+        AdditionalFieldRef: FieldRef;
+    begin
+        if (IntegrationRecordRef.Number = Database::"CRM Uomschedule") and (LocalRecordRef.Number = Database::"Unit Group") then
+            if (MatchingIntegrationRecordFieldRef.Number = CRMUomschedule.FieldNo(Name)) and (MatchingLocalFieldRef.Number = UnitGroup.FieldNo("Source No.")) then begin
+                LocalRecordRef.SetTable(UnitGroup);
+                MatchingIntegrationRecordFieldRef.SetRange(UnitGroup.GetCode());
+                SetMatchingFilterHandled := true;
+            end;
+
+        if (IntegrationRecordRef.Number = Database::"CRM Uom") and ((LocalRecordRef.Number = Database::"Item Unit of Measure") or (LocalRecordRef.Number = Database::"Resource Unit of Measure")) then
+            if (MatchingIntegrationRecordFieldRef.Number = CRMUom.FieldNo(Name)) and ((MatchingLocalFieldRef.Number = ItemUnitOfMeasure.FieldNo("Code")) or (MatchingLocalFieldRef.Number = ResourceUnitOfMeasure.FieldNo("Code"))) then begin
+                if LocalRecordRef.Number = Database::"Item Unit of Measure" then begin
+                    LocalRecordRef.SetTable(ItemUnitOfMeasure);
+                    if Item.Get(ItemUnitOfMeasure."Item No.") then
+                        UnitGroup.Get(UnitGroup."Source Type"::Item, Item.SystemId);
+                end;
+
+                if LocalRecordRef.Number = Database::"Resource Unit of Measure" then begin
+                    LocalRecordRef.SetTable(ResourceUnitOfMeasure);
+                    if Resource.Get(ResourceUnitOfMeasure."Resource No.") then
+                        UnitGroup.Get(UnitGroup."Source Type"::Resource, Resource.SystemId);
+                end;
+
+                CRMUomschedule.SetRange(Name, UnitGroup.GetCode());
+                if CRMUomschedule.FindFirst() then begin
+                    AdditionalFieldRef := IntegrationRecordRef.Field(CRMUom.FieldNo(UoMScheduleId));
+                    AdditionalFieldRef.SetRange(CRMUomschedule.UoMScheduleId);
+                end;
+            end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCRMInvoiceBeforeInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; var IsHandled: Boolean)
     begin
@@ -3128,6 +3175,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCRMInvoiceBeforeInsertRecordOnBeforeDestinationRecordRefGetTable(var CRMInvoice: Record "CRM Invoice"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplySalesLineTaxOnBeforeSetTax(var CRMSalesorderdetail: Record "CRM Salesorderdetail"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }
