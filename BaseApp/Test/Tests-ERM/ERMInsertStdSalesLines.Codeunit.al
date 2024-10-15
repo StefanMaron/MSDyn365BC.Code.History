@@ -1125,6 +1125,29 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Assert.AreEqual(Format(BankAccount."No."), Format(SalesInvoice."Company Bank Account Code"), CompanyBankAccountCodeErr);
     end;
 
+    [Test]
+    [HandlerFunctions('AllocationAccountListPageHandler')]
+    procedure AllocationAccountTableRelationOnStandardSalesLine()
+    var
+        StandardSalesCodeSubform: TestPage "Standard Sales Code Subform";
+        AllocationAccountNo: Code[20];
+    begin
+        // [SCENARIO 537442] Allocation Account type has table relation to Allocation Account on Standard Sales Line
+        Initialize();
+
+        // [GIVEN] Create Allocation account "A", "Account Type" = fixed
+        AllocationAccountNo := CreateAllocationAccountWithFixedDistribution();
+        LibraryVariableStorage.Enqueue(AllocationAccountNo);
+
+        // [WHEN] Lookup "No." for "Allocation Account" type
+        StandardSalesCodeSubform.OpenEdit();
+        StandardSalesCodeSubform.Type.SetValue("Sales Line Type"::"Allocation Account");
+        StandardSalesCodeSubform."No.".Lookup();
+
+        // [THEN] "Allocation Account List" page is run includes Allocation Account "A" (AllocationAccountListPageHandler)
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1422,6 +1445,18 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    local procedure CreateAllocationAccountWithFixedDistribution(): Code[20]
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        AllocationAccount."No." := Format(LibraryRandom.RandText(5));
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Fixed;
+        AllocationAccount.Name := Format(LibraryRandom.RandText(10));
+        AllocationAccount.Insert();
+
+        exit(AllocationAccount."No.");
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure StandardCustomerSalesCodesModalPageHandler(var StandardCustomerSalesCodes: TestPage "Standard Customer Sales Codes")
@@ -1470,6 +1505,14 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         Reply := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Enqueue(Question);
+    end;
+
+    [ModalPageHandler]
+    procedure AllocationAccountListPageHandler(var AllocationAccountList: TestPage "Allocation Account List")
+    begin
+        AllocationAccountList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        AllocationAccountList.First();
+        AllocationAccountList.Cancel().Invoke();
     end;
 }
 

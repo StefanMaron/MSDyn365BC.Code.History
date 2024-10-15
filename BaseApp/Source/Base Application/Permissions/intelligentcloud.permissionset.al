@@ -111,7 +111,9 @@ using Microsoft.HumanResources.Payables;
 using Microsoft.HumanResources.Setup;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
+#if not CLEAN25
 using Microsoft.Integration.FieldService;
+#endif
 using Microsoft.Integration.Entity;
 using Microsoft.Integration.Graph;
 using Microsoft.Integration.SyncEngine;
@@ -660,6 +662,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "CRM Transactioncurrency" = R,
                   tabledata "CRM Uom" = R,
                   tabledata "CRM Uomschedule" = R,
+#if not CLEAN25
                   tabledata "FS Connection Setup" = R,
                   tabledata "FS Bookable Resource" = R,
                   tabledata "FS Bookable Resource Booking" = R,
@@ -674,6 +677,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "FS Work Order Service" = R,
                   tabledata "FS Work Order Substatus" = R,
                   tabledata "FS Work Order Type" = R,
+#endif
                   tabledata "CSV Buffer" = R,
                   tabledata "Curr. Exch. Rate Update Setup" = R,
                   tabledata Currency = R,

@@ -259,6 +259,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         FromJobPlanningLine.FindFirst();
 
         ToJobPlanningLine.InitFromJobPlanningLine(FromJobPlanningLine, -SalesLine.Quantity);
+        OnCreateJobPlanningLineOnAfterInitFromJobPlanningLine(ToJobPlanningLine, FromJobPlanningLine, SalesLine);
         JobPlanningLineInvoice.InitFromJobPlanningLine(ToJobPlanningLine);
         JobPlanningLineInvoice.InitFromSales(SalesHeader, SalesHeader."Posting Date", SalesLine."Line No.");
         JobPlanningLineInvoice.Insert();
@@ -996,7 +997,13 @@ codeunit 1303 "Correct Posted Sales Invoice"
         SalesLine: Record "Sales Line";
         SalesInvoiceLine: Record "Sales Invoice Line";
         UndoPostingManagement: Codeunit "Undo Posting Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSalesOrderLinesFromCancelledInvoice(SalesInvoiceHeaderNo, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeaderNo);
         if SalesInvoiceLine.FindSet() then
             repeat
@@ -1324,6 +1331,16 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnTestGenPostingSetupOnBeforeTestTypeItem(SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesOrderLinesFromCancelledInvoice(SalesInvoiceHeaderNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJobPlanningLineOnAfterInitFromJobPlanningLine(var ToJobPlanningLine: Record "Job Planning Line"; FromJobPlanningLine: Record "Job Planning Line"; SalesLine: Record "Sales Line")
     begin
     end;
 }

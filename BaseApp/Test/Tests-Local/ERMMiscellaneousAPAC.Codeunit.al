@@ -33,6 +33,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         IsInitialized: Boolean;
         CurrentSaveValuesId: Integer;
         LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -1071,6 +1072,123 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         PurchaseLine.TestField(
           "Amount Including VAT (ACY)",
           Round(PurchaseLine."Amount (ACY)" + PurchaseLine."VAT Base (ACY)" * PurchaseLine."VAT %" / 100));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyAmountACYInVATAmountLine()
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Currency: Record Currency;
+        ExpectedAmountACY: Decimal;
+        NewExchRate: Decimal;
+    begin
+        // [SCENARIO 533482] The "Amount (ACY)" value is incorrect when the currency code is the same in the Purchase Header and Reporting Currency fields in General Ledger Setup.
+        Initialize();
+
+        // [GIVEN] Update Reporting Currency in the General Ledger Setup.
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetAddReportingCurrency(Currency.Code);
+
+        // [GIVEN] Create an Exchange Rate.
+        NewExchRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LibraryERM.CreateExchangeRate(
+            Currency.Code,
+            WorkDate(),
+            NewExchRate,
+            NewExchRate);
+
+        // [GIVEN] Create a VAT Posting Setup with Accounts.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+
+        // [GIVEN] Create a Purchase Invoice.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Create a Purchase Line with a VAT Product Posting Group.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandInt(100));
+
+        // [GIVEN] Update Direct Unit Cost in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Calculate VAT Amount Line.
+        ExpectedAmountACY := Round(PurchaseLine."VAT Base Amount" * NewExchRate);
+        PurchaseLine.CalcVATAmountLines(0, PurchaseHeader, PurchaseLine, TempVATAmountLine);
+
+        // [VERIFY] Verify "Amount (ACY)" in VAT Amount Line when the currency code is different in the Purchase Header and Reporting Currency fields in General Ledger Setup.
+        Assert.AreEqual(
+            ExpectedAmountACY,
+            TempVATAmountLine."Amount (ACY)",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                TempVATAmountLine.FieldCaption("Amount (ACY)"),
+                ExpectedAmountACY,
+                TempVATAmountLine.TableCaption()));
+
+        // [GIVEN] Create another Purchase Invoice.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Update Currency Code in Purchase Header.
+        PurchaseHeader.Validate("Currency Code", Currency.Code);
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create a Purchase Line with a VAT Product Posting Group.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandInt(100));
+
+        // [GIVEN] Update Direct Unit Cost in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Save Expected "Amount ACY".
+        ExpectedAmountACY := Round(PurchaseLine."VAT Base Amount");
+
+        // [GIVEN] Create another Purchase Line with a VAT Product Posting Group.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandInt(100));
+
+        // [GIVEN] Update Direct Unit Cost in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Save Expected "Amount ACY".
+        ExpectedAmountACY += Round(PurchaseLine."VAT Base Amount");
+
+        // [WHEN] Calculate VAT Amount Line.
+        TempVATAmountLine.DeleteAll();
+        PurchaseLine.CalcVATAmountLines(0, PurchaseHeader, PurchaseLine, TempVATAmountLine);
+
+        // [VERIFY] Verify "Amount (ACY)" in VAT Amount Line when the currency code is same in the Purchase Header and Reporting Currency fields in General Ledger Setup.
+        Assert.AreEqual(
+            ExpectedAmountACY,
+            TempVATAmountLine."Amount (ACY)",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                TempVATAmountLine.FieldCaption("Amount (ACY)"),
+                ExpectedAmountACY,
+                TempVATAmountLine.TableCaption()));
     end;
 
     local procedure Initialize()

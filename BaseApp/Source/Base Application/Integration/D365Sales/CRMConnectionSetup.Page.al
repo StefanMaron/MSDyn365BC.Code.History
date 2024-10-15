@@ -570,6 +570,20 @@ page 5330 "CRM Connection Setup"
                     CDSIntegrationImpl.ScheduleRebuildingOfCouplingTable();
                 end;
             }
+            action(FieldServiceIntegrationApp)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Field Service Integration App';
+                Image = Setup;
+                Visible = SoftwareAsAService;
+                ToolTip = 'Go to Microsoft AppSource to get the Field Service Integration app. The app will let you integrate Dynamics 365 Field Service with Business Central.';
+                trigger OnAction()
+                var
+                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                begin
+                    Hyperlink(CRMIntegrationManagement.GetFieldServiceIntegrationAppSourceLink());
+                end;
+            }
         }
         area(Promoted)
         {
@@ -631,6 +645,14 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Cloud Migration', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
                 actionref(RebuildCouplingTable_Promoted; RebuildCouplingTable)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Field Service';
+                Visible = SoftwareAsAService;
+                actionref(FieldServiceIntegrationApp_Promoted; FieldServiceIntegrationApp)
                 {
                 }
             }
