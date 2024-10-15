@@ -331,7 +331,6 @@ report 20 "Calc. and Post VAT Settlement"
                                                 PostGenJnlLine(GenJnlLine);
 
                                             CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
-                                            SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
                                             if PostSettlement then
                                                 PostGenJnlLine(GenJnlLine2);
                                             ReversingEntry := true;
