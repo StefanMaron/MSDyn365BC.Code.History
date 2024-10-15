@@ -5499,7 +5499,10 @@
                 if PurchHeader.Invoice then begin
                     ItemLedgEntry.Reset();
                     ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Purchase Return Shipment");
-                    ItemLedgEntry.SetRange("Document No.", PurchHeader."Last Return Shipment No.");
+                    if "Return Shipment No." <> '' then
+                        ItemLedgEntry.SetRange("Document No.", "Return Shipment No.")
+                    else
+                        ItemLedgEntry.SetRange("Document No.", PurchHeader."Last Return Shipment No.");
                     ItemLedgEntry.SetRange("Item No.", "No.");
                     ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Negative Adjmt.");
                     ItemLedgEntry.SetRange("Completely Invoiced", false);
@@ -6129,6 +6132,7 @@
                         GenJnlLine."VAT Amount" := -GenJnlLine."VAT Amount";
                         GenJnlLine.Quantity := -GenJnlLine.Quantity;
                         GenJnlLine."VAT Difference" := -GenJnlLine."VAT Difference";
+                        TotalUseTaxAmount := -TotalUseTaxAmount;
                     end;
 
                     OnPostProvincialSalesTaxToGLOnBeforeRunWithCheck(PurchHeader, TotalUseTaxAmount, GenJnlLine, TempProvSalesTaxAmtLine, Currency);

@@ -758,6 +758,7 @@ page 44 "Sales Credit Memo"
                         PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         ShowDocumentStatisticsPage();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(CreditMemo_CustomerCard)

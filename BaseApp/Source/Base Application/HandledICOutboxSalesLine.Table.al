@@ -26,6 +26,11 @@ table 431 "Handled IC Outbox Sales Line"
             Caption = 'Description';
             Editable = false;
         }
+        field(12; "Description 2"; Text[50])
+        {
+            Caption = 'Description 2';
+            Editable = false;
+        }
         field(15; Quantity; Decimal)
         {
             Caption = 'Quantity';

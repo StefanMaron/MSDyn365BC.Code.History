@@ -1,6 +1,8 @@
 ﻿table 27025 "SAT Packaging Type"
 {
     DataPerCompany = false;
+    DrillDownPageID = "SAT Packaging Types";
+    LookupPageID = "SAT Packaging Types";
 
     fields
     {
