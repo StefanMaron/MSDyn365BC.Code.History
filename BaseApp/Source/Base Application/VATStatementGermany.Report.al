@@ -500,7 +500,7 @@ report 11005 "VAT Statement Germany"
         exit('');
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcAmountVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line")
     begin
     end;

@@ -286,12 +286,18 @@ codeunit 5633 "FA Jnl.-Post Batch"
                             LastPostedDocNo := "Document No.";
                         end;
                 FAJnlPostLine.FAJnlPostLine(FAJnlLine, false);
+                OnPostLinesOnAfterFAJnlPostLine(FAJnlLine);
             until Next = 0;
         end;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCommit(FARegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnAfterFAJnlPostLine(var FAJnlLine: Record "FA Journal Line")
     begin
     end;
 }

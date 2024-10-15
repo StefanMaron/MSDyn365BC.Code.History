@@ -38,7 +38,14 @@ codeunit 1102 "CA Jnl.-Post Line"
     end;
 
     local procedure "Code"()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := FALSE;
+        OnBeforeCode(CostJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with CostJnlLine do begin
             if EmptyLine then
                 exit;
@@ -284,6 +291,11 @@ codeunit 1102 "CA Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunWithCheck(var CostJournalLine: Record "Cost Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var CostJournalLine: Record "Cost Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -145,6 +145,8 @@ codeunit 23 "Item Jnl.-Post Batch"
             if not WhseReg.FindLast or (WhseReg."No." <> WhseRegNo) then
                 WhseRegNo := 0;
 
+            OnAfterCopyRegNos(ItemJnlLine, ItemRegNo, WhseRegNo);
+
             Init;
 
             "Line No." := ItemRegNo;
@@ -190,6 +192,9 @@ codeunit 23 "Item Jnl.-Post Batch"
         end;
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
+
+        OnAfterUpdateAnalysisViews(ItemReg);
+
         if not SuppressCommit then
             Commit;
     end;
@@ -257,6 +262,8 @@ codeunit 23 "Item Jnl.-Post Batch"
                     LastDocNo2 := "Document No.";
                 MakeRecurringTexts(ItemJnlLine);
                 ConstructPostingNumber(ItemJnlLine);
+
+                OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit);
 
                 if "Inventory Value Per" <> "Inventory Value Per"::" " then
                     ItemJnlPostSumLine(ItemJnlLine)
@@ -470,8 +477,10 @@ codeunit 23 "Item Jnl.-Post Batch"
             Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
             with ItemLedgEntry4 do begin
                 Item.Get(ItemJnlLine4."Item No.");
-                IncludeExpectedCost := (Item."Costing Method" = Item."Costing Method"::Standard) and
-                  (ItemJnlLine4."Inventory Value Per" <> ItemJnlLine4."Inventory Value Per"::" ");
+                OnItemJnlPostSumLineOnAfterGetItem(Item, ItemJnlLine4);
+                IncludeExpectedCost :=
+                    (Item."Costing Method" = Item."Costing Method"::Standard) and
+                    (ItemJnlLine4."Inventory Value Per" <> ItemJnlLine4."Inventory Value Per"::" ");
                 Reset;
                 SetCurrentKey("Item No.", Positive, "Location Code", "Variant Code");
                 SetRange("Item No.", ItemJnlLine."Item No.");
@@ -492,12 +501,12 @@ codeunit 23 "Item Jnl.-Post Batch"
                     SetRange("Variant Code", ItemJnlLine."Variant Code");
                 if FindSet then
                     repeat
+                        OnItemJnlPostSumLineOnBeforeIncludeEntry(ItemJnlLine4, ItemLedgEntry4, IncludeExpectedCost);
                         if IncludeEntryInCalc(ItemLedgEntry4, PostingDate, IncludeExpectedCost) then begin
                             ItemLedgEntry5 := ItemLedgEntry4;
 
                             ItemJnlLine4."Entry Type" := "Entry Type";
-                            ItemJnlLine4.Quantity :=
-                              CalculateRemQuantity("Entry No.", ItemJnlLine."Posting Date");
+                            ItemJnlLine4.Quantity := CalculateRemQuantity("Entry No.", ItemJnlLine."Posting Date");
 
                             ItemJnlLine4."Quantity (Base)" := ItemJnlLine4.Quantity;
                             ItemJnlLine4."Invoiced Quantity" := ItemJnlLine4.Quantity;
@@ -546,6 +555,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                                 end;
                                 ItemJnlLine4."Unit Cost" := ItemJnlLine4.Amount / ItemJnlLine4.Quantity;
 
+                                OnItemJnlPostSumLineOnBeforeCalcAppliedAmount(ItemJnlLine4, ItemLedgEntry4);
                                 if ItemJnlLine4.Amount <> 0 then begin
                                     if IncludeExpectedCost and not ItemLedgEntry5."Completely Invoiced" then begin
                                         ItemJnlLine4."Applied Amount" := Round(
@@ -871,6 +881,11 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyRegNos(var ItemJournalLine: Record "Item Journal Line"; var ItemRegNo: Integer; var WhseRegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterItemJnlPostSumLine(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -887,6 +902,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostWhseJnlLine(ItemJournalLine: Record "Item Journal Line"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAnalysisViews(var ItemRegister: Record "Item Register")
     begin
     end;
 
@@ -962,6 +982,26 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleNonRecurringLineOnInsertNewLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemJnlPostSumLineOnAfterGetItem(var Item: Record Item; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemJnlPostSumLineOnBeforeIncludeEntry(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; var IncludeExpectedCost: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemJnlPostSumLineOnBeforeCalcAppliedAmount(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnBeforePostLine(var ItemJournalLine: Record "Item Journal Line"; var SuppressCommit: Boolean)
     begin
     end;
 

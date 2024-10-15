@@ -134,6 +134,26 @@ codeunit 11000 "Data Export Management"
     [Scope('OnPrem')]
     procedure CreateIndexXML(var TempDataExportRecordSource: Record "Data Export Record Source" temporary; ExportPath: Text; Description: Text; StartDate: Date; EndDate: Date; DTDFileName: Text)
     var
+        DataExportRecordDefinition: Record "Data Export Record Definition";
+        OutStr: OutStream;
+        IndexFile: File;
+    begin
+        if DataExportRecordDefinition.Get(
+             TempDataExportRecordSource."Data Export Code", TempDataExportRecordSource."Data Exp. Rec. Type Code")
+        then
+            ;
+
+        IndexFile.Create(ExportPath + '\' + IndexFileName);
+        IndexFile.CreateOutStream(OutStr);
+        CreateIndexXmlStream(
+          TempDataExportRecordSource, OutStr, Description, StartDate, EndDate,
+          DTDFileName, Format(DataExportRecordDefinition."File Encoding"));
+        IndexFile.Close;
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateIndexXmlStream(var TempDataExportRecordSource: Record "Data Export Record Source" temporary; OutStr: OutStream; Description: Text; StartDate: Date; EndDate: Date; DTDFileName: Text; FileEncoding: Text)
+    var
         DataExportRecField: Record "Data Export Record Field";
         CompanyInfo: Record "Company Information";
         TempPKDataExportRecordField: Record "Data Export Record Field" temporary;
@@ -142,8 +162,6 @@ codeunit 11000 "Data Export Management"
         XMLDocOut: DotNet XmlDocument;
         XMLCurrNode: DotNet XmlElement;
         XMLMediaNode: DotNet XmlElement;
-        OutStr: OutStream;
-        IndexFile: File;
         Symbol: array[2] of Text[1];
     begin
         GLSetup.Get;
@@ -183,6 +201,7 @@ codeunit 11000 "Data Export Management"
                     XMLDOMManagement.AddLastNode(XMLCurrNode, 'To', Format(EndDate, 0, '<Day,2>.<Month,2>.<Year4>'));
                     XMLCurrNode := XMLCurrNode.ParentNode;
                 end;
+                XMLDOMManagement.AddNode(XMLCurrNode, FileEncoding, '');
 
                 GetDelimiterSymbols(Symbol);
                 XMLDOMManagement.AddNode(XMLCurrNode, 'DecimalSymbol', Symbol[1]);
@@ -196,10 +215,7 @@ codeunit 11000 "Data Export Management"
             until TempDataExportRecordSource.Next = 0;
         end;
 
-        IndexFile.Create(ExportPath + '\' + IndexFileName);
-        IndexFile.CreateOutStream(OutStr);
         XMLDocOut.Save(OutStr);
-        IndexFile.Close;
         Clear(XMLDocOut);
     end;
 

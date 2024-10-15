@@ -365,6 +365,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
 
     trigger OnPreReport()
     begin
+        OnBeforePreReport(PostValueEntryToGL, ItemValueEntry);
+
         ValueEntryFilter := PostValueEntryToGL.GetFilters;
     end;
 
@@ -539,7 +541,10 @@ report 1003 "Post Invt. Cost to G/L - Test"
         exit(true);
     end;
 
-    local procedure GetAccountName(): Text[80]
+    procedure GetAccountName(): Text[80]
+    var
+        AccountName: Text[80];
+        IsHandled: Boolean;
     begin
         with TempInvtPostToGLTestBuf do
             case "Inventory Account Type" of
@@ -573,7 +578,16 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     exit(GenPostSetup.FieldCaption("COGS Account (Interim)"));
                 "Inventory Account Type"::"Invt. Accrual (Interim)":
                     exit(GenPostSetup.FieldCaption("Invt. Accrual Acc. (Interim)"));
+                else begin
+                    IsHandled := false;
+                    OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
+                    if IsHandled then
+                        exit(AccountName);
+                end;
             end;
+
+        OnAfterGetAccountName(TempInvtPostToGLTestBuf, InvtPostSetup, GenPostSetup, AccountName);
+        exit(AccountName);
     end;
 
     procedure InitializeRequest(NewPostMethod: Option; NewDocNo: Code[20]; NewShowDim: Boolean; NewShowOnlyWarnings: Boolean)
@@ -582,6 +596,26 @@ report 1003 "Post Invt. Cost to G/L - Test"
         DocNo := NewDocNo;
         ShowDim := NewShowDim;
         ShowOnlyWarnings := NewShowOnlyWarnings;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAccountName(var InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer"; InvtPostingSetup: Record "Inventory Posting Setup"; GenPostingSetup: Record "General Posting Setup"; var AccountName: Text[80])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItem(var PostValueEntryToGL: Record "Post Value Entry to G/L"; CompanyName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport(var PostValueEntryToGL: Record "Post Value Entry to G/L"; ItemValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAccountNameInventoryAccountTypeCase(InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer"; var AccountName: Text[80]; var IsHandled: Boolean; InvtPostingSetup: Record "Inventory Posting Setup"; GenPostingSetup: Record "General Posting Setup")
+    begin
     end;
 }
 

@@ -186,8 +186,8 @@ page 35517 "Payment Journal FactBox"
 
     var
         GenJnlManagement: Codeunit GenJnlManagement;
-        AccName: Text[50];
-        BalAccName: Text[50];
+        AccName: Text[100];
+        BalAccName: Text[100];
         RemainAfterPaymentCaption: Text[30];
         Balance: Decimal;
         TotalBalance: Decimal;

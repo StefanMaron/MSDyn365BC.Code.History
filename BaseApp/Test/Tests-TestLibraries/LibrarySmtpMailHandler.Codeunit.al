@@ -10,6 +10,8 @@ codeunit 131105 "Library - SMTP Mail Handler"
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         LibraryUtility: Codeunit "Library - Utility";
         RunOnAfterTrySendSubscriber: Boolean;
+        SenderAddressGlobal: Text;
+        SenderNameGlobal: Text;
         DisableSending: Boolean;
 
     [Scope('OnPrem')]
@@ -23,6 +25,18 @@ codeunit 131105 "Library - SMTP Mail Handler"
     procedure ActivateOnAfterTrySendSubscriber()
     begin
         RunOnAfterTrySendSubscriber := true;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetSenderAddress(SenderAddress: Text)
+    begin
+        SenderAddressGlobal := SenderAddress;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetSenderName(SenderName: Text)
+    begin
+        SenderNameGlobal := SenderName;
     end;
 
     [Scope('OnPrem')]
@@ -54,5 +68,11 @@ codeunit 131105 "Library - SMTP Mail Handler"
         CancelSending := DisableSending;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, 400, 'OnBeforeCreateMessage', '', false, false)]
+    local procedure SetSenderInfoOnBeforeCreateMessage(var FromName: Text; var FromAddress: Text; var Recipients: List of [Text]; var Subject: Text; var Body: Text)
+    begin
+        FromName := SenderNameGlobal;
+        FromAddress := SenderAddressGlobal;
+    end;
 }
 

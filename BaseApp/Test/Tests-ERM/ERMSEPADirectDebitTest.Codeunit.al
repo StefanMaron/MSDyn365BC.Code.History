@@ -11,6 +11,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     var
         Assert: Codeunit Assert;
         LibrarySales: Codeunit "Library - Sales";
+        LibraryService: Codeunit "Library - Service";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
@@ -221,7 +222,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry.SetFilter("Applies-to Entry Document No.", '<>%1', PostedDocNo);
         DirectDebitCollectionEntry.DeleteAll(true);
         DirectDebitCollectionEntry.SetRange("Applies-to Entry Document No.", PostedDocNo);
-        DirectDebitCollectionEntry.FindFirst;
+        DirectDebitCollectionEntry.FindFirst();
         DirectDebitCollectionEntry2.SetRange("Direct Debit Collection No.", DirectDebitCollectionEntry."Direct Debit Collection No.");
         ExportToServerTempFile(DirectDebitCollectionEntry2);
 
@@ -285,12 +286,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         // Pre-Setup
         BankExportImportSetup.SetRange("Processing XMLport ID", XMLPORT::"SEPA DD pain.008.001.02");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         LibraryERM.CreateBankAccount(BankAcc);
         BankAcc."SEPA Direct Debit Exp. Format" := BankExportImportSetup.Code;
         BankAcc.IBAN := LibraryUtility.GenerateGUID;
         BankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
-        BankAcc.Modify;
+        BankAcc.Modify();
         if DirectDebitCollection.FindLast then begin
             LastDirectDebitCollectionNo := DirectDebitCollection."No.";
             Clear(DirectDebitCollection);
@@ -300,11 +301,11 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollection."No." := LastDirectDebitCollectionNo + 1000;
         DirectDebitCollection."To Bank Account No." := BankAcc."No.";
         DirectDebitCollection.Status := DirectDebitCollection.Status::Closed;
-        DirectDebitCollection.Insert;
+        DirectDebitCollection.Insert();
         DirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";
         DirectDebitCollectionEntry."Entry No." := 1;
         DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::Posted;
-        DirectDebitCollectionEntry.Insert;
+        DirectDebitCollectionEntry.Insert();
 
         // Exercise
         asserterror DirectDebitCollection.Export;
@@ -343,6 +344,145 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Assert.ExpectedErrorCode('DB:NothingInsideFilter');
     end;
 
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceDueDateInRangeWithCurrency()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        BankAccount: Record "Bank Account";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Currency]
+        // [SCENARIO 327227] Report "Create Direct Debit Collection" works for entries with non-euro currencies.
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with random Currency for Customer.
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
+        PostedDocNo :=
+          PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(Customer, WorkDate, WorkDate, Customer."Partner Type"::Company, Currency.Code);
+        CreateSEPABankAccount(BankAccount);
+
+        // [WHEN] Report "Create Direct Debit Collection" is run for Customer.
+        RunCreateDirectDebitCollectionReport(
+          LibraryRandom.RandDate(-5), LibraryRandom.RandDate(5), Customer."Partner Type"::Company, BankAccount."No.", false, false);
+
+        // [THEN] Direct Debit Collection Entry is created.
+        VerifyDirectDebitMandateID(Customer."No.", PostedDocNo, Found);
+        VerifyDirectDebitCollectionEntryCount(PostedDocNo, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler,ResetTransferDateConfirmHandler,RunResetTransferDateOnDDCollectEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ResetTransferDateOnDDEntryWhenTransferDateEarlierThanToday()
+    var
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        TransferDate: Date;
+    begin
+        // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Transfer Date of DD Entry is less than TODAY.
+        Initialize();
+
+        // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY.
+        TransferDate := CreateTransferDate();
+        CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
+
+        // [GIVEN] Error "The earliest possible transfer date is today." is shown in the factbox "File Export Errors".
+        VerifyTransferDateErrorOnDDEntry(DirectDebitCollectionEntry);
+
+        // [WHEN] Open page "Direct Debit Collect. Entries", run "Reset Transfer Date" in RunResetTransferDateOnDDCollectEntriesPageHandler.
+        DirectDebitCollectionEntry.SetRecFilter();
+        Page.Run(Page::"Direct Debit Collect. Entries", DirectDebitCollectionEntry);
+
+        // [THEN] Transfer Date of Direct Debit Collection Entry is changed to TODAY. No errors are shown for this DD Collection Entry.
+        DirectDebitCollectionEntry.Get(DirectDebitCollectionEntry."Direct Debit Collection No.", DirectDebitCollectionEntry."Entry No.");
+        DirectDebitCollectionEntry.TestField("Transfer Date", Today);
+        VerifyNoErrorsOnDDEntry(DirectDebitCollectionEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ResetTransferDateOnDDEntryWhenTransferDateLaterThanToday()
+    var
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        TransferDate: Date;
+    begin
+        // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Transfer Date of DD Entry is greater than TODAY.
+        Initialize();
+
+        // [GIVEN] Direct Debit Collection Entry with Transfer Date > TODAY.
+        TransferDate := Today + LibraryRandom.RandIntInRange(10, 20);
+        CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
+
+        // [WHEN] Run SetTodayAsTransferDateForOverdueEnries function of Direct Debit Collection Entry table.
+        DirectDebitCollectionEntry.SetTodayAsTransferDateForOverdueEnries();
+
+        // [THEN] Transfer Date of Direct Debit Collection Entry is not changed. No errors are shown for this DD Collection Entry.
+        DirectDebitCollectionEntry.Get(DirectDebitCollectionEntry."Direct Debit Collection No.", DirectDebitCollectionEntry."Entry No.");
+        DirectDebitCollectionEntry.TestField("Transfer Date", TransferDate);
+        VerifyNoErrorsOnDDEntry(DirectDebitCollectionEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ResetTransferDateOnDDEntryWhenStatusNotNew()
+    var
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        TransferDate: Date;
+    begin
+        // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Status of DD Entry is not New.
+        Initialize();
+
+        // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = Rejected.
+        TransferDate := CreateTransferDate();
+        CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
+        DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::Rejected;
+        DirectDebitCollectionEntry.Modify();
+
+        // [WHEN] Run SetTodayAsTransferDateForOverdueEnries function of Direct Debit Collection Entry table.
+        DirectDebitCollectionEntry.SetTodayAsTransferDateForOverdueEnries();
+
+        // [THEN] Transfer Date of Direct Debit Collection Entry is not changed. Error "The earliest possible transfer date is today." is shown in the factbox "File Export Errors".
+        DirectDebitCollectionEntry.Get(DirectDebitCollectionEntry."Direct Debit Collection No.", DirectDebitCollectionEntry."Entry No.");
+        DirectDebitCollectionEntry.TestField("Transfer Date", TransferDate);
+        VerifyTransferDateErrorOnDDEntry(DirectDebitCollectionEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ResetTransferDateOnDDEntryInCaseMultipleDDCollections()
+    var
+        DirectDebitCollectionEntry: array[2] of Record "Direct Debit Collection Entry";
+        TransferDate: Date;
+    begin
+        // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" on one DD Collection in case there are several DD Collections.
+        Initialize();
+
+        // [GIVEN] Two Direct Debit Collections D1 and D2, each have one DD Collection Entry with Transfer Date < TODAY.
+        TransferDate := CreateTransferDate();
+        CreateDDEntryWithTransferDate(DirectDebitCollectionEntry[1], TransferDate);
+        CreateDDEntryWithTransferDate(DirectDebitCollectionEntry[2], TransferDate);
+
+        // [WHEN] Run SetTodayAsTransferDateForOverdueEnries function of Direct Debit Collection Entry table on the D1 Collection.
+        DirectDebitCollectionEntry[1].SetTodayAsTransferDateForOverdueEnries();
+
+        // [THEN] Transfer Date of Direct Debit Collection Entry of D1 is changed to TODAY. No errors are shown for this DD Collection Entry.
+        DirectDebitCollectionEntry[1].Get(
+          DirectDebitCollectionEntry[1]."Direct Debit Collection No.", DirectDebitCollectionEntry[1]."Entry No.");
+        DirectDebitCollectionEntry[1].TestField("Transfer Date", Today);
+        VerifyNoErrorsOnDDEntry(DirectDebitCollectionEntry[1]);
+
+        // [THEN] Transfer Date of Direct Debit Collection Entry of D2 is not changed. Error "The earliest possible transfer date is today." is shown in the factbox "File Export Errors".
+        DirectDebitCollectionEntry[2].Get(
+          DirectDebitCollectionEntry[2]."Direct Debit Collection No.", DirectDebitCollectionEntry[2]."Entry No.");
+        DirectDebitCollectionEntry[2].TestField("Transfer Date", TransferDate);
+        VerifyTransferDateErrorOnDDEntry(DirectDebitCollectionEntry[2]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -364,11 +504,24 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         CustomerBankAccount.IBAN := Format(LibraryRandom.RandIntInRange(11111111, 99999999));
         CustomerBankAccount."SWIFT Code" := Format(LibraryRandom.RandIntInRange(1111, 9999));
-        CustomerBankAccount.Modify;
+        CustomerBankAccount.Modify();
         Customer.Validate("Partner Type", PartnerType);
         Customer.Validate("Currency Code", LibraryERM.GetCurrencyCode('EUR'));
         Customer.Validate("Payment Method Code", PaymentMethodCode);
-        Customer.Modify;
+        Customer.Modify();
+    end;
+
+    local procedure CreateCustomerForSEPADD(var Customer: Record Customer)
+    var
+        PaymentMethod: Record "Payment Method";
+        CustomerBankAccount: Record "Customer Bank Account";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+    begin
+        CreateDirectDebitPaymentMethod(PaymentMethod);
+        CreateCustomerWithBankAccount(Customer, CustomerBankAccount, PaymentMethod.Code, Customer."Partner Type"::Company);
+        LibrarySales.CreateCustomerMandate(
+          SEPADirectDebitMandate, CustomerBankAccount."Customer No.", CustomerBankAccount.Code,
+          CalcDate('<-1Y>', LibraryERM.MinDate(WorkDate, Today)), CalcDate('<1Y>', LibraryERM.MaxDate(WorkDate, Today)));
     end;
 
     local procedure CreateDirectDebitPaymentMethod(var PaymentMethod: Record "Payment Method")
@@ -379,7 +532,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Direct Debit", true);
         PaymentMethod.Validate("Direct Debit Pmt. Terms Code", PaymentTerms.Code);
-        PaymentMethod.Modify;
+        PaymentMethod.Modify();
     end;
 
     local procedure CreateSEPABankAccount(var BankAccount: Record "Bank Account")
@@ -387,9 +540,9 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         NoSeries: Record "No. Series";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"SEPA DD-Export File");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
 
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Bank Account No." := Format(LibraryRandom.RandIntInRange(111, 999));
@@ -398,7 +551,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         BankAccount."Creditor No." := Format(LibraryRandom.RandIntInRange(11111111, 99999999));
         BankAccount."SEPA Direct Debit Exp. Format" := BankExportImportSetup.Code;
         BankAccount.Validate("Direct Debit Msg. Nos.", NoSeries.Code);
-        BankAccount.Modify;
+        BankAccount.Modify();
     end;
 
     [RequestPageHandler]
@@ -427,6 +580,43 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         CreateDirectDebitCollection.OK.Invoke;
     end;
 
+    local procedure CreateDDEntryWithTransferDate(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; TransferDate: Date)
+    var
+        Customer: Record Customer;
+        BankAccount: Record "Bank Account";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedDocNo: Code[20];
+    begin
+        CreateSEPABankAccount(BankAccount);
+        CreateCustomerForSEPADD(Customer);
+        PostedDocNo := CreateAndPostSalesInvoice(Customer."No.", TransferDate);
+        SalesInvoiceHeader.Get(PostedDocNo);
+        SalesInvoiceHeader.TestField("Due Date", TransferDate);
+
+        RunCreateDirectDebitCollectionReport(
+          TransferDate, TransferDate, Customer."Partner Type"::Company, BankAccount."No.", false, false);
+
+        FindDDCollectionEntry(DirectDebitCollectionEntry, PostedDocNo);
+        DirectDebitCollectionEntry.TestField("Transfer Date", TransferDate);
+    end;
+
+    local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+          Item, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+
     local procedure EnqueueRequestPage(FromDate: Date; ToDate: Date; PartnerType: Option; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean)
     begin
         LibraryVariableStorage.Enqueue(FromDate);
@@ -452,7 +642,25 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         ExportFile.Close;
     end;
 
+    local procedure FindDDCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; PostedDocumentNo: Code[20])
+    begin
+        DirectDebitCollectionEntry.SetRange("Applies-to Entry Document No.", PostedDocumentNo);
+        DirectDebitCollectionEntry.FindFirst();
+    end;
+
+    local procedure FindFirstErrorOnDDEntry(var PmtJnlExportErrorText: Record "Payment Jnl. Export Error Text"; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    begin
+        PmtJnlExportErrorText.SetRange("Document No.", Format(DirectDebitCollectionEntry."Direct Debit Collection No."));
+        PmtJnlExportErrorText.SetRange("Journal Line No.", DirectDebitCollectionEntry."Entry No.");
+        PmtJnlExportErrorText.FindFirst();
+    end;
+
     local procedure PostWorkdateSalesInvoiceSEPADirectDebit(var Customer: Record Customer; MandateFromDate: Date; MandateToDate: Date; Partnertype: Option): Code[20]
+    begin
+        exit(PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(Customer, MandateFromDate, MandateToDate, Partnertype, ''));
+    end;
+
+    local procedure PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(var Customer: Record Customer; MandateFromDate: Date; MandateToDate: Date; Partnertype: Option; CurrencyCode: Code[10]): Code[20]
     var
         CustomerBankAccount: Record "Customer Bank Account";
         PaymentMethod: Record "Payment Method";
@@ -468,9 +676,10 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
+        SalesLine.Validate("Currency Code", CurrencyCode);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true))
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
     local procedure PostTwoWorkdateSalesInvoicesSEPADirectDebit(var Customer: Record Customer; var Customer2: Record Customer; var PostedDocNo: Code[20]; var PostedDocNo2: Code[20])
@@ -494,7 +703,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
         SEPADirectDebitMandate.SetRange("Customer No.", CustomerNo);
-        SEPADirectDebitMandate.FindFirst;
+        SEPADirectDebitMandate.FindFirst();
 
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
@@ -521,6 +730,40 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         VerifyDirectDebitCollectionEntryCount(PostedDocNo2, 1);
     end;
 
+    local procedure VerifyTransferDateErrorOnDDEntry(DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    var
+        PmtJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+    begin
+        FindFirstErrorOnDDEntry(PmtJnlExportErrorText, DirectDebitCollectionEntry);
+        Assert.ExpectedMessage('The earliest possible transfer date is today.', PmtJnlExportErrorText."Error Text");
+        Assert.ExpectedMessage(
+          'You can use the Reset Transfer Date action to eliminate the error.', PmtJnlExportErrorText."Additional Information");
+    end;
+
+    local procedure VerifyNoErrorsOnDDEntry(DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    var
+        PmtJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+    begin
+        PmtJnlExportErrorText.SetRange("Document No.", Format(DirectDebitCollectionEntry."Direct Debit Collection No."));
+        PmtJnlExportErrorText.SetRange("Journal Line No.", DirectDebitCollectionEntry."Entry No.");
+        Assert.RecordIsEmpty(PmtJnlExportErrorText);
+    end;
+
+    local procedure CreateTransferDate(): Date
+    var
+        DateLimit: Date;
+        CurrentYear: Integer;
+    begin
+        // the logic in this method prevent the test from failing in the first days of the year
+        CurrentYear := Date2DWY(Today, 3);
+        DateLimit := DMY2DATE(21, 1, CurrentYear);
+
+        if Today < DateLimit then
+            exit(DateLimit - LibraryRandom.RandIntInRange(10, 20));
+
+        exit(Today() - LibraryRandom.RandIntInRange(10, 20));
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -533,6 +776,21 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ResetTransferDateConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage('Do you want to insert today''s date in the Transfer Date field on all overdue entries?', Question);
+        Reply := true;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure RunResetTransferDateOnDDCollectEntriesPageHandler(var DirectDebitCollectEntries: TestPage "Direct Debit Collect. Entries")
+    begin
+        DirectDebitCollectEntries.ResetTransferDate.Invoke();
     end;
 }
 

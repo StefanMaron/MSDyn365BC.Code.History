@@ -1,13 +1,12 @@
 codeunit 142086 "Intrastat XML Export DACH"
 {
-    // [FEATURE] [Intrastat] [XML] [Export] [Local]
-
     EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
     trigger OnRun()
     begin
+        // [FEATURE] [Intrastat] [XML] [Export] [Local]
     end;
 
     var
@@ -669,7 +668,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         Initialize;
 
         // [GIVEN] A new Intrastat Journal Batch "X"
-        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
 
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "ASCII", "Test Submission" = FALSE
         RunReport(IntrastatJnlBatch, FormatTypeGlb::ASCII, false);
@@ -690,7 +689,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         Initialize;
 
         // [GIVEN] A new Intrastat Journal Batch "X"
-        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
 
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "ASCII", "Test Submission" = TRUE
         RunReport(IntrastatJnlBatch, FormatTypeGlb::ASCII, true);
@@ -711,7 +710,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         Initialize;
 
         // [GIVEN] A new Intrastat Journal Batch "X"
-        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
 
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "XML", "Test Submission" = FALSE
         RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
@@ -732,7 +731,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         Initialize;
 
         // [GIVEN] A new Intrastat Journal Batch "X"
-        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
 
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "XML", "Test Submission" = TRUE
         RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, true);
@@ -751,16 +750,8 @@ codeunit 142086 "Intrastat XML Export DACH"
         DummyIntrastatJnlLineSpec: array[4] of Record "Intrastat Jnl. Line";
         CompanyInformation: Record "Company Information";
         TempBlob: Codeunit "Temp Blob";
-        DataCompression: Codeunit "Data Compression";
-        XMLDocument: DotNet XmlDocument;
-        EntryList: List of [Text];
-        ZipFile: File;
-        ZipFileInStream: InStream;
-        ExtractedFileInStream: InStream;
-        ExtractedFileOutStream: OutStream;
         ZipFileName: Text;
         VATIDNo: Text;
-        EntryLength: Integer;
     begin
         // [FEATURE] [Report]
         // [SCENARIO 255730] REP 11014 "Intrastat - Disk Tax Auth DE" in case of "Format Type" = "XML", "Test Submission" = FALSE, several item specifications with Receipts, Shipments
@@ -775,19 +766,9 @@ codeunit 142086 "Intrastat XML Export DACH"
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "XML"
         ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, FALSE);
 
-        ZipFile.Open(ZipFileName);
-        ZipFile.CreateInStream(ZipFileInStream);
-        DataCompression.OpenZipArchive(ZipFileInStream, false);
-        DataCompression.GetEntryList(EntryList);
-        TempBlob.CreateOutStream(ExtractedFileOutStream);
-        DataCompression.ExtractEntry(EntryList.Get(1), ExtractedFileOutStream, EntryLength);
-        TempBlob.CreateInStream(ExtractedFileInStream);
-        DataCompression.CloseZipArchive();
-        ZipFile.Close();
-
         // [THEN] XML has been exported with two Declarations: Receipt (items spec "S1", "S2"), Shipment (items spec "S3", "S4")
-        LoadXMLFile(XMLDocument, ExtractedFileInStream);
-        LibraryXPathXMLReader.InitializeWithText(XMLDocument.OuterXml, '');
+        ExtractXMLFromZipFile(ZipFileName, TempBlob);
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         VerifyXMLHeader(VATIDNo, CompanyInformation.Name, CompanyInformation."Company No.");
         LibraryXPathXMLReader.VerifyNodeAbsence('/INSTAT/Envelope/testIndicator');
         VerifyXMLDeclaration(
@@ -808,16 +789,8 @@ codeunit 142086 "Intrastat XML Export DACH"
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        DataCompression: Codeunit "Data Compression";
         TempBlob: Codeunit "Temp Blob";
-        XMLDocument: DotNet XmlDocument;
-        ExtractedFileInStream: InStream;
-        ZipFileInStream: InStream;
-        ExtractedFileOutStream: OutStream;
-        FileName: Text;
-        ZipFile: File;
-        EntryList: List of [Text];
-        EntryLength: Integer;
+        ZipFileName: Text;
     begin
         // [FEATURE] [Report]
         // [SCENARIO 331036] REP 11014 "Intrastat - Disk Tax Auth DE" in case of "Format Type" = "XML", Amount = 0, Statistical Value entered manually
@@ -832,21 +805,11 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
 
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "XML"
-        FileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, FALSE);
-
-        ZipFile.Open(FileName);
-        ZipFile.CreateInStream(ZipFileInStream);
-        DataCompression.OpenZipArchive(ZipFileInStream, false);
-        DataCompression.GetEntryList(EntryList);
-        TempBlob.CreateOutStream(ExtractedFileOutStream);
-        DataCompression.ExtractEntry(EntryList.Get(1), ExtractedFileOutStream, EntryLength);
-        TempBlob.CreateInStream(ExtractedFileInStream);
-        DataCompression.CloseZipArchive();
-        ZipFile.Close();
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, FALSE);
 
         // [THEN] XML has been exported with Amount = 0, Statistical Value = 100
-        LoadXMLFile(XMLDocument, ExtractedFileInStream);
-        LibraryXPathXMLReader.InitializeWithText(XMLDocument.OuterXml, '');
+        ExtractXMLFromZipFile(ZipFileName, TempBlob);
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         IntrastatJnlLine.Find;
         VerifyXMLItem('/INSTAT/Envelope/Declaration/', IntrastatJnlLine, 0);
         LibraryXPathXMLReader.VerifyNodeValueByXPath(
@@ -862,7 +825,6 @@ codeunit 142086 "Intrastat XML Export DACH"
     var
         CompanyInformation: Record "Company Information";
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
-        FormatType: Option ASCII,XML;
         ServerFileReceiptsPath: Text;
         ServerFileShipmentsPath: Text;
         DestinationFilePath: Text;
@@ -880,7 +842,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
 
         // [WHEN] Invoke DownloadFile() with format type is ASCII.
-        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatType::ASCII, '');
+        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatTypeGlb::ASCII, '');
 
         // [THEN] Files are archived and copied to the destination file.
         Assert.IsTrue(File.Exists(DestinationFilePath), StrSubstNo(FileDoesntExistErr, DestinationFilePath));
@@ -892,7 +854,6 @@ codeunit 142086 "Intrastat XML Export DACH"
     var
         CompanyInformation: Record "Company Information";
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
-        FormatType: Option ASCII,XML;
         ServerFileReceiptsPath: Text;
         ServerFileShipmentsPath: Text;
         DestinationFilePath: Text;
@@ -910,7 +871,7 @@ codeunit 142086 "Intrastat XML Export DACH"
 
         // [WHEN] Invoke DownloadFile() with format type is ASCII.
         asserterror IntrastatExportMgtDACH.DownloadFile(
-            DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatType::ASCII, '');
+            DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatTypeGlb::ASCII, '');
 
         // [THEN] Testfield is failed with error "Sales Authorized No. must have a value in Company Information: Primary Key=. It cannot be zero or empty.".
         Assert.ExpectedErrorCode('TestField');
@@ -923,7 +884,6 @@ codeunit 142086 "Intrastat XML Export DACH"
     var
         CompanyInformation: Record "Company Information";
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
-        FormatType: Option ASCII,XML;
         ServerFileReceiptsPath: Text;
         ServerFileShipmentsPath: Text;
         DestinationFilePath: Text;
@@ -942,7 +902,7 @@ codeunit 142086 "Intrastat XML Export DACH"
 
         // [WHEN] Invoke DownloadFile() with format type is ASCII.
         asserterror IntrastatExportMgtDACH.DownloadFile(
-            DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatType::ASCII, '');
+            DestinationFilePath, ServerFileReceiptsPath, ServerFileShipmentsPath, FormatTypeGlb::ASCII, '');
 
         // [THEN] Testfield is failed with error "Purch. Authorized No. must have a value in Company Information: Primary Key=. It cannot be zero or empty.".
         Assert.ExpectedErrorCode('TestField');
@@ -955,7 +915,6 @@ codeunit 142086 "Intrastat XML Export DACH"
     var
         CompanyInformation: Record "Company Information";
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
-        FormatType: Option ASCII,XML;
         ServerFileReceiptsPath: Text;
         ServerFileShipmentsPath: Text;
         DestinationFilePath: Text;
@@ -973,7 +932,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
 
         // [WHEN] Invoke DownloadFile() with format type is XML.
-        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatType::XML, '');
+        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatTypeGlb::XML, '');
 
         // [THEN] Source file is archived and copied to the destination file.
         Assert.IsTrue(File.Exists(DestinationFilePath), StrSubstNo(FileDoesntExistErr, DestinationFilePath));
@@ -985,7 +944,6 @@ codeunit 142086 "Intrastat XML Export DACH"
     var
         CompanyInformation: Record "Company Information";
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
-        FormatType: Option ASCII,XML;
         ServerFileReceiptsPath: Text;
         ServerFileShipmentsPath: Text;
         DestinationFilePath: Text;
@@ -1003,7 +961,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
 
         // [WHEN] Invoke DownloadFile() with format type is XML.
-        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatType::XML, '');
+        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatTypeGlb::XML, '');
 
         // [THEN] Source file is archived and copied to the destination file.
         Assert.IsTrue(File.Exists(DestinationFilePath), StrSubstNo(FileDoesntExistErr, DestinationFilePath));
@@ -1015,7 +973,6 @@ codeunit 142086 "Intrastat XML Export DACH"
     var
         CompanyInformation: Record "Company Information";
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
-        FormatType: Option ASCII,XML;
         ServerFileReceiptsPath: Text;
         ServerFileShipmentsPath: Text;
         DestinationFilePath: Text;
@@ -1033,10 +990,304 @@ codeunit 142086 "Intrastat XML Export DACH"
         CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, DestinationFilePath);
 
         // [WHEN] Invoke DownloadFile() with format type is XML.
-        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatType::XML, '');
+        IntrastatExportMgtDACH.DownloadFile(DestinationFilePath, '', ServerFileShipmentsPath, FormatTypeGlb::XML, '');
 
         // [THEN] Source file is archived and copied to the destination file.
         Assert.IsTrue(File.Exists(DestinationFilePath), StrSubstNo(FileDoesntExistErr, DestinationFilePath));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileASCIIShipmentsOnly()
+    var
+        CompanyInfo: Record "Company Information";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        ServerFileReceiptsPath: Text;
+        ServerFileShipmentsPath: Text;
+        ZipFilePath: Text;
+        FileList: List of [Text];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333492] Run function DownloadFile of IntrastatExportMgtDACH codeunit in case Receipt ACSII file is not found.
+        Initialize;
+        CompanyInfo.Get;
+
+        // [GIVEN] Mock files for zipping.
+        CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, ZipFilePath);
+
+        // [WHEN] Run DownloadFile function of IntrastatExportMgtDACH codeunit for ASCII type in case path for Receipts file is empty.
+        IntrastatExportMgtDACH.DownloadFile(ZipFilePath, '', ServerFileShipmentsPath, FormatTypeGlb::ASCII, '');
+
+        // [THEN] DownloadFile function creates a zip file, that contains only one ASCII file for Shipments.
+        GetFileListFromZipFile(ZipFilePath, FileList);
+        Assert.AreEqual(1, FileList.Count(), '');
+        Assert.ExpectedMessage(StrSubstNo('%1.ASC', CompanyInfo."Sales Authorized No."), FileList.Get(1));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileASCIIReceiptsOnly()
+    var
+        CompanyInfo: Record "Company Information";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        ServerFileReceiptsPath: Text;
+        ServerFileShipmentsPath: Text;
+        ZipFilePath: Text;
+        FileList: List of [Text];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333492] Run function DownloadFile of IntrastatExportMgtDACH codeunit in case Shipments ACSII file is not found.
+        Initialize;
+        CompanyInfo.Get;
+
+        // [GIVEN] Mock files for zipping.
+        CreateServerFiles(ServerFileReceiptsPath, ServerFileShipmentsPath, ZipFilePath);
+
+        // [WHEN] Run DownloadFile function of IntrastatExportMgtDACH codeunit for ASCII type in case path for Shipments file is empty.
+        IntrastatExportMgtDACH.DownloadFile(ZipFilePath, ServerFileReceiptsPath, '', FormatTypeGlb::ASCII, '');
+
+        // [THEN] DownloadFile function creates a zip file, that contains only one ASCII file for Receipts.
+        GetFileListFromZipFile(ZipFilePath, FileList);
+        Assert.AreEqual(1, FileList.Count(), '');
+        Assert.ExpectedMessage(StrSubstNo('%1.ASC', CompanyInfo."Purch. Authorized No."), FileList.Get(1));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadFileXMLWhenShipmentsFileNotFound()
+    var
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        FileManagement: Codeunit "File Management";
+        ZipFilePath: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333492] Run function DownloadFile of IntrastatExportMgtDACH codeunit in case Shipments XML file is not found.
+        Initialize;
+
+        // [WHEN] Run DownloadFile function of IntrastatExportMgtDACH codeunit for XML type in case path for Shipments file is empty.
+        ZipFilePath := FileManagement.ServerTempFileName('');
+        IntrastatExportMgtDACH.DownloadFile(ZipFilePath, '', '', FormatTypeGlb::XML, '');
+
+        // [THEN] DownloadFile function does not create a zip file, because there is nothing to archive.
+        Assert.IsFalse(File.Exists(ZipFilePath), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    [Scope('OnPrem')]
+    procedure RunIntrastatDiskTaxAuthDEAsciiWhenReceiptsAndShipmentsAreSet()
+    var
+        CompanyInfo: Record "Company Information";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ZipFileName: Text;
+        FileList: List of [Text];
+    begin
+        // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with ASCII format in case "Report Receipts"/"Report Shipments" are set.
+        Initialize;
+        CompanyInfo.Get;
+
+        // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
+        // [GIVEN] "Report Receipts" and "Report Shipments" of Intrastat Setup are set.
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE" with format ASCII.
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::ASCII, false);
+
+        // [THEN] Zip arhive is created, it contains two ASCII files, one for Receipts, one for Shipments.
+        GetFileListFromZipFile(ZipFileName, FileList);
+        Assert.AreEqual(2, FileList.Count(), '');
+        Assert.ExpectedMessage(StrSubstNo('%1.ASC', CompanyInfo."Purch. Authorized No."), FileList.Get(1));
+        Assert.ExpectedMessage(StrSubstNo('%1.ASC', CompanyInfo."Sales Authorized No."), FileList.Get(2));
+
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    [Scope('OnPrem')]
+    procedure RunIntrastatDiskTaxAuthDEAsciiWhenReceiptsAndShipmentsAreNotSet()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with ASCII format in case "Report Receipts"/"Report Shipments" are not set.
+        Initialize;
+
+        // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
+        // [GIVEN] "Report Receipts" and "Report Shipments" of Intrastat Setup are not set.
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
+        UpdateReceiptsShipmentsOnIntrastatSetup(false, false);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE" with format ASCII.
+        asserterror RunReport(IntrastatJnlBatch, FormatTypeGlb::ASCII, false);
+
+        // [THEN] Error "There are no values to report as per Intrastat Setup" is thrown.
+        Assert.ExpectedError('You must select the Report Receipts and Report Shipments check boxes on the Intrastat Setup page.');
+        Assert.ExpectedErrorCode('Dialog');
+
+        // Tear down
+        LibraryVariableStorage.DequeueInteger;
+        LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    [Scope('OnPrem')]
+    procedure RunIntrastatDiskTaxAuthDEAsciiWhenReceiptsIsSet()
+    var
+        CompanyInfo: Record "Company Information";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ZipFileName: Text;
+        FileList: List of [Text];
+    begin
+        // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with ASCII format in case "Report Receipts" is set, "Report Shipments" is not set.
+        Initialize;
+        CompanyInfo.Get;
+
+        // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
+        // [GIVEN] "Report Receipts" is set, "Report Shipments" is not set in Intrastat Setup.
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, false);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE" with format ASCII.
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::ASCII, false);
+
+        // [THEN] Zip arhive is created, it contains only one ASCII file for Receipts.
+        GetFileListFromZipFile(ZipFileName, FileList);
+        Assert.AreEqual(1, FileList.Count(), '');
+        Assert.ExpectedMessage(StrSubstNo('%1.ASC', CompanyInfo."Purch. Authorized No."), FileList.Get(1));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    [Scope('OnPrem')]
+    procedure RunIntrastatDiskTaxAuthDEAsciiWhenShipmentsIsSet()
+    var
+        CompanyInfo: Record "Company Information";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ZipFileName: Text;
+        FileList: List of [Text];
+    begin
+        // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with ASCII format in case "Report Receipts" is not set, "Report Shipments" is set.
+        Initialize;
+        CompanyInfo.Get;
+
+        // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
+        // [GIVEN] "Report Receipts" is not set, "Report Shipments" is set in Intrastat Setup.
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
+        UpdateReceiptsShipmentsOnIntrastatSetup(false, true);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE" with format ASCII.
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::ASCII, false);
+
+        // [THEN] Zip arhive is created, it contains only one ASCII file for Shipments.
+        GetFileListFromZipFile(ZipFileName, FileList);
+        Assert.AreEqual(1, FileList.Count(), '');
+        Assert.ExpectedMessage(StrSubstNo('%1.ASC', CompanyInfo."Sales Authorized No."), FileList.Get(1));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    [Scope('OnPrem')]
+    procedure RunIntrastatDiskTaxAuthDEXmlWhenReceiptsAndShipmentsAreSet()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        TempBlob: Codeunit "Temp Blob";
+        ZipFileName: Text;
+        ItemDescription: List of [Text[100]];
+    begin
+        // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with XML format in case "Report Receipts"/"Report Shipments" are set.
+        Initialize;
+
+        // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
+        // [GIVEN] "Report Receipts" and "Report Shipments" of Intrastat Setup are set.
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
+        FindIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch.Name, IntrastatJnlLine.Type::Receipt);
+        ItemDescription.Add(IntrastatJnlLine."Item Description");
+        FindIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch.Name, IntrastatJnlLine.Type::Shipment);
+        ItemDescription.Add(IntrastatJnlLine."Item Description");
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE" with format XML.
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
+
+        // [THEN] Zip arhive is created, it contains XML file with sections for Receipts and Shipments.
+        ExtractXMLFromZipFile(ZipFileName, TempBlob);
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item', 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Declaration/Item/goodsDescription', ItemDescription.Get(1), 0);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Declaration/Item/goodsDescription', ItemDescription.Get(2), 1);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    [Scope('OnPrem')]
+    procedure RunIntrastatDiskTaxAuthDEXmlWhenReceiptsIsSet()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        TempBlob: Codeunit "Temp Blob";
+        ZipFileName: Text;
+    begin
+        // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with XML format in case "Report Receipts" is set, "Report Shipments" is not set.
+        Initialize;
+
+        // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
+        // [GIVEN] "Report Receipts" is set, "Report Shipments" is not set in Intrastat Setup.
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
+        FindIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch.Name, IntrastatJnlLine.Type::Receipt);
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, false);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE" with format XML.
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
+
+        // [THEN] Zip arhive is created, it contains XML file with section for Receipts only.
+        ExtractXMLFromZipFile(ZipFileName, TempBlob);
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item', 1);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//Declaration/Item/goodsDescription', IntrastatJnlLine."Item Description");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    [Scope('OnPrem')]
+    procedure RunIntrastatDiskTaxAuthDEXmlWhenShipmentsIsSet()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        TempBlob: Codeunit "Temp Blob";
+        ZipFileName: Text;
+    begin
+        // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with XML format in case "Report Receipts" is not set, "Report Shipments" is set.
+        Initialize;
+
+        // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
+        // [GIVEN] "Report Receipts" is not set, "Report Shipments" is set in Intrastat Setup.
+        CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
+        FindIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch.Name, IntrastatJnlLine.Type::Shipment);
+        UpdateReceiptsShipmentsOnIntrastatSetup(false, true);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE" with format XML.
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
+
+        // [THEN] Zip arhive is created, it contains XML file with section for Shipments only.
+        ExtractXMLFromZipFile(ZipFileName, TempBlob);
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item', 1);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//Declaration/Item/goodsDescription', IntrastatJnlLine."Item Description");
+
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     local procedure Initialize()
@@ -1048,76 +1299,10 @@ codeunit 142086 "Intrastat XML Export DACH"
         IsInitialized := true;
 
         UpdateCompanyInformation;
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
         Commit;
-    end;
-
-    local procedure UpdateCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-        IntrastatSetup: Record "Intrastat Setup";
-    begin
-        with CompanyInformation do begin
-            Get;
-            "Registration No." := '01234567890';
-            Area := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Area)), 1, MaxStrLen(Area));
-            "Agency No." := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Agency No.")), 1, MaxStrLen("Agency No."));
-            "Sales Authorized No." :=
-              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Sales Authorized No.")), 1, MaxStrLen("Sales Authorized No."));
-            "Purch. Authorized No." :=
-              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Purch. Authorized No.")), 1, MaxStrLen("Purch. Authorized No."));
-            "Company No." := LibraryUtility.GenerateGUID;
-            Address := LibraryUtility.GenerateGUID;
-            "Post Code" := LibraryUtility.GenerateGUID;
-            City := LibraryUtility.GenerateGUID;
-            "Country/Region Code" := CreateCountryRegionCode;
-            "Phone No." := LibraryUtility.GenerateGUID;
-            "Fax No." := LibraryUtility.GenerateGUID;
-            "E-Mail" := LibraryUtility.GenerateGUID;
-            Modify;
-        end;
-        with IntrastatSetup do
-            LibraryERM.SetIntrastatContact(
-              "Intrastat Contact Type"::Contact,
-              LibraryERM.CreateIntrastatContact("Intrastat Contact Type"::Contact));
-    end;
-
-    local procedure PrepareXMLExport(var IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH"; var StartDate: Date; var CreationDate: Date; var CreationTime: Time; var MessageID: Text; var VATIDNo: Text; TestSubmission: Boolean)
-    var
-        CreationDateTime: DateTime;
-        MaterialNumber: Text;
-    begin
-        StartDate := LibraryRandom.RandDate(100);
-        CreationDateTime := CurrentDateTime;
-        IntrastatExportMgtDACH.Initialize(CreationDateTime);
-        CreationDate := DT2Date(CreationDateTime);
-        CreationTime := DT2Time(CreationDateTime);
-        MaterialNumber := GetMaterialNumber(TestSubmission);
-        MessageID := GetMessageID(MaterialNumber, StartDate, CreationDate, CreationTime);
-        VATIDNo := GetVATIDNo;
-    end;
-
-    local procedure PrepareIntraJnlForBasicScenario(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IntrastatJnlLineSpec: array[4] of Record "Intrastat Jnl. Line")
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        i: Integer;
-    begin
-        CreateIntrastatJnlBatch(IntrastatJnlBatch);
-
-        for i := 1 to 2 do begin
-            CreateItemSpecification(
-              IntrastatJnlLineSpec[i], IntrastatJnlLine.Type::Receipt, true, GetInternalRefNo(IntrastatJnlBatch, i));
-            CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec[i], IntrastatJnlBatch);
-            CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec[i], IntrastatJnlBatch);
-        end;
-
-        for i := 3 to ArrayLen(IntrastatJnlLineSpec) do begin
-            CreateItemSpecification(
-              IntrastatJnlLineSpec[i], IntrastatJnlLine.Type::Shipment, true, GetInternalRefNo(IntrastatJnlBatch, i - 2));
-            CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec[i], IntrastatJnlBatch);
-            CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec[i], IntrastatJnlBatch);
-        end;
     end;
 
     local procedure CreateCountryRegionCode(): Code[10]
@@ -1127,7 +1312,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibraryERM.CreateCountryRegion(CountryRegion);
         with CountryRegion do begin
             Validate(Name, LibraryUtility.GenerateGUID);
-            Validate("Intrastat Code", LibraryUtility.GenerateGUID);
+            Validate("Intrastat Code", CopyStr(LibraryUtility.GenerateRandomXMLText(3), 1, 3));
             Modify(true);
             exit(Code);
         end;
@@ -1155,6 +1340,7 @@ codeunit 142086 "Intrastat XML Export DACH"
             "Country/Region of Origin Code" := IntrastatJnlLineSpec."Country/Region of Origin Code";
             "Supplementary Units" := IntrastatJnlLineSpec."Supplementary Units";
             "Document No." := IntrastatJnlLineSpec."Document No.";
+            Date := IntrastatJnlLineSpec.Date;
 
             Validate(Quantity, LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
             Validate("Net Weight", LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
@@ -1184,31 +1370,69 @@ codeunit 142086 "Intrastat XML Export DACH"
             "Country/Region of Origin Code" := CreateCountryRegionCode;
             "Supplementary Units" := SU;
             "Document No." := LibraryUtility.GenerateGUID;
+            Date := WorkDate();
         end;
     end;
 
-    local procedure MockIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; LineType: Option; SU: Boolean)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    local procedure CreateReceiptAndShipmentIntrastatJnlLines(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch");
+    VAR
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
     begin
         CreateIntrastatJnlBatch(IntrastatJnlBatch);
-        CreateItemSpecification(IntrastatJnlLineSpec, LineType, SU, LibraryUtility.GenerateGUID);
+        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Receipt, false, LibraryUtility.GenerateGUID);
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec, IntrastatJnlBatch);
-        IntrastatJnlLine."Internal Ref. No." := LibraryUtility.GenerateGUID;
-        IntrastatJnlLine.Modify;
+        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Shipment, false, LibraryUtility.GenerateGUID);
+        CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec, IntrastatJnlBatch);
     end;
 
-    local procedure ModifyCountryRegionIntrastatCode(CountryRegionCode: Code[10]; NewIntrastatCode: Code[10])
+    local procedure CreateServerFiles(var ServerFileReceiptsPath: Text; var ServerFileShipmentsPath: Text; var DestinationFilePath: Text)
     var
-        CountryRegion: Record "Country/Region";
+        FileManagement: Codeunit "File Management";
+        ServerFileReceipts: File;
+        ServerFileShipments: File;
     begin
-        with CountryRegion do begin
-            Get(CountryRegionCode);
-            Validate("Intrastat Code", NewIntrastatCode);
-            Modify(true);
-        end;
+        ServerFileReceiptsPath := FileManagement.ServerTempFileName('');
+        ServerFileReceipts.Create(ServerFileReceiptsPath);
+        ServerFileReceipts.Close;
+
+        ServerFileShipmentsPath := FileManagement.ServerTempFileName('');
+        ServerFileShipments.Create(ServerFileShipmentsPath);
+        ServerFileShipments.Close;
+
+        DestinationFilePath := FileManagement.ServerTempFileName('');
     end;
+
+    local procedure ExtractXMLFromZipFile(ZipFileName: Text; var TempBlob: Codeunit "Temp Blob")
+    var
+        DataCompression: Codeunit "Data Compression";
+        ZipFileInStream: InStream;
+        EntryFileOutStream: OutStream;
+        EntryList: List of [Text];
+        EntryLength: Integer;
+        ZipFile: File;
+    begin
+        ZipFile.Open(ZipFileName);
+        ZipFile.CreateInStream(ZipFileInStream);
+        DataCompression.OpenZipArchive(ZipFileInStream, false);
+        DataCompression.GetEntryList(EntryList);
+        TempBlob.CreateOutStream(EntryFileOutStream);
+        DataCompression.ExtractEntry(EntryList.Get(1), EntryFileOutStream, EntryLength);
+        DataCompression.CloseZipArchive();
+        ZipFile.Close();
+    end;
+
+    local procedure FormatDecimal(DecimalValue: Decimal): Text
+    begin
+        exit(Format(DecimalValue, 0, '<Precision,0><Standard Format,9>'));
+    end;
+
+    local procedure FindIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatchName: Code[10]; LineType: Option);
+    BEGIN
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatchName);
+        IntrastatJnlLine.SetRange(Type, LineType);
+        IntrastatJnlLine.FindFirst();
+    END;
 
     local procedure GetMaterialNumber(TestSubmission: Boolean): Text
     var
@@ -1255,6 +1479,81 @@ codeunit 142086 "Intrastat XML Export DACH"
         exit(IntrastatJnlBatch."Statistics Period" + Format(Index, 0, '<Integer,6><Filler Character,0>'));
     end;
 
+    local procedure GetFileListFromZipFile(ZipFileName: Text; var EntryList: List of [Text])
+    var
+        DataCompression: Codeunit "Data Compression";
+        ZipFileInStream: InStream;
+        EntryFileOutStream: OutStream;
+        ZipFile: File;
+    begin
+        ZipFile.Open(ZipFileName);
+        ZipFile.CreateInStream(ZipFileInStream);
+        DataCompression.OpenZipArchive(ZipFileInStream, false);
+        DataCompression.GetEntryList(EntryList);
+        DataCompression.CloseZipArchive();
+        ZipFile.Close();
+    end;
+
+    local procedure MockIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; LineType: Option; SU: Boolean)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
+    begin
+        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateItemSpecification(IntrastatJnlLineSpec, LineType, SU, LibraryUtility.GenerateGUID);
+        CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec, IntrastatJnlBatch);
+        IntrastatJnlLine."Internal Ref. No." := LibraryUtility.GenerateGUID;
+        IntrastatJnlLine.Modify;
+    end;
+
+    local procedure ModifyCountryRegionIntrastatCode(CountryRegionCode: Code[10]; NewIntrastatCode: Code[10])
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        with CountryRegion do begin
+            Get(CountryRegionCode);
+            Validate("Intrastat Code", NewIntrastatCode);
+            Modify(true);
+        end;
+    end;
+
+    local procedure PrepareXMLExport(var IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH"; var StartDate: Date; var CreationDate: Date; var CreationTime: Time; var MessageID: Text; var VATIDNo: Text; TestSubmission: Boolean)
+    var
+        CreationDateTime: DateTime;
+        MaterialNumber: Text;
+    begin
+        StartDate := LibraryRandom.RandDate(100);
+        CreationDateTime := CurrentDateTime;
+        IntrastatExportMgtDACH.Initialize(CreationDateTime);
+        CreationDate := DT2Date(CreationDateTime);
+        CreationTime := DT2Time(CreationDateTime);
+        MaterialNumber := GetMaterialNumber(TestSubmission);
+        MessageID := GetMessageID(MaterialNumber, StartDate, CreationDate, CreationTime);
+        VATIDNo := GetVATIDNo;
+    end;
+
+    local procedure PrepareIntraJnlForBasicScenario(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IntrastatJnlLineSpec: array[4] of Record "Intrastat Jnl. Line")
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        i: Integer;
+    begin
+        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+
+        for i := 1 to 2 do begin
+            CreateItemSpecification(
+              IntrastatJnlLineSpec[i], IntrastatJnlLine.Type::Receipt, true, GetInternalRefNo(IntrastatJnlBatch, i));
+            CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec[i], IntrastatJnlBatch);
+            CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec[i], IntrastatJnlBatch);
+        end;
+
+        for i := 3 to ArrayLen(IntrastatJnlLineSpec) do begin
+            CreateItemSpecification(
+              IntrastatJnlLineSpec[i], IntrastatJnlLine.Type::Shipment, true, GetInternalRefNo(IntrastatJnlBatch, i - 2));
+            CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec[i], IntrastatJnlBatch);
+            CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec[i], IntrastatJnlBatch);
+        end;
+    end;
+
     local procedure RunReport(IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; FormatType: Option; TestSubmission: Boolean) ZipFileName: Text
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -1275,16 +1574,44 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatDiskTaxAuthDE.RunModal;
     end;
 
-    local procedure FormatDecimal(DecimalValue: Decimal): Text
+    local procedure UpdateCompanyInformation()
+    var
+        CompanyInformation: Record "Company Information";
+        IntrastatSetup: Record "Intrastat Setup";
     begin
-        exit(Format(DecimalValue, 0, '<Precision,0><Standard Format,9>'));
+        with CompanyInformation do begin
+            Get;
+            "Registration No." := '01234567890';
+            Area := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Area)), 1, MaxStrLen(Area));
+            "Agency No." := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Agency No.")), 1, MaxStrLen("Agency No."));
+            "Sales Authorized No." :=
+              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Sales Authorized No.")), 1, MaxStrLen("Sales Authorized No."));
+            "Purch. Authorized No." :=
+              CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Purch. Authorized No.")), 1, MaxStrLen("Purch. Authorized No."));
+            "Company No." := LibraryUtility.GenerateGUID;
+            Address := LibraryUtility.GenerateGUID;
+            "Post Code" := LibraryUtility.GenerateGUID;
+            City := LibraryUtility.GenerateGUID;
+            "Country/Region Code" := CreateCountryRegionCode;
+            "Phone No." := LibraryUtility.GenerateGUID;
+            "Fax No." := LibraryUtility.GenerateGUID;
+            "E-Mail" := LibraryUtility.GenerateGUID;
+            Modify;
+        end;
+        with IntrastatSetup do
+            LibraryERM.SetIntrastatContact(
+              "Intrastat Contact Type"::Contact,
+              LibraryERM.CreateIntrastatContact("Intrastat Contact Type"::Contact));
     end;
 
-    local procedure LoadXMLFile(var XMLDocument: DotNet XmlDocument; FileInStream: InStream)
-    var
-        XMLDOMMgt: Codeunit "XML DOM Management";
+    local procedure UpdateReceiptsShipmentsOnIntrastatSetup(ReportReceipts: Boolean; ReportShipments: Boolean);
+    VAR
+        IntrastatSetup: Record "Intrastat Setup";
     begin
-        XMLDOMMgt.LoadXMLDocumentFromInStream(FileInStream, XMLDocument);
+        IntrastatSetup.Get();
+        IntrastatSetup."Report Receipts" := ReportReceipts;
+        IntrastatSetup."Report Shipments" := ReportShipments;
+        IntrastatSetup.Modify();
     end;
 
     local procedure VerifyBatchReported(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; ExpectedReportedValue: Boolean)
@@ -1513,23 +1840,6 @@ codeunit 142086 "Intrastat XML Export DACH"
           RootPath + 'NatureOfTransaction/natureOfTransactionACode', Format(TransactionCode[1]), NodeIndex);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
           RootPath + 'NatureOfTransaction/natureOfTransactionBCode', Format(TransactionCode[2]), NodeIndex);
-    end;
-
-    local procedure CreateServerFiles(var ServerFileReceiptsPath: Text; var ServerFileShipmentsPath: Text; var DestinationFilePath: Text)
-    var
-        FileManagement: Codeunit "File Management";
-        ServerFileReceipts: File;
-        ServerFileShipments: File;
-    begin
-        ServerFileReceiptsPath := FileManagement.ServerTempFileName('');
-        ServerFileReceipts.Create(ServerFileReceiptsPath);
-        ServerFileReceipts.Close;
-
-        ServerFileShipmentsPath := FileManagement.ServerTempFileName('');
-        ServerFileShipments.Create(ServerFileShipmentsPath);
-        ServerFileShipments.Close;
-
-        DestinationFilePath := FileManagement.ServerTempFileName('');
     end;
 
     [RequestPageHandler]

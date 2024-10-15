@@ -184,8 +184,8 @@ page 35516 "Cash Receipt Journal FactBox"
 
     var
         GenJnlManagement: Codeunit GenJnlManagement;
-        AccName: Text[50];
-        BalAccName: Text[50];
+        AccName: Text[100];
+        BalAccName: Text[100];
         RemainAfterPaymentCaption: Text[30];
         RemainAfterPaymentText: Text[30];
         Balance: Decimal;

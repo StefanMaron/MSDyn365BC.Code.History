@@ -351,7 +351,9 @@ codeunit 5520 "Get Unplanned Demand"
                       (UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Sales) and
                       (UnplannedDemand."Demand SubType" = SalesLine."Document Type"::Order);
 
-                    if ForceIncludeDemand or (UnplannedDemand."Needed Qty. (Base)" > 0) then begin
+                    if ForceIncludeDemand or
+                       (IncludeMetDemandForSpecificSalesOrderNo = '') and (UnplannedDemand."Needed Qty. (Base)" > 0)
+                    then begin
                         UnplannedDemand.Insert;
                         if not HeaderExists then begin
                             InsertUnplannedDemandHeader(TempUnplannedDemand, UnplannedDemand);

@@ -170,6 +170,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         // Purpose of the test is to validate Action - MakeDiskette on Intrastat Journal Page.
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
 
         // Setup: Create DACH Report Selections for Usage Intrastat Disk.
         CreateDACHReportSelections(
@@ -250,6 +251,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         DACHReportSelections: Record "DACH Report Selections";
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
         CreateDACHReportSelections(
           DACHReportSelections, DACHReportSelections.Usage::"Intrastat Disk",
           REPORT::"Intrastat - Disk Tax Auth DE", 'Intrastat - Disk Tax Auth DE');  // Report ID of - Intrastat - Disk Tax Auth DE.
@@ -299,6 +301,16 @@ codeunit 142035 "UT PAG INTRASTAT"
         ReportSelectionIntrastat."Report ID".AssertEquals(ReportID);
         ReportSelectionIntrastat."Report Name".AssertEquals(ReportName);
         ReportSelectionIntrastat.Close;
+    end;
+
+    local procedure UpdateReceiptsShipmentsOnIntrastatSetup(ReportReceipts: Boolean; ReportShipments: Boolean)
+    var
+      IntrastatSetup: Record "Intrastat Setup";
+    begin
+      IntrastatSetup.Get();
+      IntrastatSetup."Report Receipts" := ReportReceipts;
+      IntrastatSetup."Report Shipments" := ReportShipments;
+      IntrastatSetup.Modify();
     end;
 
     [ReportHandler]

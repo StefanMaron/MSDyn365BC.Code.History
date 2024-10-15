@@ -24,6 +24,7 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryService: Codeunit "Library - Service";
+        LibraryCosting: Codeunit "Library - Costing";
         isInitialized: Boolean;
 
     [Test]
@@ -173,6 +174,59 @@ codeunit 137120 "Non-inventory Item Costing"
         VerifyEntries(Item, ItemNonInventory, 2);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure NonInventoriableConsumptionCostIsNotIncludedToOutputCost()
+    var
+        CompItem: Record Item;
+        NonInvtCompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Production] [Output]
+        // [SCENARIO 334684] Cost of output includes only cost of inventoriable components consumption.
+        Initialize;
+
+        // [GIVEN] Item "I" of type "Inventory".
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', 1);
+        ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDec(100, 2));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Item "NI" of type "Non-Inventory".
+        CreateNonInventoryItemWithAmounts(NonInvtCompItem);
+
+        // [GIVEN] Production item "P" with two components - "I" and "NI".
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, CompItem."No.", NonInvtCompItem."No.", 1);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and refresh production order for "P".
+        // [GIVEN] Post output and consumption.
+        // [GIVEN] Finish the production order.
+        LibraryManufacturing.CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries('', '');
+
+        // [THEN] Overall actual cost amount of the finished production order = 0.
+        // [THEN] Consumption of "I" is posted as actual cost, consumption of "NI" is posted as non-inventoriable cost.
+        ValueEntry.SetRange("Document No.", ProductionOrder."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -273,6 +327,13 @@ codeunit 137120 "Non-inventory Item Costing"
         Commit;
     end;
 
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst;
+    end;
+
     [Scope('OnPrem')]
     procedure VerifyEntries(Item: Record Item; ItemNonInventory: Record Item; Type: Option Assembly,Production,Service)
     var
@@ -312,6 +373,26 @@ codeunit 137120 "Non-inventory Item Costing"
         ValueEntry.SetRange("Item No.", ItemNonInventory."No.");
         ValueEntry.FindFirst;
         Assert.AreEqual(-ItemNonInventory."Unit Cost", ItemLedgerEntry."Cost Amount (Non-Invtbl.)", '');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

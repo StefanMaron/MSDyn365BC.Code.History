@@ -456,8 +456,6 @@ report 11108 "VAT - VIES Declaration XML"
                     XMLFile.Write(StrSubstNo('<SOLEI>%1</SOLEI>', 1));
                 2:
                     XMLFile.Write(StrSubstNo('<DREIECK>%1</DREIECK>', 1));
-                1:
-                    XMLFile.Write('<DREIECK/>');
             end;
             XMLFile.Write('</ZM>');
         end else

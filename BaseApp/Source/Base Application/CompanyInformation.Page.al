@@ -342,7 +342,7 @@ Page 1 "Company Information"
                 field("Company No."; "Company No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies an Intrastat number that is issued for the delivery of the item list to the Federal Office of Statistics.';
+                    ToolTip = 'Specifies the authorized number from Intrastat (XML).';
                 }
                 field("Agency No."; "Agency No.")
                 {
@@ -367,12 +367,12 @@ Page 1 "Company Information"
                 field("Sales Authorized No."; "Sales Authorized No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the authorized number from Intrastat.';
+                    ToolTip = 'Specifies the authorized number from Intrastat for shipments (ASCII).';
                 }
                 field("Purch. Authorized No."; "Purch. Authorized No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the authorized number from Intrastat.';
+                    ToolTip = 'Specifies the authorized number from Intrastat for receipts (ASCII).';
                 }
                 field("Statistic No."; "Statistic No.")
                 {

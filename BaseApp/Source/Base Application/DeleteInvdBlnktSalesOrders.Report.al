@@ -19,6 +19,8 @@ report 291 "Delete Invd Blnkt Sales Orders"
                 ATOLink: Record "Assemble-to-Order Link";
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
             begin
+                OnSalesHeaderOnBeforeOnAfterGetRecord("Sales Header");
+
                 Window.Update(1, "No.");
 
                 SalesLine.Reset;
@@ -108,6 +110,11 @@ report 291 "Delete Invd Blnkt Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesLines(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderOnBeforeOnAfterGetRecord(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

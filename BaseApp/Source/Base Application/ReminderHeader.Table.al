@@ -296,6 +296,8 @@ table 295 "Reminder Header"
                     ReminderLevel.SetRange("No.", 1, "Reminder Level");
                     if ReminderLevel.FindLast and ("Document Date" <> 0D) then
                         "Due Date" := CalcDate(ReminderLevel."Due Date Calculation", "Document Date");
+
+                    OnAfterValidateReminderLevel(Rec, ReminderLevel);
                 end;
             end;
         }
@@ -491,17 +493,14 @@ table 295 "Reminder Header"
     trigger OnInsert()
     begin
         SalesSetup.Get;
-        if "No." = '' then begin
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
-        end;
+        SetReminderNo();
         "Posting Description" := StrSubstNo(Text000, "No.");
         if ("No. Series" <> '') and
-           (SalesSetup."Reminder Nos." = SalesSetup."Issued Reminder Nos.")
+           (SalesSetup."Reminder Nos." = GetIssuingNoSeriesCode())
         then
             "Issuing No. Series" := "No. Series"
         else
-            NoSeriesMgt.SetDefaultSeries("Issuing No. Series", SalesSetup."Issued Reminder Nos.");
+            NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate;
@@ -1042,6 +1041,15 @@ table 295 "Reminder Header"
             Validate("Customer No.", GetFilterCustNo);
     end;
 
+    [Scope('OnPrem')]
+    procedure SetReminderNo()
+    begin
+        if "No." = '' then begin
+            TestNoSeries;
+            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ReminderHeader: Record "Reminder Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
@@ -1114,6 +1122,11 @@ table 295 "Reminder Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoSeries(var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateReminderLevel(var ReminderHeader: Record "Reminder Header"; ReminderLevel: Record "Reminder Level")
     begin
     end;
 

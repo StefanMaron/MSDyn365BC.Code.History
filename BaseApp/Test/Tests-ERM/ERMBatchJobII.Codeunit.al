@@ -13,6 +13,9 @@ codeunit 134919 "ERM Batch Job II"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryJob: Codeunit "Library - Job";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         GLAccountNo: Code[20];
         Amount: Decimal;
         BudgetNameErrorMessage: Label 'You must specify a budget name to copy from.';
@@ -238,6 +241,44 @@ codeunit 134919 "ERM Batch Job II"
         CopyGLBudgetFromDifferentSources(FromSource::"G/L Budget Entry", GLBudgetName.Name, AdjustmentFactor, '');  // Passing blank for Rounding Method.
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,CreateInvoiceRequestHandler')]
+    [Scope('OnPrem')]
+    procedure IsCorrectNumbersOfJobLedjerEntries()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+    begin
+        // [SCENARIO 338219] Create 1 Sales Invoice for 3 Job Planning Lines
+        // [GIVEN] Created Job and Sales Invoice
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Job."Bill-to Customer No.");
+
+        // [GIVEN] Created 3 Job Planning Line with "Both Budget and Billable" type
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
+        Commit;
+
+        // [GIVEN] Added line to Sales Invoice
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [WHEN] Post Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, false);
+
+        // [THEN] 3 created lines in Job Planning Line Invoice in field "Job Ledger Entry No." had different value, not equal to 0.
+        CompareJobLedgerEntryNos(Job, JobTask);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Batch Job II");
@@ -339,6 +380,24 @@ codeunit 134919 "ERM Batch Job II"
         CopyGLBudget.Run;
     end;
 
+    [Scope('OnPrem')]
+    procedure CompareJobLedgerEntryNos(Job: Record Job; JobTask: Record "Job Task")
+    var
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        JobPlanningLineInvoice2: Record "Job Planning Line Invoice";
+    begin
+        JobPlanningLineInvoice.SetRange("Job No.", Job."No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobTask."Job Task No.");
+        Assert.RecordCount(JobPlanningLineInvoice, 3);
+        JobPlanningLineInvoice2.CopyFilters(JobPlanningLineInvoice);
+        JobPlanningLineInvoice.FindSet;
+        repeat
+            JobPlanningLineInvoice.TestField("Job Ledger Entry No.");
+            JobPlanningLineInvoice2.SetRange("Job Ledger Entry No.", JobPlanningLineInvoice."Job Ledger Entry No.");
+            Assert.RecordCount(JobPlanningLineInvoice2, 1);
+        until JobPlanningLineInvoice.Next = 0;
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure BudgetPageHandler(var Budget: TestPage Budget)
@@ -371,6 +430,15 @@ codeunit 134919 "ERM Batch Job II"
     procedure NoConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInvoiceRequestHandler(var JobTransfertoSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
+    begin
+        JobTransfertoSalesInvoice.CreateNewInvoice.SetValue(false);
+        JobTransfertoSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText);
+        JobTransfertoSalesInvoice.OK.Invoke;
     end;
 }
 
