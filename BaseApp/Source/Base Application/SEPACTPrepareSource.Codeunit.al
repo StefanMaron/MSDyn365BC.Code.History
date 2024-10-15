@@ -19,6 +19,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
             repeat
                 TempGenJnlLine := FromGenJnlLine;
+                OnCopyJnlLinesOnBeforeTempGenJnlLineInsert(FromGenJnlLine, TempGenJnlLine, GenJnlBatch);
                 TempGenJnlLine.Insert();
             until FromGenJnlLine.Next() = 0
         end else
@@ -75,6 +76,11 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJnlLinesOnBeforeTempGenJnlLineInsert(var FromGenJournalLine: Record "Gen. Journal Line"; var TempGenJournalLine: Record "Gen. Journal Line" temporary; GenJournalBatch: Record "Gen. Journal Batch")
     begin
     end;
 }

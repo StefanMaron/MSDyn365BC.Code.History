@@ -1,7 +1,5 @@
 codeunit 5069 "Word Template Interactions"
 {
-    Access = Internal;
-
     /// <summary>
     /// Performs mail merge on the Word templates from the attachments specified by TempDeliverySorterWord
     /// and sends them according to the correspondence Type.

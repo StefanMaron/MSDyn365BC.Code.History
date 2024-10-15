@@ -331,7 +331,7 @@
         TotalQtytoPick := 0;
     end;
 
-    local procedure CalcMaxQtytoPlace(var QtytoHandle: Decimal; QtyOutstanding: Decimal; var QtytoHandleBase: Decimal; QtyOutstandingBase: Decimal)
+    local procedure CalcMaxQty(var QtytoHandle: Decimal; QtyOutstanding: Decimal; var QtytoHandleBase: Decimal; QtyOutstandingBase: Decimal; ActionType: Enum "Warehouse Action Type")
     var
         WhseActivLine2: Record "Warehouse Activity Line";
     begin
@@ -348,7 +348,7 @@
             SetRange("Source No.", "Source No.");
             SetRange("Source Line No.", "Source Line No.");
             SetRange("Source Subline No.", "Source Subline No.");
-            SetRange("Action Type", "Action Type"::Place);
+            SetRange("Action Type", ActionType);
             SetRange("Breakbulk No.", 0);
             if Find('-') then begin
                 CalcSums(Quantity);
@@ -1526,6 +1526,7 @@
                 LineNo := LineNo + 10000;
                 WhseActivLine.Init();
                 WhseActivLine := TempWhseActivLine;
+                OnCreateWhseDocPlaceLineOnAfterTransferTempWhseActivLineToWhseActivLine(WhseActivLine, TempWhseActivLine, PickQty, PickQtyBase);
 
                 with WhseActivLine do
                     if (PickQty * "Qty. per Unit of Measure") <> PickQtyBase then
@@ -2168,7 +2169,7 @@
             IsHandled := false;
             OnItemTrackedQuantityOnAfterCheckIfEmpty(TempWhseItemTrackingLine, WhseItemTrackingSetup, IsHandled);
             if IsHandled then
-                exit(2);
+                exit(0);
 
             SetCurrentKey(
               "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
@@ -2832,12 +2833,14 @@
                 case WhseSource2 of
                     CreatePickParameters."Whse. Document"::"Pick Worksheet",
                     CreatePickParameters."Whse. Document"::"Movement Worksheet":
-                        CalcMaxQtytoPlace(
-                          QtyToPick, WhseWkshLine."Qty. to Handle", QtyToPickBase, WhseWkshLine."Qty. to Handle (Base)");
+                        if not (("Action Type" = "Action Type"::Take) and (WhseWkshLine."Unit of Measure Code" <> TempWhseActivLine."Unit of Measure Code")) then
+                            CalcMaxQty(
+                              QtyToPick, WhseWkshLine."Qty. to Handle", QtyToPickBase, WhseWkshLine."Qty. to Handle (Base)", "Action Type");
+
                     CreatePickParameters."Whse. Document"::Shipment:
-                        begin
+                        if not (("Action Type" = "Action Type"::Take) and (WhseShptLine."Unit of Measure Code" <> TempWhseActivLine."Unit of Measure Code")) then begin
                             WhseShptLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
-                            CalcMaxQtytoPlace(
+                            CalcMaxQty(
                               QtyToPick,
                               WhseShptLine.Quantity -
                               WhseShptLine."Qty. Picked" -
@@ -2845,12 +2848,14 @@
                               QtyToPickBase,
                               WhseShptLine."Qty. (Base)" -
                               WhseShptLine."Qty. Picked (Base)" -
-                              WhseShptLine."Pick Qty. (Base)");
+                              WhseShptLine."Pick Qty. (Base)",
+                              "Action Type");
                         end;
+
                     CreatePickParameters."Whse. Document"::"Internal Pick":
-                        begin
+                        if not (("Action Type" = "Action Type"::Take) and (WhseInternalPickLine."Unit of Measure Code" <> TempWhseActivLine."Unit of Measure Code")) then begin
                             WhseInternalPickLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
-                            CalcMaxQtytoPlace(
+                            CalcMaxQty(
                               QtyToPick,
                               WhseInternalPickLine.Quantity -
                               WhseInternalPickLine."Qty. Picked" -
@@ -2858,12 +2863,14 @@
                               QtyToPickBase,
                               WhseInternalPickLine."Qty. (Base)" -
                               WhseInternalPickLine."Qty. Picked (Base)" -
-                              WhseInternalPickLine."Pick Qty. (Base)");
+                              WhseInternalPickLine."Pick Qty. (Base)",
+                              "Action Type");
                         end;
+
                     CreatePickParameters."Whse. Document"::Production:
-                        begin
+                        if not (("Action Type" = "Action Type"::Take) and (ProdOrderCompLine."Unit of Measure Code" <> TempWhseActivLine."Unit of Measure Code")) then begin
                             ProdOrderCompLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
-                            CalcMaxQtytoPlace(
+                            CalcMaxQty(
                               QtyToPick,
                               ProdOrderCompLine."Expected Quantity" -
                               ProdOrderCompLine."Qty. Picked" -
@@ -2871,12 +2878,14 @@
                               QtyToPickBase,
                               ProdOrderCompLine."Expected Qty. (Base)" -
                               ProdOrderCompLine."Qty. Picked (Base)" -
-                              ProdOrderCompLine."Pick Qty. (Base)");
+                              ProdOrderCompLine."Pick Qty. (Base)",
+                              "Action Type");
                         end;
+
                     CreatePickParameters."Whse. Document"::Assembly:
-                        begin
+                        if not (("Action Type" = "Action Type"::Take) and (AssemblyLine."Unit of Measure Code" <> TempWhseActivLine."Unit of Measure Code")) then begin
                             AssemblyLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
-                            CalcMaxQtytoPlace(
+                            CalcMaxQty(
                               QtyToPick,
                               AssemblyLine.Quantity -
                               AssemblyLine."Qty. Picked" -
@@ -2884,7 +2893,8 @@
                               QtyToPickBase,
                               AssemblyLine."Quantity (Base)" -
                               AssemblyLine."Qty. Picked (Base)" -
-                              AssemblyLine."Pick Qty. (Base)");
+                              AssemblyLine."Pick Qty. (Base)",
+                              "Action Type");
                         end;
                 end;
 
@@ -3964,6 +3974,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateWhseDocPlaceLineOnAfterTempWhseActivLineSetFilters(var TempWhseActivLine: Record "Warehouse Activity Line"; WhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocPlaceLineOnAfterTransferTempWhseActivLineToWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; PickQty: Decimal; PickQtyBase: Decimal)
     begin
     end;
 

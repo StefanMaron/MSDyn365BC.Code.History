@@ -11,6 +11,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         RedoApplications: Boolean;
     begin
         RedoApplications := UnapplyCostApplication(ItemJnlPostLine, "No.");
+        OnRunOnBeforeCreateCopyDocument(Rec);
         CreateCopyDocument(Rec, PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", false);
         PurchaseHeader."Vendor Cr. Memo No." := PurchaseHeader."No.";
         OnAfterCreateCorrectivePurchCrMemo(Rec, PurchaseHeader, CancellingOnly);
@@ -778,6 +779,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnHasLineDiscountSetup(PurchasesPayablesSetup: Record "Purchases & Payables Setup"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCreateCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 

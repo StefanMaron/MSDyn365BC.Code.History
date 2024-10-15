@@ -782,6 +782,10 @@ codeunit 144000 "Non-Deductible VAT"
         // [THEN] "Amount Including VAT" = "Amount"
         PurchaseInvoiceStatistics.SubForm.First;
         VerifyPurchInvStatLine(PurchaseInvoiceStatistics, 0, 0, PurchaseLineReverseCharge.Amount);
+        // BUG: 409219
+        PurchaseInvoiceStatistics.SubForm."VAT Base (Lowered)".AssertEquals(
+          GetLoweredVATBase(PurchaseLineReverseCharge."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
+
         // [THEN] Line of Statistics page considering info about the Line with Normal VAT has "VAT %", "VAT Amount", "Amount Including VAT"
         // [THEN] as they are in Purchase Line
         PurchaseInvoiceStatistics.SubForm.Next;
@@ -789,13 +793,19 @@ codeunit 144000 "Non-Deductible VAT"
           PurchaseInvoiceStatistics, PurchaseLineNormalVAT."VAT %",
           PurchaseLineNormalVAT."Amount Including VAT" - PurchaseLineNormalVAT."Line Amount",
           PurchaseLineNormalVAT."Amount Including VAT");
+        // BUG: 409219
+        PurchaseInvoiceStatistics.SubForm."VAT Base (Lowered)".AssertEquals(
+          GetLoweredVATBase(PurchaseLineNormalVAT."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
+
         PurchaseInvoiceStatistics.Close;
 
         // [THEN] 2 entry is created in VAT Entry table
         // [THEN] 1st VAT Entry is of Normal type and VAT amount is calculated according to discount: 205,8
         // [THEN] 2nd VAT Entry is of Reverse charge type and VAT amount is calculated according to discount: 186,2
         VerifyVATEntriesWithReverseCharge(
-          PurchaseHeader."Document Type"::Invoice, DocumentNo, LoweredVATReverseCharge, LoweredVATNormalVAT);
+          PurchaseHeader."Document Type"::Invoice, DocumentNo, LoweredVATReverseCharge, LoweredVATNormalVAT,
+          GetLoweredVATBase(PurchaseLineReverseCharge."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"),
+          GetLoweredVATBase(PurchaseLineNormalVAT."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
     end;
 
     [Test]
@@ -854,6 +864,9 @@ codeunit 144000 "Non-Deductible VAT"
         // [THEN] "Amount Including VAT" = "Amount"
         PurchaseCrMemoStatistics.SubForm.First;
         VerifyPurchCrMemoStatLine(PurchaseCrMemoStatistics, 0, 0, PurchaseLineReverseCharge.Amount);
+        // BUG: 409219
+        PurchaseCrMemoStatistics.SubForm."VAT Base (Lowered)".AssertEquals(
+          GetLoweredVATBase(PurchaseLineReverseCharge."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
 
         // [THEN] Line of Statistics page considering info about the Line with Normal VAT has "VAT %", "VAT Amount", "Amount Including VAT"
         // [THEN] as they are in Purchase Credit Memo Line
@@ -862,13 +875,19 @@ codeunit 144000 "Non-Deductible VAT"
           PurchaseCrMemoStatistics, PurchaseLineNormalVAT."VAT %",
           PurchaseLineNormalVAT."Amount Including VAT" - PurchaseLineNormalVAT."Line Amount",
           PurchaseLineNormalVAT."Amount Including VAT");
+        // BUG: 409219
+        PurchaseCrMemoStatistics.SubForm."VAT Base (Lowered)".AssertEquals(
+          GetLoweredVATBase(PurchaseLineNormalVAT."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
+
         PurchaseCrMemoStatistics.Close;
 
         // [THEN] 2 entry is created in VAT Entry table
         // [THEN] 1st VAT Entry is of Normal type and VAT amount is calculated according to discount: 205,8
         // [THEN] 2nd VAT Entry is of Reverse charge type and VAT amount is calculated according to discount: 186,2
         VerifyVATEntriesWithReverseCharge(
-          PurchaseHeader."Document Type"::"Credit Memo", DocumentNo, -LoweredVATReverseCharge, -LoweredVATNormalVAT);
+          PurchaseHeader."Document Type"::"Credit Memo", DocumentNo, -LoweredVATReverseCharge, -LoweredVATNormalVAT,
+          -GetLoweredVATBase(PurchaseLineReverseCharge."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"),
+          -GetLoweredVATBase(PurchaseLineNormalVAT."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
     end;
 
     [Test]
@@ -892,7 +911,6 @@ codeunit 144000 "Non-Deductible VAT"
         VATPct := PurchLine."VAT %";
 
         // [WHEN] Calling CalcVATAmountLines function for Purchase Line as it is being done during posting
-        PurchLine.SetUseVATForReverseCharge;
         PurchLine.CalcVATAmountLines(1, PurchHeader, PurchLine, TempVATAmountLine);
 
         // [THEN] TempVATAmountLine created for Purchase contains VAT %
@@ -921,7 +939,7 @@ codeunit 144000 "Non-Deductible VAT"
         PurchLine.CalcVATAmountLines(1, PurchHeader, PurchLine, TempVATAmountLine);
 
         // [THEN] TempVATAmountLine created for Purchase contains 0 VAT %
-        Assert.AreEqual(0, TempVATAmountLine."VAT %", TempVATAmountLine.FieldCaption("VAT %"));
+        TempVATAmountLine.TestField("VAT %", 0);
     end;
 
     [Test]
@@ -2530,7 +2548,12 @@ codeunit 144000 "Non-Deductible VAT"
 
     local procedure GetLoweredVATAmount(DirectUnitCost: Decimal; VATDiscPct: Decimal; VATPct: Decimal): Decimal
     begin
-        exit(Round(DirectUnitCost * (1 - (VATDiscPct / 100)) * (VATPct / 100)));
+        exit(Round(GetLoweredVATBase(DirectUnitCost, VATDiscPct) * VATPct / 100));
+    end;
+
+    local procedure GetLoweredVATBase(DirectUnitCost: Decimal; VATDiscPct: Decimal): Decimal
+    begin
+        exit(Round(DirectUnitCost * (1 - (VATDiscPct / 100))));
     end;
 
     local procedure CreatePurchaseLineWithVATType(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATType: Enum "Tax Calculation Type")
@@ -2999,7 +3022,7 @@ codeunit 144000 "Non-Deductible VAT"
         end;
     end;
 
-    local procedure VerifyVATEntriesWithReverseCharge(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LoweredVATReverseCharge: Decimal; LoweredVATNormalVAT: Decimal)
+    local procedure VerifyVATEntriesWithReverseCharge(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LoweredVATReverseCharge: Decimal; LoweredVATNormalVAT: Decimal; LoweredVATBaseReverseCharge: Decimal; LoweredVATBaseNormalVAT: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -3013,6 +3036,7 @@ codeunit 144000 "Non-Deductible VAT"
           VATEntry."VAT Calculation Type",
           VATEntry.FieldCaption("VAT Calculation Type"));
         Assert.AreEqual(LoweredVATNormalVAT, VATEntry.Amount, VATEntry.FieldCaption(Amount));
+        Assert.AreEqual(LoweredVATBaseNormalVAT, VATEntry.Base, VATEntry.FieldCaption(Base));
 
         VATEntry.Next;
         Assert.AreEqual(
@@ -3020,6 +3044,7 @@ codeunit 144000 "Non-Deductible VAT"
           VATEntry."VAT Calculation Type",
           VATEntry.FieldCaption("VAT Calculation Type"));
         Assert.AreEqual(LoweredVATReverseCharge, VATEntry.Amount, VATEntry.FieldCaption(Amount));
+        Assert.AreEqual(LoweredVATBaseReverseCharge, VATEntry.Base, VATEntry.FieldCaption(Base));
     end;
 
     local procedure VerifyPurchStatisticSubform(var PurchaseStatistics: TestPage "Purchase Statistics"; AmountWOVAT: Decimal; VATAmount: Decimal; NDVATAmount: Decimal)

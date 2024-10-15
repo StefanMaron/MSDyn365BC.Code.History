@@ -26,11 +26,7 @@ table 38 "Purchase Header"
                    (xRec."Buy-from Vendor No." <> '')
                 then begin
                     CheckDropShipmentLineExists();
-                    if GetHideValidationDialog or not GuiAllowed then
-                        Confirmed := true
-                    else
-                        Confirmed := Confirm(ConfirmChangeQst, false, BuyFromVendorTxt);
-                    if Confirmed then begin
+                    if ConfirmUpdateField(FieldNo("Buy-from Vendor No.")) then begin
                         if InitFromVendor("Buy-from Vendor No.", FieldCaption("Buy-from Vendor No.")) then
                             exit;
 
@@ -151,12 +147,8 @@ table 38 "Purchase Header"
                 TestStatusOpen();
                 if (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.") and
                    (xRec."Pay-to Vendor No." <> '')
-                then begin
-                    if GetHideValidationDialog or not GuiAllowed then
-                        Confirmed := true
-                    else
-                        Confirmed := Confirm(ConfirmChangeQst, false, PayToVendorTxt);
-                    if Confirmed then begin
+                then 
+                    if ConfirmUpdateField(FieldNo("Pay-to Vendor No.")) then begin
                         PurchLine.SetRange("Document Type", "Document Type");
                         PurchLine.SetRange("Document No.", "No.");
 
@@ -167,7 +159,6 @@ table 38 "Purchase Header"
                         PurchLine.Reset();
                     end else
                         "Pay-to Vendor No." := xRec."Pay-to Vendor No.";
-                end;
 
                 OnValidatePayToVendorNoOnBeforeGetPayToVend(Rec);
                 GetVend("Pay-to Vendor No.");
@@ -1978,25 +1969,8 @@ table 38 "Purchase Header"
             TableRelation = Contact;
 
             trigger OnLookup()
-            var
-                Cont: Record Contact;
-                ContBusinessRelation: Record "Contact Business Relation";
             begin
-                if "Buy-from Vendor No." <> '' then
-                    if Cont.Get("Buy-from Contact No.") then
-                        Cont.SetRange("Company No.", Cont."Company No.")
-                    else
-                        if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Vendor, "Buy-from Vendor No.") then
-                            Cont.SetRange("Company No.", ContBusinessRelation."Contact No.")
-                        else
-                            Cont.SetRange("No.", '');
-
-                if "Buy-from Contact No." <> '' then
-                    if Cont.Get("Buy-from Contact No.") then;
-                if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
-                    xRec := Rec;
-                    Validate("Buy-from Contact No.", Cont."No.");
-                end;
+                BuyfromContactLookup();
             end;
 
             trigger OnValidate()
@@ -2012,19 +1986,14 @@ table 38 "Purchase Header"
 
                 if ("Buy-from Contact No." <> xRec."Buy-from Contact No.") and
                    (xRec."Buy-from Contact No." <> '')
-                then begin
-                    if GetHideValidationDialog or not GuiAllowed then
-                        Confirmed := true
-                    else
-                        Confirmed := Confirm(ConfirmChangeQst, false, FieldCaption("Buy-from Contact No."));
-                    if Confirmed then begin
+                then 
+                    if ConfirmUpdateField(FieldNo("Buy-from Contact No.")) then begin
                         if InitFromContact("Buy-from Contact No.", "Buy-from Vendor No.", FieldCaption("Buy-from Contact No.")) then
                             exit
                     end else begin
                         Rec := xRec;
                         exit;
                     end;
-                end;
 
                 if ("Buy-from Vendor No." <> '') and ("Buy-from Contact No." <> '') then begin
                     Cont.Get("Buy-from Contact No.");
@@ -2076,19 +2045,14 @@ table 38 "Purchase Header"
 
                 if ("Pay-to Contact No." <> xRec."Pay-to Contact No.") and
                    (xRec."Pay-to Contact No." <> '')
-                then begin
-                    if GetHideValidationDialog or not GuiAllowed then
-                        Confirmed := true
-                    else
-                        Confirmed := Confirm(ConfirmChangeQst, false, FieldCaption("Pay-to Contact No."));
-                    if Confirmed then begin
+                then 
+                    if ConfirmUpdateField(FieldNo("Pay-to Contact No.")) then begin
                         if InitFromContact("Pay-to Contact No.", "Pay-to Vendor No.", FieldCaption("Pay-to Contact No.")) then
                             exit
                     end else begin
                         "Pay-to Contact No." := xRec."Pay-to Contact No.";
                         exit;
                     end;
-                end;
 
                 if ("Pay-to Vendor No." <> '') and ("Pay-to Contact No." <> '') then begin
                     Cont.Get("Pay-to Contact No.");
@@ -2835,13 +2799,19 @@ table 38 "Purchase Header"
         end;
     end;
 
-    procedure ConfirmDeletion(): Boolean
+    procedure ConfirmDeletion() Result: Boolean
     var
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
         PostPurchDelete: Codeunit "PostPurch-Delete";
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmDeletion(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Deleted Document");
         SourceCode.Get(SourceCodeSetup."Deleted Document");
@@ -3233,7 +3203,7 @@ table 38 "Purchase Header"
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         Updated: Boolean;
     begin
-        OnBeforeUpdateCurrencyFactor(Rec, Updated, CurrExchRate);
+        OnBeforeUpdateCurrencyFactor(Rec, Updated, CurrExchRate, CurrFieldNo);
         if Updated then
             exit;
 
@@ -3242,6 +3212,7 @@ table 38 "Purchase Header"
                 CurrencyDate := "Posting Date"
             else
                 CurrencyDate := WorkDate;
+            OnUpdateCurrencyFactorOnAfterCurrencyDateSet(Rec, CurrencyDate, CurrFieldNo);
 
             if UpdateCurrencyExchangeRates.ExchangeRatesForCurrencyExist(CurrencyDate, "Currency Code") then begin
                 "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
@@ -4532,6 +4503,38 @@ table 38 "Purchase Header"
             UpdatePurchLinesByFieldNo(PurchLine.FieldNo("Deferral Code"), false);
     end;
 
+    local procedure ConfirmUpdateField(UpdatingFieldNo: Integer) Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmUpdateField(Rec, xRec, UpdatingFieldNo, CurrFieldNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if GetHideValidationDialog or not GuiAllowed then
+            Result := true
+        else
+            Result := Confirm(ConfirmChangeQst, false, GetUpdatedFieldCaption(UpdatingFieldNo));
+    end;
+
+    local procedure GetUpdatedFieldCaption(UpdatingFieldNo: Integer): Text
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+    begin
+        case UpdatingFieldNo of
+            FieldNo("Buy-from Vendor No."):
+                exit(BuyFromVendorTxt);
+            FieldNo("Pay-to Vendor No."):
+                exit(PayToVendorTxt);
+        end;
+
+        RecRef.Get(RecordId);
+        FldRef := RecRef.Field(UpdatingFieldNo);
+        exit(FldRef.Caption);
+    end;
+
     procedure IsCreditDocType(): Boolean
     var
         CreditDocType: Boolean;
@@ -4886,6 +4889,31 @@ table 38 "Purchase Header"
             Contact.SetRange("Company No.", '');
         if ContactNo <> '' then
             if Contact.Get(ContactNo) then;
+    end;
+
+    procedure BuyfromContactLookup(): Boolean
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        if "Buy-from Vendor No." <> '' then
+            if Contact.Get("Buy-from Contact No.") then
+                Contact.SetRange("Company No.", Contact."Company No.")
+            else
+                if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Vendor, "Buy-from Vendor No.") then
+                    Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.")
+                else
+                    Contact.SetRange("No.", '');
+
+        if "Buy-from Contact No." <> '' then
+            if Contact.Get("Buy-from Contact No.") then;
+        if Page.RunModal(0, Contact) = Action::LookupOK then begin
+            xRec := Rec;
+            CurrFieldNo := FieldNo("Buy-from Contact No.");
+            Validate("Buy-from Contact No.", Contact."No.");
+            exit(true);
+        end;
+        exit(false);
     end;
 
     procedure SendRecords()
@@ -5971,6 +5999,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmDeletion(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmUpdateCurrencyFactor(PurchaseHeader: Record "Purchase Header"; var HideValidationDialog: Boolean)
     begin
     end;
@@ -5987,6 +6020,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmResvDateConflict(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; ChangedFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmUpdateField(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; UpdatingFieldNo: Integer; CurrentFieldNo: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -6091,7 +6129,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; var Updated: Boolean; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    local procedure OnBeforeUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; var Updated: Boolean; var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -6395,6 +6433,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCurrencyFactorOnAfterCurrencyDateSet(var PurchaseHeader: Record "Purchase Header"; var CurrencyDate: Date; CurrentFieldNo: Integer)
     begin
     end;
 

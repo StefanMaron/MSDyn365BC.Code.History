@@ -1031,6 +1031,7 @@
         GenJnlLine."System-Created Entry" := true;
         GenJnlLine."Job No." := ValueEntry."Job No.";
         GenJnlLine."Reason Code" := ValueEntry."Reason Code";
+        GenJnlLine."Prod. Order No." := ValueEntry."Order No.";
         OnPostInvtPostBufOnAfterInitGenJnlLine(GenJnlLine, ValueEntry);
     end;
 

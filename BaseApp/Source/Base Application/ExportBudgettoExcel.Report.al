@@ -309,7 +309,7 @@ report 82 "Export Budget to Excel"
         begin
             ColumnDim := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Export Budget to Excel", '');
             if StartDate = 0D then
-                StartDate := CalcDate('<-CY+1D>', WorkDate);
+                StartDate := CalcDate('<-CY>', WorkDate);
             if (Format(PeriodLength) = '') or (Format(PeriodLength) = '0D') then
                 Evaluate(PeriodLength, '<1M>');
         end;

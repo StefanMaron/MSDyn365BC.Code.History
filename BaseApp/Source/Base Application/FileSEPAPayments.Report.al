@@ -781,6 +781,7 @@ report 2000005 "File SEPA Payments"
     var
         XMLNewChild: DotNet XmlNode;
     begin
+        OnBeforeAddEnterpriseNo(EnterpriseNo);
         if DelChr(EnterpriseNo, '<>') <> '' then begin
             AddElement(XMLNodeCurr, 'Id', '', '', XMLNewChild);
             XMLNodeCurr := XMLNewChild;
@@ -860,6 +861,11 @@ report 2000005 "File SEPA Payments"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNewConsolidatedPayment(PaymentJournalLine: Record "Payment Journal Line"; ConsolidatedPaymentJournalLine: Record "Payment Journal Line"; var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddEnterpriseNo(var EnterpriseNo: Text[50])
     begin
     end;
 

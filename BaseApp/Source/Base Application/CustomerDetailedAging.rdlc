@@ -28,13 +28,13 @@
                   <Width>0.27938cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.6322cm</Width>
+                  <Width>2.6322cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>0.37668cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.32332cm</Width>
+                  <Width>4.32332cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1.4cm</Width>
@@ -2864,6 +2864,7 @@
               </Style>
             </Textbox>
             <Textbox Name="COMPANYNAME1">
+              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -2881,7 +2882,7 @@
               </Paragraphs>
               <Top>1.269cm</Top>
               <Height>0.423cm</Height>
-              <Width>4.5cm</Width>
+              <Width>10.9925cm</Width>
               <ZIndex>2</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>

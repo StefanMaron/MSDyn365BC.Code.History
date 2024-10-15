@@ -26,6 +26,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryERMVendorWatch: Codeunit "Library - ERM Vendor Watch";
         DeltaAssert: Codeunit "Delta Assert";
@@ -771,6 +772,154 @@ codeunit 134011 "ERM Application Vendor"
 
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
         VendorLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ApplyVendorEntriesModalPageHandler,PostApplicationModalPageHandler,MessageHandler')]
+    procedure TwoPaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    var
+        Vendor: Record Vendor;
+        GenJournalLineInvoice: array[2] of Record "Gen. Journal Line";
+        GenJournalLinePayment: array[2] of Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        InvoiceAmount: array[2] of Decimal;
+        PaymentAmount: array[2] of Decimal;
+        AppliesToId: Code[20];
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 342909] System clean "Applies-to ID" field in vendor ledger entry when it is generated from general journal line applied to customer ledger entry
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        InvoiceAmount[1] := -LibraryRandom.RandIntInRange(10, 20);
+        InvoiceAmount[2] := -LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount[1] := -(InvoiceAmount[1] + InvoiceAmount[2]) * 3;
+        PaymentAmount[2] := -InvoiceAmount[2];
+
+        // [GIVEN] Posted Invoice "B"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLineInvoice[2], GenJournalLineInvoice[2]."Document Type"::Invoice, GenJournalLineInvoice[2]."Account Type"::Vendor, Vendor."No.", InvoiceAmount[2]);
+        GenJournalLineInvoice[2].Validate("Posting Date", WorkDate() + 1);
+        GenJournalLineInvoice[2].Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLineInvoice[2]);
+
+        // [GIVEN] Posted Payment "A"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLinePayment[1], GenJournalLinePayment[1]."Document Type"::Payment, GenJournalLinePayment[1]."Account Type"::Vendor, Vendor."No.", PaymentAmount[1]);
+        GenJournalLinePayment[1].Validate("Posting Date", WorkDate() - 1);
+        GenJournalLinePayment[1].Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLinePayment[1]);
+
+        // [GIVEN] Posted Payment "A" applied to Invoice "B" with "Applies-to ID", but not posted
+        LibraryVariableStorage.Enqueue(GenJournalLineInvoice[2]."Document No.");
+        LibraryVariableStorage.Enqueue(false);
+
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.Filter.SetFilter("Vendor No.", Vendor."No.");
+        VendorLedgerEntries.Filter.SetFilter("Document No.", GenJournalLinePayment[1]."Document No.");
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
+        VendorLedgerEntries.Close();
+
+        AppliesToId := LibraryUtility.GenerateGUID();
+        Clear(VendorLedgerEntry);
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Applies-to ID", UserId());
+        VendorLedgerEntry.ModifyAll("Applies-to ID", AppliesToId);
+
+        // [GIVEN] Payment "B" applied to Invoice "B" with "Applies-to Doc. No." and posted
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLinePayment[2], GenJournalLinePayment[2]."Document Type"::Payment, GenJournalLinePayment[2]."Account Type"::Vendor, Vendor."No.", PaymentAmount[2]);
+        GenJournalLinePayment[2].Validate("Posting Date", WorkDate() + 1);
+        GenJournalLinePayment[2].Validate("Applies-to Doc. Type", GenJournalLinePayment[2]."Applies-to Doc. Type"::Invoice);
+        GenJournalLinePayment[2].Validate("Applies-to Doc. No.", GenJournalLineInvoice[2]."Document No.");
+        GenJournalLinePayment[2].Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLinePayment[2]);
+
+        // [GIVEN] Posting engine cleared "Applies-to ID" and "Applies-to Doc. No." on applied customer ledger entry of Invoice "B"
+        VerifyBlankAppliestoID(Vendor."No.", GenJournalLineInvoice[2]."Document No.", VendorLedgerEntry."Document Type"::Invoice);
+
+        // [GIVEN] Posted Invoice "A"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLineInvoice[1], GenJournalLineInvoice[1]."Document Type"::Invoice, GenJournalLineInvoice[1]."Account Type"::Vendor, Vendor."No.", InvoiceAmount[1]);
+        GenJournalLineInvoice[1].Validate("Posting Date", WorkDate() - 1);
+        GenJournalLineInvoice[1].Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLineInvoice[1]);
+
+        // [GIVEN] Posted Payment "A" applied to Posted Invoice "A" with "Applies-to ID."
+        AppliesToId := LibraryUtility.GenerateGUID();
+        Clear(VendorLedgerEntry);
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Applies-to ID", AppliesToId);
+        VendorLedgerEntry.ModifyAll("Applies-to ID", UserId());
+
+        LibraryVariableStorage.Enqueue(GenJournalLineInvoice[1]."Document No.");
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(WorkDate() - 1);
+
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.Filter.SetFilter("Vendor No.", Vendor."No.");
+        VendorLedgerEntries.Filter.SetFilter("Document No.", GenJournalLinePayment[1]."Document No.");
+
+        // [WHEN] Stan posts 
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
+
+        // [GIVEN] Applied documents posted and posting engine cleared "Applies-to ID" and "Applies-to Doc. No." on applied customer ledger entry of Invoice "A"
+        VerifyBlankAppliestoID(Vendor."No.", GenJournalLineInvoice[1]."Document No.", VendorLedgerEntry."Document Type"::Invoice);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ApplyVendorEntriesTwiceModalPageHandler')]
+    procedure ThreeInvoicesAndApplyEntries()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: array[3] of Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        AppliesToId: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 411946] "Applies-to ID" must be cleared on applying entry when the mark is removed from applied entries.
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        for Index := 1 to ArrayLen(VendorLedgerEntry) do begin
+            Clear(GenJournalLine);
+            LibraryJournals.CreateGenJournalLineWithBatch(
+                GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", -LibraryRandom.RandIntInRange(100, 200));
+            GenJournalLine.Validate("Posting Date", WorkDate() + 1);
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+            VendorLedgerEntry[Index].SetRange("Vendor No.", Vendor."No.");
+            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry[Index], VendorLedgerEntry[Index]."Document Type"::Invoice, GenJournalLine."Document No.");
+        end;
+
+        LibraryVariableStorage.Enqueue(VendorLedgerEntry[2]."Document No.");
+
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.Filter.SetFilter("Vendor No.", Vendor."No.");
+        VendorLedgerEntries.Filter.SetFilter("Document No.", VendorLedgerEntry[1]."Document No.");
+        VendorLedgerEntries.ActionApplyEntries.Invoke(); // set and remove Applies-to ID mark on 2nd invoice (on page handler)
+        VendorLedgerEntries.Close();
+
+        VendorLedgerEntry[1].Find();
+        VendorLedgerEntry[1].TestField("Applies-to ID", '');
+
+        VendorLedgerEntry[2].Find();
+        VendorLedgerEntry[2].TestField("Applies-to ID", '');
+
+        VendorLedgerEntry[3].Find();
+        VendorLedgerEntry[3].TestField("Applies-to ID", '');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1626,6 +1775,21 @@ codeunit 134011 "ERM Application Vendor"
         end;
     end;
 
+    local procedure VerifyBlankAppliestoID(VendorNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendorLedgerEntry.TestField(Open, false);
+            VendorLedgerEntry.TestField("Applies-to ID", '');
+            VendorLedgerEntry.TestField("Applies-to Doc. No.", '');
+        until VendorLedgerEntry.Next() = 0;
+    end;
+
     local procedure FindLastApplEntry(VendLedgEntryNo: Integer): Integer
     var
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -1648,6 +1812,36 @@ codeunit 134011 "ERM Application Vendor"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.Filter.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        if (LibraryVariableStorage.DequeueBoolean()) then
+            ApplyVendorEntries.ActionPostApplication.Invoke()
+        else
+            ApplyVendorEntries.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesTwiceModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.Filter.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostApplicationModalPageHandler(var PostApplication: TestPage "Post Application")
+    begin
+        PostApplication.DocNo.SetValue(LibraryVariableStorage.DequeueText());
+        PostApplication.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

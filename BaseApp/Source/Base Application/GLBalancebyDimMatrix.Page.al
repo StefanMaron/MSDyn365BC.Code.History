@@ -1102,7 +1102,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                     DateFilter2 := AnalysisByDimParameters."Date Filter";
                 end else begin
                     SetFilter("Date Filter", AnalysisByDimParameters."Date Filter");
-                    DateFilter2 := StrSubstNo('..%1', GetRangeMax("Date Filter"));
+                    DateFilter2 := StrSubstNo('%1..%2', AnalysisByDimParameters.GetRangeMinDateFilter(), GetRangeMax("Date Filter"));
                 end;
                 if ExcludeClosingDateFilter <> '' then
                     DateFilter2 := StrSubstNo('%1 & %2', DateFilter2, ExcludeClosingDateFilter);
@@ -1157,7 +1157,10 @@ page 9233 "G/L Balance by Dim. Matrix"
                         TheGLAcc.SetRange(
                           "Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End")
                     else
-                        TheGLAcc.SetRange("Date Filter", 0D, DimCodeBuf."Period End");
+                        if AnalysisByDimParameters."Date Filter" = '' then
+                            TheGLAcc.SetRange("Date Filter", 0D, DimCodeBuf."Period End")
+                        else
+                            TheGLAcc.SetRange("Date Filter", AnalysisByDimParameters.GetRangeMinDateFilter(), DimCodeBuf."Period End");
                     if (AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Exclude) and (ExcludeClosingDateFilter <> '') then
                         TheGLAcc.SetFilter(
                           "Date Filter", TheGLAcc.GetFilter("Date Filter") +

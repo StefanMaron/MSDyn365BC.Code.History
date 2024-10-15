@@ -377,6 +377,8 @@ table 271 "Bank Account Ledger Entry"
             exit;
         if not BankAccReconciliationLine.GetBySystemId(GenJnlLine."Linked System ID") then
             exit;
+        if "Bank Account No." <> BankAccReconciliationLine."Bank Account No." then
+            exit;
         BankAccountLedgerEntry.SetCurrentKey("Statement No.", "Statement Line No.");
         BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
         BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");

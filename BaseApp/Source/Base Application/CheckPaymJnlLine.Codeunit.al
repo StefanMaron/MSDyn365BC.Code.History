@@ -194,7 +194,14 @@ codeunit 2000001 CheckPaymJnlLine
 
     [Scope('OnPrem')]
     procedure CheckBeneficiaryBankForSEPA(PmtJnlLine: Record "Payment Journal Line"; EuroSEPA: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBeneficiaryBankForSEPA(PmtJnlLine, EuroSEPA, IsHandled);
+        if IsHandled then
+            exit;
+
         with PmtJnlLine do begin
             CheckIBANForSEPA(PmtJnlLine, EuroSEPA);
             if IsForeignBank(PmtJnlLine."Bank Account") then
@@ -314,6 +321,11 @@ codeunit 2000001 CheckPaymJnlLine
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSEPAAllowed(var RequiredSEPAAllowed: Boolean; PmtJnlLineNo: Integer; CountryRegionCode: Code[10]; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBeneficiaryBankForSEPA(var PaymentJournalLine: Record "Payment Journal Line"; var EuroSEPA: Boolean; var IsHandled: Boolean)
     begin
     end;
 

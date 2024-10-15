@@ -1486,7 +1486,11 @@
                 if Reserve <> Reserve::Never then begin
                     TestField(Type, Type::Item);
                     TestField("No.");
+                    GetItem(Item);
+                    if Item.Type = Item.Type::"Non-Inventory" then
+                        Error(NonInvReserveTypeErr, Item."No.", Reserve);
                 end;
+
                 CalcFields("Reserved Qty. (Base)");
                 if (Reserve = Reserve::Never) and ("Reserved Qty. (Base)" > 0) then
                     TestField("Reserved Qty. (Base)", 0);
@@ -3515,6 +3519,7 @@
         CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
+        NonInvReserveTypeErr: Label 'Non-inventory items must have the reserve type Never. The current reserve type for item %1 is %2.', Comment = '%1 is Item No., %2 is Reserve';
 
     protected var
         HideValidationDialog: Boolean;
@@ -4783,6 +4788,7 @@
     procedure AutoReserve()
     var
         SalesSetup: Record "Sales & Receivables Setup";
+        Item: Record Item;
         ReservMgt: Codeunit "Reservation Management";
         ConfirmManagement: Codeunit "Confirm Management";
         QtyToReserve: Decimal;
@@ -4796,6 +4802,9 @@
 
         TestField(Type, Type::Item);
         TestField("No.");
+        GetItem(Item);
+        if (Item.Type = Item.Type::"Non-Inventory") and (Reserve = Reserve::Never) then
+            Error(NonInvReserveTypeErr, Item."No.", Reserve);
 
         SalesLineReserve.ReservQuantity(Rec, QtyToReserve, QtyToReserveBase);
         if QtyToReserveBase <> 0 then begin
@@ -6839,7 +6848,7 @@
         Evaluate(DateFormularValue, '<0D>');
     end;
 
-    local procedure InitQtyToAsm()
+    protected procedure InitQtyToAsm()
     begin
         OnBeforeInitQtyToAsm(Rec, CurrFieldNo);
 
@@ -7647,7 +7656,7 @@
         SalesSetup.TestField("Freight G/L Acc. No.");
 
         TestField("Document No.");
-        OnInsertFreightLineOnAfterCheckDocumentNo(SalesLine);
+        OnInsertFreightLineOnAfterCheckDocumentNo(SalesLine, Rec);
 
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "Document No.");
@@ -8800,7 +8809,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertFreightLineOnAfterCheckDocumentNo(var SalesLine: Record "Sales Line")
+    local procedure OnInsertFreightLineOnAfterCheckDocumentNo(var SalesLine: Record "Sales Line"; var SalesLineRec: Record "Sales Line")
     begin
     end;
 

@@ -20,6 +20,7 @@
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
         SetTrackInfoForCancellation(Rec);
         UpdateSalesOrderLinesFromCancelledInvoice("No.");
+        OnOnRunOnAfterUpdateSalesOrderLinesFromCancelledInvoice(Rec, SalesHeader);
 
         Commit();
     end;
@@ -865,6 +866,8 @@
         SalesLine.InitQtyToShip();
         SalesLine.InitQtyToInvoice();
         SalesLine.Modify();
+
+        OnAfterUpdateSalesOrderLineInvoicedQuantity(SalesLine, CancelledQuantity, CancelledQtyBase);
     end;
 
     [IntegrationEvent(false, false)]
@@ -889,6 +892,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCorrectiveSalesCrMemo(SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; var CancellingOnly: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateSalesOrderLineInvoicedQuantity(var SalesLine: Record "Sales Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)
     begin
     end;
 
@@ -949,6 +957,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTestSalesLinesOnAfterCalcShippedQtyNoReturned(SalesInvoiceLine: Record "Sales Invoice Line"; var ShippedQtyNoReturned: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnRunOnAfterUpdateSalesOrderLinesFromCancelledInvoice(var Rec: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 }

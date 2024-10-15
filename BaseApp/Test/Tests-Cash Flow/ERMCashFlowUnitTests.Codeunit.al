@@ -2846,6 +2846,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         CashFlowForecastCard.OpenView();
         CashFlowForecastCard.Filter.SetFilter("No.", CashFlowForecast."No.");
+        CashFlowForecastCard.Control1905906307.Total.AssertEquals(LedgerEntryAmount);
         CashFlowStatistic.Trap();
         CashFlowForecastCard."&Statistics".Invoke();
 

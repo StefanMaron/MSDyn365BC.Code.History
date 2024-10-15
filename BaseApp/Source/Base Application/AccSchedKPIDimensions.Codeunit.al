@@ -107,11 +107,13 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     GLAcc."Account Type" := GLAcc."Account Type"::Total;
                     GLAcc.Totaling := AccSchedLine.Totaling;
                     AddGLAccDimensions(GLAcc, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
-                end else
+                end else begin
+                    GLAcc.SetLoadFields(Totaling, "Account Type");
                     if GLAcc.Find('-') then
                         repeat
                             AddGLAccDimensions(GLAcc, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
                         until GLAcc.Next() = 0;
+                end;
             end;
 
             if AccSchedLine."Totaling Type" in

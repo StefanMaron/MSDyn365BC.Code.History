@@ -85,12 +85,7 @@ codeunit 21 "Item Jnl.-Check Line"
                     end;
                 end;
 
-            if (("Entry Type" <> "Entry Type"::Transfer) or ("Order Type" <> "Order Type"::Transfer)) and
-               not Adjustment
-            then begin
-                CheckInTransitLocation("Location Code");
-                CheckInTransitLocation("New Location Code");
-            end;
+            CheckInTransitLocations(ItemJnlLine);
 
             if Item.IsInventoriableType() then
                 CheckBins(ItemJnlLine)
@@ -363,8 +358,7 @@ codeunit 21 "Item Jnl.-Check Line"
 
             if "Entry Type" = "Entry Type"::Transfer then begin
                 GetLocation("New Location Code");
-                if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
-                    TestField("New Bin Code");
+                CheckNewBinCode(ItemJnlLine);
             end else begin
                 GetLocation("Location Code");
                 if not Location."Bin Mandatory" or Location."Directed Put-away and Pick" then
@@ -402,6 +396,19 @@ codeunit 21 "Item Jnl.-Check Line"
                             end;
                     end;
         end;
+    end;
+
+    local procedure CheckNewBinCode(ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNewBinCode(ItemJnlLine, Location, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+            ItemJnlLine.TestField("New Bin Code");
     end;
 
     local procedure CheckDates(ItemJnlLine: Record "Item Journal Line")
@@ -521,6 +528,24 @@ codeunit 21 "Item Jnl.-Check Line"
             Error(UseInTransitLocationErr, LocationCode)
     end;
 
+    local procedure CheckInTransitLocations(var ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckInTransitLocations(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ItemJnlLine do
+            if (("Entry Type" <> "Entry Type"::Transfer) or ("Order Type" <> "Order Type"::Transfer)) and
+               not Adjustment
+            then begin
+                CheckInTransitLocation("Location Code");
+                CheckInTransitLocation("New Location Code");
+            end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignInvtPickRequired(ItemJournalLine: Record "Item Journal Line"; Location: Record Location; var InvtPickLocation: Boolean)
     begin
@@ -552,6 +577,11 @@ codeunit 21 "Item Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInTransitLocations(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLocation(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -578,6 +608,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNewBinCode(ItemJnlLine: Record "Item Journal Line"; Location: Record Location; var IsHandled: Boolean)
     begin
     end;
 
