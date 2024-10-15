@@ -1551,7 +1551,7 @@
                               PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
                         AddCurrency."Amount Rounding Precision");
 
-		        MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
+                MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
                 if "Line Amount" < 0 then
                     if "Line Amount" < MaxLineAmount then
                         Error(LineAmountInvalidErr);
@@ -8028,6 +8028,8 @@
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
         end;
+        if ("Prepayment Amount" = 0) and ("Prepmt Amt to Deduct" = 0) then
+            "Prepmt. VAT Base Amt." := 0;
         UpdateAmounts;
         UpdateUnitCost;
     end;
@@ -8468,9 +8470,10 @@
             if not PrePaymentLineAmountEntered then
                 if not CalculateFullGST("Prepmt. Line Amount") then begin
                     "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                    if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") THEN
+                    if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
                         "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
                 end;
+
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -8728,7 +8731,7 @@
         PurchCrMemoLine.SetRange("Blanket Order Line No.", Rec."Line No.");
         PAGE.RunModal(PAGE::"Posted Purchase Cr. Memo Lines", PurchCrMemoLine);
     end;
-    
+
     procedure UpdateACYAmounts(PurchHeaderToCalc: Record "Purchase Header")
     begin
         GetGLSetup;
@@ -8745,7 +8748,7 @@
         "Amount Including VAT (ACY)" :=
           Round("Amount (ACY)" + "VAT Base (ACY)" * "VAT %" / 100,
             AddCurrency."Amount Rounding Precision");
-    end;   
+    end;
 
     local procedure CalcCurrencyFactorACY(): Decimal
     begin

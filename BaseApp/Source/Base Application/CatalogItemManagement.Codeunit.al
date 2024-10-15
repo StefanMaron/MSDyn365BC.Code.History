@@ -577,7 +577,7 @@ codeunit 5703 "Catalog Item Management"
         if Item."Costing Method" = Item."Costing Method"::Standard then
             Item."Standard Cost" := NonstockItem."Negotiated Cost";
         Item."Automatic Ext. Texts" := false;
-        Item."Vendor No." := NonstockItem."Vendor No.";
+        Item.Validate("Vendor No.", NonstockItem."Vendor No.");
         Item."Vendor Item No." := NonstockItem."Vendor Item No.";
         Item."Net Weight" := NonstockItem."Net Weight";
         Item."Gross Weight" := NonstockItem."Gross Weight";

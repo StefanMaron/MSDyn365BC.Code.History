@@ -20,6 +20,11 @@ page 743 "VAT Report Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if users can modify VAT reports that have been submitted to the tax authorities. If the field is left blank, users must create a corrective or supplementary VAT report instead.';
                 }
+                field("Report VAT Base"; "Report VAT Base")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies if the VAT base must be calculated and shown to the user in the VAT reports.';
+                }
             }
             group(Numbering)
             {

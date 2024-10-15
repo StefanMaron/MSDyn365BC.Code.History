@@ -3491,6 +3491,273 @@
         Assert.ExpectedError(PrepaymentInvoicesNotPaidErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATEntryAfterPostPrepaymentSalesWithUpdateAmount()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATEntry: Record "VAT Entry";
+        PostedInvoiceNo: array[2] of Code[20];
+        PostedCreditMemoNo: Code[20];
+        DocumentType: Enum "Gen. Journal Document Type";
+    begin
+        // [SCENARIO 413667] Post prepayment invoice for modified sales order when previous prepayment has been canceled by prepament credit memo.
+
+        Initialize();
+
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true); // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
+
+        // [GIVE] Sales order with "Prepayment %" = 100, Amount = 4000 and "VAT % = 10
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+
+        UpdatePrepmtAccInGeneralPostingSetup(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2) * 3);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Prepayment Invoice posted and reverted by Prepayment Credit Memo
+        PostedInvoiceNo[1] := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        VerifyVATEntryBaseAndAmount(
+            DocumentType::Invoice,
+            PostedInvoiceNo[1],
+            -Round(SalesLine.Quantity * SalesLine."Unit Price"),
+            -Round(Round(SalesLine.Quantity * SalesLine."Unit Price") * SalesLine."VAT %" / 100));
+        VerifyGSTSalesEntryBaseAndAmount(
+            DocumentType::Invoice,
+            PostedInvoiceNo[1],
+            -Round(SalesLine.Quantity * SalesLine."Unit Price"),
+            -Round(Round(SalesLine.Quantity * SalesLine."Unit Price") * SalesLine."VAT %" / 100));
+
+        PostedCreditMemoNo := LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader);
+
+        VerifyVATEntryBaseAndAmount(
+            DocumentType::"Credit Memo",
+            PostedCreditMemoNo,
+            Round(SalesLine.Quantity * SalesLine."Unit Price"),
+            Round(Round(SalesLine.Quantity * SalesLine."Unit Price") * SalesLine."VAT %" / 100));
+        VerifyGSTSalesEntryBaseAndAmount(
+            DocumentType::"Credit Memo",
+            PostedCreditMemoNo,
+            Round(SalesLine.Quantity * SalesLine."Unit Price"),
+            Round(Round(SalesLine.Quantity * SalesLine."Unit Price") * SalesLine."VAT %" / 100));
+
+        // [GIVEN] Order reopened when prepayment invoice is canceled.
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [GIVEN] "Unit Price" decreased from 4000 to 3000 on sales line.
+        SalesLine.Find();
+        SalesLine.Validate("Unit Price", ROUND(SalesLine."Unit Price" / 3));
+        SalesLine.Modify(true);
+
+        // [WHEN] Post new Prepayment Invoice 
+        PostedInvoiceNo[2] := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Amount = -300, Base = -3000 on created VAT Entry
+        VerifyVATEntryBaseAndAmount(
+            DocumentType::Invoice,
+            PostedInvoiceNo[2],
+            -Round(SalesLine.Quantity * SalesLine."Unit Price"),
+            -Round(Round(SalesLine.Quantity * SalesLine."Unit Price") * SalesLine."VAT %" / 100));
+        // [THEN] Amount = -300, Base = -3000 on created GST Sales Entry
+        VerifyGSTSalesEntryBaseAndAmount(
+            DocumentType::Invoice,
+            PostedInvoiceNo[2],
+            -Round(SalesLine.Quantity * SalesLine."Unit Price"),
+            -Round(Round(SalesLine.Quantity * SalesLine."Unit Price") * SalesLine."VAT %" / 100));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATEntryAfterPostPrepaymentPurchaseWithUpdateAmount()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        PostedInvoiceNo: array[2] of Code[20];
+        PostedCreditMemoNo: Code[20];
+        DocumentType: Enum "Gen. Journal Document Type";
+    begin
+        // [SCENARIO 413667] Post prepayment invoice for modified sales order when previous prepayment has been canceled by prepament credit memo.
+
+        Initialize();
+
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true); // TRUE for Enable GST, GST Reports, Full GST On Prepayment.
+
+        // [GIVE] Sales order with "Prepayment %" = 100, Amount = 4000 and "VAT % = 10
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+
+        UpdatePrepmtAccInGeneralPostingSetup(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Prepayment %", 100);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2) * 3);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Prepayment Invoice posted and reverted by Prepayment Credit Memo
+        PostedInvoiceNo[1] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        VerifyVATEntryBaseAndAmount(
+            DocumentType::Invoice,
+            PostedInvoiceNo[1],
+            Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost"),
+            Round(Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLine."VAT %" / 100));
+        VerifyGSTPurchaseEntryBaseAndAmount(
+            DocumentType::Invoice,
+            PostedInvoiceNo[1],
+            Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost"),
+            Round(Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLine."VAT %" / 100));
+
+        PurchaseHeader.Find();
+        PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify();
+        PostedCreditMemoNo := LibraryPurchase.PostPurchasePrepaymentCreditMemo(PurchaseHeader);
+
+        VerifyVATEntryBaseAndAmount(
+            DocumentType::"Credit Memo",
+            PostedCreditMemoNo,
+            -Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost"),
+            -Round(Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLine."VAT %" / 100));
+        VerifyGSTPurchaseEntryBaseAndAmount(
+            DocumentType::"Credit Memo",
+            PostedCreditMemoNo,
+            -Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost"),
+            -Round(Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLine."VAT %" / 100));
+
+        // [GIVEN] Order reopened when prepayment invoice is canceled.
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        UpdatePurchInvoiceNo(PurchaseHeader);
+
+        // [GIVEN] "Unit Price" decreased from 4000 to 3000 on sales line.
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Direct Unit Cost", ROUND(PurchaseLine."Direct Unit Cost" / 3));
+        PurchaseLine.TestField("VAT %");
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post new Prepayment Invoice 
+        PostedInvoiceNo[2] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Amount = 300, Base = 3000 on created VAT Entry
+        VerifyVATEntryBaseAndAmount(
+            DocumentType::Invoice,
+            PostedInvoiceNo[2],
+            Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost"),
+            Round(Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLine."VAT %" / 100));
+        // [THEN] Amount = 300, Base = 3000 on created GST Sales Entry
+        VerifyGSTPurchaseEntryBaseAndAmount(
+            DocumentType::Invoice,
+            PostedInvoiceNo[2],
+            Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost"),
+            Round(Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLine."VAT %" / 100));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPrepmtInvLineVATPctWithDifferentVARates()
+    var
+        PrepmtVATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        Customer: Record Customer;
+        PostedInvNo: Code[20];
+    begin
+        // [SCENARIO 413665] Wrong VAT % in prepayment invoice line, document statistics and report in the case of different VAT rates in the document line and prepayment account
+        Initialize();
+
+        // [GIVEN] Prepayment setup with VAT % = "VAT1"
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(PrepmtVATPostingSetup, 67.89);
+        GeneralPostingSetup.Validate("Sales Prepayments Account", CreateGLAccountWithGivenSetup(PrepmtVATPostingSetup, GeneralPostingSetup));
+        GeneralPostingSetup.Modify(true);
+
+        // [GIVEN] Order, line with VAT % = "VAT2"
+        VATPostingSetup.Get(PrepmtVATPostingSetup."VAT Bus. Posting Group", PrepmtVATPostingSetup."VAT Prod. Posting Group");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup."VAT %" := 23.45;
+        VATPostingSetup.Insert();
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+        CreateSalesHeader(SalesHeader, Customer."No.", 50, false);
+        CreateCustomSalesLine(SalesLine, SalesHeader, CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup), 1, 1000);
+
+        // [WHEN] Post prepayment invoice
+        PostedInvNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Posted prepayment invoice line "VAT %" = "VAT1"
+        SalesInvoiceLine.Get(PostedInvNo, SalesLine."Line No.");
+        SalesInvoiceLine.TestField("VAT %", PrepmtVATPostingSetup."VAT %");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchasePrepmtInvLineVATPctWithDifferentVARates()
+    var
+        PrepmtVATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+        Vendor: Record Vendor;
+        PostedInvNo: Code[20];
+    begin
+        // [SCENARIO 413665] Wrong VAT % in prepayment invoice line, document statistics and report in the case of different VAT rates in the document line and prepayment account
+        Initialize();
+
+        // [GIVEN] Prepayment setup with VAT % = "VAT1"
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(PrepmtVATPostingSetup, 67.89);
+        GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccountWithGivenSetup(PrepmtVATPostingSetup, GeneralPostingSetup));
+        GeneralPostingSetup.Modify(true);
+
+        // [GIVEN] Order, line with VAT % = "VAT2"
+        VATPostingSetup.Get(PrepmtVATPostingSetup."VAT Bus. Posting Group", PrepmtVATPostingSetup."VAT Prod. Posting Group");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup."VAT %" := 23.45;
+        VATPostingSetup.Insert();
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+        CreatePurchaseHeader(PurchaseHeader, Vendor."No.", 50, false);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+            CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1000);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post prepayment invoice
+        PostedInvNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Posted prepayment invoice line "VAT %" = "VAT1"
+        PurchInvLine.Get(PostedInvNo, PurchaseLine."Line No.");
+        PurchInvLine.TestField("VAT %", PrepmtVATPostingSetup."VAT %");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3682,6 +3949,23 @@
             Modify(true);
             exit("No.");
         end;
+    end;
+
+    local procedure CreateGLAccountWithPostingGroups(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateVendor(VATBusPostingGroup: Code[20]): Code[20]
@@ -4417,6 +4701,27 @@
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
     end;
 
+    local procedure UpdatePrepmtAccInGeneralPostingSetup(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
+        GeneralPostingSetup.Validate("Sales Prepayments Account", CreateGLAccountWithPostingGroups());
+        GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccountWithPostingGroups());
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure UpdateLocalFunctionalitiesOnGeneralLedgerSetup(EnableGST: Boolean; GSTReport: Boolean; FullGSTOnPrepayment: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Enable GST (Australia)", EnableGST);
+        GeneralLedgerSetup.Validate("GST Report", GSTReport);
+        GeneralLedgerSetup.Validate("Full GST on Prepayment", FullGSTOnPrepayment);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     local procedure TearDownVATPostingSetup(VATBusPostingGroup: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -4697,6 +5002,39 @@
         PurchInvLine.SetRange("No.", PurchasePrepmtGLAccountNo);
         PurchInvLine.FindFirst();
         PurchInvLine.TestField(Amount, -(LineAmount - InvDiscountAmount));
+    end;
+
+    local procedure VerifyVATEntryBaseAndAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedBase: Decimal; ExpectedAmount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.FindFirst();
+        VATEntry.TestField(Base, ExpectedBase);
+        VATEntry.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure VerifyGSTSalesEntryBaseAndAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedBase: Decimal; ExpectedAmount: Decimal)
+    var
+        GSTSalesEntry: Record "GST Sales Entry";
+    begin
+        GSTSalesEntry.SetRange("Document No.", DocumentNo);
+        GSTSalesEntry.SetRange("Document Type", DocumentType);
+        GSTSalesEntry.FindFirst();
+        GSTSalesEntry.TestField("GST Base", ExpectedBase);
+        GSTSalesEntry.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure VerifyGSTPurchaseEntryBaseAndAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedBase: Decimal; ExpectedAmount: Decimal)
+    var
+        GSTPurchaseEntry: Record "GST Purchase Entry";
+    begin
+        GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
+        GSTPurchaseEntry.SetRange("Document Type", DocumentType);
+        GSTPurchaseEntry.FindFirst();
+        GSTPurchaseEntry.TestField("GST Base", ExpectedBase);
+        GSTPurchaseEntry.TestField(Amount, ExpectedAmount);
     end;
 
     [PageHandler]

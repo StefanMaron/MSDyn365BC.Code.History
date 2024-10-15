@@ -505,6 +505,41 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchField.TestField(Value, 'testvalue');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DataExhangeDefinitionImportConservesCustomColumSeparatorField()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        FileManagement: Codeunit "File Management";
+        OldCustomColumnSeparator: Text[10];
+    begin
+        // [SCENARIO 416979] Data Exhange Definition XMLPort import conserves value of "Custom Column Separator" field
+
+        // [GIVEN] Data Exhange Definition exists
+        MockDataExchDef(DataExchDef, DataExchDef.Type::"Generic Import", DataExchDef."File Type"::Xml);
+
+        // [GIVEN] Data Exhange Definition has "Custom Column Separator"
+        OldCustomColumnSeparator := LibraryUtility.GenerateGUID();
+        DataExchDef.Validate("Column Separator", DataExchDef."Column Separator"::Custom);
+        DataExchDef.Validate("Custom Column Separator", OldCustomColumnSeparator);
+        DataExchDef.Modify(true);
+
+        // [GIVEN] Data Exhange Definition is exported to xml.
+        ServerFileName := FileManagement.ServerTempFileName('.xml');
+        DataExchDef.SetRecFilter();
+        ExportViaXMLPort(DataExchDef);
+
+        // [GIVEN] Data Exhange Definition is deleted.
+        RemoveDataExch(DataExchDef.Code);
+
+        // [WHEN] Data Exhange Definition is imported from xml.
+        ImportViaXMLPort(DataExchDef);
+
+        // [THEN] Imported Data Exchange Definitaion has "Custom Column Separator" = XXX
+        DataExchDef.FindFirst();
+        DataExchDef.TestField("Custom Column Separator", OldCustomColumnSeparator);
+    end;
+
     local procedure MockDataExchDef(var DataExchDef: Record "Data Exch. Def"; Type: Enum "Data Exchange Definition Type"; FileType: Option)
     begin
         DataExchDef.Init();

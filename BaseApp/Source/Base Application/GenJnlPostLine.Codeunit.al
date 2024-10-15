@@ -3818,6 +3818,9 @@
             OldVendLedgEntry."Rem. Amt for WHT" := -OldAppliedAmount;
             OldVendLedgEntry."Rem. Amt" := RemAmtWHT;
             OldVendLedgEntry."Amount to Apply" := 0;
+            // we don't clean "Applies-to ID" field here as it is required later for post posting processing in COD 13 / WHT functionality.
+            if not GLSetup."Enable WHT" then
+                OldVendLedgEntry."Applies-to ID" := '';
             OldVendLedgEntry."EFT Register No." := 0;
             OldVendLedgEntry."EFT Amount Transferred" := 0;
             OldVendLedgEntry."EFT Bank Account No." := '';

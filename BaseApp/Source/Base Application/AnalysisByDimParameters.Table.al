@@ -153,4 +153,14 @@ table 361 "Analysis by Dim. Parameters"
     begin
 
     end;
+
+    procedure GetRangeMinDateFilter(): Date
+    var
+        TempGLAccount: Record "G/L Account" temporary;
+    begin
+        if "Date Filter" <> '' then begin
+            TempGLAccount.SetFilter("Date Filter", "Date Filter");
+            exit(TempGLAccount.GetRangeMin("Date Filter"));
+        end;
+    end;
 }

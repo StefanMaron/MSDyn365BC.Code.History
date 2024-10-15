@@ -1014,8 +1014,8 @@
                 if PurchInvLine.FindFirst and (PurchInvLine."Blanket Order No." <> '') then
                     GenJnlLine5."Skip WHT" := false;
             end;
-            // IF (NOT GenJnlLine5."Skip WHT") THEN
-            // EXIT;
+        // IF (NOT GenJnlLine5."Skip WHT") THEN
+        // EXIT;
         until VendLedgEntry.Next() = 0;
     end;
 
@@ -1536,7 +1536,7 @@
                                     TotWHT := 0;
                                     CustLedgEntry.SetRange("Applies-to ID", CurrGenJnlLine."Document No.");
                                     CustLedgEntry.SetRange("Customer No.", CurrGenJnlLine."Account No.");
-                                    if CustLedgEntry.FindFirst then
+                                    if CustLedgEntry.FindFirst() then
                                         CustomerMinWHT(CustLedgEntry, GenJnlLine5);
                                 end;
                             GenJnlLine5."Account Type"::Vendor:
@@ -1544,7 +1544,7 @@
                                     TotWHT := 0;
                                     VendLedgEntry.SetRange("Applies-to ID", CurrGenJnlLine."Document No.");
                                     VendLedgEntry.SetRange("Vendor No.", CurrGenJnlLine."Account No.");
-                                    if VendLedgEntry.FindFirst then
+                                    if VendLedgEntry.FindFirst() then
                                         VendorMinWHT(VendLedgEntry, GenJnlLine5);
                                 end;
                         end;

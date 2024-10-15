@@ -17,6 +17,7 @@ codeunit 141011 "ERM WHT - AU"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ABNTxt: Label '53001003000';
         DiffrentWHTPostingGroupOnLineErr: Label 'You cannot post a transaction using different WHT minimum invoice amounts on lines.';
         ValueMustBeSameMsg: Label 'Value must be same.';
@@ -1103,7 +1104,7 @@ codeunit 141011 "ERM WHT - AU"
         InvoiceNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [GIVEN] "WHT Entry" generated with "Unrealized Amount" = 1000 * "Prepayment %" * "WHT %" = 1000 * 10% * 5% = 5
-        VerifyPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
+        VerifyPrepaymentPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
 
         UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
 
@@ -1114,7 +1115,7 @@ codeunit 141011 "ERM WHT - AU"
         InvoiceNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [GIVEN] "WHT Entry" generated with "Unrealized Amount" = 1000 * "Prepayment %" * "WHT %" = 1000 * 20% * 5% = 10
-        VerifyPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
+        VerifyPrepaymentPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
 
         UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
 
@@ -1124,7 +1125,7 @@ codeunit 141011 "ERM WHT - AU"
         InvoiceNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [GIVEN] "WHT Entry" generated with "Unrealized Amount" = 1000 * "Prepayment %" * "WHT %" = 1000 * 70% * 5% = 35
-        VerifyPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
+        VerifyPrepaymentPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
 
         PurchaseHeader.Find();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1175,7 +1176,7 @@ codeunit 141011 "ERM WHT - AU"
         InvoiceNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [GIVEN] "WHT Entry" generated with "Unrealized Amount" = 1000 * "Prepayment %" * "WHT %" = 1000 * 10% * 5% = 5
-        VerifyPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
+        VerifyPrepaymentPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
 
         UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
 
@@ -1186,7 +1187,7 @@ codeunit 141011 "ERM WHT - AU"
         InvoiceNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [GIVEN] "WHT Entry" generated with "Unrealized Amount" = 1000 * "Prepayment %" * "WHT %" = 1000 * 20% * 5% = 10
-        VerifyPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
+        VerifyPrepaymentPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
 
         UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
 
@@ -1196,7 +1197,7 @@ codeunit 141011 "ERM WHT - AU"
         InvoiceNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [GIVEN] "WHT Entry" generated with "Unrealized Amount" = 1000 * "Prepayment %" * "WHT %" = 1000 * 70% * 5% = 35
-        VerifyPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
+        VerifyPrepaymentPurchaseUnrealizedWHTAmountInvoice(InvoiceNo, PurchaseLine, WHTPostingSetup);
 
         UpdateVendorCreditMemoNoOnPurchaseHeader(PurchaseHeader);
 
@@ -1206,7 +1207,7 @@ codeunit 141011 "ERM WHT - AU"
         CreditMemoNo := LibraryPurchase.PostPurchasePrepaymentCreditMemo(PurchaseHeader);
 
         // [THEN] "WHT Entry" generated with "Unrealized Amount" = -(1000 * "Prepayment %" * "WHT %") = -(1000 * 100% * 5%) = -50
-        VerifyPurchaseUnrealizedWHTAmountCreditMemo(CreditMemoNo, PurchaseLine, WHTPostingSetup);
+        VerifyPrepaymentPurchaseUnrealizedWHTAmountCreditMemo(CreditMemoNo, PurchaseLine, WHTPostingSetup);
     end;
 
     [Test]
@@ -1455,6 +1456,119 @@ codeunit 141011 "ERM WHT - AU"
         Assert.RecordIsEmpty(GenJournalLine);
     end;
 
+    [Test]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,ConfirmHandlerYes,PostPmtsAndRecBankAccModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentReconciliationVendorNonRegistered()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        WHTRevenueTypes: Record "WHT Revenue Types";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        GenJournalAccountType: Enum "Gen. Journal Account Type";
+        PostedInvoiceNo: Code[20];
+        WHTAmount: Decimal;
+        VATAmount: Decimal;
+    begin
+        // [FEATURE] [Unrealized WHT] [Payment Reconciliation Journal] [UI] [Apply]
+        // [SCENARIO 414477] Stan can apply payment to invoice with unrealized WHT on "Payment Reconciliation Journal" 
+        Initialize();
+
+        // [GIVEN] WHT Posting Setup with "WHT %" = 20%
+        // [GIVEN] VAT Posting Setup with "VAT %" = 5%
+        UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);
+
+        LibraryAPACLocalization.CreateWHTRevenueTypes(WHTRevenueTypes);
+
+        CreateWHTPostingSetupWithParameters(
+          WHTPostingSetup, LibraryRandom.RandIntInRange(30, 40), 0, WHTPostingSetup."Realized WHT Type"::Payment);
+        WHTPostingSetup.Validate("Revenue Type", WHTRevenueTypes.Code);
+        WHTPostingSetup.Modify();
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Foreign Vend", false);
+        Vendor.Validate(Registered, false);
+        Vendor.Validate(ABN, '');
+        Vendor.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        Vendor.Modify(true);
+
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAccount.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
+        GLAccount.Modify(true);
+
+        // [GIVEN] Purchase invoice with Amount = 100
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
+
+        // [GIVEN] "WHT Entry" generated with "Unrealized Amount" = 100 * "WHT %" = 100 * 20% = 20
+        // [GIVEN] it is "WHT Amount" = 20
+        VerifyPurchaseUnrealizedWHTAmount(PostedInvoiceNo, PurchaseLine, WHTPostingSetup);
+
+        CreatePaymentReconciliationLine(
+          BankAccReconciliation, BankAccReconciliationLine, Vendor."No.", -PurchaseLine.Amount);
+
+        PaymentReconciliationJournal.Trap();
+        BankAccReconciliation.OpenWorksheet(BankAccReconciliation);
+
+        PaymentReconciliationJournal."Statement Amount".SetValue(-PurchaseLine.Amount);
+
+        LibraryVariableStorage.Enqueue(PostedInvoiceNo);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
+
+        PaymentReconciliationJournal."Account Type".AssertEquals(BankAccReconciliationLine."Account Type"::Vendor);
+        PaymentReconciliationJournal."Account No.".AssertEquals(Vendor."No.");
+
+        // [WHEN] Post payment reconciliation applied to the posted invoice 
+        LibraryVariableStorage.Enqueue(-PurchaseLine.Amount);
+        PaymentReconciliationJournal.Post.Invoke();
+
+        // [THEN] 4 G/L Entry posted
+        GLEntry.FindLast();
+        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+        Assert.RecordCount(GLEntry, 4);
+
+        WHTAmount := Round(PurchaseLine."Direct Unit Cost" * WHTPostingSetup."WHT %" / 100);
+        // [THEN] "VAT Amount" = Round("WHT Amount" * "VAT %" / (100 + "VAT %")) = Round(20 * 5 / 105) = 0.95
+        VATAmount := Round(WHTAmount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"));
+
+        // [THEN] Vendor's Payable Account = 100 
+        VerifyGLEntryAmount(
+          GLEntry, VendorPostingGroup.GetPayablesAccount(), PurchaseLine."Direct Unit Cost");
+        // [THEN] "WHT Posting Setup"."Payable WHT Account Code" = -("WHT Amount" - "VAT Amount") = -19.05
+        VerifyGLEntryAmount(
+          GLEntry,
+          WHTPostingSetup."Payable WHT Account Code",
+          -(WHTAmount - VATAmount));
+        // [THEN] "Bank Account" = -(Amount - "WHT Amount") = -(100 - 20) = -80
+        VerifyGLEntryAmountBalanceAccount(
+          GLEntry,
+          GenJournalAccountType::Vendor, Vendor."No.",
+          -Round(PurchaseLine."Direct Unit Cost" - WHTAmount));
+        // [THEN] VAT "Purchase Acount" = -"VAT Amount" = -0.95
+        VerifyGLEntryAmount(
+          GLEntry, VATPostingSetup.GetPurchAccount(false), -VATAmount);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1625,6 +1739,44 @@ codeunit 141011 "ERM WHT - AU"
         PurchInvHeader.Get(DocumentNo);
         PurchInvHeader.CalcFields(Amount);
         exit(PurchInvHeader.Amount * WHTPct / 100);
+    end;
+
+    local procedure CreatePaymentReconciliationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; VendorNo: Code[20]; StmtAmount: Decimal)
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
+        BankAccReconciliationLine.Validate("Statement Amount", StmtAmount);
+        BankAccReconciliationLine.Modify(true);
+    end;
+
+    local procedure CreatePaymentApplication(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AmountToApply: Decimal)
+    var
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+    begin
+        AppliedPaymentEntry.Init();
+        AppliedPaymentEntry."Statement Type" := BankAccReconciliationLine."Statement Type";
+        AppliedPaymentEntry."Bank Account No." := BankAccReconciliationLine."Bank Account No.";
+        AppliedPaymentEntry."Statement No." := BankAccReconciliationLine."Statement No.";
+        AppliedPaymentEntry."Statement Line No." := BankAccReconciliationLine."Statement Line No.";
+        AppliedPaymentEntry."Account Type" := BankAccReconciliationLine."Account Type";
+        AppliedPaymentEntry."Account No." := BankAccReconciliationLine."Account No.";
+        AppliedPaymentEntry."Applied Amount" := AmountToApply;
+        AppliedPaymentEntry.Insert();
+
+        BankAccReconciliationLine.Validate("Applied Amount", AmountToApply);
+        BankAccReconciliationLine.Modify();
+    end;
+
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccReconciliation.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccReconciliation.Modify();
     end;
 
     local procedure CreateGLAccount(VATProdPostingGroup: Code[20]): Code[20]
@@ -2034,23 +2186,23 @@ codeunit 141011 "ERM WHT - AU"
     local procedure VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics"; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal)
     begin
         Assert.AreNearlyEqual(
-          RemWHTPrepaidAmount, PurchaseInvoiceStatistics."Rem. WHT Prepaid Amount (LCY)".AsDEcimal,
+          RemWHTPrepaidAmount, PurchaseInvoiceStatistics."Rem. WHT Prepaid Amount (LCY)".AsDecimal(),
           LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          PaidWHTPrepaidAmount, PurchaseInvoiceStatistics."Paid WHT Prepaid Amount (LCY)".AsDEcimal,
+          PaidWHTPrepaidAmount, PurchaseInvoiceStatistics."Paid WHT Prepaid Amount (LCY)".AsDecimal(),
           LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        PurchaseInvoiceStatistics.OK.Invoke;
+        PurchaseInvoiceStatistics.OK.Invoke();
     end;
 
     local procedure VerifyPurchCreditMemoStatisticsPage(PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics"; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal)
     begin
         Assert.AreNearlyEqual(
-          RemWHTPrepaidAmount, PurchCreditMemoStatistics."Rem. WHT Prepaid Amount (LCY)".AsDEcimal,
+          RemWHTPrepaidAmount, PurchCreditMemoStatistics."Rem. WHT Prepaid Amount (LCY)".AsDecimal(),
           LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          PaidWHTPrepaidAmount, PurchCreditMemoStatistics."Paid WHT Prepaid Amount (LCY)".AsDEcimal,
+          PaidWHTPrepaidAmount, PurchCreditMemoStatistics."Paid WHT Prepaid Amount (LCY)".AsDecimal(),
           LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        PurchCreditMemoStatistics.OK.Invoke;
+        PurchCreditMemoStatistics.OK.Invoke();
     end;
 
     local procedure VerifyPurchaseInvoiceWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; RemainingUnrealizedAmount: Decimal; UnrealizedAmountLCY: Decimal)
@@ -2058,7 +2210,7 @@ codeunit 141011 "ERM WHT - AU"
         WHTEntry: Record "WHT Entry";
     begin
         FilterOnWHTEntry(WHTEntry, DocumentType, BillToPayToNo);
-        WHTEntry.FindFirst;
+        WHTEntry.FindFirst();
         Assert.AreNearlyEqual(
           RemainingUnrealizedAmount, WHTEntry."Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
@@ -2074,7 +2226,7 @@ codeunit 141011 "ERM WHT - AU"
         PurchasesPayablesSetup.Get();
         GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
         GSTPurchaseEntry.SetRange("Document Line Type", DocumentLineType);
-        GSTPurchaseEntry.FindFirst;
+        GSTPurchaseEntry.FindFirst();
         GSTPurchaseEntry.TestField("VAT Prod. Posting Group", PurchasesPayablesSetup."GST Prod. Posting Group");
         GSTPurchaseEntry.TestField(Amount, 0);
     end;
@@ -2123,12 +2275,28 @@ codeunit 141011 "ERM WHT - AU"
         WHTPostingSetup.Get(GenJournalLine."WHT Business Posting Group", GenJournalLine."WHT Product Posting Group");
         GLEntry.SetRange("Document Type", GenJournalLine."Document Type");
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GLEntry.SetRange("G/L Account No.", WHTPostingSetup."Payable WHT Account Code");
-        GLEntry.FindFirst;
-        GLEntry.TestField(Amount, -24);
+        VerifyGLEntryAmount(GLEntry, WHTPostingSetup."Payable WHT Account Code", -24);
     end;
 
-    local procedure VerifyPurchaseUnrealizedWHTAmountInvoice(DocumentNo: Code[20]; PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup")
+    local procedure VerifyGLEntryAmount(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
+    begin
+        GLEntry.SetRange("Bal. Account Type");
+        GLEntry.SetRange("Bal. Account No.");
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure VerifyGLEntryAmountBalanceAccount(var GLEntry: Record "G/L Entry"; BalAccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ExpectedAmount: Decimal)
+    begin
+        GLEntry.SetRange("G/L Account No.");
+        GLEntry.SetRange("Bal. Account Type", BalAccountType);
+        GLEntry.SetRange("Bal. Account No.", AccountNo);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure VerifyPrepaymentPurchaseUnrealizedWHTAmountInvoice(DocumentNo: Code[20]; PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup")
     var
         WHTEntry: Record "WHT Entry";
         ExpectedAmount: Decimal;
@@ -2144,7 +2312,7 @@ codeunit 141011 "ERM WHT - AU"
         WHTEntry.TestField("Unrealized Amount (LCY)", ExpectedAmount);
     end;
 
-    local procedure VerifyPurchaseUnrealizedWHTAmountCreditMemo(DocumentNo: Code[20]; PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup")
+    local procedure VerifyPrepaymentPurchaseUnrealizedWHTAmountCreditMemo(DocumentNo: Code[20]; PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup")
     var
         WHTEntry: Record "WHT Entry";
         ExpectedAmount: Decimal;
@@ -2174,6 +2342,45 @@ codeunit 141011 "ERM WHT - AU"
         WHTEntry.FindFirst();
         WHTEntry.TestField("WHT %", WHTPostingSetup."WHT %");
         WHTEntry.TestField("Amount (LCY)", ExpectedAmount);
+    end;
+
+    local procedure VerifyPurchaseUnrealizedWHTAmount(DocumentNo: Code[20]; PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup")
+    var
+        WHTEntry: Record "WHT Entry";
+        ExpectedAmount: Decimal;
+    begin
+        WHTEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(WHTEntry, 1);
+
+        ExpectedAmount := PurchaseLine."Line Amount" * WHTPostingSetup."WHT %" / 100;
+
+        WHTEntry.FindFirst();
+        WHTEntry.TestField("WHT %", WHTPostingSetup."WHT %");
+        WHTEntry.TestField("Amount (LCY)", 0);
+        WHTEntry.TestField("Unrealized Amount (LCY)", ExpectedAmount);
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    procedure PaymentApplicationModalPageHandler(var PaymentApplication: TestPage "Payment Application")
+    begin
+        PaymentApplication.Filter.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        PaymentApplication.Filter.SetFilter("Account No.", LibraryVariableStorage.DequeueText());
+
+        PaymentApplication.Applied.SetValue(true);
+        PaymentApplication.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PostPmtsAndRecBankAccModalPageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc."Statement Ending Balance".SetValue(LibraryVariableStorage.DequeueDecimal());
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 }
 

@@ -406,12 +406,18 @@
         BuyFromAddress: Text;
         BuyFromPhoneNo: Text;
         VatRegNo: Text;
-        VendorId: Text;
+        VendorIdText: Text;
+        VendorNoText: Text;
         VendorNo: Code[20];
     begin
         with IntermediateDataImport do begin
-            VendorId := GetEntryValue(EntryNo, DATABASE::Vendor, Vendor.FieldNo(SystemId), 0, RecordNo);
-            VendorNo := FindVendorById(EntryNo, RecordNo, PurchaseHeader.FieldNo("Buy-from Vendor No."), VendorId);
+            VendorIdText := GetEntryValue(EntryNo, DATABASE::Vendor, Vendor.FieldNo(SystemId), 0, RecordNo);
+            VendorNo := FindVendorById(EntryNo, RecordNo, PurchaseHeader.FieldNo("Buy-from Vendor No."), VendorIdText);
+            if VendorNo <> '' then
+                exit(VendorNo);
+
+            VendorNoText := GetEntryValue(EntryNo, DATABASE::Vendor, Vendor.FieldNo("No."), 0, RecordNo);
+            VendorNo := FindVendorByNo(EntryNo, RecordNo, PurchaseHeader.FieldNo("Buy-from Vendor No."), VendorNoText);
             if VendorNo <> '' then
                 exit(VendorNo);
 
@@ -666,6 +672,21 @@
             exit('');
 
         if not Vendor.GetBySystemId(VendorId) then
+            exit('');
+
+        IntermediateDataImport.InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", FieldID, 0, RecordNo, Vendor."No.");
+        exit(Vendor."No.");
+    end;
+
+    local procedure FindVendorByNo(EntryNo: Integer; RecordNo: Integer; FieldID: Integer; VendorNoText: Text): Code[20]
+    var
+        IntermediateDataImport: Record "Intermediate Data Import";
+        Vendor: Record Vendor;
+    begin
+        if VendorNoText = '' then
+            exit('');
+
+        if not Vendor.Get(VendorNoText) then
             exit('');
 
         IntermediateDataImport.InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", FieldID, 0, RecordNo, Vendor."No.");

@@ -1584,8 +1584,10 @@ codeunit 28040 WHTManagement
         GenJnlLine2 := GenJnlLine;
         GenJnlLine2.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine2.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        GenJnlLine2.FindLast;
-        HighestLineNo := GenJnlLine2."Line No." + 10000;
+        if GenJnlLine2.FindLast() then
+            HighestLineNo := GenJnlLine2."Line No." + 10000
+        else
+            HighestLineNo := 0;
         GenJnlLine3.Reset();
         GenJnlLine3 := GenJnlLine;
         GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
@@ -1629,7 +1631,10 @@ codeunit 28040 WHTManagement
             GenJnlLine3.Validate(Amount, -WHTEntryGL.Amount);
             GenJnlLine3."Amount (LCY)" := -WHTEntryGL."Amount (LCY)";
         end;
-        GenJnlLine3."Gen. Posting Type" := GenJnlLine."Gen. Posting Type";
+        if (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::" ") and
+           (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund)
+        then
+            GenJnlLine3."Gen. Posting Type" := GenJnlLine."Gen. Posting Type";
         GenJnlLine3."System-Created Entry" := true; // Payment Method Code
         GLSetup.Get();
         if (Oldest = true) or GLSetup."Manual Sales WHT Calc." then begin
