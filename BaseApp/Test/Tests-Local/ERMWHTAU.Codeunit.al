@@ -1377,6 +1377,84 @@ codeunit 141011 "ERM WHT - AU"
         GLEntry.TestField(Amount, -PurchaseLine."Amount Including VAT");
     end;
 
+    [Test]
+    procedure NoWHTEntryLeftAfterPostingAppliedPaymentJournalLine()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 401970] Temporal WHT Entry should not be left after posting payment line with WHT
+        Initialize();
+
+        // [GIVEN] GST disabled, WHT Enabled
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(false, true, true);
+
+        // [GIVEN] Vendor "V" and G/L Account "GL" setup for WHT
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
+
+        CreateWHTPostingSetupWithPercentAndZeroMinAmount(WHTPostingSetup);
+
+        Vendor.Get(CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''));
+        Vendor.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        GLAccount.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        GLAccount.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
+        GLAccount.Modify(true);
+
+        // [GIVEN] Posted Purchase Invoice for Vendor "V" and G/L Account "GL"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Payment Journal Line applied to posted Vendor Ledger Entry
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, Vendor."No.", PurchaseLine."Amount Including VAT");
+
+        GenJournalLine.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        GenJournalLine.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
+        GenJournalLine.Modify(true);
+
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+
+        GenJournalLine."Applies-to ID" := VendorLedgerEntry."Applies-to ID";
+        GenJournalLine.Modify();
+
+        // [WHEN] Payment General Journal line is posted
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] G/L Entry for WHT exists
+        GLEntry.SetRange("Bal. Account Type");
+        GLEntry.SetRange("Bal. Account No.");
+        GLEntry.SetRange("G/L Account No.", WHTPostingSetup."Payable WHT Account Code");
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, -ROUND(PurchaseLine."Direct Unit Cost" * WHTPostingSetup."WHT %" / 100));
+
+        // [THEN] Temporary General Journal line is not present in the batch
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Is WHT", true);
+        Assert.RecordIsEmpty(GenJournalLine);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1925,7 +2003,9 @@ codeunit 141011 "ERM WHT - AU"
         Assert.AreNearlyEqual(Base, WHTEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
 
-    local procedure VerifyWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; Amount: Decimal; UnrealizedAmount: Decimal)
+    local procedure VerifyWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20];
+                                                     Amount: Decimal;
+                                                     UnrealizedAmount: Decimal)
     var
         WHTEntry: Record "WHT Entry";
     begin
@@ -1935,7 +2015,9 @@ codeunit 141011 "ERM WHT - AU"
         Assert.AreNearlyEqual(UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
 
-    local procedure VerifyPurchCreditMemoStatisticsPageAndWHTEntry(PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics"; PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo"; DocumentType: Enum "Gen. Journal Document Type"; BuyFromVendorNo: Code[20]; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal)
+    local procedure VerifyPurchCreditMemoStatisticsPageAndWHTEntry(PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics"; PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo"; DocumentType: Enum "Gen. Journal Document Type"; BuyFromVendorNo: Code[20];
+                                                                                                                                                                                                                            RemWHTPrepaidAmount: Decimal;
+                                                                                                                                                                                                                            PaidWHTPrepaidAmount: Decimal)
     begin
         VerifyPurchCreditMemoStatisticsPage(PurchCreditMemoStatistics, RemWHTPrepaidAmount, PaidWHTPrepaidAmount);
         VerifyWHTEntry(DocumentType, BuyFromVendorNo, PaidWHTPrepaidAmount, RemWHTPrepaidAmount);

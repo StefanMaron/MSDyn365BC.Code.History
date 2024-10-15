@@ -627,7 +627,7 @@ page 27 "Vendor List"
                     RunObject = Page "Purchase Quotes";
                     RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
-                    ToolTip = 'View a list of ongoing sales quotes.';
+                    ToolTip = 'View a list of ongoing purchase quotes.';
                 }
                 action(Orders)
                 {
@@ -1059,8 +1059,6 @@ page 27 "Vendor List"
                 Caption = 'Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
-                Promoted = true;
-                PromotedCategory = Category5;
 
                 trigger OnAction()
                 var
@@ -1075,10 +1073,8 @@ page 27 "Vendor List"
             action(Email)
             {
                 ApplicationArea = All;
-                Caption = 'Contact by Email';
+                Caption = 'Send Email';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ToolTip = 'Send an email to this vendor.';
 
                 trigger OnAction()

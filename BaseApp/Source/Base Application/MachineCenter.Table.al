@@ -107,6 +107,7 @@ table 99000758 "Machine Center"
                     "Setup Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
                     "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
                     "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
+                    OnWorkCenterNoOnValidateOnAfterCopyFromWorkCenter(Rec, WorkCenter);
                 end;
                 Validate("Location Code", WorkCenter."Location Code");
 
@@ -737,6 +738,11 @@ table 99000758 "Machine Center"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateWorkCenterNoBeforeModify(var MachineCenter: Record "Machine Center"; xMachineCenter: Record "Machine Center"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWorkCenterNoOnValidateOnAfterCopyFromWorkCenter(var MachineCenter: Record "Machine Center"; WorkCenter: Record "Work Center")
     begin
     end;
 }

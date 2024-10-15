@@ -1,4 +1,4 @@
-codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
+﻿codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -340,6 +340,8 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                     end;
                 end;
         end;
+
+        OnAfterApplyPriceSalesHandler(CurrLineWithPrice, Header, Line, CalledByFieldNo);
     end;
 
     local procedure ApplyDiscountSalesHandler()
@@ -349,7 +351,13 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         Header: Variant;
         Line: Variant;
         PriceType: Enum "Price Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApplyDiscountSalesHandler(CurrLineWithPrice, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsDisabled() then
             exit;
 
@@ -509,5 +517,15 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                 end;
 
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyPriceSalesHandler(var CurrLineWithPrice: Interface "Line With Price"; Header: Variant; Line: Variant; CalledByFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyDiscountSalesHandler(var CurrLineWithPrice: Interface "Line With Price"; var IsHandled: Boolean)
+    begin
     end;
 }

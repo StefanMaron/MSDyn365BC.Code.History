@@ -1623,8 +1623,8 @@ codeunit 28040 WHTManagement
         end;
         GenJnlLine3.Validate("Currency Code", WHTEntryGL."Currency Code");
         if GLSetup."Round Amount for WHT Calc" then begin
-            GenJnlLine3.Validate(Amount, Round(-WHTEntryGL.Amount, 1, '<'));
-            GenJnlLine3."Amount (LCY)" := Round(-WHTEntryGL."Amount (LCY)", 1, '<');
+            GenJnlLine3.Validate(Amount, RoundWHTAmount(-WHTEntryGL.Amount));
+            GenJnlLine3."Amount (LCY)" := RoundWHTAmount(-WHTEntryGL."Amount (LCY)");
         end else begin
             GenJnlLine3.Validate(Amount, -WHTEntryGL.Amount);
             GenJnlLine3."Amount (LCY)" := -WHTEntryGL."Amount (LCY)";
@@ -7574,6 +7574,11 @@ codeunit 28040 WHTManagement
     local procedure CalcWHTAmount(Amount: Decimal; WHTPercent: Decimal): Decimal
     begin
         exit(Round(Amount * WHTPercent / 100));
+    end;
+
+    internal procedure RoundWHTAmount(Amount: Decimal): Decimal
+    begin
+        exit(Round(Amount, 1, '<'));
     end;
 }
 

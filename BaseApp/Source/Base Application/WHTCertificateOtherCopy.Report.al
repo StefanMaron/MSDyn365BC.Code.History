@@ -194,6 +194,8 @@ report 28043 "WHT Certificate - Other Copy"
             }
 
             trigger OnAfterGetRecord()
+            var
+                WHTManagement: Codeunit WHTManagement;
             begin
                 if not "WHT Entry".Find('-') then
                     CurrReport.Skip();
@@ -212,6 +214,8 @@ report 28043 "WHT Certificate - Other Copy"
                         WHTAmountLCY := WHTAmountLCY + WHTEntry2."Amount (LCY)";
                         WHTDate := WHTEntry2."Posting Date";
                     until WHTEntry2.Next() = 0;
+                if GLSetup."Round Amount for WHT Calc" then
+                    WHTAmountLCY := WHTManagement.RoundWHTAmount(WHTAmountLCY);
                 TotalAmountLCY := TotalAmountLCY + WHTAmountLCY;
                 TotalBaseLCY := TotalBaseLCY + WHTBaseLCY;
             end;

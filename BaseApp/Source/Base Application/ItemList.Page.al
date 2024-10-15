@@ -1295,9 +1295,21 @@ page 31 "Item List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Price List';
                     Image = "Report";
+                    Visible = not ExtendedPriceEnabled;
                     Promoted = true;
                     PromotedCategory = Category9;
                     RunObject = Report "Price List";
+                    ToolTip = 'View, print, or save a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
+                }
+                action("Item Price List")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price List';
+                    Image = "Report";
+                    Visible = ExtendedPriceEnabled;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    RunObject = Report "Item Price List";
                     ToolTip = 'View, print, or save a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
                 }
                 action("Inventory Cost and Price List")

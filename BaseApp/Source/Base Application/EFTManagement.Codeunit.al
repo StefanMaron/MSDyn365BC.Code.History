@@ -163,6 +163,7 @@ codeunit 11603 "EFT Management"
     procedure CreateFileEFTPayment(var EFTRegister: Record "EFT Register"; FileDescription: Text[12]; var BankAccount: Record "Bank Account")
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
+        WHTManagement: Codeunit WHTManagement;
     begin
         PreparePaymentBuffer(EFTRegister, TempGenJournalLine);
         with TempGenJournalLine do begin
@@ -179,6 +180,8 @@ codeunit 11603 "EFT Management"
                     TypeOfLine := '50'
                 else
                     TypeOfLine := '53';
+                if GLSetup."Round Amount for WHT Calc" then
+                    "WHT Absorb Base" := WHTManagement.RoundWHTAmount("WHT Absorb Base");
                 TotalAmountLCY += Amount - "WHT Absorb Base";
                 NoOfLines += 1;
                 VendBankAcc.Get(Vend."No.", "EFT Bank Account No.");

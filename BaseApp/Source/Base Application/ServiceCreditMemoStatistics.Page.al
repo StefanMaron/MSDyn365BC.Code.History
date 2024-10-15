@@ -191,8 +191,16 @@ page 6034 "Service Credit Memo Statistics"
     trigger OnAfterGetRecord()
     var
         CostCalcMgt: Codeunit "Cost Calculation Management";
+        IsHandled: Boolean;
     begin
         ClearAll;
+
+        IsHandled := false;
+        OnAfterGetRecordOnAfterClearAll(
+            Rec, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
+            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
 
         if "Currency Code" = '' then
             Currency.InitRoundingPrecision
@@ -222,6 +230,9 @@ page 6034 "Service Credit Memo Statistics"
                     else
                         VATpercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + CostCalcMgt.CalcServCrMemoLineCostLCY(ServCrMemoLine);
+                OnAfterGetRecordOnAfterAddLineTotals(
+                    Rec, ServCrMemoLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels);
             until ServCrMemoLine.Next() = 0;
         VATAmount := AmountInclVAT - CustAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
@@ -243,6 +254,7 @@ page 6034 "Service Credit Memo Statistics"
             ProfitPct := Round(100 * ProfitLCY / AmountLCY, 0.1);
 
         AdjProfitLCY := AmountLCY - TotalAdjCostLCY;
+        OnAfterGetRecordOnAfterCalculateAdjProfitLCY(Rec, AdjProfitLCY);
         if AmountLCY <> 0 then
             AdjProfitPct := Round(100 * AdjProfitLCY / AmountLCY, 0.1);
 
@@ -294,5 +306,20 @@ page 6034 "Service Credit Memo Statistics"
         CreditLimitLCYExpendedPct: Decimal;
         VATpercentage: Decimal;
         VATAmountText: Text[30];
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCalculateAdjProfitLCY(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var AdjProfitLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterAddLineTotals(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ServiceCrMemoLine: Record "Service Cr.Memo Line"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterClearAll(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
 }
 

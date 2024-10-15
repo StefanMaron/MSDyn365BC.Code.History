@@ -295,6 +295,7 @@ table 7022 "Price Worksheet Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Cost Factor"), "Amount Type"::Discount);
+                TestField("Source Group", "Source Group"::Job);
                 if "Cost Factor" <> 0 then
                     "Unit Price" := 0;
             end;
@@ -444,6 +445,15 @@ table 7022 "Price Worksheet Line"
         field(100; "Existing Line"; Boolean)
         {
             DataClassification = SystemMetadata;
+
+            trigger OnValidate()
+            begin
+                if not "Existing Line" then begin
+                    "Price List Code" := '';
+                    Status := Status::Draft;
+                    "Line No." := 0;
+                end;
+            end;
         }
         field(101; "Existing Unit Price"; Decimal)
         {
@@ -462,6 +472,16 @@ table 7022 "Price Worksheet Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 2;
             Caption = 'Existing Direct Unit Cost';
+            Editable = false;
+            BlankZero = true;
+        }
+        field(103; "Existing Unit Cost"; Decimal)
+        {
+            AccessByPermission = tabledata "Purchase Price Access" = R;
+            DataClassification = CustomerContent;
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Existing Unit Cost';
             Editable = false;
             BlankZero = true;
         }
@@ -606,6 +626,13 @@ table 7022 "Price Worksheet Line"
     begin
         if "Amount Type" = AmountType then
             Error(FieldNotAllowedForAmountTypeErr, FldCaption, FieldCaption("Amount Type"), Format("Amount Type"));
+    end;
+
+    procedure CopyExistingPrices(PriceListLine: Record "Price List Line")
+    begin
+        "Existing Unit Price" := PriceListLine."Unit Price";
+        "Existing Direct Unit Cost" := PriceListLine."Direct Unit Cost";
+        "Existing Unit Cost" := PriceListLine."Unit Cost";
     end;
 
     procedure CopySourceFrom(PriceListHeader: Record "Price List Header")

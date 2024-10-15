@@ -7226,9 +7226,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>160pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -7251,9 +7251,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>150pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -7277,9 +7277,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>140pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>2</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -7303,9 +7303,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>130pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -7329,9 +7329,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>100pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -7864,9 +7864,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>120pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -7918,9 +7918,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>110pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -8060,7 +8060,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>110pt</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>31</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8115,7 +8115,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>130pt</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>33</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8140,9 +8140,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               </Paragraphs>
               <rd:DefaultName>textbox54</rd:DefaultName>
               <Top>170pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>34</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8224,7 +8224,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>120pt</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>37</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8249,9 +8249,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               </Paragraphs>
               <rd:DefaultName>textbox14</rd:DefaultName>
               <Top>180pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>38</ZIndex>
               <Visibility>
                 <Hidden>=iif((Code.GetData(27,1))="",true,false)</Hidden>
@@ -8340,7 +8340,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>150pt</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>41</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8365,9 +8365,9 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               </Paragraphs>
               <rd:DefaultName>textbox40</rd:DefaultName>
               <Top>190pt</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>42</ZIndex>
               <Visibility>
                 <Hidden>=iif((Code.GetData(29,1))="",true,false)</Hidden>
@@ -8455,7 +8455,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>160pt</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>45</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8510,7 +8510,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>170pt</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>47</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8591,7 +8591,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>180pt</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>50</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8788,7 +8788,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>190pt</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>57</ZIndex>
               <Style />
             </Textbox>
@@ -8844,7 +8844,7 @@ Cstr(Fields!BuyFromVendorCaption.Value)
               <Top>140pt</Top>
               <Left>3.81861cm</Left>
               <Height>0.38806cm</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>59</ZIndex>
               <Visibility>
                 <Hidden>=IIF(Code.GetData(28,1)=Code.GetData(36,1), FALSE,TRUE)</Hidden>

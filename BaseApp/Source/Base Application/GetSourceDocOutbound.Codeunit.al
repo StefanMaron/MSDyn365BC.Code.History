@@ -495,6 +495,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
             WhseRqst.SetSourceFilter(DATABASE::"Service Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
+            OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(WhseRqst, ServiceHeader);
             GetRequireShipRqst(WhseRqst);
         end;
 
@@ -675,6 +676,11 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindWarehouseRequestForOutbndTransferOrderOnAfterWhseRqstSetFilters(var WhseRqst: Record "Warehouse Request"; var TransferOrder: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(var WarehouseRequest: Record "Warehouse Request"; var ServiceHeader: Record "Service Header")
     begin
     end;
 

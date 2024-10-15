@@ -235,8 +235,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
         CancellingOnly := Cancelling;
 
-        SalesInvoiceHeader.CalcFields(Amount);
-        SalesInvoiceHeader.TestField(Amount);
+        TestSalesInvoiceHeaderAmount(SalesInvoiceHeader, Cancelling);
         TestIfPostingIsAllowed(SalesInvoiceHeader);
         TestIfInvoiceIsCorrectedOnce(SalesInvoiceHeader);
         TestIfInvoiceIsNotCorrectiveDoc(SalesInvoiceHeader);
@@ -253,6 +252,19 @@ codeunit 1303 "Correct Posted Sales Invoice"
         TestNotSalesPrepaymentlInvoice(SalesInvoiceHeader);
 
         OnAfterTestCorrectInvoiceIsAllowed(SalesInvoiceHeader, Cancelling);
+    end;
+
+    local procedure TestSalesInvoiceHeaderAmount(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestSalesInvoiceHeaderAmount(SalesInvoiceHeader, Cancelling, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesInvoiceHeader.CalcFields(Amount);
+        SalesInvoiceHeader.TestField(Amount);
     end;
 
     local procedure ShowInvoiceAppliedNotification(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -354,6 +366,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
                            WasNotCancelled(SalesInvoiceHeader."No.")
                         then begin
                             SalesInvoiceLine.CalcShippedSaleNotReturned(ShippedQtyNoReturned, RevUnitCostLCY, false);
+                            OnTestSalesLinesOnAfterCalcShippedQtyNoReturned(SalesInvoiceLine, ShippedQtyNoReturned);
                             if SalesInvoiceLine.Quantity <> ShippedQtyNoReturned then
                                 ErrorHelperLine(ErrorType::ItemIsReturned, SalesInvoiceLine);
                         end;
@@ -821,17 +834,17 @@ codeunit 1303 "Correct Posted Sales Invoice"
         UndoPostingManagement: Codeunit "Undo Posting Management";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeaderNo);
-        if SalesInvoiceLine.FindSet() then begin
-            FindItemLedgEntries(TempItemLedgerEntry, SalesInvoiceHeaderNo);
+        if SalesInvoiceLine.FindSet() then
             repeat
+                TempItemLedgerEntry.Reset();
+                TempItemLedgerEntry.DeleteAll();
+                SalesInvoiceLine.GetItemLedgEntries(TempItemLedgerEntry, false);
                 if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
                     UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesInvoiceLine.Quantity, SalesInvoiceLine."Quantity (Base)");
-                    TempItemLedgerEntry.SetRange("Document Line No.", SalesInvoiceLine."Line No.");
                     TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
                     UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, SalesInvoiceLine."Shipment Date", true);
                 end;
             until SalesInvoiceLine.Next() = 0;
-        end;
     end;
 
     local procedure UpdateSalesOrderLineInvoicedQuantity(var SalesLine: Record "Sales Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)
@@ -920,6 +933,11 @@ codeunit 1303 "Correct Posted Sales Invoice"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestSalesInvoiceHeaderAmount(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnHasLineDiscountSetup(SalesReceivablesSetup: Record "Sales & Receivables Setup"; var Result: Boolean)
     begin
     end;
@@ -941,6 +959,11 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUnapplyCostApplication(InvNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestSalesLinesOnAfterCalcShippedQtyNoReturned(SalesInvoiceLine: Record "Sales Invoice Line"; var ShippedQtyNoReturned: Decimal)
     begin
     end;
 }

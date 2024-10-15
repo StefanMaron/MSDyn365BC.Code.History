@@ -496,14 +496,10 @@ report 17110 "AU/NZ Statement"
                         else
                             AgingDaysText := Text1500010;
 
-                        if PrintLCY and (StatementStyle = StatementStyle::Balance) then
+                        if PrintLCY then
                             StatementBalance := BalanceToPrintLCY
                         else
-                            if (not PrintLCY) and (StatementStyle = StatementStyle::Balance) then
-                                StatementBalance := BalanceToPrint
-                            else
-                                if StatementStyle = StatementStyle::"Open Item" then
-                                    StatementBalance := BalanceToPrint;
+                            StatementBalance := BalanceToPrint;
                     end;
                 }
             }

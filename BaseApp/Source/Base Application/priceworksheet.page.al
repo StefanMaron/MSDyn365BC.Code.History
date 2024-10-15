@@ -243,7 +243,7 @@ page 7022 "Price Worksheet"
                     Visible = PriceVisible and SalesVisible;
                     Editable = PriceLineEditable and PriceEditable;
                     Style = Attention;
-                    StyleExpr = ModifiedLine and SalesPriceLine and PriceEditable;
+                    StyleExpr = ModifiedUnitPrice and SalesPriceLine and PriceEditable;
                     ToolTip = 'Specifies the new unit price of the product.';
                 }
                 field("Cost Factor"; Rec."Cost Factor")
@@ -251,7 +251,7 @@ page 7022 "Price Worksheet"
                     ApplicationArea = Basic, Suite;
                     Visible = PriceVisible and SalesVisible;
                     Editable = PriceLineEditable and PriceEditable;
-                    ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
                 field("Existing Direct Unit Cost"; Rec."Existing Direct Unit Cost")
                 {
@@ -266,14 +266,22 @@ page 7022 "Price Worksheet"
                     Visible = PriceVisible and PurchVisible;
                     Editable = PriceLineEditable and PriceEditable;
                     Style = Attention;
-                    StyleExpr = ModifiedLine and PurchPriceLine and PriceEditable;
+                    StyleExpr = ModifiedDirectUnitCost and PurchPriceLine and PriceEditable;
                     ToolTip = 'Specifies the new direct unit cost of the product.';
+                }
+                field("Existing Unit Cost"; Rec."Existing Unit Cost")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = PriceVisible and PurchVisible;
+                    ToolTip = 'Specifies the current unit cost of the product.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = PriceVisible and PurchVisible;
                     Editable = PriceLineEditable and PriceEditable;
+                    Style = Attention;
+                    StyleExpr = ModifiedUnitCost and PurchPriceLine and PriceEditable;
                     ToolTip = 'Specifies the unit cost of the resource.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
@@ -508,6 +516,9 @@ page 7022 "Price Worksheet"
         IsSaaSExcelAddinEnabled: Boolean;
         LineExists: Boolean;
         ModifiedLine: Boolean;
+        ModifiedUnitPrice: Boolean;
+        ModifiedUnitCost: Boolean;
+        ModifiedDirectUnitCost: Boolean;
         ParentSourceNoEditable: Boolean;
         PriceEditable: Boolean;
         PriceLineEditable: Boolean;
@@ -642,9 +653,10 @@ page 7022 "Price Worksheet"
 
     local procedure SetFieldsStyle()
     begin
-        ModifiedLine :=
-            ((Rec."Existing Direct Unit Cost" <> Rec."Direct Unit Cost") or
-            (Rec."Existing Unit Price" <> Rec."Unit Price"));
+        ModifiedUnitPrice := Rec."Existing Unit Price" <> Rec."Unit Price";
+        ModifiedDirectUnitCost := Rec."Existing Direct Unit Cost" <> Rec."Direct Unit Cost";
+        ModifiedUnitCost := Rec."Existing Unit Cost" <> Rec."Unit Cost";
+        ModifiedLine := ModifiedUnitPrice or ModifiedDirectUnitCost or ModifiedUnitCost;
         SalesPriceLine := Rec."Price Type" = Rec."Price Type"::Sale;
         PurchPriceLine := Rec."Price Type" = Rec."Price Type"::Purchase;
         PriceEditable := Rec."Amount Type" in [Rec."Amount Type"::Any, Rec."Amount Type"::Price];

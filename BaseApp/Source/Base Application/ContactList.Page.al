@@ -940,8 +940,6 @@ page 5052 "Contact List"
                 Caption = 'Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
-                Promoted = true;
-                PromotedCategory = Category4;
 
                 trigger OnAction()
                 var
@@ -956,10 +954,8 @@ page 5052 "Contact List"
             action(Email)
             {
                 ApplicationArea = All;
-                Caption = 'Contact by Email';
+                Caption = 'Send Email';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Send an email to this contact.';
 
                 trigger OnAction()

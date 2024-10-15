@@ -288,7 +288,8 @@ table 1001 "Job Task"
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -299,7 +300,8 @@ table 1001 "Job Task"
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -437,6 +439,8 @@ table 1001 "Job Task"
         CalcFields("Schedule (Total Cost)", "Usage (Total Cost)");
         Job.UpdateOverBudgetValue("Job No.", true, "Usage (Total Cost)");
         Job.UpdateOverBudgetValue("Job No.", false, "Schedule (Total Cost)");
+
+        OnAfterOnInsert(Rec, xRec);
     end;
 
     trigger OnModify()
@@ -568,6 +572,11 @@ table 1001 "Job Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task")
     begin
     end;
 

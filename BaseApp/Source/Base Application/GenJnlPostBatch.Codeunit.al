@@ -250,6 +250,9 @@
             if LastICTransactionNo > 0 then
                 ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICTransactionNo);
 
+            SetRange("Is WHT");
+            FindSet(true, false);
+
             // Post reversing lines
             RecRef.GetTable(TempGenJnlLine4);
             TypeHelper.SortRecordRef(RecRef, CurrentKey, Ascending);

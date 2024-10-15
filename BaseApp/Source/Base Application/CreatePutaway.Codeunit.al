@@ -156,7 +156,8 @@ codeunit 7313 "Create Put-away"
                                           BinContent."Positive Adjmt. Qty. (Base)";
 
                                         if BinContent."Max. Qty." <> 0 then begin
-                                            QtyToPutAwayBase := BinContent."Max. Qty." * BinContent."Qty. per Unit of Measure" - BinContentQtyBase;
+                                            QtyToPutAwayBase :=
+                                              Max(BinContent."Max. Qty." * BinContent."Qty. per Unit of Measure" - BinContentQtyBase, 0);
                                             if QtyToPutAwayBase > RemQtyToPutAwayBase then
                                                 QtyToPutAwayBase := RemQtyToPutAwayBase;
                                         end;
@@ -164,7 +165,7 @@ codeunit 7313 "Create Put-away"
                                         BinContentQtyBase := BinContent.CalcQtyBase;
                                         if BinContent."Max. Qty." <> 0 then begin
                                             QtyToPutAwayBase :=
-                                              BinContent."Max. Qty." * BinContent."Qty. per Unit of Measure" - BinContentQtyBase;
+                                              Max(BinContent."Max. Qty." * BinContent."Qty. per Unit of Measure" - BinContentQtyBase, 0);
                                             if QtyToPutAwayBase > RemQtyToPutAwayBase then
                                                 QtyToPutAwayBase := RemQtyToPutAwayBase;
                                         end;
@@ -485,11 +486,7 @@ codeunit 7313 "Create Put-away"
             ActionType := ActionType::Place;
             if not EmptyZoneBin and Location."Directed Put-away and Pick" then
                 CalcAvailCubageAndWeight;
-            if QtyToPutAwayBase >= RemQtyToPutAwayBase then begin
-                QtyToPutAwayBase := RemQtyToPutAwayBase;
-                EverythingHandled := true;
-            end else
-                RemQtyToPutAwayBase := RemQtyToPutAwayBase - QtyToPutAwayBase;
+            AssignQtyToPutAwayForBinMandatory();
         end else
             QtyToPutAwayBase := PostedWhseRcptLine."Qty. (Base)";
 
@@ -504,6 +501,17 @@ codeunit 7313 "Create Put-away"
               PostedWhseRcptLine, WhseActivLine, ActionType, LineNo,
               0, QtyToPutAwayBase, true, false, EmptyZoneBin, false)
         end
+    end;
+
+    local procedure AssignQtyToPutAwayForBinMandatory()
+    begin
+        OnBeforeAssignQtyToPutAwayForBinMandatory(Item, Location, QtyToPutAwayBase, RemQtyToPutAwayBase);
+
+        if QtyToPutAwayBase >= RemQtyToPutAwayBase then begin
+            QtyToPutAwayBase := RemQtyToPutAwayBase;
+            EverythingHandled := true;
+        end else
+            RemQtyToPutAwayBase := RemQtyToPutAwayBase - QtyToPutAwayBase;
     end;
 
     local procedure CalcAvailCubageAndWeight()
@@ -964,6 +972,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignPlaceBinZoneOnAfterBin2SetFilters(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; var Bin2: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignQtyToPutAwayForBinMandatory(Item: Record Item; Location: Record Location; var QtyToPutAwayBase: Decimal; var RemQtyToPutAwayBase: Decimal)
     begin
     end;
 

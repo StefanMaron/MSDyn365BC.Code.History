@@ -108,6 +108,8 @@ codeunit 8614 "Config. XML Exchange"
                 TableNode.AppendChild(FieldNode);
             end;
         end;
+
+        OnAfterAddTableAttributes(ConfigPackageTable, PackageXML, TableNode);
     end;
 
     local procedure AddFieldAttributes(ConfigPackageField: Record "Config. Package Field"; var FieldNode: DotNet XmlNode)
@@ -260,6 +262,7 @@ codeunit 8614 "Config. XML Exchange"
                 ConfigPackageField.SetRange("Include Field", true);
                 ConfigPackageField.SetRange(Dimension, false);
                 ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
+                OnCreateRecordNodesOnAfterConfigPackageFieldSetFilters(ConfigPackageTable, ConfigPackageField);
                 if ConfigPackageField.FindSet then
                     repeat
                         FieldRef := RecRef.Field(ConfigPackageField."Field ID");
@@ -282,6 +285,7 @@ codeunit 8614 "Config. XML Exchange"
 
                 if ConfigPackageTable."Dimensions as Columns" and ExcelMode then
                     AddDimensionFields(ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, true);
+                OnCreateRecordNodesOnAfterRecordProcessed(ConfigPackageTable, ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, ExcelMode);
                 ExportMetadata := false;
                 ProcessedRecordCount += 1;
 
@@ -313,6 +317,7 @@ codeunit 8614 "Config. XML Exchange"
 
             if ConfigPackageTable."Dimensions as Columns" and ExcelMode then
                 AddDimensionFields(ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, false);
+            OnCreateRecordNodesOnAfterNotFoundRecordProcessed(ConfigPackageTable, ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, ExcelMode);
         end;
     end;
 
@@ -851,6 +856,7 @@ codeunit 8614 "Config. XML Exchange"
                 Value := GetNodeValue(TableNode, GetElementName(ConfigPackageTable.FieldName("Created by User ID")));
                 if Value <> '' then
                     Evaluate(ConfigPackageTable."Created by User ID", CopyStr(Value, 1, 50));
+                OnFillPackageMetadataFromXMLOnAfterGetPackageTableValueFromXML(ConfigPackageTable, TableNode);
                 ConfigPackageTable."Data Template" :=
                   CopyStr(
                     GetNodeValue(TableNode, GetElementName(ConfigPackageTable.FieldName("Data Template"))), 1,
@@ -977,6 +983,7 @@ codeunit 8614 "Config. XML Exchange"
                     if TempConfigPackageField.FindSet then
                         repeat
                             ConfigPackageData.Init();
+                            OnFillPackageDataFromXMLOnAfterConfigPackageDataInit(ConfigPackageData, TempConfigPackageField);
                             ConfigPackageData."Package Code" := TempConfigPackageField."Package Code";
                             ConfigPackageData."Table ID" := TempConfigPackageField."Table ID";
                             ConfigPackageData."Field ID" := TempConfigPackageField."Field ID";
@@ -985,6 +992,7 @@ codeunit 8614 "Config. XML Exchange"
                                TempConfigPackageField.Dimension
                             then
                                 GetConfigPackageDataValue(ConfigPackageData, RecordNode, TempConfigPackageField.GetElementName());
+                            OnFillPackageDataFromXMLOnAfterConfigPackageDataInsert(ConfigPackageData, TempConfigPackageField, ExcelMode);
                             ConfigPackageData.Insert();
 
                             if not TempConfigPackageField.Dimension then begin
@@ -1487,6 +1495,11 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAddTableAttributes(ConfigPackageTable: Record "Config. Package Table"; var PackageXML: DotNet XmlDocument; var TableNode: DotNet XmlNode)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeEvaluateMinCountForAsyncImport(var ConfigPackage: Record "Config. Package"; var Value: Text; var IsHandled: Boolean)
     begin
     end;
@@ -1497,7 +1510,37 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateRecordNodesOnAfterConfigPackageFieldSetFilters(ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateRecordNodesOnAfterRecordProcessed(ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; var RecRef: RecordRef; var PackageXML: DotNet XmlDocument; var RecordNode: DotNet XmlNode; var FieldNode: DotNet XmlNode; ExcelMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateRecordNodesOnAfterNotFoundRecordProcessed(ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; var RecRef: RecordRef; var PackageXML: DotNet XmlDocument; var RecordNode: DotNet XmlNode; var FieldNode: DotNet XmlNode; ExcelMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnExportPackageXMLDocumentOnAfterSetAttributes(var ConfigPackage: Record "Config. Package"; var XMLDOMMgt: Codeunit "XML DOM Management")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPackageMetadataFromXMLOnAfterGetPackageTableValueFromXML(ConfigPackageTable: Record "Config. Package Table"; var TableNode: DotNet XmlNode)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPackageDataFromXMLOnAfterConfigPackageDataInit(var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageField: Record "Config. Package Field")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPackageDataFromXMLOnAfterConfigPackageDataInsert(var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageField: Record "Config. Package Field"; ExcelMode: Boolean)
     begin
     end;
 

@@ -234,6 +234,7 @@ report 14303 "WHT Certificate"
 
             trigger OnPreDataItem()
             begin
+                GLSetup.Get();
                 PurchSetup.Get();
                 PurchSetup.TestField("WHT Certificate No. Series");
                 CompanyInfo.Get();
@@ -306,6 +307,8 @@ report 14303 "WHT Certificate"
             }
 
             trigger OnAfterGetRecord()
+            var
+                WHTManagement: Codeunit WHTManagement;
             begin
                 if not "WHT Entry".Find('-') then
                     CurrReport.Skip();
@@ -321,6 +324,8 @@ report 14303 "WHT Certificate"
                         WHTBaseLCY := WHTBaseLCY + WHTEntry2."Base (LCY)";
                         WHTDate := WHTEntry2."Posting Date";
                     until WHTEntry2.Next() = 0;
+                if GLSetup."Round Amount for WHT Calc" then
+                    WHTAmountLCY := WHTManagement.RoundWHTAmount(WHTAmountLCY);
                 TotalAmountLCY := TotalAmountLCY + WHTAmountLCY;
                 TotalBaseLCY := TotalBaseLCY + WHTBaseLCY;
 
@@ -364,6 +369,7 @@ report 14303 "WHT Certificate"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         Vendor: Record Vendor;
         PurchSetup: Record "Purchases & Payables Setup";

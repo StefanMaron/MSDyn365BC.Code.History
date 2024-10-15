@@ -39,7 +39,8 @@ table 1383 "Vendor Templ."
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -50,7 +51,8 @@ table 1383 "Vendor Templ."
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -81,6 +83,11 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Fin. Charge Terms Code';
             TableRelation = "Finance Charge Terms";
+        }
+        field(30; "Shipment Method Code"; Code[10])
+        {
+            Caption = 'Shipment Method Code';
+            TableRelation = "Shipment Method";
         }
         field(33; "Invoice Disc. Code"; Code[20])
         {
@@ -171,9 +178,18 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Block Payment Tolerance';
         }
+        field(132; "Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Partner Type';
+        }
         field(5050; "Contact Type"; Enum "Contact Type")
         {
             Caption = 'Contact Type';
+        }
+        field(5701; "Location Code"; Code[10])
+        {
+            Caption = 'Location Code';
+            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
         }
         field(7601; "Document Sending Profile"; Code[20])
         {
@@ -193,6 +209,15 @@ table 1383 "Vendor Templ."
             Clustered = true;
         }
     }
+
+    trigger OnDelete()
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        DefaultDimension.SetRange("Table ID", Database::"Vendor Templ.");
+        DefaultDimension.SetRange("No.", Code);
+        DefaultDimension.DeleteAll();
+    end;
 
     trigger OnRename()
     var

@@ -146,6 +146,16 @@ report 28041 "Calc. and Post WHT Settlement"
                         if not PostSettlement then
                             SetRange(Settled, false);
                     end;
+
+                    trigger OnAfterGetRecord()
+                    var
+                        WHTManagement: Codeunit WHTManagement;
+                    begin
+                        if GLSetup."Round Amount for WHT Calc" then begin
+                            "Amount (LCY)" := WHTManagement.RoundWHTAMount("Amount (LCY)");
+                            Amount := WHTManagement.RoundWHTAMount(Amount);
+                        end;
+                    end;
                 }
 
                 trigger OnAfterGetRecord()

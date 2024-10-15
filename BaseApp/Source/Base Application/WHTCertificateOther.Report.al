@@ -3,6 +3,8 @@ report 28040 "WHT Certificate - Other"
     DefaultLayout = RDLC;
     RDLCLayout = './WHTCertificateOther.rdlc';
     Caption = 'WHT Certificate';
+    ApplicationArea = Basic, Suite;
+    UsageCategory = ReportsAndAnalysis;
 
     dataset
     {
@@ -322,6 +324,8 @@ report 28040 "WHT Certificate - Other"
             }
 
             trigger OnAfterGetRecord()
+            var
+                WHTManagement: Codeunit WHTManagement;
             begin
                 if not "WHT Entry".Find('-') then
                     CurrReport.Skip();
@@ -368,6 +372,8 @@ report 28040 "WHT Certificate - Other"
                         WHTAmountLCY := WHTAmountLCY + WHTEntry5."Amount (LCY)";
                         WHTDate := WHTEntry5."Posting Date";
                     until WHTEntry5.Next() = 0;
+                if GLSetup."Round Amount for WHT Calc" then
+                    WHTAmountLCY := WHTManagement.RoundWHTAmount(WHTAmountLCY);
                 TotalAmountLCY := TotalAmountLCY + WHTAmountLCY;
                 TotalBaseLCY := TotalBaseLCY + WHTBaseLCY;
             end;
