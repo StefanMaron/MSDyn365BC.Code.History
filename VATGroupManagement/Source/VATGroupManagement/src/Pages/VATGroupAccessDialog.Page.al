@@ -26,19 +26,23 @@ page 4710 "VAT Group Access Dialog"
 
                 trigger AuthorizationCodeRetrieved(authorizationCode: Text)
                 var
+                    ClientTypeMgt: Codeunit "Client Type Management";
                     StateOut: Text;
                 begin
-                    VATGroupCommunication.GetOAuthProperties(authorizationCode, AuthCode, StateOut);
-
-                    if StateIn = '' then begin
-                        SendTraceTag('0000DMH', Oauth2CategoryLbl, Verbosity::Error, MissingStateErr, DataClassification::SystemMetadata);
-                        AuthError := AuthError + NoStateErr;
-                    end else
-                        if StateOut <> StateIn then begin
-                            SendTraceTag('0000DMI', Oauth2CategoryLbl, Verbosity::Error, MismatchingStateErr, DataClassification::SystemMetadata);
-                            AuthError := AuthError + NotMatchingStateErr;
-                        end;
-
+                    if ClientTypeMgt.GetCurrentClientType() = ClientType::Windows then begin
+                        AuthCode := authorizationCode;
+                        Message(CloseWindowMsg);
+                    end else begin
+                        VATGroupCommunication.GetOAuthProperties(authorizationCode, AuthCode, StateOut);
+                        if StateIn = '' then begin
+                            SendTraceTag('0000DMH', Oauth2CategoryLbl, Verbosity::Error, MissingStateErr, DataClassification::SystemMetadata);
+                            AuthError := AuthError + NoStateErr;
+                        end else
+                            if StateOut <> StateIn then begin
+                                SendTraceTag('0000DMI', Oauth2CategoryLbl, Verbosity::Error, MismatchingStateErr, DataClassification::SystemMetadata);
+                                AuthError := AuthError + NotMatchingStateErr;
+                            end;
+                    end;
                     CurrPage.Close();
                 end;
 
@@ -66,6 +70,7 @@ page 4710 "VAT Group Access Dialog"
         MismatchingStateErr: Label 'The authroization code returned state is missmatching the expected state value.', Locked = true;
         NoStateErr: Label 'No state has been returned';
         NotMatchingStateErr: Label 'The state parameter value does not match.';
+        CloseWindowMsg: Label 'Authorization completed. Close the window to proceed.';
 
     [Scope('OnPrem')]
     [NonDebuggable]

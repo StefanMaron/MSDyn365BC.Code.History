@@ -2010,6 +2010,73 @@ codeunit 139182 "CRM Coupling Test"
         VerifyCustomerPrimaryContact(CRMAccount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerContactLinkContactReassignment()
+    var
+        Customer: Record Customer;
+        Customer2: Record Customer;
+        Contact: Record Contact;
+        CRMAccount: Record "CRM Account";
+        CRMAccount2: Record "CRM Account";
+        CRMContact: Record "CRM Contact";
+        JobQueueEntry: Record "Job Queue Entry";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+    begin
+        // [FEATURE] [Customer-Contact Link]
+        // [SCENARIO 373460] Customer-Contact link contact reassignment
+        TestInit();
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        JobQueueEntry.SETRANGE("Object ID to Run", CODEUNIT::"CRM Customer-Contact Link");
+        JobQueueEntry.DELETEALL();
+        IntegrationSynchJob.DELETEALL();
+        // [GIVEN] Integration Field Mapping for "Primary Contact No." with "Clear on Fail"=FALSE
+        SetupPrimaryContactIntegrationFieldMapping(FALSE);
+
+        // [GIVEN] Customer 'CUST' coupled to 'CRMACC'
+        // [GIVEN] Contact 'CONT' coupled TO "CRMCONT1"
+        // [GIVEN] Contact 'CONT' defined as primary 'CUST' contact
+        // [GIVEN] Customer and contact syncronized
+        CreateCoupledCustomerAndCoupledPrimaryContact(Customer, CRMAccount, Contact);
+        CRMAccount.FIND();
+        CRMContact.GET(CRMAccount.PrimaryContactId);
+
+        // [GIVEN] CRM Account 'CRMACC2' is coupled to Customer 'Cust2'
+        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount2);
+        CreateNewCustomerFromCRMAccount(CRMAccount2);
+        FindCustomerByAccountId(CRMAccount2.AccountId, Customer2);
+
+        // [GIVEN] 'CRMACC2' Primary Contact is set to 'CRMCont', record
+        CRMAccount.FIND();
+        CRMAccount2.VALIDATE(PrimaryContactId, CRMAccount.PrimaryContactId);
+        CRMAccount2.ModifiedOn += 10000;
+        CRMAccount2.MODIFY();
+
+        // [GIVEN] 'CRMCont' ParentCustomerId = 'CRMAcc2'
+        CRMContact.GET(CRMAccount.PrimaryContactId);
+        CRMContact.VALIDATE(ParentCustomerId, CRMAccount2.AccountId);
+        CRMContact.ModifiedOn += 10000;
+        CRMContact.MODIFY();
+
+        // [WHEN] Run Job 'Customer-Contact Link'
+        FindCRMCustomerContactLinkJobQueueEntry(JobQueueEntry);
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry.MODIFY();
+        CODEUNIT.RUN(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
+
+        // [THEN] Customer 'Cust2' Primary Contact No. = 'CONT'
+        Customer2.FIND();
+        Customer2.TESTFIELD("Primary Contact No.", Contact."No.");
+        Contact.FIND();
+
+        // [THEN] Contact Business Relation exists between 'CONT' Company No. and 'Cust2'
+        ContactBusinessRelation.SETRANGE("Contact No.", Contact."Company No.");
+        ContactBusinessRelation.SETRANGE("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SETRANGE("No.", Customer2."No.");
+        Assert.RecordCount(ContactBusinessRelation, 1);
+    end;
+
     local procedure TestInit()
     var
         RecordLink: Record "Record Link";
