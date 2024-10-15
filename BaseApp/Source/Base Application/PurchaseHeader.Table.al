@@ -1915,6 +1915,10 @@
         {
             Caption = 'Payment Reference';
         }
+        field(175; "Invoice Received Date"; Date)
+        {
+
+        }
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -1986,6 +1990,7 @@
 
             trigger OnValidate()
             begin
+                UpdatePurchLinesByFieldNo(FieldNo("Campaign No."), CurrFieldNo <> 0);
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
@@ -3538,6 +3543,9 @@
                         PurchLine.FieldNo("Deferral Code"):
                             if PurchLine."No." <> '' then
                                 PurchLine.Validate("Deferral Code");
+                        FieldNo("Campaign No."):
+                            if PurchLine."No." <> '' then
+                                PurchLine.UpdateDirectUnitCost(0);
                         else
                             OnUpdatePurchLinesByChangedFieldName(Rec, PurchLine, Field.FieldName, ChangedFieldNo);
                     end;
@@ -5082,6 +5090,7 @@
     procedure InitFromPurchHeader(SourcePurchHeader: Record "Purchase Header")
     begin
         "Document Date" := SourcePurchHeader."Document Date";
+        "Invoice Received Date" := SourcePurchHeader."Invoice Received Date";
         "Expected Receipt Date" := SourcePurchHeader."Expected Receipt Date";
         "Shortcut Dimension 1 Code" := SourcePurchHeader."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := SourcePurchHeader."Shortcut Dimension 2 Code";
