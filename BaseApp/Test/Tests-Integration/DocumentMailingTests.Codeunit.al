@@ -23,9 +23,8 @@ codeunit 135060 "Document Mailing Tests"
         IsMailManagementOnBeforeIsEnabledActive: Boolean;
         MailingJobCategoryCodeTok: Label 'SENDINV', Comment = 'Must be max. 10 chars and no spacing. (Send Invoice)';
         CannotSendEmailErr: Label 'You cannot send the email.\Verify that the email settings are correct.', Locked = true;
-        JobQueueEntryParameterString: Label '%1|%2|%3|%4|', Comment = '%1 - ReportUsage, %2 - DocNo, %3 - DocName, %4 - CustNo';
+        JobQueueEntryParameterString: Label '%1|%2|%3|%4|%5|%6|%7', Comment = '%1 - ReportUsage, %2 - DocNo, %3 - DocName, %4 - CustNo, %5 - DocumentNo FieldNo';
         KeepDraftOrDiscardPageQst: Label 'The email has not been sent.';
-        VendorLbl: Label 'Vendor';
         PeppolFormatNameTxt: Label 'PEPPOL', Locked = true;
 
     [Test]
@@ -793,7 +792,7 @@ codeunit 135060 "Document Mailing Tests"
         DocName: Text[150];
     begin
         DocName := ReportDistributionMgt.GetFullDocumentTypeText(SalesInvoiceHeader);
-        ParameterString := StrSubstNo(JobQueueEntryParameterString, ReportSelectionUsage.AsInteger(), SalesInvoiceHeader."No.", DocName, SalesInvoiceHeader."Sell-to Customer No.");
+        ParameterString := StrSubstNo(JobQueueEntryParameterString, ReportSelectionUsage.AsInteger(), SalesInvoiceHeader."No.", DocName, SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader.FieldNo("No."), '', '');
         JobQueueEntry.SetRange("Record ID to Process", SalesInvoiceHeader.RecordId());
         JobQueueEntry.FindFirst();
 
@@ -811,8 +810,7 @@ codeunit 135060 "Document Mailing Tests"
         DocName: Text[150];
     begin
         DocName := ReportDistributionMgt.GetFullDocumentTypeText(PurchaseHeader);
-        ParameterString := StrSubstNo(JobQueueEntryParameterString, ReportSelectionUsage.AsInteger(), PurchaseHeader."No.", DocName, PurchaseHeader."Buy-from Vendor No.");
-        ParameterString += VendorLbl;
+        ParameterString := StrSubstNo(JobQueueEntryParameterString, ReportSelectionUsage.AsInteger(), PurchaseHeader."No.", DocName, PurchaseHeader."Buy-from Vendor No.", PurchaseHeader.FieldNo("No."), '', 'Vendor');
         JobQueueEntry.SetRange("Record ID to Process", PurchaseHeader.RecordId());
         JobQueueEntry.FindFirst();
 

@@ -349,7 +349,7 @@
         ConfigQuestionnaireMgt: Codeunit "Questionnaire Management";
         IsHandled: Boolean;
     begin
-        OnBeforeModifyRecordDataFields(RecRef, ConfigPackageRecord, DoModify);
+        OnBeforeModifyRecordDataFields(RecRef, ConfigPackageRecord, DoModify, DelayedInsert);
         ConfigPackageField.Reset();
         ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
         ConfigPackageField.SetRange("Package Code", ConfigPackageRecord."Package Code");
@@ -396,6 +396,8 @@
             OnModifyRecordDataFieldsOnAfterRecRefModify(RecRef);
             RecordsModifiedCount += 1;
         end;
+
+        OnModifyRecordDataFieldsOnAfterRecRefUpdated(RecRef);
 
         if RecRef.Number = DATABASE::"Config. Question" then begin
             RecRef.SetTable(ConfigQuestion);
@@ -2534,7 +2536,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeModifyRecordDataFields(var RecRef: RecordRef; ConfigPackageRecord: Record "Config. Package Record"; DoModify: Boolean)
+    local procedure OnBeforeModifyRecordDataFields(var RecRef: RecordRef; ConfigPackageRecord: Record "Config. Package Record"; DoModify: Boolean; DelayedInsert: Boolean)
     begin
     end;
 
@@ -2572,6 +2574,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyRecordDataFieldsOnAfterRecRefModify(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyRecordDataFieldsOnAfterRecRefUpdated(var RecRef: RecordRef)
     begin
     end;
 
