@@ -1368,6 +1368,22 @@ codeunit 136603 "ERM RS Package Operations"
 
     [Test]
     [Scope('OnPrem')]
+    procedure EvaluateValue_RecordID()
+    var
+        GLSetup: Record "General Ledger Setup";
+        ChangeLogEntry: Record "Change Log Entry";
+    begin
+        Assert.IsTrue(
+          EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Record ID"), Format(GLSetup.RECORDID)) = '',
+          StrSubstNo(ErrorOnEvaluating, 'RecordID'));
+        Assert.IsFalse(
+          EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Record ID"), 'WrongRecordID') = '',
+          StrSubstNo(NoErrorOnEvaluating, 'RecordID'));
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PackageCardDatabaseRecords()
     var
         PaymentMethod: Record "Payment Method";

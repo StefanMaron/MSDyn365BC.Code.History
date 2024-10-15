@@ -1065,7 +1065,7 @@ table 5077 "Segment Line"
         SegManagement: Codeunit SegManagement;
         WordManagement: Codeunit WordManagement;
         WordApplicationHandler: Codeunit WordApplicationHandler;
-        send: Boolean;
+        Send: Boolean;
         Flag: Boolean;
         HTMLAttachment: Boolean;
         HTMLContentBodyText: Text;
@@ -1094,14 +1094,15 @@ table 5077 "Segment Line"
             Subject := Description;
             if not HTMLAttachment then
                 ProcessPostponedAttachment;
-            send := (IsFinish and ("Correspondence Type" <> "Correspondence Type"::" "));
-            if send and HTMLAttachment then begin
+            Send := (IsFinish and ("Correspondence Type" <> "Correspondence Type"::" "));
+            OnFinishWizardOnAfterSetSend(Rec, Send);
+            if Send and HTMLAttachment then begin
                 TempAttachment.ReadHTMLCustomLayoutAttachment(HTMLContentBodyText, CustomLayoutCode);
                 AttachmentManagement.GenerateHTMLContent(TempAttachment, Rec);
             end;
             SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
             InteractionLogEntry.FindLast;
-            if send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then begin
+            if Send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then begin
                 if HTMLAttachment then begin
                     Clear(TempAttachment);
                     LoadTempAttachment(false);
@@ -1498,6 +1499,16 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInteractionFromOppOnBeforeStartWizard(var SegmentLine: Record "Segment Line"; Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinishWizardOnAfterSetSend(var SegmentLine: Record "Segment Line"; var Send: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleTriggerCaseElse(SegmentLine: Record "Segment Line"; InteractionTemplate: Record "Interaction Template")
     begin
     end;
 }

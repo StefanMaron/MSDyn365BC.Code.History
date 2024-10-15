@@ -1328,6 +1328,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Notification Schedule Tests - NamedType WrongFieldErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 639470280 - NamedType 1069306593" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NOTIFYNOW]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WF Notification Schedule Tests - NamedType NotifyNowLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 639470280 - NamedType 2171919649" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NOTIFYLTR]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WF Notification Schedule Tests - NamedType NotifyLaterLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1922943253 - NamedType 3183848495" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Response %1 is not supported in the workflow.]]></Val>
@@ -2028,6 +2046,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType ParametersTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1130895803 - NamedType 3498291126" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Sales Invoice Step" id="50000"><Options><Field name="&quot;Sales Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Sales Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Sales Line&quot;.Description">Hello, World!</Field><Field name="&quot;Sales Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Header">SORTING(Document Type,No.) WHERE(Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem><DataItem name="Table37">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem></DataItems></ReportParameters>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType SalesParametersTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1130895803 - NamedType 886831204" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

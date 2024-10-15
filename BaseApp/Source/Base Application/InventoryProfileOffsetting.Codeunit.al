@@ -574,7 +574,15 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ReplenishmentLocationFound: Boolean;
         ComponentForecast: Boolean;
         ComponentForecastFrom: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeForecastConsumption(
+            DemandInvtProfile, Item, OrderDate, ToDate, UpdatedOrderDate, IsHandled,
+            CurrForecast, ExcludeForecastBefore, UseParm, LineNo);
+        if IsHandled then
+            exit;
+
         UpdatedOrderDate := OrderDate;
         ComponentForecastFrom := false;
         if not ManufacturingSetup."Use Forecast on Locations" then begin
@@ -1113,6 +1121,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 SupplyInvtProfile.SetRange("Primary Order Status", DemandInvtProfile."Primary Order Status");
                 SupplyInvtProfile.SetRange("Primary Order No.", DemandInvtProfile."Primary Order No.");
                 SupplyInvtProfile.SetRange("Primary Order Line", DemandInvtProfile."Primary Order Line");
+                SupplyInvtProfile.SetRange("Source Prod. Order Line");
                 if (DemandInvtProfile."Ref. Order Type" = DemandInvtProfile."Ref. Order Type"::Assembly) and
                    (DemandInvtProfile.Binding = DemandInvtProfile.Binding::"Order-to-Order") and
                    (DemandInvtProfile."Primary Order No." = '')
@@ -1811,8 +1820,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
             exit(false);
 
         if CheckSourceType then
-            if (DemandInvtProfile."Source Type" = DATABASE::"Planning Component") and
-               (SupplyInvtProfile."Source Type" = DATABASE::"Prod. Order Line") and
+            if ((DemandInvtProfile."Source Type" = DATABASE::"Planning Component") and
+                (SupplyInvtProfile."Source Type" = DATABASE::"Prod. Order Line") or
+                (DemandInvtProfile."Source Type" = DATABASE::"Requisition Line")) and
                (DemandInvtProfile.Binding = DemandInvtProfile.Binding::"Order-to-Order")
             then
                 exit(false);
@@ -4699,6 +4709,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDemandToInvProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeForecastConsumption(var DemandInvtProfile: Record "Inventory Profile"; var Item: Record Item; OrderDate: Date; ToDate: Date; var UpdatedOrderDate: Date; var IsHandled: Boolean; var CurrForecast: Code[10]; var ExcludeForecastBefore: Date; var UseParm: Boolean; var LineNo: Integer)
     begin
     end;
 

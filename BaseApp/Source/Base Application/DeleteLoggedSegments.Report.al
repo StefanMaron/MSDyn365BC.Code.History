@@ -2,6 +2,7 @@ report 5191 "Delete Logged Segments"
 {
     Caption = 'Delete Logged Segments';
     ProcessingOnly = true;
+    Permissions = TableData "Logged Segment" = d;
 
     dataset
     {

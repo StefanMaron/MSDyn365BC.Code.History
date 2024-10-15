@@ -426,6 +426,8 @@ page 99000883 "Sales Order Planning"
 
     local procedure CalculatePlanAndDelivDates(Item: Record Item; var NextPlanningDate: Date; var ExpectedDeliveryDate: Date)
     begin
+        OnBeforeCalculatePlanAndDelivDates(Item);
+
         NextPlanningDate := CalcDate(Item."Lot Accumulation Period", NextPlanningDate);
 
         if (Available > 0) or ("Planning Status" <> "Planning Status"::None) then
@@ -509,6 +511,11 @@ page 99000883 "Sales Order Planning"
         BuildForm;
 
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePlanAndDelivDates(var Item: Record Item)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

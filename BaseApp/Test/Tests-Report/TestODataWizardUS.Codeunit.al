@@ -728,14 +728,13 @@ codeunit 134767 "Test OData Wizard US"
     var
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         ODataUtility: Codeunit ODataUtility;
-        BaseAppID: Codeunit "BaseApp ID";
     begin
         // [SCENARIO]  Company is create or initialized
         AssistedSetupTestLibrary.DeleteAll();
         // [WHEN] CreateAssistedSetup is run.
         ODataUtility.CreateAssistedSetup;
         // [THEN] A record is created in the Assisted Setup table.
-        Assert.IsTrue(AssistedSetupTestLibrary.Exists(BaseAppID.Get(), PAGE::"OData Setup Wizard"), 'Missing Assisted Setup Record');
+        Assert.IsTrue(AssistedSetupTestLibrary.Exists(PAGE::"OData Setup Wizard"), 'Missing Assisted Setup Record');
     end;
 
     [Test]

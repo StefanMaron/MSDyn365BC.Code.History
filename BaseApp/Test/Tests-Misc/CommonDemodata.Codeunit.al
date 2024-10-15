@@ -229,5 +229,19 @@ codeunit 138500 "Common Demodata"
         Currency.SetRange("ISO Numeric Code", '');
         Assert.RecordIsEmpty(Currency);
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CountriesWithVATScheme()
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        // [FEATURE] [Currency] [VAT Scheme]
+        // [SCENARIO 334415] 'VAT Scheme' in Country/Region keeps values from Electronic Address Scheme (EAS)
+        CountryRegion.SetFilter("VAT Scheme", '*%1', ':VAT');
+        Assert.RecordIsEmpty(CountryRegion);
+        CountryRegion.SetFilter("VAT Scheme", '<>%1', '');
+        Assert.RecordCount(CountryRegion, 30);
+    end;
 }
 

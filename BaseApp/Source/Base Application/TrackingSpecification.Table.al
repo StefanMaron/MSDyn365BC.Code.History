@@ -147,10 +147,10 @@ table 336 "Tracking Specification"
 
                 TestApplyToItemLedgEntryNo(ItemLedgEntry);
 
-                if Abs("Quantity (Base)") > Abs(ItemLedgEntry."Remaining Quantity") then
+                if Abs("Quantity (Base)" - "Quantity Handled (Base)") > Abs(ItemLedgEntry."Remaining Quantity") then
                     Error(
                       RemainingQtyErr,
-                      ItemLedgEntry.FieldCaption("Remaining Quantity"), ItemLedgEntry."Entry No.", FieldCaption("Quantity (Base)"));
+                      ItemLedgEntry.FieldCaption("Remaining Quantity"), ItemLedgEntry."Entry No.");
             end;
         }
         field(40; "Warranty Date"; Date)
@@ -452,7 +452,7 @@ table 336 "Tracking Specification"
         Text005: Label '%1 in %2 for %3 %4, %5: %6, %7: %8 is currently %9. It must be %10.';
         UOMMgt: Codeunit "Unit of Measure Management";
         SkipSerialNoQtyValidation: Boolean;
-        RemainingQtyErr: Label 'The %1 in item ledger entry %2 is too low to cover %3.';
+        RemainingQtyErr: Label 'The %1 in item ledger entry %2 is too low to cover quantity available to handle.';
 
     procedure InitQtyToShip()
     begin

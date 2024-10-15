@@ -308,30 +308,7 @@ codeunit 139400 "Permissions Test"
         if User.Count = 0 then
             Assert.IsTrue(UsersPage.AddMeAsSuper.Visible, 'AddMeAsSuper action on Users page should be visible');
         // [THEN] A series of PaaS/onPrem controls are visible/editable
-        Assert.IsTrue(UsersPage."Windows User Name".Visible, 'Windows User Name control on Users page should not be visible');
         Assert.IsTrue(UsersPage."License Type".Visible, 'License Type control on Users page should be visible');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VisibilityOfControlsOnUsersListSaas()
-    var
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        Users: TestPage Users;
-    begin
-        // [FEATURE] [UI] [Users]
-        // [SCENARIO 283675] Windows User Name field on Users page invisible in SaaS
-
-        // [GIVEN] A system setup as SaaS solution
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-
-        // [WHEN] Users page is being opened
-        Users.OpenView;
-
-        // [THEN] Field Windows User Name is invisible
-        Assert.IsFalse(Users."Windows User Name".Visible, 'Windows User Name should be invisible');
-
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
     [Test]
@@ -1078,6 +1055,55 @@ codeunit 139400 "Permissions Test"
         Assert.AreEqual(RoleIdFilter, SelectedRoleIdFilter, 'Role Id selection filter is wrong.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PermissionsPageWithRemovedObject()
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        PermissionSet: Record "Permission Set";
+        Permission: Record Permission;
+        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        Permissions: TestPage Permissions;
+        NullGuid: Guid;
+    begin
+        // [SCENARIO] Open permissions page with existing permission for the removed object
+        // [GIVEN] Permission set with permission for non-existing object
+        LibraryPermissions.CreatePermissionSet(PermissionSet, LibraryUtility.GenerateGUID());
+        LibraryPermissions.AddPermission(PermissionSet."Role ID", Permission."Object Type"::"Table Data", 1234567890);
+        // [WHEN] Open permissions page
+        Permissions.Trap();
+        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet.Scope::System, NullGuid, PermissionSet."Role ID", false);
+        // [THEN] Page is opened
+        // [THEN] "Object Name" is empty
+        Permissions.First();
+        Assert.AreEqual(Permissions."Object ID".Value, Format(1234567890), 'Object id should be "1234567890".');
+        Assert.AreEqual(Permissions.ObjectName.Value, '', 'Object name should be blank for removed object.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TenantPermissionsPageWithRemovedObject()
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        TenantPermissionSet: Record "Tenant Permission Set";
+        TenantPermission: Record "Tenant Permission";
+        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        TenantPermissions: TestPage "Tenant Permissions";
+        NullGuid: Guid;
+    begin
+        // [SCENARIO] Open permissions page with existing permission for the removed object
+        // [GIVEN] Permission set with permission for non-existing object
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID(), NullGuid);
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", 1234567890);
+        // [WHEN] Open tenant permissions page
+        TenantPermissions.Trap();
+        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet.Scope::Tenant, NullGuid, TenantPermissionSet."Role ID", false);
+        // [THEN] Page is opened
+        // [THEN] "Object Name" is empty
+        TenantPermissions.First();
+        Assert.AreEqual(TenantPermissions."Object ID".Value, Format(1234567890), 'Object id should be "1234567890".');
+        Assert.AreEqual(TenantPermissions.ObjectName.Value, '', 'Object name should be blank for removed object.');
+    end;
 
     local procedure AddTenantPermissionSetToUserGroup(TenantPermissionSet: Record "Tenant Permission Set"; UserGroupCode: Code[20])
     var

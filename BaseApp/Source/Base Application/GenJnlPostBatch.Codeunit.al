@@ -887,6 +887,8 @@
         GenJnlLineTo."Ship-to/Order Address Code" := GenJnlLineFrom."Ship-to/Order Address Code";
         GenJnlLineTo."VAT Registration No." := GenJnlLineFrom."VAT Registration No.";
         GenJnlLineTo."Country/Region Code" := GenJnlLineFrom."Country/Region Code";
+
+        OnAfterCopyGenJnlLineBalancingData(GenJnlLineTo, GenJnlLineFrom);
     end;
 
     local procedure CheckGenPostingType(GenJnlLine6: Record "Gen. Journal Line"; AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner")
@@ -1322,6 +1324,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGenJnlLineBalancingData(var GenJnlLineTo: Record "Gen. Journal Line"; GenJnlLineFrom: Record "Gen. Journal Line")
     begin
     end;
 

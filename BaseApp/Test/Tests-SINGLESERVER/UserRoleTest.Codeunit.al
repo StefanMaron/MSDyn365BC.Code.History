@@ -496,8 +496,8 @@ codeunit 132900 UserRoleTest
         // [SCENARIO 265197] User is able to delete user permissionset SUPER defined for company if it has one defined for all companies
         Initialize;
 
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         User.DeleteAll(true);
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] SUPER User for all companies
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");

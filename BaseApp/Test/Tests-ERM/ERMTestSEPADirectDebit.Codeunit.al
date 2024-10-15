@@ -36,6 +36,9 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CdtrAgtTagErr: Label 'There should not be CdtrAgt tag';
         DirectDebitMsgNosErr: Label 'The bank account %1 is not set up for direct debit collections. It needs a number series for direct debit files. You specify the number series on the card for the bank account.', Comment = '%1 = Field, No. of Bank Account';
         MandateChangeErr: Label 'SequenceType cannot be set to OneOff, since the Mandate has already been used.';
+        HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
+        FieldKeyBlankErr: Label '%1 must have a value in %2 %3.', Comment = '%1=field name, %2= table name, %3=key field value. Example: Name must have a value in Customer 10000.';
+        EuroCurrErr: Label 'Only transactions in euro (EUR) are allowed.';
 
     [Test]
     [Scope('OnPrem')]
@@ -456,7 +459,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
             Customer."Partner Type" := Customer."Partner Type"::Company;
             Customer.Modify;
         end;
-        PostCustInvJnl(Customer, '');
+        PostCustInvJnl(Customer, '', LibraryERM.GetCurrencyCode('EUR'));
         CustLedgerEntry.FindLast;
 
         BankAccount.FindFirst;
@@ -1449,6 +1452,154 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SalesHeader.TestField("Direct Debit Mandate ID", SEPADirectDebitMandate[1].ID);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionWithIncorrectBankAccount')]
+    [Scope('OnPrem')]
+    procedure TestCreateDirectDebitCollectionWithIncorrectBankAccount()
+    begin
+        // [SCENARIO] Direct Debit Collection cannot be created with a Bank Account which does not have set up number series for direct debit files.
+        Init;
+
+        // [GIVEN] Bank Account with blank "Direct Debit Msg. Nos."
+        BankAccount."Direct Debit Msg. Nos." := '';
+        BankAccount.Modify;
+        Commit;
+
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+
+        // [THEN] Retrieve an error
+        REPORT.Run(REPORT::"Create Direct Debit Collection");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSEPADirectDebitTransferWhenAllowDDExportWitoutIBANAnsSWIFTIsTrue()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        DirectDebitCollection: Record "Direct Debit Collection";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        SEPADDExportFile: Codeunit "SEPA DD-Export File";
+    begin
+        // [SCENARIO 327227] It is possible to use SEPA DD Export File for Direct Debit Collection entry with Customer Bank Account with IBAN = '' and
+        // [SCENARIO 327227] non-empty "Bank Branch No." and "Bank Account No." when "Allow DD Export Without IBAN And SWIFT" is TRUE/
+        Init;
+
+        // [GIVEN] "Allow DD Export Without IBAN And SWIFT" is set to TRUE in General Ledger Setup.
+        LibraryERM.SetAllowDDExportWitoutIBANAndSWIFT(true);
+
+        // [GIVEN] Direct Debit Collection Entry for Customer Bank Account with IBAN = '' and non-empty "Bank Branch No." and "Bank Account No.".
+        CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
+        UpdateCustomerBankAccountFields(
+          SEPADirectDebitMandate."Customer No.", '',
+          LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Bank Branch No."), DATABASE::"Customer Bank Account"),
+          LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Bank Account No."), DATABASE::"Customer Bank Account"));
+
+        // [WHEN] Payment is exported using SEPA Debit Transfer.
+        SEPADDExportFile.EnableExportToServerFile;
+        SEPADDExportFile.Run(DirectDebitCollectionEntry);
+
+        // [THEN] No error happens.
+        Assert.IsFalse(DirectDebitCollectionEntry.HasPaymentFileErrors, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSEPADirectDebitTransferWhenAllowDDExportWitoutIBANAnsSWIFTIsFalse()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        DirectDebitCollection: Record "Direct Debit Collection";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        SEPADDExportFile: Codeunit "SEPA DD-Export File";
+        CustBankAccCode: Code[20];
+        ErrorText: Text;
+    begin
+        // [SCENARIO 327227] It isn't possible to use SEPA DD Export File for Direct Debit Collection entry with Customer Bank Account with IBAN = '' and
+        // [SCENARIO 327227] non-empty "Bank Branch No." and "Bank Account No." when "Allow DD Export Without IBAN And SWIFT" is FALSE.
+        Init;
+
+        // [GIVEN] "Allow DD Export Without IBAN And SWIFT" is set to FALSE in General Ledger Setup.
+        LibraryERM.SetAllowDDExportWitoutIBANAndSWIFT(false);
+
+        // [GIVEN] Direct Debit Collection Entry for Customer Bank Account with IBAN = '' and non-empty "Bank Branch No." and "Bank Account No.".
+        CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
+        CustBankAccCode := UpdateCustomerBankAccountFields(
+            SEPADirectDebitMandate."Customer No.", '',
+            LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Bank Branch No."), DATABASE::"Customer Bank Account"),
+            LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Bank Account No."), DATABASE::"Customer Bank Account"));
+
+        // [WHEN] Payment is exported using SEPA Debit Transfer.
+        SEPADDExportFile.EnableExportToServerFile;
+        asserterror SEPADDExportFile.Run(DirectDebitCollectionEntry);
+
+        // [THEN] Error about IBAN not having a value happens.
+        Assert.ExpectedError(HasErrorsErr);
+        ErrorText := StrSubstNo(FieldKeyBlankErr, CustomerBankAccount.FieldName(IBAN), CustomerBankAccount.TableCaption, CustBankAccCode);
+        VerifyExportError(DirectDebitCollectionEntry, ErrorText);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoErrorInSEPADDCheckLineWhenAllowNonEuroExportIsTrue()
+    var
+        Currency: Record Currency;
+        DirectDebitCollection: Record "Direct Debit Collection";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        // [FEATURE] [Currency]
+        // [SCENARIO 327227] Codeunit "SEPA DD-Check Line" doens't throw error on entries with non-euro currency when "Allow Non-Euro Export" is set to TRUE in General Ledger Setup.
+        Init;
+
+        // [GIVEN] "Allow Non-Euro Export" is set to TRUE in General Ledger Setup.
+        LibraryERM.SetAllowNonEuroExport(true);
+
+        // [GIVEN] Non-euro Currency.
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+
+        // [WHEN] Codeunit "SEPA DD-Check Line" is run for entry with Currency.
+        CreateDirectDebitCollectionEntryWithCurrency(
+          DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate, Currency.Code);
+
+        // [THEN] No error happens.
+        Assert.IsFalse(DirectDebitCollectionEntry.HasPaymentFileErrors, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorInSEPADDCheckLineWhenAllowNonEuroExportIsFalse()
+    var
+        Currency: Record Currency;
+        DirectDebitCollection: Record "Direct Debit Collection";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        // [FEATURE] [Currency]
+        // [SCENARIO 327227] Codeunit "SEPA DD-Check Line" doens't throw error on entries with non-euro currency when "Allow Non-Euro Export" is set to FALSE in General Ledger Setup.
+        Init;
+
+        // [GIVEN] "Allow Non-Euro Export" is set to FALSE in General Ledger Setup.
+        LibraryERM.SetAllowNonEuroExport(false);
+
+        // [GIVEN] Non-euro Currency.
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+
+        // [WHEN] Codeunit "SEPA DD-Check Line" is run for entry with Currency.
+        CreateDirectDebitCollectionEntryWithCurrency(
+          DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate, Currency.Code);
+
+        // [THEN] Error about non-euro currency happens.
+        Assert.IsTrue(DirectDebitCollectionEntry.HasPaymentFileErrors, '');
+        VerifyExportError(DirectDebitCollectionEntry, EuroCurrErr);
+    end;
+
     local procedure Init()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -1507,6 +1658,12 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     end;
 
     local procedure CreateDirectDebitCollectionEntry(var DirectDebitCollection: Record "Direct Debit Collection"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
+    begin
+        CreateDirectDebitCollectionEntryWithCurrency(
+          DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate, LibraryERM.GetCurrencyCode('EUR'));
+    end;
+
+    local procedure CreateDirectDebitCollectionEntryWithCurrency(var DirectDebitCollection: Record "Direct Debit Collection"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate"; CurrencyCode: Code[10])
     var
         Customer: Record Customer;
         CustomerBankAccount: Record "Customer Bank Account";
@@ -1522,7 +1679,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         Customer.Modify;
         SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccount.Code;
         SEPADirectDebitMandate.Modify;
-        PostCustInvJnl(Customer, SEPADirectDebitMandate.ID);
+        PostCustInvJnl(Customer, SEPADirectDebitMandate.ID, CurrencyCode);
         CustLedgEntry.FindLast;
         CustLedgEntry.TestField("Customer No.", Customer."No.");
         CustLedgEntry.TestField("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
@@ -1543,7 +1700,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         Customer.Get(SEPADirectDebitMandate."Customer No.");
-        PostCustInvJnl(Customer, SEPADirectDebitMandate.ID);
+        PostCustInvJnl(Customer, SEPADirectDebitMandate.ID, LibraryERM.GetCurrencyCode('EUR'));
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.FindLast;
 
@@ -1555,7 +1712,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         end;
     end;
 
-    local procedure PostCustInvJnl(var Customer: Record Customer; DirectDebitMandateID: Code[35])
+    local procedure PostCustInvJnl(var Customer: Record Customer; DirectDebitMandateID: Code[35]; CurrencyCode: Code[10])
     var
         GenJnlLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
@@ -1569,7 +1726,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         GenJnlLine.Validate("Posting Date", WorkDate);
         GenJnlLine.Validate("Document Type", GenJnlLine."Document Type"::Invoice);
         GenJnlLine."Document No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(GenJnlLine."Document No."));
-        GenJnlLine.Validate("Currency Code", LibraryERM.GetCurrencyCode('EUR'));
+        GenJnlLine.Validate("Currency Code", CurrencyCode);
         GenJnlLine.Validate(Amount, 1);
         GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
         GenJnlLine.Validate("Bal. Account No.", GLAccount."No.");
@@ -1755,6 +1912,21 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         PostDirectDebitCollection.SetJnlBatch(GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
         PostDirectDebitCollection.SetCreateJnlOnly(CreateJournalOnly);
         PostDirectDebitCollection.Run;
+    end;
+
+    local procedure UpdateCustomerBankAccountFields(CustomerNo: Code[20]; IBANCode: Code[50]; BankBranchNo: Text; BankAccountNo: Text): Code[20]
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+    begin
+        with CustomerBankAccount do begin
+            SetRange("Customer No.", CustomerNo);
+            FindFirst;
+            IBAN := IBANCode;
+            "Bank Branch No." := CopyStr(BankBranchNo, 1, MaxStrLen("Bank Branch No."));
+            "Bank Account No." := CopyStr(BankAccountNo, 1, MaxStrLen("Bank Account No."));
+            Modify;
+        end;
+        exit(CustomerBankAccount.Code);
     end;
 
     local procedure UpdateUstrdText(var UstrdText: Text; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
@@ -2077,25 +2249,6 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     [Scope('OnPrem')]
     procedure TooManyDebitsMsgHandler(Message: Text[1024])
     begin
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateDirectDebitCollectionWithIncorrectBankAccount')]
-    [Scope('OnPrem')]
-    procedure TestCreateDirectDebitCollectionWithIncorrectBankAccount()
-    begin
-        // [SCENARIO] Direct Debit Collection cannot be created with a Bank Account which does not have set up number series for direct debit files.
-        Init;
-
-        // [GIVEN] Bank Account with blank "Direct Debit Msg. Nos."
-        BankAccount."Direct Debit Msg. Nos." := '';
-        BankAccount.Modify;
-        Commit;
-
-        LibraryVariableStorage.Enqueue(BankAccount."No.");
-
-        // [THEN] Retrieve an error
-        REPORT.Run(REPORT::"Create Direct Debit Collection");
     end;
 
     [RequestPageHandler]

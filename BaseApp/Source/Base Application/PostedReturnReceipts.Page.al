@@ -255,6 +255,8 @@
 
                 trigger OnAction()
                 begin
+                    ReturnRcptHeader := Rec;
+                    OnBeforePrintRecords(Rec, ReturnRcptHeader);
                     CurrPage.SetSelectionFilter(ReturnRcptHeader);
                     ReturnRcptHeader.PrintRecords(true);
                 end;
@@ -308,5 +310,10 @@
 
     var
         ReturnRcptHeader: Record "Return Receipt Header";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(ReturnReceiptHeaderRec: Record "Return Receipt Header"; var ReturnReceiptHeaderToPrint: Record "Return Receipt Header")
+    begin
+    end;
 }
 
