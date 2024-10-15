@@ -835,6 +835,7 @@ codeunit 147552 "SII Update Doc. Info"
     procedure SIIDocUploadStateGetsUpdatedOnSalesCrMemoUpdate()
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ChangedSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -848,17 +849,31 @@ codeunit 147552 "SII Update Doc. Info"
         SalesCrMemoHeader.Get(CustLedgerEntry."Document No.");
 
         // [GIVEN] Default values gets changed in posted document
-        SalesCrMemoHeader."Cr. Memo Type" := SalesCrMemoHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
-        SalesCrMemoHeader."Special Scheme Code" := SalesCrMemoHeader."Special Scheme Code"::"02 Export";
+        ChangedSalesCrMemoHeader := SalesCrMemoHeader;
+        ChangedSalesCrMemoHeader."Cr. Memo Type" := ChangedSalesCrMemoHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
+        ChangedSalesCrMemoHeader."Special Scheme Code" := ChangedSalesCrMemoHeader."Special Scheme Code"::"02 Export";
+        ChangedSalesCrMemoHeader."ID Type" := ChangedSalesCrMemoHeader."ID Type"::"02-VAT Registration No.";
+        ChangedSalesCrMemoHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID;
+        ChangedSalesCrMemoHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
 
         // [WHEN] Run codeunit "Sales Cr.Memo Header - Edit" against posted document
-        CODEUNIT.Run(CODEUNIT::"Sales Cr.Memo Header - Edit", SalesCrMemoHeader);
+        CODEUNIT.Run(CODEUNIT::"Sales Cr.Memo Header - Edit", ChangedSalesCrMemoHeader);
 
         // [THEN] SII Document Upload State of the posted document has updated values
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
         SIIDocUploadState.TestField(
           "Sales Cr. Memo Type", SIIDocUploadState."Sales Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
         SIIDocUploadState.TestField("Sales Special Scheme Code", SIIDocUploadState."Sales Special Scheme Code"::"02 Export");
+        SIIDocUploadState.TestField(IDType, SIIDocUploadState.IDType::"02-VAT Registration No.");
+        SIIDocUploadState.TestField("Succeeded Company Name", ChangedSalesCrMemoHeader."Succeeded Company Name");
+        SIIDocUploadState.TestField("Succeeded VAT Registration No.", ChangedSalesCrMemoHeader."Succeeded VAT Registration No.");
+
+        // [THEN] The changes in Sales Credit Memo Header have been saved (Bug id 452979: Fields added to the posted sales/purchase credit memo page)
+        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.TestField("Cr. Memo Type", ChangedSalesCrMemoHeader."Cr. Memo Type");
+        SalesCrMemoHeader.TestField("Special Scheme Code", ChangedSalesCrMemoHeader."Special Scheme Code");
+        SalesCrMemoHeader.TestField("Succeeded Company Name", ChangedSalesCrMemoHeader."Succeeded Company Name");
+        SalesCrMemoHeader.TestField("Succeeded VAT Registration No.", ChangedSalesCrMemoHeader."Succeeded VAT Registration No.");
     end;
 
     [Test]
@@ -907,6 +922,7 @@ codeunit 147552 "SII Update Doc. Info"
     procedure SIIDocUploadStateGetsUpdatedOnPurchCrMemoUpdate()
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        ChangedPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -920,11 +936,15 @@ codeunit 147552 "SII Update Doc. Info"
         PurchCrMemoHdr.Get(VendorLedgerEntry."Document No.");
 
         // [GIVEN] Default values gets changed in posted document
-        PurchCrMemoHdr."Cr. Memo Type" := PurchCrMemoHdr."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
-        PurchCrMemoHdr."Special Scheme Code" := PurchCrMemoHdr."Special Scheme Code"::"02 Special System Activities";
+        ChangedPurchCrMemoHdr := PurchCrMemoHdr;
+        ChangedPurchCrMemoHdr."Cr. Memo Type" := ChangedPurchCrMemoHdr."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
+        ChangedPurchCrMemoHdr."Special Scheme Code" := ChangedPurchCrMemoHdr."Special Scheme Code"::"02 Special System Activities";
+        ChangedPurchCrMemoHdr."ID Type" := ChangedPurchCrMemoHdr."ID Type"::"02-VAT Registration No.";
+        ChangedPurchCrMemoHdr."Succeeded Company Name" := LibraryUtility.GenerateGUID;
+        ChangedPurchCrMemoHdr."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
 
         // [WHEN] Run codeunit "Purch. Cr.Memo Header - Edit" against posted document
-        CODEUNIT.Run(CODEUNIT::"Purch. Cr. Memo Hdr. - Edit", PurchCrMemoHdr);
+        CODEUNIT.Run(CODEUNIT::"Purch. Cr. Memo Hdr. - Edit", ChangedPurchCrMemoHdr);
 
         // [THEN] SII Document Upload State of the posted document has updated values
         SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
@@ -932,6 +952,16 @@ codeunit 147552 "SII Update Doc. Info"
           "Purch. Cr. Memo Type", SIIDocUploadState."Purch. Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
         SIIDocUploadState.TestField(
           "Purch. Special Scheme Code", SIIDocUploadState."Purch. Special Scheme Code"::"02 Special System Activities");
+        SIIDocUploadState.TestField(IDType, SIIDocUploadState.IDType::"02-VAT Registration No.");
+        SIIDocUploadState.TestField("Succeeded Company Name", ChangedPurchCrMemoHdr."Succeeded Company Name");
+        SIIDocUploadState.TestField("Succeeded VAT Registration No.", ChangedPurchCrMemoHdr."Succeeded VAT Registration No.");
+
+        // [THEN] The changes in Purchase Credit Memo Header have been saved (Bug id 452979: Fields added to the posted sales/purchase credit memo page)
+        PurchCrMemoHdr.Find;
+        PurchCrMemoHdr.TestField("Cr. Memo Type", PurchCrMemoHdr."Cr. Memo Type");
+        PurchCrMemoHdr.TestField("Special Scheme Code", PurchCrMemoHdr."Special Scheme Code");
+        PurchCrMemoHdr.TestField("Succeeded Company Name", PurchCrMemoHdr."Succeeded Company Name");
+        PurchCrMemoHdr.TestField("Succeeded VAT Registration No.", PurchCrMemoHdr."Succeeded VAT Registration No.");
     end;
 
     [Test]

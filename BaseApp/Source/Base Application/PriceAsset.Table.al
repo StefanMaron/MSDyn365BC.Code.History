@@ -8,6 +8,7 @@ table 7003 "Price Asset"
     {
         field(1; "Entry No."; Integer)
         {
+            Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
         field(2; "Asset Type"; Enum "Price Asset Type")
@@ -51,11 +52,14 @@ table 7003 "Price Asset"
         }
         field(5; Level; Integer)
         {
+            Caption = 'Level';
             DataClassification = SystemMetadata;
         }
         field(6; "Variant Code"; Code[10])
         {
+            Caption = 'Variant Code';
             DataClassification = SystemMetadata;
+
             trigger OnValidate()
             begin
                 if "Variant Code" <> '' then begin
@@ -67,7 +71,9 @@ table 7003 "Price Asset"
         }
         field(7; "Unit of Measure Code"; Code[10])
         {
+            Caption = 'Unit of Measure Code';
             DataClassification = SystemMetadata;
+
             trigger OnValidate()
             var
                 ItemUnitofMeasure: Record "Item Unit of Measure";
@@ -104,44 +110,54 @@ table 7003 "Price Asset"
         }
         field(8; "Price Type"; Enum "Price Type")
         {
+            Caption = 'Price Type';
             DataClassification = SystemMetadata;
         }
         field(9; "Table Id"; Integer)
         {
+            Caption = 'Table Id';
             DataClassification = SystemMetadata;
             Editable = false;
         }
         field(16; "Amount Type"; Enum "Price Amount Type")
         {
+            Caption = 'Amount Type';
             DataClassification = SystemMetadata;
         }
         field(17; "Unit Price"; Decimal)
         {
+            Caption = 'Unit Price';
             DataClassification = SystemMetadata;
             MinValue = 0;
         }
         field(18; "Unit Price 2"; Decimal)
         {
+            Caption = 'Unit Price 2';
             DataClassification = SystemMetadata;
             MinValue = 0;
         }
         field(22; "Allow Invoice Disc."; Boolean)
         {
+            Caption = 'Allow Invoice Disc.';
             DataClassification = SystemMetadata;
         }
         field(23; "Price Includes VAT"; Boolean)
         {
+            Caption = 'Price Includes VAT';
             DataClassification = SystemMetadata;
         }
         field(24; "VAT Bus. Posting Gr. (Price)"; Code[20])
         {
+            Caption = 'VAT Bus. Posting Gr. (Price)';
             DataClassification = SystemMetadata;
             TableRelation = "VAT Business Posting Group";
         }
         field(25; "Work Type Code"; Code[10])
         {
+            Caption = 'Work Type Code';
             DataClassification = SystemMetadata;
             TableRelation = "Work Type";
+
             trigger OnValidate()
             var
                 Resource: Record Resource;
@@ -161,6 +177,7 @@ table 7003 "Price Asset"
         }
         field(29; Description; Text[100])
         {
+            Caption = 'Description';
             DataClassification = CustomerContent;
         }
     }

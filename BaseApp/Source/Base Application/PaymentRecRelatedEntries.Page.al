@@ -35,24 +35,24 @@ page 496 "Payment Rec. Related Entries"
                     begin
                         case Rec."Entry Type" of
                             Rec."Entry Type"::Customer:
-                            begin
-                                CustLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
-                                CustomerLedgerEntries.SetTableView(CustLedgerEntry);
-                                CustomerLedgerEntries.Run();
-                            end;
+                                begin
+                                    CustLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
+                                    CustomerLedgerEntries.SetTableView(CustLedgerEntry);
+                                    CustomerLedgerEntries.Run();
+                                end;
                             Rec."Entry Type"::Vendor:
-                            begin
-                                VendorLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
-                                VendorLedgerEntries.SetTableView(VendorLedgerEntry);
-                                VendorLedgerEntries.Run();
-                            end;
+                                begin
+                                    VendorLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
+                                    VendorLedgerEntries.SetTableView(VendorLedgerEntry);
+                                    VendorLedgerEntries.Run();
+                                end;
                             Rec."Entry Type"::Employee:
-                            begin
-                                EmployeeLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
-                                EmployeeLedgerEntries.SetTableView(EmployeeLedgerEntry);
-                                EmployeeLedgerEntries.Run();
-                            end;
-                               
+                                begin
+                                    EmployeeLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
+                                    EmployeeLedgerEntries.SetTableView(EmployeeLedgerEntry);
+                                    EmployeeLedgerEntries.Run();
+                                end;
+
                         end;
                     end;
                 }
@@ -127,7 +127,8 @@ page 496 "Payment Rec. Related Entries"
                 InFooterBar = true;
                 Caption = 'Back';
                 Image = PreviousRecord;
-                
+                Visible = not ActionBackHidden;
+
                 trigger OnAction()
                 begin
                     ActionSelected := ActionSelected::Back;
@@ -154,6 +155,7 @@ page 496 "Payment Rec. Related Entries"
         ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
         ToUnapplyEnabled: Boolean;
         ToReverseEnabled: Boolean;
+        ActionBackHidden: Boolean;
         ActionSelected: Option Nothing,Next,Back;
         BankAccountNo: Code[20];
         StatementNo: Code[20];
@@ -174,10 +176,15 @@ page 496 "Payment Rec. Related Entries"
         Rec.FilterGroup(0);
     end;
 
+    procedure HideBackAction()
+    begin
+        ActionBackHidden := true;
+    end;
+
     procedure SetPaymentRecRelatedEntries(BankAccountNoToOpen: Code[20]; StatementNoToOpen: Code[20])
     begin
         BankAccountNo := BankAccountNoToOpen;
-        StatementNo := StatementNoToOpen;       
+        StatementNo := StatementNoToOpen;
     end;
 
     procedure NextSelected(): Boolean

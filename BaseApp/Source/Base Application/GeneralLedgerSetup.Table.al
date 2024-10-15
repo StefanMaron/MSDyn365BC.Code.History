@@ -833,7 +833,7 @@
         }
         field(187; "Bank Acc. Recon. Batch Name"; Code[10])
         {
-            Caption = 'Bank Acc. Recon. Template Name';
+            Caption = 'Bank Acc. Recon. Batch Name';
             TableRelation = IF ("Bank Acc. Recon. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Bank Acc. Recon. Template Name"));
         }
         field(10701; "Payment Discount Type"; Option)

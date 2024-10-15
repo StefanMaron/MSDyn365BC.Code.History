@@ -57,7 +57,14 @@ codeunit 362 PeriodPageManagement
     procedure NextDate(NextStep: Integer; var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"): Integer
     var
         UseAccountingPeriod: Boolean;
+        IsHandled: Boolean;
+        Result: Integer;
     begin
+        IsHandled := false;
+        OnBeforeNextDate(NextStep, Calendar, PeriodType, AccountingPeriod, Result, Ishandled);
+        If IsHandled then
+            exit(Result);
+
         Calendar.SetRange("Period Type", PeriodType);
         Calendar."Period Type" := PeriodType.AsInteger();
         UseAccountingPeriod := PeriodType = PeriodType::"Accounting Period";
@@ -280,6 +287,11 @@ codeunit 362 PeriodPageManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindDate(SearchString: Text[3]; var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"; var Found: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextDate(NextStep: Integer; var Calendar: record Date; PeriodType: enum "Analysis Period Type"; var AccountingPeriod: Record "Accounting Period"; var Result: Integer; var Ishandled: Boolean)
     begin
     end;
 }

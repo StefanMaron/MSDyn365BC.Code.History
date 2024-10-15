@@ -72,7 +72,7 @@ codeunit 99000770 "Where-Used Management"
         ItemAssembly: Record Item;
         ProdBOMComponent: Record "Production BOM Line";
     begin
-        OnBeforeBuildWhereUsedList(Type, No, MultiLevel);
+        OnBeforeBuildWhereUsedList(Type, No, MultiLevel, CalcDate, Level, Quantity, NextWhereUsedEntryNo, TempWhereUsedList);
         if Level > 30 then
             exit;
 
@@ -189,7 +189,7 @@ codeunit 99000770 "Where-Used Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBuildWhereUsedList(Type: Option; No: Code[20]; var Multilevel: Boolean)
+    local procedure OnBeforeBuildWhereUsedList(Type: Option; No: Code[20]; var Multilevel: Boolean; var CalcDate: Date; var Level: Integer; var Quantity: Decimal; var NextWhereUsedEntryNo: Integer; var TempWhereUsedLine: Record "Where-Used Line" temporary)
     begin
     end;
 

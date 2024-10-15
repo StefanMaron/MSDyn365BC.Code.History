@@ -14,7 +14,8 @@
                     TableData "Cust. Ledger Entry" = rm,
                     TableData "Detailed Cust. Ledg. Entry" = rm,
                     TableData "Vendor Ledger Entry" = rm,
-                    TableData "Detailed Vendor Ledg. Entry" = rm;
+                    TableData "Detailed Vendor Ledg. Entry" = rm,
+                    TableData "No Taxable Entry" = rm;
 
     fields
     {

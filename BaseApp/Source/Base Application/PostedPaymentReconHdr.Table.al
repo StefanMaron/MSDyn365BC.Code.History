@@ -43,6 +43,14 @@ table 1295 "Posted Payment Recon. Hdr"
         {
             Caption = 'Is Reversed';
         }
+        field(12; "G/L Register No."; Integer)
+        {
+            Caption = 'G/L Register No.';
+        }
+        field(13; "Entries found with G/L Reg."; Boolean)
+        {
+            Caption = 'Entries found with G/L Register';
+        }
     }
 
     keys
@@ -59,7 +67,7 @@ table 1295 "Posted Payment Recon. Hdr"
 
     var
         IgnoreConfirmOnDelete: Boolean;
-    
+
     procedure SetIgnoreConfirmOnDelete(Value: Boolean)
     begin
         IgnoreConfirmOnDelete := Value;

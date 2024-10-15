@@ -119,6 +119,24 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                     Editable = true;
                     ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
                 }
+                field("ID Type"; "ID Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the ID Type.';
+                }
+                field("Succeeded Company Name"; "Succeeded Company Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
+                }
+                field("Succeeded VAT Registration No."; "Succeeded VAT Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
+                }
                 field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
                 {
                     Caption = 'First Summary Doc. No.';
@@ -186,6 +204,9 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
           ("Cr. Memo Type" <> xSalesCrMemoHeader."Cr. Memo Type") or
           ("Corrected Invoice No." <> xSalesCrMemoHeader."Corrected Invoice No.") or
           ("Correction Type" <> xSalesCrMemoHeader."Correction Type") or
+          ("ID Type" <> xSalesCrMemoHeader."ID Type") or
+          ("Succeeded Company Name" <> xSalesCrMemoHeader."Succeeded Company Name") or
+          ("Succeeded VAT Registration No." <> xSalesCrMemoHeader."Succeeded VAT Registration No.") or
           ("Company Bank Account Code" <> xSalesCrMemoHeader."Company Bank Account Code") or
           (GetSIIFirstSummaryDocNo() <> xSalesCrMemoHeader.GetSIIFirstSummaryDocNo()) or
           (GetSIILastSummaryDocNo() <> xSalesCrMemoHeader.GetSIILastSummaryDocNo());

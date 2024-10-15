@@ -158,9 +158,10 @@
 
         if ICGenJnlLineNo > 0 then
             PostICGenJnl();
-
-        OnRunOnBeforeMakeInventoryAdjustment(PurchHeader, GenJnlPostLine, ItemJnlPostLine, PreviewMode, PurchRcptHeader, PurchInvHeader);
-        MakeInventoryAdjustment();
+        IsHandled := false;
+        OnRunOnBeforeMakeInventoryAdjustment(PurchHeader, GenJnlPostLine, ItemJnlPostLine, PreviewMode, PurchRcptHeader, PurchInvHeader, IsHandled);
+        if not IsHandled then
+            MakeInventoryAdjustment();
 
         // Create Bills
         if PaymentMethod.Get(PurchHeader."Payment Method Code") then
@@ -653,6 +654,8 @@
                   SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
                   ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
 
+            GenJnlCheckLine.CheckVATDateAllowed("VAT Reporting Date");
+
             if TransportMethod.Get("Transport Method") and TransportMethod."Port/Airport" then
                 TestField("Entry Point", ErrorInfo.Create());
 
@@ -798,6 +801,7 @@
 
     procedure PrepareCheckDocument(var PurchaseHeader: Record "Purchase Header")
     begin
+        OnBeforePrepareCheckDocument(PurchaseHeader);
         GetGLSetup();
         GetPurchSetup();
         GetInvoicePostingSetup();
@@ -5977,6 +5981,7 @@
                       TempReservationEntry, TempPurchReservEntry, ItemJournalLine, TempTrackingSpecification,
                       PurchItemLedgEntryNo, IsNonInventoriableItem());
 
+                OnPostItemJnlLineJobConsumptionOnBeforeRunItemJnlPostLineWithReservation(ItemJournalLine, TempReservationEntry, PurchLine);
                 RunItemJnlPostLineWithReservation(ItemJournalLine, TempReservationEntry);
 
                 IsHandled := false;
@@ -9761,7 +9766,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPostedHeaders(var PurchaseHeader: Record "Purchase Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertPostedHeaders(var PurchaseHeader: Record "Purchase Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9894,6 +9899,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessAssocItemJnlLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemLedgShptEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareCheckDocument(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -10658,6 +10668,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnPostItemJnlLineJobConsumptionOnBeforeRunItemJnlPostLineWithReservation(var ItemJournalLine: Record "Item Journal Line"; var TempReservationEntry: Record "Reservation Entry" temporary; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineJobConsumption(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ItemJournalLine: Record "Item Journal Line"; var TempPurchReservEntry: Record "Reservation Entry" temporary; QtyToBeInvoiced: Decimal; QtyToBeReceived: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary; PurchItemLedgEntryNo: Integer; var IsHandled: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; SrcCode: Code[10])
     begin
@@ -10766,8 +10781,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnPostPurchLineOnBeforeInsertReceiptLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; PurchRcptHeader: Record "Purch. Rcpt. Header"; RoundingLineInserted: Boolean; CostBaseAmount: Decimal; xPurchaseLine: Record "Purchase Line");
+    [IntegrationEvent(true, false)]
+    local procedure OnPostPurchLineOnBeforeInsertReceiptLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; PurchRcptHeader: Record "Purch. Rcpt. Header"; RoundingLineInserted: Boolean; CostBaseAmount: Decimal; xPurchaseLine: Record "Purchase Line");
     begin
     end;
 
@@ -10802,7 +10817,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostUpdateCreditMemoLineOnAfterResetTempLines(TempPurchLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
+    local procedure OnPostUpdateCreditMemoLineOnAfterResetTempLines(var TempPurchLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -10903,7 +10918,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeMakeInventoryAdjustment(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; PreviewMode: Boolean; PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchInvHeader: Record "Purch. Inv. Header")
+    local procedure OnRunOnBeforeMakeInventoryAdjustment(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; PreviewMode: Boolean; PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
 

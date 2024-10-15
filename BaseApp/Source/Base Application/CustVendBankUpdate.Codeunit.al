@@ -9,7 +9,13 @@ codeunit 5055 "CustVendBank-Update"
     trigger OnRun()
     var
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ContBusRel.SetRange("Contact No.", "No.");
         ContBusRel.SetFilter("Link to Table", '<>''''');
 
@@ -222,6 +228,11 @@ codeunit 5055 "CustVendBank-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustCopyFieldsFromCont(var Customer: Record Customer; var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 

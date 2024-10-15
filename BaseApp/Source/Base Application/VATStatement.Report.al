@@ -437,6 +437,7 @@
                 begin
                     GLAcc.SetFilter("No.", VATStmtLine2."Account Totaling");
                     "VAT Statement Line".CopyFilter("Date Filter", GLAcc."Date Filter");
+                    OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(GLAcc, VATStmtLine2);
                     Amount := 0;
                     if GLAcc.Find('-') and (VATStmtLine2."Account Totaling" <> '') then
                         repeat
@@ -820,6 +821,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotal2COnBeforeCalculateTotalAmount(VATStmtLine2: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Base: Decimal; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(var GLAccount: Record "G/L Account"; VATStatementLine2: Record "VAT Statement Line")
     begin
     end;
 }

@@ -719,6 +719,31 @@ codeunit 136400 "Resource Employee"
         Resource.TestField(Name, ExpectedResourceName);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostCodeValidateCityOnResourcePostCodeModify()
+    var
+        Resource: Record Resource;
+        PostCode: Record "Post Code";
+        ResourceNo: Code[20];
+    begin
+        // [SCENARIO 460016] In the Resource page, fields are not populated correctly, when the Post Code is inserted manually
+        Initialize();
+
+        // [GIVEN] Create Post Code and Resouce
+        LibraryERM.CreatePostCode(PostCode);
+        ResourceNo := CreateResourceNoOfTypePerson();
+
+        // [WHEN] Update Post Code on Resource
+        Resource.Get(ResourceNo);
+        Resource.Validate("Post Code", PostCode.Code);
+        Resource.Modify(true);
+
+        // [VERIFY] Verify City for Resource
+        Resource.Find();
+        Resource.TestField(City, PostCode.City);
+    end;
+
     [Normal]
     local procedure Initialize()
     var

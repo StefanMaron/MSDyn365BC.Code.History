@@ -20,6 +20,9 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         SalesCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         SalesCrMemoHeader."Correction Type" := "Correction Type";
         SalesCrMemoHeader."Corrected Invoice No." := "Corrected Invoice No.";
+        SalesCrMemoHeader."ID Type" := "ID Type";
+        SalesCrMemoHeader."Succeeded Company Name" := "Succeeded Company Name";
+        SalesCrMemoHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
         SalesCrMemoHeader."Issued By Third Party" := "Issued By Third Party";
         SalesCrMemoHeader.SetSIIFirstSummaryDocNo(GetSIIFirstSummaryDocNo());
         SalesCrMemoHeader.SetSIILastSummaryDocNo(GetSIILastSummaryDocNo());

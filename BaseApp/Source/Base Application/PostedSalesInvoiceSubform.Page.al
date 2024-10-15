@@ -49,6 +49,12 @@ page 133 "Posted Sales Invoice Subform"
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the VAT Prod. Posting Group.';
+                    Visible = false;
+                }
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -107,6 +113,12 @@ page 133 "Posted Sales Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
+                }
+                field("VAT %"; Rec."VAT %")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the VAT %.';
+                    Visible = false;
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {

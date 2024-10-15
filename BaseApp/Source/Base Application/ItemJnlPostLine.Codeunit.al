@@ -227,12 +227,7 @@
                 end;
             end;
 
-            if ("Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
-               ("Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
-            then begin
-                GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                GenPostingSetup.TestField(Blocked, false);
-            end;
+            GetGeneralPostingSetup(ItemJnlLine);
 
             if "Qty. per Unit of Measure" = 0 then
                 "Qty. per Unit of Measure" := 1;
@@ -545,7 +540,7 @@
                             MfgUnitCost := MfgSKU."Unit Cost"
                         else
                             MfgUnitCost := MfgItem."Unit Cost";
-                    OnPostOutputOnAfterSetMfgUnitCost(ItemJnlLine, MfgUnitCost);
+                    OnPostOutputOnAfterSetMfgUnitCost(ItemJnlLine, MfgUnitCost, ProdOrderLine);
 
                     Amount := "Output Quantity" * MfgUnitCost;
                     "Amount (ACY)" := ACYMgt.CalcACYAmt(Amount, "Posting Date", false);
@@ -583,8 +578,10 @@
                     "Invoiced Quantity" := 0;
                 end;
 
-                OnPostOutputOnBeforePostItem(ItemJnlLine, ProdOrderLine);
-                PostItem();
+                IsHandled := false;
+                OnPostOutputOnBeforePostItem(ItemJnlLine, ProdOrderLine, IsHandled);
+                if not IsHandled then
+                    PostItem();
 
                 IsHandled := false;
                 OnPostOutputOnBeforeUpdateProdOrderLine(ItemJnlLine, IsHandled);
@@ -1129,7 +1126,7 @@
             OnBeforeInsertCapValueEntry(ValueEntry, ItemJnlLine);
 
             IsHandled := false;
-            OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry, IsHandled);
+            OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry, IsHandled, PostToGL);
             if not IsHandled then begin
                 InventoryPostingToGL.SetRunOnlyCheck(true, not InvtSetup."Automatic Cost Posting", false);
                 PostInvtBuffer(ValueEntry);
@@ -1893,7 +1890,7 @@
             end else
                 StartApplication := true;
 
-            OnApplyItemLedgEntryOnBeforeStartApplication(ItemLedgEntry, OldItemLedgEntry, StartApplication);
+            OnApplyItemLedgEntryOnBeforeStartApplication(ItemLedgEntry, OldItemLedgEntry, StartApplication, AppliedQty);
 
             if StartApplication then begin
                 ItemLedgEntry.CalcReservedQuantity();
@@ -4343,6 +4340,7 @@
             if TempTrackingSpecification."Expiration Date" = 0D then
                 TempTrackingSpecification."Expiration Date" := CalcExpirationDate;
 
+            OnCheckExpirationDateOnBeforeTestFieldExpirationDate(TempTrackingSpecification, EntriesExist, ExistingExpirationDate);
             if EntriesExist then
                 TempTrackingSpecification.TestField("Expiration Date", ExistingExpirationDate);
         end else   // Demand
@@ -4397,6 +4395,23 @@
         GLSetupRead := true;
 
         OnAfterGetGLSetup(GLSetup);
+    end;
+
+    local procedure GetGeneralPostingSetup(ItemJournalLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetGeneralPostingSetup(ItemJournalLine, GenPostingSetup, PostToGL, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (ItemJournalLine."Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
+            (ItemJournalLine."Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
+        then begin
+            GenPostingSetup.Get(ItemJournalLine."Gen. Bus. Posting Group", ItemJournalLine."Gen. Prod. Posting Group");
+            GenPostingSetup.TestField(Blocked, false);
+        end;
     end;
 
     local procedure GetMfgSetup()
@@ -4714,6 +4729,7 @@
         if GetItem(ItemNo, false) then begin
             if not CalledFromAdjustment then
                 Item.TestField(Blocked, false);
+            OnCheckItemOnAfterGetItem(Item, ItemJnlLine, CalledFromAdjustment);
         end else
             Item.Init();
     end;
@@ -6120,6 +6136,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckExpirationDateOnBeforeTestFieldExpirationDate(var TempTrackingSpecification: Record "Tracking Specification" temporary; var EntriesExist: Boolean; var ExistingExpirationDate: Date);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertSetupTempSplitItemJnlLine(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempItemJournalLine: Record "Item Journal Line" temporary; var PostItemJnlLine: Boolean; var ItemJournalLine2: Record "Item Journal Line"; SignFactor: Integer; FloatingFactor: Decimal)
     begin
     end;
@@ -6375,7 +6396,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyItemLedgEntryOnBeforeStartApplication(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var StartApplication: Boolean)
+    local procedure OnApplyItemLedgEntryOnBeforeStartApplication(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var StartApplication: Boolean; var AppliedQty: Decimal)
     begin
     end;
 
@@ -6692,7 +6713,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputOnAfterSetMfgUnitCost(var ItemJournalLine: Record "Item Journal Line"; var MfgUnitCost: Decimal)
+    local procedure OnPostOutputOnAfterSetMfgUnitCost(var ItemJournalLine: Record "Item Journal Line"; var MfgUnitCost: Decimal; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 
@@ -6722,7 +6743,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputOnBeforePostItem(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnPostOutputOnBeforePostItem(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7466,7 +7487,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry: Record "Value Entry"; var IsHandled: Boolean; PostToGL: Boolean)
     begin
     end;
 
@@ -7577,6 +7598,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAvgCostAdjmtBufferOnAfterSetValueEntry(var ValueEntry: Record "Value Entry"; OldItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetGeneralPostingSetup(ItemJournalLine: Record "Item Journal Line"; var GeneralPostingSetup: Record "General Posting Setup"; PostToGl: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckItemOnAfterGetItem(Item: Record Item; ItemJnlLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean)
     begin
     end;
 }

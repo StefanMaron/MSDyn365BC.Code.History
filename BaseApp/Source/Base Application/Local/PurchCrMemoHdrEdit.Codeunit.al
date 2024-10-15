@@ -16,6 +16,9 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
         PurchCrMemoHdr."Cr. Memo Type" := "Cr. Memo Type";
         PurchCrMemoHdr."Correction Type" := "Correction Type";
         PurchCrMemoHdr."Corrected Invoice No." := "Corrected Invoice No.";
+        PurchCrMemoHdr."ID Type" := "ID Type";
+        PurchCrMemoHdr."Succeeded Company Name" := "Succeeded Company Name";
+        PurchCrMemoHdr."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
         OnRunOnBeforeTestFieldNo(PurchCrMemoHdr, Rec);
         PurchCrMemoHdr.TestField("No.", "No.");
         PurchCrMemoHdr.Modify();
